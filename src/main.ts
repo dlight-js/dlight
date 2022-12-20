@@ -1,66 +1,74 @@
-import { $createEl } from "./func"
-import {State} from './decorator';
+import { $createEl, $listen } from "./func"
+import {State, DecoratorMaker, DecoratorTrimmer} from './decorator';
+import { DLBase } from "./DLBase";
+import { view } from "./parser"
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <div id="root"/>
 `
 export {}
 
-
-class My {
+class TestElement extends DLBase {
   @State okk: any = 1
-  deps: any = {}
+  el: any
 
-  $listen(el: HTMLElement, propKey: string, deps: string[], action: ()=>any) {
-    let func: any
-      if (propKey === "innerText") {
-        func = () => el.innerText = action()
-      } else {
-        func = () => el.setAttribute(propKey, action())
-      }
-    func()
-    for (let dep of deps) {
-      if (this.deps[dep] === undefined) this.deps[dep] = []
-      this.deps[dep].push(func)
+  BodyExpected = `
+    div {
+      div("button")
+        .onclick(() => {
+          okk += 1
+        })
+      div(okk)
+        .style(okk > 10 ? 'color: red;' : 'color: blue;')
     }
-  }
+  `
 
+  Body = `
+    const { $createEl, $listen } = arguments[0]
 
-  init() {
-    const v = this.okk
-    this.okk = {
-      value: v,
-      setValue: (v: any) => {
-        (this.okk as any).value = v
-        for (let dep of this.deps['okk'] ?? []) {
-          dep()
-        }
-        console.log('hh')
-      }
-    } as any
-  }
-
-  Body = () => {
-    this.init()
     const el = $createEl('div')
-    // ---- start child
     const el0 = $createEl('div')
     el0.onclick = () => {
-        this.okk.setValue(this.okk.value + 1)
+      this._$okk_state += 1
     }
     el0.innerText = "button"
     el.appendChild(el0)
-    // ---- end child
-    // ---- start child
     const el1 = $createEl('div')
-    this.$listen(el1, "innerText", ["okk"], () => this.okk.value)
-    this.$listen(el1, "style", ["okk"], ()=>this.okk.value > 10 ? 'color: red; width: 50px; height: 50px;' : 'color: blue; width: 50px; height: 50px;')
+    $listen(this, el1, "innerText", ["okk"], () => this._$okk_state)
+    $listen(this, el1, "style", ["okk"], ()=>this._$okk_state > 10 ? 'color: red;' : 'color: blue;')
     el.appendChild(el1)
-    // ---- end child
 
-    return el
+    this.el = el
+  `
+  kk = () => {
+    new Function(this.Body).call(this, {$createEl, $listen})
+    console.log(new Function(this.Body))
   }
 }
 
-let my = new My()
-document.getElementById('root')!.appendChild(my.Body())
+let my = new TestElement()
+my.kk()
+document.getElementById('root')!.appendChild(my.el)
+
+
+
+
+
+const k = view`
+div {
+  div("button"){
+    div("nested2")
+  }
+    .onclick(() => {
+      okk += 1
+    })
+  div(okk)
+    .style(okk > 10 ? 'color: red;' : 'color: blue;')
+}
+.height('100')
+`
+
+
+
+
+
