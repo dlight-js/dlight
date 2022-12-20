@@ -28,34 +28,34 @@ export class DecoratorVerifier {
     }
 }
 
-
-export class DecoratorResolver {
-    static rosolve(propertyKey: string, decoratorTag: string, func: () => any) {
-        return new Promise((resolve, reject) => {
-            if (DecoratorVerifier.verify(propertyKey, decoratorTag)) {
-                func()
-                reject()
-            } else {
-                resolve(propertyKey)
-            }
-          })
-    }
-
-    static state(propertyKey: string, dl: DLBase) {
-        return this.rosolve(propertyKey, "state", () => {
-            const rawKey = DecoratorTrimmer.state(propertyKey);
-            (dl as any)[propertyKey] = {
-                value: (dl as any)[rawKey],
-                setValue: (value: any) => {
-                    (dl as any)[propertyKey].value = value
-                    for (let dep of dl._$deps['okk'] ?? []) {
-                        dep()
-                    }
-                }
-            }
-        })
-    }
-}
+//
+// export class DecoratorResolver {
+//     static rosolve(propertyKey: string, decoratorTag: string, func: () => any) {
+//         return new Promise((resolve, reject) => {
+//             if (DecoratorVerifier.verify(propertyKey, decoratorTag)) {
+//                 func()
+//                 reject()
+//             } else {
+//                 resolve(propertyKey)
+//             }
+//           })
+//     }
+//
+//     static state(propertyKey: string, dl: DLBase) {
+//         return this.rosolve(propertyKey, "state", () => {
+//             const rawKey = DecoratorTrimmer.state(propertyKey);
+//             (dl as any)[propertyKey] = {
+//                 value: (dl as any)[rawKey],
+//                 setValue: (value: any) => {
+//                     (dl as any)[propertyKey].value = value
+//                     for (let dep of dl._$deps['okk'] ?? []) {
+//                         dep()
+//                     }
+//                 }
+//             }
+//         })
+//     }
+// }
 
 export const State = (target: any, rawKey: string) => {
     Object.defineProperty(target, DecoratorMaker.state(rawKey), {
