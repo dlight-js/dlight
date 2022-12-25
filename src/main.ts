@@ -10,7 +10,7 @@ export {}
 
 class TestElement extends DLBase {
   @State count: number = 1
-  Body = `
+  Body = view`
     div('ok') {
       button("plus")
         .onclick(() => {
@@ -26,7 +26,7 @@ class TestElement extends DLBase {
         .style(count > 10 ? 'color: red;' : 'color: blue;')
       div {
         span('what')
-      } 
+      }
     }
       .height('100')
   `
@@ -59,7 +59,7 @@ class TestElement extends DLBase {
     el5.innerText = 'what'
     el4.appendChild(el5)
     el0.appendChild(el4)
-    
+
     const el6 = (new AnotherEl()).render()
     el0.appendChild(el6)
     this._$el = el0
@@ -71,5 +71,3 @@ let my = new TestElement()
 
 new Function(my.BodyExpected).call(my, {$createEl, $listen, AnotherEl})
 document.getElementById('root')!.appendChild(my._$el!)
-
-
