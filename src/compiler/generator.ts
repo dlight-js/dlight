@@ -19,7 +19,7 @@ class BodyStringBuilder {
     addProperties(parserEl: ParserEl) {
         let kv = parserEl.kv
         for (let key in kv) {
-            this.add(`this._$addProp(el${parserEl.idx}, "${key}", \`${kv[key]}\`)`)
+            this.add(`$addProp(this, el${parserEl.idx}, "${key}", \`${kv[key]}\`)`)
         }
     }
 }
