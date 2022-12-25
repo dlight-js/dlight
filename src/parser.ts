@@ -1,6 +1,7 @@
 import {$createEl, $listen} from './func';
 import {DLBase} from "./DLBase";
 import {DecoratorMaker} from "./decorator";
+
 class ParserEl {
     tag: string = ""
     currKey: string = ""
@@ -35,7 +36,6 @@ enum ParserCharacter {
     space=" ",
     newLine="\n"
 }
-
 
 
 export function parseDLBody(str: string) {
@@ -191,9 +191,6 @@ class BodyStringBuilder {
         }
     }
 }
-
-
-
 
 
 function resolveSingleParserEl(parserEl: ParserEl, dl: DLBase) {
