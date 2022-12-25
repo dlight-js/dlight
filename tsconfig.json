@@ -16,5 +16,8 @@
     "skipLibCheck": true,
     "experimentalDecorators": true
   },
+  "ts-node": {
+    "esm": true
+  },
   "include": ["src"]
 }

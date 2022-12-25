@@ -1,5 +1,3 @@
-import { DLBase } from "./DLBase"
-
 export class DecoratorMaker {
     static make(rawKey: string, decoratorTag: string) {
         return `_$${rawKey}_${decoratorTag}`
