@@ -1,5 +1,7 @@
 import {State} from './decorator';
 import { DLBase } from "./DLBase";
+import {view} from "./parser";
+
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <div id="root"/>
@@ -8,7 +10,7 @@ export {}
 
 class TestElement extends DLBase {
   @State count: number = 1
-  Body = `
+  Body = view`
     div('ok') {
       button("plus")
         .onclick(() => {
@@ -31,6 +33,7 @@ class TestElement extends DLBase {
 }
 
 let my = new TestElement()
+
 document.getElementById('root')!.appendChild(my.render())
 
 
