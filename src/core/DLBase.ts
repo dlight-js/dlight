@@ -1,28 +1,33 @@
-import {DecoratorTrimmer, DecoratorVerifier} from "./decorator"
-import {$createEl, $listen, $addProp} from "./func"
-
-// @ts-ignore
-const _ = [$createEl, $listen, $addProp]
+import {DecoratorResolver} from "./decorator"
 
 export abstract class DLBase {
     _$deps: any = {}
+    _$derived_deps: any = {}
     _$el?: HTMLElement
-    _$DLBase = true
 
     abstract Body: any
 
     _$init() {
-        for (let propertyKey of Object.getOwnPropertyNames(Object.getPrototypeOf(this))) {
-            if (DecoratorVerifier.state(propertyKey)) {
-                this._$deps[DecoratorTrimmer.state(propertyKey)] = []
-            }
+        const protoKeys = Object.getOwnPropertyNames(Object.getPrototypeOf(this))
+        for (let propertyKey of protoKeys) {
+            DecoratorResolver.state(propertyKey, this)
+                .catch(() => {})
+        }
+        for (let propertyKey of protoKeys) {
+            DecoratorResolver.derived(propertyKey, this)
+                .then(propertyKey => DecoratorResolver.effect(propertyKey, this))
+                .catch(() => {})
         }
     }
 
     render() {
+        if (this._$el !== undefined) return this._$el
         this._$init()
-        eval(this.Body)
-
+        this.Body()
         return this._$el!
     }
+
+    // ---- lifecycles
+    willMount() {}
+    didMount() {}
 }

@@ -1,0 +1,80 @@
+import {DLBase} from "./core/DLBase";
+import {Derived, Effect, State} from "./core/decorator";
+
+// @ts-ignore
+class MyInput extends DLBase {
+    inputText = ""
+    onInput = (e: InputEvent) => {
+        this.inputText = (e.target as any).value
+    }
+    click = () => {
+        console.log(this.inputText)
+    }
+    // @ts-ignore
+    Body = ```
+        div{
+             input()
+                .placeholder('hahahah')
+                .oninput(this.onInput)
+             button("ok")
+                .onclick(this.click)
+        }
+    ```
+}
+
+export class TestElement extends DLBase {
+    @State count = 0
+    @State flag = false
+    apple = [1,2,3]
+    @Derived c2 = this.count * 2
+    @Effect kanCount() {
+        console.log(this.count, "我被触发了")
+    }
+    @Effect kankanFlag() {
+        console.log("flag 改变了", this.flag)
+    }
+    @Effect kankanC2() {
+        console.log("c2666", this.c2)
+    }
+
+    add = () => {
+        console.log('我被加了')
+        this.count += 2
+        if (this.count >= 10) {
+            this.flag = !this.flag
+        }
+    }
+    minus = () => {
+        console.log('我被减了')
+        this.count -= 2
+    }
+
+    // @ts-ignore
+    Body = ```
+        div {
+            button("plus")
+                .onclick(this.add)
+            button("minus")
+                .onclick(this.minus)
+            If(this.c2 >= 0) {
+                div {
+                    div("yes")
+                    If(this.c2 >= 4) {
+                        div("yes2")
+                    }
+                }
+            } ElseIf (this.c2 >= -4) {
+                div ('no')
+            } Else {
+                div('hahaha')
+            }
+            For (let i of this.apple) {
+                button(i)
+            }
+            For (let i of this.apple) {
+                button(i)
+            }
+        }
+            
+    ```
+}

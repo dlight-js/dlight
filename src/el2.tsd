@@ -1,0 +1,19 @@
+import {DLBase} from "./core/DLBase";
+import {State} from "./core/decorator";
+
+export class El3 extends DLBase {
+    @State count = false
+    // @ts-ignore
+    Body = ```
+        div {
+            div("ok")
+            If (this.count === 0) {
+                div("yes")
+            } ElseIf(this.count === 1) {
+                div("no")
+            } Else {
+                div("other")
+            }
+        }
+    ```
+}
