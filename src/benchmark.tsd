@@ -1,0 +1,72 @@
+import {View} from "./core/DLBase";
+import {State} from "./core/decorator";
+
+let idCounter = 1;
+
+const adjectives = ["pretty", "large", "big", "small", "tall", "short", "long", "handsome", "plain", "quaint", "clean", "elegant", "easy", "angry", "crazy", "helpful", "mushy", "odd", "unsightly", "adorable", "important", "inexpensive", "cheap", "expensive", "fancy"],
+    colours = ["red", "yellow", "blue", "green", "pink", "brown", "purple", "brown", "white", "black", "orange"],
+    nouns = ["table", "chair", "house", "bbq", "desk", "car", "pony", "cookie", "sandwich", "burger", "pizza", "mouse", "keyboard"];
+
+function _random (max: number) { return Math.round(Math.random() * 1000) % max; };
+
+function buildData(count: number) {
+    let data = new Array(count);
+    for (let i = 0; i < count; i++) {
+        data[i] = {
+            id: idCounter++,
+            label: `${adjectives[_random(adjectives.length)]} ${colours[_random(colours.length)]} ${nouns[_random(nouns.length)]}`
+        }
+    }
+    return data;
+}
+
+export class Benchmark extends View {
+    @State rows: string[] = []
+    @State selectIdx = -1
+    addRows = () => {
+        this.rows = buildData(1000)
+    }
+    swapRows = () => {
+        if (this.rows.length > 999) {
+            this.rows = [this.rows[0], this.rows[998], ...this.rows.slice(2, 998), this.rows[1], this.rows[999]]
+        }
+    }
+    clearRows = () => {
+        this.rows = []
+    }
+    selectRow = (idx: number) => {
+        this.selectIdx = idx
+        console.log("select", idx)
+    }
+    addBig = () => {
+        this.rows = buildData(10000)
+    }
+    append = () => {
+        this.rows = [...this.rows, ...buildData(1000)]
+    }
+    // @ts-ignore
+    Body = ```
+        div {
+            button("add")
+                .onclick(this.addRows)
+            button("swap")
+                .onclick(this.swapRows)
+            button("clear")
+                .onclick(this.clearRows)
+            button("addBig")
+                .onclick(this.addBig)
+            button("append")
+                .onclick(this.append)
+            table {
+                For (let row of this.rows) {
+                    tr {
+                        td(row.id)
+                        td(row.label)
+                    }
+                        .onclick(() => this.selectRow(row.id))
+                        .classname(this.selectIdx === row.id ? "danger" : "")
+                }
+            }
+        }
+    ```
+}

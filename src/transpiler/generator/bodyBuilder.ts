@@ -1,24 +1,33 @@
 import {ParserEl} from "../parser/parserEl";
 
 function isEl(parserEl: ParserEl) {
-    return !["If"].includes(parserEl.tag)
+    return !["If", "For"].includes(parserEl.tag)
 }
 
-function isCustomEl(parserEl: ParserEl) {
+export function isCustomEl(parserEl: ParserEl) {
     return parserEl.tag[0].toUpperCase() === parserEl.tag[0] && isEl(parserEl)
 }
 
 
-export const newLine = (value: string) => `\t\t${value}\n`
+export function newLine(value: string) {
+    return `\t\t${value}\n`
+}
+
+export function indent(value: string) {
+    return "\t" + value
+}
 
 export class BodyStringBuilder {
     value: string = ""
 
+    indent() {
+        this.value = "\t" + this.value.replaceAll(/\n(?!$)/g, "\n\t")
+        return this
+    }
     elId(parserEl: ParserEl) {
         return '$'+parserEl.id
     }
     add(value: string) {
-        console.log(value)
         this.value += newLine(value)
     }
     addBody(body: BodyStringBuilder) {
@@ -29,9 +38,11 @@ export class BodyStringBuilder {
 
         if (isCustomEl(parserEl)) {
             // ---- 自定义element
-            this.add(`const ce${this.elId(parserEl)} = new ${tag}(${parserEl.kv["_$content"]??""})`)
-            this.add(`const el${this.elId(parserEl)} = ce${this.elId(parserEl)}.render()`)
-            delete parserEl.kv._$content
+            this.add(`const el${this.elId(parserEl)} = new ${tag}()`)
+            for (let {key, value} of parserEl.kv["props"]) {
+                this.add(`_$.addCElProp(this, el${this.elId(parserEl)}, "${key}", () => (${value}))`)
+            }
+            delete parserEl.kv["props"]
             return
         } else {
             // ---- html tag
@@ -40,43 +51,26 @@ export class BodyStringBuilder {
     }
     addProperties(parserEl: ParserEl) {
         const kv = parserEl.kv
+        if (isCustomEl(parserEl)) {
+            for (let k in kv) {
+                this.add(`_$.addCElDotProp(this, el${this.elId(parserEl)}, "${k}", () => (${kv[k]}))`)
+            }
+            return
+        }
         for (let k in kv) {
             // ---- 处理content，htmlTag直接变成innerText
-            const key = k === "_$content" ? "innerText" : k
-            this.add(`_$.addProp(this, el${this.elId(parserEl)}, "${key}", () => ${kv[k]})`)
+            const key = k !== "_$content" ? k: "innerText"
+            this.add(`_$.addElProp(this, el${this.elId(parserEl)}, "${key}", () => (${kv[k]}))`)
         }
+
     }
 
-    childrenWillMount(parserEl: ParserEl) {
-        for (let childEl of parserEl.children) {
-            if (isCustomEl(childEl)) this.add(`ce$${childEl.id}.willMount()`)
-        }
-    }
-    childrenDidMount(parserEl: ParserEl) {
-        for (let childEl of parserEl.children) {
-            if (isCustomEl(childEl)) this.add(`ce$${childEl.id}.didMount()`)
-        }
+    geneChildElArray(parserEl: ParserEl) {
+        return "[" + parserEl.children.map(el=>"el"+this.elId(el)).join(", ") + "]"
     }
 
-    addChildEl(parserEl: ParserEl, conditions: String[], conditionValues: String[]) {
+    addChildEl(parserEl: ParserEl) {
         if (parserEl.children.length === 0) return
-        if (!parserEl.children.map(el=>isEl(el)).includes(true)) return // 全是if之类的
-
-        const childrenElNames = parserEl.children.map(el=>"el"+this.elId(el)).join(", ")
-        if (conditions.length === 0) {
-            this.childrenWillMount(parserEl)
-            this.add(`_$.addChildEls(el${this.elId(parserEl)}, [${childrenElNames}])`)
-            this.childrenDidMount(parserEl)
-        } else {
-            // ---- 有if之类的
-            this.add(`const elChildFunc${this.elId(parserEl)} = () => {`)
-            for (let condition of conditions) {
-                this.value += condition
-            }
-            this.add(`\treturn [${childrenElNames}]`)
-            this.add("}")
-            this.add(`_$.listenChildEls(this, el${this.elId(parserEl)}, [() => ${conditionValues.join(", () => ")}], elChildFunc${this.elId(parserEl)})`)
-        }
-
+        this.add(`_$.addEls(this, el${this.elId(parserEl)}, ${this.geneChildElArray(parserEl)})`)
     }
 }

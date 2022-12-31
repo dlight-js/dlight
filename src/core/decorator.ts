@@ -1,5 +1,5 @@
 import {DLBase} from "./DLBase";
-import {propRegStr} from "./func";
+import {isKeyDep, runDeps} from "./utils";
 
 export class DecoratorMaker {
     static make(rawKey: string, decoratorTag: string) {
@@ -13,6 +13,18 @@ export class DecoratorMaker {
     }
     static effect(rawKey: string) {
         return this.make(rawKey, "effect")
+    }
+    static prop(rawKey: string) {
+        return this.make(rawKey, "prop")
+    }
+    static dotProp(rawKey: string) {
+        return this.make(rawKey, "dotProp")
+    }
+    static derivedFromProp(rawKey: string) {
+        return this.make(rawKey, "derivedFromProp")
+    }
+    static propDerived(rawKey: string) {
+        return this.make(rawKey, "propDerived")
     }
 }
 
@@ -29,32 +41,37 @@ export class DecoratorTrimmer {
     static effect(rawKey: string) {
         return this.trim(rawKey, "effect")
     }
+    static prop(rawKey: string) {
+        return this.trim(rawKey, "prop")
+    }
+    static dotProp(rawKey: string) {
+        return this.trim(rawKey, "dotProp")
+    }
+    static derivedFromProp(rawKey: string) {
+        return this.trim(rawKey, "derivedFromProp")
+    }
+    static propDerived(rawKey: string) {
+        return this.trim(rawKey, "propDerived")
+    }
 }
 
 export class DecoratorVerifier {
     static verify(propertyKey: string, decoratorTag: string) {
-        // TODO will startWith faster?
         return new RegExp(`^_\\$.+?${decoratorTag}$`).test(propertyKey)
-    }
-    static state(propertyKey: string) {
-        return this.verify(propertyKey, "state")
     }
 }
 
 
 export class DecoratorResolver {
-    static rosolve(propertyKey: string, decoratorTag: string, func: () => any): Promise<string> {
-        return new Promise((resolve, reject) => {
-            if (DecoratorVerifier.verify(propertyKey, decoratorTag)) {
-                func()
-                reject()
-            } else {
-                resolve(propertyKey)
-            }
-          })
+    static rosolve(propertyKey: string, decoratorTag: string, func: () => any, callBack?: () => any) {
+        if (DecoratorVerifier.verify(propertyKey, decoratorTag)) {
+            func()
+        } else {
+            !!callBack && callBack()
+        }
     }
 
-    static state(propertyKey: string, dl: DLBase) {
+    static state(propertyKey: string, dl: DLBase, callBack?: () => any) {
         return this.rosolve(propertyKey, "state", () => {
             const rawKey = DecoratorTrimmer.state(propertyKey);
             (dl as any)[propertyKey] = (dl as any)[rawKey];
@@ -65,25 +82,35 @@ export class DecoratorResolver {
                 },
                 set(value: any) {
                     this[propertyKey] = value
-                    for (let dep of this._$deps[rawKey] ?? []) {
-                        dep.call(dl)
-                    }
+                    runDeps(this, rawKey)
                 }
             })
 
-            dl._$deps[rawKey] = []
-        })
+            if (dl._$deps[rawKey] === undefined) dl._$deps[rawKey] = {}
+        }, callBack)
     }
 
-    static derived(propertyKey: string, dl: DLBase) {
+    static derivedFromProp(propertyKey: string, dl: DLBase, callBack?: () => any) {
+        return this.rosolve(propertyKey, "derivedFromProp", () => {
+            const rawKey = DecoratorTrimmer.derivedFromProp(propertyKey);
+            if (dl._$deps[rawKey] === undefined) dl._$deps[rawKey] = {}
+        }, callBack)
+    }
+
+    static derived(propertyKey: string, dl: DLBase, callBack?: () => any) {
         return this.rosolve(propertyKey, "derived", () => {
             const rawKey = DecoratorTrimmer.derived(propertyKey);
             const prop = (dl as any)[rawKey]
             const propStr = prop.toString()
             const derivedDeps = []
             for (let depKey of Object.keys(dl._$deps)) {
-                if (new RegExp(propRegStr(depKey)).test(propStr)) {
+                if (isKeyDep(depKey, propStr)) {
                     derivedDeps.push(depKey)
+                }
+            }
+            for (let derivedDepKey of Object.keys(dl._$derived_deps)) {
+                if (isKeyDep(derivedDepKey, propStr)) {
+                    derivedDeps.push(...dl._$derived_deps[derivedDepKey])
                 }
             }
 
@@ -96,30 +123,71 @@ export class DecoratorResolver {
                 set(value: any) {
                     // ---- 赋值删依赖
                     this[propertyKey] = () => value
+                    delete this._$derived_deps[rawKey]
                 }
             })
-        })
+        }, callBack)
     }
 
-    static effect(propertyKey: string, dl: DLBase) {
+    static effect(propertyKey: string, dl: DLBase, callBack?: () => any) {
         return this.rosolve(propertyKey, "effect", () => {
             const rawKey = DecoratorTrimmer.effect(propertyKey);
             const effectFunc = (dl as any)[rawKey]
             const effectFuncStr = effectFunc.toString()
             for (let depKey in dl._$deps) {
-                if (new RegExp(propRegStr(depKey)).test(effectFuncStr)) {
+                if (isKeyDep(depKey, effectFuncStr)) {
                     dl._$deps[depKey].push(effectFunc)
                 }
             }
 
             for (let derivedDepKey in dl._$derived_deps) {
-                if (new RegExp(propRegStr(derivedDepKey)).test(effectFuncStr)) {
+                if (isKeyDep(derivedDepKey, effectFuncStr)) {
                     for (let depKey of dl._$derived_deps[derivedDepKey]) {
                         dl._$deps[depKey].push(effectFunc)
                     }
                 }
             }
-        })
+        }, callBack)
+    }
+
+    static prop(propertyKey: string, dl: DLBase, callBack?: () => any) {
+        return this.rosolve(propertyKey, "prop", () => {
+            const rawKey = DecoratorTrimmer.prop(propertyKey);
+            if (dl._$props[rawKey] === undefined) {
+                dl._$props[rawKey] = (dl as any)[rawKey]
+            }
+            Object.defineProperty(dl, rawKey, {
+                get() {
+                    return this._$props[rawKey]
+                },
+                set(value: any) {
+                    this._$props[rawKey] = value
+                }
+            })
+        }, callBack)
+    }
+    static dotProp(propertyKey: string, dl: DLBase, callBack?: () => any) {
+        return this.rosolve(propertyKey, "dotProp", () => {
+            const rawKey = DecoratorTrimmer.dotProp(propertyKey);
+            if (dl._$dotProps[rawKey] === undefined) {
+                dl._$dotProps[rawKey] = (dl as any)[rawKey]
+            }
+            Object.defineProperty(dl, rawKey, {
+                get() {
+                    return this._$dotProps[rawKey]
+                },
+                set(value: any) {
+                    this._$dotProps[rawKey] = value
+                }
+            })
+        }, callBack)
+    }
+
+    static propDerived(propertyKey: string, dl: DLBase, callBack?: () => any) {
+        return this.rosolve(propertyKey, "propDerived", () => {
+            const rawKey = DecoratorTrimmer.propDerived(propertyKey);
+            (dl as any)[rawKey] = (dl as any)[rawKey]()
+        }, callBack)
     }
 }
 
@@ -136,7 +204,17 @@ export const Derived = (target: any, rawKey: string) => {
 }
 
 export const Effect = (target: any, rawKey: string) => {
-    Object.defineProperty(target, DecoratorMaker.effect(rawKey), {
-        writable: true
-    })
+    Object.defineProperty(target, DecoratorMaker.effect(rawKey), {})
+}
+
+export const Prop = (target: any, rawKey: string) => {
+    Object.defineProperty(target, DecoratorMaker.prop(rawKey), {})
+}
+
+export const DotProp = (target: any, rawKey: string) => {
+    Object.defineProperty(target, DecoratorMaker.dotProp(rawKey), {})
+}
+
+export const PropDerived = (target: any, rawKey: string) => {
+    Object.defineProperty(target, DecoratorMaker.propDerived(rawKey), {})
 }

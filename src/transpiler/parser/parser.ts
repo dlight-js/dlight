@@ -1,15 +1,17 @@
 import {ParserEl} from "./parserEl";
 
+function isCustomEl(str: string) {
+    return str[0].toUpperCase() === str[0]
+}
+
 export class DlightParser {
     code: string
     token = ""
     c = ""
     idx = -1
-    appendix = ''
 
-    constructor(code: string, appendix?: string) {
+    constructor(code: string) {
         this.code = code
-        this.appendix = appendix ? `_${appendix}` : ""
     }
 
     stopCharacters = ["(", ")", "{", "}", " ", "\n"]
@@ -39,7 +41,6 @@ export class DlightParser {
         while (this.ok() && this.look().trim() === "") {
             this.eat()
         }
-        // this.eat()
     }
 
     parserEl = new ParserEl('null', -1, '-1')
@@ -49,9 +50,50 @@ export class DlightParser {
 
     addElChild() {
         while (this.el.depth >= this.depth) this.el = this.el.parent!
-        this.el.addChild(new ParserEl(this.token, this.el.depth + 1, `${this.elId}${this.appendix}`))
+        this.el.addChild(new ParserEl(this.token, this.el.depth + 1, `${this.elId}`))
         this.elId++
         while (this.el.depth < this.depth) this.el = this.el.lastChild!
+        this.erase()
+    }
+
+    addCustomEl() {
+        this.addElChild()
+        this.eatSpace()
+        this.eat()  // eat (
+        this.eatSpace()
+        if (this.look() === "{") {
+            this.el.kv["props"] = []
+            this.eat()  // eat {
+            while (true) {
+                while (this.ok() && !["{", ":", ",", "}"].includes(this.look())) {
+                    this.eat()
+                    this.add()
+                }
+                const nextC = this.look()
+                if (nextC === ":") {
+                    this.el.kv["props"].push({key: this.token.trim(), value: ""})
+                    this.eat()
+                    this.erase()
+                } else if (nextC === ",") {
+                    this.el.kv["props"][this.el.kv["props"].length - 1].value = this.token.trim()
+                    this.eat()
+                    this.erase()
+                } else if (nextC === "{") {
+                    this.eat()
+                    this.add()
+                    this.eatSubBlock()
+                } else if (nextC === "}") {
+                    break
+                }
+            }
+            // ---- 最后没有"，"结尾
+            if (this.token.trim() !== "") {
+                this.el.kv["props"][this.el.kv["props"].length-1].value = this.token.trim()
+            }
+            console.log(this.el.kv["props"])
+            this.eat()  // eat }
+        }
+        this.eat()  // eat )
         this.erase()
     }
 
@@ -60,21 +102,31 @@ export class DlightParser {
         this.erase()
     }
 
-
-    // ---- ("value") 情况
-    eatValue() {
-        // ---- 解决左右小括号
-        let valueDepth = 1
+    eatBrackets(left: string, right: string) {
+        let depth = 1
         while (this.ok()) {
             this.eat()
-            if (this.c === "(") {
-                valueDepth++
-            } else if (this.c === ")") {
-                valueDepth--
-                if (valueDepth === 0) break
+            if (this.c === left) {
+                depth++
+            } else if (this.c === right) {
+                depth--
+                if (depth === 0) break
             }
             this.add()
         }
+    }
+
+    // ---- ("value") 情况
+    eatValue() {
+        this.eatBrackets("(", ")")
+    }
+
+    eatSubBlock() {
+        this.eatBrackets("{", "}")
+    }
+
+    eatKey() {
+        this.eatBrackets("[", "]")
     }
 
     addElValue() {
@@ -98,22 +150,6 @@ export class DlightParser {
         this.erase()
     }
 
-    eatSubBlock() {
-        let depth = 1
-        while (this.ok()) {
-            this.eat()
-            if (this.c === "{") {
-                depth++
-            } else if (this.c === "}") {
-                depth--
-                if (depth === 0) break
-            }
-            this.add()
-        }
-    }
-
-
-
     parse() {
         while (this.ok()) {
             // ---- 只要不碰到stopCharacter，就一直加到token里面
@@ -130,13 +166,18 @@ export class DlightParser {
                     this.resolveFor()
                     continue
                 }
-                if (!this.token.startsWith(".")) {
-                    // ---- 代表是tag 名称
-                    this.addElChild()
-                } else {
+                if (this.token.startsWith(".")) {
                     // ---- 代表是key
                     this.addElKey()
+                    continue
                 }
+                if (isCustomEl(this.token)) {
+                    // ---- 代表是自行
+                    this.addCustomEl()
+                    continue
+                }
+                // ---- 代表是tag 名称
+                this.addElChild()
             }
             // ---- eat掉stopCharacter并做判断
             this.eat()
@@ -151,7 +192,6 @@ export class DlightParser {
                     this.depth--
                 }
             }
-
         }
     }
 
@@ -162,12 +202,11 @@ export class DlightParser {
         this.eat()  // eat {
         this.eatSubBlock()  // eat内部
         // ---- 解析内部
-        const id = `${this.elId}${this.appendix}_${this.el.kv["condition"].length}`
-        const newParser = new DlightParser(this.token, id)
+        const newParser = new DlightParser(this.token)
         newParser.parse()
         this.el.kv["condition"].push({
             condition: condition,
-            parserEl: newParser.parserEl.lastChild!
+            parserEl: newParser.parserEl
         })
         this.erase()
     }
@@ -203,6 +242,7 @@ export class DlightParser {
         }
     }
 
+    // ---- for
      resolveFor() {
         this.addElChild()
         this.eatSpace()
@@ -211,13 +251,20 @@ export class DlightParser {
         const forValue = this.token
         this.erase()
         this.eatSpace()
-        this.eat()  // eat {
+        this.eat() // eat { or [
+         if (this.c === "[") {
+             this.eatKey()
+             this.el.kv["key"] = this.token
+             this.erase()
+             this.eatSpace()
+             this.eat()  // eat {
+        }
         this.eatSubBlock()  // eat内部
         // ---- 解析内部
-        const newParser = new DlightParser(this.token, 'for')
+        const newParser = new DlightParser(this.token)
         newParser.parse()
         this.el.kv["forValue"] = forValue
-        this.el.kv["parserEl"] = newParser.parserEl.lastChild!
+        this.el.kv["parserEl"] = newParser.parserEl
         this.erase()
     }
 

@@ -1,22 +1,31 @@
 import {DecoratorResolver} from "./decorator"
+import {uid} from "./utils";
 
 export abstract class DLBase {
+    _$dlBase = true
+    _$id = uid()
+    _$el?: HTMLElement[]
     _$deps: any = {}
     _$derived_deps: any = {}
-    _$el?: HTMLElement
+    _$props: any = {}
+    _$dotProps: any = {}
 
     abstract Body: any
+
 
     _$init() {
         const protoKeys = Object.getOwnPropertyNames(Object.getPrototypeOf(this))
         for (let propertyKey of protoKeys) {
+            DecoratorResolver.prop(propertyKey, this)
+            DecoratorResolver.dotProp(propertyKey, this)
+            DecoratorResolver.propDerived(propertyKey, this)
             DecoratorResolver.state(propertyKey, this)
-                .catch(() => {})
+            DecoratorResolver.derivedFromProp(propertyKey, this)
         }
         for (let propertyKey of protoKeys) {
-            DecoratorResolver.derived(propertyKey, this)
-                .then(propertyKey => DecoratorResolver.effect(propertyKey, this))
-                .catch(() => {})
+            DecoratorResolver.derived(propertyKey, this, () =>
+            DecoratorResolver.effect(propertyKey, this)
+            )
         }
     }
 
@@ -30,4 +39,10 @@ export abstract class DLBase {
     // ---- lifecycles
     willMount() {}
     didMount() {}
+    willUnmount() {}
+    didUnmount() {}
 }
+
+
+
+export const View = DLBase

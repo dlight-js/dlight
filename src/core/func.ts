@@ -1,95 +1,95 @@
 import {DLBase} from './DLBase';
-
-// ---- 后续可能用支持in browser的recast，https://github.com/benjamn/recast
-//      目前就字符串匹配 this.xxx  ([^\w$]|^)this.xxx([^\w$]|$)
-//      关联 ./decorator.ts  ./func.ts
-export const propRegStr = (key: string) => `([^\\w$]|^)this\\.${key}([^\\w$]|$)`
+import {Indicator} from "./Els/CustomEl";
+import {addDep, addDeps, geneDeps, isFunc, runDeps, uid} from "./utils";
+import {DecoratorMaker} from "./decorator";
+export * from "./Els";
 
 export function createEl(tag: string) {
     return document.createElement(tag)
 }
 
-function geneDeps(dl: DLBase, valueStr: string) {
-    // ---- 依赖监听
-    const listenDeps = []
-
-    // ---- 直接的监听，@State
-    for (let stateKey of Object.keys(dl._$deps)) {
-        if (new RegExp(propRegStr(stateKey)).test(valueStr)) {
-            listenDeps.push(stateKey)
-        }
-    }
-
-    // ---- 派生的监听，@Derived
-    for (let derivedKey of Object.keys(dl._$derived_deps)) {
-        if (new RegExp(propRegStr(derivedKey)).test(valueStr)) {
-            listenDeps.push(...dl._$derived_deps[derivedKey])
-        }
-    }
-    return listenDeps
-}
-
-function isFunc(str: string) {
-    return /(^\(\)\s*?=>)|(function\s*?\(\))/.test(str.trim())
-}
 
 // @ts-ignore
-export function addProp(dl: DLBase, el: HTMLElement, key: string, propFunc: () => any) {
-    const listenDeps = geneDeps(dl, propFunc.toString())
-    const func = () => eval(`el.${key} = propFunc()`)
+export function addElProp(dl: DLBase, el: HTMLElement, key: string, propFunc: () => any) {
+    let func
+    if (key.startsWith("_")) {
+        func = () => el.style[key.slice(1) as any] = propFunc()
+    } else {
+        const strFunc = eval(`() => el.${key} = propFunc.call(dl)`)
+        func = () => strFunc()
+    }
     func()
 
-    if (listenDeps.length === 0 || isFunc(propFunc.toString().slice(5))) {
-        // ---1 没有依赖
-        // ---2 value是function，如onClick之类的，本来就会监听变化，不用管
-    } else {
-        for (let dep of listenDeps) {
-            if (dl._$deps[dep] === undefined) dl._$deps[dep] = []
-            dl._$deps[dep].push(func)
+    const listenDeps = geneDeps(dl, propFunc.toString())
+    if (listenDeps.length !== 0 && !isFunc(propFunc.toString().slice(6))) {
+        // ---1 有依赖
+        // ---2 value不是function，如onClick之类的，不然本来就会监听变化，不用管
+        if (!el.dataset.depId) {
+            el.dataset.depId = uid()
         }
+        addDeps(dl, listenDeps, el.dataset.depId!, func)
     }
 }
 
-export function addChildEls(el: HTMLElement, childEls: HTMLElement[]) {
-    for (let childEl of childEls) {
-        if (childEl === null) continue
-        if (Array.isArray(childEl)) {
-            for (let cEl of childEl) {
-                el.appendChild(cEl)
+export function addCElDotProp(dl: DLBase, cEl: DLBase, key: string, propFunc: () => any) {
+    cEl._$dotProps[key] = propFunc()
+    addCElPropTmp(dl, cEl, key, propFunc)
+}
+export function addCElProp(dl: DLBase, cEl: DLBase, key: string, propFunc: () => any) {
+    cEl._$props[key] = propFunc()
+    addCElPropTmp(dl, cEl, key, propFunc)
+}
+function addCElPropTmp(dl: DLBase, cEl: DLBase, key: string, propFunc: () => any) {
+    const listenDeps = geneDeps(dl, propFunc.toString())
+    const propStr = propFunc.toString().slice(6).trim()
+    if (listenDeps.length !== 0 && !isFunc(propStr)) {
+        for (let dep of listenDeps) {
+            const id = `${cEl._$id}_${key}_${dep}`
+            // ---- 如果是完整match且是state不是derived，比如 {flag: this.flag}
+            //      则把子dl的flag参数当成state
+            if (propStr === `this.${dep}` && Object.keys(dl._$deps).includes(propStr.replaceAll("this.", ""))) {
+                Object.defineProperty(Object.getPrototypeOf(cEl), DecoratorMaker.state(key), {
+                    writable: true
+                })
+                const depFunc = () => (dl as any)[dep] = (cEl as any)[key]
+                cEl._$deps[key] = {[id]: [depFunc]}
+                addDep(dl, dep, id, () => {
+                    // ---- 先取消回掉自己的dep，等改完值了再加上，不然会无限回掉
+                    delete cEl._$deps[key][id];
+                    (cEl as any)[key] = propFunc()
+                    cEl._$deps[key][id] = [depFunc]
+                })
+                return
             }
-            continue
-        }
-        el.appendChild(childEl)
-    }
-}
-
-export function listenChildEls(dl: DLBase, el: HTMLElement, conditions: (()=>any)[], addChildren: () => any) {
-    const listenDeps: string[] = []
-    for (let condition of conditions) {
-        listenDeps.push(...geneDeps(dl, condition.toString()))
-    }
-
-    addChildEls(el, addChildren())
-    if (listenDeps.length !== 0) {
-        for (let dep of listenDeps) {
-            if (dl._$deps[dep] === undefined) dl._$deps[dep] = []
-            dl._$deps[dep].push(() => {
-                el.innerHTML = ""
-                addChildEls(el, addChildren())
+            Object.defineProperty(Object.getPrototypeOf(cEl), DecoratorMaker.derivedFromProp(key), {
+                writable: true
+            })
+            addDep(dl, dep, id, () => {
+                (cEl as any)[key] = propFunc()
+                runDeps(cEl, key)
             })
         }
     }
 }
 
-export function geneConditionDeps(dl: DLBase, conditionValues: string[]) {
-    // ---- 依赖监听
-    const listenDeps = []
-
-    for (let valueStr of conditionValues) {
-        listenDeps.push(...geneDeps(dl, valueStr))
+// ---- 添加child，很重要
+export function addEls(dl: DLBase, el: HTMLElement, childEls: any[]) {
+    // ---- 有children自动忽略innerText
+    el.innerHTML = ""
+    const indicator: Indicator = {index: 0, customEls: []}
+    for (let childEl of childEls) {
+        if (childEl._$customEl) {
+            childEl.mount(dl, el, indicator)
+            indicator.customEls.push(childEl)
+            continue
+        }
+        // ---- 普通el
+        const newChildEl = childEl._$dlBase ? childEl.render() : [childEl]
+        indicator.index += newChildEl.length
+        if (childEl._$dlBase) childEl.didMount()
+        el.append(...newChildEl)
+        if (childEl._$dlBase) childEl.willMount()
     }
 
-    return listenDeps
 }
-
 

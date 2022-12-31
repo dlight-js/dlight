@@ -18,7 +18,7 @@ export default function(): Plugin {
         },
         transform(code, id) {
             if (id.endsWith(".tsd")) {
-                // console.log(transpileDlightTsCode(code))
+                console.log(transpileDLightTsCode(code))
             }
             return id.endsWith(".tsd") ? transpileDLightTsCode(code) : code
         }

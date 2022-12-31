@@ -1,19 +1,66 @@
-import {DLBase} from "./core/DLBase";
-import {State} from "./core/decorator";
+import {View} from "./core/DLBase";
+// @ts-ignore
+import {Derived, Effect, State} from "./core/decorator";
 
-export class El3 extends DLBase {
-    @State count = false
+// @ts-ignore
+class MyInput extends View {
+    @State currIdx = -1
+
     // @ts-ignore
     Body = ```
-        div {
-            div("ok")
-            If (this.count === 0) {
-                div("yes")
-            } ElseIf(this.count === 1) {
-                div("no")
-            } Else {
-                div("other")
+        div("0")
+        div("1")
+    ```
+
+    willMount() {
+        console.log("willMount")
+    }
+    didMount() {
+        console.log("didMount")
+    }
+    willUnmount() {
+        console.log("willUnmount")
+    }
+    didUnmount() {
+        console.log("didUnmount")
+    }
+}
+
+export class TestElement2 extends View {
+    @State flag1 = true
+    @State flag2 = true
+    @State apple = [0,1,2,3]
+
+
+    // @ts-ignore
+    Body = ```
+        button("flag1")
+            .onclick(()=>{
+                this.flag1 = !this.flag1
+            })
+        button("flag2")
+            .onclick(()=>{
+                this.flag2 = !this.flag2
+            })
+            div {
+                span(this.flag1)
+                span("  ")
+                span(this.flag2)
             }
+        If (this.flag1) {
+        div("fuck")
+            If (this.flag2) {
+                div("haha")
+                    
+            } Else {
+                div("jj")
+                div("jiujiu")
+            }
+            
+            div("hh")
+            ._color(this.flag2?"red":"blue")
         }
     ```
 }
+
+
