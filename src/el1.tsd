@@ -68,8 +68,13 @@ export class TestElement extends View {
             })
         div(this.c2)
         div(this.c3)
-        div(this.count)
-        "nono"
+        button("flag")
+            .onclick(() => {
+                this.flag = !this.flag
+            })
+        If (this.flag) {
+            `${this.flag}`
+        }
         For(let i of this.apple) {
             div(i)
             If (this.apple.length > 5) {

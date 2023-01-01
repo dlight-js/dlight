@@ -46,7 +46,7 @@ export class BodyStringBuilder {
             return
         } 
         if (parserEl.tag === "StrNode") {
-            this.add(`const el${this.elId(parserEl)} = \`${parserEl.kv["value"]}\``)
+            this.add(`const el${this.elId(parserEl)} = new _$.TextEl(this, () => \`${parserEl.kv["value"]}\`)`)
             return
         }
         // ---- html tag

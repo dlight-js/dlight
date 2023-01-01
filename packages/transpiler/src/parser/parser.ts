@@ -14,7 +14,7 @@ export class DlightParser {
         this.code = code
     }
 
-    stopCharacters = ["(", ")", "{", "}", " ", "\n"]
+    stopCharacters = ["(", ")", "{", "}", " ", "\n", "'", "\"", "`"]
 
     ok() {
         return this.idx < this.code.length - 1
@@ -102,8 +102,21 @@ export class DlightParser {
     }
 
     addStrNode() {
+        const strSymbol = this.c
+        this.eat()
+        if (this.c !== strSymbol) this.add()
+        while (this.look() !== strSymbol) {
+            this.eat()
+            this.add()
+            if (this.c === "\\") {
+                // ---- 处理escape
+                this.eat()
+                this.add()
+            }
+        }
+        this.eat() // eat "
         this.addElChild()
-        this.el.kv["value"] = this.el.tag.slice(1, this.el.tag.length-1)
+        this.el.kv["value"] = this.el.tag
         this.el.tag = "StrNode"
     }
 
@@ -177,13 +190,6 @@ export class DlightParser {
                     this.addElKey()
                     continue
                 }
-                if (this.token.startsWith("\"") || 
-                    this.token.startsWith("'") || 
-                    this.token.startsWith("`")) {
-                    // ---- 代表纯字符串node
-                    this.addStrNode()
-                    continue
-                }
                 if (isCustomEl(this.token)) {
                     // ---- 代表是自定义component
                     this.addCustomEl()
@@ -203,6 +209,9 @@ export class DlightParser {
                     this.depth++
                 } else if (this.c === "}") {
                     this.depth--
+                } else if (["\"", "'", "`"].includes(this.c)) {
+                    // ---- 代表纯字符串node
+                    this.addStrNode()
                 }
             }
         }

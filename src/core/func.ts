@@ -87,6 +87,11 @@ export function addEls(dl: DLBase, el: HTMLElement, childEls: any[]) {
             indicator.customEls.push(childEl)
             continue
         }
+        if (childEl._$textEl) {
+            indicator.index ++
+            el.append(childEl.el)
+            continue
+        }
         // ---- 普通el
         const newChildEl = childEl._$dlBase ? childEl.render() : [childEl]
         indicator.index += newChildEl.length

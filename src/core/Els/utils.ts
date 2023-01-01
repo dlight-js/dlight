@@ -13,6 +13,11 @@ export function removeEls(els: any[], dl: DLBase) {
             removeEls(el.els, dl)
             continue
         }
+        if (el._$textEl) {
+            deleteDeps(dl, el.id)
+            el.el.remove()
+            continue
+        }
         const innerEls = el._$dlBase ? el.render() : [el]
         if (el._$dlBase) el.willUnmount()
         for (let innerEl of innerEls) {
@@ -24,7 +29,7 @@ export function removeEls(els: any[], dl: DLBase) {
 }
 
 function removeElDeps(el: HTMLElement, dl: DLBase) {
-    if (el.dataset.depId) deleteDeps(dl, el.dataset.depId)
+    if (el.dataset && el.dataset.depId) deleteDeps(dl, el.dataset.depId)
     for (let childEl of Array.from(el.childNodes)) {
         removeElDeps(childEl as HTMLElement, dl)
     }
@@ -41,6 +46,16 @@ export function appendEls(els: any[], index: number, parentEl: HTMLElement, leng
         }
         if (el._$customEl) {
             [index, length] = appendEls(el.els, index, parentEl, length)
+            continue
+        }
+        if (el._$textEl) {
+            if (index === length) {
+                parentEl!.appendChild(el.el)
+            } else {
+                parentEl!.insertBefore(el.el, parentEl!.childNodes[index])
+            }
+            index ++
+            length ++
             continue
         }
         const innerEls = el._$dlBase ? el.render() : [el]
@@ -137,6 +152,7 @@ export function flatElArray(el: any): HTMLElement[] {
         return els
     }
     if (el._$customEl) return flatElArray(el.els)
+    if (el._$textEl) return el.el
     return el._$dlBase ? el.render() : [el]
 }
 
