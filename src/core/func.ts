@@ -12,21 +12,25 @@ export function createEl(tag: string) {
 // @ts-ignore
 export function addElProp(dl: DLBase, el: HTMLElement, key: string, propFunc: () => any) {
     let func
-    if (key.startsWith("_")) {
+
+    if (key[0] === "_") {
         func = () => el.style[key.slice(1) as any] = propFunc()
+    } else if (key === "innerText") {
+        func = () => el.innerText = propFunc()
     } else {
-        const strFunc = eval(`() => el.${key} = propFunc.call(dl)`)
-        func = () => strFunc()
+        func = () => (el as any)[key] = propFunc()
     }
     func()
 
-    const listenDeps = geneDeps(dl, propFunc.toString())
-    if (listenDeps.length !== 0 && !isFunc(propFunc.toString().slice(6))) {
+    // ---t 1000个耗时10ms左右
+    const propStr =  propFunc.toString()
+    const listenDeps = geneDeps(dl, propStr)
+
+    // ---t 1000个耗时5ms左右
+    if (listenDeps.length !== 0 && !isFunc(propStr.slice(6))) {
         // ---1 有依赖
         // ---2 value不是function，如onClick之类的，不然本来就会监听变化，不用管
-        if (!el.dataset.depId) {
-            el.dataset.depId = uid()
-        }
+        if (!el.dataset.depId)  el.dataset.depId = uid()
         addDeps(dl, listenDeps, el.dataset.depId!, func)
     }
 }

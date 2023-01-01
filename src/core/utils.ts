@@ -24,28 +24,47 @@ export function deleteDeps(dl: DLBase, id: string) {
 export function isKeyDep(key: string, valueStr: string) {
     // ---- 后续可能用支持in browser的recast，https://github.com/benjamn/recast
     //      目前就字符串匹配 this.xxx  ([^\w$]|^)this.xxx([^\w$]|$)
-    //      关联 ./decorator.ts && genDeps()
+    //      关联 ./decorator.ts
     return new RegExp(`([^\\w$]|^)this\\.${key}([^\\w$]|$)`).test(valueStr)
 }
 
+const depReg = /(?:[^\w$]|^)this\.(\w+)(?:[^\w$]|$)/g
+
+// ---t 1000个比下面的快8ms
 export function geneDeps(dl: DLBase, valueStr: string) {
     // ---- 依赖监听
     const listenDeps = []
+    const depKeys = Object.keys(dl._$deps)
+    const derivedKeys = Object.keys(dl._$derived_deps)
 
-    // ---- 直接的监听，@State
-    for (let stateKey of Object.keys(dl._$deps)) {
-        if (isKeyDep(stateKey, valueStr)) {
-            listenDeps.push(stateKey)
-        }
+    const matches = valueStr.matchAll(depReg)
+
+    for (const match of matches) {
+        const depName = match[1]
+        if (depKeys.includes(depName) || derivedKeys.includes(depName)) listenDeps.push(depName)
     }
-    // ---- 派生的监听，@Derived
-    for (let derivedKey of Object.keys(dl._$derived_deps)) {
-        if (isKeyDep(derivedKey, valueStr)) {
-            listenDeps.push(...dl._$derived_deps[derivedKey])
-        }
-    }
+
     return listenDeps
 }
+// export function geneDeps(dl: DLBase, valueStr: string) {
+//     // ---- 依赖监听
+//     const listenDeps = []
+//
+//     // ---- 直接的监听，@State
+//     for (let stateKey of Object.keys(dl._$deps)) {
+//         if (isKeyDep(stateKey, valueStr)) {
+//             listenDeps.push(stateKey)
+//         }
+//     }
+//     // ---- 派生的监听，@Derived
+//     for (let derivedKey of Object.keys(dl._$derived_deps)) {
+//         if (isKeyDep(derivedKey, valueStr)) {
+//             listenDeps.push(...dl._$derived_deps[derivedKey])
+//         }
+//     }
+//     return listenDeps
+// }
+
 
 export function isFunc(str: string) {
     return /(^\(\)\s*?=>)|(function\s*?\(\))/.test(str.trim())
@@ -56,22 +75,14 @@ export function render(id: string, dl: DLBase) {
     addEls(dl, el, dl.render())
 }
 
+// ---- 比下面生成uuid省很多时间（1000个省3ms），但是有可能重复（36^13=1.6^20的概率)，trade off了
 export function uid() {
-    let d = new Date().getTime();  //Timestamp
-    let d2 = ((typeof performance !== 'undefined') && performance.now && (performance.now()*1000)) || 0;
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-        let r = Math.random() * 16;  //random number between 0 and 16
-        if (d > 0) {  //Use timestamp until depleted
-            r = (d + r) % 16 | 0;
-            d = Math.floor(d / 16);
-        } else {  //Use microseconds since page-load if supported
-            r = (d2 + r) % 16 | 0;
-            d2 = Math.floor(d2 / 16);
-        }
-
-        return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-    })
+    return Math.random().toString(20).slice(2)
 }
+
+// export function uid() {
+//     return uuid.v4()
+// }
 
 export function runDeps(dl: DLBase, depName: string) {
     for (let id in dl._$deps[depName] ?? []) {

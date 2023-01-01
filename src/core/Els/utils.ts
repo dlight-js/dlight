@@ -1,9 +1,6 @@
-// ---- geneIndex
 import {DLBase} from "../DLBase";
 import {Indicator} from "./CustomEl";
 import {deleteDeps} from "../utils";
-
-
 
 // ---- removeEls
 export function removeEls(els: any[], dl: DLBase) {
@@ -19,45 +16,51 @@ export function removeEls(els: any[], dl: DLBase) {
         const innerEls = el._$dlBase ? el.render() : [el]
         if (el._$dlBase) el.willUnmount()
         for (let innerEl of innerEls) {
-            const id = innerEl.dataset.depId
-            if (id) {
-                console.log(dl._$deps)
-                deleteDeps(dl, id)
-                console.log(dl._$deps)
-            }
+            removeElDeps(innerEl, dl)
             innerEl.remove()
         }
         if (el._$dlBase) el.didUnmount()
     }
 }
 
+function removeElDeps(el: HTMLElement, dl: DLBase) {
+    if (el.dataset.depId) deleteDeps(dl, el.dataset.depId)
+    for (let childEl of Array.from(el.children)) {
+        removeElDeps(childEl as HTMLElement, dl)
+    }
+}
+
 
 
 // ---- appendEls
-export function appendEls(els: any[], index: number, parentEl: HTMLElement) {
+export function appendEls(els: any[], index: number, parentEl: HTMLElement, length: number): [number, number] {
     for (let el of els) {
         if (Array.isArray(el)) {
-            index = appendEls(el, index, parentEl)
+            [index, length] = appendEls(el, index, parentEl, length)
             continue
         }
         if (el._$customEl) {
-            index = appendEls(el.els, index, parentEl)
+            [index, length] = appendEls(el.els, index, parentEl, length)
             continue
         }
         const innerEls = el._$dlBase ? el.render() : [el]
         if (el._$dlBase) el.willMount()
         for (let innerEl of innerEls) {
-            if (index === parentEl!.childNodes.length) {
+            if (index === length) {
                 parentEl!.appendChild(innerEl)
-                index ++
-            } else if (index < parentEl!.childNodes.length) {
-                parentEl!.insertBefore(innerEl, parentEl!.childNodes[index])
-                index ++
+            } else {
+                let t1,t2
+                t1 = performance.now()
+                parentEl!.insertBefore(innerEl, parentEl!.children[index])
+                t2 = performance.now()
+                tjj.value += t2-t1
             }
+            index ++
+            length ++
         }
         if (el._$dlBase) el.didMount()
     }
-    return index
+    return [index, length]
 }
 
 // ---- delete deps

@@ -5,7 +5,7 @@ import {Benchmark} from "./benchmark.tsd";
 import * as _ from "lodash"
 // @ts-ignore
 import {TestElement2} from "./el2.tsd";
-import {render} from "./core/utils";
+import {render, uid} from "./core/utils";
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <div id="root"/>
@@ -21,18 +21,17 @@ export {}
 // document.getElementById('root')!.append(...body)
 
 
-// render("root", new Benchmark())
+render("root", new Benchmark())
 // render("root", new TestElement2())
-render("root", new TestElement())
+// render("root", new TestElement())
 
+// let t1,t2
+//
+// t1 = performance.now()
+// for (let i of [...Array(10000).keys()]) {
+//     let a = Math.random().toString(20).slice(2)
+// }
+// t2 = performance.now()
+// console.log(t2-t1)
 
-function hh(defaultValue: string) {
-    return function (target: any, rawKey: string) {
-        Object.defineProperty(target, rawKey, {
-            get() {
-                return this.okk ?? defaultValue
-            }
-        })
-    }
-}
 

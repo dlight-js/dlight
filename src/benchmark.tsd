@@ -21,7 +21,7 @@ function buildData(count: number) {
 }
 
 export class Benchmark extends View {
-    @State rows: string[] = []
+    @State rows: any[] = []
     @State selectIdx = -1
     addRows = () => {
         this.rows = buildData(1000)
@@ -36,7 +36,6 @@ export class Benchmark extends View {
     }
     selectRow = (idx: number) => {
         this.selectIdx = idx
-        console.log("select", idx)
     }
     addBig = () => {
         this.rows = buildData(10000)
@@ -44,24 +43,53 @@ export class Benchmark extends View {
     append = () => {
         this.rows = [...this.rows, ...buildData(1000)]
     }
+    update = () => {
+        for (let i=0;i<this.rows.length;i+=10) {
+            this.rows[i] = {
+                label: this.rows[i].label + " !!!",
+                id: this.rows[i].id
+            }
+        }
+        this.rows = [...this.rows]
+    }
+
+
     // @ts-ignore
     Body = ```
+        h1('DLightJS-"keyed"')
         div {
-            button("add")
+            button("Create 1,000 rows")
                 .onclick(this.addRows)
-            button("swap")
-                .onclick(this.swapRows)
-            button("clear")
-                .onclick(this.clearRows)
-            button("addBig")
+        }
+        div {
+            button("Create 10,000 rows")
                 .onclick(this.addBig)
-            button("append")
+        }
+        div {
+            button("Append 1,000 rows")
                 .onclick(this.append)
+        }
+        div {
+            button("Update every 10th rows")
+                .onclick(this.update)
+        }
+        div {
+            button("Clear")
+                .onclick(this.clearRows)
+        }
+        div {
+            button("Swap Rows")
+                .onclick(this.swapRows)
+        }
+
+        div {
             table {
                 For (let row of this.rows) {
                     tr {
                         td(row.id)
                         td(row.label)
+                        td("")
+                        td("")
                     }
                         .onclick(() => this.selectRow(row.id))
                         .classname(this.selectIdx === row.id ? "danger" : "")

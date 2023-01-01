@@ -70,6 +70,8 @@ export class TestElement extends View {
         div(this.count)
         MyInput({ a: "fuck"})
             .ok(this.count)
+        MyInput({ a: "fuck"})
+            .ok(this.count)
                                 
     ```
 }

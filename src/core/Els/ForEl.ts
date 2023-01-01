@@ -3,6 +3,7 @@ import {CustomEl, Indicator} from "./CustomEl";
 import {flatElArray, newIndicator, parseIndicator} from "./utils";
 import {addDeps, geneDeps} from "../utils";
 
+
 export class ForEl extends CustomEl {
     elFunc: (item: any) => any[]
     keyFunc: () => any[]
@@ -32,12 +33,12 @@ export class ForEl extends CustomEl {
 
 
     update() {
+        // --nt
         const prevKeys = this.keys
         const prevArray = this.array
         const prevAllEls = this.els
-        this.keys = this.keyFunc()
+        this.keys = [...this.keyFunc()]
         this.array = [...this.arrayFunc()]
-
         // ---1 先替换
         const solvedIdx = []
         const solvedPrevIdxes: number[] = []
@@ -54,9 +55,10 @@ export class ForEl extends CustomEl {
             // ---- 添加新的
             const newEls = this.elFunc(this.array[idx])
             this.resolveNestCustomEls(newEls, {index: 0, customEls: []})  // 只是为了生成子els，所以indicator传啥无所谓，下面都会替换
+
             if (firstEl === undefined) {
                 // ---- 前面啥都没有，那就用for的index来append
-                this.appendEls(newEls, parseIndicator(this.indicator))
+                this.appendEls(newEls, parseIndicator(this.indicator), this.parentEl!.children.length)
             } else {
                 // ---- 替换第一个
                 firstEl.replaceWith(...flatElArray(newEls))
@@ -66,9 +68,7 @@ export class ForEl extends CustomEl {
             this.removeEls(prevAllEls[prevIdx])
             // ---- 放回els里面
             this.els[idx] = newEls
-
         }
-
         // ---2 再删除
         for (let prevIdx of [...Array(prevKeys.length).keys()]) {
             if (solvedPrevIdxes.includes(prevIdx)) continue
@@ -77,6 +77,9 @@ export class ForEl extends CustomEl {
         }
         // ---3 再添加
         const indicator = newIndicator(this.indicator)
+        let length = this.parentEl!.children.length  // 每次进去调用的话非常耗时
+        // @ts-ignore
+        let _: any
         for (let idx of [...Array(this.keys.length).keys()]) {
             if (solvedIdx.includes(idx)) {
                 // ---- 这些已经被替换了
@@ -86,11 +89,11 @@ export class ForEl extends CustomEl {
             }
             const newEls = this.elFunc(this.array[idx])
             const index = parseIndicator(indicator)
-            this.resolveNestCustomEls(newEls, indicator)
-            this.appendEls(newEls, index)
+            this.resolveNestCustomEls(newEls, indicator);
+            [_, length] = this.appendEls(newEls, index, length)
+
             this.els[idx] = newEls
         }
-
     }
 
 }
