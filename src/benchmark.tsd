@@ -54,8 +54,7 @@ export class Benchmark extends View {
     }
 
 
-    // @ts-ignore
-    Body = ```
+    Body() {
         h1('DLightJS-"keyed"')
         div {
             button("Create 1,000 rows")
@@ -84,17 +83,17 @@ export class Benchmark extends View {
 
         div {
             table {
-                For (let row of this.rows) {
+                For(let row of this.rows) {
                     tr {
                         td(row.id)
                         td(row.label)
                         td("")
                         td("")
                     }
-                        .onclick(() => this.selectRow(row.id))
-                        .classname(this.selectIdx === row.id ? "danger" : "")
+                    .onclick(() => this.selectRow(row.id))
+                    .classname(this.selectIdx === row.id ? "danger" : "")
                 }
             }
         }
-    ```
+    }
 }

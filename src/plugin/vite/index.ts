@@ -1,5 +1,5 @@
 import { Plugin } from 'vite'
-import {transpileDLightTsCode} from "../../transpiler";
+import {transpileDLightTsCode} from "../transpiler/fileParser";
 
 
 export default function(): Plugin {
@@ -11,16 +11,13 @@ export default function(): Plugin {
                 ...config,
                 esbuild: {
                     ...config.esbuild,
-                    include: /\.(js|ts|tsd)$/,
+                    include: /\.(js|ts|jsd|tsd)$/,
                     loader: 'ts',
                 },
             };
         },
         transform(code, id) {
-            if (id.endsWith(".tsd")) {
-                console.log(transpileDLightTsCode(code))
-            }
-            return id.endsWith(".tsd") ? transpileDLightTsCode(code) : code
+            return (id.endsWith(".tsd") || id.endsWith(".jsd")) ? transpileDLightTsCode(code) : code
         }
     };
 }

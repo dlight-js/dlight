@@ -1,10 +1,9 @@
 import {View} from "./core/DLBase";
-// @ts-ignore
 import {Derived, DotProp, Effect, Prop, PropDerived, State} from "./core/decorator";
+import * as _ from "./core/decorator"
 
-// @ts-ignore
 class MyInput extends View {
-    @DotProp ok = "fuck you"
+    @DotProp ok = 100
 
     @PropDerived
     @State
@@ -19,9 +18,8 @@ class MyInput extends View {
         console.log("didMount")
         console.log(this.plain, this.plainno)
     }
-    // @ts-ignore
-    Body = ```
-        div{
+    Body() {
+        div {
             button("inner")
                 .onclick(() => {
                     this.ok --
@@ -32,7 +30,7 @@ class MyInput extends View {
             .onclick(() => {
                 this.ok ++
             })
-    ```
+    }
 
 
     willMount() {
@@ -59,8 +57,7 @@ export class TestElement extends View {
     @Derived c3 = this.c2 * 2
     c = 4
 
-    // @ts-ignore
-    Body = ```
+    Body() {
         button("outer")
             .onclick(() => {
                 this.count ++
@@ -72,6 +69,5 @@ export class TestElement extends View {
             .ok(this.count)
         MyInput({ a: "fuck"})
             .ok(this.count)
-                                
-    ```
+    }
 }

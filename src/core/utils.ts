@@ -41,10 +41,16 @@ export function geneDeps(dl: DLBase, valueStr: string) {
 
     for (const match of matches) {
         const depName = match[1]
-        if (depKeys.includes(depName) || derivedKeys.includes(depName)) listenDeps.push(depName)
+        if (depKeys.includes(depName)) {
+            listenDeps.push(depName)
+            continue
+        }
+        if (derivedKeys.includes(depName)) {
+            listenDeps.push(...dl._$derived_deps[depName])
+        }
     }
 
-    return listenDeps
+    return [...new Set(listenDeps)]
 }
 // export function geneDeps(dl: DLBase, valueStr: string) {
 //     // ---- 依赖监听

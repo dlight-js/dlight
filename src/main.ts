@@ -13,8 +13,6 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
 export {}
 
 
-render("root", new Benchmark())
+// render("root", new Benchmark())
 // render("root", new TestElement2())
-// render("root", new TestElement())
-
-
+render("root", new TestElement())

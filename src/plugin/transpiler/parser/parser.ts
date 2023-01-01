@@ -90,7 +90,6 @@ export class DlightParser {
             if (this.token.trim() !== "") {
                 this.el.kv["props"][this.el.kv["props"].length-1].value = this.token.trim()
             }
-            console.log(this.el.kv["props"])
             this.eat()  // eat }
         }
         this.eat()  // eat )

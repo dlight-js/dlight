@@ -10,7 +10,7 @@ export abstract class DLBase {
     _$props: any = {}
     _$dotProps: any = {}
 
-    abstract Body: any
+    abstract Body(): any
 
 
     _$init() {
