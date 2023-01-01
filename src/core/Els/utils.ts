@@ -49,11 +49,7 @@ export function appendEls(els: any[], index: number, parentEl: HTMLElement, leng
             if (index === length) {
                 parentEl!.appendChild(innerEl)
             } else {
-                let t1,t2
-                t1 = performance.now()
                 parentEl!.insertBefore(innerEl, parentEl!.children[index])
-                t2 = performance.now()
-                tjj.value += t2-t1
             }
             index ++
             length ++
