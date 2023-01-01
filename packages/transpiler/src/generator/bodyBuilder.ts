@@ -1,7 +1,7 @@
 import {ParserEl} from "../parser/parserEl";
 
 function isEl(parserEl: ParserEl) {
-    return !["If", "For"].includes(parserEl.tag)
+    return !["If", "For", "StrNode"].includes(parserEl.tag)
 }
 
 export function isCustomEl(parserEl: ParserEl) {
@@ -44,10 +44,14 @@ export class BodyStringBuilder {
             }
             delete parserEl.kv["props"]
             return
-        } else {
-            // ---- html tag
-            this.add(`const el${this.elId(parserEl)} = _$.createEl("${tag}")`)
+        } 
+        if (parserEl.tag === "StrNode") {
+            this.add(`const el${this.elId(parserEl)} = \`${parserEl.kv["value"]}\``)
+            return
         }
+        // ---- html tag
+        this.add(`const el${this.elId(parserEl)} = _$.createEl("${tag}")`)
+        
     }
     addProperties(parserEl: ParserEl) {
         const kv = parserEl.kv
@@ -56,11 +60,21 @@ export class BodyStringBuilder {
                 this.add(`_$.addCElDotProp(this, el${this.elId(parserEl)}, "${k}", () => (${kv[k]}))`)
             }
             return
-        }
-        for (let k in kv) {
+        }        
+        if (parserEl.tag === "StrNode") return
+        
+        for (let key in kv) {
             // ---- 处理content，htmlTag直接变成innerText
-            const key = k !== "_$content" ? k: "innerText"
-            this.add(`_$.addElProp(this, el${this.elId(parserEl)}, "${key}", () => (${kv[k]}))`)
+            if (key === "_$content") {
+                this.add(`_$.addElProp(this, el${this.elId(parserEl)}, "innerText", () => (${kv[key]}))`)
+                continue
+            }
+            if (key === "element") {
+                this.add(`${kv[key]} = el${this.elId(parserEl)}`)
+                continue
+            }
+            this.add(`_$.addElProp(this, el${this.elId(parserEl)}, "${key}", () => (${kv[key]}))`)
+
         }
 
     }

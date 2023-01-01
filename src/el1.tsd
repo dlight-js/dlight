@@ -13,10 +13,11 @@ class MyInput extends View {
     plainno = this.ok
 
     @Prop a
+    b: any
 
     didMount() {
         console.log("didMount")
-        console.log(this.plain, this.plainno)
+        console.log(this.b)
     }
     Body() {
         div {
@@ -30,6 +31,8 @@ class MyInput extends View {
             .onclick(() => {
                 this.ok ++
             })
+            .element(this.b)
+
     }
 
 
@@ -61,10 +64,22 @@ export class TestElement extends View {
         button("outer")
             .onclick(() => {
                 this.count ++
+                this.apple = [...this.apple, this.apple.length]
             })
         div(this.c2)
         div(this.c3)
         div(this.count)
+        "nono"
+        For(let i of this.apple) {
+            div(i)
+            If (this.apple.length > 5) {
+                div("fuck ni")
+            }
+            For(let i of this.apple) {
+                div(i)
+            }
+        }
+        "no"
         MyInput({ a: "fuck"})
             .ok(this.count)
         MyInput({ a: "fuck"})

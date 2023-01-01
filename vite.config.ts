@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite'
 import path from 'path';
-import dlight from "./src/plugin/vite/index"
+import dlight from "./packages/transpiler/plugin/vite"
 
 export default defineConfig({
     resolve: {

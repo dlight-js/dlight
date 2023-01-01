@@ -25,7 +25,7 @@ export function removeEls(els: any[], dl: DLBase) {
 
 function removeElDeps(el: HTMLElement, dl: DLBase) {
     if (el.dataset.depId) deleteDeps(dl, el.dataset.depId)
-    for (let childEl of Array.from(el.children)) {
+    for (let childEl of Array.from(el.childNodes)) {
         removeElDeps(childEl as HTMLElement, dl)
     }
 }
@@ -49,7 +49,7 @@ export function appendEls(els: any[], index: number, parentEl: HTMLElement, leng
             if (index === length) {
                 parentEl!.appendChild(innerEl)
             } else {
-                parentEl!.insertBefore(innerEl, parentEl!.children[index])
+                parentEl!.insertBefore(innerEl, parentEl!.childNodes[index])
             }
             index ++
             length ++

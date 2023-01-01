@@ -78,7 +78,7 @@ function addCElPropTmp(dl: DLBase, cEl: DLBase, key: string, propFunc: () => any
 
 // ---- 添加child，很重要
 export function addEls(dl: DLBase, el: HTMLElement, childEls: any[]) {
-    // ---- 有children自动忽略innerText
+    // ---- 有childNodes自动忽略innerText
     el.innerHTML = ""
     const indicator: Indicator = {index: 0, customEls: []}
     for (let childEl of childEls) {

@@ -40,7 +40,7 @@ export abstract class CustomEl {
     }
     mount(dl: DLBase, parentEl: HTMLElement, indicator: Indicator) {
         this.init(dl, parentEl, indicator)
-        this.appendEls(this.els, parseIndicator(this.indicator), this.parentEl!.children.length)
+        this.appendEls(this.els, parseIndicator(this.indicator), this.parentEl!.childNodes.length)
     }
 
     resolveNestCustomEls(els: any[], indicator: Indicator) {

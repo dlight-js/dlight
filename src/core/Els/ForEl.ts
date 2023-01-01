@@ -58,7 +58,7 @@ export class ForEl extends CustomEl {
 
             if (firstEl === undefined) {
                 // ---- 前面啥都没有，那就用for的index来append
-                this.appendEls(newEls, parseIndicator(this.indicator), this.parentEl!.children.length)
+                this.appendEls(newEls, parseIndicator(this.indicator), this.parentEl!.childNodes.length)
             } else {
                 // ---- 替换第一个
                 firstEl.replaceWith(...flatElArray(newEls))
@@ -77,7 +77,7 @@ export class ForEl extends CustomEl {
         }
         // ---3 再添加
         const indicator = newIndicator(this.indicator)
-        let length = this.parentEl!.children.length  // 每次进去调用的话非常耗时
+        let length = this.parentEl!.childNodes.length  // 每次进去调用的话非常耗时
         // @ts-ignore
         let _: any
         for (let idx of [...Array(this.keys.length).keys()]) {

@@ -101,6 +101,13 @@ export class DlightParser {
         this.erase()
     }
 
+    addStrNode() {
+        this.addElChild()
+        this.el.kv["value"] = this.el.tag.slice(1, this.el.tag.length-1)
+        this.el.tag = "StrNode"
+    }
+
+
     eatBrackets(left: string, right: string) {
         let depth = 1
         while (this.ok()) {
@@ -170,8 +177,15 @@ export class DlightParser {
                     this.addElKey()
                     continue
                 }
+                if (this.token.startsWith("\"") || 
+                    this.token.startsWith("'") || 
+                    this.token.startsWith("`")) {
+                    // ---- 代表纯字符串node
+                    this.addStrNode()
+                    continue
+                }
                 if (isCustomEl(this.token)) {
-                    // ---- 代表是自行
+                    // ---- 代表是自定义component
                     this.addCustomEl()
                     continue
                 }

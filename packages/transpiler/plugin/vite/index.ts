@@ -1,5 +1,5 @@
 import { Plugin } from 'vite'
-import {transpileDLightTsCode} from "../transpiler/fileParser";
+import {transpileDLightTsCode} from "../../src/fileParser";
 
 
 export default function(): Plugin {

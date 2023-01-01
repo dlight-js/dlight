@@ -79,6 +79,6 @@ export class IfEl extends CustomEl {
         this.removeEls(this.els)
         this.els = els
         this.resolveNestCustomEls(this.els, newIndicator(this.indicator))
-        this.appendEls(this.els, parseIndicator(this.indicator), this.parentEl!.children.length)
+        this.appendEls(this.els, parseIndicator(this.indicator), this.parentEl!.childNodes.length)
     }
 }
