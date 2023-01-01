@@ -10,12 +10,8 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <div id="root"/>
 `
 export {}
-
-let a=document.createTextNode("hhh")
-a.nodeValue = "jj"
-console.log(a.data)
-// render("root", new Benchmark())
+render("root", new Benchmark())
 // render("root", new TestElement2())
-render("root", new TestElement())
+// render("root", new TestElement())
 
 

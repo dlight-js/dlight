@@ -50,7 +50,7 @@ export class BodyStringBuilder {
             return
         }
         // ---- html tag
-        this.add(`const el${this.elId(parserEl)} = _$.createEl("${tag}")`)
+        this.add(`const el${this.elId(parserEl)} = new _$.HTMLEl("${tag}")`)
         
     }
     addProperties(parserEl: ParserEl) {

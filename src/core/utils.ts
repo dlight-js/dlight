@@ -1,5 +1,5 @@
 import {DLBase} from "./DLBase";
-import {addEls} from "./func";
+import {addEls, HTMLEl} from "./func";
 
 export function addDep(dl: DLBase, dep: string, id: string, func: ()=>any) {
     if (dl._$deps[dep] === undefined) dl._$deps[dep] = []
@@ -77,7 +77,8 @@ export function isFunc(str: string) {
 }
 
 export function render(id: string, dl: DLBase) {
-    const el = document.getElementById(id)!
+    const el = new HTMLEl("div")
+    el.el = document.getElementById(id)!
     addEls(dl, el, dl.render())
 }
 

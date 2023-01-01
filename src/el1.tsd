@@ -76,13 +76,7 @@ export class TestElement extends View {
             `${this.flag}`
         }
         For(let i of this.apple) {
-            div(i)
-            If (this.apple.length > 5) {
-                div("fuck ni")
-            }
-            For(let i of this.apple) {
-                div(i)
-            }
+            `${i}`
         }
         "no"
         MyInput({ a: "fuck"})

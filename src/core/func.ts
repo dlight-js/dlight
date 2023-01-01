@@ -1,24 +1,19 @@
 import {DLBase} from './DLBase';
 import {Indicator} from "./Els/CustomEl";
-import {addDep, addDeps, geneDeps, isFunc, runDeps, uid} from "./utils";
+import {addDep, addDeps, geneDeps, isFunc, runDeps} from "./utils";
 import {DecoratorMaker} from "./decorator";
 export * from "./Els";
 
-export function createEl(tag: string) {
-    return document.createElement(tag)
-}
 
-
-// @ts-ignore
-export function addElProp(dl: DLBase, el: HTMLElement, key: string, propFunc: () => any) {
+export function addElProp(dl: DLBase, el: any, key: string, propFunc: () => any) {
     let func
 
     if (key[0] === "_") {
-        func = () => el.style[key.slice(1) as any] = propFunc()
+        func = () => el.el.style[key.slice(1) as any] = propFunc()
     } else if (key === "innerText") {
-        func = () => el.innerText = propFunc()
+        func = () => el.el.innerText = propFunc()
     } else {
-        func = () => (el as any)[key] = propFunc()
+        func = () => (el.el as any)[key] = propFunc()
     }
     func()
 
@@ -30,8 +25,7 @@ export function addElProp(dl: DLBase, el: HTMLElement, key: string, propFunc: ()
     if (listenDeps.length !== 0 && !isFunc(propStr.slice(6))) {
         // ---1 有依赖
         // ---2 value不是function，如onClick之类的，不然本来就会监听变化，不用管
-        if (!el.dataset.depId)  el.dataset.depId = uid()
-        addDeps(dl, listenDeps, el.dataset.depId!, func)
+        addDeps(dl, listenDeps, el.id, func)
     }
 }
 
@@ -76,29 +70,31 @@ function addCElPropTmp(dl: DLBase, cEl: DLBase, key: string, propFunc: () => any
     }
 }
 
+
+
 // ---- 添加child，很重要
-export function addEls(dl: DLBase, el: HTMLElement, childEls: any[]) {
+export function addEls(dl: DLBase, el: any, childEls: any[], keepInnerHTML=false) {
     // ---- 有childNodes自动忽略innerText
-    el.innerHTML = ""
+    if (!keepInnerHTML) el.el.innerHTML = ""
     const indicator: Indicator = {index: 0, customEls: []}
     for (let childEl of childEls) {
+        el.els.push(childEl)
         if (childEl._$customEl) {
-            childEl.mount(dl, el, indicator)
+            childEl.mount(dl, el.el, indicator)
             indicator.customEls.push(childEl)
             continue
         }
-        if (childEl._$textEl) {
+        if (childEl._$plainEl) {
             indicator.index ++
-            el.append(childEl.el)
+            el.el.append(childEl.el)
             continue
         }
-        // ---- 普通el
-        const newChildEl = childEl._$dlBase ? childEl.render() : [childEl]
-        indicator.index += newChildEl.length
-        if (childEl._$dlBase) childEl.didMount()
-        el.append(...newChildEl)
-        if (childEl._$dlBase) childEl.willMount()
+        // ---- custom el
+        const e = childEl.render()
+        childEl.didMount()
+        indicator.index += addEls(dl, el, e, true)
+        childEl.willMount()
     }
-
+    return indicator.index
 }
 

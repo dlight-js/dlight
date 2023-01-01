@@ -42,6 +42,7 @@ export class ForEl extends CustomEl {
         // ---1 先替换
         const solvedIdx = []
         const solvedPrevIdxes: number[] = []
+
         for (let [idx, key] of this.keys.entries()) {
             const prevIdx = prevKeys.indexOf(key)
             // ---- 如果前面没有这个key，代表是空的，直接继续不替换，下面处理

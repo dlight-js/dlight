@@ -1,6 +1,7 @@
 import {DLBase} from "../DLBase";
 import {Indicator} from "./CustomEl";
 import {deleteDeps} from "../utils";
+import { HTMLEl } from "./HTMLEl";
 
 // ---- removeEls
 export function removeEls(els: any[], dl: DLBase) {
@@ -13,25 +14,26 @@ export function removeEls(els: any[], dl: DLBase) {
             removeEls(el.els, dl)
             continue
         }
-        if (el._$textEl) {
-            deleteDeps(dl, el.id)
+        if (el._$plainEl) {
             el.el.remove()
             continue
         }
-        const innerEls = el._$dlBase ? el.render() : [el]
-        if (el._$dlBase) el.willUnmount()
-        for (let innerEl of innerEls) {
-            removeElDeps(innerEl, dl)
-            innerEl.remove()
-        }
-        if (el._$dlBase) el.didUnmount()
+        el = el.render()
+        el.willUnmount()
+        removeEls(el, dl)
+        el.didUnmount()
     }
 }
 
-function removeElDeps(el: HTMLElement, dl: DLBase) {
-    if (el.dataset && el.dataset.depId) deleteDeps(dl, el.dataset.depId)
-    for (let childEl of Array.from(el.childNodes)) {
-        removeElDeps(childEl as HTMLElement, dl)
+// ---- delete deps
+export function deleteSubDeps(els: any[], dl: DLBase) {
+    for (let el of els) {
+        if (Array.isArray(el)) {
+            deleteSubDeps(el, dl)
+        }
+        deleteDeps(dl, el.id)
+        deleteSubDeps(el.els, dl)
+        if (el.els) deleteSubDeps(el.els, dl)
     }
 }
 
@@ -48,7 +50,7 @@ export function appendEls(els: any[], index: number, parentEl: HTMLElement, leng
             [index, length] = appendEls(el.els, index, parentEl, length)
             continue
         }
-        if (el._$textEl) {
+        if (el._$plainEl) {
             if (index === length) {
                 parentEl!.appendChild(el.el)
             } else {
@@ -58,34 +60,15 @@ export function appendEls(els: any[], index: number, parentEl: HTMLElement, leng
             length ++
             continue
         }
-        const innerEls = el._$dlBase ? el.render() : [el]
-        if (el._$dlBase) el.willMount()
-        for (let innerEl of innerEls) {
-            if (index === length) {
-                parentEl!.appendChild(innerEl)
-            } else {
-                parentEl!.insertBefore(innerEl, parentEl!.childNodes[index])
-            }
-            index ++
-            length ++
-        }
-        if (el._$dlBase) el.didMount()
+        const e = el.render()
+        el.willMount();
+        [index, length] = appendEls(e, index, parentEl, length)
+        el.didMount()
     }
     return [index, length]
 }
 
-// ---- delete deps
-export function deleteSubDeps(els: any[], dl: DLBase) {
-    for (let el of els) {
-        if (Array.isArray(el)) {
-            deleteSubDeps(el, dl)
-        }
-        if (el._$customEl) {
-            deleteDeps(dl, el.id)
-            deleteSubDeps(el.els, dl)
-        }
-    }
-}
+
 
 function resolveNestCustomElsTmp(els: any[], dl: DLBase, parentEl: HTMLElement, indicator: Indicator, funcName: string) {
     for (let el of els) {
@@ -152,8 +135,8 @@ export function flatElArray(el: any): HTMLElement[] {
         return els
     }
     if (el._$customEl) return flatElArray(el.els)
-    if (el._$textEl) return el.el
-    return el._$dlBase ? el.render() : [el]
+    if (el._$plainEl) return [el.el]
+    return flatElArray(el.render())
 }
 
 
