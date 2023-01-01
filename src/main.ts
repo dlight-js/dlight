@@ -2,7 +2,6 @@
 import {TestElement} from "./el1.tsd";
 // @ts-ignore
 import {Benchmark} from "./benchmark.tsd";
-import * as _ from "lodash"
 // @ts-ignore
 import {TestElement2} from "./el2.tsd";
 import {render} from "./core/utils";
