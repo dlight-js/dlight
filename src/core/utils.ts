@@ -76,9 +76,9 @@ export function isFunc(str: string) {
     return /(^\(\)\s*?=>)|(function\s*?\(\))/.test(str.trim())
 }
 
-export function render(id: string, dl: DLBase) {
+export function render(selectName: string, dl: DLBase) {
     const el = new HTMLEl("div")
-    el.el = document.getElementById(id)!
+    el.el = document.querySelector(selectName)!
     addEls(dl, el, dl.render())
 }
 
