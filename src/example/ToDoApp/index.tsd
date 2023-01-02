@@ -5,7 +5,7 @@ import {TaskAdder} from "./TaskAdder.tsd"
 export class ToDoApp extends View {
   @State tasks: Task[] = []
   @Derived unfinishedNum = this.tasks.filter(t=>!t.finished).length
-  @Effect watchUnfinishedNum = () => {
+  @Effect watchUnfinishedNum() {
     console.log(`[Effect] There remains ${this.unfinishedNum} tasks to do.`)
   }
 
