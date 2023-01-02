@@ -6,6 +6,9 @@ export class TaskCard extends View {
   @DotProp onCheck: (checked: any) => any
   @DotProp deleteTask: () => any
 
+  didMount() {
+    console.log(`[didMount] Loaded task named ${this.task.name}, it is${this.task.finished?"":" not"} finished.`)
+  }
 
   Body() {
     div() {

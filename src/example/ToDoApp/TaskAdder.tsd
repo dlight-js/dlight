@@ -4,7 +4,7 @@ import {Task} from "./Task"
 export class TaskAdder extends View {
   @State inputText = ""
   @Prop tasks: Task[] = []
-  
+  inputEl: HTMLInputElement
 
   Body() {
 
@@ -13,12 +13,14 @@ export class TaskAdder extends View {
       .oninput(e => {
         this.inputText = e.target.value
       })
+      .element(this.inputEl)
     
     button("add")
       .onclick(() => {
         this.tasks = [...this.tasks, {name: this.inputText, finished: false}]
         this.inputText = ""
+        this.inputEl.focus()
       })
-      
+
   }   
 }
