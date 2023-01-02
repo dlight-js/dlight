@@ -70,7 +70,7 @@ export class BodyStringBuilder {
                 continue
             }
             if (key === "element") {
-                this.add(`${kv[key]} = el${this.elId(parserEl)}`)
+                this.add(`${kv[key]} = el${this.elId(parserEl)}.el`)
                 continue
             }
             this.add(`_$.addElProp(this, el${this.elId(parserEl)}, "${key}", () => (${kv[key]}))`)

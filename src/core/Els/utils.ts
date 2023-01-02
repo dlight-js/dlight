@@ -1,7 +1,7 @@
 import {DLBase} from "../DLBase";
 import {Indicator} from "./CustomEl";
 import {deleteDeps} from "../utils";
-import { HTMLEl } from "./HTMLEl";
+
 
 // ---- removeEls
 export function removeEls(els: any[], dl: DLBase) {
