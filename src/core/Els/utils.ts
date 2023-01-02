@@ -70,6 +70,41 @@ export function appendEls(els: any[], index: number, parentEl: HTMLElement, leng
 }
 
 
+export function willMountEls(els: any[]) {
+    for (let el of els) {
+        if (Array.isArray(el)) {
+            willMountEls(el)
+            continue
+        }
+        if (el._$customEl) {
+            willMountEls(el.els)
+            continue
+        }
+        if (el._$plainEl) {
+            continue
+        }
+        el.willMount();
+        willMountEls(el.render())
+    }
+}
+
+export function didMountEls(els: any[]) {
+    for (let el of els) {
+        if (Array.isArray(el)) {
+            didMountEls(el)
+            continue
+        }
+        if (el._$customEl) {
+            didMountEls(el.els)
+            continue
+        }
+        if (el._$plainEl) {
+            continue
+        }
+        el.didMount();
+        didMountEls(el.render())
+    }
+}
 
 function resolveNestCustomElsTmp(els: any[], dl: DLBase, parentEl: HTMLElement, indicator: Indicator, funcName: string) {
     for (let el of els) {

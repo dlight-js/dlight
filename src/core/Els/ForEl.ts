@@ -1,6 +1,6 @@
 import {DLBase} from "../DLBase";
 import {CustomEl, Indicator} from "./CustomEl";
-import {flatElArray, newIndicator, parseIndicator} from "./utils";
+import {flatElArray, newIndicator, parseIndicator, willMountEls, didMountEls} from "./utils";
 import {addDeps, geneDeps} from "../utils";
 
 
@@ -62,7 +62,9 @@ export class ForEl extends CustomEl {
                 this.appendEls(newEls, parseIndicator(this.indicator), this.parentEl!.childNodes.length)
             } else {
                 // ---- 替换第一个
+                willMountEls(newEls)
                 firstEl.replaceWith(...flatElArray(newEls))
+                didMountEls(newEls)
             }
             // ---- 删除旧的
             this.deleteSubDeps(prevAllEls[prevIdx])
