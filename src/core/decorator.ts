@@ -135,7 +135,7 @@ export class DecoratorResolver {
             const effectFunc = (dl as any)[rawKey]
             const effectFuncStr = effectFunc.toString()
             const listenDeps = geneDeps(dl, effectFuncStr)
-            addDeps(dl, listenDeps, dl._$id, () => effectFunc())
+            addDeps(dl, listenDeps, dl._$id, () => effectFunc.call(dl))
         }, callBack)
     }
 
