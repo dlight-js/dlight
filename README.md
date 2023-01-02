@@ -29,7 +29,7 @@
 - [x] dot prop
 - [x] shortcut for style (e.g. div("hello")._height)
 - [x] element map out
-- [x] support pure string as html node
+- [x] support text node
 * plugins
 - [x] vite
 - [ ] vscode language server for auto completion
