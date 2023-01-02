@@ -13,7 +13,7 @@ export class ToDoApp extends View {
     TaskAdder({tasks: this.tasks})
     h2(`Remaining ${this.tasks.filter(t=>!t.finished).length} tasks to do.`)
     For(let task of this.tasks) {
-      TaskCard({task: task})
+      TaskCard({task})
         .deleteTask(() => {
             this.tasks = this.tasks.filter(t=>t !== task)
         }) 
@@ -26,3 +26,4 @@ export class ToDoApp extends View {
     }
   }
 }
+

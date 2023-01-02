@@ -71,11 +71,19 @@ export class DlightParser {
                 }
                 const nextC = this.look()
                 if (nextC === ":") {
-                    this.el.kv["props"].push({key: this.token.trim(), value: ""})
+                    this.el.kv["props"].push({key: this.token.trim(), value: "_$none"})
                     this.eat()
                     this.erase()
                 } else if (nextC === ",") {
-                    this.el.kv["props"][this.el.kv["props"].length - 1].value = this.token.trim()
+                    const value = this.token.trim()
+                    const props = this.el.kv["props"]
+                    const lastProp = props[props.length-1]
+                    if (lastProp?.value === "_$none") {
+                        lastProp.value = value
+                    } else {
+                        // ---- 代表是 {key}的简写情况
+                        this.el.kv["props"].push({key: value, value})
+                    }
                     this.eat()
                     this.erase()
                 } else if (nextC === "{") {
@@ -88,7 +96,15 @@ export class DlightParser {
             }
             // ---- 最后没有"，"结尾
             if (this.token.trim() !== "") {
-                this.el.kv["props"][this.el.kv["props"].length-1].value = this.token.trim()
+                const value = this.token.trim()
+                const props = this.el.kv["props"]
+                const lastProp = props[props.length-1]
+                if (lastProp?.value === "_$none") {
+                    lastProp.value = value
+                } else {
+                    // ---- 代表是 {key}的简写情况
+                    this.el.kv["props"].push({key: value, value: value})
+                }
             }
             this.eat()  // eat }
         }
