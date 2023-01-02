@@ -8,7 +8,7 @@ export * from "./Els";
 export function addElProp(dl: DLBase, el: any, key: string, propFunc: () => any) {
     let func
 
-    if (key[0] === "_") {
+    if (key[0] === "*") {
         func = () => el.el.style[key.slice(1) as any] = propFunc()
     } else if (key === "innerText") {
         func = () => el.el.innerText = propFunc()

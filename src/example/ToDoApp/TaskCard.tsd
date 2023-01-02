@@ -1,0 +1,24 @@
+import {View, Prop, DotProp} from "@/core"
+import {Task} from "./Task"
+
+export class TaskCard extends View {
+  @Prop task: Task
+  @DotProp onCheck: (checked: any) => any
+  @DotProp deleteTask: () => any
+
+
+  Body() {
+    div() {
+      input()
+        .type("checkbox")
+        .checked(this.task.finished)
+        .onchange(e => this.onCheck(e.target.checked))
+
+      span(this.task.name)
+        .*margin("0 5px")
+      button("delete")
+        .onclick(this.deleteTask)
+    }
+      .*padding("5px")
+  }
+}

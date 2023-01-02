@@ -1,0 +1,24 @@
+import {View, State, Prop} from "@/core"
+import {Task} from "./Task"
+
+export class TaskAdder extends View {
+  @State inputText = ""
+  @Prop tasks: Task[] = []
+  
+
+  Body() {
+
+    input()
+      .value(this.inputText)
+      .oninput(e => {
+        this.inputText = e.target.value
+      })
+    
+    button("add")
+      .onclick(() => {
+        this.tasks = [...this.tasks, {name: this.inputText, finished: false}]
+        this.inputText = ""
+      })
+      
+  }   
+}

@@ -1,5 +1,4 @@
-import {View} from "./core/DLBase";
-import {State} from "./core/decorator";
+import {View, State} from "@/core";
 
 let idCounter = 1;
 

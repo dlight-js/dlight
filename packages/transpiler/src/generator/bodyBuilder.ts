@@ -39,7 +39,7 @@ export class BodyStringBuilder {
         if (isCustomEl(parserEl)) {
             // ---- 自定义element
             this.add(`const el${this.elId(parserEl)} = new ${tag}()`)
-            for (let {key, value} of parserEl.kv["props"]) {
+            for (let {key, value} of parserEl.kv["props"]??[]) {
                 this.add(`_$.addCElProp(this, el${this.elId(parserEl)}, "${key}", () => (${value}))`)
             }
             delete parserEl.kv["props"]

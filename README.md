@@ -27,9 +27,10 @@
 - [x] for
 - [x] prop
 - [x] dot prop
-- [x] shortcut for style (e.g. div("hello")._height)
+- [x] shortcut for style (e.g. div("hello").*height)
 - [x] element map out
 - [x] support text node
+- [ ] error hints
 * plugins
 - [x] vite transpiler plugin
 - [ ] vscode language server for auto completion

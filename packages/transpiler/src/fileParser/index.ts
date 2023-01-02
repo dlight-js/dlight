@@ -17,7 +17,7 @@ export function transpileDLightTsCode(code: string) {
     let [alteredCode, flag] = transpileBodyCode(code)
     alteredCode = transpileDerived(alteredCode)
     alteredCode = transpilePropDerived(alteredCode)
-    alteredCode = `import * as _$ from "./core/func";\n` + alteredCode
+    alteredCode = `import * as _$ from "@/core/func";\n` + alteredCode
 
     return flag ? alteredCode: code
 }

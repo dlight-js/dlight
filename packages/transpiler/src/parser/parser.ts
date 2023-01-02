@@ -209,6 +209,7 @@ export class DlightParser {
                     this.depth++
                 } else if (this.c === "}") {
                     this.depth--
+                    this.el = this.el.parent!
                 } else if (["\"", "'", "`"].includes(this.c)) {
                     // ---- 代表纯字符串node
                     this.addStrNode()

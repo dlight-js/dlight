@@ -1,6 +1,4 @@
-import {View} from "./core/DLBase";
-import {Derived, DotProp, Effect, Prop, PropDerived, State} from "./core/decorator";
-import * as _ from "./core/decorator"
+import {View, Derived, DotProp, Effect, Prop, PropDerived, State} from "@/core";
 
 class MyInput extends View {
     @DotProp ok = 100
@@ -66,6 +64,7 @@ export class TestElement extends View {
                 this.count ++
                 this.apple = [...this.apple, this.apple.length]
             })
+
         div(this.c2)
         div(this.c3)
         button("flag")

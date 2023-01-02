@@ -18,15 +18,16 @@ export function removeEls(els: any[], dl: DLBase) {
             el.el.remove()
             continue
         }
-        el = el.render()
+        const e = el.render()
         el.willUnmount()
-        removeEls(el, dl)
+        removeEls(e, dl)
         el.didUnmount()
     }
 }
 
 // ---- delete deps
 export function deleteSubDeps(els: any[], dl: DLBase) {
+    if (!els) return
     for (let el of els) {
         if (Array.isArray(el)) {
             deleteSubDeps(el, dl)
