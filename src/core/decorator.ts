@@ -1,5 +1,5 @@
 import {DLBase} from "./DLBase";
-import {isKeyDep, runDeps} from "./utils";
+import {addDeps, geneDeps, isKeyDep, runDeps} from "./utils";
 
 export class DecoratorMaker {
     static make(rawKey: string, decoratorTag: string) {
@@ -134,19 +134,8 @@ export class DecoratorResolver {
             const rawKey = DecoratorTrimmer.effect(propertyKey);
             const effectFunc = (dl as any)[rawKey]
             const effectFuncStr = effectFunc.toString()
-            for (let depKey in dl._$deps) {
-                if (isKeyDep(depKey, effectFuncStr)) {
-                    dl._$deps[depKey].push(effectFunc)
-                }
-            }
-
-            for (let derivedDepKey in dl._$derived_deps) {
-                if (isKeyDep(derivedDepKey, effectFuncStr)) {
-                    for (let depKey of dl._$derived_deps[derivedDepKey]) {
-                        dl._$deps[depKey].push(effectFunc)
-                    }
-                }
-            }
+            const listenDeps = geneDeps(dl, effectFuncStr)
+            addDeps(dl, listenDeps, dl._$id, () => effectFunc())
         }, callBack)
     }
 
