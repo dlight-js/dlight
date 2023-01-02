@@ -31,5 +31,5 @@
 - [x] element map out
 - [x] support text node
 * plugins
-- [x] vite
+- [x] vite transpiler plugin
 - [ ] vscode language server for auto completion
