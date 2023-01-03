@@ -14,7 +14,6 @@ export function addDeps(dl: DLBase, deps: string[], id: string, func: ()=>any) {
 }
 
 export function deleteDeps(dl: DLBase, id: string) {
-    if (!id) return
     for (let depName in dl._$deps) {
         delete dl._$deps[depName][id]
     }

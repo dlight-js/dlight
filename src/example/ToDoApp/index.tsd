@@ -7,6 +7,7 @@ export class ToDoApp extends View {
   @Derived unfinishedNum = this.tasks.filter(t=>!t.finished).length
   @Effect watchUnfinishedNum() {
     console.log(`[Effect] There remains ${this.unfinishedNum} tasks to do.`)
+    console.log(Object.keys(this._$deps.tasks).length)
   }
 
 

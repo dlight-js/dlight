@@ -5,7 +5,8 @@ import {deleteDeps} from "../utils";
 
 // ---- removeEls
 export function removeEls(els: any[], dl: DLBase) {
-    for (let el of els) {
+    for (let [idx, el] of els.entries()) {
+        // els[idx] = null  // 手动移除引用，不然最外层可能不变
         if (Array.isArray(el)) {
             removeEls(el, dl)
             continue
@@ -25,15 +26,20 @@ export function removeEls(els: any[], dl: DLBase) {
     }
 }
 
+
+
 // ---- delete deps
 export function deleteSubDeps(els: any[], dl: DLBase) {
-    if (!els) return
     for (let el of els) {
         if (Array.isArray(el)) {
             deleteSubDeps(el, dl)
         }
-        deleteDeps(dl, el.id)
-        deleteSubDeps(el.els, dl)
+        if (el._$id) deleteDeps(dl, el._$id)
+        if (el._$depIds) {
+            for (let i of el._$depIds) {
+                deleteDeps(dl, i)
+            }
+        }
         if (el.els) deleteSubDeps(el.els, dl)
     }
 }

@@ -26,7 +26,7 @@ export class ForEl extends CustomEl {
         this.els = this.array.map(item=>this.elFunc(item))
         // ---- add listen deps
         let listenDeps = geneDeps(this.dl!, this.arrayFunc.toString())
-        addDeps(this.dl!, listenDeps, this.id, () => this.update())
+        addDeps(this.dl!, listenDeps, this._$id, () => this.update())
 
         this.resolveNestCustomEls(this.els, newIndicator(this.indicator))
     }
@@ -97,6 +97,8 @@ export class ForEl extends CustomEl {
 
             this.els[idx] = newEls
         }
+
+        this.els = this.els.slice(0, this.keys.length)
     }
 
 }

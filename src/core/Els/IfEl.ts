@@ -39,7 +39,7 @@ export class IfEl extends CustomEl {
         }
         listenDeps = [...new Set(listenDeps)]
         // ---- 依赖更新
-        addDeps(this.dl!, listenDeps, this.id, () => this.update())
+        addDeps(this.dl!, listenDeps, this._$id, () => this.update())
 
         this.resolveNestCustomEls(this.els, newIndicator(this.indicator))
     }

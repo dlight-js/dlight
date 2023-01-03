@@ -18,7 +18,7 @@ export interface Indicator {
 export abstract class CustomEl {
     dl?: DLBase
     parentEl?: HTMLElement
-    id: string = uid()
+    _$id: string = uid()
     els: any
     _$customEl = true
     indicator: Indicator = {

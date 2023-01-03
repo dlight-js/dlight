@@ -5,6 +5,7 @@ export abstract class DLBase {
     _$dlBase = true
     _$id = uid()
     _$el?: HTMLElement[]
+    _$depIds: string[] = []  // 用来存和自己有关的depId
     _$deps: any = {}
     _$derived_deps: any = {}
     _$props: any = {}

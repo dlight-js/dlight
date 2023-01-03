@@ -9,7 +9,7 @@ export class TextEl extends PlainEl {
         super(document.createTextNode(valueFunc()))
         this.valueFunc = valueFunc
         const listenDeps = geneDeps(dl, valueFunc.toString())
-        addDeps(dl, listenDeps, this.id, () => {
+        addDeps(dl, listenDeps, this._$id, () => {
             this.el.nodeValue = valueFunc()
         })
     }

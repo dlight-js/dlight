@@ -25,7 +25,7 @@ export function addElProp(dl: DLBase, el: any, key: string, propFunc: () => any)
     if (listenDeps.length !== 0 && !isFunc(propStr.slice(6))) {
         // ---1 有依赖
         // ---2 value不是function，如onClick之类的，不然本来就会监听变化，不用管
-        addDeps(dl, listenDeps, el.id, func)
+        addDeps(dl, listenDeps, el._$id, func)
     }
 }
 
@@ -43,6 +43,7 @@ function addCElPropTmp(dl: DLBase, cEl: DLBase, key: string, propFunc: () => any
     if (listenDeps.length !== 0 && !isFunc(propStr)) {
         for (let dep of listenDeps) {
             const id = `${cEl._$id}_${key}_${dep}`
+            cEl._$depIds.push(id)
             // ---- 如果是完整match且是state不是derived，比如 {flag: this.flag}
             //      则把子dl的flag参数当成state
             if (propStr === `this.${dep}` && Object.keys(dl._$deps).includes(propStr.replaceAll("this.", ""))) {
