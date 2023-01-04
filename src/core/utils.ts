@@ -2,7 +2,10 @@ import {DLBase} from "./DLBase";
 import {addEls, HTMLEl} from "./func";
 
 export function addDep(dl: DLBase, dep: string, id: string, func: ()=>any) {
-    if (dl._$deps[dep] === undefined) dl._$deps[dep] = []
+    if (dl._$deps[dep] === undefined) {
+        addDeps(dl, dl._$derived_deps[dep] ?? [], id, func)
+        return
+    }
     if (dl._$deps[dep][id] === undefined) dl._$deps[dep][id] = []
     dl._$deps[dep][id].push(func)
 }

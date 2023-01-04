@@ -3,7 +3,7 @@ import {uid} from "./utils";
 
 export abstract class DLBase {
     _$dlBase = true
-    _$id = uid()
+    _$id: string
     _$el?: HTMLElement[]
     _$depIds: string[] = []  // 用来存和自己有关的depId
     _$deps: any = {}
@@ -13,7 +13,9 @@ export abstract class DLBase {
 
     abstract Body(): any
 
-
+    constructor(id?: string) {
+        this._$id = id ?? uid()
+    }
     _$init() {
         const protoKeys = Object.getOwnPropertyNames(Object.getPrototypeOf(this))
         for (let propertyKey of protoKeys) {

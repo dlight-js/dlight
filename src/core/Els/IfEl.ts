@@ -1,5 +1,5 @@
 import {DLBase} from "../DLBase";
-import {CustomEl, Indicator} from "./CustomEl";
+import {SpecialEl, Indicator} from "./SpecialEl";
 import {newIndicator, parseIndicator} from "./utils";
 import {addDeps, geneDeps} from "../utils";
 
@@ -9,10 +9,10 @@ interface ConditionPair {
 }
 
 
-export class IfEl extends CustomEl {
+export class IfEl extends SpecialEl {
     conditionPairs: ConditionPair[]
-    constructor(conditionPairs: ConditionPair[]) {
-        super()
+    constructor(conditionPairs: ConditionPair[], id: string) {
+        super(id)
         this.conditionPairs = conditionPairs
     }
     condition?: string

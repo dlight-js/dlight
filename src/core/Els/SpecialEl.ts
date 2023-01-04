@@ -6,26 +6,28 @@ import {
     removeEls,
     resolveNestCustomEls, resolveNestCustomElsAgain,
 } from "./utils";
-import {uid} from "../utils";
 
 
 export interface Indicator {
     index: number
-    customEls: CustomEl[]
+    customEls: SpecialEl[]
 }
 
 
-export abstract class CustomEl {
+export abstract class SpecialEl {
     dl?: DLBase
     parentEl?: HTMLElement
-    _$id: string = uid()
+    _$id: string
     els: any
-    _$customEl = true
+    _$specialEl = true
     indicator: Indicator = {
         index: 0,
         customEls: []
     }
 
+    constructor(id: string) {
+        this._$id = id
+    }
 
     preset(dl: DLBase, parentEl: HTMLElement, indicator: Indicator) {
         this.dl = dl

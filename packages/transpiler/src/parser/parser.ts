@@ -133,7 +133,7 @@ export class DlightParser {
         this.eat() // eat "
         this.addElChild()
         this.el.kv["value"] = this.el.tag
-        this.el.tag = "StrNode"
+        this.el.tag = "TextNode"
     }
 
 

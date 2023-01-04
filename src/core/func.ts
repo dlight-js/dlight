@@ -1,11 +1,11 @@
 import {DLBase} from './DLBase';
-import {Indicator} from "./Els/CustomEl";
+import {Indicator} from "./Els/SpecialEl";
 import {addDep, addDeps, geneDeps, isFunc, runDeps} from "./utils";
 import {DecoratorMaker} from "./decorator";
 export * from "./Els";
 
 
-export function addElProp(dl: DLBase, el: any, key: string, propFunc: () => any) {
+export function addElProp(dl: DLBase, el: any, key: string, propFunc: () => any, deps: string[]) {
     let func
 
     if (key[0] === "*") {
@@ -17,16 +17,7 @@ export function addElProp(dl: DLBase, el: any, key: string, propFunc: () => any)
     }
     func()
 
-    // ---t 1000个耗时10ms左右
-    const propStr =  propFunc.toString()
-    const listenDeps = geneDeps(dl, propStr)
-
-    // ---t 1000个耗时5ms左右
-    if (listenDeps.length !== 0 && !isFunc(propStr.slice(6))) {
-        // ---1 有依赖
-        // ---2 value不是function，如onClick之类的，不然本来就会监听变化，不用管
-        addDeps(dl, listenDeps, el._$id, func)
-    }
+    addDeps(dl, deps, el._$id, func)
 }
 
 export function addCElDotProp(dl: DLBase, cEl: DLBase, key: string, propFunc: () => any) {
@@ -80,7 +71,7 @@ export function addEls(dl: DLBase, el: any, childEls: any[], keepInnerHTML=false
     const indicator: Indicator = {index: 0, customEls: []}
     for (let childEl of childEls) {
         el.els.push(childEl)
-        if (childEl._$customEl) {
+        if (childEl._$specialEl) {
             childEl.mount(dl, el.el, indicator)
             indicator.customEls.push(childEl)
             continue
