@@ -111,19 +111,19 @@ export function didMountEls(els: any[]) {
     }
 }
 
-function resolveNestCustomElsTmp(els: any[], dl: DLBase, parentEl: HTMLElement, indicator: Indicator, funcName: string) {
+export function resolveNestCustomEls(els: any[], dl: DLBase, parentEl: HTMLElement, indicator: Indicator) {
     for (let el of els) {
         if (Array.isArray(el)) {
-            resolveNestCustomElsTmp(el, dl, parentEl, indicator, funcName)
+            resolveNestCustomEls(el, dl, parentEl, indicator)
             continue
         }
         if (el._$specialEl) {
-            el[funcName](dl, parentEl, indicator)  // ---- init里面已经resolve了
+            el.init(dl, parentEl, indicator)  // ---- init里面已经resolve了
             indicator.customEls.push(el)
             continue
         }
         if (el._$dlBase) {
-            resolveNestCustomElsTmp(el.render(), dl, parentEl, indicator, funcName)
+            resolveNestCustomEls(el.render(), dl, parentEl, indicator)
             indicator.index += el.render()
             continue
         }
@@ -131,13 +131,6 @@ function resolveNestCustomElsTmp(els: any[], dl: DLBase, parentEl: HTMLElement, 
     }
 }
 
-export function resolveNestCustomEls(els: any[], dl: DLBase, parentEl: HTMLElement, indicator: Indicator) {
-    resolveNestCustomElsTmp(els, dl, parentEl, indicator, "init")
-}
-
-export function resolveNestCustomElsAgain(els: any[], dl: DLBase, parentEl: HTMLElement, indicator: Indicator) {
-    resolveNestCustomElsTmp(els, dl, parentEl, indicator, "reinit")
-}
 
 function getIndicatorIndex(customEls: any[]) {
     let index = 0

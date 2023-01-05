@@ -10,6 +10,7 @@ export abstract class DLBase {
     _$derived_deps: any = {}
     _$props: any = {}
     _$dotProps: any = {}
+    _$envEls: DLBase[] = []
 
     abstract Body(): any
 
@@ -22,13 +23,14 @@ export abstract class DLBase {
             DecoratorResolver.prop(propertyKey, this)
             DecoratorResolver.dotProp(propertyKey, this)
             DecoratorResolver.propDerived(propertyKey, this)
-            DecoratorResolver.state(propertyKey, this)
             DecoratorResolver.derivedFromProp(propertyKey, this)
+            DecoratorResolver.state(propertyKey, this)
         }
         for (let propertyKey of protoKeys) {
+            DecoratorResolver.environment(propertyKey, this, () =>
             DecoratorResolver.derived(propertyKey, this, () =>
             DecoratorResolver.effect(propertyKey, this)
-            )
+            ))
         }
     }
 
@@ -38,6 +40,7 @@ export abstract class DLBase {
         this.Body()
         return this._$el!
     }
+
 
     // ---- lifecycles
     willMount() {}

@@ -1,13 +1,14 @@
 import {View, State, Derived, Effect} from "@/core"
 import {TaskCard} from "./TaskCard.tsd"
 import {TaskAdder} from "./TaskAdder.tsd"
+import {Task} from "./Task";
 
 export class ToDoApp extends View {
   @State tasks: Task[] = []
-  @Derived unfinishedNum = this.tasks.filter(t=>!t.finished).length
+  @State toggle = false
+  @Derived unfinishedNum = (this.toggle || !this.toggle) && this.tasks.filter(t=>!t.finished).length
   @Effect watchUnfinishedNum() {
     console.log(`[Effect] There remains ${this.unfinishedNum} tasks to do.`)
-    console.log(Object.keys(this._$deps.tasks).length)
   }
 
 
@@ -18,15 +19,9 @@ export class ToDoApp extends View {
     TaskAdder({tasks: this.tasks})
     h2(`Remaining ${this.unfinishedNum} tasks to do.`)
     For(let task of this.tasks) {
-      TaskCard({task})
+      TaskCard({task, toggle: this.toggle})
         .deleteTask(() => {
             this.tasks = this.tasks.filter(t=>t !== task)
-        }) 
-        .onCheck(checked => {
-            if (task.finished !== checked) {
-                // ---- 要改变tasks和task的引用才能触发更新
-                this.tasks = this.tasks.map(t=>t!==task?t:{name:task.name, finished:checked})
-            }       
         }) 
     }
   }

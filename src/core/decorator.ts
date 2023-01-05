@@ -1,5 +1,6 @@
 import {DLBase} from "./DLBase";
-import {addDeps, geneDeps, isKeyDep, runDeps} from "./utils";
+import { EnvEl } from "./Els";
+import {addDep, addDeps, geneDeps, isKeyDep, runDeps} from "./utils";
 
 export class DecoratorMaker {
     static make(rawKey: string, decoratorTag: string) {
@@ -25,6 +26,9 @@ export class DecoratorMaker {
     }
     static propDerived(rawKey: string) {
         return this.make(rawKey, "propDerived")
+    }
+    static environment(rawKey: string) {
+        return this.make(rawKey, "environment")
     }
 }
 
@@ -52,6 +56,9 @@ export class DecoratorTrimmer {
     }
     static propDerived(rawKey: string) {
         return this.trim(rawKey, "propDerived")
+    }
+    static environment(rawKey: string) {
+        return this.trim(rawKey, "environment")
     }
 }
 
@@ -81,8 +88,9 @@ export class DecoratorResolver {
                     return this[propertyKey]
                 },
                 set(value: any) {
+                    if (this[propertyKey] === value) return
                     this[propertyKey] = value
-                    runDeps(this, rawKey)
+                    runDeps(dl, rawKey)
                 }
             })
 
@@ -134,7 +142,7 @@ export class DecoratorResolver {
             const rawKey = DecoratorTrimmer.effect(propertyKey);
             const effectFunc = (dl as any)[rawKey]
             const effectFuncStr = effectFunc.toString()
-            const listenDeps = geneDeps(dl, effectFuncStr)
+            const listenDeps = [...(dl as any)[propertyKey], ...geneDeps(effectFuncStr)]
             addDeps(dl, listenDeps, dl._$id, () => effectFunc.call(dl))
         }, callBack)
     }
@@ -178,6 +186,42 @@ export class DecoratorResolver {
             (dl as any)[rawKey] = (dl as any)[rawKey]()
         }, callBack)
     }
+
+    static environment(propertyKey: string, dl: DLBase, callBack?: () => any) {
+        return this.rosolve(propertyKey, "environment", () => {
+            const rawKey = DecoratorTrimmer.environment(propertyKey);
+            let envEl: EnvEl | undefined = undefined
+            for (let env of dl._$envEls) {
+                if (Object.keys(env._$deps).includes(rawKey)) {
+                    envEl = env as EnvEl
+                    break
+                }
+            }
+            if (!envEl) return
+
+            (dl as any)[propertyKey] = (envEl as any)[rawKey]
+            Object.defineProperty(dl, rawKey, {
+                get() {
+                    return this[propertyKey]
+                },
+                set(value: any) {
+                    if (this[propertyKey] === value) return
+                    this[propertyKey] = value
+                    runDeps(dl, rawKey)
+                }
+            })
+            const id = `${envEl._$id}_${rawKey}`
+            dl._$depIds.push(id)
+            const depFunc = () => (envEl as any)[rawKey] = (dl as any)[rawKey]
+            dl._$deps[rawKey] = {[id]: [depFunc]}
+            addDep(envEl, rawKey, id, () => {
+                // ---- 先取消回掉自己的dep，等改完值了再加上，不然会无限回调
+                delete dl._$deps[rawKey][id];
+                (dl as any)[rawKey] = (envEl as any)[rawKey]
+                dl._$deps[rawKey][id] = [depFunc]
+            })
+        }, callBack)
+    }
 }
 
 export const State = (target: any, rawKey: string) => {
@@ -192,8 +236,21 @@ export const Derived = (target: any, rawKey: string) => {
     })
 }
 
-export const Effect = (target: any, rawKey: string) => {
-    Object.defineProperty(target, DecoratorMaker.effect(rawKey), {})
+export const Effect = (...props: any[]) => {
+    if (props.length === 3) {
+        // prop是三个，代表是decorator
+        const [target, rawKey] = props
+        Object.defineProperty(target, DecoratorMaker.effect(rawKey), {
+            get: () => []
+        })
+        return
+    }
+    // prop只有一个，代表是传入的监听变量，需要返回decorator
+    return (target: any, rawKey: string) => {
+        Object.defineProperty(target, DecoratorMaker.effect(rawKey), {
+            get: () => props[0]
+        })
+    }
 }
 
 export const Prop = (target: any, rawKey: string) => {
@@ -206,4 +263,10 @@ export const DotProp = (target: any, rawKey: string) => {
 
 export const PropDerived = (target: any, rawKey: string) => {
     Object.defineProperty(target, DecoratorMaker.propDerived(rawKey), {})
+}
+
+export const Environment = (target: any, rawKey: string) => {
+    Object.defineProperty(target, DecoratorMaker.environment(rawKey), {
+        writable: true
+    })
 }

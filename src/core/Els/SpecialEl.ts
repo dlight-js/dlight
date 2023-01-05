@@ -4,7 +4,7 @@ import {
     appendEls,
     deleteSubDeps, newIndicator, parseIndicator,
     removeEls,
-    resolveNestCustomEls, resolveNestCustomElsAgain,
+    resolveNestCustomEls,
 } from "./utils";
 
 
@@ -36,10 +36,7 @@ export abstract class SpecialEl {
     }
 
     abstract init(dl: DLBase, parentEl: HTMLElement, indicator: Indicator): any
-    reinit(dl: DLBase, parentEl: HTMLElement, indicator: Indicator) {
-        this.preset(dl, parentEl, indicator)
-        this.resolveNestCustomElsAgain(this.els, newIndicator(this.indicator))
-    }
+
     mount(dl: DLBase, parentEl: HTMLElement, indicator: Indicator) {
         this.init(dl, parentEl, indicator)
         this.appendEls(this.els, parseIndicator(this.indicator), this.parentEl!.childNodes.length)
@@ -47,10 +44,6 @@ export abstract class SpecialEl {
 
     resolveNestCustomEls(els: any[], indicator: Indicator) {
         resolveNestCustomEls(els, this.dl!, this.parentEl!, indicator)
-    }
-
-    resolveNestCustomElsAgain(els: any[], indicator: Indicator) {
-        resolveNestCustomElsAgain(els, this.dl!, this.parentEl!, indicator)
     }
 
     removeEls(els: any[]) {

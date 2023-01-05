@@ -3,7 +3,7 @@ import {Task} from "./Task"
 
 export class TaskCard extends View {
   @Prop task: Task
-  @DotProp onCheck: (checked: any) => any
+  @Prop toggle: boolean
   @DotProp deleteTask: () => any
 
   didMount() {
@@ -15,11 +15,17 @@ export class TaskCard extends View {
       input()
         .type("checkbox")
         .checked(this.task.finished)
-        .onchange(e => this.onCheck(e.target.checked))
+        .onchange(e => {
+          if (e.target.checked !== this.task.finished) {
+            this.task.finished = e.target.checked
+            this.toggle = !this.toggle
+          }
+        })
 
       span(this.task.name)
         .*margin("0 5px")
         .*text-decoration(this.task.finished ? "line-through" : "none")
+        
       button("delete")
         .onclick(this.deleteTask)
     }

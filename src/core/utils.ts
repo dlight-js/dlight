@@ -1,18 +1,65 @@
 import {DLBase} from "./DLBase";
 import {addEls, HTMLEl} from "./func";
 
-export function addDep(dl: DLBase, dep: string, id: string, func: ()=>any) {
+export function addDep(dl: DLBase, dep: string, id: string, func: (newValue?: any) => any, valueFunc?: () => any) {
     if (dl._$deps[dep] === undefined) {
-        addDeps(dl, dl._$derived_deps[dep] ?? [], id, func)
+        // ---- _$deps里面没有键，但是被监听到了，说明是derived
+        //      valueFunc是空的就给他传一个derived出来的值，来判断相不相同
+        addDerivedDeps(dl, dep, id, func, valueFunc)
         return
     }
+    // ---- 需要传入生成的valueFunc和赋值或者其他操作的func，只有当新旧值不一样时才重新调用func
+    let depFunc
+    if (valueFunc) {
+        let prevValue: any = undefined
+        depFunc = () => {
+            const newValue = valueFunc()
+            if (prevValue !== newValue) {
+                func(newValue)
+                prevValue = newValue
+            }
+        }
+    } else {
+        depFunc = func
+    }
     if (dl._$deps[dep][id] === undefined) dl._$deps[dep][id] = []
-    dl._$deps[dep][id].push(func)
+    dl._$deps[dep][id].push(depFunc)
 }
 
-export function addDeps(dl: DLBase, deps: string[], id: string, func: ()=>any) {
+function addDerivedDeps(dl: DLBase, derivedDep: string, id: string, func: (newValue?: any) => any, valueFunc?: () => any) {
+    // ---- 只是普通的class property
+    if (dl._$derived_deps[derivedDep] === undefined) return
+    let prevDerivedValue: any = undefined
+    for (let dep of dl._$derived_deps[derivedDep]) {
+        if (dl._$deps[dep] === undefined) {
+            addDerivedDeps(dl, dep, id, func, valueFunc)
+            return
+        }
+        let depFunc
+        if (valueFunc) {
+            let prevValue: any = undefined
+            depFunc = () => {
+                const newValue = valueFunc()
+                if (prevValue !== newValue) {
+                    func(newValue)
+                    prevValue = newValue
+                }
+            }
+        } else {
+            depFunc = () => {
+                if (prevDerivedValue !== (dl as any)[derivedDep]) {
+                    func()
+                    prevDerivedValue = (dl as any)[derivedDep]
+                }
+            }
+        }
+        if (dl._$deps[dep][id] === undefined) dl._$deps[dep][id] = []
+        dl._$deps[dep][id].push(depFunc)
+    }
+}
+export function addDeps(dl: DLBase, deps: string[], id: string, func: (newValue?: any) => any, valueFunc?: () => any) {
     for (let dep of deps) {
-        addDep(dl, dep, id, func)
+        addDep(dl, dep, id, func, valueFunc)
     }
 }
 
@@ -33,23 +80,14 @@ export function isKeyDep(key: string, valueStr: string) {
 const depReg = /(?:[^\w$]|^)this\.(\w+)(?:[^\w$]|$)/g
 
 // ---t 1000个比下面的快8ms
-export function geneDeps(dl: DLBase, valueStr: string) {
+export function geneDeps(valueStr: string) {
     // ---- 依赖监听
     const listenDeps = []
-    const depKeys = Object.keys(dl._$deps)
-    const derivedKeys = Object.keys(dl._$derived_deps)
 
     const matches = valueStr.matchAll(depReg)
 
     for (const match of matches) {
-        const depName = match[1]
-        if (depKeys.includes(depName)) {
-            listenDeps.push(depName)
-            continue
-        }
-        if (derivedKeys.includes(depName)) {
-            listenDeps.push(...dl._$derived_deps[depName])
-        }
+        listenDeps.push(match[1])
     }
 
     return [...new Set(listenDeps)]
@@ -79,7 +117,7 @@ export function isFunc(str: string) {
 }
 
 export function render(selectName: string, dl: DLBase) {
-    const el = new HTMLEl("div")
+    const el = new HTMLEl("div", uid())
     el.el = document.querySelector(selectName)!
     addEls(dl, el, dl.render())
 }

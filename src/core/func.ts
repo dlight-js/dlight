@@ -5,19 +5,19 @@ import {DecoratorMaker} from "./decorator";
 export * from "./Els";
 
 
-export function addElProp(dl: DLBase, el: any, key: string, propFunc: () => any, deps: string[]) {
-    let func
+export function addElProp(dl: DLBase, el: any, key: string, valueFunc: () => any, deps: string[]) {
+    let func: (newValue: any) => any
 
     if (key[0] === "*") {
-        func = () => el.el.style[key.slice(1) as any] = propFunc()
+        func = (newValue: any) => el.el.style[key.slice(1) as any] = newValue
     } else if (key === "innerText") {
-        func = () => el.el.innerText = propFunc()
+        func = (newValue: any) => el.el.innerText = newValue
     } else {
-        func = () => (el.el as any)[key] = propFunc()
+        func = (newValue: any) => (el.el as any)[key] = newValue
     }
-    func()
+    func(valueFunc())
 
-    addDeps(dl, deps, el._$id, func)
+    addDeps(dl, deps, el._$id, func, valueFunc)
 }
 
 export function addCElDotProp(dl: DLBase, cEl: DLBase, key: string, propFunc: () => any) {
@@ -29,7 +29,7 @@ export function addCElProp(dl: DLBase, cEl: DLBase, key: string, propFunc: () =>
     addCElPropTmp(dl, cEl, key, propFunc)
 }
 function addCElPropTmp(dl: DLBase, cEl: DLBase, key: string, propFunc: () => any) {
-    const listenDeps = geneDeps(dl, propFunc.toString())
+    const listenDeps = geneDeps(propFunc.toString())
     const propStr = propFunc.toString().slice(6).trim()
     if (listenDeps.length !== 0 && !isFunc(propStr)) {
         for (let dep of listenDeps) {
@@ -54,6 +54,7 @@ function addCElPropTmp(dl: DLBase, cEl: DLBase, key: string, propFunc: () => any
             Object.defineProperty(Object.getPrototypeOf(cEl), DecoratorMaker.derivedFromProp(key), {
                 writable: true
             })
+            cEl._$deps[key] = {}
             addDep(dl, dep, id, () => {
                 (cEl as any)[key] = propFunc()
                 runDeps(cEl, key)
@@ -83,9 +84,9 @@ export function addEls(dl: DLBase, el: any, childEls: any[], keepInnerHTML=false
         }
         // ---- custom el
         const e = childEl.render()
-        childEl.didMount()
-        indicator.index += addEls(dl, el, e, true)
         childEl.willMount()
+        indicator.index += addEls(dl, el, e, true)
+        childEl.didMount()
     }
     return indicator.index
 }

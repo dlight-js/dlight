@@ -8,9 +8,9 @@ export class TextEl extends PlainEl {
     constructor(dl: DLBase, valueFunc: () => string, id: string) {
         super(document.createTextNode(valueFunc()), id)
         this.valueFunc = valueFunc
-        const listenDeps = geneDeps(dl, valueFunc.toString())
-        addDeps(dl, listenDeps, this._$id, () => {
-            this.el.nodeValue = valueFunc()
-        })
+        const listenDeps = geneDeps(valueFunc.toString())
+        addDeps(dl, listenDeps, this._$id, (newValue: string) => {
+            this.el.nodeValue = newValue
+        }, valueFunc)
     }
 }

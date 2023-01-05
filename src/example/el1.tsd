@@ -1,48 +1,41 @@
-import {View, Derived, DotProp, Effect, Prop, PropDerived, State} from "@/core";
+import {View, Derived, DotProp, Effect, Prop, PropDerived, State, Environment} from "@/core";
 
-class MyInput extends View {
-    @DotProp ok = 100
+class SubEl3 extends View {
+    @Prop a: number
 
-    @PropDerived
-    @State
-    okState = this.ok
-
-    @PropDerived plain = this.ok
-    plainno = this.ok
-
-    @Prop a
-    b: any
-
-    didMount() {
-        console.log("didMount")
-        console.log(this.b)
-    }
     Body() {
-        div {
-            button("inner")
-                .onclick(() => {
-                    this.ok --
-                })
-        }
-        div(this.ok)
-        button(this.a)
+        div(this.a)
+    }
+}
+
+class SubEl2 extends View {
+    @Prop a: number
+    @Environment id: number
+
+    Body() {
+        div(this.a)
+        div(this.id)
+        SubEl3({a: this.a+1})
+    }
+}
+
+class SubEl1 extends View {
+    @Prop a: number
+    @Environment what: number
+
+    Body() {
+        div(this.what)
+        button("+")
             .onclick(() => {
-                this.ok ++
+                this.what ++
             })
-            .element(this.b)
 
-    }
+        button("-")
+            .onclick(() => {
+                this.what --
+            })
+        SubEl2({a: this.a+1})
 
-
-    willMount() {
-        console.log("willMount")
-    }
-
-    willUnmount() {
-        console.log("willUnmount")
-    }
-    didUnmount() {
-        console.log("didUnmount")
     }
 }
 
@@ -59,14 +52,16 @@ export class TestElement extends View {
     c = 4
 
     Body() {
-        button("outer")
+        button("+")
             .onclick(() => {
-                this.count ++
-                this.apple = [...this.apple, this.apple.length]
+                this.hh ++
             })
 
-        div(this.c2)
-        div(this.c3)
+        button("-")
+            .onclick(() => {
+                this.hh --
+            })
+
         button("flag")
             .onclick(() => {
                 this.flag = !this.flag
@@ -78,9 +73,13 @@ export class TestElement extends View {
             `${i}`
         }
         "no"
-        MyInput({ a: "fuck"})
-            .ok(this.count)
-        MyInput({ a: "fuck"})
-            .ok(this.count)
+        "------"
+        Environment({what: 1, id: "caosiwo"}) {
+            If (this.flag) {
+                For (let i of [...Array(100).keys()]) {
+                    SubEl1({ a: this.hh+1})
+                }
+            }            
+        }
     }
 }

@@ -1,4 +1,5 @@
 import {ParserEl} from "../parser/parserEl";
+import { uid } from "./utils";
 
 function isEl(parserEl: ParserEl) {
     return !["If", "For", "TextNode"].includes(parserEl.tag)
@@ -20,6 +21,10 @@ export function elId(parserEl: ParserEl) {
     return '$'+parserEl.id
 }
 
+export function geneId(idAppendix?: string) {
+    return !!idAppendix ? `\`${uid()}-${idAppendix}\`` : `"${uid()}"`
+}
+
 export function geneChildElArray(parserEl: ParserEl) {
     return "[" + parserEl.children.map(el=>"el"+elId(el)).join(", ") + "]"
 }
@@ -35,6 +40,7 @@ export class BodyStringBuilder {
     add(value: string) {
         this.value += newLine(value)
     }
+
     addBody(body: BodyStringBuilder) {
         this.value += body.value
     }

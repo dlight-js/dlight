@@ -6,40 +6,55 @@ import {addDeps} from "../utils";
 
 export class ForEl extends SpecialEl {
     elFunc: (item: any, idx: number) => any[]
-    keyFunc: () => any[]
+    keyFunc: (() => any[]) | undefined
     arrayFunc: () => any
     listenDeps: string[]
-    constructor(elFunc: (item: any, idx: number) => any[], keyFunc: () => any[], arrayFunc: () => any, listenDeps: string[], id: string) {
+    constructor(elFunc: (item: any, idx: number) => any[], keyFunc: (() => any[]) | undefined, arrayFunc: () => any, listenDeps: string[], id: string) {
         super(id)
         this.elFunc = elFunc
         this.keyFunc = keyFunc
         this.arrayFunc = arrayFunc
         this.listenDeps = listenDeps
+         // ---- init el
+         this.array = this.getArray()
+         this.keys = this.getKey()
+         this.els = this.array.map((item, idx)=>this.elFunc(item, idx))
     }
     keys: string[] = []
     array: any[] = []
 
+    getKey() {
+        if (this.keyFunc) {
+            const newKeys = [...this.keyFunc()]
+            // ---- 没有重复
+            if (newKeys.length === [...new Set(newKeys)].length) {
+                return newKeys
+            } 
+            // TODO 报错重复key
+            // console.warm("重复key了")  
+        }        
+
+        return [...Array(this.array.length).keys()]
+    }
+
+    getArray() {
+        return [...this.arrayFunc()]
+    }
 
     init(dl: DLBase, parentEl: HTMLElement, indicator: Indicator) {
         this.preset(dl, parentEl, indicator)
-        // ---- init el
-        this.keys = [...this.keyFunc()]
-        this.array = [...this.arrayFunc()]
-        this.els = this.array.map((item, idx)=>this.elFunc(item, idx))
         // ---- add listen deps
         addDeps(this.dl!, this.listenDeps, this._$id, () => this.update())
-
         this.resolveNestCustomEls(this.els, newIndicator(this.indicator))
     }
 
-
+  
     update() {
-        // --nt
         const prevKeys = this.keys
         const prevArray = this.array
         const prevAllEls = this.els
-        this.keys = [...this.keyFunc()]
-        this.array = [...this.arrayFunc()]
+        this.array = this.getArray()
+        this.keys = this.getKey() 
         // ---1 先替换
         const solvedIdx = []
         const solvedPrevIdxes: number[] = []
@@ -56,7 +71,6 @@ export class ForEl extends SpecialEl {
             const firstEl = flatElArray(prevAllEls[prevIdx])[0]
             // ---- 添加新的
             const newEls = this.elFunc(this.array[idx], idx)
-            this.resolveNestCustomEls(newEls, {index: 0, customEls: []})  // 只是为了生成子els，所以indicator传啥无所谓，下面都会替换
 
             if (firstEl === undefined) {
                 // ---- 前面啥都没有，那就用for的index来append
@@ -87,8 +101,7 @@ export class ForEl extends SpecialEl {
         for (let idx of [...Array(this.keys.length).keys()]) {
             if (solvedIdx.includes(idx)) {
                 // ---- 这些已经被替换了
-                // ---! 但是由于此idx前的element有改变，所以要reinit nest的情况
-                this.resolveNestCustomElsAgain(this.els[idx], indicator)
+                this.resolveNestCustomEls(this.els[idx], indicator)
                 continue
             }
             const newEls = this.elFunc(this.array[idx], idx)

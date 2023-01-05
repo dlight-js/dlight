@@ -201,6 +201,10 @@ export class DlightParser {
                     this.resolveFor()
                     continue
                 }
+                if (["Environment"].includes(this.token)) {
+                    this.resolveEnv()
+                    continue
+                }
                 if (this.token.startsWith(".")) {
                     // ---- 代表是key
                     this.addElKey()
@@ -282,27 +286,44 @@ export class DlightParser {
     }
 
     // ---- for
-     resolveFor() {
+    resolveFor() {
         this.addElChild()
         this.eatSpace()
         this.eat()  // eat (
         this.eatValue()
-        const forValue = this.token
+        this.el.kv["forValue"] = this.token
         this.erase()
         this.eatSpace()
         this.eat() // eat { or [
-         if (this.c === "[") {
-             this.eatKey()
-             this.el.kv["key"] = this.token
-             this.erase()
-             this.eatSpace()
-             this.eat()  // eat {
+        if (this.c === "[") {
+            this.eatKey()
+            this.el.kv["key"] = this.token
+            this.erase()
+            this.eatSpace()
+            this.eat()  // eat {
         }
         this.eatSubBlock()  // eat内部
         // ---- 解析内部
         const newParser = new DlightParser(this.token)
         newParser.parse()
-        this.el.kv["forValue"] = forValue
+        this.el.kv["parserEl"] = newParser.parserEl
+        this.erase()
+    }
+
+    // ---- environment
+    resolveEnv() {
+        this.addElChild()
+        this.eatSpace()
+        this.eat()  // eat (
+        this.eatValue()
+        this.el.kv["envObject"] = this.token
+        this.erase()
+        this.eatSpace()
+        this.eat() // eat { 
+        this.eatSubBlock()  // eat内部
+        // ---- 解析内部
+        const newParser = new DlightParser(this.token)
+        newParser.parse()
         this.el.kv["parserEl"] = newParser.parserEl
         this.erase()
     }

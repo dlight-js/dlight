@@ -5,15 +5,30 @@ import {addDeps, geneDeps} from "../utils";
 
 interface ConditionPair {
     cond: () => boolean,
-    el: () => any
+    el: () => any,
+    deps: string[]
 }
 
 
 export class IfEl extends SpecialEl {
     conditionPairs: ConditionPair[]
+    listenDeps: string[] = []
     constructor(conditionPairs: ConditionPair[], id: string) {
         super(id)
         this.conditionPairs = conditionPairs
+         // ---- init el
+         let els = []
+         for (let conditionPair of this.conditionPairs) {
+             if (conditionPair.cond()) {
+                 this.condition = conditionPair.cond.toString()
+                 els = conditionPair.el()
+                 break
+             }
+         }
+         for (let conditionPair of this.conditionPairs) {
+            this.listenDeps.push(...conditionPair.deps)
+        }            
+        this.els = els
     }
     condition?: string
 
@@ -22,25 +37,9 @@ export class IfEl extends SpecialEl {
         // ---- mount只是添加基础属性，不添加到dom上，添加dom在外面用appendEls()
         // ---- 首先preset一下
         this.preset(dl, parentEl, indicator)
-        // ---- init el
-        let els = []
-        for (let conditionPair of this.conditionPairs) {
-            if (conditionPair.cond()) {
-                this.condition = conditionPair.cond.toString()
-                els = conditionPair.el()
-                break
-            }
-        }
-        this.els = els
-        // ---- 拿到所有的监听依赖
-        let listenDeps: string[] = []
-        for (let conditionPair of this.conditionPairs) {
-            listenDeps.push(...geneDeps(this.dl!, conditionPair.cond.toString()))
-        }
-        listenDeps = [...new Set(listenDeps)]
+       
         // ---- 依赖更新
-        addDeps(this.dl!, listenDeps, this._$id, () => this.update())
-
+        addDeps(this.dl!, this.listenDeps, this._$id, () => this.update())
         this.resolveNestCustomEls(this.els, newIndicator(this.indicator))
     }
 
