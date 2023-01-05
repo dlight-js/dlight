@@ -4,12 +4,18 @@ import { deleteDepsPrefix } from "../utils";
 
 
 export class EnvEl extends DLBase {
-    envObject: any
     _$envEl = true
-
-    constructor(envObject: any, elFunc: () => any[], id: string) {
+    envObject: any = {}
+    constructor(elFunc: () => any[], id: string) {
         super(id)
-        this.envObject = envObject
+        this._$els = elFunc()
+    }
+    addPair(dl: DLBase, key: string, propFunc: () => any, listenDeps: string[]) {
+        this.envObject[key] = propFunc()
+        this.addCElPropTmp(dl, key, propFunc, listenDeps)
+    }
+
+    preset() {
         for (let [key, value] of Object.entries(this.envObject)) {
             (this as any)[key] = value
             Object.defineProperty(Object.getPrototypeOf(this), DecoratorMaker.state(key), {
@@ -18,10 +24,9 @@ export class EnvEl extends DLBase {
         }
         this._$init()
         this.cleanDeps()
-        this._$els = elFunc()
         this.setEnvObjs(this._$els!)
     }
-
+    
     cleanDeps() {
         // ---- 如果多层EnvEl嵌套，由于protoType相同，所以会出现空的冗余的需要删除
         for (let depKey in this._$deps) {

@@ -26,13 +26,16 @@ export class Generator {
         const id = geneId(idAppendix)
         const body = new BodyStringBuilder()
 
-        body.add(`const el${elId(parserEl)} = new _$.EnvEl(${parserEl.kv.envObject}, () => {`)
-        
+        const el = `el${elId(parserEl)}`
+        body.add(`const ${el} = new _$.EnvEl(() => {`)
         for (let childEl of parserEl.kv.parserEl.children) {
             body.addBody(this.resolveParserEl(childEl).indent())
         }
         body.add(indent(`return ${geneChildElArray(parserEl.kv.parserEl)}`))
         body.add(`}, ${id})`)
+        for (let {key, value} of parserEl.kv["props"]??[]) {
+            body.add(`${el}.addPair(this, "${key}", () => (${value}), ${geneDeps(value)})`)
+        }
 
         return body
     }
@@ -137,12 +140,12 @@ export class Generator {
         const el = `el${elId(parserEl)}`
         body.add(`const ${el} = new ${parserEl.tag}(${id})`)
         for (let {key, value} of parserEl.kv["props"]??[]) {
-            body.add(`${el}.addCElProp(this, "${key}", () => (${value}))`)
+            body.add(`${el}.addCElProp(this, "${key}", () => (${value}), ${geneDeps(value)})`)
         }
         delete parserEl.kv["props"]
         const kv = parserEl.kv
         for (let k in kv) {
-            body.add(`${el}.addCElDotProp(this, "${k}", () => (${kv[k]}))`)
+            body.add(`${el}.addCElDotProp(this, "${k}", () => (${kv[k]}), ${geneDeps(kv[k])}`)
         }
 
         return body

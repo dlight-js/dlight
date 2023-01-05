@@ -5,19 +5,21 @@ class SubEl3 extends View {
     @Prop a: number
     @Environment what
     @Environment id
+    @PropDerived @State jk = this.what
     Body() {
         button("+")
             .onclick(() => {
-                this.what ++
+                this.jk ++
                 this.id += "uck"
             })
 
         button("-")
             .onclick(() => {
-                this.what --
+                this.jk --
                 this.id += "f"
             })
         div(this.what)
+        div(`jk ${this.jk}`)
         div(this.id)
         div(this.a)
     }
@@ -53,6 +55,7 @@ export class TestElement extends View {
     @State apple = [0,1,2,3]
     @Derived c2 = this.count * 2
     @Derived c3 = this.c2 * 2
+    @State jb = "caowo"
     c = 4
 
     Body() {
@@ -77,8 +80,10 @@ export class TestElement extends View {
             `${i}`
         }
         "no"
-        "------"
-        Environment({what: 100, id: "caosiwo", niubi: "jjj"}) {
+        div(this.hh)
+        div(this.jb)
+                "------"
+        Environment({what: this.hh+1, id: this.jb, niubi: "jjj"}) {
             div{
                 Environment({what: 1}) {
                     If (this.flag) {

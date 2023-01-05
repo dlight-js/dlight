@@ -61,6 +61,36 @@ export class DlightParser {
         this.eatSpace()
         this.eat()  // eat (
         this.eatSpace()
+        this.eatProps()
+        this.eat()  // eat )
+        this.erase()
+    }
+
+    addElKey() {
+        this.el.currKey = this.token.slice(1)
+        this.erase()
+    }
+
+    addStrNode() {
+        const strSymbol = this.c
+        this.eat()
+        if (this.c !== strSymbol) this.add()
+        while (this.look() !== strSymbol) {
+            this.eat()
+            this.add()
+            if (this.c === "\\") {
+                // ---- 处理escape
+                this.eat()
+                this.add()
+            }
+        }
+        this.eat() // eat "
+        this.addElChild()
+        this.el.kv["value"] = this.el.tag
+        this.el.tag = "TextNode"
+    }
+
+    eatProps() {
         if (this.look() === "{") {
             this.el.kv["props"] = []
             this.eat()  // eat {
@@ -108,35 +138,7 @@ export class DlightParser {
             }
             this.eat()  // eat }
         }
-        this.eat()  // eat )
-        this.erase()
     }
-
-    addElKey() {
-        this.el.currKey = this.token.slice(1)
-        this.erase()
-    }
-
-    addStrNode() {
-        const strSymbol = this.c
-        this.eat()
-        if (this.c !== strSymbol) this.add()
-        while (this.look() !== strSymbol) {
-            this.eat()
-            this.add()
-            if (this.c === "\\") {
-                // ---- 处理escape
-                this.eat()
-                this.add()
-            }
-        }
-        this.eat() // eat "
-        this.addElChild()
-        this.el.kv["value"] = this.el.tag
-        this.el.tag = "TextNode"
-    }
-
-
     eatBrackets(left: string, right: string) {
         let depth = 1
         while (this.ok()) {
@@ -315,8 +317,8 @@ export class DlightParser {
         this.addElChild()
         this.eatSpace()
         this.eat()  // eat (
-        this.eatValue()
-        this.el.kv["envObject"] = this.token
+        this.eatProps()
+        this.eat()  // eat )
         this.erase()
         this.eatSpace()
         this.eat() // eat { 
