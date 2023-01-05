@@ -1,5 +1,5 @@
-import {DecoratorResolver} from "./decorator"
-import {uid} from "./utils";
+import {DecoratorMaker, DecoratorResolver} from "./decorator"
+import {addDep, geneDeps, isFunc, runDeps, uid} from "./utils";
 
 export abstract class DLBase {
     _$dlBase = true
@@ -42,7 +42,6 @@ export abstract class DLBase {
 
     render() {
         if (this._$els !== undefined) return this._$els
-        console.log(this._$envEls, this.constructor.name, this)
         this._$init()
         this.Body()
         this.resolveEnv()
@@ -50,6 +49,50 @@ export abstract class DLBase {
         return this._$els!
     }
 
+
+
+    addCElDotProp(dl: DLBase, key: string, propFunc: () => any) {
+        this._$dotProps[key] = propFunc()
+        this.addCElPropTmp(dl, key, propFunc)
+    }
+    addCElProp(dl: DLBase, key: string, propFunc: () => any) {
+        this._$props[key] = propFunc()
+        this.addCElPropTmp(dl, key, propFunc)
+    }
+    addCElPropTmp(dl: DLBase, key: string, propFunc: () => any) {
+        const listenDeps = geneDeps(propFunc.toString())
+        const propStr = propFunc.toString().slice(6).trim()
+        if (listenDeps.length !== 0 && !isFunc(propStr)) {
+            for (let dep of listenDeps) {
+                const id = `${this._$id}_${key}_${dep}`;
+                this._$depIds.push(id)
+                // ---- 如果是完整match且是state不是derived，比如 {flag: this.flag}
+                //      则把子dl的flag参数当成state
+                if (propStr === `this.${dep}` && Object.keys(dl._$deps).includes(propStr.replaceAll("this.", ""))) {
+                    Object.defineProperty(Object.getPrototypeOf(this), DecoratorMaker.state(key), {
+                        writable: true
+                    })
+                    const depFunc = () => (dl as any)[dep] = (this as any)[key]
+                    this._$deps[key] = {[id]: [depFunc]}
+                    addDep(dl, dep, id, () => {
+                        // ---- 先取消回掉自己的dep，等改完值了再加上，不然会无限回掉
+                        delete this._$deps[key][id];
+                        (this as any)[key] = propFunc()
+                        this._$deps[key][id] = [depFunc]
+                    })
+                    return
+                }
+                Object.defineProperty(Object.getPrototypeOf(this), DecoratorMaker.derivedFromProp(key), {
+                    writable: true
+                })
+                this._$deps[key] = {}
+                addDep(dl, dep, id, () => {
+                    (this as any)[key] = propFunc()
+                    runDeps(this, key)
+                })
+            }
+        }
+    }
 
     // ---- lifecycles
     willMount() {}

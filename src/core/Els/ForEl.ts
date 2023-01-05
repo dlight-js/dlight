@@ -1,3 +1,4 @@
+import { DLBase } from "../DLBase";
 import {SpecialEl} from "./SpecialEl";
 import {flatElArray, newIndicator, parseIndicator, willMountEls, didMountEls} from "./utils";
 
@@ -6,8 +7,8 @@ export class ForEl extends SpecialEl {
     elFunc: (item: any, idx: number) => any[]
     keyFunc: (() => any[]) | undefined
     arrayFunc: () => any
-    constructor(elFunc: (item: any, idx: number) => any[], keyFunc: (() => any[]) | undefined, arrayFunc: () => any, listenDeps: string[], id: string) {
-        super(id)
+    constructor(dl: DLBase, elFunc: (item: any, idx: number) => any[], keyFunc: (() => any[]) | undefined, arrayFunc: () => any, listenDeps: string[], id: string) {
+        super(id, dl)
         this.elFunc = elFunc
         this.keyFunc = keyFunc
         this.arrayFunc = arrayFunc

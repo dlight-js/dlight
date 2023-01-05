@@ -57,6 +57,7 @@ export function appendEls(els: any[], index: number, parentEl: HTMLElement, leng
             continue
         }
         if (el._$plainEl) {
+            if (el._$htmlEl) el.render()
             if (index === length) {
                 parentEl!.appendChild(el.el)
             } else {
@@ -111,19 +112,19 @@ export function didMountEls(els: any[]) {
     }
 }
 
-export function resolveNestCustomEls(els: any[], dl: DLBase, parentEl: HTMLElement, indicator: Indicator) {
+export function resolveNestCustomEls(els: any[], parentEl: HTMLElement, indicator: Indicator) {
     for (let el of els) {
         if (Array.isArray(el)) {
-            resolveNestCustomEls(el, dl, parentEl, indicator)
+            resolveNestCustomEls(el, parentEl, indicator)
             continue
         }
         if (el._$specialEl) {
-            el.init(dl, parentEl, indicator)  // ---- init里面已经resolve了
+            el.init(parentEl, indicator)  // ---- init里面已经resolve了
             indicator.customEls.push(el)
             continue
         }
         if (el._$dlBase) {
-            resolveNestCustomEls(el.render(), dl, parentEl, indicator)
+            resolveNestCustomEls(el.render(), parentEl, indicator)
             indicator.index += el.render()
             continue
         }
@@ -169,7 +170,10 @@ export function flatElArray(el: any): HTMLElement[] {
         return els
     }
     if (el._$specialEl) return flatElArray(el._$els)
-    if (el._$plainEl) return [el.el]
+    if (el._$plainEl) {
+        if (el._$htmlEl) el.render()
+        return [el.el]
+    }
     return flatElArray(el.render())
 }
 

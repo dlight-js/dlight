@@ -1,3 +1,4 @@
+import { DLBase } from "../DLBase";
 import {SpecialEl} from "./SpecialEl";
 import {newIndicator, parseIndicator} from "./utils";
 
@@ -10,8 +11,8 @@ interface ConditionPair {
 
 export class IfEl extends SpecialEl {
     conditionPairs: ConditionPair[]
-    constructor(conditionPairs: ConditionPair[], id: string) {
-        super(id)
+    constructor(dl: DLBase, conditionPairs: ConditionPair[], id: string) {
+        super(id, dl)
         this.conditionPairs = conditionPairs
          // ---- init el
          let els = []

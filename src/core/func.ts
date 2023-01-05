@@ -5,20 +5,7 @@ import {DecoratorMaker} from "./decorator";
 export * from "./Els";
 
 
-export function addElProp(dl: DLBase, el: any, key: string, valueFunc: () => any, deps: string[]) {
-    let func: (newValue: any) => any
 
-    if (key[0] === "*") {
-        func = (newValue: any) => el.el.style[key.slice(1) as any] = newValue
-    } else if (key === "innerText") {
-        func = (newValue: any) => el.el.innerText = newValue
-    } else {
-        func = (newValue: any) => (el.el as any)[key] = newValue
-    }
-    func(valueFunc())
-
-    addDeps(dl, deps, el._$id, func, valueFunc)
-}
 
 export function addCElDotProp(dl: DLBase, cEl: DLBase, key: string, propFunc: () => any) {
     cEl._$dotProps[key] = propFunc()
@@ -65,29 +52,4 @@ function addCElPropTmp(dl: DLBase, cEl: DLBase, key: string, propFunc: () => any
 
 
 
-// ---- 添加child，很重要
-export function addEls(dl: DLBase, el: any, childEls: any[], keepInnerHTML=false, prevIndicator?: Indicator) {
-    // ---- 有childNodes自动忽略innerText
-    if (!keepInnerHTML) el.el.innerHTML = ""
-    const indicator: Indicator = prevIndicator ?? {index: 0, customEls: []}
-    for (let childEl of childEls) {
-        el._$els.push(childEl)
-        if (childEl._$specialEl) {
-            childEl.mount(dl, el.el, indicator)
-            indicator.customEls.push(childEl)
-            continue
-        }
-        if (childEl._$plainEl) {
-            indicator.index ++
-            el.el.append(childEl.el)
-            continue
-        }
-        // ---- custom el
-        const e = childEl.render()
-        childEl.willMount()
-        indicator.index += addEls(dl, el, e, true, indicator)
-        childEl.didMount()
-    }
-    return indicator.index
-}
 

@@ -3,40 +3,40 @@ import {View, Derived, DotProp, Effect, Prop, PropDerived, State, Environment} f
 
 class SubEl3 extends View {
     @Prop a: number
-    @State jb
-    @State nc
-    
+    @Environment what
+    @Environment id
     Body() {
+        button("+")
+            .onclick(() => {
+                this.what ++
+                this.id += "uck"
+            })
+
+        button("-")
+            .onclick(() => {
+                this.what --
+                this.id += "f"
+            })
+        div(this.what)
+        div(this.id)
         div(this.a)
     }
 }
-new SubEl3().render()
+
 class SubEl2 extends View {
     @Prop a: number
-    @Environment id: string
 
     Body() {
         div(this.a)
-        div(this.id)
         SubEl3({a: this.a+1})
     }
 }
 
 class SubEl1 extends View {
     @Prop a: number
-    @Environment what: number
 
     Body() {
-        div(this.what)
-        button("+")
-            .onclick(() => {
-                this.what ++
-            })
-
-        button("-")
-            .onclick(() => {
-                this.what --
-            })
+        div(this.a)
         SubEl2({a: this.a+1})
 
     }
@@ -79,12 +79,15 @@ export class TestElement extends View {
         "no"
         "------"
         Environment({what: 100, id: "caosiwo", niubi: "jjj"}) {
-            Environment({what: 1}) {
-                If (this.flag) {
-                    For (let i of [...Array(3).keys()]) {
-                        SubEl1({ a: this.hh+1})
-                    }
-                }            
+            div{
+                Environment({what: 1}) {
+                    If (this.flag) {
+                        For (let i of [...Array(3).keys()]) {
+                            SubEl1({ a: this.hh+1})
+                            div("----")
+                        }
+                    }            
+                }
             }
         }
     }

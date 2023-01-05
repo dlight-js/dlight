@@ -49,14 +49,17 @@ export class EnvEl extends DLBase {
             this.setEnvObjs(el._$els)
             return
         }
-        if (el._$dlBase) {
-            el._$envEls.push(this)
-            // ---- 必须把原先的依赖删掉
-            const didUnmount = el.didUnmount
-            el.didUnmount = () => {
-                didUnmount()
-                deleteDepsPrefix(this, `${this._$id}_${el._$id}`)
-            }
+        if (el._$htmlEl) {
+            this.setEnvObjs(el._$els)
+            return 
+        }
+
+        el._$envEls.push(this)
+        // ---- 必须把原先的依赖删掉
+        const didUnmount = el.didUnmount
+        el.didUnmount = () => {
+            didUnmount()
+            deleteDepsPrefix(this, `${this._$id}_${el._$id}`)
         }
     }
 

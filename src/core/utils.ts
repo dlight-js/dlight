@@ -1,5 +1,5 @@
 import {DLBase} from "./DLBase";
-import {addEls, HTMLEl} from "./func";
+import { HTMLEl } from "./Els";
 
 export function addDep(dl: DLBase, dep: string, id: string, func: (newValue?: any) => any, valueFunc?: () => any) {
     if (dl._$deps[dep] === undefined) {
@@ -127,9 +127,9 @@ export function isFunc(str: string) {
 }
 
 export function render(selectName: string, dl: DLBase) {
-    const el = new HTMLEl("div", uid())
+    const el = new HTMLEl(dl, "div", ()=>dl.render(), uid())
     el.el = document.querySelector(selectName)!
-    addEls(dl, el, dl.render())
+    el.render()
 }
 
 // ---- 比下面生成uuid省很多时间（1000个省3ms），但是有可能重复（36^13=1.6^20的概率)，trade off了

@@ -1,3 +1,4 @@
+import { env } from "process";
 import {DLBase} from "./DLBase";
 import { EnvEl } from "./Els";
 import {addDep, addDeps, geneDeps, isKeyDep, runDeps} from "./utils";
@@ -185,6 +186,7 @@ export class DecoratorResolver {
         return this.rosolve(propertyKey, "environment", () => {
             const rawKey = DecoratorTrimmer.environment(propertyKey);
             let envEl: EnvEl | undefined = undefined
+
             for (let env of dl._$envEls) {
                 if (Object.keys(env._$deps).includes(rawKey)) {
                     envEl = env as EnvEl
