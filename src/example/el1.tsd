@@ -1,16 +1,19 @@
 import {View, Derived, DotProp, Effect, Prop, PropDerived, State, Environment} from "@/core";
 
+
 class SubEl3 extends View {
     @Prop a: number
-
+    @State jb
+    @State nc
+    
     Body() {
         div(this.a)
     }
 }
-
+new SubEl3().render()
 class SubEl2 extends View {
     @Prop a: number
-    @Environment id: number
+    @Environment id: string
 
     Body() {
         div(this.a)
@@ -37,6 +40,7 @@ class SubEl1 extends View {
         SubEl2({a: this.a+1})
 
     }
+
 }
 
 const a = 1
@@ -74,12 +78,14 @@ export class TestElement extends View {
         }
         "no"
         "------"
-        Environment({what: 1, id: "caosiwo"}) {
-            If (this.flag) {
-                For (let i of [...Array(100).keys()]) {
-                    SubEl1({ a: this.hh+1})
-                }
-            }            
+        Environment({what: 100, id: "caosiwo", niubi: "jjj"}) {
+            Environment({what: 1}) {
+                If (this.flag) {
+                    For (let i of [...Array(3).keys()]) {
+                        SubEl1({ a: this.hh+1})
+                    }
+                }            
+            }
         }
     }
 }

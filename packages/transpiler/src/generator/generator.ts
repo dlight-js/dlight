@@ -8,7 +8,7 @@ export class Generator {
         for (let child of parserEl.children) {
             body.addBody(this.resolveParserEl(child))
         }
-        body.add(`this._$el = ${geneChildElArray(parserEl)}`)
+        body.add(`this._$els = ${geneChildElArray(parserEl)}`)
 
         return body.value
     }

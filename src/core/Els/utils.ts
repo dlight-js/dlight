@@ -11,7 +11,7 @@ export function removeEls(els: any[], dl: DLBase) {
             continue
         }
         if (el._$specialEl) {
-            removeEls(el.els, dl)
+            removeEls(el._$els, dl)
             continue
         }
         if (el._$plainEl) {
@@ -39,7 +39,7 @@ export function deleteSubDeps(els: any[], dl: DLBase) {
                 deleteDeps(dl, i)
             }
         }
-        if (el.els) deleteSubDeps(el.els, dl)
+        if (el._$els) deleteSubDeps(el._$els, dl)
     }
 }
 
@@ -49,11 +49,11 @@ export function deleteSubDeps(els: any[], dl: DLBase) {
 export function appendEls(els: any[], index: number, parentEl: HTMLElement, length: number): [number, number] {
     for (let el of els) {
         if (Array.isArray(el)) {
-            [index, length] = appendEls(el, index, parentEl, length)
+            [index, length] = appendEls(el, index, parentEl, length)  // 只可能是for，所以fatherEl还是fatherEl
             continue
         }
         if (el._$specialEl) {
-            [index, length] = appendEls(el.els, index, parentEl, length)
+            [index, length] = appendEls(el._$els, index, parentEl, length)
             continue
         }
         if (el._$plainEl) {
@@ -82,7 +82,7 @@ export function willMountEls(els: any[]) {
             continue
         }
         if (el._$specialEl) {
-            willMountEls(el.els)
+            willMountEls(el._$els)
             continue
         }
         if (el._$plainEl) {
@@ -100,7 +100,7 @@ export function didMountEls(els: any[]) {
             continue
         }
         if (el._$specialEl) {
-            didMountEls(el.els)
+            didMountEls(el._$els)
             continue
         }
         if (el._$plainEl) {
@@ -140,7 +140,7 @@ function getIndicatorIndex(customEls: any[]) {
             continue
         }
         if (el._$specialEl) {
-            index += getIndicatorIndex(el.els)
+            index += getIndicatorIndex(el._$els)
             continue
         }
         index += (el._$dlBase ? el.render() : [el]).length
@@ -168,7 +168,7 @@ export function flatElArray(el: any): HTMLElement[] {
         }
         return els
     }
-    if (el._$specialEl) return flatElArray(el.els)
+    if (el._$specialEl) return flatElArray(el._$els)
     if (el._$plainEl) return [el.el]
     return flatElArray(el.render())
 }

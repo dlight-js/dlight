@@ -6,7 +6,7 @@ import {Task} from "./Task";
 export class ToDoApp extends View {
   @State tasks: Task[] = []
   @State toggle = false
-  @Derived unfinishedNum = (this.toggle || !this.toggle) && this.tasks.filter(t=>!t.finished).length
+  @Derived(["toggle"]) unfinishedNum = this.tasks.filter(t=>!t.finished).length
   @Effect watchUnfinishedNum() {
     console.log(`[Effect] There remains ${this.unfinishedNum} tasks to do.`)
   }

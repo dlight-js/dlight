@@ -109,20 +109,14 @@ export class DecoratorResolver {
         return this.rosolve(propertyKey, "derived", () => {
             const rawKey = DecoratorTrimmer.derived(propertyKey);
             const prop = (dl as any)[rawKey]
-            const propStr = prop.toString()
-            const derivedDeps = []
-            for (let depKey of Object.keys(dl._$deps)) {
-                if (isKeyDep(depKey, propStr)) {
-                    derivedDeps.push(depKey)
-                }
-            }
-            for (let derivedDepKey of Object.keys(dl._$derived_deps)) {
-                if (isKeyDep(derivedDepKey, propStr)) {
-                    derivedDeps.push(...dl._$derived_deps[derivedDepKey])
-                }
-            }
+            const derivedDeps = [...(dl as any)[propertyKey], ...geneDeps(prop.toString())]
+
 
             dl._$derived_deps[rawKey] = derivedDeps;
+            // ---- 重新定义，因为本来里面存了@Derived(deps)的deps
+            Object.defineProperty(Object.getPrototypeOf(dl), propertyKey, {
+                writable: true
+            });
             (dl as any)[propertyKey] = prop
             Object.defineProperty(dl, rawKey, {
                 get() {
@@ -210,7 +204,7 @@ export class DecoratorResolver {
                     runDeps(dl, rawKey)
                 }
             })
-            const id = `${envEl._$id}_${rawKey}`
+            const id = `${envEl._$id}_${dl._$id}_${rawKey}`
             dl._$depIds.push(id)
             const depFunc = () => (envEl as any)[rawKey] = (dl as any)[rawKey]
             dl._$deps[rawKey] = {[id]: [depFunc]}
@@ -230,11 +224,25 @@ export const State = (target: any, rawKey: string) => {
     })
 }
 
-export const Derived = (target: any, rawKey: string) => {
-    Object.defineProperty(target, DecoratorMaker.derived(rawKey), {
-        writable: true
-    })
+export const Derived = (...props: any[]) => {
+    if (props.length === 3) {
+        // prop是三个，代表是decorator
+        const [target, rawKey] = props
+        Object.defineProperty(target, DecoratorMaker.derived(rawKey), {
+            get: () => [],
+            configurable: true
+        })
+        return
+    }
+    // prop只有一个，代表是传入的监听变量，需要返回decorator
+    return (target: any, rawKey: string) => {
+        Object.defineProperty(target, DecoratorMaker.derived(rawKey), {
+            get: () => props[0],
+            configurable: true
+        })
+    }
 }
+
 
 export const Effect = (...props: any[]) => {
     if (props.length === 3) {

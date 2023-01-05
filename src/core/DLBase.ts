@@ -4,7 +4,7 @@ import {uid} from "./utils";
 export abstract class DLBase {
     _$dlBase = true
     _$id: string
-    _$el?: HTMLElement[]
+    _$els?: HTMLElement[]
     _$depIds: string[] = []  // 用来存和自己有关的depId
     _$deps: any = {}
     _$derived_deps: any = {}
@@ -34,11 +34,20 @@ export abstract class DLBase {
         }
     }
 
+    resolveEnv() {
+        for (let superEnvEl of this._$envEls) {
+            (superEnvEl as any).setEnvObjs(this._$els!)
+        }
+    }
+
     render() {
-        if (this._$el !== undefined) return this._$el
+        if (this._$els !== undefined) return this._$els
+        console.log(this._$envEls, this.constructor.name, this)
         this._$init()
         this.Body()
-        return this._$el!
+        this.resolveEnv()
+
+        return this._$els!
     }
 
 
@@ -47,6 +56,7 @@ export abstract class DLBase {
     didMount() {}
     willUnmount() {}
     didUnmount() {}
+    willRender() {}
 }
 
 

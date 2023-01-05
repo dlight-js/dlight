@@ -69,6 +69,16 @@ export function deleteDeps(dl: DLBase, id: string) {
     }
 }
 
+export function deleteDepsPrefix(dl: DLBase, prefix: string) {
+    for (let depName in dl._$deps) {
+        for (let id in dl._$deps[depName] ?? {}) {
+            if (id.startsWith(prefix)) {
+                delete dl._$deps[depName][id]
+            }
+        }
+    }
+}
+
 
 export function isKeyDep(key: string, valueStr: string) {
     // ---- 后续可能用支持in browser的recast，https://github.com/benjamn/recast

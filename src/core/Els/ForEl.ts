@@ -1,14 +1,11 @@
-import {DLBase} from "../DLBase";
-import {SpecialEl, Indicator} from "./SpecialEl";
+import {SpecialEl} from "./SpecialEl";
 import {flatElArray, newIndicator, parseIndicator, willMountEls, didMountEls} from "./utils";
-import {addDeps} from "../utils";
 
 
 export class ForEl extends SpecialEl {
     elFunc: (item: any, idx: number) => any[]
     keyFunc: (() => any[]) | undefined
     arrayFunc: () => any
-    listenDeps: string[]
     constructor(elFunc: (item: any, idx: number) => any[], keyFunc: (() => any[]) | undefined, arrayFunc: () => any, listenDeps: string[], id: string) {
         super(id)
         this.elFunc = elFunc
@@ -18,7 +15,7 @@ export class ForEl extends SpecialEl {
          // ---- init el
          this.array = this.getArray()
          this.keys = this.getKey()
-         this.els = this.array.map((item, idx)=>this.elFunc(item, idx))
+         this._$els = this.array.map((item, idx)=>this.elFunc(item, idx))
     }
     keys: string[] = []
     array: any[] = []
@@ -41,18 +38,17 @@ export class ForEl extends SpecialEl {
         return [...this.arrayFunc()]
     }
 
-    init(dl: DLBase, parentEl: HTMLElement, indicator: Indicator) {
-        this.preset(dl, parentEl, indicator)
-        // ---- add listen deps
-        addDeps(this.dl!, this.listenDeps, this._$id, () => this.update())
-        this.resolveNestCustomEls(this.els, newIndicator(this.indicator))
+    getNewEls(idx: number) {
+        const newEls = this.elFunc(this.array[idx], idx)
+        // ---- 先要初始化envs
+        this.resoleveEnvs(newEls)
+        return newEls
     }
 
-  
     update() {
         const prevKeys = this.keys
         const prevArray = this.array
-        const prevAllEls = this.els
+        const prevAllEls = this._$els
         this.array = this.getArray()
         this.keys = this.getKey() 
         // ---1 先替换
@@ -70,7 +66,7 @@ export class ForEl extends SpecialEl {
             // ---- 不然就直接替换，把第一个替换了，其他的删除
             const firstEl = flatElArray(prevAllEls[prevIdx])[0]
             // ---- 添加新的
-            const newEls = this.elFunc(this.array[idx], idx)
+            const newEls = this.getNewEls(idx)
 
             if (firstEl === undefined) {
                 // ---- 前面啥都没有，那就用for的index来append
@@ -85,7 +81,7 @@ export class ForEl extends SpecialEl {
             this.deleteSubDeps(prevAllEls[prevIdx])
             this.removeEls(prevAllEls[prevIdx])
             // ---- 放回els里面
-            this.els[idx] = newEls
+            this._$els[idx] = newEls
         }
         // ---2 再删除
         for (let prevIdx of [...Array(prevKeys.length).keys()]) {
@@ -100,19 +96,19 @@ export class ForEl extends SpecialEl {
         let _: any
         for (let idx of [...Array(this.keys.length).keys()]) {
             if (solvedIdx.includes(idx)) {
-                // ---- 这些已经被替换了
-                this.resolveNestCustomEls(this.els[idx], indicator)
+                // ---- 这些已经被替换了，但是要更新indicator的值
+                this.resolveNestCustomEls(this._$els[idx], indicator)
                 continue
             }
-            const newEls = this.elFunc(this.array[idx], idx)
+            const newEls = this.getNewEls(idx)
             const index = parseIndicator(indicator)
             this.resolveNestCustomEls(newEls, indicator);
             [_, length] = this.appendEls(newEls, index, length)
 
-            this.els[idx] = newEls
+            this._$els[idx] = newEls
         }
 
-        this.els = this.els.slice(0, this.keys.length)
+        this._$els = this._$els.slice(0, this.keys.length)
     }
 
 }

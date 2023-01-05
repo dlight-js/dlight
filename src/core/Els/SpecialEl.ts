@@ -1,4 +1,5 @@
 import {DLBase} from "../DLBase";
+import { addDeps } from "../utils";
 
 import {
     appendEls,
@@ -14,12 +15,14 @@ export interface Indicator {
 }
 
 
-export abstract class SpecialEl {
+export class SpecialEl {
     dl?: DLBase
     parentEl?: HTMLElement
     _$id: string
-    els: any
+    _$els: any
     _$specialEl = true
+    listenDeps: string[] = []
+    _$envEls: any[] = []
     indicator: Indicator = {
         index: 0,
         customEls: []
@@ -35,11 +38,27 @@ export abstract class SpecialEl {
         this.parentEl = parentEl
     }
 
-    abstract init(dl: DLBase, parentEl: HTMLElement, indicator: Indicator): any
+    init(dl: DLBase, parentEl: HTMLElement, indicator: Indicator) {
+        // ---- mount只是添加基础属性，不添加到dom上，添加dom在外面用appendEls()
+        // ---- 首先preset一下
+        this.preset(dl, parentEl, indicator)
+        this.resolveNestCustomEls(this._$els, newIndicator(this.indicator))
+
+        // ---- 依赖更新
+        addDeps(this.dl!, this.listenDeps, this._$id, () => this.update())
+    }
+
+    update() {}
+
+    resoleveEnvs(els: any[]) {
+        for (let envEl of this._$envEls) {
+            envEl.setEnvObjs(els)
+        }
+    }
 
     mount(dl: DLBase, parentEl: HTMLElement, indicator: Indicator) {
         this.init(dl, parentEl, indicator)
-        this.appendEls(this.els, parseIndicator(this.indicator), this.parentEl!.childNodes.length)
+        this.appendEls(this._$els, parseIndicator(this.indicator), this.parentEl!.childNodes.length)
     }
 
     resolveNestCustomEls(els: any[], indicator: Indicator) {
@@ -55,6 +74,6 @@ export abstract class SpecialEl {
     }
 
     appendEls(els: any[], index: number, length: number) {
-        return appendEls(els, index, this.parentEl!, length)
+        return appendEls(els, index, this.parentEl!, length, this)
     }
 }

@@ -66,12 +66,12 @@ function addCElPropTmp(dl: DLBase, cEl: DLBase, key: string, propFunc: () => any
 
 
 // ---- 添加child，很重要
-export function addEls(dl: DLBase, el: any, childEls: any[], keepInnerHTML=false) {
+export function addEls(dl: DLBase, el: any, childEls: any[], keepInnerHTML=false, prevIndicator?: Indicator) {
     // ---- 有childNodes自动忽略innerText
     if (!keepInnerHTML) el.el.innerHTML = ""
-    const indicator: Indicator = {index: 0, customEls: []}
+    const indicator: Indicator = prevIndicator ?? {index: 0, customEls: []}
     for (let childEl of childEls) {
-        el.els.push(childEl)
+        el._$els.push(childEl)
         if (childEl._$specialEl) {
             childEl.mount(dl, el.el, indicator)
             indicator.customEls.push(childEl)
@@ -85,7 +85,7 @@ export function addEls(dl: DLBase, el: any, childEls: any[], keepInnerHTML=false
         // ---- custom el
         const e = childEl.render()
         childEl.willMount()
-        indicator.index += addEls(dl, el, e, true)
+        indicator.index += addEls(dl, el, e, true, indicator)
         childEl.didMount()
     }
     return indicator.index

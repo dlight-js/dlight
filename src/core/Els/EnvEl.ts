@@ -1,9 +1,11 @@
-import { DecoratorMaker, DecoratorTrimmer } from "../decorator";
+import { DecoratorMaker } from "../decorator";
 import { DLBase } from "../DLBase";
+import { deleteDepsPrefix } from "../utils";
 
 
 export class EnvEl extends DLBase {
     envObject: any
+    _$envEl = true
 
     constructor(envObject: any, elFunc: () => any[], id: string) {
         super(id)
@@ -15,10 +17,20 @@ export class EnvEl extends DLBase {
             })
         }
         this._$init()
-        this._$el = elFunc()
-        this.setEnvObjs(this._$el!)
+        this.cleanDeps()
+        this._$els = elFunc()
+        this.setEnvObjs(this._$els!)
     }
 
+    cleanDeps() {
+        // ---- 如果多层EnvEl嵌套，由于protoType相同，所以会出现空的冗余的需要删除
+        for (let depKey in this._$deps) {
+            const value = this.envObject[depKey]
+            if ((value === undefined) || (value === null)) {
+                delete this._$deps[depKey]
+            }
+        }
+    }
     Body() {}
 
     setEnvObjs(el: any) {
@@ -29,13 +41,22 @@ export class EnvEl extends DLBase {
             return
         }
         if (el._$specialEl) {
-            this.setEnvObjs(el.els)
+            this.setEnvObjs(el._$els)
+            el._$envEls.push(this)
+            return
+        }
+        if (el._$envEl) {
+            this.setEnvObjs(el._$els)
             return
         }
         if (el._$dlBase) {
             el._$envEls.push(this)
-            // ---- 这里只能提前render了，好像没有什么问题
-            this.setEnvObjs(el.render())
+            // ---- 必须把原先的依赖删掉
+            const didUnmount = el.didUnmount
+            el.didUnmount = () => {
+                didUnmount()
+                deleteDepsPrefix(this, `${this._$id}_${el._$id}`)
+            }
         }
     }
 
