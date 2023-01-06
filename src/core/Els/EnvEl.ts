@@ -10,9 +10,9 @@ export class EnvEl extends DLBase {
         super(id)
         this._$els = elFunc()
     }
-    addPair(dl: DLBase, key: string, propFunc: () => any, listenDeps: string[]) {
+    _$addPair(dl: DLBase, key: string, propFunc: () => any, listenDeps: string[]) {
         this.envObject[key] = propFunc()
-        this.addCElPropTmp(dl, key, propFunc, listenDeps)
+        this._$addCElPropTmp(dl, key, propFunc, listenDeps)
     }
 
     preset() {
@@ -50,15 +50,11 @@ export class EnvEl extends DLBase {
             el._$envEls.push(this)
             return
         }
-        if (el._$envEl) {
+        if (el._$envEl || el._$htmlEl) {
             this.setEnvObjs(el._$els)
             return
         }
-        if (el._$htmlEl) {
-            this.setEnvObjs(el._$els)
-            return 
-        }
-
+        if (el._$textEl) return
         el._$envEls.push(this)
         // ---- 必须把原先的依赖删掉
         const didUnmount = el.didUnmount

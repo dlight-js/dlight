@@ -7,6 +7,9 @@ export class ForEl extends SpecialEl {
     elFunc: (item: any, idx: number) => any[]
     keyFunc: (() => any[]) | undefined
     arrayFunc: () => any
+    keys: string[] = []
+    array: any[] = []
+
     constructor(dl: DLBase, elFunc: (item: any, idx: number) => any[], keyFunc: (() => any[]) | undefined, arrayFunc: () => any, listenDeps: string[], id: string) {
         super(id, dl)
         this.elFunc = elFunc
@@ -18,8 +21,7 @@ export class ForEl extends SpecialEl {
          this.keys = this.getKey()
          this._$els = this.array.map((item, idx)=>this.elFunc(item, idx))
     }
-    keys: string[] = []
-    array: any[] = []
+
 
     getKey() {
         if (this.keyFunc) {
@@ -56,6 +58,8 @@ export class ForEl extends SpecialEl {
         const solvedIdx = []
         const solvedPrevIdxes: number[] = []
 
+        let tt = 0
+        let t1 = performance.now()
         for (let [idx, key] of this.keys.entries()) {
             const prevIdx = prevKeys.indexOf(key)
             // ---- 如果前面没有这个key，代表是空的，直接继续不替换，下面处理
@@ -66,6 +70,7 @@ export class ForEl extends SpecialEl {
             if (prevArray[prevIdx] === this.array[idx] && idx === prevIdx) continue
             // ---- 不然就直接替换，把第一个替换了，其他的删除
             const firstEl = flatElArray(prevAllEls[prevIdx])[0]
+
             // ---- 添加新的
             const newEls = this.getNewEls(idx)
 
@@ -75,15 +80,24 @@ export class ForEl extends SpecialEl {
             } else {
                 // ---- 替换第一个
                 willMountEls(newEls)
-                firstEl.replaceWith(...flatElArray(newEls))
+                let t1 = performance.now()
+                let a = flatElArray(newEls)
+                let t2 = performance.now()
+                tt += t2-t1
+                firstEl.replaceWith(...a)
                 didMountEls(newEls)
+
             }
+
             // ---- 删除旧的
             this.deleteSubDeps(prevAllEls[prevIdx])
             this.removeEls(prevAllEls[prevIdx])
             // ---- 放回els里面
             this._$els[idx] = newEls
         }
+        let t2 = performance.now()
+        console.log(t2-t1)
+        console.log(tt)
         // ---2 再删除
         for (let prevIdx of [...Array(prevKeys.length).keys()]) {
             if (solvedPrevIdxes.includes(prevIdx)) continue

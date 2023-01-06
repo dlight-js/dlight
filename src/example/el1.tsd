@@ -82,7 +82,7 @@ export class TestElement extends View {
         "no"
         div(this.hh)
         div(this.jb)
-                "------"
+        "------"
         Environment({what: this.hh+1, id: this.jb, niubi: "jjj"}) {
             div{
                 Environment({what: 1}) {

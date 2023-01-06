@@ -10,7 +10,9 @@ interface ConditionPair {
 
 
 export class IfEl extends SpecialEl {
-    conditionPairs: ConditionPair[]
+    conditionPairs: ConditionPair[] = []
+    condition?: string
+
     constructor(dl: DLBase, conditionPairs: ConditionPair[], id: string) {
         super(id, dl)
         this.conditionPairs = conditionPairs
@@ -28,8 +30,6 @@ export class IfEl extends SpecialEl {
         }            
         this._$els = els
     }
-    condition?: string
-
 
     // ---- update
     updateEl() {

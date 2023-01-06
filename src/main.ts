@@ -9,6 +9,6 @@ import {render} from "./core/utils";
 
 export {}
 
-// render("#app", new Benchmark())
-render("#app", new TestElement())
+render("#app", new Benchmark())
+// render("#app", new TestElement())
 // render("#app", new ToDoApp())

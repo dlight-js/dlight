@@ -11,21 +11,22 @@ import {
 
 export interface Indicator {
     index: number
-    customEls: SpecialEl[]
+    specialEls: SpecialEl[]
 }
 
 
 export class SpecialEl {
-    dl: DLBase
-    parentEl?: HTMLElement
+    _$specialEl = true
     _$id: string
     _$els: any
-    _$specialEl = true
-    listenDeps: string[] = []
     _$envEls: any[] = []
+
+    dl: DLBase
+    parentEl?: HTMLElement
+    listenDeps: string[] = []
     indicator: Indicator = {
         index: 0,
-        customEls: []
+        specialEls: []
     }
 
     constructor(id: string, dl: DLBase) {
@@ -33,15 +34,11 @@ export class SpecialEl {
         this.dl = dl
     }
 
-    preset(parentEl: HTMLElement, indicator: Indicator) {
-        this.indicator = newIndicator(indicator)
-        this.parentEl = parentEl
-    }
-
     init(parentEl: HTMLElement, indicator: Indicator) {
         // ---- mount只是添加基础属性，不添加到dom上，添加dom在外面用appendEls()
         // ---- 首先preset一下
-        this.preset(parentEl, indicator)
+        this.indicator = newIndicator(indicator)
+        this.parentEl = parentEl
         this.resolveNestCustomEls(this._$els, newIndicator(this.indicator))
 
         // ---- 依赖更新
@@ -54,11 +51,6 @@ export class SpecialEl {
         for (let envEl of this._$envEls) {
             envEl.setEnvObjs(els)
         }
-    }
-
-    render(parentEl: HTMLElement, indicator: Indicator) {
-        this.init(parentEl, indicator)
-        this.appendEls(this._$els, parseIndicator(this.indicator), this.parentEl!.childNodes.length)
     }
 
     resolveNestCustomEls(els: any[], indicator: Indicator) {
@@ -75,5 +67,10 @@ export class SpecialEl {
 
     appendEls(els: any[], index: number, length: number) {
         return appendEls(els, index, this.parentEl!, length)
+    }
+
+    render(parentEl: HTMLElement, indicator: Indicator) {
+        this.init(parentEl, indicator)
+        this.appendEls(this._$els, parseIndicator(this.indicator), this.parentEl!.childNodes.length)
     }
 }

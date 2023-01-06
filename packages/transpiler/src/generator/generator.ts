@@ -34,7 +34,7 @@ export class Generator {
         body.add(indent(`return ${geneChildElArray(parserEl.kv.parserEl)}`))
         body.add(`}, ${id})`)
         for (let {key, value} of parserEl.kv["props"]??[]) {
-            body.add(`${el}.addPair(this, "${key}", () => (${value}), ${geneDeps(value)})`)
+            body.add(`${el}._$addPair(this, "${key}", () => (${value}), ${geneDeps(value)})`)
         }
 
         return body
@@ -104,29 +104,29 @@ export class Generator {
         const body = new BodyStringBuilder()
         const kv = parserEl.kv
         const el = `el${elId(parserEl)}`
+        body.add(`const ${el} = new _$.HTMLEl(this, "${parserEl.tag}", ${id})`)
+
         if (parserEl.children.length > 0) {
-            body.add(`const ${el} = new _$.HTMLEl(this, "${parserEl.tag}", () => {`)
+            body.add(`${el}._$addEls((() => {`)
             for (let childEl of parserEl.children) {
                 body.addBody(this.resolveParserEl(childEl, idAppendix).indent())
             }
             body.add(indent(`return ${geneChildElArray(parserEl)}`))
-            body.add(`}, ${id})`)
-        } else {
-            body.add(`const ${el} = new _$.HTMLEl(this, "${parserEl.tag}", undefined, ${id})`)
-        }
+            body.add(`})())`)
+        } 
         
         // ---- properties
         for (let key in kv) {
             // ---- 处理content，htmlTag直接变成innerText
             if (key === "_$content") {
-                body.add(`${el}.addElProp("innerText", () => (${kv[key]}), ${geneDeps(kv[key])})`)
+                body.add(`${el}._$addElProp("innerText", () => (${kv[key]}), ${geneDeps(kv[key])})`)
                 continue
             }
             if (key === "element") {
                 body.add(`${kv[key]} = ${el}.el`)
                 continue
             }
-            body.add(`${el}.addElProp("${key}", () => (${kv[key]}), ${geneDeps(kv[key])})`)
+            body.add(`${el}._$addElProp("${key}", () => (${kv[key]}), ${geneDeps(kv[key])})`)
         }
         
 
@@ -140,12 +140,12 @@ export class Generator {
         const el = `el${elId(parserEl)}`
         body.add(`const ${el} = new ${parserEl.tag}(${id})`)
         for (let {key, value} of parserEl.kv["props"]??[]) {
-            body.add(`${el}.addCElProp(this, "${key}", () => (${value}), ${geneDeps(value)})`)
+            body.add(`${el}._$addCElProp(this, "${key}", () => (${value}), ${geneDeps(value)})`)
         }
         delete parserEl.kv["props"]
         const kv = parserEl.kv
         for (let k in kv) {
-            body.add(`${el}.addCElDotProp(this, "${k}", () => (${kv[k]}), ${geneDeps(kv[k])}`)
+            body.add(`${el}._$addCElDotProp(this, "${k}", () => (${kv[k]}), ${geneDeps(kv[k])})`)
         }
 
         return body
@@ -154,7 +154,7 @@ export class Generator {
     static resolveText(parserEl: ParserEl, idAppendix?: string) {
         const id = geneId(idAppendix)
         const body = new BodyStringBuilder()
-        body.add(`const el${elId(parserEl)} = new _$.TextEl(this, () => \`${parserEl.kv["value"]}\`, ${id})`)
+        body.add(`const el${elId(parserEl)} = new _$.TextEl(this, () => \`${parserEl.kv["value"]}\`, ${geneDeps(parserEl.kv["value"])}, ${id})`)
         return body
     }
 

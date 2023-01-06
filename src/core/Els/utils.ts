@@ -14,8 +14,8 @@ export function removeEls(els: any[], dl: DLBase) {
             removeEls(el._$els, dl)
             continue
         }
-        if (el._$plainEl) {
-            el.el.remove()
+        if (el._$htmlEl || el._$textEl) {
+            el._$el.remove()
             continue
         }
         const e = el.render()
@@ -56,12 +56,12 @@ export function appendEls(els: any[], index: number, parentEl: HTMLElement, leng
             [index, length] = appendEls(el._$els, index, parentEl, length)
             continue
         }
-        if (el._$plainEl) {
+        if (el._$textEl || el._$htmlEl) {
             if (el._$htmlEl) el.render()
             if (index === length) {
-                parentEl!.appendChild(el.el)
+                parentEl!.appendChild(el._$el)
             } else {
-                parentEl!.insertBefore(el.el, parentEl!.childNodes[index])
+                parentEl!.insertBefore(el._$el, parentEl!.childNodes[index])
             }
             index ++
             length ++
@@ -86,7 +86,7 @@ export function willMountEls(els: any[]) {
             willMountEls(el._$els)
             continue
         }
-        if (el._$plainEl) {
+        if (el._$textEl || el._$htmlEl) {
             continue
         }
         el.willMount();
@@ -104,7 +104,7 @@ export function didMountEls(els: any[]) {
             didMountEls(el._$els)
             continue
         }
-        if (el._$plainEl) {
+        if (el._$textEl || el._$htmlEl) {
             continue
         }
         el.didMount();
@@ -120,7 +120,7 @@ export function resolveNestCustomEls(els: any[], parentEl: HTMLElement, indicato
         }
         if (el._$specialEl) {
             el.init(parentEl, indicator)  // ---- init里面已经resolve了
-            indicator.customEls.push(el)
+            indicator.specialEls.push(el)
             continue
         }
         if (el._$dlBase) {
@@ -133,9 +133,9 @@ export function resolveNestCustomEls(els: any[], parentEl: HTMLElement, indicato
 }
 
 
-function getIndicatorIndex(customEls: any[]) {
+function getIndicatorIndex(specialEls: any[]) {
     let index = 0
-    for (let el of customEls) {
+    for (let el of specialEls) {
         if (Array.isArray(el)) {
             index += getIndicatorIndex(el)
             continue
@@ -150,13 +150,13 @@ function getIndicatorIndex(customEls: any[]) {
 }
 
 export function parseIndicator(indicator: Indicator) {
-    return indicator.index + getIndicatorIndex(indicator.customEls)
+    return indicator.index + getIndicatorIndex(indicator.specialEls)
 }
 
 export function newIndicator(indicator: Indicator) {
     return {
         index: indicator.index,
-        customEls: [...indicator.customEls]
+        specialEls: [...indicator.specialEls]
     }
 }
 
@@ -170,9 +170,9 @@ export function flatElArray(el: any): HTMLElement[] {
         return els
     }
     if (el._$specialEl) return flatElArray(el._$els)
-    if (el._$plainEl) {
+    if (el._$htmlEl || el._$textEl) {
         if (el._$htmlEl) el.render()
-        return [el.el]
+        return [el._$el]
     }
     return flatElArray(el.render())
 }

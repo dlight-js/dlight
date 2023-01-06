@@ -1,21 +1,96 @@
-import {DecoratorMaker, DecoratorResolver} from "./decorator"
-import {addDep, geneDeps, isFunc, runDeps, uid} from "./utils";
+import {uid, addDeps, addDep, runDeps} from '../utils';
+import {DecoratorMaker, DecoratorResolver} from '../decorator';
 
-export abstract class DLBase {
-    _$dlBase = true
-    _$id: string
-    _$els?: HTMLElement[]
-    _$depIds: string[] = []  // 用来存和自己有关的depId
+
+type NodeType = "html" | "flow" | "dlight"
+
+export class DLNode {
+    /**
+     * @param _$id - 每一个Node都有id
+     * @param _$el - 代表DOM上面的node，只有TextNode和HtmlNode有实体node
+     * @param _$nodes - 所有嵌套Node的抽象表示
+     * 
+     * @param _$init - 这之前nodes和el都必须生成
+     * @param _$update - flow需要更新整体结构
+     * @param _$render - 传入parentEl，将_$nodes append上去
+     */
+    _$id: string = ""
+    _$el: Node | HTMLElement | any
+    _$nodes: DLNode[] = []
+    _$nodeType: NodeType
+
+    constructor(nodeType: NodeType, id?: string) {
+        this._$id = id ?? uid()
+        this._$nodeType = nodeType
+    }
+
+    _$init() {}
+    _$update() {}
+    render(parentEl: HTMLElement) {
+        switch (this._$nodeType) {
+            case "html":
+                parentEl.appendChild(this._$el)
+                break
+            case "dlight":
+                parentEl.appendChild
+        }
+    }
+
+}
+
+export class TextNode extends DLNode {
+    constructor(id?: string) {
+        super("html", id)
+    }
+
+    _$addText(dlScope: DLBase, textOrFunc: string | (() => string), listenDeps?: string[]) {
+        if (typeof textOrFunc === "string") {
+            this._$el = document.createTextNode(textOrFunc)
+            return
+        }
+        this._$el = document.createTextNode(textOrFunc())
+    }
+}
+
+
+export class HtmlNode extends DLNode {
+    constructor(id?: string) {
+        super("html", id)
+    }
+    _$addNode(dlNode: DLNode) {
+        this._$nodes.push(dlNode)
+    }
+
+    _$addNodeProp(dlScope: DLBase, key: string, valueOrFunc: string | (() => any), listenDeps?: string[]) {
+        let func: (newValue: any) => any
+        if (key[0] === "*") {
+            func = (newValue: any) => this._$el.style[key.slice(1) as any] = newValue
+        } else if (key === "innerText") {
+            func = (newValue: any) => this._$el.innerText = newValue
+        } else {
+            func = (newValue: any) => (this._$el as any)[key] = newValue
+        }
+
+        if (typeof valueOrFunc !== "function") {
+            func(valueOrFunc)
+            return
+        }
+        func(valueOrFunc())
+        // ----add dep
+    }
+}
+
+export abstract class DLightNode extends DLNode {
+    _$depIds: string[] = []  
     _$deps: any = {}
     _$derived_deps: any = {}
     _$props: any = {}
     _$dotProps: any = {}
-    _$envEls: DLBase[] = []
 
     abstract Body(): any
 
     constructor(id?: string) {
-        this._$id = id ?? uid()
+        super("dlight", id)
     }
     _$init() {
         const protoKeys = Object.getOwnPropertyNames(Object.getPrototypeOf(this))
@@ -32,6 +107,8 @@ export abstract class DLBase {
             DecoratorResolver.effect(propertyKey, this)
             )
         }
+
+        this.Body()
     }
 
     resolveEnv() {
@@ -40,17 +117,6 @@ export abstract class DLBase {
         }
     }
 
-    preset() {}
-
-    render() {
-        this.preset()
-        if (this._$els !== undefined) return this._$els
-        this._$init()
-        this.Body()
-        this.resolveEnv()
-
-        return this._$els!
-    }
 
 
 
@@ -101,7 +167,3 @@ export abstract class DLBase {
     didUnmount() {}
     willRender() {}
 }
-
-
-
-export const View = DLBase

@@ -1,16 +1,18 @@
 import {DLBase} from "../DLBase";
-import {addDeps, geneDeps} from "../utils";
-import { PlainEl } from "./PlainEl";
+import {addDeps} from "../utils";
 
 
-export class TextEl extends PlainEl {
-    valueFunc: () => string
-    constructor(dl: DLBase, valueFunc: () => string, id: string) {
-        super(document.createTextNode(valueFunc()), id)
-        this.valueFunc = valueFunc
-        const listenDeps = geneDeps(valueFunc.toString())
+export class TextEl {
+    _$textEl = true
+    _$id: string
+    _$el: Node 
+
+
+    constructor(dl: DLBase, valueFunc: () => string, listenDeps: string[], id: string) {
+        this._$el = document.createTextNode(valueFunc())
+        this._$id = id
         addDeps(dl, listenDeps, this._$id, (newValue: string) => {
-            this.el.nodeValue = newValue
+            this._$el.nodeValue = newValue
         }, valueFunc)
     }
 }
