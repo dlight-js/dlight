@@ -1,0 +1,40 @@
+import {View, Derived, DotProp, Effect, Prop, PropDerived, State, Environment} from "@/core";
+
+const fuckme = 1
+export class NewElement2 extends View {
+    @Prop a = 1
+    Body() {
+        div(this.a)
+        button("+")
+            .onclick(() => {
+                this.a ++
+            })
+    }
+}
+
+export class NewElement extends View {
+    @State hh = 0
+    @State apple = [0,1,2,3]
+
+    Body() {
+        button("hh")
+            .onclick(() => {
+                this.apple = [...this.apple, this.apple.length]
+            })
+        button("hh")
+            .onclick(() => {
+                this.apple[3] = this.hh
+                this.hh ++
+                this.apple = [...this.apple]
+            })
+        For(let i of this.apple) {
+            div(`ok ${i}`)
+            For(let i of this.apple) {
+                div(i)
+            }
+            div(`ok ${i}`)
+            `-${i}--`
+
+        }
+    }
+}

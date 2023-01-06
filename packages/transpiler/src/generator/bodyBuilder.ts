@@ -26,7 +26,7 @@ export function geneId(idAppendix?: string) {
 }
 
 export function geneChildElArray(parserEl: ParserEl) {
-    return "[" + parserEl.children.map(el=>"el"+elId(el)).join(", ") + "]"
+    return "[" + parserEl.children.map(el=>"node"+elId(el)).join(", ") + "]"
 }
 
 export class BodyStringBuilder {

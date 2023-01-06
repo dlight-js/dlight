@@ -1,4 +1,5 @@
-import {DLightNode} from "./Nodes/Node";
+import {DLBase} from "./DLBase";
+import { EnvEl } from "./Els";
 import {addDep, addDeps, geneDeps, geneDepsAllowFunc, runDeps, uid} from "./utils";
 
 export class DecoratorMaker {
@@ -77,7 +78,7 @@ export class DecoratorResolver {
         }
     }
 
-    static state(propertyKey: string, dl: DLightNode, callBack?: () => any) {
+    static state(propertyKey: string, dl: DLBase, callBack?: () => any) {
         return this.rosolve(propertyKey, "state", () => {
             const rawKey = DecoratorTrimmer.state(propertyKey);
             (dl as any)[propertyKey] = (dl as any)[rawKey];
@@ -97,14 +98,14 @@ export class DecoratorResolver {
         }, callBack)
     }
 
-    static derivedFromProp(propertyKey: string, dl: DLightNode, callBack?: () => any) {
+    static derivedFromProp(propertyKey: string, dl: DLBase, callBack?: () => any) {
         return this.rosolve(propertyKey, "derivedFromProp", () => {
             const rawKey = DecoratorTrimmer.derivedFromProp(propertyKey);
             if (dl._$deps[rawKey] === undefined) dl._$deps[rawKey] = {}
         }, callBack)
     }
 
-    static derived(propertyKey: string, dl: DLightNode, callBack?: () => any) {
+    static derived(propertyKey: string, dl: DLBase, callBack?: () => any) {
         return this.rosolve(propertyKey, "derived", () => {
             const rawKey = DecoratorTrimmer.derived(propertyKey);
             const derivedFunc = (dl as any)[rawKey];
@@ -125,7 +126,7 @@ export class DecoratorResolver {
         }, callBack)
     }
 
-    static effect(propertyKey: string, dl: DLightNode, callBack?: () => any) {
+    static effect(propertyKey: string, dl: DLBase, callBack?: () => any) {
         return this.rosolve(propertyKey, "effect", () => {
             const rawKey = DecoratorTrimmer.effect(propertyKey);
             const effectFunc = (dl as any)[rawKey]
@@ -135,7 +136,7 @@ export class DecoratorResolver {
         }, callBack)
     }
 
-    static prop(propertyKey: string, dl: DLightNode, callBack?: () => any) {
+    static prop(propertyKey: string, dl: DLBase, callBack?: () => any) {
         return this.rosolve(propertyKey, "prop", () => {
             const rawKey = DecoratorTrimmer.prop(propertyKey);
             if (dl._$props[rawKey] === undefined) {
@@ -151,7 +152,7 @@ export class DecoratorResolver {
             })
         }, callBack)
     }
-    static dotProp(propertyKey: string, dl: DLightNode, callBack?: () => any) {
+    static dotProp(propertyKey: string, dl: DLBase, callBack?: () => any) {
         return this.rosolve(propertyKey, "dotProp", () => {
             const rawKey = DecoratorTrimmer.dotProp(propertyKey);
             if (dl._$dotProps[rawKey] === undefined) {
@@ -168,14 +169,14 @@ export class DecoratorResolver {
         }, callBack)
     }
 
-    static propDerived(propertyKey: string, dl: DLightNode, callBack?: () => any) {
+    static propDerived(propertyKey: string, dl: DLBase, callBack?: () => any) {
         return this.rosolve(propertyKey, "propDerived", () => {
             const rawKey = DecoratorTrimmer.propDerived(propertyKey);
             (dl as any)[rawKey] = (dl as any)[rawKey]()
         }, callBack)
     }
 
-    static environment(propertyKey: string, dl: DLightNode, callBack?: () => any) {
+    static environment(propertyKey: string, dl: DLBase, callBack?: () => any) {
         return this.rosolve(propertyKey, "environment", () => {
             const rawKey = DecoratorTrimmer.environment(propertyKey)
             // ---- 找到对应的envEl

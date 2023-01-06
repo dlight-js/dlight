@@ -20,3 +20,10 @@
 | EnvNode    |             |         |            |                                                                                       | /            |                              |
 | IfNode     |             |         ||            | 传入parentEl和到此之前的beforeNodes，通过对beforeNodes里面遍历，拿到前面共有多少个元素，以此来parentEl.insertBefore() |              |
 | ForNode    |             | 收集key和  |            |                                                                                       |              |                              |
+
+
+constructor/beforeInit
+father <- child1 <- child2 <- ... <- childN
+
+_$init/render
+father -> child1 -> child2 -> ... -> childN

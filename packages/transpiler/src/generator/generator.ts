@@ -1,6 +1,7 @@
 import {BodyStringBuilder, indent, elId, geneChildElArray, isCustomEl, geneId} from './bodyBuilder';
 import {ParserEl} from "../parser/parserEl";
-import {geneDeps, uid} from './utils';
+import {geneDeps, uid, geneDepsStr} from './utils';
+import {ForNode} from '../../../../src/core/Nodes/ForNode';
 
 export class Generator {
     static generate(parserEl: ParserEl) {
@@ -8,7 +9,7 @@ export class Generator {
         for (let child of parserEl.children) {
             body.addBody(this.resolveParserEl(child))
         }
-        body.add(`this._$els = ${geneChildElArray(parserEl)}`)
+        body.add(`this._$nodes = ${geneChildElArray(parserEl)}`)
 
         return body.value
     }
@@ -67,34 +68,49 @@ export class Generator {
 
     static resolveFor(parserEl: ParserEl, idAppendix?: string) {
         const body = new BodyStringBuilder()
-        const childEl = parserEl.kv["parserEl"]
+        const childEls = parserEl.kv["parserEl"]
         const key = parserEl.kv["key"]
         let forValueReg = /((let)|(var))\s+?(\S+?)\s+?(of)\s+?(\S+?)$/
 
         const id = geneId(idAppendix)
-        body.add(`const el${elId(parserEl)} = new _$.ForEl(this, (item, idx) => {`)
-        // ---- 第一个参数，elFunc
-        const item = parserEl.kv.forValue.replace(forValueReg, "$4")
-        body.add(indent(`const ${item} = item`))
-        for (let cEl of childEl.children) {
-            body.addBody(this.resolveParserEl(cEl, `\${idx}`).indent())
-        }
-        body.add(indent(`return ${geneChildElArray(childEl)}`))
         const array = parserEl.kv.forValue.replace(forValueReg, "$6")
-        if (key) {
-            body.add(`}, () => {`)
-             // ---- 第二个参数，keyFunc
-            body.add(indent(`const keys${elId(parserEl)} = []`))
-            body.add(indent(`for (${parserEl.kv.forValue}) {`))
-            body.add(indent(indent(`keys${elId(parserEl)}.push(String(${key}))`)))
-            body.add(indent(("}")))
-            body.add(indent(`return keys${elId(parserEl)}`))
-            // ---- 第三四五个参数，forValue和deps和id
-            body.add(`}, () => (${array}), ${geneDeps(array)}, ${id})`)
+        const item = parserEl.kv.forValue.replace(forValueReg, "$4")
+
+        const nodeName = `node${elId(parserEl)}`
+        body.add(`const ${nodeName} = new _$.ForNode(${id})`)
+        const listenDeps = geneDeps(array)
+        if (listenDeps.length > 0) {
+            body.add(`${nodeName}._$addNodeFunc((${item}, idx) => {`)
+            for (let cEl of childEls.children) {
+                body.addBody(this.resolveParserEl(cEl, `\${idx}`).indent())
+            }
+            body.add(indent(`return ${geneChildElArray(childEls)}`))
+            body.add(`})`)
+            if (key) {
+                body.add(`${nodeName}._$addKeyFunc(() => {`)
+                // ---- 第二个参数，keyFunc
+                body.add(indent(`const keys${elId(parserEl)} = []`))
+                body.add(indent(`for (${parserEl.kv.forValue}) {`))
+                body.add(indent(indent(`keys${elId(parserEl)}.push(String(${key}))`)))
+                body.add(indent(("}")))
+                body.add(indent(`return keys${elId(parserEl)}`))
+                body.add(`})`)
+            }
+            body.add(`${nodeName}._$addArrayFunc(this, () => (${array}), ${geneDepsStr(listenDeps)})`)
         } else {
-            body.add(`}, undefined, () => (${array}), ${geneDeps(array)}, ${id})`)
+            body.add(`${nodeName}._$addNodesArr((() => {`)
+            body.add(indent(`const nodesArr = []`))
+            body.add(indent(`let idx = 0`))
+            body.add(indent(`for (let ${item} of ${array}) {`))
+            for (let cEl of childEls.children) {
+                body.addBody(this.resolveParserEl(cEl, `\${idx}`).indent().indent())
+            }
+            body.add(indent(indent(`nodesArr.push(${geneChildElArray(childEls)})`)))
+            body.add(indent(indent("idx ++")))
+            body.add(indent("}"))
+            body.add(indent("return nodesArr"))
+            body.add("})())")
         }
-       
 
         return body
     }
@@ -103,11 +119,11 @@ export class Generator {
         const id = geneId(idAppendix)
         const body = new BodyStringBuilder()
         const kv = parserEl.kv
-        const el = `el${elId(parserEl)}`
-        body.add(`const ${el} = new _$.HTMLEl(this, "${parserEl.tag}", ${id})`)
+        const nodeName = `node${elId(parserEl)}`
+        body.add(`const ${nodeName} = new _$.HtmlNode("${parserEl.tag}", ${id})`)
 
         if (parserEl.children.length > 0) {
-            body.add(`${el}._$addEls((() => {`)
+            body.add(`${nodeName}._$addEls((() => {`)
             for (let childEl of parserEl.children) {
                 body.addBody(this.resolveParserEl(childEl, idAppendix).indent())
             }
@@ -116,19 +132,27 @@ export class Generator {
         } 
         
         // ---- properties
-        for (let key in kv) {
-            // ---- 处理content，htmlTag直接变成innerText
-            if (key === "_$content") {
-                body.add(`${el}._$addElProp("innerText", () => (${kv[key]}), ${geneDeps(kv[key])})`)
-                continue
-            }
+        for (let [key, value] of Object.entries(kv)) {
             if (key === "element") {
-                body.add(`${kv[key]} = ${el}.el`)
+                body.add(`${value}} = ${nodeName}.el`)
                 continue
             }
-            body.add(`${el}._$addElProp("${key}", () => (${kv[key]}), ${geneDeps(kv[key])})`)
+            if (key === "_$content") key = "innerText"
+            const listenDeps = geneDeps(value as string)
+            if (listenDeps.length > 0) {
+                body.add(`${nodeName}._$addProp("${key}", () => (${value}), this, ${geneDepsStr(listenDeps)})`)
+                continue
+            }
+            body.add(`${nodeName}._$addProp("${key}", ${value})`)
         }
-        
+
+        // ---- children
+        for (let childEl of parserEl.children) {
+            body.add(`${nodeName}._$addNode((() => {`)
+            body.addBody(this.resolveParserEl(childEl, idAppendix).indent())
+            body.add(indent(`return node${elId(childEl)}`))
+            body.add("})())")
+        }
 
         return body
     }
@@ -137,15 +161,26 @@ export class Generator {
     static resolveCustom(parserEl: ParserEl, idAppendix?: string){
         const id = geneId(idAppendix)
         const body = new BodyStringBuilder()
-        const el = `el${elId(parserEl)}`
-        body.add(`const ${el} = new ${parserEl.tag}(${id})`)
+        const nodeName = `node${elId(parserEl)}`
+        body.add(`const ${nodeName} = new ${parserEl.tag}(${id})`)
         for (let {key, value} of parserEl.kv["props"]??[]) {
-            body.add(`${el}._$addCElProp(this, "${key}", () => (${value}), ${geneDeps(value)})`)
+            const listenDeps = geneDeps(value as string)
+            if (listenDeps.length > 0) {
+                body.add(`${nodeName}._$addProp("${key}", () => (${value}), this, ${geneDepsStr(listenDeps)})`)
+                continue
+            } 
+            body.add(`${nodeName}._$addProp("${key}", ${value})`)
+            
         }
         delete parserEl.kv["props"]
         const kv = parserEl.kv
         for (let k in kv) {
-            body.add(`${el}._$addCElDotProp(this, "${k}", () => (${kv[k]}), ${geneDeps(kv[k])})`)
+            const listenDeps = geneDeps(kv[k] as string)
+            if (listenDeps.length > 0) {
+                body.add(`${nodeName}._$addDotProp(this, "${k}", () => (${kv[k]}), ${geneDepsStr(listenDeps)})`)
+                continue
+            } 
+            body.add(`${nodeName}._$addDotProp(this, "${k}", () => (${kv[k]}))`)
         }
 
         return body
@@ -154,7 +189,14 @@ export class Generator {
     static resolveText(parserEl: ParserEl, idAppendix?: string) {
         const id = geneId(idAppendix)
         const body = new BodyStringBuilder()
-        body.add(`const el${elId(parserEl)} = new _$.TextEl(this, () => \`${parserEl.kv["value"]}\`, ${geneDeps(parserEl.kv["value"])}, ${id})`)
+        const listenDeps = geneDeps(parserEl.kv.value)
+        const strSymbol = parserEl.kv.strSymbol
+        if (listenDeps.length > 0) {
+            body.add(`const node${elId(parserEl)} = new _$.TextNode(() => ${strSymbol}${parserEl.kv["value"]}${strSymbol}, ${id}, this, ${geneDepsStr(listenDeps)})`)
+        } else {
+            body.add(`const node${elId(parserEl)} = new _$.TextNode(${strSymbol}${parserEl.kv["value"]}${strSymbol}, ${id})`)
+        }
+
         return body
     }
 

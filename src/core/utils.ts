@@ -1,7 +1,7 @@
-import {DLBase} from "./DLBase";
-import { HTMLEl } from "./Els";
+import { HtmlNode } from "./Nodes";
+import {DLightNode} from "./Nodes/DLightNode";
 
-export function addDep(dl: DLBase, dep: string, id: string, func: (newValue?: any) => any, valueFunc?: () => any) {
+export function addDep(dl: DLightNode, dep: string, id: string, func: (newValue?: any) => any, valueFunc?: () => any) {
     if (dl._$deps[dep] === undefined) return
     // ---- 需要传入生成的valueFunc和赋值或者其他操作的func，只有当新旧值不一样时才重新调用func
     //      如果不传入直接调用
@@ -22,19 +22,19 @@ export function addDep(dl: DLBase, dep: string, id: string, func: (newValue?: an
     if (dl._$deps[dep][id] === undefined) dl._$deps[dep][id] = []
     dl._$deps[dep][id].push(depFunc)
 }
-export function addDeps(dl: DLBase, deps: string[], id: string, func: (newValue?: any) => any, valueFunc?: () => any) {
+export function addDeps(dl: DLightNode, deps: string[], id: string, func: (newValue?: any) => any, valueFunc?: () => any) {
     for (let dep of deps) {
         addDep(dl, dep, id, func, valueFunc)
     }
 }
 
-export function deleteDeps(dl: DLBase, id: string) {
+export function deleteDeps(dl: DLightNode, id: string) {
     for (let depName in dl._$deps) {
         delete dl._$deps[depName][id]
     }
 }
 
-export function deleteDepsPrefix(dl: DLBase, prefix: string) {
+export function deleteDepsPrefix(dl: DLightNode, prefix: string) {
     for (let depName in dl._$deps) {
         for (let id in dl._$deps[depName] ?? {}) {
             if (id.startsWith(prefix)) {
@@ -65,11 +65,13 @@ export function isFunc(str: string) {
     return /(^\(\)\s*?=>)|(function\s*?\(\))/.test(str.trim())
 }
 
-export function render(selectName: string, dl: DLBase) {
-    const el = new HTMLEl(dl, "div", uid())
-    el._$el = document.querySelector(selectName)!
-    el._$addEls(dl.render())
-    el.render()
+export function render(selectName: string, dl: DLightNode) {
+    const appNode = new HtmlNode("div")
+    appNode._$addNode(dl)
+    appNode._$addProp("id", "fuck")
+    appNode._$init()
+    appNode.render()
+    document.querySelector(selectName)!.replaceWith(appNode._$el)
 }
 
 // ---- 比下面生成uuid省很多时间（1000个省3ms），但是有可能重复（36^13=1.6^20的概率)，trade off了
@@ -81,7 +83,7 @@ export function uid() {
 //     return uuid.v4()
 // }
 
-export function runDeps(dl: DLBase, depName: string) {
+export function runDeps(dl: DLightNode, depName: string) {
     for (let id in dl._$deps[depName] ?? []) {
         for (let dep of dl._$deps[depName][id]) {
             dep.call(dl)

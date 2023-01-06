@@ -86,13 +86,14 @@ export class DlightParser {
         }
         this.eat() // eat "
         this.addElChild()
-        this.el.kv["value"] = this.el.tag
+        this.el.kv.strSymbol = strSymbol
+        this.el.kv.value = this.el.tag
         this.el.tag = "TextNode"
     }
 
     eatProps() {
         if (this.look() === "{") {
-            this.el.kv["props"] = []
+            this.el.kv.props = []
             this.eat()  // eat {
             while (true) {
                 while (this.ok() && !["{", ":", ",", "}"].includes(this.look())) {
@@ -101,7 +102,7 @@ export class DlightParser {
                 }
                 const nextC = this.look()
                 if (nextC === ":") {
-                    this.el.kv["props"].push({key: this.token.trim(), value: "_$none"})
+                    this.el.kv.props.push({key: this.token.trim(), value: "_$none"})
                     this.eat()
                     this.erase()
                 } else if (nextC === ",") {
@@ -112,7 +113,7 @@ export class DlightParser {
                         lastProp.value = value
                     } else {
                         // ---- 代表是 {key}的简写情况
-                        this.el.kv["props"].push({key: value, value})
+                        this.el.kv.props.push({key: value, value})
                     }
                     this.eat()
                     this.erase()
@@ -133,7 +134,7 @@ export class DlightParser {
                     lastProp.value = value
                 } else {
                     // ---- 代表是 {key}的简写情况
-                    this.el.kv["props"].push({key: value, value: value})
+                    this.el.kv.props.push({key: value, value: value})
                 }
             }
             this.eat()  // eat }
@@ -249,7 +250,7 @@ export class DlightParser {
         // ---- 解析内部
         const newParser = new DlightParser(this.token)
         newParser.parse()
-        this.el.kv["condition"].push({
+        this.el.kv.condition.push({
             condition: condition,
             parserEl: newParser.parserEl
         })
@@ -261,7 +262,7 @@ export class DlightParser {
         this.eatSpace()
         this.eat() // eat (
         this.eatValue()
-        this.el.kv["condition"] = []
+        this.el.kv.condition = []
         this.handleIfish(this.token)
     }
 
@@ -293,7 +294,7 @@ export class DlightParser {
         this.eatSpace()
         this.eat()  // eat (
         this.eatValue()
-        this.el.kv["forValue"] = this.token
+        this.el.kv.forValue = this.token
         this.erase()
         this.eatSpace()
         this.eat() // eat { or [
@@ -308,7 +309,7 @@ export class DlightParser {
         // ---- 解析内部
         const newParser = new DlightParser(this.token)
         newParser.parse()
-        this.el.kv["parserEl"] = newParser.parserEl
+        this.el.kv.parserEl = newParser.parserEl
         this.erase()
     }
 
@@ -326,7 +327,7 @@ export class DlightParser {
         // ---- 解析内部
         const newParser = new DlightParser(this.token)
         newParser.parse()
-        this.el.kv["parserEl"] = newParser.parserEl
+        this.el.kv.parserEl = newParser.parserEl
         this.erase()
     }
 
