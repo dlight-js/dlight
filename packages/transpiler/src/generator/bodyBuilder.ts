@@ -38,7 +38,7 @@ export class BodyStringBuilder {
     value: string = ""
 
     indent() {
-        this.value = "\t" + this.value.replaceAll(/\n(?!$)/g, "\n\t")
+        this.value = "\t" + this.value.replace(/\n(?!$)/g, "\n\t")
         return this
     }
     
