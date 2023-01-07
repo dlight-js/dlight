@@ -36,6 +36,10 @@ export class Benchmark extends View {
     selectRow = (idx: number) => {
         this.selectIdx = idx
     }
+    deleteRow = (id: number) => {
+        const idx = this.rows.findIndex(row => row.id === id);
+        this.rows = [...this.rows.slice(0, idx), ...this.rows.slice(idx + 1)]
+    }
     addBig = () => {
         this.rows = buildData(10000)
     }
@@ -85,11 +89,16 @@ export class Benchmark extends View {
                 For(let row of this.rows) {
                     tr {
                         td(row.id)
+                            .className("col-md-1")
                         td(row.label)
+                            .className("col-md-2")
+                            .onclick(() => this.selectRow(row.id))
                         td("")
+                            .className("col-md-3")
+                            .onclick(() => this.deleteRow(row.id))
                         td("")
+                            .className("col-md-4")
                     }
-                    .onclick(() => this.selectRow(row.id))
                     .classname(this.selectIdx === row.id ? "danger" : "")
                 }
             }
