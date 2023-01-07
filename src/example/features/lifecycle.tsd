@@ -1,0 +1,40 @@
+import {View, State} from "@/core";
+
+class SubElement extends View {
+    Body() {
+        div("hh")
+    }
+
+    willMount() {
+        console.log("will mount")
+    }
+
+    didMount() {
+        console.log("did mount")
+    }
+
+    willUnmount() {
+        console.log("will unmount")
+    }
+
+    didUnmount() {
+        console.log("did unmount")
+    }
+}
+
+
+export class LifeCycleTest extends View {
+    @State toggle1 = false
+
+    Body() {
+        button("toggle1")
+            .onclick(() => {
+                this.toggle1 = !this.toggle1
+            })
+    
+
+        If(this.toggle1) {
+            SubElement()
+        }
+    }
+}

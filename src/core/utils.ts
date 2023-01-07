@@ -1,5 +1,6 @@
 import { HtmlNode } from "./Nodes";
 import {DLightNode} from "./Nodes/DLightNode";
+import { EnvNode } from "./Nodes/EnvNode";
 
 export function addDep(dl: DLightNode, dep: string, id: string, func: (newValue?: any) => any, valueFunc?: () => any) {
     if (dl._$deps[dep] === undefined) return
@@ -68,9 +69,8 @@ export function isFunc(str: string) {
 export function render(selectName: string, dl: DLightNode) {
     const appNode = new HtmlNode("div")
     appNode._$addNode(dl)
-    appNode._$addProp("id", "fuck")
+    appNode._$addProp("id", selectName)
     appNode._$init()
-    appNode.render()
     document.querySelector(selectName)!.replaceWith(appNode._$el)
 }
 
@@ -79,11 +79,7 @@ export function uid() {
     return Math.random().toString(20).slice(2)
 }
 
-// export function uid() {
-//     return uuid.v4()
-// }
-
-export function runDeps(dl: DLightNode, depName: string) {
+export function runDeps(dl: DLightNode | EnvNode, depName: string) {
     for (let id in dl._$deps[depName] ?? []) {
         for (let dep of dl._$deps[depName][id]) {
             dep.call(dl)

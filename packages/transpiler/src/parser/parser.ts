@@ -43,15 +43,13 @@ export class DlightParser {
         }
     }
 
-    parserEl = new ParserEl('null', -1, '-1')
+    parserEl = new ParserEl('null', -1)
     el = this.parserEl
-    elId = 0
     depth = 0
 
     addElChild() {
         while (this.el.depth >= this.depth) this.el = this.el.parent!
-        this.el.addChild(new ParserEl(this.token, this.el.depth + 1, `${this.elId}`))
-        this.elId++
+        this.el.addChild(new ParserEl(this.token, this.el.depth + 1))
         while (this.el.depth < this.depth) this.el = this.el.lastChild!
         this.erase()
     }

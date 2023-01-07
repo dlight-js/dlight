@@ -1,5 +1,5 @@
 function isFunc(str: string) {
-    return /(^\(*.*?\)*\s*?=>)|(function\s*?\(.*?\))/.test(str.trim())
+    return /(^\(*\w*?\)*\s*?=>)|(function\s*?\(.*?\))/.test(str.trim())
 }
 
 export function geneDepsStr(listenDeps: string[]) {

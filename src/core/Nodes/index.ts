@@ -1,4 +1,6 @@
 export * from "./DlightNode"
 export * from "./HtmlNode"
 export * from "./ForNode"
+export * from "./IfNode"
 export * from "./TextNode"
+export * from "./EnvNode"

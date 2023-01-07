@@ -17,16 +17,21 @@ export function indent(value: string) {
     return "\t" + value
 }
 
-export function elId(parserEl: ParserEl) {
-    return '$'+parserEl.id
+export function geneId(idAppendixNum: number) {
+    if (idAppendixNum === 0) return `"${uid()}"`
+    let id = `\`${uid()}`
+    for (let i of [...Array(idAppendixNum).keys()]) {
+        id += `_\${_$idx${i}}`
+    }
+    return id + "`"
 }
 
-export function geneId(idAppendix?: string) {
-    return !!idAppendix ? `\`${uid()}-${idAppendix}\`` : `"${uid()}"`
+export function geneAppendix(newAppendix: string, idAppendix?: string) {
+    return idAppendix ? `${idAppendix}-${newAppendix}` : newAppendix
 }
 
-export function geneChildElArray(parserEl: ParserEl) {
-    return "[" + parserEl.children.map(el=>"node"+elId(el)).join(", ") + "]"
+export function geneChildNodesArray(parserEl: ParserEl) {
+    return "[" + parserEl.children.map((_, idx)=>`node${idx}`).join(", ") + "]"
 }
 
 export class BodyStringBuilder {

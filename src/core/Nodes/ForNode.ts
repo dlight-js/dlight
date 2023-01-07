@@ -1,8 +1,9 @@
 import { DLNode } from "./Node";
-import {nodesToFlatEls, appendNodesWithIndex, deleteNodesDeps, removeNodes, getFlowIndexFromNodes, getFlowIndexFromParentNode} from './utils';
+import {nodesToFlatEls, appendNodesWithIndex, deleteNodesDeps, removeNodes, getFlowIndexFromNodes, getFlowIndexFromParentNode, resolveEnvs, initNodes, parentNodes, replaceNodesWithFirstElement} from './utils';
 import {addDeps} from '../utils';
 import { DLightNode } from "./DLightNode";
 import { HtmlNode } from "./HtmlNode";
+import { EnvNode } from "./EnvNode";
 
 
 export class ForNode extends DLNode {
@@ -10,10 +11,11 @@ export class ForNode extends DLNode {
     array: any[] = []
 
     nodeFunc?: (item: DLNode, idx: number) => DLNode[]
-    keyFunc?: (() => any[])
+    keyFunc?: () => any[]
     arrayFunc?: () => any[]
     dlScope?: DLightNode
     listenDeps?: string[]
+    _$envNodes: EnvNode[] = []
 
     constructor(id: string) {
         super("for", id)         
@@ -41,17 +43,9 @@ export class ForNode extends DLNode {
      * @methodGroup - 无deps的时候直接加nodes
      */
     _$addNodesArr(nodess: DLNode[][]) {
-        for (let nodes of nodess) {
-            for (let node of nodes) {
-                node._$parentNode = this
-            }
-        }
         this._$nodes = nodess
     }
     _$addNodes(nodes: DLNode[]) {
-        for (let node of nodes) {
-            node._$parentNode = this
-        }
         this._$dlNodess.push(nodes)
     }
 
@@ -76,13 +70,19 @@ export class ForNode extends DLNode {
     }
 
     _$init() {
-        if (!this.listenDeps) return
+        if (!this.listenDeps) {
+            parentNodes(this._$nodes, this)
+            resolveEnvs(this._$nodes, this)
+            initNodes(this._$nodes)
+            return
+        }
 
         this.setArray()
         this.setKeys()
         for (let [idx, item] of this.array.entries()) {
             this._$addNodes(this.nodeFunc!(item, idx))
         }
+        parentNodes(this._$nodes, this)
 
         let parentNode: DLNode | undefined = this._$parentNode
         while (parentNode && parentNode._$nodeType !== "html") {
@@ -94,19 +94,17 @@ export class ForNode extends DLNode {
         
         addDeps(this.dlScope!, this.listenDeps!, this._$id, () => this.update(parentNode as HtmlNode))
 
-        super._$init()
+        resolveEnvs(this._$nodes, this)
+        initNodes(this._$nodes)
     }
 
 
     getNewNodes(idx: number) {
-        const newEls = this.nodeFunc!(this.array[idx], idx)
-        for (let newEl of newEls) {
-            newEl._$parentNode = this
-        }
-        for (let newEl of newEls) {
-            newEl._$init()
-        }
-        return newEls
+        const nodes = this.nodeFunc!(this.array[idx], idx)
+        parentNodes(nodes, this)
+        resolveEnvs(nodes, this)
+        initNodes(nodes)
+        return nodes
     }
 
     update(parentNode: HtmlNode) {
@@ -132,19 +130,11 @@ export class ForNode extends DLNode {
             // ---- 如果前面的item和现在的item相同，且index一样，直接继续
             if (prevArray[prevIdx] === this.array[idx] && idx === prevIdx) continue
             // ---- 不然就直接替换，把第一个替换了，其他的删除
-            const firstEl = nodesToFlatEls(prevAllNodes[prevIdx])[0]
-
-            // ---- 添加新的
             const newNodes = this.getNewNodes(idx)
-
-
-            if (firstEl === undefined) {
+            const replaceSucceed = replaceNodesWithFirstElement(prevAllNodes[prevIdx], newNodes)
+            if (!replaceSucceed) {
                 // ---- 前面啥都没有，那就用for的index来append
-                const parentLength = parentEl.childNodes.length
-                appendNodesWithIndex(newNodes, flowIndex, parentEl, parentLength)
-            } else {
-                // ---- 替换第一个
-                firstEl.replaceWith(...nodesToFlatEls(newNodes))
+                appendNodesWithIndex(newNodes, flowIndex, parentEl, parentEl.childNodes.length)
             }
 
             // ---- 删除依赖
@@ -172,10 +162,17 @@ export class ForNode extends DLNode {
             const newNodes = this.getNewNodes(idx);
             [newFlowIndex, length] = appendNodesWithIndex(newNodes, newFlowIndex, parentEl, length)
 
-            this._$dlNodess[idx] = newNodes
+            this._$nodes[idx] = newNodes
         }
 
         this._$nodes = this._$dlNodess.slice(0, this.keys.length)
     }
 
+    render(parentEl: HTMLElement) {
+        for (let nodes of this._$dlNodess) {
+            for (let node of nodes) {
+                node.render(parentEl)
+            }
+        }
+    }
 }

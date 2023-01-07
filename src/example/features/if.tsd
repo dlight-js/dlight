@@ -1,0 +1,45 @@
+import {View, State} from "@/core";
+
+export class IfTest extends View {
+    @State toggle1 = false
+    @State toggle2 = false
+    @State count = 0
+    Body() {
+        button("toggle1")
+            .onclick(() => {
+                this.toggle1 = !this.toggle1
+            })
+    
+        button("toggle2")
+            .onclick(() => {
+                this.toggle2 = !this.toggle2
+            })
+
+        button("+")
+            .onclick(() => {
+                this.count ++
+            })
+
+        button("-")
+            .onclick(() => {
+                this.count --
+            })
+        
+        If(this.toggle1) {
+            div("only toggle1")
+        }
+
+        If(this.toggle1) {
+            If (this.toggle2) {
+                div(`toggled 1&2 => ${this.count}`)
+            }
+        } ElseIf(this.count > 3) {
+            div(`count > 3 ${this.count}`)
+        } ElseIf(this.count > 1) {
+            div(`count > 1 ${this.count}`)
+        } Else {
+            div("count <1")
+        }
+            
+    }
+}

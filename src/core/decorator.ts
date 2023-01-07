@@ -1,4 +1,4 @@
-import {DLightNode} from "./Nodes/Node";
+import {DLightNode, EnvNode} from "./Nodes";
 import {addDep, addDeps, geneDeps, geneDepsAllowFunc, runDeps, uid} from "./utils";
 
 export class DecoratorMaker {
@@ -179,16 +179,18 @@ export class DecoratorResolver {
         return this.rosolve(propertyKey, "environment", () => {
             const rawKey = DecoratorTrimmer.environment(propertyKey)
             // ---- 找到对应的envEl
-            let envEl: EnvEl | undefined = undefined
-            for (let env of dl._$envEls) {
+            let envNode: EnvNode | undefined = undefined
+     
+            for (let env of dl._$envNodes) {
                 if (Object.keys(env._$deps).includes(rawKey)) {
-                    envEl = env as EnvEl
+                    envNode = env as EnvNode
                     break
                 }
             }
-            if (!envEl) return
 
-            (dl as any)[propertyKey] = (envEl as any)[rawKey]
+            if (!envNode) return
+
+            (dl as any)[propertyKey] = (envNode as any)[rawKey]
             Object.defineProperty(dl, rawKey, {
                 get() {
                     return this[propertyKey]
@@ -199,14 +201,14 @@ export class DecoratorResolver {
                     runDeps(dl, rawKey)
                 }
             })
-            const id = `${envEl._$id}_${dl._$id}_${rawKey}`
+            const id = `${envNode._$id}_${dl._$id}_${rawKey}`
             dl._$depIds.push(id)
-            const depFunc = () => (envEl as any)[rawKey] = (dl as any)[rawKey]
+            const depFunc = () => (envNode as any)[rawKey] = (dl as any)[rawKey]
             dl._$deps[rawKey] = {[id]: [depFunc]}
-            addDep(envEl, rawKey, id, () => {
+            addDep(envNode as any, rawKey, id, () => {
                 // ---- 先取消回掉自己的dep，等改完值了再加上，不然会无限回调
                 delete dl._$deps[rawKey][id];
-                (dl as any)[rawKey] = (envEl as any)[rawKey]
+                (dl as any)[rawKey] = (envNode as any)[rawKey]
                 dl._$deps[rawKey][id] = [depFunc]
             })
         }, callBack)

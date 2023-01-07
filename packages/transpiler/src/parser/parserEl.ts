@@ -6,12 +6,10 @@ export class ParserEl {
     children: ParserEl[] = []
     parent?: ParserEl
     depth: number
-    id: string
 
-    constructor(tag: string, depth: number, id: string) {
+    constructor(tag: string, depth: number) {
         this.tag = tag
         this.depth = depth
-        this.id = id
     }
 
     get lastChild(): ParserEl {

@@ -1,8 +1,8 @@
-import {uid, addDeps, addDep, runDeps} from '../utils';
-import {DecoratorMaker, DecoratorResolver} from '../decorator';
+import {uid} from '../utils';
+import { initNodes } from './utils';
 
 
-type NodeType = "html" | "dlight" | "text" | "for" | "if"
+type NodeType = "html" | "dlight" | "text" | "for" | "if" | "env"
 
 export class DLNode {
     /**
@@ -12,11 +12,21 @@ export class DLNode {
      * 
      * @param _$init - 这之前nodes和el都必须生成，flow需要更新整体结构
      * @param _$render - 传入parentEl，将_$nodes append上去
+     * 
+     * 
+     * @pipeline
+     * html: A; dlight: B; flow: C
+     * 
+     * A1.construct <- A2.construct <- B1.construct <- B2.construct <- C1.construct <- C2.construct 
+     * A1._$init -> A2._$init -> B1._$init -> B2._$init -> C1._$init -> C2._$init 
+     *           ↳ A2.render  ↳ B1.render 
+     * A1.render -> A => Stop / B/C => B/C.render
      */
     _$id: string = ""
     _$el: Node | HTMLElement | any
     _$parentNode?: DLNode
     _$nodes: DLNode[] | DLNode[][] = []
+    
     get _$dlNodes() {
         return this._$nodes as DLNode[]
     }
@@ -30,48 +40,11 @@ export class DLNode {
         this._$nodeType = nodeType
     }
 
-    _$initNodes() {
-        for (let nodeOrNodes of this._$nodes) {
-            const nodes = Array.isArray(nodeOrNodes) ? nodeOrNodes : [nodeOrNodes]
-            for (let node of nodes) {
-                node._$init()
-            }
-        }
-    }
 
-    _$init(..._: any[]) {
-        this._$initNodes()
-    }
+    _$init() { }
 
-    render(parentEl?: HTMLElement) {
-        switch (this._$nodeType) {
-            case "text":
-                parentEl!.appendChild(this._$el)
-                break
-            case "html":
-                if (!parentEl) {
-                    parentEl = this._$el
-                } else {
-                    parentEl!.appendChild(this._$el)
-                }
-                for (let node of this._$dlNodes) {
-                    node.render(parentEl)
-                }
-                break
-            case "for":
-                for (let nodes of this._$dlNodess) {
-                    for (let node of nodes) {
-                        node.render(parentEl)
-                    }
-                }
-                break
-            case "if":
-            case "dlight":
-                for (let node of this._$dlNodes) {
-                    node.render(parentEl)
-                }
-                break
-        }
+    render(parentEl: HTMLElement) {
+        // ---- 同级别的append上去，不存在递归
     }
 
 }

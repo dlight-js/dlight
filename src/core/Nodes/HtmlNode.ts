@@ -1,15 +1,26 @@
 import { DLightNode } from './DlightNode';
 import {DLNode} from './Node';
 import {addDeps} from '../utils';
+import { initNodes, parentNodes, resolveEnvs } from './utils';
+import { EnvNode } from './EnvNode';
 
 
 export class HtmlNode extends DLNode {
-    constructor(tag?: string, id?: string) {
+    _$envNodes: EnvNode[] = []
+
+    constructor(tag: string, id?: string) {
         super("html", id)
-        if (tag) this._$el = document.createElement(tag)
+        this._$el = document.createElement(tag)
+    }
+    _$init(): void {
+        parentNodes(this._$nodes, this)
+        resolveEnvs(this._$nodes, this)
+        initNodes(this._$nodes)
+        for (let node of this._$dlNodes) {
+            node.render(this._$el)
+        }
     }
     _$addNode(dlNode: DLNode) {
-        dlNode._$parentNode = this;
         this._$dlNodes.push(dlNode)
     }
 
@@ -29,5 +40,9 @@ export class HtmlNode extends DLNode {
         }
         func(valueOrFunc())
         addDeps(dlScope!, listenDeps!, this._$id, func, valueOrFunc)
+    }
+
+    render(parentEl: HTMLElement) {
+        parentEl.appendChild(this._$el)
     }
 }

@@ -1,7 +1,73 @@
 import {DLightNode} from "./DLightNode";
-import {deleteDeps} from "../utils";
+import {addDep, deleteDeps, runDeps} from "../utils";
 import { DLNode } from "./Node";
 import { HtmlNode } from "./HtmlNode";
+import { DecoratorMaker } from "../decorator";
+import { EnvNode } from "./EnvNode";
+
+
+/**
+ * 把dlScope上的属性绑定到dlNode中去
+ */
+export function addDLProp(dlScope: DLightNode, dlNode: DLightNode | EnvNode, key: string, propFunc: () => any, listenDeps: string[]) {
+    const propStr = propFunc.toString().slice(6).trim()
+    for (let dep of listenDeps) {
+        const id = `${dlNode._$id}_${key}_${dep}`;
+        dlNode._$depIds.push(id)
+        // ---- 如果是完整match且是state不是derived，比如 {flag: dlNode.flag}
+        //      则把子dl的flag参数当成state
+        if (propStr === `this.${dep}` && Object.keys(dlScope._$deps).includes(propStr.replaceAll("this.", ""))) {
+            Object.defineProperty(Object.getPrototypeOf(dlNode), DecoratorMaker.state(key), {
+                writable: true
+            })
+            const depFunc = () => (dlScope as any)[dep] = (dlNode as any)[key]
+            dlNode._$deps[key] = {[id]: [depFunc]}
+            addDep(dlScope, dep, id, () => {
+                // ---- 先取消回掉自己的dep，等改完值了再加上，不然会无限回掉
+                delete dlNode._$deps[key][id];
+                (dlNode as any)[key] = propFunc()
+                dlNode._$deps[key][id] = [depFunc]
+            })
+            return
+        }
+        Object.defineProperty(Object.getPrototypeOf(dlNode), DecoratorMaker.derivedFromProp(key), {
+            writable: true
+        })
+        dlNode._$deps[key] = {}
+        addDep(dlScope, dep, id, () => {
+            (dlNode as any)[key] = propFunc()
+            runDeps(dlNode, key)
+        })
+    }
+}
+export function resolveEnvs(nodes: DLNode[] | DLNode[][], envStoreNode: DLNode) {
+    for (let node of nodes) {
+        if (Array.isArray(node)) {
+            resolveEnvs(node, envStoreNode)
+            continue
+        }        
+        (node as any)._$envNodes = (envStoreNode as any)._$envNodes
+    }
+}
+
+export function initNodes(nodes: DLNode[] | DLNode[][]) {
+    for (let node of nodes) {
+        if (Array.isArray(node)) {
+            initNodes(node)
+            continue
+        }
+        node._$init()
+    }
+}
+export function parentNodes(nodes: DLNode[] | DLNode[][], parentNode: DLNode) {
+    for (let node of nodes) {
+        if (Array.isArray(node)) {
+            parentNodes(node, parentNode)
+            continue
+        }
+        node._$parentNode = parentNode
+    }
+}
 
 
 /**
@@ -13,7 +79,7 @@ export function removeNodes(nodes: DLNode[]) {
     for (let node of nodes) {
         removeNode(node)
     }
-    didUnmountDlightNodes(nodes)
+   didUnmountDlightNodes(nodes)
 }
 function removeNode(node: DLNode) {
     switch (node._$nodeType) {
@@ -27,6 +93,7 @@ function removeNode(node: DLNode) {
             }
             break
         case "dlight":
+        case "env":
         case "if":
             removeNodes(node._$dlNodes)
             break
@@ -46,6 +113,7 @@ export function deleteNodesDeps(nodes: DLNode[], dlScope: DLightNode) {
 function deleteNodeDeps(node: DLNode, dlScope: DLightNode) {
     deleteDeps(dlScope, node._$id)
     switch (node._$nodeType) {
+        case "env":
         case "dlight":
             for (let i of (node as DLightNode)._$depIds) {
                 deleteDeps(dlScope, i)
@@ -81,6 +149,7 @@ export function appendNodesWithIndex(nodes: DLNode[], index: number, parentEl: H
     didMountDlightNodes(nodes)
     return [index, length]
 }
+
 function appendNodeWithIndex(node: DLNode, index: number, parentEl: HTMLElement, length: number): [number, number] {
     switch (node._$nodeType) {
         case "text":
@@ -98,6 +167,7 @@ function appendNodeWithIndex(node: DLNode, index: number, parentEl: HTMLElement,
                 [index, length] = appendNodesWithIndex(nodes, index, parentEl, length)
             }
             break
+        case "env":
         case "dlight":
         case "if":
             [index, length] = appendNodesWithIndex(node._$dlNodes, index, parentEl, length)
@@ -105,6 +175,15 @@ function appendNodeWithIndex(node: DLNode, index: number, parentEl: HTMLElement,
     }
 
     return [index, length]
+}
+
+export function replaceNodesWithFirstElement(nodes: DLNode[], newNodes: DLNode[]) {
+    const firstEl = nodesToFlatEls(nodes)[0]
+    if (!firstEl) return false
+    willMountDlightNodes(newNodes)
+    firstEl.replaceWith(...nodesToFlatEls(newNodes))
+    didMountDlightNodes(newNodes)
+    return true
 }
 
 /**
@@ -130,6 +209,8 @@ function getFlowIndexFromNodesTillId(nodes: DLNode[], index: number, stopId: str
     return [index, stop]
 }
 function getFlowIndexFromNodeTillId(node: DLNode, index: number, stopId: string): [number, boolean] {
+    if (node._$id === stopId) return [index, true]
+
     let stop = false
     switch (node._$nodeType) {
         case "html":
@@ -137,15 +218,12 @@ function getFlowIndexFromNodeTillId(node: DLNode, index: number, stopId: string)
             index ++
             break
         case "for":
-            if (node._$id === stopId) {
-                stop = true
-                break
-            }
             for (let nodes of node._$dlNodess) {
                 [index, stop] = getFlowIndexFromNodesTillId(nodes, index, stopId)
                 if (stop) break
             }
             break
+        case "env":
         case "dlight":
         case "if":
             [index, stop] = getFlowIndexFromNodesTillId(node._$dlNodes, index, stopId)
@@ -179,6 +257,7 @@ function nodeToFlatEls(node: DLNode) {
                 els.push(...nodesToFlatEls(nodes))
             }
             break
+        case "env":
         case "dlight":
         case "if":
             els.push(...nodesToFlatEls(node._$dlNodes))

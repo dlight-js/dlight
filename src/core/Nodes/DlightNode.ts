@@ -1,6 +1,7 @@
-import { DecoratorMaker, DecoratorResolver } from "../decorator"
-import { addDep, runDeps } from "../utils"
+import { DecoratorResolver } from "../decorator"
+import { EnvNode } from "./EnvNode"
 import { DLNode } from "./Node"
+import { addDLProp, initNodes, parentNodes, resolveEnvs } from "./utils"
 
 export abstract class DLightNode extends DLNode {
     _$depIds: string[] = []  
@@ -8,6 +9,7 @@ export abstract class DLightNode extends DLNode {
     _$derived_deps: any = {}
     _$props: any = {}
     _$dotProps: any = {}
+    _$envNodes: EnvNode[] = []
 
     abstract Body(): any
 
@@ -34,12 +36,10 @@ export abstract class DLightNode extends DLNode {
     _$init() {
         this._$initDecorators()
         this.Body()
-        for (let node of this._$dlNodes) {
-            node._$parentNode = this
-        }
-        super._$init()
+        parentNodes(this._$nodes, this)
+        resolveEnvs(this._$nodes, this)
+        initNodes(this._$nodes)
     }
-
 
     _$addDotProp(key: string, propFunc: any | (() => any), dl?: DLightNode, listenDeps?: string[]) {
         if (!listenDeps) {
@@ -47,7 +47,7 @@ export abstract class DLightNode extends DLNode {
             return
         }
         this._$dotProps[key] = propFunc()
-        this._$addPropTmp(dl!, key, propFunc, listenDeps)
+        addDLProp(dl!, this, key, propFunc, listenDeps)
 
     }
     _$addProp(key: string, propFunc: any | (() => any), dl?: DLightNode, listenDeps?: string[]) {
@@ -56,38 +56,16 @@ export abstract class DLightNode extends DLNode {
             return
         }
         this._$props[key] = propFunc()
-        this._$addPropTmp(dl!, key, propFunc, listenDeps)
+        addDLProp(dl!, this, key, propFunc, listenDeps)
     }
-    _$addPropTmp(dl: DLightNode, key: string, propFunc: () => any, listenDeps: string[]) {
-        const propStr = propFunc.toString().slice(6).trim()
-        for (let dep of listenDeps) {
-            const id = `${this._$id}_${key}_${dep}`;
-            this._$depIds.push(id)
-            // ---- 如果是完整match且是state不是derived，比如 {flag: this.flag}
-            //      则把子dl的flag参数当成state
-            if (propStr === `this.${dep}` && Object.keys(dl._$deps).includes(propStr.replaceAll("this.", ""))) {
-                Object.defineProperty(Object.getPrototypeOf(this), DecoratorMaker.state(key), {
-                    writable: true
-                })
-                const depFunc = () => (dl as any)[dep] = (this as any)[key]
-                this._$deps[key] = {[id]: [depFunc]}
-                addDep(dl, dep, id, () => {
-                    // ---- 先取消回掉自己的dep，等改完值了再加上，不然会无限回掉
-                    delete this._$deps[key][id];
-                    (this as any)[key] = propFunc()
-                    this._$deps[key][id] = [depFunc]
-                })
-                return
-            }
-            Object.defineProperty(Object.getPrototypeOf(this), DecoratorMaker.derivedFromProp(key), {
-                writable: true
-            })
-            this._$deps[key] = {}
-            addDep(dl, dep, id, () => {
-                (this as any)[key] = propFunc()
-                runDeps(this, key)
-            })
+    
+
+    render(parentEl: HTMLElement) {
+        this.willMount()
+        for (let node of this._$dlNodes) {
+            node.render(parentEl)
         }
+        this.didMount()
     }
 
     // ---- lifecycles
@@ -95,5 +73,4 @@ export abstract class DLightNode extends DLNode {
     didMount() {}
     willUnmount() {}
     didUnmount() {}
-    willRender() {}
 }
