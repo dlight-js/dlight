@@ -1,5 +1,5 @@
-import { addDeps } from "../utils";
-import { DLightNode } from "./DlightNode";
+import {addDeps, getCurrListenDeps} from "../utils";
+import {DLightNode} from "./DlightNode";
 import { EnvNode } from "./EnvNode";
 import { HtmlNode } from "./HtmlNode";
 import { DLNode } from "./Node";
@@ -15,7 +15,7 @@ export class IfNode extends DLNode {
     condition?: string
     listenDeps: string[] = []
     dlScope?: DLightNode
-    _$envNodes: EnvNode[] = []
+    _$envNodes?: EnvNode[] = []
 
 
     constructor(id: string) {
@@ -28,6 +28,7 @@ export class IfNode extends DLNode {
             if (!this.dlScope) this.dlScope = dlScope
             this.listenDeps.push(...listenDeps)
         }
+        this.listenDeps = getCurrListenDeps(dlScope!, this.listenDeps)
     }
 
     _$init() {
@@ -74,6 +75,7 @@ export class IfNode extends DLNode {
                 break
             }
         }
+
         if (this._$nodes.length !== 0 && nodes.length === 0) {
             // ---- 以前有，现在没有
             this.condition = "[none]"

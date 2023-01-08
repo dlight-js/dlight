@@ -1,5 +1,5 @@
 import { Plugin } from 'vite'
-import {transpileDLightTsCode} from "../../src/fileParser";
+import {go} from "../../src/babel"
 
 
 export default function(): Plugin {
@@ -17,7 +17,12 @@ export default function(): Plugin {
             };
         },
         transform(code, id) {
-            return (id.endsWith(".tsd") || id.endsWith(".jsd")) ? transpileDLightTsCode(code) : code
+            if (id.endsWith(".tsd")) {
+                
+                return go(code)
+
+            }
+            return code
         }
     };
 }

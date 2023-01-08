@@ -1,12 +1,12 @@
 import { DLightNode } from './DlightNode';
 import {DLNode} from './Node';
-import {addDeps} from '../utils';
+import {addDeps, getCurrListenDeps} from '../utils';
 import { initNodes, parentNodes, resolveEnvs } from './utils';
 import { EnvNode } from './EnvNode';
 
 
 export class HtmlNode extends DLNode {
-    _$envNodes: EnvNode[] = []
+    _$envNodes?: EnvNode[] = []
 
     constructor(tag: string, id?: string) {
         super("html", id)
@@ -38,8 +38,10 @@ export class HtmlNode extends DLNode {
             func(valueOrFunc)
             return
         }
+        const listenedKeys = getCurrListenDeps(dlScope!, listenDeps)
         func(valueOrFunc())
-        addDeps(dlScope!, listenDeps!, this._$id, func, valueOrFunc)
+        if (listenedKeys.length === 0) return
+        addDeps(dlScope!, listenedKeys!, this._$id, func, valueOrFunc)
     }
 
     render(parentEl: HTMLElement) {

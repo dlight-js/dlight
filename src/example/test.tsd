@@ -1,0 +1,20 @@
+import {View, Derived, DotProp, Effect, Prop, PropDerived, State, Environment} from "@/core";
+
+
+
+class SubElement1 extends View {
+    @Prop count: number
+
+    Body() {
+        div(this.count)
+    }
+}
+
+
+export class SubElement extends View {
+    @State count: number
+
+    Body() {
+        SubElement1({count: this.count as number})
+    }
+}

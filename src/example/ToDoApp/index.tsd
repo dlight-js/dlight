@@ -1,5 +1,7 @@
-import {View, State, Derived, Effect} from "@/core"
+import {View} from "@/core"
+// @ts-ignore
 import {TaskCard} from "./TaskCard.tsd"
+// @ts-ignore
 import {TaskAdder} from "./TaskAdder.tsd"
 import {Task} from "./Task";
 

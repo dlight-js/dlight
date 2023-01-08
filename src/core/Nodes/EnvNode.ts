@@ -1,15 +1,14 @@
 import { DLightNode } from './DlightNode';
 import {DLNode} from './Node';
 import {deleteDepsPrefix} from '../utils';
-import { addDLProp, initNodes, parentNodes, resolveEnvs } from './utils';
-import { DecoratorMaker, DecoratorResolver } from '../decorator';
+import { addDLProp, initNodes, parentNodes } from './utils';
 
 
 export class EnvNode extends DLNode {
     envObject: {[key: string]: any} = {}
     _$depIds: string[] = []
-    _$deps: any = {}
-    _$envNodes: EnvNode[] = []
+    _$deps?: any
+    _$envNodes?: EnvNode[]
 
     constructor(id?: string) {
         super("env", id)
@@ -30,7 +29,7 @@ export class EnvNode extends DLNode {
 
     cleanDeps() {
         // ---- 如果多层EnvEl嵌套，由于protoType相同，所以会出现空的冗余的需要删除
-        for (let depKey in this._$deps) {
+        for (let depKey in this._$deps ?? {}) {
             const value = this.envObject[depKey]
             if ((value === undefined) || (value === null)) {
                 delete this._$deps[depKey]
@@ -40,11 +39,11 @@ export class EnvNode extends DLNode {
 
     _$initDecorators() {
         // ---- 见utils，只会用到这两个
-        const protoKeys = Object.getOwnPropertyNames(Object.getPrototypeOf(this))
-        for (let propertyKey of protoKeys) {
-            DecoratorResolver.derivedFromProp(propertyKey, this as any)
-            DecoratorResolver.state(propertyKey, this as any)
-        }
+        // const protoKeys = Object.getOwnPropertyNames(Object.getPrototypeOf(this))
+        // for (let propertyKey of protoKeys) {
+        //     DecoratorResolver.derivedFromProp(propertyKey, this as any)
+        //     DecoratorResolver.state(propertyKey, this as any)
+        // }
     }
 
     setEnvObjs(node: DLNode) {
@@ -53,10 +52,12 @@ export class EnvNode extends DLNode {
             case "html":
             case "if":
             case "for":
+                if (!(node as any)._$envNodes) (node as any)._$envNodes = [];
                 (node as any)._$envNodes.push(this)
                 break
             case "dlight":
-                (node as DLightNode)._$envNodes.push(this)
+                if (!(node as DLightNode)._$envNodes) (node as DLightNode)._$envNodes = [];
+                (node as DLightNode)._$envNodes!.push(this)
                 // ---- 必须把原先的依赖删掉
                 const didUnmount = (node as DLightNode).didUnmount;
                 (node as DLightNode).didUnmount = () => {
@@ -69,7 +70,7 @@ export class EnvNode extends DLNode {
     _$init() {
         for (let [key, value] of Object.entries(this.envObject)) {
             (this as any)[key] = value
-            Object.defineProperty(Object.getPrototypeOf(this), DecoratorMaker.state(key), {
+            Object.defineProperty(Object.getPrototypeOf(this), key, {
                 writable: true
             })
         }
@@ -77,7 +78,7 @@ export class EnvNode extends DLNode {
         parentNodes(this._$dlNodes, this)
         for (let node of this._$dlNodes) {
             this.setEnvObjs(node)
-            for (let envNode of this._$envNodes) {
+            for (let envNode of this._$envNodes ?? []) {
                 envNode.setEnvObjs(node)
             }
         }

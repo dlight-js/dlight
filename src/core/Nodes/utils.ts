@@ -1,46 +1,96 @@
-import {DLightNode} from "./DLightNode";
-import {addDep, deleteDeps, runDeps} from "../utils";
+import {DLightNode, hh} from "./DLightNode";
+import {addDep, addDeps, deleteDeps} from "../utils";
 import { DLNode } from "./Node";
 import { HtmlNode } from "./HtmlNode";
-import { DecoratorMaker } from "../decorator";
 import { EnvNode } from "./EnvNode";
 
+
+export function addOneWayDLProp(dlScope: DLightNode, dlNode: DLightNode | EnvNode, key: string, propFunc: () => any, listenDeps: string[]) {
+    const id = `${dlNode._$id}_${key}`
+    dlNode._$depIds.push(id);
+    (dlNode as any)[`_$${key}`] = "_$derived";
+    (dlNode as any)[key] = propFunc()
+
+    let t1 = performance.now();
+
+    addDeps(dlScope, listenDeps, id, () => {
+        (dlNode as any)[key] = propFunc();
+        (dlNode as any)._$runDeps(key)
+    })
+    let t2 = performance.now()
+    hh.value += t2-t1
+}
+
+export function addTwoWayDLProp(dlScope: DLightNode, dlNode: DLightNode | EnvNode, key: string, propFunc: () => any, listenDeps: string[]) {
+    // ---- 如果是完整match且是state不是derived，比如 {flag: this.flag}
+    //      则把子dl的flag参数当成state
+    const id = `${dlNode._$id}_${key}`;
+    dlNode._$depIds.push(id);
+    (dlNode as any)[`_$${key}`] = propFunc()
+    Object.defineProperty(dlNode, key, {
+        get() {
+            return this[`_$${key}`]
+        },
+        set(value: any) {
+            if (this[`_$${key}`] === value) return;
+            this[`_$${key}`] = value;
+            this._$runDeps(key);
+        }
+    })
+    console.log("fuck me")
+    for (let dep of listenDeps) {
+        const depFunc = () => (dlScope as any)[dep] = (dlNode as any)[key]
+        if (dlNode._$deps === undefined) dlNode._$deps = {}
+        dlNode._$deps[key] = {[id]: [depFunc]}
+        addDep(dlScope, dep, id, () => {
+            // ---- 先取消回掉自己的dep，等改完值了再加上，不然会无限回掉
+            delete dlNode._$deps[key][id];
+            (dlNode as any)[key] = propFunc()
+            dlNode._$deps[key][id] = [depFunc]
+        })
+    }
+
+}
 
 /**
  * 把dlScope上的属性绑定到dlNode中去
  */
+// @ts-ignore
 export function addDLProp(dlScope: DLightNode, dlNode: DLightNode | EnvNode, key: string, propFunc: () => any, listenDeps: string[]) {
-    const propStr = propFunc.toString().slice(6).trim()
-    for (let dep of listenDeps) {
-        const id = `${dlNode._$id}_${key}_${dep}`;
-        dlNode._$depIds.push(id)
-        // ---- 如果是完整match且是state不是derived，比如 {flag: dlNode.flag}
-        //      则把子dl的flag参数当成state
-        if (propStr === `this.${dep}` && Object.keys(dlScope._$deps).includes(propStr.replaceAll("this.", ""))) {
-            Object.defineProperty(Object.getPrototypeOf(dlNode), DecoratorMaker.state(key), {
-                writable: true
-            })
-            const depFunc = () => (dlScope as any)[dep] = (dlNode as any)[key]
-            dlNode._$deps[key] = {[id]: [depFunc]}
-            addDep(dlScope, dep, id, () => {
-                // ---- 先取消回掉自己的dep，等改完值了再加上，不然会无限回掉
-                delete dlNode._$deps[key][id];
-                (dlNode as any)[key] = propFunc()
-                dlNode._$deps[key][id] = [depFunc]
-            })
-            return
-        }
-        Object.defineProperty(Object.getPrototypeOf(dlNode), DecoratorMaker.derivedFromProp(key), {
-            writable: true
-        })
-        dlNode._$deps[key] = {}
-        addDep(dlScope, dep, id, () => {
-            (dlNode as any)[key] = propFunc()
-            runDeps(dlNode, key)
-        })
-    }
+    // const propStr = propFunc.toString().slice(6).trim()
+    // for (let dep of listenDeps) {
+    //     const id = `${dlNode._$id}_${key}_${dep}`;
+    //     dlNode._$depIds.push(id)
+    //     // ---- 如果是完整match且是state不是derived，比如 {flag: dlNode.flag}
+    //     //      则把子dl的flag参数当成state
+    //     if (propStr === `this.${dep}` && Object.keys(dlScope._$deps??{}).includes(propStr.replaceAll("this.", ""))) {
+    //         Object.defineProperty(Object.getPrototypeOf(dlNode), DecoratorMaker.state(key), {
+    //             writable: true
+    //         })
+    //         const depFunc = () => (dlScope as any)[dep] = (dlNode as any)[key]
+    //         if (dlNode._$deps === undefined) dlNode._$deps = {}
+    //         dlNode._$deps[key] = {[id]: [depFunc]}
+    //         addDep(dlScope, dep, id, () => {
+    //             // ---- 先取消回掉自己的dep，等改完值了再加上，不然会无限回掉
+    //             delete dlNode._$deps[key][id];
+    //             (dlNode as any)[key] = propFunc()
+    //             dlNode._$deps[key][id] = [depFunc]
+    //         })
+    //         return
+    //     }
+    //     Object.defineProperty(Object.getPrototypeOf(dlNode), DecoratorMaker.derivedFromProp(key), {
+    //         writable: true
+    //     })
+    //     if (dlNode._$deps === undefined) dlNode._$deps = {}
+    //     dlNode._$deps[key] = {}
+    //     addDep(dlScope, dep, id, () => {
+    //         (dlNode as any)[key] = propFunc()
+    //         runDeps(dlNode, key)
+    //     })
+    // }
 }
 export function resolveEnvs(nodes: DLNode[] | DLNode[][], envStoreNode: DLNode) {
+    if ((envStoreNode as any)._$envNodes === undefined) return
     for (let node of nodes) {
         if (Array.isArray(node)) {
             resolveEnvs(node, envStoreNode)

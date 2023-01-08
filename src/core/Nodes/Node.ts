@@ -1,6 +1,6 @@
-import {uid} from '../utils';
-import { initNodes } from './utils';
-
+export function uid() {
+    return Math.random().toString(20).slice(2)
+}
 
 type NodeType = "html" | "dlight" | "text" | "for" | "if" | "env"
 
@@ -43,6 +43,7 @@ export class DLNode {
 
     _$init() { }
 
+    // @ts-ignore
     render(parentEl: HTMLElement) {
         // ---- 同级别的append上去，不存在递归
     }

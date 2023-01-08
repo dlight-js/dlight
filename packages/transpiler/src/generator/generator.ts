@@ -1,9 +1,15 @@
-import {BodyStringBuilder, indent, geneChildNodesArray, isCustomEl, geneId, geneAppendix} from './bodyBuilder';
+import {BodyStringBuilder, indent, geneChildNodesArray, isCustomEl, geneId} from './bodyBuilder';
 import {ParserEl} from "../parser/parserEl";
-import {geneDeps, geneDepsStr} from './utils';
+import {geneDeps, geneDepsStr, geneIsTwoWayConnected} from './utils';
 
 export class Generator {
-    static generate(parserEl: ParserEl) {
+    derivedArr: string[]
+
+    constructor(derivedArr: string[]) {
+        this.derivedArr = derivedArr
+    }
+    generate(parserEl: ParserEl) {
+
         const body = new BodyStringBuilder()
         for (let [idx, child] of parserEl.children.entries()) {
             body.addBody(this.resolveParserEl(child, idx))
@@ -13,7 +19,7 @@ export class Generator {
         return body.value
     }
 
-    static resolveParserEl(parserEl: ParserEl, idx: number, idAppendixNum: number=0) {
+    resolveParserEl(parserEl: ParserEl, idx: number, idAppendixNum: number=0) {
         if (parserEl.tag === "If") return this.resolveIf(parserEl, idx, idAppendixNum)
         if (parserEl.tag === "For") return this.resolveFor(parserEl, idx, idAppendixNum)
         if (parserEl.tag === "TextNode") return this.resolveText(parserEl, idx, idAppendixNum)
@@ -22,7 +28,7 @@ export class Generator {
         return this.resolveHTML(parserEl, idx, idAppendixNum)
     }
 
-    static resolveEnv(parserEl: ParserEl, idx: number, idAppendixNum: number=0) {
+    resolveEnv(parserEl: ParserEl, idx: number, idAppendixNum: number=0) {
         const id = geneId(idAppendixNum)
         const body = new BodyStringBuilder()
 
@@ -35,7 +41,7 @@ export class Generator {
             body.add(`})())`)
         }
         for (let {key, value} of parserEl.kv.props??[]) {
-            const listenDeps = geneDeps(value)
+            const listenDeps = geneDeps(value, this.derivedArr)
             if (listenDeps.length > 0) {
                 body.add(`${nodeName}._$addPair("${key}", () => (${value}), this, ${geneDepsStr(listenDeps)})`)
             } else {
@@ -46,7 +52,7 @@ export class Generator {
         return body
     }
 
-    static resolveIf(parserEl: ParserEl, idx: number, idAppendixNum: number=0) {
+    resolveIf(parserEl: ParserEl, idx: number, idAppendixNum: number=0) {
         const body = new BodyStringBuilder()
         const id = geneId(idAppendixNum)
         const nodeName = `node${idx}`
@@ -61,11 +67,11 @@ export class Generator {
             }
             body.add(indent((`return ${geneChildNodesArray(conditionEl)}`)))
 
-            const listenDeps = geneDeps(condition.condition)
+            const listenDeps = geneDeps(condition.condition, this.derivedArr)
             if (listenDeps.length > 0) {
                 body.add(`}, this, ${geneDepsStr(listenDeps)})`)
                 continue
-            } 
+            }
             body.add(`})`)
 
         }
@@ -74,7 +80,7 @@ export class Generator {
     }
 
 
-    static resolveFor(parserEl: ParserEl, idx: number, idAppendixNum: number=0) {
+    resolveFor(parserEl: ParserEl, idx: number, idAppendixNum: number=0) {
         const body = new BodyStringBuilder()
         const childEls = parserEl.kv["parserEl"]
         const key = parserEl.kv["key"]
@@ -86,7 +92,7 @@ export class Generator {
 
         const nodeName = `node${idx}`
         body.add(`const ${nodeName} = new _$.ForNode(${id})`)
-        const listenDeps = geneDeps(array)
+        const listenDeps = geneDeps(array, this.derivedArr)
         if (listenDeps.length > 0) {
             body.add(`${nodeName}._$addNodeFunc((${item}, _$idx${idAppendixNum}) => {`)
             for (let [idx, cEl] of childEls.children.entries()) {
@@ -122,13 +128,13 @@ export class Generator {
         return body
     }
 
-    static resolveHTML(parserEl: ParserEl, idx: number, idAppendixNum: number=0) {
+    resolveHTML(parserEl: ParserEl, idx: number, idAppendixNum: number=0) {
         const id = geneId(idAppendixNum)
         const body = new BodyStringBuilder()
         const kv = parserEl.kv
         const nodeName = `node${idx}`
         body.add(`const ${nodeName} = new _$.HtmlNode("${parserEl.tag}", ${id})`)
-        
+
         // ---- properties
         for (let [key, value] of Object.entries(kv)) {
             if (key === "element") {
@@ -136,7 +142,7 @@ export class Generator {
                 continue
             }
             if (key === "_$content") key = "innerText"
-            const listenDeps = geneDeps(value as string)
+            const listenDeps = geneDeps(value as string, this.derivedArr)
             if (listenDeps.length > 0) {
                 body.add(`${nodeName}._$addProp("${key}", () => (${value}), this, ${geneDepsStr(listenDeps)})`)
                 continue
@@ -156,38 +162,38 @@ export class Generator {
     }
 
 
-    static resolveCustom(parserEl: ParserEl, idx: number, idAppendixNum: number=0){
+    resolveCustom(parserEl: ParserEl, idx: number, idAppendixNum: number=0){
         const id = geneId(idAppendixNum)
         const body = new BodyStringBuilder()
         const nodeName = `node${idx}`
         body.add(`const ${nodeName} = new ${parserEl.tag}(${id})`)
         for (let {key, value} of parserEl.kv["props"]??[]) {
-            const listenDeps = geneDeps(value as string)
+            const listenDeps = geneDeps(value as string, this.derivedArr)
             if (listenDeps.length > 0) {
-                body.add(`${nodeName}._$addProp("${key}", () => (${value}), this, ${geneDepsStr(listenDeps)})`)
+                body.add(`${nodeName}._$addProp("${key}", () => (${value}), this, ${geneDepsStr(listenDeps)}, ${geneIsTwoWayConnected(value)})`)
                 continue
-            } 
+            }
             body.add(`${nodeName}._$addProp("${key}", ${value})`)
-            
+
         }
         delete parserEl.kv["props"]
         const kv = parserEl.kv
         for (let k in kv) {
-            const listenDeps = geneDeps(kv[k] as string)
+            const listenDeps = geneDeps(kv[k] as string, this.derivedArr)
             if (listenDeps.length > 0) {
-                body.add(`${nodeName}._$addDotProp("${k}", () => (${kv[k]}), this, ${geneDepsStr(listenDeps)})`)
+                body.add(`${nodeName}._$addProp("${k}", () => (${kv[k]}), this, ${geneDepsStr(listenDeps)}, ${geneIsTwoWayConnected(kv[k])})`)
                 continue
-            } 
-            body.add(`${nodeName}._$addDotProp("${k}", ${kv[k]})`)
+            }
+            body.add(`${nodeName}._$addProp("${k}", ${kv[k]})`)
         }
 
         return body
     }
 
-    static resolveText(parserEl: ParserEl, idx: number, idAppendixNum: number=0) {
+    resolveText(parserEl: ParserEl, idx: number, idAppendixNum: number=0) {
         const id = geneId(idAppendixNum)
         const body = new BodyStringBuilder()
-        const listenDeps = geneDeps(parserEl.kv.value)
+        const listenDeps = geneDeps(parserEl.kv.value, this.derivedArr)
         const strSymbol = parserEl.kv.strSymbol
         if (listenDeps.length > 0) {
             body.add(`const node${idx} = new _$.TextNode(() => ${strSymbol}${parserEl.kv["value"]}${strSymbol}, ${id}, this, ${geneDepsStr(listenDeps)})`)

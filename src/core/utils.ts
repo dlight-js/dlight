@@ -1,12 +1,8 @@
-import { HtmlNode } from "./Nodes";
+import {hh, HtmlNode} from "./Nodes";
 import {DLightNode} from "./Nodes/DLightNode";
 import { EnvNode } from "./Nodes/EnvNode";
 
 export function addDep(dl: DLightNode, dep: string, id: string, func: (newValue?: any) => any, valueFunc?: () => any) {
-    if (dl._$deps[dep] === undefined) return
-    // ---- 需要传入生成的valueFunc和赋值或者其他操作的func，只有当新旧值不一样时才重新调用func
-    //      如果不传入直接调用
-    
     let depFunc
     if (valueFunc) {
         let prevValue: any = undefined
@@ -20,8 +16,15 @@ export function addDep(dl: DLightNode, dep: string, id: string, func: (newValue?
     } else {
         depFunc = func
     }
+    if (dl._$deps === undefined) dl._$deps = {}
+    if (dl._$deps[dep] === undefined) dl._$deps[dep] = {}
     if (dl._$deps[dep][id] === undefined) dl._$deps[dep][id] = []
+
+    let t1 = performance.now();
     dl._$deps[dep][id].push(depFunc)
+    let t2 = performance.now()
+    hh.value += t2-t1
+
 }
 export function addDeps(dl: DLightNode, deps: string[], id: string, func: (newValue?: any) => any, valueFunc?: () => any) {
     for (let dep of deps) {
@@ -29,14 +32,19 @@ export function addDeps(dl: DLightNode, deps: string[], id: string, func: (newVa
     }
 }
 
+export function getCurrListenDeps(dlScope: DLightNode, listenDeps: string[]) {
+    return listenDeps.filter(depKey => (dlScope as any)[`_$${depKey}`] !== undefined)
+}
+
+
 export function deleteDeps(dl: DLightNode, id: string) {
-    for (let depName in dl._$deps) {
+    for (let depName in dl._$deps ?? {}) {
         delete dl._$deps[depName][id]
     }
 }
 
 export function deleteDepsPrefix(dl: DLightNode, prefix: string) {
-    for (let depName in dl._$deps) {
+    for (let depName in dl._$deps ?? {}) {
         for (let id in dl._$deps[depName] ?? {}) {
             if (id.startsWith(prefix)) {
                 delete dl._$deps[depName][id]
@@ -80,7 +88,7 @@ export function uid() {
 }
 
 export function runDeps(dl: DLightNode | EnvNode, depName: string) {
-    for (let id in dl._$deps[depName] ?? []) {
+    for (let id in (dl._$deps??{})[depName] ?? []) {
         for (let dep of dl._$deps[depName][id]) {
             dep.call(dl)
         }

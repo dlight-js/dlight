@@ -1,5 +1,5 @@
 import { DLightNode } from "./Nodes/DLightNode"
 
-export * from "./decorator"
+export * from "./Nodes"
 
 export const View = DLightNode

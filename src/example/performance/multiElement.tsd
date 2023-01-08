@@ -1,0 +1,31 @@
+import {View, Derived, DotProp, Effect, Prop, PropDerived, State, Environment} from "@/core";
+
+
+
+class SubElement extends View {
+    @Prop count: number
+
+    Body() {
+        div(this.count)
+    }
+}
+
+
+export class MultiElement extends View {
+    @State count = 0
+    Body() {
+        button("+")
+            .onclick(() => {
+                this.count ++
+            })
+
+        button("-")
+            .onclick(() => {
+                this.count --
+            })
+
+        For (let _ of [...Array(2000).keys()]) {
+            SubElement({count: this.count as number})
+        }
+    }
+}

@@ -1,7 +1,7 @@
 import { DLNode } from "./Node";
-import {nodesToFlatEls, appendNodesWithIndex, deleteNodesDeps, removeNodes, getFlowIndexFromNodes, getFlowIndexFromParentNode, resolveEnvs, initNodes, parentNodes, replaceNodesWithFirstElement} from './utils';
-import {addDeps} from '../utils';
-import { DLightNode } from "./DLightNode";
+import {appendNodesWithIndex, deleteNodesDeps, removeNodes, getFlowIndexFromNodes, getFlowIndexFromParentNode, resolveEnvs, initNodes, parentNodes, replaceNodesWithFirstElement} from './utils';
+import {addDeps, getCurrListenDeps} from '../utils';
+import { DLightNode, hh } from "./DLightNode";
 import { HtmlNode } from "./HtmlNode";
 import { EnvNode } from "./EnvNode";
 
@@ -15,7 +15,7 @@ export class ForNode extends DLNode {
     arrayFunc?: () => any[]
     dlScope?: DLightNode
     listenDeps?: string[]
-    _$envNodes: EnvNode[] = []
+    _$envNodes?: EnvNode[] = []
 
     constructor(id: string) {
         super("for", id)         
@@ -36,7 +36,7 @@ export class ForNode extends DLNode {
     _$addArrayFunc(dlScope: DLightNode, arrayFunc: any | (() => any), listenDeps: string[]) {
         this.dlScope = dlScope
         this.arrayFunc = arrayFunc
-        this.listenDeps = listenDeps
+        this.listenDeps = getCurrListenDeps(dlScope!, listenDeps)
     }
 
     /**
@@ -120,7 +120,9 @@ export class ForNode extends DLNode {
         // ---1 先替换
         const solvedIdx = []
         const solvedPrevIdxes: number[] = []
-
+        hh.value = 0
+        let t1,t2
+        t1 = performance.now()
         for (let [idx, key] of this.keys.entries()) {
             const prevIdx = prevKeys.indexOf(key)
             // ---- 如果前面没有这个key，代表是空的，直接继续不替换，下面处理
@@ -144,12 +146,19 @@ export class ForNode extends DLNode {
             // ---- 放回els里面
             this._$nodes[idx] = newNodes
         }
+        t2 = performance.now()
+        console.log(t2-t1)
+        t1 = performance.now()
+
         // ---2 再删除
         for (let prevIdx of [...Array(prevKeys.length).keys()]) {
             if (solvedPrevIdxes.includes(prevIdx)) continue
             deleteNodesDeps(prevAllNodes[prevIdx], this.dlScope!)
             removeNodes(prevAllNodes[prevIdx])
         }
+        t2 = performance.now()
+        console.log(t2-t1)
+        t1 = performance.now()
         // ---3 再添加
         let newFlowIndex = flowIndex
         let length = parentEl.childNodes.length  // 每次进去调用的话非常耗时
@@ -164,6 +173,9 @@ export class ForNode extends DLNode {
 
             this._$nodes[idx] = newNodes
         }
+        t2 = performance.now()
+        console.log(t2-t1)
+        // console.log(hh.value)
 
         this._$nodes = this._$dlNodess.slice(0, this.keys.length)
     }
