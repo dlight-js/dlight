@@ -26,8 +26,6 @@ export function addTwoWayDLProp(dlScope: DLightNode, dlNode: DLightNode | EnvNod
     const id = `${dlNode._$id}_${key}`;
     dlNode._$depIds.push(id);
 
-    let t1 = performance.now();
-
     for (let dep of listenDeps) {
         const depFunc = () => (dlScope as any)[dep] = (dlNode as any)[key]
         addDep(dlNode as any, key, id, depFunc);
@@ -39,9 +37,17 @@ export function addTwoWayDLProp(dlScope: DLightNode, dlNode: DLightNode | EnvNod
             addDep(dlNode as any, key, id, depFunc);
         })
     }
-    let t2 = performance.now()
-    hh.value += t2-t1
+}
 
+export function addHalfWayDLProp(dlScope: DLightNode, dlNode: DLightNode | EnvNode, key: string, propFunc: () => any, listenDeps: string[]) {
+    const id = `${dlNode._$id}_${key}`
+    dlNode._$depIds.push(id);
+
+    (dlNode as any)[`_$${key}`] = propFunc()
+    addDeps(dlScope, listenDeps, id, () => {
+        (dlNode as any)[`_$${key}`] = propFunc();
+        (dlNode as any)._$runDeps(key)
+    })
 }
 
 /**

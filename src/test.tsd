@@ -20,6 +20,7 @@ export class TestTest extends View {
     @Prop jjj = 1
     @State toggle1 = this.jjj + 1
     @Prop hht = this.jjj + 100
+    bb = [Element,Element,Element]
     // toggle4 = this.jjj + this.toggle1 + 1
     // toggle2 = this.toggle4 + this.jjj
     // toggle3 = {ok: () => this.toggle1 + 1}
@@ -34,7 +35,10 @@ export class TestTest extends View {
         div (this.toggle1)
         // div (this.toggle2)
         // Element({count: this.toggle1 + 1})
-        Element({okk: this.toggle1})
+        // Element({okk: this.toggle1+1})
+        For(let H of this.bb) {
+            H({okk: this.toggle1})
+        }
         // Element({count: this.toggle1})
     }
 }

@@ -1,6 +1,6 @@
 import { EnvNode } from "./EnvNode"
 import { DLNode } from "./Node"
-import {addOneWayDLProp, addTwoWayDLProp, initNodes, parentNodes, resolveEnvs} from "./utils"
+import {addHalfWayDLProp, addOneWayDLProp, addTwoWayDLProp, initNodes, parentNodes, resolveEnvs} from "./utils"
 import {addDeps, uid} from "../utils";
 export const hh = {value:0}
 
@@ -74,6 +74,17 @@ export abstract class DLightNode extends DLNode {
 
     }
 
+    /**
+     * 三种情况
+     * 1. 里面Prop => 外面不管传什么都是里面监听外面改变
+     * 2. 里面PropState + 外面State/PropState => 直接map过去互相改变
+     * 3. 里面PropState + 外面是普通的或者derived => 里面是个State，同时监听外面改变
+     * @param key
+     * @param propFunc
+     * @param dlScope
+     * @param listenDeps
+     * @param isTwoWayConnected
+     */
     _$addProp(key: string, propFunc: any | (() => any), dlScope?: DLightNode, listenDeps?: string[], isTwoWayConnected?: boolean) {
         if (!listenDeps) {
             (this as any)[key] = propFunc
@@ -86,7 +97,11 @@ export abstract class DLightNode extends DLNode {
         }
         if (isTwoWayConnected && (dlScope as any)[`_$${listenDeps[0]}`] !==  "_$derived") {
             addTwoWayDLProp(dlScope!, this, key, propFunc, listenDeps)
+            return
         }
+        addHalfWayDLProp(dlScope!, this, key, propFunc, listenDeps)
+
+
     }
     
 
