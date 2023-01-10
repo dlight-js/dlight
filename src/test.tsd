@@ -1,184 +1,42 @@
-import {View} from "@/core"
+import {View} from "./core";
 
 
-class SubElement20 extends View {
-    @Prop count
+
+class Element extends View {
+    @Prop count=0
+    @PropState okk = 1
 
     Body() {
+        div("-----")
         div(this.count)
+        div(this.okk)
+        button()
+            .onclick(() => {
+                this.okk--
+            })
     }
 }
-
-class SubElement19 extends View {
-    @Prop count
-
-    Body() {
-        SubElement20({count: 100 })
-    }
-}
-
-class SubElement18 extends View {
-    @Prop count
+export class TestTest extends View {
+    @Prop jjj = 1
+    @State toggle1 = this.jjj + 1
+    @Prop hht = this.jjj + 100
+    // toggle4 = this.jjj + this.toggle1 + 1
+    // toggle2 = this.toggle4 + this.jjj
+    // toggle3 = {ok: () => this.toggle1 + 1}
 
     Body() {
-        SubElement19({count: 100 })
-    }
-}
-
-class SubElement17 extends View {
-    @Prop count
-
-    Body() {
-        SubElement18({count: 100 })
-    }
-}
-
-class SubElement16 extends View {
-    @Prop count
-
-    Body() {
-        SubElement17({count: 100 })
-    }
-}
-
-class SubElement15 extends View {
-    @Prop count
-
-    Body() {
-        SubElement16({count: 100 })
-    }
-}
-
-class SubElement14 extends View {
-    @Prop count
-
-    Body() {
-        SubElement15({count: 100 })
-    }
-}
-
-class SubElement13 extends View {
-    @Prop count
-
-    Body() {
-        SubElement14({count: 100 })
-    }
-}
-
-class SubElement12 extends View {
-    @Prop count
-
-    Body() {
-        SubElement13({count: 100 })
-    }
-}
-
-class SubElement11 extends View {
-    @Prop count
-
-    Body() {
-        SubElement12({count: 100 })
-    }
-}
-
-class SubElement10 extends View {
-    @Prop count
-
-    Body() {
-        SubElement11({count: 100 })
-    }
-}
-
-class SubElement9 extends View {
-    @Prop count
-
-    Body() {
-        SubElement10({count: 100 })
-    }
-}
-
-class SubElement8 extends View {
-    @Prop count
-
-    Body() {
-        SubElement9({count: 100 })
-    }
-}
-
-
-class SubElement7 extends View {
-    @Prop count
-
-    Body() {
-        SubElement8({count: 100 })
-    }
-}
-
-class SubElement6 extends View {
-    @Prop count
-
-    Body() {
-        SubElement7({count: 100 })
-    }
-}
-
-
-class SubElement5 extends View {
-    @Prop count
-
-    Body() {
-        SubElement6({count: 100 })
-    }
-}
-
-
-class SubElement4 extends View {
-    @Prop count
-
-    Body() {
-        SubElement5({count: 100 })
-    }
-}
-
-
-class SubElement3 extends View {
-    @Prop count
-
-    Body() {
-        SubElement4({count: 100 })
-    }
-}
-
-
-class SubElement2 extends View {
-    @Prop count
-
-    Body() {
-        SubElement3({count: 100 })
-    }
-}
-
-
-class SubElement1 extends View {
-    @Prop count
-
-    Body() {
-        SubElement2({count: 100 })
-    }
-}
-
-
-export class NestedElement extends View {
-    @State count = 100
-    @State toggle = true
-
-    niu = this.count + 1
-    Body() {
-        div(this.count)
         button("+")
             .onclick(() => {
-                this.count ++
+                this.toggle1 ++
+                // this.jjj ++
             })
-        div(this.niu)
+        div (this.hht)
+        div (this.toggle1)
+        // div (this.toggle2)
+        // Element({count: this.toggle1 + 1})
+        Element({okk: this.toggle1})
+        // Element({count: this.toggle1})
     }
 }
+
+

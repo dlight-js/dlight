@@ -1,4 +1,4 @@
-import {addDeps, getCurrListenDeps} from "../utils";
+import {addDeps} from "../utils";
 import {DLightNode} from "./DlightNode";
 import { EnvNode } from "./EnvNode";
 import { HtmlNode } from "./HtmlNode";
@@ -28,7 +28,6 @@ export class IfNode extends DLNode {
             if (!this.dlScope) this.dlScope = dlScope
             this.listenDeps.push(...listenDeps)
         }
-        this.listenDeps = getCurrListenDeps(dlScope!, this.listenDeps)
     }
 
     _$init() {

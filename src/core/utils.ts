@@ -1,45 +1,24 @@
-import {hh, HtmlNode} from "./Nodes";
+import {HtmlNode} from "./Nodes";
 import {DLightNode} from "./Nodes/DLightNode";
 import { EnvNode } from "./Nodes/EnvNode";
 
-export function addDep(dl: DLightNode, dep: string, id: string, func: (newValue?: any) => any, valueFunc?: () => any) {
-    let depFunc
-    if (valueFunc) {
-        let prevValue: any = undefined
-        depFunc = () => {
-            const newValue = valueFunc()
-            if (prevValue !== newValue) {
-                func(newValue)
-                prevValue = newValue
-            }
-        }
-    } else {
-        depFunc = func
-    }
-    if (dl._$deps === undefined) dl._$deps = {}
-    if (dl._$deps[dep] === undefined) dl._$deps[dep] = {}
-    if (dl._$deps[dep][id] === undefined) dl._$deps[dep][id] = []
-
-    let t1 = performance.now();
-    dl._$deps[dep][id].push(depFunc)
-    let t2 = performance.now()
-    hh.value += t2-t1
-
+export function addDep(dl: DLightNode, dep: string, id: string, func: (newValue?: any) => any) {
+    dl._$deps[dep][id] = func
 }
-export function addDeps(dl: DLightNode, deps: string[], id: string, func: (newValue?: any) => any, valueFunc?: () => any) {
+export function addDeps(dl: DLightNode, deps: string[], id: string, func: (newValue?: any) => any) {
     for (let dep of deps) {
-        addDep(dl, dep, id, func, valueFunc)
+        addDep(dl, dep, id, func)
     }
 }
 
-export function getCurrListenDeps(dlScope: DLightNode, listenDeps: string[]) {
-    return listenDeps.filter(depKey => (dlScope as any)[`_$${depKey}`] !== undefined)
-}
 
+export function deleteDep(dl: DLightNode, depName: string, id: string) {
+    delete dl._$deps[depName][id]
+}
 
 export function deleteDeps(dl: DLightNode, id: string) {
-    for (let depName in dl._$deps ?? {}) {
-        delete dl._$deps[depName][id]
+    for (let depName in dl._$deps) {
+        deleteDep(dl, depName, id)
     }
 }
 
@@ -53,26 +32,6 @@ export function deleteDepsPrefix(dl: DLightNode, prefix: string) {
     }
 }
 
-
-export function geneDepsAllowFunc(valueStr: string) {
-    // ---- 后续可能用支持in browser的recast，https://github.com/benjamn/recast
-    //      目前就字符串匹配 this.xxx  ([^\w$]|^)this.xxx([^\w$]|$)
-    const depReg = /(?:[^\w$]|^)this\.(\w+)(?:[^\w$]|$)/g
-    const matches = valueStr.matchAll(depReg)
-    const listenDeps = Array.from(matches).map(match=>match[1])
-
-    return [...new Set(listenDeps)]
-}
-
-export function geneDeps(valueStr: string) {
-    if (isFunc(valueStr.trim())) return []
-    return geneDepsAllowFunc(valueStr)
-}
-
-
-export function isFunc(str: string) {
-    return /(^\(\)\s*?=>)|(function\s*?\(\))/.test(str.trim())
-}
 
 export function render(selectName: string, dl: DLightNode) {
     const appNode = new HtmlNode("div")

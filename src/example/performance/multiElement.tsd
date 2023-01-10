@@ -1,4 +1,4 @@
-import {View, Derived, DotProp, Effect, Prop, PropDerived, State, Environment} from "@/core";
+import {View} from "@/core";
 
 
 
@@ -25,7 +25,7 @@ export class MultiElement extends View {
             })
 
         For (let _ of [...Array(2000).keys()]) {
-            SubElement({count: this.count as number})
+            SubElement({count: this.count })
         }
     }
 }

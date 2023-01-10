@@ -29,6 +29,16 @@ export function state(node: t.ClassProperty, classBodyNode: t.ClassBody) {
     classBodyNode.body.splice(propertyIdx+1, 0, getterNode, setterNode)
 }
 
+export function prop(node: t.ClassProperty, classBodyNode: t.ClassBody) {
+    const propertyName = (node.key as t.Identifier).name;
+    const propertyIdx = classBodyNode.body.indexOf(node)
+    const derivedStatusKey = t.classProperty(
+        t.identifier(`_$${propertyName}`),
+        t.stringLiteral("_$derived")
+    )
+    classBodyNode.body.splice(propertyIdx, 0, derivedStatusKey)
+
+}
 
 export function effect(node: t.ClassProperty | t.ClassMethod, classBodyNode: t.ClassBody, effectFuncNode: t.ClassProperty, path: any, depArr: string[], decorator: t.Decorator, classDeclarationNode: t.ClassDeclaration) {
     let deps: string[] = []

@@ -31,6 +31,13 @@
 - [x] element map out
 - [x] support text node
 - [ ] error hints
+- [ ] 整理代码 + env和effect
+- [ ] stateObject stateArrayObject，像react的循环， 
+如果改变了一个list里面的一小个且后面的都用了memo，还是不会引起子组件的其他re-render
+niubi ! for循环里面直接逐个对比参数，然后replace
 * plugins
 - [x] vite transpiler plugin
 - [ ] vscode language server for auto completion
+
+
+

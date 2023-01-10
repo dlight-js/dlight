@@ -1,5 +1,5 @@
 import {DLightNode, hh} from "./DLightNode";
-import {addDep, addDeps, deleteDeps} from "../utils";
+import {addDep, addDeps, deleteDep, deleteDeps} from "../utils";
 import { DLNode } from "./Node";
 import { HtmlNode } from "./HtmlNode";
 import { EnvNode } from "./EnvNode";
@@ -8,17 +8,16 @@ import { EnvNode } from "./EnvNode";
 export function addOneWayDLProp(dlScope: DLightNode, dlNode: DLightNode | EnvNode, key: string, propFunc: () => any, listenDeps: string[]) {
     const id = `${dlNode._$id}_${key}`
     dlNode._$depIds.push(id);
-    (dlNode as any)[`_$${key}`] = "_$derived";
-    (dlNode as any)[key] = propFunc()
-
     let t1 = performance.now();
 
+    (dlNode as any)[key] = propFunc()
+    let t2 = performance.now()
+    hh.value += t2-t1
     addDeps(dlScope, listenDeps, id, () => {
         (dlNode as any)[key] = propFunc();
         (dlNode as any)._$runDeps(key)
     })
-    let t2 = performance.now()
-    hh.value += t2-t1
+
 }
 
 export function addTwoWayDLProp(dlScope: DLightNode, dlNode: DLightNode | EnvNode, key: string, propFunc: () => any, listenDeps: string[]) {
@@ -26,29 +25,22 @@ export function addTwoWayDLProp(dlScope: DLightNode, dlNode: DLightNode | EnvNod
     //      则把子dl的flag参数当成state
     const id = `${dlNode._$id}_${key}`;
     dlNode._$depIds.push(id);
-    (dlNode as any)[`_$${key}`] = propFunc()
-    Object.defineProperty(dlNode, key, {
-        get() {
-            return this[`_$${key}`]
-        },
-        set(value: any) {
-            if (this[`_$${key}`] === value) return;
-            this[`_$${key}`] = value;
-            this._$runDeps(key);
-        }
-    })
-    console.log("fuck me")
+
+    let t1 = performance.now();
+
     for (let dep of listenDeps) {
         const depFunc = () => (dlScope as any)[dep] = (dlNode as any)[key]
-        if (dlNode._$deps === undefined) dlNode._$deps = {}
-        dlNode._$deps[key] = {[id]: [depFunc]}
+        addDep(dlNode as any, key, id, depFunc);
+        (dlNode as any)[key] = propFunc()
         addDep(dlScope, dep, id, () => {
             // ---- 先取消回掉自己的dep，等改完值了再加上，不然会无限回掉
-            delete dlNode._$deps[key][id];
+            deleteDep(dlNode as any, key, id);
             (dlNode as any)[key] = propFunc()
-            dlNode._$deps[key][id] = [depFunc]
+            addDep(dlNode as any, key, id, depFunc);
         })
     }
+    let t2 = performance.now()
+    hh.value += t2-t1
 
 }
 

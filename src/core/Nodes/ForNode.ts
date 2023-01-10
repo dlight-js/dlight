@@ -1,6 +1,6 @@
 import { DLNode } from "./Node";
 import {appendNodesWithIndex, deleteNodesDeps, removeNodes, getFlowIndexFromNodes, getFlowIndexFromParentNode, resolveEnvs, initNodes, parentNodes, replaceNodesWithFirstElement} from './utils';
-import {addDeps, getCurrListenDeps} from '../utils';
+import {addDeps} from '../utils';
 import { DLightNode, hh } from "./DLightNode";
 import { HtmlNode } from "./HtmlNode";
 import { EnvNode } from "./EnvNode";
@@ -36,7 +36,7 @@ export class ForNode extends DLNode {
     _$addArrayFunc(dlScope: DLightNode, arrayFunc: any | (() => any), listenDeps: string[]) {
         this.dlScope = dlScope
         this.arrayFunc = arrayFunc
-        this.listenDeps = getCurrListenDeps(dlScope!, listenDeps)
+        this.listenDeps = listenDeps
     }
 
     /**
@@ -71,9 +71,11 @@ export class ForNode extends DLNode {
 
     _$init() {
         if (!this.listenDeps) {
+            hh.value = 0
             parentNodes(this._$nodes, this)
             resolveEnvs(this._$nodes, this)
             initNodes(this._$nodes)
+            console.log(hh.value)
             return
         }
 
@@ -132,6 +134,7 @@ export class ForNode extends DLNode {
             // ---- 如果前面的item和现在的item相同，且index一样，直接继续
             if (prevArray[prevIdx] === this.array[idx] && idx === prevIdx) continue
             // ---- 不然就直接替换，把第一个替换了，其他的删除
+            // ---- 这里要逐个替换
             const newNodes = this.getNewNodes(idx)
             const replaceSucceed = replaceNodesWithFirstElement(prevAllNodes[prevIdx], newNodes)
             if (!replaceSucceed) {
@@ -175,7 +178,7 @@ export class ForNode extends DLNode {
         }
         t2 = performance.now()
         console.log(t2-t1)
-        // console.log(hh.value)
+        console.log(hh.value)
 
         this._$nodes = this._$dlNodess.slice(0, this.keys.length)
     }

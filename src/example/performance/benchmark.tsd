@@ -20,33 +20,6 @@ function buildData(count) {
 }
 
 
-class Row extends View {
-    @Prop row
-    @Prop count
-    @DotProp selectRow
-    @DotProp deleteRow
-    @DotProp className
-
-    a = [...Array(this.count).keys()].map(j=>"!").join("")
-    isGood = (this.row.id-1) % 10 === 0
-    label = this.isGood ? this.row.label + this.a: this.row.label
-
-    Body() {
-        tr {
-            td(this.row.id)
-                .className("col-md-1")
-            td(this.label)
-                .className("col-md-2")
-                .onclick(() => this.selectRow(this.row.id))
-            td("")
-                .className("col-md-3")
-                .onclick(() => this.deleteRow(this.row.id))
-            td("")
-                .className("col-md-4")
-        }
-            .className(this.className)
-    }
-}
 
 export class Benchmark extends View {
     @State rows = []
@@ -119,11 +92,20 @@ export class Benchmark extends View {
         div {
             table {
                 For(let row of this.rows) {
-                    Row({row, count: this.count + 1})
-                        .selectRow(this.selectRow)
-                        .deleteRow(this.deleteRow)
+                    tr {
+                        td(row.id)
+                            .className("col-md-1")
+                        td(row.label)
+                            .className("col-md-2")
+                            .onclick(() => this.selectRow(row.id))
+                        td("")
+                            .className("col-md-3")
+                            .onclick(() => this.deleteRow(row.id))
+                        td("")
+                            .className("col-md-4")
+                    }
+                .classname(this.selectIdx === row.id ? "danger" : "")
             
-                    .classname(this.selectIdx === row.id ? "danger" : "")
                 }
             }
         }

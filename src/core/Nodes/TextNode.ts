@@ -9,10 +9,11 @@ export class TextNode extends DLNode {
             this._$el = document.createTextNode(textOrFunc as string)
             return
         }
+        // , textOrFunc
         this._$el = document.createTextNode((textOrFunc as () => string)())
         addDeps(dlScope!, listenDeps, this._$id, (newValue: string) => {
             this._$el.nodeValue = newValue
-        }, textOrFunc as () => string)    
+        })
     }
 
     render(parentEl: HTMLElement) {

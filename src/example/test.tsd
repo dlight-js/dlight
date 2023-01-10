@@ -15,6 +15,6 @@ export class SubElement extends View {
     @State count: number
 
     Body() {
-        SubElement1({count: this.count as number})
+        SubElement1({count: this.count})
     }
 }

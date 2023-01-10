@@ -1,25 +1,56 @@
 // // @ts-ignore
 // import {ToDoApp} from "./example/ToDoApp/index.tsd";
 // // @ts-ignore
-// import {NestedElement} from "./example/performance";
+import {NestedElement} from "./example/performance";
 // // @ts-ignore
 // import {TestElement} from "./example/el1.tsd";
 // import {render} from "./core/utils";
 // import {IfTest, ForTest, FlowTest, EnvTest, LifeCycleTest} from "./example/features"
 // import { initNodes, parentNodes, resolveEnvs } from "./core/Nodes/utils";
 // import {SubElement} from "./example/test.tsd"
-// import {ToDoApp} from "./example/ToDoApp/index.tsd";
+// @ts-ignore
+import {ToDoApp} from "./example/ToDoApp/index.tsd";
 
 export {}
 
 // @ts-ignore
-import {NestedElement} from "./test.tsd"
+import {TestTest} from "./test.tsd"
 import {render} from "./core/utils";
 // @ts-ignore
 import {Benchmark} from "./example/performance/benchmark.tsd"
 
 // console.log(t2-t1)
 render("#app", new Benchmark())
+
+// class OK {
+//     a = {}
+//     b = []
+// }
+// let b = []
+// let tt = 0, ttt = 0
+// for (let i=0; i< 10000; i++) {
+//     let t = new OK()
+//     for (let i = 0; i < 20; i++) {
+//         let t1 = performance.now()
+//         t.b.push([`jfajdad_${i}`, () => {}])
+//         // t.a[`jfajdad_${i}`] = () => {}
+//         let t2 = performance.now()
+//         ttt += t2-t1
+//         // b.push(t)
+//         // b.push(t)
+//     }
+//     let t1 = performance.now()
+//     // delete t.a[`jfajdad_100`]
+//     t.b = t.b.filter(i=>i!==`jfajdafafd_10`)
+//     let t2 = performance.now()
+//     tt += t2-t1
+// }
+// console.log(ttt, tt)
+
+// document.getElementById("app")!.onclick = () => {
+//     console.log(b.length)
+// }
+
 // enum TestType {
 //     Benchmark, If, For, Flow, Env, ToDo, LifeCycle, MultiElement, NestedElement, None
 // }
@@ -71,8 +102,5 @@ render("#app", new Benchmark())
 //     b.push(j)
 // }
 
-// document.getElementById("app")!.onclick = () => {
-//     console.log(b.length)
-// }
 
 
