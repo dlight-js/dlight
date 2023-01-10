@@ -1,11 +1,320 @@
 import {View} from "@/core"
 
-
-class SubElement20 extends View {
+class SubElement59 extends View {
     @Prop count
 
     Body() {
         div(this.count)
+    }
+}
+
+class SubElement58 extends View {
+    @Prop count
+
+    Body() {
+        SubElement59({count: this.count })
+    }
+}
+
+class SubElement57 extends View {
+    @Prop count
+
+    Body() {
+        SubElement58({count: this.count })
+    }
+}
+
+class SubElement56 extends View {
+    @Prop count
+
+    Body() {
+        SubElement57({count: this.count })
+    }
+}
+
+class SubElement55 extends View {
+    @Prop count
+
+    Body() {
+        SubElement56({count: this.count })
+    }
+}
+
+class SubElement54 extends View {
+    @Prop count
+
+    Body() {
+        SubElement55({count: this.count })
+    }
+}
+
+class SubElement53 extends View {
+    @Prop count
+
+    Body() {
+        SubElement54({count: this.count })
+    }
+}
+
+
+class SubElement52 extends View {
+    @Prop count
+
+    Body() {
+        SubElement53({count: this.count })
+    }
+}
+
+class SubElement51 extends View {
+    @Prop count
+
+    Body() {
+        SubElement52({count: this.count })
+    }
+}
+class SubElement50 extends View {
+    @Prop count
+
+    Body() {
+        SubElement51({count: this.count })
+    }
+}
+class SubElement49 extends View {
+    @Prop count
+
+    Body() {
+        SubElement50({count: this.count })
+    }
+}
+
+class SubElement48 extends View {
+    @Prop count
+
+    Body() {
+        SubElement49({count: this.count })
+    }
+}
+
+class SubElement47 extends View {
+    @Prop count
+
+    Body() {
+        SubElement48({count: this.count })
+    }
+}
+
+class SubElement46 extends View {
+    @Prop count
+
+    Body() {
+        SubElement47({count: this.count })
+    }
+}
+
+class SubElement45 extends View {
+    @Prop count
+
+    Body() {
+        SubElement46({count: this.count })
+    }
+}
+
+class SubElement44 extends View {
+    @Prop count
+
+    Body() {
+        SubElement45({count: this.count })
+    }
+}
+
+class SubElement43 extends View {
+    @Prop count
+
+    Body() {
+        SubElement44({count: this.count })
+    }
+}
+
+
+class SubElement42 extends View {
+    @Prop count
+
+    Body() {
+        SubElement43({count: this.count })
+    }
+}
+
+class SubElement41 extends View {
+    @Prop count
+
+    Body() {
+        SubElement42({count: this.count })
+    }
+}
+class SubElement40 extends View {
+    @Prop count
+
+    Body() {
+        SubElement41({count: this.count })
+    }
+}
+class SubElement39 extends View {
+    @Prop count
+
+    Body() {
+        SubElement40({count: this.count })
+    }
+}
+
+class SubElement38 extends View {
+    @Prop count
+
+    Body() {
+        SubElement39({count: this.count })
+    }
+}
+
+class SubElement37 extends View {
+    @Prop count
+
+    Body() {
+        SubElement38({count: this.count })
+    }
+}
+
+class SubElement36 extends View {
+    @Prop count
+
+    Body() {
+        SubElement37({count: this.count })
+    }
+}
+
+class SubElement35 extends View {
+    @Prop count
+
+    Body() {
+        SubElement36({count: this.count })
+    }
+}
+
+class SubElement34 extends View {
+    @Prop count
+
+    Body() {
+        SubElement35({count: this.count })
+    }
+}
+
+class SubElement33 extends View {
+    @Prop count
+
+    Body() {
+        SubElement34({count: this.count })
+    }
+}
+
+
+class SubElement32 extends View {
+    @Prop count
+
+    Body() {
+        SubElement33({count: this.count })
+    }
+}
+
+class SubElement31 extends View {
+    @Prop count
+
+    Body() {
+        SubElement32({count: this.count })
+    }
+}
+class SubElement30 extends View {
+    @Prop count
+
+    Body() {
+        SubElement31({count: this.count })
+    }
+}
+
+class SubElement29 extends View {
+    @Prop count
+
+    Body() {
+        SubElement30({count: this.count })
+    }
+}
+
+class SubElement28 extends View {
+    @Prop count
+
+    Body() {
+        SubElement29({count: this.count })
+    }
+}
+
+class SubElement27 extends View {
+    @Prop count
+
+    Body() {
+        SubElement28({count: this.count })
+    }
+}
+
+class SubElement26 extends View {
+    @Prop count
+
+    Body() {
+        SubElement27({count: this.count })
+    }
+}
+
+class SubElement25 extends View {
+    @Prop count
+
+    Body() {
+        SubElement26({count: this.count })
+    }
+}
+
+class SubElement24 extends View {
+    @Prop count
+
+    Body() {
+        SubElement25({count: this.count })
+    }
+}
+
+class SubElement23 extends View {
+    @Prop count
+
+    Body() {
+        SubElement24({count: this.count })
+    }
+}
+
+
+class SubElement22 extends View {
+    @Prop count
+
+    Body() {
+        SubElement23({count: this.count })
+    }
+}
+
+class SubElement21 extends View {
+    @Prop count
+
+    Body() {
+        SubElement22({count: this.count })
+    }
+}
+class SubElement20 extends View {
+    @Prop count
+
+    Body() {
+        SubElement21({count: this.count })
     }
 }
 
@@ -187,8 +496,8 @@ export class NestedElement extends View {
             })
 
         If(this.toggle) {
-            For (let i of [...Array(5000).keys()]) {
-                SubElement1({count: this.count +i})
+            For (let i of [...Array(1000).keys()]) {
+                SubElement1({count: this.count+1})
             }
         }
     }
