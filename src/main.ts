@@ -20,7 +20,7 @@ import {render} from "./core/utils";
 import {Benchmark} from "./example/performance/benchmark.tsd"
 
 // console.log(t2-t1)
-render("#app", new TestTest())
+render("#app", new NestedElement())
 
 // class OK {
 //     a = {}
