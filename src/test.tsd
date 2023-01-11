@@ -20,24 +20,30 @@ export class TestTest extends View {
     @Prop jjj = 1
     @State toggle1 = this.jjj + 1
     @Prop hht = this.jjj + 100
+    a = this.jjj + 1
     bb = [Element,Element,Element]
     // toggle4 = this.jjj + this.toggle1 + 1
     // toggle2 = this.toggle4 + this.jjj
     // toggle3 = {ok: () => this.toggle1 + 1}
-
+    @State apple = [2,2,3]
     Body() {
         button("+")
             .onclick(() => {
                 this.toggle1 ++
                 // this.jjj ++
+                this.apple[1] = 100
+                this.apple = [100,10,3]
             })
         div (this.hht)
         div (this.toggle1)
         // div (this.toggle2)
         // Element({count: this.toggle1 + 1})
         // Element({okk: this.toggle1+1})
-        For(let H of this.bb) {
-            H({okk: this.toggle1})
+        div('--')
+        For(let i of [0, 1,2]) {
+            If(this.apple[i] > 2) {
+                div(this.apple[i])
+            }
         }
         // Element({count: this.toggle1})
     }

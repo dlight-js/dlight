@@ -16,7 +16,6 @@ export class ForNode extends DLNode {
     dlScope?: DLightNode
     listenDeps?: string[]
     _$envNodes?: EnvNode[] = []
-
     constructor(id: string) {
         super("for", id)         
     }
@@ -55,7 +54,6 @@ export class ForNode extends DLNode {
 
     setKeys() {
         if (!this.keyFunc) {
-            this.keys = [...Array(this.array.length).keys()]
             return
         }
         const newKeys = [...this.keyFunc()]
@@ -71,13 +69,17 @@ export class ForNode extends DLNode {
 
     _$init() {
         if (!this.listenDeps) {
-            hh.value = 0
             parentNodes(this._$nodes, this)
             resolveEnvs(this._$nodes, this)
             initNodes(this._$nodes)
-            console.log(hh.value)
             return
         }
+        // ---- 必须放在上面，不然按顺序run dep会导致初始化的删不掉
+        const update = this.keyFunc
+            ? () => this.updateWithKey(parentNode as HtmlNode)
+            : () => this.updateWithOutKey(parentNode as HtmlNode)
+
+        addDeps(this.dlScope!, this.listenDeps!, this._$id, update)
 
         this.setArray()
         this.setKeys()
@@ -94,7 +96,6 @@ export class ForNode extends DLNode {
         if (!parentNode) return
 
         
-        addDeps(this.dlScope!, this.listenDeps!, this._$id, () => this.update(parentNode as HtmlNode))
 
         resolveEnvs(this._$nodes, this)
         initNodes(this._$nodes)
@@ -109,7 +110,38 @@ export class ForNode extends DLNode {
         return nodes
     }
 
-    update(parentNode: HtmlNode) {
+    updateWithOutKey(parentNode: HtmlNode) {
+        const parentEl = parentNode._$el
+        const preLength = this.array.length
+
+        this.setArray()
+        const currLength = this.array.length
+
+        if (preLength < currLength) {
+            let newFlowIndex = getFlowIndexFromParentNode(parentNode, this._$id)
+            let length = parentEl.childNodes.length  // 每次进去调用的话非常耗时
+            for (let idx = 0; idx < currLength; idx++) {
+                if (idx < preLength) {
+                    newFlowIndex += getFlowIndexFromNodes(this._$dlNodess[idx])
+                    continue
+                }
+                const newNodes = this.getNewNodes(idx);
+                [newFlowIndex, length] = appendNodesWithIndex(newNodes, newFlowIndex, parentEl, length)
+                this._$dlNodess.push(newNodes)
+            }
+            return
+        }
+
+        for (let idx = currLength; idx < preLength; idx++) {
+            deleteNodesDeps(this._$dlNodess[idx], this.dlScope!)
+            removeNodes(this._$dlNodess[idx])
+        }
+        this._$nodes = this._$dlNodess.slice(0, currLength)
+    }
+
+    updateWithKey(parentNode: HtmlNode) {
+        // ---- 如果提供了key，唯一目的就是为了保证element的reference不变，这样会变慢
+        // TODO 还有待考虑
         const parentEl = parentNode._$el
         const flowIndex = getFlowIndexFromParentNode(parentNode, this._$id)
         const prevKeys = this.keys
@@ -117,14 +149,13 @@ export class ForNode extends DLNode {
         const prevAllNodes = this._$dlNodess
 
         this.setArray()
-        this.setKeys() 
+        this.setKeys()
 
         // ---1 先替换
         const solvedIdx = []
         const solvedPrevIdxes: number[] = []
-        hh.value = 0
-        let t1,t2
-        t1 = performance.now()
+
+
         for (let [idx, key] of this.keys.entries()) {
             const prevIdx = prevKeys.indexOf(key)
             // ---- 如果前面没有这个key，代表是空的，直接继续不替换，下面处理
@@ -135,11 +166,11 @@ export class ForNode extends DLNode {
             if (prevArray[prevIdx] === this.array[idx] && idx === prevIdx) continue
             // ---- 不然就直接替换，把第一个替换了，其他的删除
             // ---- 这里要逐个替换
-            const newNodes = this.getNewNodes(idx)
-            const replaceSucceed = replaceNodesWithFirstElement(prevAllNodes[prevIdx], newNodes)
+            const prevNodes = prevArray[prevIdx]
+            const replaceSucceed = replaceNodesWithFirstElement(prevAllNodes[prevIdx], prevNodes)
             if (!replaceSucceed) {
                 // ---- 前面啥都没有，那就用for的index来append
-                appendNodesWithIndex(newNodes, flowIndex, parentEl, parentEl.childNodes.length)
+                appendNodesWithIndex(prevNodes, flowIndex, parentEl, parentEl.childNodes.length)
             }
 
             // ---- 删除依赖
@@ -147,11 +178,9 @@ export class ForNode extends DLNode {
             // ---- 删除旧的
             removeNodes(prevAllNodes[prevIdx])
             // ---- 放回els里面
-            this._$nodes[idx] = newNodes
+            this._$nodes[idx] = prevNodes
         }
-        t2 = performance.now()
-        console.log(t2-t1)
-        t1 = performance.now()
+
 
         // ---2 再删除
         for (let prevIdx of [...Array(prevKeys.length).keys()]) {
@@ -159,9 +188,8 @@ export class ForNode extends DLNode {
             deleteNodesDeps(prevAllNodes[prevIdx], this.dlScope!)
             removeNodes(prevAllNodes[prevIdx])
         }
-        t2 = performance.now()
-        console.log(t2-t1)
-        t1 = performance.now()
+
+
         // ---3 再添加
         let newFlowIndex = flowIndex
         let length = parentEl.childNodes.length  // 每次进去调用的话非常耗时
@@ -176,12 +204,11 @@ export class ForNode extends DLNode {
 
             this._$nodes[idx] = newNodes
         }
-        t2 = performance.now()
-        console.log(t2-t1)
-        console.log(hh.value)
 
         this._$nodes = this._$dlNodess.slice(0, this.keys.length)
     }
+
+
 
     render(parentEl: HTMLElement) {
         for (let nodes of this._$dlNodess) {

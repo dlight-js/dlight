@@ -112,13 +112,7 @@ export function go(code: string) {
                     //      如 @Derived  /  @Derived("1","2")
                     const decoratorName = (decorator.expression as t.Identifier).name ??
                         ((decorator.expression as t.CallExpression).callee as t.Identifier).name
-                    if (decoratorName === "State") {
-                        derivedArr.push((node.key as any).name)
-                        NodeHelper.pushDep((node.key as any).name, depsNode!, classBodyNode!)
-                        DecoratorResolver.state(node, classBodyNode!)
-                        break
-                    }
-                    if (["PropState"].includes(decoratorName)) {
+                    if (["PropState", "State"].includes(decoratorName)) {
                         derivedArr.push((node.key as any).name)
                         NodeHelper.pushDep((node.key as any).name, depsNode!, classBodyNode!)
                         DecoratorResolver.state(node, classBodyNode!)

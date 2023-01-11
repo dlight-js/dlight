@@ -76,9 +76,7 @@ export class Benchmark extends View {
         }
         div {
             button("Update every 10th rows")
-                .onclick(() => {
-                    this.count += 1
-                })
+                .onclick(this.update)
         }
         div {
             button("Clear")
@@ -91,20 +89,20 @@ export class Benchmark extends View {
 
         div {
             table {
-                For(let row of this.rows) {
+                For(let i of [...Array(this.rows.length).keys()]) {
                     tr {
-                        td(row.id)
+                        td(this.rows[i].id)
                             .className("col-md-1")
-                        td(row.label)
+                        td(this.rows[i].label)
                             .className("col-md-2")
-                            .onclick(() => this.selectRow(row.id))
+                            .onclick(() => this.selectRow(this.rows[i].id))
                         td("")
                             .className("col-md-3")
-                            .onclick(() => this.deleteRow(row.id))
+                            .onclick(() => this.deleteRow(this.rows[i].id))
                         td("")
                             .className("col-md-4")
                     }
-                .classname(this.selectIdx === row.id ? "danger" : "")
+                    .classname(this.selectIdx === this.rows[i].id ? "danger" : "")
             
                 }
             }

@@ -32,7 +32,8 @@ export abstract class DLightNode extends DLNode {
         super("dlight", id)
     }
     _$runDeps(depName: string) {
-        for (let [, func] of Object.entries(this._$deps[depName])) {
+        for (let [key, func] of Object.entries(this._$deps[depName])) {
+            if (this._$deps[depName][key] === undefined) continue
             func.call(this)
         }
     }
@@ -40,15 +41,9 @@ export abstract class DLightNode extends DLNode {
         if (this._$derivedPairs) {
             for (let [propertyKey, listenDeps] of Object.entries(this._$derivedPairs)) {
                 const derivedFunc = (this as any)[propertyKey];
-                if ((this as any)[`_$${propertyKey}`] === undefined) {
-                    // 不在depChain上，添加
-                    (this as any)[`_$${propertyKey}`] = "_$derived";
-                 }
-                if ((this as any)[`_$${propertyKey}`] !== "_$derived") {
-                    (this as any)[`_$${propertyKey}`] = (this as any)[`_$${propertyKey}`]()
-                } else {
-                    (this as any)[propertyKey] = (this as any)[propertyKey]()
-                }
+                if (typeof derivedFunc !== "function") return
+
+                (this as any)[propertyKey] = (this as any)[propertyKey]()
 
                 let prevValue = (this as any)[propertyKey]
                 addDeps(this, listenDeps, uid(), () => {
@@ -91,11 +86,11 @@ export abstract class DLightNode extends DLNode {
             return
         }
 
-        if ((this as any)[`_$${key}`] === "_$derived") {
+        if ((this as any)[`_$${key}`] === "_$prop") {
             addOneWayDLProp(dlScope!, this, key, propFunc, listenDeps)
             return
         }
-        if (isTwoWayConnected && (dlScope as any)[`_$${listenDeps[0]}`] !==  "_$derived") {
+        if (isTwoWayConnected && (dlScope as any)[`_$${listenDeps[0]}`] !== undefined) {
             addTwoWayDLProp(dlScope!, this, key, propFunc, listenDeps)
             return
         }

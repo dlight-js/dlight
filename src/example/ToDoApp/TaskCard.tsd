@@ -3,9 +3,8 @@ import {Task} from "./Task"
 
 export class TaskCard extends View {
   @Prop task: Task
-  @Prop toggle: boolean
-  @DotProp deleteTask: () => any
-
+  @Prop deleteTask: () => any
+  @Prop toggleBox: (checked: any) => any
   didMount() {
     console.log(`[didMount] Loaded task named ${this.task.name}, it is${this.task.finished?"":" not"} finished.`)
   }
@@ -16,10 +15,10 @@ export class TaskCard extends View {
         .type("checkbox")
         .checked(this.task.finished)
         .onchange(e => {
-          if (e.target.checked !== this.task.finished) {
-            this.task.finished = e.target.checked
-            this.toggle = !this.toggle
-          }
+            if (e.target.checked !== this.task.finished) {
+              this.toggleBox(e.target.checked)
+            }
+
         })
 
       span(this.task.name)

@@ -3,7 +3,7 @@ import {Task} from "./Task"
 
 export class TaskAdder extends View {
   @State inputText = ""
-  @Prop tasks: Task[] = []
+  @PropState tasks: Task[] = []
   inputEl: HTMLInputElement
 
   Body() {

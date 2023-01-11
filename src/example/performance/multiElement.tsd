@@ -8,11 +8,15 @@ class SubElement extends View {
     Body() {
         div(this.count)
     }
+    didMount() {
+        console.log("ok")
+    }
 }
 
 
 export class MultiElement extends View {
     @State count = 0
+    @State a = [1,2,3,4]
     Body() {
         button("+")
             .onclick(() => {

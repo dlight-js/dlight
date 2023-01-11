@@ -41,7 +41,6 @@ export class HtmlNode extends DLNode {
             return
         }
         func(valueOrFunc())
-
         const depFunc = () => {
             const newValue = valueOrFunc()
             if (prevValue !== newValue) {

@@ -34,7 +34,7 @@ export function prop(node: t.ClassProperty, classBodyNode: t.ClassBody) {
     const propertyIdx = classBodyNode.body.indexOf(node)
     const derivedStatusKey = t.classProperty(
         t.identifier(`_$${propertyName}`),
-        t.stringLiteral("_$derived")
+        t.stringLiteral("_$prop")
     )
     classBodyNode.body.splice(propertyIdx, 0, derivedStatusKey)
 
