@@ -20,12 +20,8 @@ import {render, uid} from "./core/utils";
 import {Benchmark} from "./example/performance/benchmark.tsd"
 
 // console.log(t2-t1)
-render("#app", new Benchmark())
-console.time("1")
-for (let i=0;i<100000;i++) {
-    uid()
-}
-console.timeEnd("1")
+render("#app", new ToDoApp())
+
 
 // class OK {
 //     a = {}

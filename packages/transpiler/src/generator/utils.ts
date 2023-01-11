@@ -19,7 +19,7 @@ export function geneDepsStr(listenDeps: string[]) {
 }
 
 export function uid() {
-    return Math.random().toString(20).slice(2)
+    return Math.random().toString(20).slice(2, 8)
 }
 
 export function geneDeps(valueStr: string, derivedArr: string[], otherDeps: string[]=[]) {
@@ -39,13 +39,13 @@ export function geneDeps(valueStr: string, derivedArr: string[], otherDeps: stri
     return deps
 }
 
-export function geneIdDeps(valueStr: string, arr: {id: string, propNames: string[]}[], otherDeps: string[]=[]) {
+export function geneIdDeps(valueStr: string, arr: {ids: string[], propNames: string[]}[], otherDeps: string[]=[]) {
     const ast = parse(valueStr)
     let deps: string[] = []
     traverse(ast, {
         Identifier(innerPath: any) {
-            for (let {id, propNames} of arr) {
-                if (id === innerPath.node.name) {
+            for (let {ids, propNames} of arr) {
+                if (ids.includes(innerPath.node.name)) {
                     if (!isMemberInFunction(innerPath)) {
                         deps.push(...propNames)
                     }
@@ -59,6 +59,9 @@ export function geneIdDeps(valueStr: string, arr: {id: string, propNames: string
     return deps
 }
 
+export function getIdentifiers(valueStr: string) {
+    return valueStr.match(/[_$a-zA-Z][_$a-zA-Z0-9]*/g) ?? []
+}
 
 export function geneIsTwoWayConnected(valueStr: string) {
     const ast = parse(valueStr)
@@ -66,18 +69,18 @@ export function geneIsTwoWayConnected(valueStr: string) {
 }
 
 export function resolveForBody(body: BodyStringBuilder, item: string) {
-    let identiierKeys: string[] = []
+    let identifierKeys: string[] = []
     // ---- 遍历拿到所有item里面的标识符，下面要把标识符转换成带.value的
     const itemAst = parse(item)
     traverse(itemAst, {
         Identifier(innerPath: any) {
-            identiierKeys.push(innerPath.node.name)
+            identifierKeys.push(innerPath.node.name)
         }
     })
     const bodyAst = parse(body.value)
     traverse(bodyAst, {
         Identifier(innerPath: any) {
-            if (identiierKeys.includes(innerPath.node.name)) {
+            if (identifierKeys.includes(innerPath.node.name)) {
                 const valueNode = t.memberExpression(
                     t.identifier(innerPath.node.name),
                     t.identifier("value")

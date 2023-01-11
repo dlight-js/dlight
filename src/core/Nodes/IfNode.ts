@@ -47,7 +47,7 @@ export class IfNode extends DLNode {
         }
         
         if (!parentNode) return
-        addDeps(this.dlScope!, this.listenDeps, this._$id, () => this.update(parentNode as HtmlNode))
+        addDeps(this.dlScope!, this.listenDeps, this._$$id, () => this.update(parentNode as HtmlNode))
 
         initNodes(this._$nodes)
     }
@@ -86,7 +86,7 @@ export class IfNode extends DLNode {
         removeNodes(this._$dlNodes)
 
 
-        const flowIndex = getFlowIndexFromParentNode(parentNode, this._$id)
+        const flowIndex = getFlowIndexFromParentNode(parentNode, this._$$id)
         this._$nodes = nodes
         parentNodes(this._$dlNodes, this)
         resolveEnvs(this._$dlNodes, this)

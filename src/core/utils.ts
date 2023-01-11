@@ -55,11 +55,33 @@ export function runDeps(dl: DLightNode | EnvNode, depName: string) {
 }
 
 
-// ---- 用在for里面
-export function listen(dlScope: DLightNode, valueFunc: () => any, listenDeps: string[]) {
-    const valueObj = { value: valueFunc() }
+// ---- 用在for里面，用eval会变慢，但为了识别特殊for，没办法了
+export function listen(dlScope: DLightNode, valueStr: string, valueFunc: () => any, listenDeps: string[], id: string) {
+    valueStr = valueStr.trim()
+    const replacedValueStr = valueStr.replace(/([_$a-zA-Z][_$a-zA-Z0-9]*)/g, "_$1")
+    let idArr = valueStr.match(/[_$a-zA-Z][_$a-zA-Z0-9]*/g) ?? []
+    // ----
+    let evalStr = `let ${valueStr} = arguments[0]\n`
+    for (let id of idArr) {
+        evalStr += `${id} = {value: ${id}}\n`
+    }
+    evalStr += `return ${valueStr}`
+    let valueObj = new Function(evalStr)(valueFunc())
 
-    const id = uid()
+    // ----
+    let newEvalStr = `let ${valueStr} = arguments[0]\n`
+    for (let id of idArr) {
+        newEvalStr += `let _${id} = ${id}\n`
+    }
+    newEvalStr += `return ${replacedValueStr}\n`
+
+    // ----
+    let geneEvalStr = `let ${replacedValueStr} = middleObj\n`
+    geneEvalStr += `let ${valueStr} = valueObj\n`
+    for (let id of idArr) {
+        geneEvalStr += `${id}.value = _${id}\n`
+    }
+
     addDeps(dlScope, listenDeps, id, () => {
         const value = valueFunc()
         // ---- 空了直接删除
@@ -67,9 +89,10 @@ export function listen(dlScope: DLightNode, valueFunc: () => any, listenDeps: st
             deleteDeps(dlScope, id)
             return
         }
-        valueObj.value = value
+        // @ts-ignore
+        const middleObj = new Function(newEvalStr)(value)
+        eval(geneEvalStr)
     })
-
     return valueObj
 }
 

@@ -26,6 +26,7 @@ class Row extends View {
     @DotProp className: string
     @DotProp selectRow: any
     @DotProp deleteRow: any
+
     Body() {
         tr {
             td(this.id)
@@ -57,8 +58,8 @@ export class Benchmark extends View {
     clearRows = () => {
         this.rows = []
     }
-    selectRow = idx => {
-        this.selectIdx = idx
+    selectRow = id => {
+        this.selectIdx = id
     }
     deleteRow = id => {
         const idx = this.rows.findIndex(row => row.id === id);
@@ -72,66 +73,31 @@ export class Benchmark extends View {
     }
     update = () => {
         for (let i=0;i<this.rows.length;i+=10) {
-            // this.rows[i] = {
-            //     label: this.rows[i].label + " !!!",
-            //     id: this.rows[i].id
-            // }
             this.rows[i].label += "!!! "
         }
-        
         this.rows = [...this.rows]
     }
 
-    @State count = -1
-
     Body() {
         h1('DLightJS-"keyed"')
-        div {
-            button("Create 1,000 rows")
-                .onclick(this.addRows)
-        }
-        div {
-            button("Create 10,000 rows")
-                .onclick(this.addBig)
-        }
-        div {
-            button("Append 1,000 rows")
-                .onclick(this.append)
-        }
-        div {
-            button("Update every 10th rows")
-                .onclick(this.update)
-        }
-        div {
-            button("Clear")
-                .onclick(this.clearRows)
-        }
-        div {
-            button("Swap Rows")
-                .onclick(this.swapRows)
-        }
-
-        div {
-            table {
-                For(let {id,label} of this.rows) {
-                    tr {
-                        td(id)
-                            .className("col-md-1")
-                        td(label)
-                            .className("col-md-2")
-                            .onclick(() => this.selectRow(id))
-                        td("")
-                            .className("col-md-3")
-                            .onclick(() => this.deleteRow(id))
-                        td("")
-                            .className("col-md-4")
-                    }
+        button("Create 1,000 rows")
+            .onclick(this.addRows)
+        button("Create 10,000 rows")
+            .onclick(this.addBig)
+        button("Append 1,000 rows")
+            .onclick(this.append)
+        button("Update every 10th rows")
+            .onclick(this.update)
+        button("Clear")
+            .onclick(this.clearRows)
+        button("Swap Rows")
+            .onclick(this.swapRows)
+        table {
+            For(let { id, label } of this.rows) {
+                Row({ id, label })
+                    .deleteRow(this.deleteRow)
+                    .selectRow(this.selectRow)
                     .className(this.selectIdx === id ? "danger" : "")
-                    // Row({id, label})
-                    //     .deleteRow(this.deleteRow)
-                    //     .selectRow(this.selectRow)
-                        // .className(this.selectIdx === row.id ? "danger" : "")
-                }
             }
         }
     }

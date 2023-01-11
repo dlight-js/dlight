@@ -48,7 +48,7 @@ export class HtmlNode extends DLNode {
                 prevValue = newValue
             }
         }
-        addDeps(dlScope!, listenDeps!, `${this._$id}_${key}`, depFunc)
+        addDeps(dlScope!, listenDeps!, `${this._$$id}_${key}`, depFunc)
     }
 
     render(parentEl: HTMLElement) {

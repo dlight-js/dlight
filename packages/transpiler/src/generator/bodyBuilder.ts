@@ -17,14 +17,14 @@ export function newLine(value: string) {
 //     return "\t" + value
 // }
 
-export function geneId(idAppendixNum: number) {
+export function geneId(idAppendixNum: number, appendix: string) {
     if (idAppendixNum === -1) return ""
-    if (idAppendixNum === 0) return `"${uid()}"`
+    if (idAppendixNum === 0) return `\`${uid()}_\${this._$$id}${appendix===""?"":"_"+appendix}\``
     let id = `\`${uid()}`
     for (let i of [...Array(idAppendixNum).keys()]) {
-        id += `_\${_$idx${i}}`
+        id += `_\${_$$idx${i}}`
     }
-    return id + "`"
+    return id + "_${this._$$id}" + "_" + appendix + "`"
 }
 
 export function geneAppendix(newAppendix: string, idAppendix?: string) {

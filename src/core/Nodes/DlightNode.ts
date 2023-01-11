@@ -21,8 +21,6 @@ export const hh = {value:0}
 export abstract class DLightNode extends DLNode {
     _$depIds: string[] = []  
     _$deps: {[key: string]: {[key: string]: () => any}} = {}
-    _$props?: any 
-    _$dotProps?: any 
     _$envNodes?: EnvNode[]
     _$derivedPairs?: {[key: string]: string[]}
 
@@ -32,6 +30,10 @@ export abstract class DLightNode extends DLNode {
         super("dlight", id)
     }
     _$runDeps(depName: string) {
+        if (this._$deps[depName] === undefined) {
+            console.warn(`${depName} is not a dependency in ${this.constructor.name}`)
+            return
+        }
         for (let [key, func] of Object.entries(this._$deps[depName])) {
             if (this._$deps[depName][key] === undefined) continue
             func.call(this)
@@ -58,10 +60,7 @@ export abstract class DLightNode extends DLNode {
     }
     _$init() {
         this._$initDecorators()
-        let t1 = performance.now();
         this.Body()
-        let t2 = performance.now()
-        hh.value += t2-t1
         parentNodes(this._$nodes, this)
         resolveEnvs(this._$nodes, this)
 

@@ -6,7 +6,7 @@ import { EnvNode } from "./EnvNode";
 
 
 export function addOneWayDLProp(dlScope: DLightNode, dlNode: DLightNode | EnvNode, key: string, propFunc: () => any, listenDeps: string[]) {
-    const id = `${dlNode._$id}_${key}`
+    const id = `${dlNode._$$id}_${key}`
     dlNode._$depIds.push(id);
 
     (dlNode as any)[key] = propFunc()
@@ -20,7 +20,7 @@ export function addOneWayDLProp(dlScope: DLightNode, dlNode: DLightNode | EnvNod
 export function addTwoWayDLProp(dlScope: DLightNode, dlNode: DLightNode | EnvNode, key: string, propFunc: () => any, listenDeps: string[]) {
     // ---- 如果是完整match且是state不是derived，比如 {flag: this.flag}
     //      则把子dl的flag参数当成state
-    const id = `${dlNode._$id}_${key}`;
+    const id = `${dlNode._$$id}_${key}`;
     dlNode._$depIds.push(id);
 
     for (let dep of listenDeps) {
@@ -37,7 +37,7 @@ export function addTwoWayDLProp(dlScope: DLightNode, dlNode: DLightNode | EnvNod
 }
 
 export function addHalfWayDLProp(dlScope: DLightNode, dlNode: DLightNode | EnvNode, key: string, propFunc: () => any, listenDeps: string[]) {
-    const id = `${dlNode._$id}_${key}`
+    const id = `${dlNode._$$id}_${key}`
     dlNode._$depIds.push(id);
 
     (dlNode as any)[`_$${key}`] = propFunc()
@@ -54,7 +54,7 @@ export function addHalfWayDLProp(dlScope: DLightNode, dlNode: DLightNode | EnvNo
 export function addDLProp(dlScope: DLightNode, dlNode: DLightNode | EnvNode, key: string, propFunc: () => any, listenDeps: string[]) {
     // const propStr = propFunc.toString().slice(6).trim()
     // for (let dep of listenDeps) {
-    //     const id = `${dlNode._$id}_${key}_${dep}`;
+    //     const id = `${dlNode._$$id}_${key}_${dep}`;
     //     dlNode._$depIds.push(id)
     //     // ---- 如果是完整match且是state不是derived，比如 {flag: dlNode.flag}
     //     //      则把子dl的flag参数当成state
@@ -156,7 +156,7 @@ export function deleteNodesDeps(nodes: DLNode[], dlScope: DLightNode) {
     }
 }
 function deleteNodeDeps(node: DLNode, dlScope: DLightNode) {
-    deleteDeps(dlScope, node._$id)
+    deleteDeps(dlScope, node._$$id)
     switch (node._$nodeType) {
         case "env":
         case "dlight":
@@ -254,7 +254,7 @@ function getFlowIndexFromNodesTillId(nodes: DLNode[], index: number, stopId: str
     return [index, stop]
 }
 function getFlowIndexFromNodeTillId(node: DLNode, index: number, stopId: string): [number, boolean] {
-    if (node._$id === stopId) return [index, true]
+    if (node._$$id === stopId) return [index, true]
 
     let stop = false
     switch (node._$nodeType) {

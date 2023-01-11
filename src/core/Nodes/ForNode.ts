@@ -13,7 +13,7 @@ export class ForNode extends DLNode {
     keys: any[] = []
     array: any[] = []
 
-    nodeFunc?: (key: any, idx: number, forNode: any) => DLNode[]
+    nodeFunc?: (key: any, idx: number, forNode: any, updateIdx: number) => DLNode[]
     keyFunc?: () => any[]
     arrayFunc?: () => any[]
     dlScope?: DLightNode
@@ -22,12 +22,12 @@ export class ForNode extends DLNode {
     constructor(id: string) {
         super("for", id)         
     }
-    duplicatedKey = false
-
+    duplicatedOrNoKey = false
+    updateIdx = 0
 
     _$getItem(key: any, idx: number) {
         // ---- 重复key了就默认用index
-        let index = this.duplicatedKey ? idx : this.keys.indexOf(key)
+        let index = this.duplicatedOrNoKey ? idx : this.keys.indexOf(key)
         return Array.from(this.array)[index]
     }
     /**
@@ -69,7 +69,7 @@ export class ForNode extends DLNode {
             //     return
             // }
             // this.keys = [...Array(this.array.length).keys()]
-            this.duplicatedKey = true
+            this.duplicatedOrNoKey = true
             return
         }
         const newKeys = [...this.keyFunc()]
@@ -82,7 +82,7 @@ export class ForNode extends DLNode {
 
         // TODO 报错重复key
         console.warn("重复key了")  
-        this.duplicatedKey = true
+        this.duplicatedOrNoKey = true
     }
 
     _$init() {
@@ -97,17 +97,20 @@ export class ForNode extends DLNode {
             ? () => this.updateWithKey(parentNode as HtmlNode)
             : () => this.updateWithOutKey(parentNode as HtmlNode)
 
-        addDeps(this.dlScope!, this.listenDeps!, this._$id, () => update())
+        addDeps(this.dlScope!, this.listenDeps!, this._$$id, () => {
+            this.updateIdx ++
+            update()
+        })
 
         this.setArray()
         this.setKeys()
-        if (this.duplicatedKey) {
+        if (this.duplicatedOrNoKey) {
             for (let idx of this.array.keys()) {
-                this._$addNodes(this.nodeFunc!(null, idx, this))
+                this._$addNodes(this.nodeFunc!(null, idx, this, this.updateIdx))
             }
         } else {
             for (let [idx, key] of this.keys.entries()) {
-                this._$addNodes(this.nodeFunc!(key, idx, this))
+                this._$addNodes(this.nodeFunc!(key, idx, this, this.updateIdx))
             }
         }
         
@@ -128,7 +131,7 @@ export class ForNode extends DLNode {
 
 
     getNewNodes(key: any, idx: number) {
-        const nodes = this.nodeFunc!(key, idx, this)
+        const nodes = this.nodeFunc!(key, idx, this, this.updateIdx)
         parentNodes(nodes, this)
         resolveEnvs(nodes, this)
         initNodes(nodes)
@@ -147,7 +150,7 @@ export class ForNode extends DLNode {
 
         if (preLength === currLength) return
         if (preLength < currLength) {
-            let newFlowIndex = getFlowIndexFromParentNode(parentNode, this._$id)
+            let newFlowIndex = getFlowIndexFromParentNode(parentNode, this._$$id)
             let length = parentEl.childNodes.length  // 每次进去调用的话非常耗时
             for (let idx = 0; idx < currLength; idx++) {
                 if (idx < preLength) {
@@ -166,19 +169,20 @@ export class ForNode extends DLNode {
             removeNodes(this._$dlNodess[idx])
         }
         this._$nodes = this._$dlNodess.slice(0, currLength)
+
     }
 
     updateWithKey(parentNode: HtmlNode) {
         // ---- 如果提供了key，唯一目的就是为了保证element的reference不变，这样会变慢
         const parentEl = parentNode._$el
-        const flowIndex = getFlowIndexFromParentNode(parentNode, this._$id)
+        const flowIndex = getFlowIndexFromParentNode(parentNode, this._$$id)
         let prevKeys = this.keys
         const prevArray = [...this.array]
         const prevAllNodes = [...this._$dlNodess]
 
         this.setArray()
         this.setKeys()
-        if (this.duplicatedKey) prevKeys = [...Array(prevArray.length).keys()]
+        if (this.duplicatedOrNoKey) prevKeys = [...Array(prevArray.length).keys()]
 
         const deletedIdx = []
         // ---1 先删除，原来有现在没有的key
@@ -190,19 +194,17 @@ export class ForNode extends DLNode {
             deletedIdx.push(prevIdx)
         }
         let newPrevKeys = []
-        let newDlNodes = []
+        const newDlNodes = []
         for (let idx of prevKeys.keys()) {
             if (deletedIdx.includes(idx)) continue
             newPrevKeys.push(prevKeys[idx])
             newDlNodes.push(this._$dlNodess[idx])
         }
         prevKeys = newPrevKeys
-        const newDLNodess = newDlNodes
 
         // ---3 再添加
         let newFlowIndex = flowIndex
         newPrevKeys = []
-        newDlNodes = []
         const addedIdx = []
         const newNodess = []
         let length = parentEl.childNodes.length  // 每次进去调用的话非常耗时
@@ -220,22 +222,18 @@ export class ForNode extends DLNode {
         }
 
         for (let [i, idx] of addedIdx.entries()) {
-            newDLNodess.splice(idx, 0, newNodess[i])
+            newDlNodes.splice(idx, 0, newNodess[i])
             prevKeys.splice(idx, 0, newPrevKeys[i])
         }
 
         
 
-        // ---2 再替换
-        const solvedIdx = []
-        const solvedPrevIdxes: number[] = []
+        // ---3 再替换
 
         for (let [idx, key] of this.keys.entries()) {
             const prevIdx = prevKeys.indexOf(key)
             // ---- 如果前面没有这个key，代表是空的，直接继续不替换，下面处理
             if (prevIdx === -1) continue
-            solvedIdx.push(idx)
-            solvedPrevIdxes.push(prevIdx)
             // ---- 如果前面的item和现在的item index一样，直接继续
             if (idx === prevIdx) continue
 
@@ -252,11 +250,10 @@ export class ForNode extends DLNode {
             // ---- 删除旧的
             removeNodes(prevAllNodes[prevIdx])
             // ---- 放回els里面
-            this._$nodes[idx] = prevNodes
+            newDlNodes[idx] = prevNodes
         }
-        console.log(solvedIdx)
 
-        this._$nodes = newDLNodess
+        this._$nodes = newDlNodes
 
     }
 
