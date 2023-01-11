@@ -50,11 +50,13 @@ export class Benchmark extends View {
     }
     update = () => {
         for (let i=0;i<this.rows.length;i+=10) {
-            this.rows[i] = {
-                label: this.rows[i].label + " !!!",
-                id: this.rows[i].id
-            }
+            // this.rows[i] = {
+            //     label: this.rows[i].label + " !!!",
+            //     id: this.rows[i].id
+            // }
+            this.rows[i].label += "!!! "
         }
+        
         this.rows = [...this.rows]
     }
 
@@ -89,20 +91,20 @@ export class Benchmark extends View {
 
         div {
             table {
-                For(let i of [...Array(this.rows.length).keys()]) {
+                For(let row of this.rows)[row] {
                     tr {
-                        td(this.rows[i].id)
+                        td(row.id)
                             .className("col-md-1")
-                        td(this.rows[i].label)
+                        td(row.label)
                             .className("col-md-2")
-                            .onclick(() => this.selectRow(this.rows[i].id))
+                            .onclick(() => this.selectRow(row.id))
                         td("")
                             .className("col-md-3")
-                            .onclick(() => this.deleteRow(this.rows[i].id))
+                            .onclick(() => this.deleteRow(row.id))
                         td("")
                             .className("col-md-4")
                     }
-                    .classname(this.selectIdx === this.rows[i].id ? "danger" : "")
+                    .classname(this.selectIdx === row.id ? "danger" : "")
             
                 }
             }

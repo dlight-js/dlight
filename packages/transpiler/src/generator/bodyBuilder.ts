@@ -10,14 +10,15 @@ export function isCustomEl(parserEl: ParserEl) {
 }
 
 export function newLine(value: string) {
-    return `\t\t${value}\n`
+    return `${value}\n`
 }
 
-export function indent(value: string) {
-    return "\t" + value
-}
+// export function indent(value: string) {
+//     return "\t" + value
+// }
 
 export function geneId(idAppendixNum: number) {
+    if (idAppendixNum === -1) return ""
     if (idAppendixNum === 0) return `"${uid()}"`
     let id = `\`${uid()}`
     for (let i of [...Array(idAppendixNum).keys()]) {
@@ -37,16 +38,21 @@ export function geneChildNodesArray(parserEl: ParserEl) {
 export class BodyStringBuilder {
     value: string = ""
 
-    indent() {
-        this.value = "\t" + this.value.replace(/\n(?!$)/g, "\n\t")
-        return this
-    }
+    // indent() {
+    //     this.value = "\t" + this.value.replace(/\n(?!$)/g, "\n\t")
+    //     return this
+    // }
     
     add(value: string) {
         this.value += newLine(value)
     }
 
+    shift(value: string) {
+        this.value = newLine(value) + this.value
+    }
+
     addBody(body: BodyStringBuilder) {
         this.value += body.value
     }
+    
 }

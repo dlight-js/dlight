@@ -6,7 +6,12 @@ import {TaskAdder} from "./TaskAdder.tsd"
 import {Task} from "./Task";
 
 export class ToDoApp extends View {
-  @State tasks: Task[] = [{name:"jj",finished:true},{name:"jja",finished:true}]
+  @State tasks: Task[] = [
+    {name:"jj",finished:true},
+    {name:"jja",finished:false},
+    {name:"jok",finished:false},
+    {name:"fatk",finished:false},
+    ]
   unfinishedNum = this.tasks.filter(t=>!t.finished).length
 
 
@@ -22,13 +27,13 @@ export class ToDoApp extends View {
       h2(`Remaining ${this.unfinishedNum} tasks to do.`)
     }
     
-    For(let i of [...Array(this.tasks.length).keys()]) {
-      TaskCard({task: this.tasks[i]})
+    For(let task of this.tasks)[task] {
+      TaskCard({task})
         .deleteTask(() => {
-          this.tasks = this.tasks.filter(t=>t !== this.tasks[i])
+          this.tasks = this.tasks.filter(t=>t !== task)
         })
           .toggleBox((checked) => {
-            this.tasks[i].finished = checked
+            task.finished = checked
             this.tasks = [...this.tasks]
           })
     }

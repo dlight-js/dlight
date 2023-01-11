@@ -53,3 +53,23 @@ export function runDeps(dl: DLightNode | EnvNode, depName: string) {
         }
     }
 }
+
+
+// ---- 用在for里面
+export function listen(dlScope: DLightNode, valueFunc: () => any, listenDeps: string[]) {
+    const valueObj = { value: valueFunc() }
+
+    const id = uid()
+    addDeps(dlScope, listenDeps, id, () => {
+        const value = valueFunc()
+        // ---- 空了直接删除
+        if (value === undefined) {
+            deleteDeps(dlScope, id)
+            return
+        }
+        valueObj.value = value
+    })
+
+    return valueObj
+}
+

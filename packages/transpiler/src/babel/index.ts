@@ -13,7 +13,7 @@ import babelTraverse from "@babel/traverse"
 import * as t from "@babel/types";
 import {parseDLightBody} from "../parser";
 import {resolveParserEl} from "../generator";
-import {prop} from "./decoratorResolver";
+
 const parse = babel.parse
 const generate = (ast: any) => babelGenerate.default(ast).code
 const traverse = babelTraverse.default

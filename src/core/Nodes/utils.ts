@@ -8,11 +8,8 @@ import { EnvNode } from "./EnvNode";
 export function addOneWayDLProp(dlScope: DLightNode, dlNode: DLightNode | EnvNode, key: string, propFunc: () => any, listenDeps: string[]) {
     const id = `${dlNode._$id}_${key}`
     dlNode._$depIds.push(id);
-    let t1 = performance.now();
 
     (dlNode as any)[key] = propFunc()
-    let t2 = performance.now()
-    hh.value += t2-t1
     addDeps(dlScope, listenDeps, id, () => {
         (dlNode as any)[key] = propFunc();
         (dlNode as any)._$runDeps(key)

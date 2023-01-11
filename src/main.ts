@@ -15,12 +15,17 @@ export {}
 
 // @ts-ignore
 import {TestTest} from "./test.tsd"
-import {render} from "./core/utils";
+import {render, uid} from "./core/utils";
 // @ts-ignore
 import {Benchmark} from "./example/performance/benchmark.tsd"
 
 // console.log(t2-t1)
-render("#app", new ToDoApp())
+render("#app", new Benchmark())
+console.time("1")
+for (let i=0;i<100000;i++) {
+    uid()
+}
+console.timeEnd("1")
 
 // class OK {
 //     a = {}

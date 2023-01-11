@@ -8,6 +8,9 @@ export class TaskCard extends View {
   didMount() {
     console.log(`[didMount] Loaded task named ${this.task.name}, it is${this.task.finished?"":" not"} finished.`)
   }
+  didUnmount() {
+    console.log(`[didUnMount] Unmount task named ${this.task.name}, it is${this.task.finished?"":" not"} finished.`)
+  }
 
   Body() {
     div() {
