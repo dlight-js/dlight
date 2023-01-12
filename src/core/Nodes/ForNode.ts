@@ -6,9 +6,6 @@ import { HtmlNode } from "./HtmlNode";
 import { EnvNode } from "./EnvNode";
 
 
-/**
- * 还需优化for内部的id生成，不然会慢死
- */
 export class ForNode extends DLNode {
     keys: any[] = []
     array: any[] = []

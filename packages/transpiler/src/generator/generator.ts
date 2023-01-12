@@ -108,8 +108,8 @@ export class Generator {
         const listenDeps = this.geneDeps(array)
         if (listenDeps.length > 0) {
             // ---- 如果有dependencies
-            body.add(`${nodeName}._$addNodeFunc((key, _$$idx${idAppendixNum}, forNode, updateIdx) => {`)
-            body.add(`const ${item} = _$.listen(this, "${item}", ()=>forNode._$getItem(key, _$$idx${idAppendixNum}), \
+            body.add(`${nodeName}._$addNodeFunc((key, _$idx${idAppendixNum}, forNode, updateIdx) => {`)
+            body.add(`const ${item} = _$.listen(this, "${item}", ()=>forNode._$getItem(key, _$idx${idAppendixNum}), \
             ${geneDepsStr(listenDeps)}, ${geneId(idAppendixNum+1, "${updateIdx}")})`)
             const newGenerator = new Generator(this.derivedArr)
             newGenerator.idDepsArr = [{ids: getIdentifiers(item), propNames: listenDeps}]

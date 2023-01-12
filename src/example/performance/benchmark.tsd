@@ -114,23 +114,23 @@ export class Benchmark extends View {
         div {
             table {
                 For(let {id,label} of this.rows) {
-                    tr {
-                        td(id)
-                            .className("col-md-1")
-                        td(label)
-                            .className("col-md-2")
-                            .onclick(() => this.selectRow(id))
-                        td("")
-                            .className("col-md-3")
-                            .onclick(() => this.deleteRow(id))
-                        td("")
-                            .className("col-md-4")
-                    }
-                    .className(this.selectIdx === id ? "danger" : "")
-                    // Row({id, label})
-                    //     .deleteRow(this.deleteRow)
-                    //     .selectRow(this.selectRow)
-                        // .className(this.selectIdx === row.id ? "danger" : "")
+                    // tr {
+                    //     td(id)
+                    //         .className("col-md-1")
+                    //     td(label)
+                    //         .className("col-md-2")
+                    //         .onclick(() => this.selectRow(id))
+                    //     td("")
+                    //         .className("col-md-3")
+                    //         .onclick(() => this.deleteRow(id))
+                    //     td("")
+                    //         .className("col-md-4")
+                    // }
+                    // .className(this.selectIdx === id ? "danger" : "")
+                    Row({id, label})
+                        .deleteRow(this.deleteRow)
+                        .selectRow(this.selectRow)
+                        .className(this.selectIdx === id ? "danger" : "")
                 }
             }
         }

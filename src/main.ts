@@ -20,7 +20,7 @@ import {render, uid} from "./core/utils";
 import {Benchmark} from "./example/performance/benchmark.tsd"
 
 // console.log(t2-t1)
-render("#app", new ToDoApp())
+render("#app", new Benchmark())
 
 
 // class OK {
