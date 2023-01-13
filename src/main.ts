@@ -10,7 +10,7 @@ import {NestedElement} from "./example/performance";
 // import {SubElement} from "./example/test.tsd"
 // @ts-ignore
 import {ToDoApp} from "./example/ToDoApp/index.tsd";
-
+import {Counter} from "./example/test.tsd"
 export {}
 
 // @ts-ignore
@@ -23,41 +23,6 @@ import {Benchmark} from "./example/performance/benchmark.tsd"
 // console.log(t2-t1)
 render("#app", new SubElement())
 
-
-// class OK {
-//     a = {}
-//     b = []
-// }
-// let b = []
-// let tt = 0, ttt = 0
-// for (let i=0; i< 10000; i++) {
-//     let t = new OK()
-//     for (let i = 0; i < 20; i++) {
-//         let t1 = performance.now()
-//         t.b.push([`jfajdad_${i}`, () => {}])
-//         // t.a[`jfajdad_${i}`] = () => {}
-//         let t2 = performance.now()
-//         ttt += t2-t1
-//         // b.push(t)
-//         // b.push(t)
-//     }
-//     let t1 = performance.now()
-//     // delete t.a[`jfajdad_100`]
-//     t.b = t.b.filter(i=>i!==`jfajdafafd_10`)
-//     let t2 = performance.now()
-//     tt += t2-t1
-// }
-// console.log(ttt, tt)
-
-// document.getElementById("app")!.onclick = () => {
-//     console.log(b.length)
-// }
-
-// enum TestType {
-//     Benchmark, If, For, Flow, Env, ToDo, LifeCycle, MultiElement, NestedElement, None
-// }
-//
-// let testType: TestType = TestType.NestedElement
 
 
 // switch (testType) {

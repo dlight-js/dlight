@@ -22,6 +22,13 @@ export class ForNode extends DLNode {
     duplicatedOrNoKey = false
     updateIdx = 0
 
+    get _$el() {
+        return this._$dlNodess.reduce((arr, nodes) => {
+            arr.push(...nodes.map(node=>node._$el))
+            return arr
+        }, [])
+    }
+
     _$getItem(key: any, idx: number) {
         // ---- 重复key了就默认用index
         let index = this.duplicatedOrNoKey ? idx : this.keys.indexOf(key)
@@ -94,7 +101,7 @@ export class ForNode extends DLNode {
             ? () => this.updateWithKey(parentNode as HtmlNode)
             : () => this.updateWithOutKey(parentNode as HtmlNode)
 
-        addDeps(this.dlScope!, this.listenDeps!, this._$$id, () => {
+        addDeps(this.dlScope!, this.listenDeps!, this._$id, () => {
             this.updateIdx ++
             update()
         })
@@ -147,7 +154,7 @@ export class ForNode extends DLNode {
 
         if (preLength === currLength) return
         if (preLength < currLength) {
-            let newFlowIndex = getFlowIndexFromParentNode(parentNode, this._$$id)
+            let newFlowIndex = getFlowIndexFromParentNode(parentNode, this._$id)
             let length = parentEl.childNodes.length  // 每次进去调用的话非常耗时
             for (let idx = 0; idx < currLength; idx++) {
                 if (idx < preLength) {
@@ -172,7 +179,7 @@ export class ForNode extends DLNode {
     updateWithKey(parentNode: HtmlNode) {
         // ---- 如果提供了key，唯一目的就是为了保证element的reference不变，这样会变慢
         const parentEl = parentNode._$el
-        const flowIndex = getFlowIndexFromParentNode(parentNode, this._$$id)
+        const flowIndex = getFlowIndexFromParentNode(parentNode, this._$id)
         let prevKeys = this.keys
         const prevArray = [...this.array]
         const prevAllNodes = [...this._$dlNodess]

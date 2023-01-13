@@ -62,7 +62,7 @@ export class EnvNode extends DLNode {
                 const didUnmount = (node as DLightNode).didUnmount;
                 (node as DLightNode).didUnmount = () => {
                     didUnmount()
-                    deleteDepsPrefix(this as any, `${this._$$id}_${node._$$id}`)
+                    deleteDepsPrefix(this as any, `${this._$id}_${node._$id}`)
                 }
         }
     }

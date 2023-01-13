@@ -14,7 +14,7 @@ export class DlightParser {
         this.code = code
     }
 
-    stopCharacters = ["(", ")", "{", "}", " ", "\n", "'", "\"", "`"]
+    stopCharacters = ["(", "{", "}", " ", "\n", "'", "\"", "`"]
 
     ok() {
         return this.idx < this.code.length - 1
@@ -54,12 +54,16 @@ export class DlightParser {
         this.erase()
     }
 
-    addCustomEl() {
+    addEl() {
         this.addElChild()
         this.eatSpace()
         this.eat()  // eat (
         this.eatSpace()
-        this.eatProps()
+        if (this.look() === "{") {
+            this.eatProps()
+        } else {
+            this.eatValue()
+        }
         this.eat()  // eat )
         this.erase()
     }
@@ -67,6 +71,13 @@ export class DlightParser {
     addElKey() {
         this.el.currKey = this.token.slice(1)
         this.erase()
+        this.eatSpace()
+        this.eat()  // eat (
+        this.eatSpace()
+        this.eatValue()
+        this.eat()  // eat )
+        this.erase()
+
     }
 
     addStrNode() {
@@ -90,53 +101,51 @@ export class DlightParser {
     }
 
     eatProps() {
-        if (this.look() === "{") {
-            this.el.kv.props = []
-            this.eat()  // eat {
-            while (true) {
-                while (this.ok() && !["{", ":", ",", "}"].includes(this.look())) {
-                    this.eat()
-                    this.add()
-                }
-                const nextC = this.look()
-                if (nextC === ":") {
-                    this.el.kv.props.push({key: this.token.trim(), value: "_$none"})
-                    this.eat()
-                    this.erase()
-                } else if (nextC === ",") {
-                    const value = this.token.trim()
-                    const props = this.el.kv["props"]
-                    const lastProp = props[props.length-1]
-                    if (lastProp?.value === "_$none") {
-                        lastProp.value = value
-                    } else {
-                        // ---- 代表是 {key}的简写情况
-                        this.el.kv.props.push({key: value, value})
-                    }
-                    this.eat()
-                    this.erase()
-                } else if (nextC === "{") {
-                    this.eat()
-                    this.add()
-                    this.eatSubBlock()
-                } else if (nextC === "}") {
-                    break
-                }
+        this.eat()  // eat {
+        const propsArrStore: {key: string, value: string}[] = []
+        while (true) {
+            while (this.ok() && !["{", ":", ",", "}"].includes(this.look())) {
+                this.eat()
+                this.add()
             }
-            // ---- 最后没有"，"结尾
-            if (this.token.trim() !== "") {
+            const nextC = this.look()
+            if (nextC === ":") {
+                propsArrStore.push({key: this.token.trim(), value: "_$none"})
+                this.eat()
+                this.erase()
+            } else if (nextC === ",") {
                 const value = this.token.trim()
-                const props = this.el.kv["props"]
-                const lastProp = props[props.length-1]
+                const lastProp = propsArrStore[propsArrStore.length-1]
                 if (lastProp?.value === "_$none") {
                     lastProp.value = value
                 } else {
                     // ---- 代表是 {key}的简写情况
-                    this.el.kv.props.push({key: value, value: value})
+                    propsArrStore.push({key: value, value})
                 }
+                this.eat()
+                this.erase()
+            } else if (nextC === "{") {
+                this.eat()
+                this.add()
+                this.eatSubBlock()
+            } else if (nextC === "}") {
+                break
             }
-            this.eat()  // eat }
         }
+        // ---- 最后没有"，"结尾
+        if (this.token.trim() !== "") {
+            const value = this.token.trim()
+            const lastProp = propsArrStore[propsArrStore.length-1]
+            if (lastProp?.value === "_$none") {
+                lastProp.value = value
+            } else {
+                // ---- 代表是 {key}的简写情况
+                propsArrStore.push({key: value, value: value})
+            }
+        }
+        this.el.kv.props = propsArrStore.reduce((dict, curr) => 
+            ({...dict, [curr.key]: curr.value}), {})
+        this.eat()  // eat }
     }
     eatBrackets(left: string, right: string) {
         let depth = 1
@@ -155,18 +164,7 @@ export class DlightParser {
     // ---- ("value") 情况
     eatValue() {
         this.eatBrackets("(", ")")
-    }
-
-    eatSubBlock() {
-        this.eatBrackets("{", "}")
-    }
-
-    eatKey() {
-        this.eatBrackets("[", "]")
-    }
-
-    addElValue() {
-        // ---- 添加到kv里面
+         // ---- 添加到kv里面
         let isValueEmpty = false
         if (this.token.trim().length === 0) {
             this.token = "true"
@@ -184,6 +182,14 @@ export class DlightParser {
             this.el.kv[key] = this.token
         }
         this.erase()
+    }
+
+    eatSubBlock() {
+        this.eatBrackets("{", "}")
+    }
+
+    eatForKey() {
+        this.eatBrackets("[", "]")
     }
 
     parse() {
@@ -211,22 +217,19 @@ export class DlightParser {
                     this.addElKey()
                     continue
                 }
-                if (isCustomEl(this.token)) {
-                    // ---- 代表是自定义component
-                    this.addCustomEl()
-                    continue
-                }
+                // if (isCustomEl(this.token)) {
+                //     // ---- 代表是自定义component
+                //     this.addCustomEl()
+                //     continue
+                // }
                 // ---- 代表是tag 名称
-                this.addElChild()
+                this.addEl()
             }
             // ---- eat掉stopCharacter并做判断
             this.eat()
             if (this.c.trim() !== "") {
                 // ---- 是stopCharacters里面非空的
-                if (this.c === "(") {
-                    this.eatValue()
-                    this.addElValue()
-                } else if (this.c === "{") {
+                if (this.c === "{") {
                     this.depth++
                 } else if (this.c === "}") {
                     this.depth--
@@ -297,7 +300,7 @@ export class DlightParser {
         this.eatSpace()
         this.eat() // eat { or [
         if (this.c === "[") {
-            this.eatKey()
+            this.eatForKey()
             this.el.kv["key"] = this.token
             this.erase()
             this.eatSpace()

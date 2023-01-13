@@ -22,6 +22,10 @@ export class IfNode extends DLNode {
         super("if", id)
     }
 
+    get _$el() {
+        return this._$dlNodes.map(node => node._$el)
+    }
+
     _$addCond(condition: () => boolean, node: () => DLNode[], dlScope?: DLightNode, listenDeps?: string[]) {
         this.conditionPairs.push({condition, node})
         if (listenDeps) {
@@ -47,7 +51,7 @@ export class IfNode extends DLNode {
         }
         
         if (!parentNode) return
-        addDeps(this.dlScope!, this.listenDeps, this._$$id, () => this.update(parentNode as HtmlNode))
+        addDeps(this.dlScope!, this.listenDeps, this._$id, () => this.update(parentNode as HtmlNode))
 
         initNodes(this._$nodes)
     }
@@ -86,7 +90,7 @@ export class IfNode extends DLNode {
         removeNodes(this._$dlNodes)
 
 
-        const flowIndex = getFlowIndexFromParentNode(parentNode, this._$$id)
+        const flowIndex = getFlowIndexFromParentNode(parentNode, this._$id)
         this._$nodes = nodes
         parentNodes(this._$dlNodes, this)
         resolveEnvs(this._$dlNodes, this)

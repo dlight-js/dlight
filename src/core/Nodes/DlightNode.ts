@@ -19,6 +19,8 @@ export const hh = {value:0}
  *      这时 B/C 以及 derived from B/C 的都可以被监听到
  */
 export abstract class DLightNode extends DLNode {
+    _$content?: any
+    _$$_$content = "_$prop"
     _$depIds: string[] = []  
     _$deps: {[key: string]: {[key: string]: () => any}} = {}
     _$envNodes?: EnvNode[]
@@ -30,6 +32,13 @@ export abstract class DLightNode extends DLNode {
     constructor(id?: string) {
         super("dlight", id)
     }
+
+    get _$el() {
+        console.log(this._$dlNodes)
+        return this._$dlNodes.map(node => node._$el)
+    }
+    
+
     _$runDeps(depName: string) {
         if (this._$deps[depName] === undefined) {
             console.warn(`${depName} is not a dependency in ${this.constructor.name}`)
@@ -90,7 +99,7 @@ export abstract class DLightNode extends DLNode {
             return
         }
 
-        if ((this as any)[`_$${key}`] === "_$prop") {
+        if ((this as any)[`_$$${key}`] === "_$prop") {
             addOneWayDLProp(dlScope!, this, key, propFunc, listenDeps)
             return
         }

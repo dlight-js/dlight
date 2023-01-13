@@ -6,7 +6,7 @@ type NodeType = "html" | "dlight" | "text" | "for" | "if" | "env"
 
 export class DLNode {
     /**
-     * @param _$$id - 每一个Node都有id
+     * @param _$id - 每一个Node都有id
      * @param _$el - 代表DOM上面的node，只有TextNode和HtmlNode有实体node
      * @param _$nodes - 所有嵌套Node的抽象表示
      * 
@@ -22,8 +22,14 @@ export class DLNode {
      *           ↳ A2.render  ↳ B1.render 
      * A1.render -> A => Stop / B/C => B/C.render
      */
-    _$$id: string = ""
-    _$el: Node | HTMLElement | any
+    _$id: string = ""
+    private __$el: Node | HTMLElement | any
+    public get _$el(): Node | HTMLElement | any {
+        return this.__$el
+    }
+    public set _$el(value: Node | HTMLElement | any) {
+        this.__$el = value
+    }
     _$parentNode?: DLNode
     _$nodes: DLNode[] | DLNode[][] = []
     
@@ -36,7 +42,7 @@ export class DLNode {
     _$nodeType: NodeType
 
     constructor(nodeType: NodeType, id?: string) {
-        this._$$id = id ?? uid()
+        this._$id = id ?? uid()
         this._$nodeType = nodeType
     }
 

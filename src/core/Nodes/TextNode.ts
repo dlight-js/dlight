@@ -11,7 +11,7 @@ export class TextNode extends DLNode {
         }
         // , textOrFunc
         this._$el = document.createTextNode((textOrFunc as () => string)())
-        addDeps(dlScope!, listenDeps, this._$$id, (newValue: string) => {
+        addDeps(dlScope!, listenDeps, this._$id, (newValue: string) => {
             this._$el.nodeValue = newValue
         })
     }

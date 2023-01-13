@@ -78,6 +78,7 @@ export function go(code: string) {
                 // ---- body处理
                 const bodyId = (node.value as any).value
                 const newBody = rebuildBody(bodyMap[bodyId], derivedArr)
+
                 node.value = t.arrowFunctionExpression([], BabelParser.functionBlockStatement(`
                     function tmp() {
                         ${newBody}
