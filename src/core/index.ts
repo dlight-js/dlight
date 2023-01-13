@@ -1,4 +1,4 @@
-import { DLightNode } from "./Nodes/DLightNode"
+import { DLightNode } from "./Nodes/DlightNode"
 
 export * from "./Nodes"
 

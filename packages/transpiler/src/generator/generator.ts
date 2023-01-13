@@ -206,6 +206,12 @@ export class Generator {
             }
             body.add(`${nodeName}._$addProp("${k}", ${kv[k]})`)
         }
+        for (let childEl of parserEl.children) {
+            body.add(`${nodeName}._$addChild((() => {`)
+            body.addBody(this.resolveParserEl(childEl, 0, idAppendixNum, appendix))
+            body.add(`return node0`)
+            body.add("})())")
+        }
 
         return body
     }

@@ -23,6 +23,7 @@ export abstract class DLightNode extends DLNode {
     _$deps: {[key: string]: {[key: string]: () => any}} = {}
     _$envNodes?: EnvNode[]
     _$derivedPairs?: {[key: string]: string[]}
+    _$children?: DLNode[]
 
     abstract Body(): any
 
@@ -38,6 +39,10 @@ export abstract class DLightNode extends DLNode {
             if (this._$deps[depName][key] === undefined) continue
             func.call(this)
         }
+    }
+    _$addChild(dlNode: DLNode) {
+        if (this._$children === undefined) this._$children = []
+        this._$children.push(dlNode)
     }
     _$initDecorators() {
         if (this._$derivedPairs) {

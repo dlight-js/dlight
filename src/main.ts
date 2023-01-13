@@ -16,11 +16,12 @@ export {}
 // @ts-ignore
 import {TestTest} from "./test.tsd"
 import {render, uid} from "./core/utils";
+import {SubElement} from "./example/test.tsd"
 // @ts-ignore
 import {Benchmark} from "./example/performance/benchmark.tsd"
 
 // console.log(t2-t1)
-render("#app", new Benchmark())
+render("#app", new SubElement())
 
 
 // class OK {

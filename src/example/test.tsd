@@ -5,6 +5,9 @@ import {View, Derived, DotProp, Effect, Prop, PropDerived, State, Environment} f
 class SubElement1 extends View {
     @Prop count: number
 
+    didMount(){
+        console.log(this._$children)
+    }
     Body() {
         div(this.count)
     }
@@ -12,9 +15,11 @@ class SubElement1 extends View {
 
 
 export class SubElement extends View {
-    @State count: number
+    @State count: number = 0
 
     Body() {
-        SubElement1({count: this.count+1})
+        SubElement1({count: this.count+1}) {
+            div("hh")
+        }
     }
 }
