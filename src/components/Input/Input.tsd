@@ -41,7 +41,6 @@ export class TextField extends View {
             If(this.placeholder) {
                 div ( this.placeholder)
                     .className(this.animationClassName)
-
                     .*position('absolute')
                     .*top(this.inputState==='down'?'0px':'15px')
                     .*left('20px')

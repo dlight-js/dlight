@@ -55,12 +55,6 @@ export class IfNode extends DLNode {
         initNodes(this._$nodes)
     }
 
-    render(parentEl: HTMLElement) {
-        for (let node of this._$dlNodes) {
-            node.render(parentEl)
-        }
-    }
-
     update(parentNode: HtmlNode) {
         let nodes: DLNode[] = []
         const condition = this.condition
@@ -97,5 +91,11 @@ export class IfNode extends DLNode {
 
         const parentEl = parentNode._$el
         appendNodesWithIndex(this._$dlNodes, flowIndex, parentEl, parentEl.childNodes.length)
+    }
+
+    render(parentEl: HTMLElement) {
+        for (let node of this._$dlNodes) {
+            node.render(parentEl)
+        }
     }
 }

@@ -1,11 +1,11 @@
 import { DLightNode } from './DlightNode';
 import {DLNode} from './Node';
 import {deleteDepsPrefix} from '../utils';
-import { addDLProp, initNodes, bindParentNode } from './utils';
+import { initNodes, bindParentNode } from './utils';
+import { addDLProp } from './utils/prop';
 
 
 export class EnvNode extends DLNode {
-    envObject: {[key: string]: any} = {}
     _$depIds: string[] = []
     _$deps?: any
     _$envNodes?: EnvNode[]
@@ -14,37 +14,35 @@ export class EnvNode extends DLNode {
         super("env", id)
     }
 
-    _$addPair(key: string, propOrFunc: any | (() => any), dlScope?: DLightNode, listenDeps?: string[]) {
-        if (!listenDeps) {
-            this.envObject[key] = propOrFunc
-            return
-        }
-        this.envObject[key] = propOrFunc()
-        addDLProp(dlScope!, this, key, propOrFunc, listenDeps)
-    }
-
     _$addNode(dlNode: DLNode) {
         this._$dlNodes.push(dlNode)
     }
 
-    cleanDeps() {
-        // ---- 如果多层EnvEl嵌套，由于protoType相同，所以会出现空的冗余的需要删除
-        for (let depKey in this._$deps ?? {}) {
-            const value = this.envObject[depKey]
-            if ((value === undefined) || (value === null)) {
-                delete this._$deps[depKey]
+    _$addProp(key: string, propOrFunc: any | (() => any), dlScope?: DLightNode, listenDeps?: string[]) {
+        // ---- 每一次加一个prop都相当于给底下所有的DlightNode加一个prop，其他类型的就遍历直到dlight就
+        this.addNodesProp(this._$dlNodes, key, propOrFunc, dlScope, listenDeps)
+    }
+
+    addNodesProp(nodes: DLNode[], key: string, propOrFunc: any | (() => any), dlScope?: DLightNode, listenDeps?: string[]) {
+        for (let node of nodes) {
+            switch (node._$nodeType) {
+                case "for":
+                    for (let ns of node._$dlNodess) {
+                        this.addNodesProp(ns, key, propOrFunc, dlScope, listenDeps)
+                    }
+                    break
+                case "if":
+                case "html":
+                    this.addNodesProp(node._$dlNodes, key, propOrFunc, dlScope, listenDeps)
+                    break
+                case "dlight":
+                    if ((node as any)[key] !== undefined) break
+                    addDLProp(node as DLightNode, "env", key, propOrFunc, dlScope, listenDeps)
+                    break
             }
         }
     }
 
-    _$initDecorators() {
-        // ---- 见utils，只会用到这两个
-        // const protoKeys = Object.getOwnPropertyNames(Object.getPrototypeOf(this))
-        // for (let propertyKey of protoKeys) {
-        //     DecoratorResolver.derivedFromProp(propertyKey, this as any)
-        //     DecoratorResolver.state(propertyKey, this as any)
-        // }
-    }
 
     setEnvObjs(node: DLNode) {
         switch (node._$nodeType) {
@@ -68,25 +66,10 @@ export class EnvNode extends DLNode {
     }
 
     _$init() {
-        for (let [key, value] of Object.entries(this.envObject)) {
-            (this as any)[key] = value
-            Object.defineProperty(Object.getPrototypeOf(this), key, {
-                writable: true
-            })
-        }
-        this.cleanDeps()
         bindParentNode(this._$dlNodes, this)
-        for (let node of this._$dlNodes) {
-            this.setEnvObjs(node)
-            for (let envNode of this._$envNodes ?? []) {
-                envNode.setEnvObjs(node)
-            }
-        }
-        this._$initDecorators()
         initNodes(this._$nodes)
     }
 
-    
     render(parentEl: HTMLElement) {
         for (let node of this._$dlNodes) {
             node.render(parentEl)

@@ -1,7 +1,8 @@
 import { EnvNode } from "./EnvNode"
 import { DLNode } from "./Node"
-import {addHalfWayDLProp, addOneWayDLProp, addTwoWayDLProp, initNodes, bindParentNode, resolveEnvs} from "./utils"
+import {initNodes, bindParentNode} from "./utils"
 import {addDeps, uid} from "../utils";
+import { addDLProp } from "./utils/prop";
 export const hh = {value:0}
 
 /**
@@ -120,25 +121,20 @@ export abstract class DLightNode extends DLNode {
      * @param listenDeps
      * @param isTwoWayConnected
      */
+    
+
     _$addProp(key: string, propFunc: any | (() => any), dlScope?: DLightNode, listenDeps?: string[], isTwoWayConnected?: boolean) {
-        if (!listenDeps) {
-            (this as any)[key] = propFunc
-            return
-        }
+        addDLProp(this, "prop", key, propFunc, dlScope, listenDeps, isTwoWayConnected)
+    }
 
-        if ((this as any)[`_$$${key}`] === "_$prop") {
-            addOneWayDLProp(dlScope!, this, key, propFunc, listenDeps)
-            return
-        }
-        if (isTwoWayConnected && (dlScope as any)[`_$$${listenDeps[0]}`] !== undefined) {
-            addTwoWayDLProp(dlScope!, this, key, propFunc, listenDeps)
-            return
-        }
-        addHalfWayDLProp(dlScope!, this, key, propFunc, listenDeps)
-
-
+    _$addDotProp(key: string, propFunc: any | (() => any), dlScope?: DLightNode, listenDeps?: string[], isTwoWayConnected?: boolean) {
+        addDLProp(this, "dotProp", key, propFunc, dlScope, listenDeps, isTwoWayConnected)
     }
     
+
+    _$addEnv(key: string, propFunc: any | (() => any), dlScope?: DLightNode, listenDeps?: string[], isTwoWayConnected?: boolean) {
+        addDLProp(this, "env", key, propFunc, dlScope, listenDeps, isTwoWayConnected)
+    }
 
     render(parentEl: HTMLElement) {
         this.willAppear()

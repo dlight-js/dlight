@@ -40,29 +40,6 @@ export class Generator {
         return this.resolveHTML(parserEl, idx, idAppendixNum, appendix)
     }
 
-    resolveEnv(parserEl: ParserEl, idx: number, idAppendixNum: number=0, appendix="") {
-        const id = geneId(idAppendixNum, appendix)
-        const body = new BodyStringBuilder()
-
-        const nodeName = `node${idx}`
-        body.add(`const ${nodeName} = new _$.EnvNode(${id})`)
-        for (let childEl of parserEl.kv.parserEl.children) {
-            body.add(`${nodeName}._$addNode((() => {`)
-            body.addBody(this.resolveParserEl(childEl, 0, idAppendixNum, appendix))
-            body.add(`return node0`)
-            body.add(`})())`)
-        }
-        for (let {key, value} of parserEl.kv.props??[]) {
-            const listenDeps = this.geneDeps(value)
-            if (listenDeps.length > 0) {
-                body.add(`${nodeName}._$addPair("${key}", () => (${value}), this, ${geneDepsStr(listenDeps)})`)
-            } else {
-                body.add(`${nodeName}._$addPair("${key}", ${value})`)
-            }
-        }
-
-        return body
-    }
 
     resolveIf(parserEl: ParserEl, idx: number, idAppendixNum: number=0, appendix="") {
         const body = new BodyStringBuilder()
@@ -148,6 +125,21 @@ export class Generator {
         return body
     }
 
+
+    resolveText(parserEl: ParserEl, idx: number, idAppendixNum: number=0, appendix="") {
+        const id = geneId(idAppendixNum, appendix)
+        const body = new BodyStringBuilder()
+        const listenDeps = this.geneDeps(parserEl.kv.value)
+        const strSymbol = parserEl.kv.strSymbol
+        if (listenDeps.length > 0) {
+            body.add(`const node${idx} = new _$.TextNode(() => ${strSymbol}${parserEl.kv["value"]}${strSymbol}, ${id}, this, ${geneDepsStr(listenDeps)})`)
+        } else {
+            body.add(`const node${idx} = new _$.TextNode(${strSymbol}${parserEl.kv["value"]}${strSymbol}, ${id})`)
+        }
+
+        return body
+    }
+
     resolveHTML(parserEl: ParserEl, idx: number, idAppendixNum: number=0, appendix="") {
         const id = geneId(idAppendixNum, appendix)
         const body = new BodyStringBuilder()
@@ -155,7 +147,7 @@ export class Generator {
         body.add(`const ${nodeName} = new _$.HtmlNode("${parserEl.tag}", ${id})`)
 
         // ---- properties
-        for (let {key, value} of parserEl.kv.props) {
+        for (let {key, value} of [...parserEl.kv.props, ...parserEl.kv.dotProps]) {
             if (key === "element") {
                 body.add(`${value} = ${nodeName}._$el`)
                 continue
@@ -206,6 +198,22 @@ export class Generator {
 
         }
 
+        // ---- dotProps
+        for (let {key, value} of parserEl.kv.dotProps) {
+            if (key === "element") {
+                body.add(`${nodeName}._$addAfterset(() => ${value} = ${nodeName}._$el)`)
+                continue
+            }
+
+            const listenDeps = this.geneDeps(value as string)
+            if (listenDeps.length > 0) {
+                body.add(`${nodeName}._$addDotProp("${key}", () => (${value}), this, ${geneDepsStr(listenDeps)}, ${geneIsTwoWayConnected(value)})`)
+                continue
+            }
+            body.add(`${nodeName}._$addDotProp("${key}", ${value})`)
+
+        }
+
 
         // ---- child
         for (let childEl of parserEl.children) {
@@ -220,19 +228,35 @@ export class Generator {
         return body
     }
 
-    resolveText(parserEl: ParserEl, idx: number, idAppendixNum: number=0, appendix="") {
+
+    resolveEnv(parserEl: ParserEl, idx: number, idAppendixNum: number=0, appendix="") {
         const id = geneId(idAppendixNum, appendix)
         const body = new BodyStringBuilder()
-        const listenDeps = this.geneDeps(parserEl.kv.value)
-        const strSymbol = parserEl.kv.strSymbol
-        if (listenDeps.length > 0) {
-            body.add(`const node${idx} = new _$.TextNode(() => ${strSymbol}${parserEl.kv["value"]}${strSymbol}, ${id}, this, ${geneDepsStr(listenDeps)})`)
-        } else {
-            body.add(`const node${idx} = new _$.TextNode(${strSymbol}${parserEl.kv["value"]}${strSymbol}, ${id})`)
+
+        const nodeName = `node${idx}`
+        body.add(`const ${nodeName} = new _$.EnvNode(${id})`)
+        // ---- child 要先加children
+        for (let childEl of parserEl.children) {
+            body.add(`${nodeName}._$addNode((() => {`)
+            body.addBody(this.resolveParserEl(childEl, 0, idAppendixNum, appendix))
+            body.add(`return node0`)
+            body.add("})())")
+        }
+
+        // ---- props
+        for (let {key, value} of parserEl.kv.props) {
+            const listenDeps = this.geneDeps(value as string)
+            if (listenDeps.length > 0) {
+                body.add(`${nodeName}._$addProp("${key}", () => (${value}), this, ${geneDepsStr(listenDeps)}, ${geneIsTwoWayConnected(value)})`)
+                continue
+            }
+            body.add(`${nodeName}._$addProp("${key}", ${value})`)
+
         }
 
         return body
     }
+
 
 }
 

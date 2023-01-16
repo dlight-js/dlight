@@ -56,7 +56,7 @@ export class DlightParser {
         if (content.trim() === "") {
             content = "true"
         }
-        this.el.kv.props.push({key, value: content})
+        this.el.kv.dotProps.push({key, value: content})
         this.erase()
     }
 
@@ -167,10 +167,6 @@ export class DlightParser {
                     this.resolveFor()
                     continue
                 }
-                if (["Environment"].includes(this.token)) {
-                    this.resolveEnv()
-                    continue
-                }
                 if (["\"", "'", "`"].includes(this.token[0])) {
                     this.resolveText()
                     continue
@@ -200,7 +196,6 @@ export class DlightParser {
         const newEl =  new ParserEl(this.token)
         this.erase()
         this.eatSpace()
-        newEl.kv.props = []
         if (this.look() === "(") {
             this.eat()  // eat (
             this.eatSpace()
@@ -293,22 +288,5 @@ export class DlightParser {
         this.parserEl.addChild(newEl)
     }
 
-    // ---- environment
-    resolveEnv() {
-        this.el.addChild(new ParserEl(this.token))
-        this.eatSpace()
-        this.eat()  // eat (
-        this.eatProps()
-        this.eat()  // eat )
-        this.erase()
-        this.eatSpace()
-        this.eat() // eat { 
-        this.eatCurlyBrackets()  // eat内部
-        // ---- 解析内部
-        const newParser = new DlightParser(this.token)
-        newParser.parse()
-        this.el.kv.parserEl = newParser.parserEl
-        this.erase()
-    }
 
 }

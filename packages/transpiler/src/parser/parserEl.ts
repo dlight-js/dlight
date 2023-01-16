@@ -2,7 +2,10 @@
 export class ParserEl {
     tag: string = ""
     currKey: string = ""
-    kv: any = {}
+    kv: {[key: string]: any} = {
+        props: [],
+        dotProps: []
+    }
     children: ParserEl[] = []
     parent?: ParserEl
 

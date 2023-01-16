@@ -117,7 +117,7 @@ export function go(code: string) {
                     if (["Prop", "DotProp", "Environment"].includes(decoratorName)) {
                         derivedArr.push((node.key as any).name)
                         NodeHelper.pushDep((node.key as any).name, depsNode!, classBodyNode!)
-                        DecoratorResolver.prop(node, classBodyNode!)
+                        DecoratorResolver.prop(node, classBodyNode!, decoratorName as any)
                         break
                     }
 

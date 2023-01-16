@@ -16,6 +16,9 @@ re-calc on this weekend
 - [x] shortcut for style (e.g. div("hello").*height)
 - [x] element map out
 - [x] support text node
+- [ ] support jsx
+- [ ] support environment
+- [ ] animation
 - [ ] error hints
 
 * plugins

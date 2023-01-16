@@ -29,12 +29,18 @@ export function state(node: t.ClassProperty, classBodyNode: t.ClassBody) {
     classBodyNode.body.splice(propertyIdx+1, 0, getterNode, setterNode)
 }
 
-export function prop(node: t.ClassProperty, classBodyNode: t.ClassBody) {
+export function prop(node: t.ClassProperty, classBodyNode: t.ClassBody, decoratorName: "Prop" | "DotProp" | "Environment") {
     const propertyName = (node.key as t.Identifier).name;
     const propertyIdx = classBodyNode.body.indexOf(node)
+    let tag: string
+    switch (decoratorName) {
+        case "Prop": tag = "prop"; break;
+        case "DotProp": tag = "dotProp"; break;
+        case "Environment": tag = "env"; break;        
+    }
     const derivedStatusKey = t.classProperty(
         t.identifier(`_$$${propertyName}`),
-        t.stringLiteral("_$prop")
+        t.stringLiteral(`_$${tag}`)
     )
     classBodyNode.body.splice(propertyIdx, 0, derivedStatusKey)
 
