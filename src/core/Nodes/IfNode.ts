@@ -35,6 +35,19 @@ export class IfNode extends DLNode {
     }
 
     _$init() {
+        // ---- 加if依赖
+        // ---- 找到HTMLNode作为parentNode，因为它是有真实el的
+        let parentNode: DLNode | undefined = this._$parentNode
+        while (parentNode && parentNode._$nodeType !== "html") {
+            parentNode = parentNode._$parentNode
+        }
+        
+        if (parentNode) {
+            addDeps(this.dlScope!, this.listenDeps, this._$id, () => this.update(parentNode as HtmlNode))
+        }
+
+        // ---- 生成nodes
+        // ---- 只要找到符合条件的就break
         for (let conditionPair of this.conditionPairs) {
             if (conditionPair.condition()) {
                 this.condition = conditionPair.condition.toString()
@@ -44,15 +57,6 @@ export class IfNode extends DLNode {
             }
         }
         bindParentNode(this._$dlNodes, this)
-
-        let parentNode: DLNode | undefined = this._$parentNode
-        while (parentNode && parentNode._$nodeType !== "html") {
-            parentNode = parentNode._$parentNode
-        }
-        
-        if (!parentNode) return
-        addDeps(this.dlScope!, this.listenDeps, this._$id, () => this.update(parentNode as HtmlNode))
-
         initNodes(this._$nodes)
     }
 

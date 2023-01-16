@@ -1,14 +1,16 @@
-import {View, Derived, DotProp, Effect, Prop, PropDerived, State, Environment} from "@/core";
+import {View} from "@/core";
 
 export class FlowTest extends View {
-    @State count = 2
+    @State count = 1
     @State apple = [0,1]
     @State toggle = true
 
     Body() {
         button("toggle")
             .onclick(() => {
+                console.log({...this._$deps.apple})
                 this.toggle = !this.toggle
+                console.log({...this._$deps.apple})
             })
         button("append")
             .onclick(() => {
@@ -22,14 +24,14 @@ export class FlowTest extends View {
         div (`count ${this.count}`)
         button("+")
             .onclick(() => {
-                this.apple[1] = this.count
                 this.count ++
+                this.apple[1] = this.count
                 this.apple = [...this.apple]
             })
         button("-")
             .onclick(() => {
-                this.apple[1] = this.count
                 this.count --
+                this.apple[1] = this.count
                 this.apple = [...this.apple]
             })
         div (`length ${this.apple.length}`)
@@ -38,7 +40,7 @@ export class FlowTest extends View {
             If (this.toggle) {
                 For(let i of this.apple) {
                     If (this.toggle) {
-                        div (`${j}${i}`)
+                        div (`${1}-${i}`)
                     }
 
                 }

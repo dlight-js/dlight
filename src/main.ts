@@ -5,7 +5,7 @@ import {NestedElement} from "./example/performance";
 // // @ts-ignore
 // import {TestElement} from "./example/el1.tsd";
 // import {render} from "./core/utils";
-// import {IfTest, ForTest, FlowTest, EnvTest, LifeCycleTest} from "./example/features"
+import {IfTest, ForTest, FlowTest, EnvTest, LifeCycleTest} from "./example/features"
 // import { initNodes, bindParentNode, resolveEnvs } from "./core/Nodes/utils";
 // import {SubElement} from "./example/test.tsd"
 // @ts-ignore
@@ -21,7 +21,7 @@ import {SubElement} from "./example/test.tsd"
 import {Benchmark} from "./example/performance/benchmark.tsd"
 
 // console.log(t2-t1)
-render("#app", new SubElement())
+render("#app", new Benchmark())
 
 
 

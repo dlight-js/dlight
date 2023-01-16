@@ -4,27 +4,27 @@ import {HStack, Spacer, Node, Button, TextField} from "@/components"
 
 
 
-class TestElement1 extends View {
+// class TestElement1 extends View {
 
 
-    Body() {
-        div("ok")
+//     Body() {
+//         div("ok")
 
-    }
-}
+//     }
+// }
 
-class TestElement2 extends View {
+// class TestElement2 extends View {
 
-    @Environment a
-    willAppear() {
-        console.log("no")
-    }
-    Body() {
-        div(this.a)
-        div("ok")
+//     @Environment a
+//     willAppear() {
+//         console.log("no")
+//     }
+//     Body() {
+//         div(this.a)
+//         div("ok")
 
-    }
-}
+//     }
+// }
 
 
 export class SubElement extends View {
@@ -33,11 +33,13 @@ export class SubElement extends View {
     Body() {
         Environment({a: 1000, b: 90}) {
             Environment({a: 669, b: 90}) {
-                TestElement1()
-                    .willAppear(() => {
-                        console.log("fuck")
-                    })
-                TestElement2()
+                // TestElement1()
+                //     .willAppear(() => {
+                //         console.log("fuck")
+                //     })
+                // TestElement2()
+                div("11")
+                `--fuclaf-`
             }
         }
 

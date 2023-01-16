@@ -47,12 +47,12 @@ export function deleteNodesDeps(nodes: DLNode[], dlScope: DLightNode) {
 }
 function deleteNodeDeps(node: DLNode, dlScope: DLightNode) {
     deleteDeps(dlScope, node._$id)
+    for (let i of node._$depIds) {
+        deleteDeps(dlScope, i)
+    }
     switch (node._$nodeType) {
         case "env":
         case "dlight":
-            for (let i of (node as DLightNode)._$depIds) {
-                deleteDeps(dlScope, i)
-            }
         case "html":
         case "if":
             deleteNodesDeps(node._$dlNodes, dlScope)

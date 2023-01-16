@@ -94,11 +94,20 @@ export class ForNode extends DLNode {
             initNodes(this._$nodes)
             return
         }
-        // ---- 必须放在上面，不然按顺序run dep会导致初始化的删不掉
+        // ---- 找到HTMLNode作为parentNode，因为它是有真实el的
+        let parentNode: DLNode | undefined = this._$parentNode
+        while (parentNode && parentNode._$nodeType !== "html") {
+            parentNode = parentNode._$parentNode
+        }
+        
+        if (!parentNode) return
+        // ---* 必须放在上面，不然按顺序run dep会导致初始化的nodes的deps删不掉
         const update = this.keyFunc
             ? () => this.updateWithKey(parentNode as HtmlNode)
             : () => this.updateWithOutKey(parentNode as HtmlNode)
 
+
+        // ---- 加deps
         addDeps(this.dlScope!, this.listenDeps!, this._$id, () => {
             this.updateIdx ++
             update()
@@ -117,19 +126,17 @@ export class ForNode extends DLNode {
         }
         
         bindParentNode(this._$nodes, this)
-
-        let parentNode: DLNode | undefined = this._$parentNode
-        while (parentNode && parentNode._$nodeType !== "html") {
-            parentNode = parentNode._$parentNode
-        }
-        
-        if (!parentNode) return
-
-        
-
         initNodes(this._$nodes)
     }
 
+    
+    render(parentEl: HTMLElement) {
+        for (let nodes of this._$dlNodess) {
+            for (let node of nodes) {
+                node.render(parentEl)
+            }
+        }
+    }
 
     getNewNodes(key: any, idx: number) {
         const nodes = this.nodeFunc!(key, idx, this, this.updateIdx)
@@ -259,55 +266,47 @@ export class ForNode extends DLNode {
     }
 
 
-
-    render(parentEl: HTMLElement) {
-        for (let nodes of this._$dlNodess) {
-            for (let node of nodes) {
-                node.render(parentEl)
+    // ---- 用eval会变慢，但为了识别特殊for，没办法了
+    _$listen(dlScope: DLightNode, valueStr: string, valueFunc: () => any, listenDeps: string[], id: string) {
+        // ---* 必须把id放进去，不然删除不掉
+        // this._$depIds.push(id)
+        valueStr = valueStr.trim()
+        const replacedValueStr = valueStr.replace(/([_$a-zA-Z][_$a-zA-Z0-9]*)/g, "_$1")
+        let idArr = valueStr.match(/[_$a-zA-Z][_$a-zA-Z0-9]*/g) ?? []
+        // ----
+        let evalStr = `let ${valueStr} = arguments[0]\n`
+        for (let id of idArr) {
+            evalStr += `${id} = {value: ${id}}\n`
+        }
+        evalStr += `return ${valueStr}`
+        let valueObj = new Function(evalStr)(valueFunc())
+    
+        // ----
+        let newEvalStr = `let ${valueStr} = arguments[0]\n`
+        for (let id of idArr) {
+            newEvalStr += `let _${id} = ${id}\n`
+        }
+        newEvalStr += `return ${replacedValueStr}\n`
+    
+        // ----
+        let geneEvalStr = `let ${replacedValueStr} = middleObj\n`
+        geneEvalStr += `let ${valueStr} = valueObj\n`
+        for (let id of idArr) {
+            geneEvalStr += `${id}.value = _${id}\n`
+        }
+    
+        addDeps(dlScope, listenDeps, id, () => {
+            const value = valueFunc()
+            // ---- 空了直接删除
+            if (value === undefined) {
+                deleteDeps(dlScope, id)
+                return
             }
-        }
-    }
-}
-
-
-
-// ---- 用在for里面，用eval会变慢，但为了识别特殊for，没办法了
-export function listen(dlScope: DLightNode, valueStr: string, valueFunc: () => any, listenDeps: string[], id: string) {
-    valueStr = valueStr.trim()
-    const replacedValueStr = valueStr.replace(/([_$a-zA-Z][_$a-zA-Z0-9]*)/g, "_$1")
-    let idArr = valueStr.match(/[_$a-zA-Z][_$a-zA-Z0-9]*/g) ?? []
-    // ----
-    let evalStr = `let ${valueStr} = arguments[0]\n`
-    for (let id of idArr) {
-        evalStr += `${id} = {value: ${id}}\n`
-    }
-    evalStr += `return ${valueStr}`
-    let valueObj = new Function(evalStr)(valueFunc())
-
-    // ----
-    let newEvalStr = `let ${valueStr} = arguments[0]\n`
-    for (let id of idArr) {
-        newEvalStr += `let _${id} = ${id}\n`
-    }
-    newEvalStr += `return ${replacedValueStr}\n`
-
-    // ----
-    let geneEvalStr = `let ${replacedValueStr} = middleObj\n`
-    geneEvalStr += `let ${valueStr} = valueObj\n`
-    for (let id of idArr) {
-        geneEvalStr += `${id}.value = _${id}\n`
+            // @ts-ignore
+            const middleObj = new Function(newEvalStr)(value)
+            eval(geneEvalStr)
+        })
+        return valueObj
     }
 
-    addDeps(dlScope, listenDeps, id, () => {
-        const value = valueFunc()
-        // ---- 空了直接删除
-        if (value === undefined) {
-            deleteDeps(dlScope, id)
-            return
-        }
-        // @ts-ignore
-        const middleObj = new Function(newEvalStr)(value)
-        eval(geneEvalStr)
-    })
-    return valueObj
 }

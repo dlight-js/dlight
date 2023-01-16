@@ -26,7 +26,6 @@ export class HtmlNode extends DLNode {
 
     _$addProp(key: string, valueOrFunc: any | (() => any), dlScope?: DLightNode, listenDeps?: string[]) {
         let func: (newValue: any) => any
-        let prevValue: any = undefined
 
         if (key[0] === "*") {
             func = (newValue: any) => this._$el.style[key.slice(1) as any] = newValue
@@ -40,7 +39,8 @@ export class HtmlNode extends DLNode {
             func(valueOrFunc)
             return
         }
-        func(valueOrFunc())
+        let prevValue: any = valueOrFunc()
+        func(prevValue)
         const depFunc = () => {
             const newValue = valueOrFunc()
             if (prevValue !== newValue) {
@@ -48,6 +48,7 @@ export class HtmlNode extends DLNode {
                 prevValue = newValue
             }
         }
+        this._$depIds.push(`${this._$id}_${key}`)
         addDeps(dlScope!, listenDeps!, `${this._$id}_${key}`, depFunc)
     }
 

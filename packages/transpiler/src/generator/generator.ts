@@ -35,7 +35,7 @@ export class Generator {
         if (parserEl.tag === "If") return this.resolveIf(parserEl, idx, idAppendixNum, appendix)
         if (parserEl.tag === "For") return this.resolveFor(parserEl, idx, idAppendixNum, appendix)
         if (parserEl.tag === "TextNode") return this.resolveText(parserEl, idx, idAppendixNum, appendix)
-        if (parserEl.tag === "Environment") return this.resolveEnv(parserEl, idx,idAppendixNum)
+        if (parserEl.tag === "Environment") return this.resolveEnv(parserEl, idx, idAppendixNum, appendix)
         if (isCustomEl(parserEl)) return this.resolveCustom(parserEl, idx, idAppendixNum, appendix)
         return this.resolveHTML(parserEl, idx, idAppendixNum, appendix)
     }
@@ -86,7 +86,7 @@ export class Generator {
         if (listenDeps.length > 0) {
             // ---- 如果有dependencies
             body.add(`${nodeName}._$addNodeFunc((key, _$idx${idAppendixNum}, forNode, updateIdx) => {`)
-            body.add(`const ${item} = _$.listen(this, "${item}", ()=>forNode._$getItem(key, _$idx${idAppendixNum}), \
+            body.add(`const ${item} = forNode._$listen(this, "${item}", ()=>forNode._$getItem(key, _$idx${idAppendixNum}), \
             ${geneDepsStr(listenDeps)}, ${geneId(idAppendixNum+1, "${updateIdx}")})`)
             const newGenerator = new Generator(this.derivedArr)
             newGenerator.idDepsArr = [{ids: getIdentifiers(item), propNames: listenDeps}]
@@ -129,12 +129,15 @@ export class Generator {
     resolveText(parserEl: ParserEl, idx: number, idAppendixNum: number=0, appendix="") {
         const id = geneId(idAppendixNum, appendix)
         const body = new BodyStringBuilder()
-        const listenDeps = this.geneDeps(parserEl.kv.value)
+        const value = parserEl.kv.value
         const strSymbol = parserEl.kv.strSymbol
+        const listenDeps = this.geneDeps(`${strSymbol}${value}${strSymbol}`)
+
+
         if (listenDeps.length > 0) {
-            body.add(`const node${idx} = new _$.TextNode(() => ${strSymbol}${parserEl.kv["value"]}${strSymbol}, ${id}, this, ${geneDepsStr(listenDeps)})`)
+            body.add(`const node${idx} = new _$.TextNode(() => ${strSymbol}${value}${strSymbol}, ${id}, this, ${geneDepsStr(listenDeps)})`)
         } else {
-            body.add(`const node${idx} = new _$.TextNode(${strSymbol}${parserEl.kv["value"]}${strSymbol}, ${id})`)
+            body.add(`const node${idx} = new _$.TextNode(${strSymbol}${value}${strSymbol}, ${id})`)
         }
 
         return body

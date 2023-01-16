@@ -5,8 +5,7 @@ export * from "./Nodes"
 
 export const View = DLightNode
 
-export {listen} from "./Nodes/ForNode"
-
+export {addLifeCycle} from "./Nodes/DlightNode"
 
 export function render(selectName: string, dl: DLightNode) {
     const appNode = new HtmlNode("div")

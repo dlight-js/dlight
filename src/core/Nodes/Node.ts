@@ -33,6 +33,7 @@ export class DLNode {
     }
     _$parentNode?: DLNode
     _$nodes: DLNode[] | DLNode[][] = []
+    _$depIds: string[] = []
 
     // @ts-ignore
     _$afterElsCreated(nodes: DLNode[]) {}

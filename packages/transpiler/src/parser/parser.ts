@@ -168,6 +168,7 @@ export class DlightParser {
                     continue
                 }
                 if (["\"", "'", "`"].includes(this.token[0])) {
+                    
                     this.resolveText()
                     continue
                 }
@@ -187,7 +188,6 @@ export class DlightParser {
         const newEl =  new ParserEl("TextNode")
         newEl.kv.strSymbol = this.token[0]
         newEl.kv.value = this.token.slice(1, -1)
-
         this.erase()
         this.parserEl.addChild(newEl)
     }

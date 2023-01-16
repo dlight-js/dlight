@@ -31,7 +31,6 @@ import { uid } from "../utils/util";
  *   -> this.Afterset（留的hook，目前只有.element()会调用)
  */
 export abstract class DLightNode extends DLNode {
-    _$depIds: string[] = []
     _$deps: {[key: string]: {[key: string]: () => any}} = {}
     _$envNodes?: EnvNode[]
     _$derivedPairs?: {[key: string]: string[]}
