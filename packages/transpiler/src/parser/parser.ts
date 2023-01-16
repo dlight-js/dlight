@@ -1,8 +1,6 @@
 import {ParserEl} from "./parserEl";
 
-function isCustomEl(str: string) {
-    return str[0].toUpperCase() === str[0]
-}
+
 
 export class DlightParser {
     code: string
@@ -14,7 +12,7 @@ export class DlightParser {
         this.code = code
     }
 
-    stopCharacters = ["(", "{", "}", " ", "\n", "'", "\"", "`"]
+    stopCharacters = ["(", "{", " ", "\n"]
 
     ok() {
         return this.idx < this.code.length - 1
@@ -43,61 +41,49 @@ export class DlightParser {
         }
     }
 
-    parserEl = new ParserEl('null', -1)
-    el = this.parserEl
-    depth = 0
-
-    addElChild() {
-        while (this.el.depth >= this.depth) this.el = this.el.parent!
-        this.el.addChild(new ParserEl(this.token, this.el.depth + 1))
-        while (this.el.depth < this.depth) this.el = this.el.lastChild!
-        this.erase()
-    }
-
-    addEl() {
-        this.addElChild()
-        this.eatSpace()
-        this.eat()  // eat (
-        this.eatSpace()
-        if (this.look() === "{") {
-            this.eatProps()
-        } else {
-            this.eatValue()
-        }
-        this.eat()  // eat )
-        this.erase()
-    }
+    parserEl = new ParserEl('null')
+    get el() {
+        return this.parserEl.lastChild
+    } 
 
     addElKey() {
-        this.el.currKey = this.token.slice(1)
+        const key = this.token.slice(1)
         this.erase()
         this.eatSpace()
         this.eat()  // eat (
         this.eatSpace()
-        this.eatValue()
-        this.eat()  // eat )
+        let content = this.eatContent()
+        if (content.trim() === "") {
+            content = "true"
+        }
+        this.el.kv.props.push({key, value: content})
         this.erase()
-
     }
 
-    addStrNode() {
-        const strSymbol = this.c
-        this.eat()
-        if (this.c !== strSymbol) this.add()
-        while (this.look() !== strSymbol) {
+    eatBrackets(left: string, right: string) {
+        let depth = 1
+        while (this.ok()) {
             this.eat()
-            this.add()
-            if (this.c === "\\") {
-                // ---- 处理escape
-                this.eat()
-                this.add()
+            if (this.c === left) {
+                depth++
+            } else if (this.c === right) {
+                depth--
+                if (depth === 0) break
             }
+            this.add()
         }
-        this.eat() // eat "
-        this.addElChild()
-        this.el.kv.strSymbol = strSymbol
-        this.el.kv.value = this.el.tag
-        this.el.tag = "TextNode"
+    }
+    // ---- ("value") 情况
+    eatParentheses() {
+        this.eatBrackets("(", ")")
+    }
+
+    eatCurlyBrackets() {
+        this.eatBrackets("{", "}")
+    }
+
+    eatSquareBrackets() {
+        this.eatBrackets("[", "]")
     }
 
     eatProps() {
@@ -127,7 +113,7 @@ export class DlightParser {
             } else if (nextC === "{") {
                 this.eat()
                 this.add()
-                this.eatSubBlock()
+                this.eatCurlyBrackets()
             } else if (nextC === "}") {
                 break
             }
@@ -143,53 +129,25 @@ export class DlightParser {
                 propsArrStore.push({key: value, value: value})
             }
         }
-        this.el.kv.props = propsArrStore.reduce((dict, curr) => 
-            ({...dict, [curr.key]: curr.value}), {})
         this.eat()  // eat }
-    }
-    eatBrackets(left: string, right: string) {
-        let depth = 1
-        while (this.ok()) {
-            this.eat()
-            if (this.c === left) {
-                depth++
-            } else if (this.c === right) {
-                depth--
-                if (depth === 0) break
-            }
-            this.add()
-        }
-    }
-
-    // ---- ("value") 情况
-    eatValue() {
-        this.eatBrackets("(", ")")
-         // ---- 添加到kv里面
-        let isValueEmpty = false
-        if (this.token.trim().length === 0) {
-            this.token = "true"
-            isValueEmpty = true
-        }
-        let key: string
-        if (this.el.currKey.length === 0) {
-            key = "_$content"
-        } else {
-            key = this.el.currKey
-            this.el.currKey = ""
-        }
-        if (!isValueEmpty || key !== "_$content") {
-            // ---- 如果是content且是空的，就不添加，不然空的默认添加true
-            this.el.kv[key] = this.token
-        }
         this.erase()
+        return propsArrStore
     }
 
-    eatSubBlock() {
-        this.eatBrackets("{", "}")
+    eatContent() {
+        this.eatParentheses()
+        const content =  this.token
+        this.erase()
+        return content
     }
 
-    eatForKey() {
-        this.eatBrackets("[", "]")
+    eatSubEl() {
+        this.eatCurlyBrackets()
+        const newParser = new DlightParser(this.token)
+        newParser.parse()
+        this.erase()
+
+        return newParser.parserEl
     }
 
     parse() {
@@ -199,6 +157,7 @@ export class DlightParser {
                 this.eat()
                 this.add()
             }
+
             if (this.token.trim() !== "") {
                 if (["If", "ElseIf", "Else"].includes(this.token)) {
                     this.resolveIf(this.token)
@@ -212,34 +171,58 @@ export class DlightParser {
                     this.resolveEnv()
                     continue
                 }
+                if (["\"", "'", "`"].includes(this.token[0])) {
+                    this.resolveText()
+                    continue
+                }
                 if (this.token.startsWith(".")) {
                     // ---- 代表是key
                     this.addElKey()
                     continue
                 }
-                // if (isCustomEl(this.token)) {
-                //     // ---- 代表是自定义component
-                //     this.addCustomEl()
-                //     continue
-                // }
-                // ---- 代表是tag 名称
-                this.addEl()
-            }
-            // ---- eat掉stopCharacter并做判断
-            this.eat()
-            if (this.c.trim() !== "") {
-                // ---- 是stopCharacters里面非空的
-                if (this.c === "{") {
-                    this.depth++
-                } else if (this.c === "}") {
-                    this.depth--
-                    this.el = this.el.parent!
-                } else if (["\"", "'", "`"].includes(this.c)) {
-                    // ---- 代表纯字符串node
-                    this.addStrNode()
-                }
+                this.resolveEl()
+            } else {
+                this.eat()
             }
         }
+    }
+
+    resolveText() {
+        const newEl =  new ParserEl("TextNode")
+        newEl.kv.strSymbol = this.token[0]
+        newEl.kv.value = this.token.slice(1, -1)
+
+        this.erase()
+        this.parserEl.addChild(newEl)
+    }
+
+    resolveEl() {
+        const newEl =  new ParserEl(this.token)
+        this.erase()
+        this.eatSpace()
+        newEl.kv.props = []
+        if (this.look() === "(") {
+            this.eat()  // eat (
+            this.eatSpace()
+
+            if (this.look() === "{") { // 参数
+                newEl.kv.props.push(...this.eatProps())
+                this.eat()  // eat )
+            } else {
+                const content = this.eatContent()
+                if (content.trim() !== "") {
+                    newEl.kv.props.push({key: "_$content", value: content})
+                }
+            }
+            this.eatSpace()
+        }
+
+        if (this.look() === "{")  { // 子
+            this.eat() // eat {
+            newEl.children = this.eatSubEl().children // add children
+        }
+
+        this.parserEl.addChild(newEl)
     }
 
     // ---- if
@@ -247,22 +230,20 @@ export class DlightParser {
         this.erase()
         this.eatSpace()
         this.eat()  // eat {
-        this.eatSubBlock()  // eat内部
-        // ---- 解析内部
-        const newParser = new DlightParser(this.token)
-        newParser.parse()
+        const subEl = this.eatSubEl()
         this.el.kv.condition.push({
             condition: condition,
-            parserEl: newParser.parserEl
+            parserEl: subEl
         })
         this.erase()
     }
 
     handleIf() {
-        this.addElChild()
+        this.parserEl.addChild(new ParserEl(this.token))
+        this.erase()
         this.eatSpace()
         this.eat() // eat (
-        this.eatValue()
+        this.eatParentheses()
         this.el.kv.condition = []
         this.handleIfish(this.token)
     }
@@ -271,7 +252,7 @@ export class DlightParser {
         this.erase()
         this.eatSpace()
         this.eat()  // eat (
-        this.eatValue()
+        this.eatParentheses()
         this.handleIfish(this.token)
     }
 
@@ -291,32 +272,30 @@ export class DlightParser {
 
     // ---- for
     resolveFor() {
-        this.addElChild()
+        const newEl = new ParserEl(this.token)
+        this.erase()
         this.eatSpace()
         this.eat()  // eat (
-        this.eatValue()
-        this.el.kv.forValue = this.token
+        this.eatParentheses()
+        newEl.kv.forValue = this.token
         this.erase()
         this.eatSpace()
         this.eat() // eat { or [
         if (this.c === "[") {
-            this.eatForKey()
+            this.eatSquareBrackets()
             this.el.kv["key"] = this.token
             this.erase()
             this.eatSpace()
             this.eat()  // eat {
         }
-        this.eatSubBlock()  // eat内部
-        // ---- 解析内部
-        const newParser = new DlightParser(this.token)
-        newParser.parse()
-        this.el.kv.parserEl = newParser.parserEl
-        this.erase()
+
+        newEl.kv.parserEl = this.eatSubEl()
+        this.parserEl.addChild(newEl)
     }
 
     // ---- environment
     resolveEnv() {
-        this.addElChild()
+        this.el.addChild(new ParserEl(this.token))
         this.eatSpace()
         this.eat()  // eat (
         this.eatProps()
@@ -324,7 +303,7 @@ export class DlightParser {
         this.erase()
         this.eatSpace()
         this.eat() // eat { 
-        this.eatSubBlock()  // eat内部
+        this.eatCurlyBrackets()  // eat内部
         // ---- 解析内部
         const newParser = new DlightParser(this.token)
         newParser.parse()

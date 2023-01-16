@@ -8,7 +8,7 @@ class SubElement extends View {
     Body() {
         div(this.count)
     }
-    didMount() {
+    didAppear() {
         console.log("ok")
     }
 }

@@ -5,11 +5,9 @@ export class ParserEl {
     kv: any = {}
     children: ParserEl[] = []
     parent?: ParserEl
-    depth: number
 
-    constructor(tag: string, depth: number) {
+    constructor(tag: string) {
         this.tag = tag
-        this.depth = depth
     }
 
     get lastChild(): ParserEl {

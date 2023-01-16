@@ -104,10 +104,10 @@ export function initNodes(nodes: DLNode[] | DLNode[][]) {
         node._$init()
     }
 }
-export function parentNodes(nodes: DLNode[] | DLNode[][], parentNode: DLNode) {
+export function bindParentNode(nodes: DLNode[] | DLNode[][], parentNode: DLNode) {
     for (let node of nodes) {
         if (Array.isArray(node)) {
-            parentNodes(node, parentNode)
+            bindParentNode(node, parentNode)
             continue
         }
         node._$parentNode = parentNode
@@ -120,11 +120,11 @@ export function parentNodes(nodes: DLNode[] | DLNode[][], parentNode: DLNode) {
  * @param nodes 
  */
 export function removeNodes(nodes: DLNode[]) {
-    willUnmountDlightNodes(nodes)
+    willDisappearDlightNodes(nodes)
     for (let node of nodes) {
         removeNode(node)
     }
-   didUnmountDlightNodes(nodes)
+   didDisappearDlightNodes(nodes)
 }
 function removeNode(node: DLNode) {
     switch (node._$nodeType) {
@@ -187,11 +187,11 @@ function deleteNodeDeps(node: DLNode, dlScope: DLightNode) {
  */
 export function appendNodesWithIndex(nodes: DLNode[], index: number, parentEl: HTMLElement, lengthIn?: number): [number, number] {
     let length = lengthIn ?? parentEl.childNodes.length
-    willMountDlightNodes(nodes)
+    willAppearDlightNodes(nodes)
     for (let node of nodes) {
         [index, length] = appendNodeWithIndex(node, index, parentEl, length)
     }
-    didMountDlightNodes(nodes)
+    didAppearDlightNodes(nodes)
     return [index, length]
 }
 
@@ -225,9 +225,9 @@ function appendNodeWithIndex(node: DLNode, index: number, parentEl: HTMLElement,
 export function replaceNodesWithFirstElement(nodes: DLNode[], newNodes: DLNode[]) {
     const firstEl = nodesToFlatEls(nodes)[0]
     if (!firstEl) return false
-    willMountDlightNodes(newNodes)
+    willAppearDlightNodes(newNodes)
     firstEl.replaceWith(...nodesToFlatEls(newNodes))
-    didMountDlightNodes(newNodes)
+    didAppearDlightNodes(newNodes)
     return true
 }
 
@@ -316,12 +316,12 @@ function nodeToFlatEls(node: DLNode) {
  * 四个生命周期
  * @param nodes 
  */
-function runDlightNodesLifecycle(nodes: DLNode[], lifecysle: "willMount"|"didMount"|"willUnmount"|"didUnmount") {
+function runDlightNodesLifecycle(nodes: DLNode[], lifecysle: "willAppear"|"didAppear"|"willDisappear"|"didDisappear") {
     for (let node of nodes) {
         runDlightNodeLifecycle(node, lifecysle)
     }
 }
-function runDlightNodeLifecycle(node: DLNode, lifecysle: "willMount"|"didMount"|"willUnmount"|"didUnmount") {
+function runDlightNodeLifecycle(node: DLNode, lifecysle: "willAppear"|"didAppear"|"willDisappear"|"didDisappear") {
     switch (node._$nodeType) {
         case "for":
             for (let nodes of node._$dlNodess) {
@@ -337,23 +337,23 @@ function runDlightNodeLifecycle(node: DLNode, lifecysle: "willMount"|"didMount"|
     }
 }
 
-function willMountDlightNodes(nodes: DLNode[]) {
-    runDlightNodesLifecycle(nodes, "willMount")
+function willAppearDlightNodes(nodes: DLNode[]) {
+    runDlightNodesLifecycle(nodes, "willAppear")
 }
 
 
-function didMountDlightNodes(nodes: DLNode[]) {
-    runDlightNodesLifecycle(nodes, "didMount")
-}
-
-
-
-function willUnmountDlightNodes(nodes: DLNode[]) {
-    runDlightNodesLifecycle(nodes, "willUnmount")
+function didAppearDlightNodes(nodes: DLNode[]) {
+    runDlightNodesLifecycle(nodes, "didAppear")
 }
 
 
 
-function didUnmountDlightNodes(nodes: DLNode[]) {
-    runDlightNodesLifecycle(nodes, "didUnmount")
+function willDisappearDlightNodes(nodes: DLNode[]) {
+    runDlightNodesLifecycle(nodes, "willDisappear")
+}
+
+
+
+function didDisappearDlightNodes(nodes: DLNode[]) {
+    runDlightNodesLifecycle(nodes, "didDisappear")
 }

@@ -21,6 +21,8 @@ export class DLNode {
      * A1._$init -> A2._$init -> B1._$init -> B2._$init -> C1._$init -> C2._$init 
      *           ↳ A2.render  ↳ B1.render 
      * A1.render -> A => Stop / B/C => B/C.render
+     *
+     * 在BC下面，每一次产生新nodes时，都会调用afterNodesCreated
      */
     _$id: string = ""
     private __$el: Node | HTMLElement | any
@@ -32,6 +34,8 @@ export class DLNode {
     }
     _$parentNode?: DLNode
     _$nodes: DLNode[] | DLNode[][] = []
+
+    _$afterElsCreated(nodes: DLNode[]) {}
     
     get _$dlNodes() {
         return this._$nodes as DLNode[]

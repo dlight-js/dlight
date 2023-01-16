@@ -6,7 +6,7 @@ import {NestedElement} from "./example/performance";
 // import {TestElement} from "./example/el1.tsd";
 // import {render} from "./core/utils";
 // import {IfTest, ForTest, FlowTest, EnvTest, LifeCycleTest} from "./example/features"
-// import { initNodes, parentNodes, resolveEnvs } from "./core/Nodes/utils";
+// import { initNodes, bindParentNode, resolveEnvs } from "./core/Nodes/utils";
 // import {SubElement} from "./example/test.tsd"
 // @ts-ignore
 import {ToDoApp} from "./example/ToDoApp/index.tsd";
@@ -62,7 +62,7 @@ render("#app", new SubElement())
 //     j._$initDecorators()
 //     j.Body()
 //     j.Body = () => {}
-//     parentNodes(j._$nodes, j)
+//     bindParentNode(j._$nodes, j)
 //     resolveEnvs(j._$nodes, j)
 //     initNodes(j._$nodes)
 //     // j._$init()

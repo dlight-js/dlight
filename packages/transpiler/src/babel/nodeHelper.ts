@@ -61,11 +61,14 @@ export function pushEffectFunc(name: string, deps: string[], effectFuncNode: t.C
 export function isMemberInFunction(innerPath: any, classDeclarationNode?: t.Node) {
     // ---- 一直找到classDeclaration，
     //      如果这个 this.xxx前面有function或者arrowFunction包裹，直接不管
+    // ---- 对于上面的描述，改一下，如果有arrowFunction就不考虑，如果是function
+    //      默认为这种情况：
+    //      a = function() {/* do something */} ()
+    //      因为如果普通function，你改写成method而非member
     let isInFunction = false
     let reversePath = innerPath.parentPath
     while (reversePath && reversePath.node !== classDeclarationNode) {
-        if (t.isFunctionExpression(reversePath.node) ||
-            t.isArrowFunctionExpression(reversePath.node)) {
+        if (t.isArrowFunctionExpression(reversePath.node)) {
             isInFunction = true
             break
         }

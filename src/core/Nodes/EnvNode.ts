@@ -1,7 +1,7 @@
 import { DLightNode } from './DlightNode';
 import {DLNode} from './Node';
 import {deleteDepsPrefix} from '../utils';
-import { addDLProp, initNodes, parentNodes } from './utils';
+import { addDLProp, initNodes, bindParentNode } from './utils';
 
 
 export class EnvNode extends DLNode {
@@ -59,9 +59,9 @@ export class EnvNode extends DLNode {
                 if (!(node as DLightNode)._$envNodes) (node as DLightNode)._$envNodes = [];
                 (node as DLightNode)._$envNodes!.push(this)
                 // ---- 必须把原先的依赖删掉
-                const didUnmount = (node as DLightNode).didUnmount;
-                (node as DLightNode).didUnmount = () => {
-                    didUnmount()
+                const didDisappear = (node as DLightNode).didDisappear;
+                (node as DLightNode).didDisappear = () => {
+                    didDisappear()
                     deleteDepsPrefix(this as any, `${this._$id}_${node._$id}`)
                 }
         }
@@ -75,7 +75,7 @@ export class EnvNode extends DLNode {
             })
         }
         this.cleanDeps()
-        parentNodes(this._$dlNodes, this)
+        bindParentNode(this._$dlNodes, this)
         for (let node of this._$dlNodes) {
             this.setEnvObjs(node)
             for (let envNode of this._$envNodes ?? []) {

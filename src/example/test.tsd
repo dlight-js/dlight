@@ -1,34 +1,16 @@
-import {View, Derived, DotProp, Effect, Prop, PropDerived, State, Environment} from "@/core";
-
-
-
-class SubElement1 extends View {
-    @Prop count: number
-    @DotProp cc: number
-
-
-    Body() {
-        div(this.cc)
-        div(this.count)
-    }
-}
+import {View} from "@/core";
+import {HStack, Spacer, Node, Button, TextField} from "@/components"
 
 
 export class SubElement extends View {
-    @State count: number = 0
-
-    set el(value) {
-        console.log(value)
-    }
-    get el() {
-        return 1
-    }
+    @State fruitNames
+    @State fruitType = 0
+    fruitNames = ['banana', 'orange', 'grape']
 
     Body() {
-        SubElement1({count: this.count+1}) {
-            div("hh")
-        }
-        .element(this.el)
-            .cc(100)
+        TextField('placeholder')
+            .placeholder('hahah')
+            
+
     }
 }

@@ -5,6 +5,11 @@ import {TaskCard} from "./TaskCard.tsd"
 import {TaskAdder} from "./TaskAdder.tsd"
 import {Task} from "./Task";
 
+
+function _(func: () => any, _: any) {
+  return func()
+}
+
 export class ToDoApp extends View {
   @State tasks: Task[] = [
     {name:"jj",finished:true},
@@ -13,7 +18,10 @@ export class ToDoApp extends View {
     {name:"fatk",finished:false},
     ]
   unfinishedNum = this.tasks.filter(t=>!t.finished).length
-  a = this.unfinishedNum + 1
+
+  watchUnfinishedNum = function() {
+    console.log("hh", this.unfinishedNum)
+  }.call(this)
 
   Body() {
     h1("ToDo App in DLight.js")
@@ -21,7 +29,6 @@ export class ToDoApp extends View {
 
     TaskAdder({tasks: this.tasks})
 
-    div(this.a)
     h2(this.unfinishedNum === 0 ? "You've finished all tasks！" : `Remaining ${this.unfinishedNum} tasks to do.`)
  
     For(let task of this.tasks)[task] {

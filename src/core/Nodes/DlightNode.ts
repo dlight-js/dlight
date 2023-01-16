@@ -1,6 +1,6 @@
 import { EnvNode } from "./EnvNode"
 import { DLNode } from "./Node"
-import {addHalfWayDLProp, addOneWayDLProp, addTwoWayDLProp, initNodes, parentNodes, resolveEnvs} from "./utils"
+import {addHalfWayDLProp, addOneWayDLProp, addTwoWayDLProp, initNodes, bindParentNode, resolveEnvs} from "./utils"
 import {addDeps, uid} from "../utils";
 export const hh = {value:0}
 
@@ -17,27 +17,44 @@ export const hh = {value:0}
  *      A: State, B = A + 1, C = B + 1
  *      则depChain为 A -> B -> C
  *      这时 B/C 以及 derived from B/C 的都可以被监听到
+ * @Pipeline
+ *      new constructor()（初始化不在depChain上的member）
+ *      等待外部调用 initNodes([this]) 或者 this._$init()
+ *   -> this.AfterConstruct()（留的hook)
+ *   -> this._$initDecorators()（生成depChain，补齐剩下的参数）
+ *   -> this.Preset()（留的hook)
+ *   -> this.Body()（run Body函数并挂到this._$nodes上）
+ *   -> bindParentNode()（把刚生成的nodes的_$parentNode指向自己）
+ *   -> initNodes()（递归init刚生成的nodes）
+ *   -> this._$afterElsCreated()（所有新建完成的html element都会递归调用）
+ *   -> this.Afterset（留的hook，目前只有.element()会调用)
  */
 export abstract class DLightNode extends DLNode {
-    _$content?: any
-    _$$_$content = "_$prop"
-    _$depIds: string[] = []  
+    _$depIds: string[] = []
     _$deps: {[key: string]: {[key: string]: () => any}} = {}
     _$envNodes?: EnvNode[]
     _$derivedPairs?: {[key: string]: string[]}
     _$children?: DLNode[]
+    _$tag: string
 
     abstract Body(): any
 
-    constructor(id?: string) {
+    constructor(tag: string, id?: string) {
         super("dlight", id)
+        this._$tag = tag
     }
 
     get _$el() {
-        console.log(this._$dlNodes)
         return this._$dlNodes.map(node => node._$el)
     }
-    
+
+    _$addAfterset(func: () => any) {
+        const prePreset = this.Preset
+        this.Preset = () => {
+            prePreset()
+            func()
+        }
+    }
 
     _$runDeps(depName: string) {
         if (this._$deps[depName] === undefined) {
@@ -53,6 +70,8 @@ export abstract class DLightNode extends DLNode {
         if (this._$children === undefined) this._$children = []
         this._$children.push(dlNode)
     }
+
+
     _$initDecorators() {
         if (this._$derivedPairs) {
             for (let [propertyKey, listenDeps] of Object.entries(this._$derivedPairs)) {
@@ -72,14 +91,22 @@ export abstract class DLightNode extends DLNode {
             }
         }
     }
+
+
+    Preset() {}
+    Afterset() {}
+    AfterConstruct() {}
     _$init() {
+        this.AfterConstruct()
         this._$initDecorators()
-        this.Body()
-        parentNodes(this._$nodes, this)
-        resolveEnvs(this._$nodes, this)
-
+        this.Preset()
+        const nodes = this.Body()
+        if (nodes && nodes.length > 0) this._$nodes = nodes
+        this._$nodes = this._$nodes ?? []
+        bindParentNode(this._$nodes, this)
         initNodes(this._$nodes)
-
+        this._$afterElsCreated(this._$dlNodes)
+        this.Afterset()
     }
 
     /**
@@ -103,7 +130,7 @@ export abstract class DLightNode extends DLNode {
             addOneWayDLProp(dlScope!, this, key, propFunc, listenDeps)
             return
         }
-        if (isTwoWayConnected && (dlScope as any)[`_$${listenDeps[0]}`] !== undefined) {
+        if (isTwoWayConnected && (dlScope as any)[`_$$${listenDeps[0]}`] !== undefined) {
             addTwoWayDLProp(dlScope!, this, key, propFunc, listenDeps)
             return
         }
@@ -114,16 +141,16 @@ export abstract class DLightNode extends DLNode {
     
 
     render(parentEl: HTMLElement) {
-        this.willMount()
+        this.willAppear()
         for (let node of this._$dlNodes) {
             node.render(parentEl)
         }
-        this.didMount()
+        this.didAppear()
     }
 
     // ---- lifecycles
-    willMount() {}
-    didMount() {}
-    willUnmount() {}
-    didUnmount() {}
+    willAppear() {}
+    didAppear() {}
+    willDisappear() {}
+    didDisappear() {}
 }

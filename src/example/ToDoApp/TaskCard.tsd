@@ -5,10 +5,10 @@ export class TaskCard extends View {
   @Prop task: Task
   @Prop deleteTask: () => any
   @Prop toggleBox: (checked: any) => any
-  didMount() {
-    console.log(`[didMount] Loaded task named ${this.task.name}, it is${this.task.finished?"":" not"} finished.`)
+  didAppear() {
+    console.log(`[didAppear] Loaded task named ${this.task.name}, it is${this.task.finished?"":" not"} finished.`)
   }
-  didUnmount() {
+  didDisappear() {
     console.log(`[didUnMount] Unmount task named ${this.task.name}, it is${this.task.finished?"":" not"} finished.`)
   }
 

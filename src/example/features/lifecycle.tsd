@@ -5,19 +5,19 @@ class SubElement extends View {
         div("hh")
     }
 
-    willMount() {
+    willAppear() {
         console.log("will mount")
     }
 
-    didMount() {
+    didAppear() {
         console.log("did mount")
     }
 
-    willUnmount() {
+    willDisappear() {
         console.log("will unmount")
     }
 
-    didUnmount() {
+    didDisappear() {
         console.log("did unmount")
     }
 }

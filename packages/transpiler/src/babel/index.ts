@@ -2,7 +2,7 @@ import * as BabelNode from "./babelNode"
 import * as NodeHelper from "./nodeHelper"
 import * as DecoratorResolver from "./decoratorResolver"
 import {BodyParser} from "./bodyParser";
-import {isMemberInFunction, pushDep} from "./nodeHelper";
+import {isMemberInFunction} from "./nodeHelper";
 import * as BabelParser from "./babelParser"
 // @ts-ignore
 import babel from "@babel/core"
@@ -44,7 +44,6 @@ export function go(code: string) {
     // ---- 在这里新建node很省时间
     let depsNode: t.ClassProperty | null = null
     let derivedNode: t.ClassProperty | null = null
-    let effectFuncNode: t.ClassProperty | null = null
     let derivedArr: string[] = []
 
     traverse(ast, {
@@ -62,10 +61,6 @@ export function go(code: string) {
                     t.identifier("_$deps"),
                     t.objectExpression([])
                 )
-                effectFuncNode = t.classProperty(
-                    t.identifier("_$effectFuncs"),
-                    t.objectExpression([])
-                )
                 derivedArr = []
                 return
             }
@@ -78,7 +73,7 @@ export function go(code: string) {
                 // ---- body处理
                 const bodyId = (node.value as any).value
                 const newBody = rebuildBody(bodyMap[bodyId], derivedArr)
-
+                console.log(newBody)
                 node.value = t.arrowFunctionExpression([], BabelParser.functionBlockStatement(`
                     function tmp() {
                         ${newBody}
@@ -125,34 +120,13 @@ export function go(code: string) {
                         DecoratorResolver.prop(node, classBodyNode!)
                         break
                     }
-                    // if (decoratorName === "Effect") {
-                    //     DecoratorResolver.effect(node, classBodyNode!, effectFuncNode!, path, stateArr, decorator, classDeclarationNode)
-                    //     break
-                    // }
+
                 }
                 node.decorators = null
             }
 
 
         },
-        // ClassMethod(path: any) {
-        //     if (!classDeclarationNode) return
-        //     const node = path.node as t.ClassMethod
-        //
-        //     if (node.decorators) {
-        //         for (let decorator of node.decorators) {
-        //             // ---- 方法里面只有effect
-        //             const decoratorName = (decorator.expression as t.Identifier).name ??
-        //                 ((decorator.expression as t.CallExpression).callee as t.Identifier).name
-        //             if (decoratorName === "Effect") {
-        //                 DecoratorResolver.effect(node, classBodyNode!, effectFuncNode!, path, stateArr, decorator, classDeclarationNode)
-        //                 break
-        //             }
-        //         }
-        //     }
-        //
-        //
-        // }
     });
     console.log("------code------")
     const returnedCode = generate(ast)

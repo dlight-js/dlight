@@ -1,7 +1,7 @@
 import { DLightNode } from './DlightNode';
 import {DLNode} from './Node';
 import {addDeps} from '../utils';
-import { initNodes, parentNodes, resolveEnvs } from './utils';
+import { initNodes, bindParentNode, resolveEnvs } from './utils';
 import { EnvNode } from './EnvNode';
 
 
@@ -13,8 +13,7 @@ export class HtmlNode extends DLNode {
         this._$el = document.createElement(tag)
     }
     _$init(): void {
-        parentNodes(this._$nodes, this)
-        resolveEnvs(this._$nodes, this)
+        bindParentNode(this._$nodes, this)
         initNodes(this._$nodes)
         for (let node of this._$dlNodes) {
             node.render(this._$el)

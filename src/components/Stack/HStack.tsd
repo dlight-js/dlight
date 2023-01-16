@@ -1,0 +1,62 @@
+import {View} from "@/core"
+import {HtmlNode} from "@/core";
+import {bindParentNode, initNodes} from "@/core/Nodes/utils";
+import {setAfterNodesCreated} from "./utils";
+import {Node} from "../Node";
+
+export class HStack extends View {
+    @Prop spacing=1
+    @Prop alignment: "top" | "center" | "bottom" = "top"
+
+    @Prop width = "100%"
+    @Prop height = "max-content"
+
+    wrapperDiv = new HtmlNode("div")
+
+    AfterConstruct() {
+        bindParentNode(this._$children, this.wrapperDiv)
+        initNodes(this._$children)
+        this.wrapperDiv._$addProp("*display", "flex")
+        this.wrapperDiv._$addProp("*flexDirection", "row")
+        for (let childNode of this._$children) {
+            this.wrapperDiv._$addNode(childNode)
+        }
+    }
+
+    manualUpdateWrapperDivColumnGap = function() {
+        this.wrapperDiv._$addProp("*columnGap", `${this.spacing}px`)
+    }.call(this)
+
+    manualUpdateWrapperDivHeight = function() {
+        this.wrapperDiv._$addProp("*height", this.height)
+    }.call(this)
+
+    manualUpdateWrapperDivWidth = function() {
+        this.wrapperDiv._$addProp("*width", this.width)
+    }.call(this)
+
+    manualUpdateChildren = function() {
+        setAfterNodesCreated(this._$children, function(node) {
+            console.log(node._$parentNode)
+            if (node._$parentNode._$tag === "Spacer") {
+                console.log("okk")
+                node._$addProp("*flexGrow", "1")
+                return
+            }
+            node._$addProp("*flexShrink", "0")
+            let margin: string = "auto"
+            if (this.alignment === "top") {
+                margin = "0 0 auto 0"
+            } else if (this.alignment === "bottom") {
+                margin = "auto 0 0 0"
+            } else if (this.alignment === "center") {
+                margin = "auto 0"
+            }
+            node._$addProp("*margin", margin)
+        }.bind(this))
+    }.call(this)
+
+    Body() {
+        Node(this.wrapperDiv)
+    }
+}

@@ -1,5 +1,5 @@
 import { DLNode } from "./Node";
-import {appendNodesWithIndex, deleteNodesDeps, removeNodes, getFlowIndexFromNodes, getFlowIndexFromParentNode, resolveEnvs, initNodes, parentNodes, replaceNodesWithFirstElement} from './utils';
+import {appendNodesWithIndex, deleteNodesDeps, removeNodes, getFlowIndexFromNodes, getFlowIndexFromParentNode, resolveEnvs, initNodes, bindParentNode, replaceNodesWithFirstElement} from './utils';
 import {addDeps} from '../utils';
 import { DLightNode, hh } from "./DLightNode";
 import { HtmlNode } from "./HtmlNode";
@@ -56,10 +56,14 @@ export class ForNode extends DLNode {
      */
     _$addNodesArr(nodess: DLNode[][]) {
         this._$nodes = nodess
+        for (let nodes of this._$dlNodess) {
+            this._$afterElsCreated(nodes)
+        }
     }
     _$addNodes(nodes: DLNode[]) {
         this._$dlNodess.push(nodes)
     }
+
 
     setArray() {
         this.array = [...this.arrayFunc!()]
@@ -67,12 +71,6 @@ export class ForNode extends DLNode {
 
     setKeys() {
         if (!this.keyFunc) {
-            // // ---- 默认key，如果是object，就直接给他object作为唯一key，不然就给他index
-            // if (this.array.length>0 && typeof this.array[0] === "object") {
-            //     this.keys = [...this.array]
-            //     return
-            // }
-            // this.keys = [...Array(this.array.length).keys()]
             this.duplicatedOrNoKey = true
             return
         }
@@ -91,8 +89,7 @@ export class ForNode extends DLNode {
 
     _$init() {
         if (!this.listenDeps) {
-            parentNodes(this._$nodes, this)
-            resolveEnvs(this._$nodes, this)
+            bindParentNode(this._$nodes, this)
             initNodes(this._$nodes)
             return
         }
@@ -118,7 +115,7 @@ export class ForNode extends DLNode {
             }
         }
         
-        parentNodes(this._$nodes, this)
+        bindParentNode(this._$nodes, this)
 
         let parentNode: DLNode | undefined = this._$parentNode
         while (parentNode && parentNode._$nodeType !== "html") {
@@ -129,16 +126,15 @@ export class ForNode extends DLNode {
 
         
 
-        resolveEnvs(this._$nodes, this)
         initNodes(this._$nodes)
     }
 
 
     getNewNodes(key: any, idx: number) {
         const nodes = this.nodeFunc!(key, idx, this, this.updateIdx)
-        parentNodes(nodes, this)
-        resolveEnvs(nodes, this)
+        bindParentNode(nodes, this)
         initNodes(nodes)
+        this._$afterElsCreated(nodes)
         return nodes
     }
 

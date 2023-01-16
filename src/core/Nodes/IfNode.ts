@@ -3,7 +3,7 @@ import {DLightNode} from "./DlightNode";
 import { EnvNode } from "./EnvNode";
 import { HtmlNode } from "./HtmlNode";
 import { DLNode } from "./Node";
-import { appendNodesWithIndex, deleteNodesDeps, getFlowIndexFromParentNode, initNodes, parentNodes, removeNodes, resolveEnvs } from "./utils";
+import { appendNodesWithIndex, deleteNodesDeps, getFlowIndexFromParentNode, initNodes, bindParentNode, removeNodes, resolveEnvs } from "./utils";
 
 interface ConditionPair {
     condition: () => boolean,
@@ -16,7 +16,6 @@ export class IfNode extends DLNode {
     listenDeps: string[] = []
     dlScope?: DLightNode
     _$envNodes?: EnvNode[] = []
-
 
     constructor(id: string) {
         super("if", id)
@@ -39,11 +38,11 @@ export class IfNode extends DLNode {
             if (conditionPair.condition()) {
                 this.condition = conditionPair.condition.toString()
                 this._$nodes = conditionPair.node()
+                this._$afterElsCreated(this._$nodes)
                 break
             }
         }
-        parentNodes(this._$dlNodes, this)
-        resolveEnvs(this._$dlNodess, this)
+        bindParentNode(this._$dlNodes, this)
 
         let parentNode: DLNode | undefined = this._$parentNode
         while (parentNode && parentNode._$nodeType !== "html") {
@@ -71,6 +70,7 @@ export class IfNode extends DLNode {
                     // ---- 改变状态了，清除对应deps
                     this.condition = conditionPair.condition.toString()
                     nodes = conditionPair.node()
+                    this._$afterElsCreated(nodes)
                 } else {
                     // ---- 和之前状态一样就直接不管
                     nodes = this._$dlNodes
@@ -92,8 +92,7 @@ export class IfNode extends DLNode {
 
         const flowIndex = getFlowIndexFromParentNode(parentNode, this._$id)
         this._$nodes = nodes
-        parentNodes(this._$dlNodes, this)
-        resolveEnvs(this._$dlNodes, this)
+        bindParentNode(this._$dlNodes, this)
         initNodes(this._$dlNodes)
 
         const parentEl = parentNode._$el
