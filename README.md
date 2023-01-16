@@ -17,7 +17,7 @@ re-calc on this weekend
 - [x] element map out
 - [x] support text node
 - [ ] support jsx
-- [ ] support environment
+- [x] support environment
 - [ ] animation
 - [ ] error hints
 
