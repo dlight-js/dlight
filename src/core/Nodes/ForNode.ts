@@ -4,6 +4,7 @@ import { DLightNode } from "./DLightNode";
 import { HtmlNode } from "./HtmlNode";
 import { EnvNode } from "./EnvNode";
 import { bindParentNode, initNodes } from "../utils/nodes";
+import { addDeps, deleteDeps } from "../utils/dep";
 
 
 export class ForNode extends DLNode {
@@ -310,12 +311,3 @@ export function listen(dlScope: DLightNode, valueStr: string, valueFunc: () => a
     })
     return valueObj
 }
-
-function addDeps(arg0: DLightNode, arg1: string[], _$id: string, arg3: () => void) {
-    throw new Error("Function not implemented.");
-}
-
-function deleteDeps(dlScope: DLightNode, id: string) {
-    throw new Error("Function not implemented.");
-}
-
