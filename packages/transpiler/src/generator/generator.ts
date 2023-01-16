@@ -188,6 +188,10 @@ export class Generator {
                 body.add(`${nodeName}._$addAfterset(() => ${value} = ${nodeName}._$el)`)
                 continue
             }
+            if (["willAppear", "didAppear", "willDisappear", "didDisappear"].includes(key)) {
+                body.add(`_$.addLifeCycle(${nodeName}, () => ${value}, ${key}`)
+                continue
+            }
 
             const listenDeps = this.geneDeps(value as string)
             if (listenDeps.length > 0) {
@@ -202,6 +206,10 @@ export class Generator {
         for (let {key, value} of parserEl.kv.dotProps) {
             if (key === "element") {
                 body.add(`${nodeName}._$addAfterset(() => ${value} = ${nodeName}._$el)`)
+                continue
+            }
+            if (["willAppear", "didAppear", "willDisappear", "didDisappear"].includes(key)) {
+                body.add(`_$.addLifeCycle(${nodeName}, ${value}, "${key}")`)
                 continue
             }
 

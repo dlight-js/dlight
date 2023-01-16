@@ -16,6 +16,9 @@ class TestElement1 extends View {
 class TestElement2 extends View {
 
     @Environment a
+    willAppear() {
+        console.log("no")
+    }
     Body() {
         div(this.a)
         div("ok")
@@ -31,6 +34,9 @@ export class SubElement extends View {
         Environment({a: 1000, b: 90}) {
             Environment({a: 669, b: 90}) {
                 TestElement1()
+                    .willAppear(() => {
+                        console.log("fuck")
+                    })
                 TestElement2()
             }
         }

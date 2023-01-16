@@ -21,7 +21,7 @@ import {SubElement} from "./example/test.tsd"
 import {Benchmark} from "./example/performance/benchmark.tsd"
 
 // console.log(t2-t1)
-render("#app", new Benchmark())
+render("#app", new SubElement())
 
 
 
