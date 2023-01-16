@@ -1,39 +1,8 @@
-import {DLightNode, hh} from "./DLightNode";
-import {deleteDeps} from "../utils";
+import {DLightNode} from "./DLightNode";
 import { DLNode } from "./Node";
 import { HtmlNode } from "./HtmlNode";
-import { EnvNode } from "./EnvNode";
+import { deleteDeps } from "../utils/dep";
 
-
-export function resolveEnvs(nodes: DLNode[] | DLNode[][], envStoreNode: DLNode) {
-    if ((envStoreNode as any)._$envNodes === undefined) return
-    for (let node of nodes) {
-        if (Array.isArray(node)) {
-            resolveEnvs(node, envStoreNode)
-            continue
-        }        
-        (node as any)._$envNodes = (envStoreNode as any)._$envNodes
-    }
-}
-
-export function initNodes(nodes: DLNode[] | DLNode[][]) {
-    for (let node of nodes) {
-        if (Array.isArray(node)) {
-            initNodes(node)
-            continue
-        }
-        node._$init()
-    }
-}
-export function bindParentNode(nodes: DLNode[] | DLNode[][], parentNode: DLNode) {
-    for (let node of nodes) {
-        if (Array.isArray(node)) {
-            bindParentNode(node, parentNode)
-            continue
-        }
-        node._$parentNode = parentNode
-    }
-}
 
 
 /**

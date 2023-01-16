@@ -1,6 +1,6 @@
+import { addDeps } from '../utils/dep';
 import { DLightNode } from './DlightNode';
 import {DLNode} from './Node';
-import {addDeps} from '../utils';
 
 export class TextNode extends DLNode {
     constructor(textOrFunc: string | (() => string),id?: string, dlScope?: DLightNode, listenDeps?: string[]) {

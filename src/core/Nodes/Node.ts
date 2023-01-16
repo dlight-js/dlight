@@ -1,6 +1,5 @@
-export function uid() {
-    return Math.random().toString(20).slice(2)
-}
+import { uid } from "../utils/util"
+
 
 type NodeType = "html" | "dlight" | "text" | "for" | "if" | "env"
 

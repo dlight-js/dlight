@@ -30,9 +30,9 @@ export class SubElement extends View {
     Body() {
         Environment({a: 1000, b: 90}) {
             Environment({a: 669, b: 90}) {
-            TestElement1()
-            TestElement2()
-        }
+                TestElement1()
+                TestElement2()
+            }
         }
 
     }

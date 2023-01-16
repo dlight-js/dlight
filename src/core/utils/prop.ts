@@ -1,6 +1,6 @@
-import { addDeps, addDep, deleteDep } from "../../utils"
-import { DLightNode } from "../DlightNode"
-import { EnvNode } from "../EnvNode"
+import { DLightNode } from "../Nodes/DlightNode"
+import { EnvNode } from "../Nodes/EnvNode"
+import { addDeps, addDep, deleteDep } from "./dep"
 
 export function addDLProp(dlNode: DLightNode, tag: string, key: string, propFunc: any | (() => any), dlScope?: DLightNode, listenDeps?: string[], isTwoWayConnected?: boolean) {
     if (!Object.hasOwn(dlNode, key)) return

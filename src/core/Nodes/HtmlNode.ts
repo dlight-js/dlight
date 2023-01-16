@@ -1,8 +1,9 @@
 import { DLightNode } from './DlightNode';
 import {DLNode} from './Node';
-import {addDeps} from '../utils';
-import { initNodes, bindParentNode, resolveEnvs } from './utils';
+
 import { EnvNode } from './EnvNode';
+import { addDeps } from '../utils/dep';
+import { bindParentNode, initNodes } from '../utils/nodes';
 
 
 export class HtmlNode extends DLNode {

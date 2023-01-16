@@ -17,6 +17,7 @@ re-calc on this weekend
 - [x] element map out
 - [x] support text node
 - [ ] support jsx
+- [ ] prop lifecycle
 - [x] support environment
 - [ ] animation
 - [ ] error hints

@@ -15,7 +15,7 @@ export {}
 
 // @ts-ignore
 import {TestTest} from "./test.tsd"
-import {render, uid} from "./core/utils";
+import {render} from "./core";
 import {SubElement} from "./example/test.tsd"
 // @ts-ignore
 import {Benchmark} from "./example/performance/benchmark.tsd"

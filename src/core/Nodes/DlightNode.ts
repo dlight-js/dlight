@@ -1,9 +1,9 @@
 import { EnvNode } from "./EnvNode"
 import { DLNode } from "./Node"
-import {initNodes, bindParentNode} from "./utils"
-import {addDeps, uid} from "../utils";
-import { addDLProp } from "./utils/prop";
-export const hh = {value:0}
+import { addDLProp } from "../utils/prop";
+import { addDeps } from "../utils/dep";
+import { bindParentNode, initNodes } from "../utils/nodes";
+import { uid } from "../utils/util";
 
 /**
  * 整个依赖只有两种

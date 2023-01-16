@@ -1,9 +1,10 @@
-import {addDeps} from "../utils";
+import { addDeps } from "../utils/dep";
+import { bindParentNode, initNodes } from "../utils/nodes";
 import {DLightNode} from "./DlightNode";
 import { EnvNode } from "./EnvNode";
 import { HtmlNode } from "./HtmlNode";
 import { DLNode } from "./Node";
-import { appendNodesWithIndex, deleteNodesDeps, getFlowIndexFromParentNode, initNodes, bindParentNode, removeNodes, resolveEnvs } from "./utils";
+import { appendNodesWithIndex, deleteNodesDeps, getFlowIndexFromParentNode, removeNodes } from "./utils";
 
 interface ConditionPair {
     condition: () => boolean,

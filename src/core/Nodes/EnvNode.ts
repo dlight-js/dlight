@@ -1,8 +1,7 @@
 import { DLightNode } from './DlightNode';
 import {DLNode} from './Node';
-import {deleteDepsPrefix} from '../utils';
-import { initNodes, bindParentNode } from './utils';
-import { addDLProp } from './utils/prop';
+import { addDLProp } from '../utils/prop';
+import { bindParentNode, initNodes } from '../utils/nodes';
 
 
 export class EnvNode extends DLNode {
@@ -40,28 +39,6 @@ export class EnvNode extends DLNode {
                     addDLProp(node as DLightNode, "env", key, propOrFunc, dlScope, listenDeps)
                     break
             }
-        }
-    }
-
-
-    setEnvObjs(node: DLNode) {
-        switch (node._$nodeType) {
-            case "env":
-            case "html":
-            case "if":
-            case "for":
-                if (!(node as any)._$envNodes) (node as any)._$envNodes = [];
-                (node as any)._$envNodes.push(this)
-                break
-            case "dlight":
-                if (!(node as DLightNode)._$envNodes) (node as DLightNode)._$envNodes = [];
-                (node as DLightNode)._$envNodes!.push(this)
-                // ---- 必须把原先的依赖删掉
-                const didDisappear = (node as DLightNode).didDisappear;
-                (node as DLightNode).didDisappear = () => {
-                    didDisappear()
-                    deleteDepsPrefix(this as any, `${this._$id}_${node._$id}`)
-                }
         }
     }
 

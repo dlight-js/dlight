@@ -1,9 +1,9 @@
 import { DLNode } from "./Node";
-import {appendNodesWithIndex, deleteNodesDeps, removeNodes, getFlowIndexFromNodes, getFlowIndexFromParentNode, resolveEnvs, initNodes, bindParentNode, replaceNodesWithFirstElement} from './utils';
-import {addDeps} from '../utils';
-import { DLightNode, hh } from "./DLightNode";
+import {appendNodesWithIndex, deleteNodesDeps, removeNodes, getFlowIndexFromNodes, getFlowIndexFromParentNode, replaceNodesWithFirstElement} from './utils';
+import { DLightNode } from "./DLightNode";
 import { HtmlNode } from "./HtmlNode";
 import { EnvNode } from "./EnvNode";
+import { bindParentNode, initNodes } from "../utils/nodes";
 
 
 export class ForNode extends DLNode {
@@ -267,3 +267,55 @@ export class ForNode extends DLNode {
         }
     }
 }
+
+
+
+// ---- 用在for里面，用eval会变慢，但为了识别特殊for，没办法了
+export function listen(dlScope: DLightNode, valueStr: string, valueFunc: () => any, listenDeps: string[], id: string) {
+    valueStr = valueStr.trim()
+    const replacedValueStr = valueStr.replace(/([_$a-zA-Z][_$a-zA-Z0-9]*)/g, "_$1")
+    let idArr = valueStr.match(/[_$a-zA-Z][_$a-zA-Z0-9]*/g) ?? []
+    // ----
+    let evalStr = `let ${valueStr} = arguments[0]\n`
+    for (let id of idArr) {
+        evalStr += `${id} = {value: ${id}}\n`
+    }
+    evalStr += `return ${valueStr}`
+    let valueObj = new Function(evalStr)(valueFunc())
+
+    // ----
+    let newEvalStr = `let ${valueStr} = arguments[0]\n`
+    for (let id of idArr) {
+        newEvalStr += `let _${id} = ${id}\n`
+    }
+    newEvalStr += `return ${replacedValueStr}\n`
+
+    // ----
+    let geneEvalStr = `let ${replacedValueStr} = middleObj\n`
+    geneEvalStr += `let ${valueStr} = valueObj\n`
+    for (let id of idArr) {
+        geneEvalStr += `${id}.value = _${id}\n`
+    }
+
+    addDeps(dlScope, listenDeps, id, () => {
+        const value = valueFunc()
+        // ---- 空了直接删除
+        if (value === undefined) {
+            deleteDeps(dlScope, id)
+            return
+        }
+        // @ts-ignore
+        const middleObj = new Function(newEvalStr)(value)
+        eval(geneEvalStr)
+    })
+    return valueObj
+}
+
+function addDeps(arg0: DLightNode, arg1: string[], _$id: string, arg3: () => void) {
+    throw new Error("Function not implemented.");
+}
+
+function deleteDeps(dlScope: DLightNode, id: string) {
+    throw new Error("Function not implemented.");
+}
+
