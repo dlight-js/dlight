@@ -21,7 +21,7 @@ re-calc on this weekend
 - [x] support environment
 - [ ] animation
 - [ ] error hints
-- [ ] deps optimization
+- [x] deps optimization
 
 * plugins
 - [x] vite transpiler plugin

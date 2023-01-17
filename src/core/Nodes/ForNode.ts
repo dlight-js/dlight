@@ -150,7 +150,6 @@ export class ForNode extends DLNode {
      * 没有key这样是优化过的，非常快 
      */
     updateWithOutKey(parentNode: HtmlNode) {
-        tt.value = 0
         const parentEl = parentNode._$el
         const preLength = this.array.length
 
@@ -166,16 +165,10 @@ export class ForNode extends DLNode {
                     newFlowIndex += getFlowIndexFromNodes(this._$dlNodess[idx])
                     continue
                 }
-                let t1 = performance.now()
                 const newNodes = this.getNewNodes(null, idx);
-                let t2 = performance.now()
-                tt.value += t2-t1;
                 [newFlowIndex, length] = appendNodesWithIndex(newNodes, newFlowIndex, parentEl, length)
                 this._$dlNodess.push(newNodes)
             }
-            
-            console.log(tt.value)
-
             return
         }
 
@@ -273,11 +266,10 @@ export class ForNode extends DLNode {
     }
 
 
-    // ---- 用eval会变慢，但为了识别特殊for，没办法了
+    // ---- 识别特殊for
     _$listen(dlScope: DLightNode, itemFunc: () => any, listenDeps: string[], updateFunc: any, id: string) {
         // ---* 必须把id放进去，不然删除不掉
         this._$depIds.push(id)
-
         addDeps(dlScope, listenDeps, id, () => {
             const item = itemFunc()
             // ---- 空了直接删除
@@ -286,10 +278,7 @@ export class ForNode extends DLNode {
                 return
             }
             updateFunc(item)
-            
         })
     }
 
 }
-
-export const tt = {value:0}
