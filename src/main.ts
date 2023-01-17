@@ -22,11 +22,11 @@ import {render} from "./core";
 // import {SubElement} from "./example/test.tsd"
 // // @ts-ignore
 // import {Benchmark} from "./example/performance/benchmark.tsd"
-
+import {Benchmark} from "./example/performance/benchmark.tsx";
 // // console.log(t2-t1)
 import {HH} from "./test"
 
-render("#app", new HH())
+render("#app", new Benchmark())
 
 // switch (testType) {
 //     case TestType.ToDo:

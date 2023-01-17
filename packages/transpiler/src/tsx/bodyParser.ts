@@ -55,9 +55,9 @@ class Parser {
         if (value === "") return
         newNode.kv.strSymbol = "`"
         newNode.kv.value = value
-    
-        this.parserNode.addChild(newNode)
 
+        this.parserNode.addChild(newNode)
+    }
 
     resolveFor(jsxElement: t.JSXElement) {
         const newNode = new ParserNode("For")
