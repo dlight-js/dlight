@@ -19,6 +19,7 @@ class Element extends View {
 export class TestTest extends View {
     @Prop jjj = 1
     @State toggle1 = 1
+    @State toggle = false
     @Prop hht = this.jjj + 100
     a = this.jjj + 1
 
@@ -31,12 +32,30 @@ export class TestTest extends View {
                 this.apple[0] = this.toggle1
                 this.apple = [...this.apple]
             })
-            .didAppear(() => {
-                console.log("hahah")
+        button("toggle")
+            .onclick(() => {
+               this.toggle = !this.toggle
             })
         div (this.hht)
         div (this.toggle1)
-   
+        If(this.toggle) {
+            div("看看我")
+
+            Element()
+                .willAppear(() => {
+                    console.log("66")
+                })
+                .didAppear(() => {
+                    console.log("hahah")
+                })
+                .willDisappear(() => {
+                    console.log("no")
+                })
+                .didDisappear(() => {
+                    console.log("nooo")
+                })
+            "-----ok-----"
+        }
         div('--')
         For(let i of this.apple.keys()) {
             If (this.apple[i] > 1) {

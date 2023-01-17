@@ -24,7 +24,7 @@ re-calc on this weekend
 - [ ] error hints
 - [x] deps optimization
 - [ ] PropState change to PropState/DotPropState/EnvState
-- [ ] add lifeCycle to htmlNode
+- [x] add lifeCycle to htmlNode
 
 * plugins
 - [x] vite transpiler plugin

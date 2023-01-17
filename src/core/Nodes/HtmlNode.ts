@@ -53,6 +53,8 @@ export class HtmlNode extends DLNode {
     }
 
     render(parentEl: HTMLElement) {
+        this.willAppear()
         parentEl.appendChild(this._$el)
+        this.didAppear()
     }
 }

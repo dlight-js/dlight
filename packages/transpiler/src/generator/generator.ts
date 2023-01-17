@@ -170,7 +170,7 @@ export class Generator {
                 continue
             }
             if (["willAppear", "didAppear", "willDisappear", "didDisappear"].includes(key)) {
-                body.add(`_$.addLifeCycle(${nodeName}, () => ${value}, ${key})`)
+                body.add(`_$.addLifeCycle(${nodeName}, ${value}, "${key}")`)
                 continue
             }
             if (key === "_$content") {
@@ -210,7 +210,7 @@ export class Generator {
                 continue
             }
             if (["willAppear", "didAppear", "willDisappear", "didDisappear"].includes(key)) {
-                body.add(`_$.addLifeCycle(${nodeName}, () => ${value}, ${key})`)
+                body.add(`_$.addLifeCycle(${nodeName}, ${value}, "${key}")`)
                 continue
             }
 

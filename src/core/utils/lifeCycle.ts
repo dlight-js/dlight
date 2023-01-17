@@ -1,6 +1,6 @@
-import { DLightNode } from "../Nodes";
+import {DLNode} from "../Nodes/Node";
 
-export function addLifeCycle(dlNode: DLightNode, func: () => any, lifeCycleName: "willAppear" | "didAppear" | "willDisappear" | "didDisappear") {
+export function addLifeCycle(dlNode: DLNode, func: () => any, lifeCycleName: "willAppear" | "didAppear" | "willDisappear" | "didDisappear") {
     const preLifeCycle = dlNode[lifeCycleName]
     dlNode[lifeCycleName] = function() {
         func.call(this)
