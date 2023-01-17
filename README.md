@@ -11,6 +11,9 @@ re-calc on this weekend
 * features
 - [x] if
 - [x] for
+- [x] state
+- [x] derived
+- [x] effect
 - [x] prop
 - [x] dot prop
 - [x] shortcut for style (e.g. div("hello")._height)
@@ -19,7 +22,7 @@ re-calc on this weekend
 - [x] support jsx
 - [x] jsx control flow
 - [x] prop lifecycle
-- [x] support environment
+- [x] support environment/context
 - [ ] animation
 - [ ] error hints
 - [x] deps optimization
