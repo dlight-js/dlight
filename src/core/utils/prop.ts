@@ -3,7 +3,7 @@ import { EnvNode } from "../Nodes/EnvNode"
 import { addDeps, addDep, deleteDep } from "./dep"
 
 export function addDLProp(dlNode: DLightNode, tag: string, key: string, propFunc: any | (() => any), dlScope?: DLightNode, listenDeps?: string[], isTwoWayConnected?: boolean) {
-    if (!Object.hasOwn(dlNode, key)) return
+    if (!(key in dlNode)) return
     if (!listenDeps) {
         (dlNode as any)[key] = propFunc
         return
@@ -13,6 +13,7 @@ export function addDLProp(dlNode: DLightNode, tag: string, key: string, propFunc
         addOneWayDLProp(dlScope!, dlNode, key, propFunc, listenDeps)
         return
     }
+    
     if (isTwoWayConnected && (dlScope as any)[`_$$${listenDeps[0]}`] !== undefined) {
         addTwoWayDLProp(dlScope!, dlNode, key, propFunc, listenDeps)
         return

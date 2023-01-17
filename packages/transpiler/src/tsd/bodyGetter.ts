@@ -1,14 +1,13 @@
 import {uid} from "../generator/utils";
 
 
-
-const commentRegex = /(\/\*[\S\s]*\*\/)|(\/\/.*)/g
-export class BodyParser {
+class Parser {
     code: string
     codeOut = ""
     c = ""
     idx = -1
     flag = false
+    commentRegex = /(\/\*[\S\s]*\*\/)|(\/\/._)/g
 
     bodyMap: {[key:string]: string} = {}
 
@@ -63,7 +62,7 @@ export class BodyParser {
         this.eat()  // eat {
         const id = uid()
         const body = this.eatBrackets() // eat body
-        this.bodyMap[id] = body.replace(commentRegex, "")
+        this.bodyMap[id] = body.replace(this.commentRegex, "")
 
         this.codeOut = this.codeOut.slice(0, this.codeOut.length-2) + `= "${id}"`
     }
@@ -79,4 +78,12 @@ export class BodyParser {
         }
         return this.codeOut
     }
+}
+
+
+export function alterBody(fileCode: string) {
+    const parser = new Parser(fileCode)
+    parser.parse()
+
+    return {code: parser.codeOut, bodyMap: parser.bodyMap}
 }

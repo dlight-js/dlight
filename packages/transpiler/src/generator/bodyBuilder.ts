@@ -1,21 +1,17 @@
-import {ParserEl} from "../parser/parserEl";
+import {ParserNode} from "../parserNode";
 import { uid } from "./utils";
 
-function isEl(parserEl: ParserEl) {
-    return !["If", "For", "TextNode"].includes(parserEl.tag)
+function isEl(parserNode: ParserNode) {
+    return !["If", "For", "TextNode"].includes(parserNode.tag)
 }
 
-export function isCustomEl(parserEl: ParserEl) {
-    return parserEl.tag[0].toUpperCase() === parserEl.tag[0] && isEl(parserEl)
+export function isCustomEl(parserNode: ParserNode) {
+    return parserNode.tag[0].toUpperCase() === parserNode.tag[0] && isEl(parserNode)
 }
 
 export function newLine(value: string) {
     return `${value}\n`
 }
-
-// export function indent(value: string) {
-//     return "\t" + value
-// }
 
 export function geneId(idAppendixNum: number, appendix: string) {
     if (idAppendixNum === -1) return ""
@@ -31,17 +27,12 @@ export function geneAppendix(newAppendix: string, idAppendix?: string) {
     return idAppendix ? `${idAppendix}-${newAppendix}` : newAppendix
 }
 
-export function geneChildNodesArray(parserEl: ParserEl) {
-    return "[" + parserEl.children.map((_, idx)=>`node${idx}`).join(", ") + "]"
+export function geneChildNodesArray(parserNode: ParserNode) {
+    return "[" + parserNode.children.map((_: any, idx: number)=>`node${idx}`).join(", ") + "]"
 }
 
 export class BodyStringBuilder {
     value: string = ""
-
-    // indent() {
-    //     this.value = "\t" + this.value.replace(/\n(?!$)/g, "\n\t")
-    //     return this
-    // }
     
     add(value: string) {
         this.value += newLine(value)

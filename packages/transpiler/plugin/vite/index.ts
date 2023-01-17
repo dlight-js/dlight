@@ -1,6 +1,7 @@
 import { Plugin } from 'vite'
-import {go} from "../../src/babel"
-
+import tsxConfig from "../../src/tsx"
+import tsdConfig from "../../src/tsd"
+import {geneParserNode} from "../../src"
 
 export default function(): Plugin {
     return {
@@ -11,18 +12,18 @@ export default function(): Plugin {
                 ...config,
                 esbuild: {
                     ...config.esbuild,
-                    include: /\.(js|ts|jsd|tsd)$/,
+                    include: /\.(js|ts|jsd|tsd|jsx|tsx)$/,
                     loader: 'ts',
                 },
             };
         },
         transform(code, id) {
             if (id.endsWith(".tsd")) {
-                
-                return go(code)
-
+                return geneParserNode(code, tsdConfig)
             }
-            return code
+            if (id.endsWith(".tsx")) {
+                return geneParserNode(code, tsxConfig)
+            }
         }
     };
 }

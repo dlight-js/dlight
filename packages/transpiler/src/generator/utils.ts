@@ -21,12 +21,12 @@ export function uid() {
     return Math.random().toString(20).slice(2, 8)
 }
 
-export function geneDeps(valueStr: string, derivedArr: string[], otherDeps: string[]=[]) {
+export function geneDeps(valueStr: string, depChain: string[], otherDeps: string[]=[]) {
     const ast = parse(valueStr)
     let deps: string[] = []
     traverse(ast, {
         MemberExpression(innerPath: any) {
-            if (derivedArr.includes(innerPath.node.property.name)) {
+            if (depChain.includes(innerPath.node.property.name)) {
                 if (!isMemberInFunction(innerPath)) {
                     deps.push(innerPath.node.property.name)
                 }

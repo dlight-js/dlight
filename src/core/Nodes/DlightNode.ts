@@ -30,18 +30,18 @@ import { uid } from "../utils/util";
  *   -> this._$afterElsCreated()（所有新建完成的html element都会递归调用）
  *   -> this.Afterset（留的hook，目前只有.element()会调用)
  */
-export abstract class DLightNode extends DLNode {
+export class DLightNode extends DLNode {
     _$deps: {[key: string]: {[key: string]: () => any}} = {}
     _$envNodes?: EnvNode[]
     _$derivedPairs?: {[key: string]: string[]}
     _$children?: DLNode[]
     _$tag: string
 
-    abstract Body(): any
+    Body: any
 
-    constructor(tag: string, id?: string) {
+    constructor(tag?: string, id?: string) {
         super("dlight", id)
-        this._$tag = tag
+        this._$tag = tag ?? this.constructor.name
     }
 
     get _$el() {

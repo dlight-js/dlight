@@ -1,7 +1,6 @@
 import * as BabelNode from "./babelNode"
 import * as NodeHelper from "./nodeHelper"
 import * as DecoratorResolver from "./decoratorResolver"
-import {BodyParser} from "./bodyParser";
 import {isMemberInFunction} from "./nodeHelper";
 import * as BabelParser from "./babelParser"
 // @ts-ignore
@@ -11,8 +10,8 @@ import babelGenerate from "@babel/generator"
 // @ts-ignore
 import babelTraverse from "@babel/traverse"
 import * as t from "@babel/types";
-import {parseDLightBody} from "../parser";
-import {resolveParserEl} from "../generator";
+import { resolveParserNode } from "../generator";
+import { ParserNode } from "../parserNode";
 
 const parse = babel.parse
 const generate = (ast: any) => babelGenerate.default(ast).code
@@ -24,27 +23,16 @@ const babelConfig = {
     plugins: [['@babel/plugin-proposal-decorators', { legacy: true }]]
 }
 
-function rebuildBody(str: string, derivedArr: string[]) {
-    let parserEl = parseDLightBody(str)
-    return resolveParserEl(parserEl, derivedArr)
-}
 
-
-export function go(code: string) {
-    console.log("------body------")
-    const bodyParser = new BodyParser(code)
-    bodyParser.parse()
-    const bodyMap = bodyParser.bodyMap
-
-    console.log("------traverse------")
-    const ast = parse(bodyParser.codeOut, babelConfig)
+export function parseDlightFile(alteredFileCode: string, bodyMap: {[key: string]:ParserNode}) {
+    const ast = parse(alteredFileCode, babelConfig)
 
     let classDeclarationNode: t.ClassDeclaration | null = null
     let classBodyNode: t.ClassBody | null = null
     // ---- 在这里新建node很省时间
     let depsNode: t.ClassProperty | null = null
     let derivedNode: t.ClassProperty | null = null
-    let derivedArr: string[] = []
+    let depChain: string[] = []
 
     traverse(ast, {
         ClassDeclaration(path: any) {
@@ -61,7 +49,7 @@ export function go(code: string) {
                     t.identifier("_$deps"),
                     t.objectExpression([])
                 )
-                derivedArr = []
+                depChain = []
                 return
             }
         },
@@ -72,8 +60,7 @@ export function go(code: string) {
             if (t.isIdentifier(node.key, {name: "Body"})) {
                 // ---- body处理
                 const bodyId = (node.value as any).value
-                const newBody = rebuildBody(bodyMap[bodyId], derivedArr)
-                console.log(newBody)
+                const newBody = resolveParserNode(bodyMap[bodyId], depChain)
                 node.value = t.arrowFunctionExpression([], BabelParser.functionBlockStatement(`
                     function tmp() {
                         ${newBody}
@@ -87,7 +74,7 @@ export function go(code: string) {
             let deps: string[] = []
             path.scope.traverse(node,{
                 MemberExpression(innerPath: any) {
-                    if (derivedArr.includes(innerPath.node.property.name)) {
+                    if (depChain.includes(innerPath.node.property.name)) {
                         if (!isMemberInFunction(innerPath, classDeclarationNode!)) {
                             deps.push(innerPath.node.property.name)
                         }
@@ -99,7 +86,7 @@ export function go(code: string) {
                 NodeHelper.pushDerived((node.key as any).name, deps, derivedNode!, classBodyNode!)
                 NodeHelper.pushDep((node.key as any).name, depsNode!, classBodyNode!)
                 BabelNode.valueWithArrowFunc(node)
-                derivedArr.push((node.key as any).name)
+                depChain.push((node.key as any).name)
             }
             // ---- 如果有修饰器
             if (node.decorators) {
@@ -109,13 +96,13 @@ export function go(code: string) {
                     const decoratorName = (decorator.expression as t.Identifier).name ??
                         ((decorator.expression as t.CallExpression).callee as t.Identifier).name
                     if (["PropState", "State"].includes(decoratorName)) {
-                        derivedArr.push((node.key as any).name)
+                        depChain.push((node.key as any).name)
                         NodeHelper.pushDep((node.key as any).name, depsNode!, classBodyNode!)
                         DecoratorResolver.state(node, classBodyNode!)
                         break
                     }
                     if (["Prop", "DotProp", "Environment"].includes(decoratorName)) {
-                        derivedArr.push((node.key as any).name)
+                        depChain.push((node.key as any).name)
                         NodeHelper.pushDep((node.key as any).name, depsNode!, classBodyNode!)
                         DecoratorResolver.prop(node, classBodyNode!, decoratorName as any)
                         break
@@ -128,9 +115,10 @@ export function go(code: string) {
 
         },
     });
-    console.log("------code------")
+
     const returnedCode = generate(ast)
     const newCode = "import * as _$ from '@/core'\n" + returnedCode
-    console.log(newCode)
+
+
     return newCode
 }

@@ -1,6 +1,6 @@
-import {ParserEl} from "../parser/parserEl";
+import {ParserNode} from "../parserNode";
 import {Generator} from "./generator";
 
-export function resolveParserEl(parserEl: ParserEl, derivedArr: string[]) {
-    return new Generator(derivedArr).generate(parserEl)
+export function resolveParserNode(parserNode: ParserNode, depChain: string[]) {
+    return new Generator(depChain).generate(parserNode)
 }

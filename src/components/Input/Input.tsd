@@ -36,15 +36,15 @@ export class TextField extends View {
                     console.log(e.target.value)
                     this.onChange(e.target.value)
                 })
-                .*width('200px')
-                .*height('30px')
+                ._width('200px')
+                ._height('30px')
             If(this.placeholder) {
                 div ( this.placeholder)
                     .className(this.animationClassName)
-                    .*position('absolute')
-                    .*top(this.inputState==='down'?'0px':'15px')
-                    .*left('20px')
-                    .*backgroundColor('white')
+                    ._position('absolute')
+                    ._top(this.inputState==='down'?'0px':'15px')
+                    ._left('20px')
+                    ._backgroundColor('white')
             }
         }.onclick(()=>{
             if(this.inputState === 'up') {

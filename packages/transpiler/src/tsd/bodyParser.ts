@@ -1,4 +1,4 @@
-import {ParserEl} from "./parserEl";
+import {ParserNode} from "../ParserNode";
 
 
 
@@ -41,9 +41,9 @@ export class DlightParser {
         }
     }
 
-    parserEl = new ParserEl('null')
+    parserNode = new ParserNode('null')
     get el() {
-        return this.parserEl.lastChild
+        return this.parserNode.lastChild
     } 
 
     addElKey() {
@@ -147,7 +147,7 @@ export class DlightParser {
         newParser.parse()
         this.erase()
 
-        return newParser.parserEl
+        return newParser.parserNode
     }
 
     parse() {
@@ -168,7 +168,6 @@ export class DlightParser {
                     continue
                 }
                 if (["\"", "'", "`"].includes(this.token[0])) {
-                    
                     this.resolveText()
                     continue
                 }
@@ -185,15 +184,15 @@ export class DlightParser {
     }
 
     resolveText() {
-        const newEl =  new ParserEl("TextNode")
-        newEl.kv.strSymbol = this.token[0]
-        newEl.kv.value = this.token.slice(1, -1)
+        const newNode =  new ParserNode("TextNode")
+        newNode.kv.strSymbol = this.token[0]
+        newNode.kv.value = this.token.slice(1, -1)
         this.erase()
-        this.parserEl.addChild(newEl)
+        this.parserNode.addChild(newNode)
     }
 
     resolveEl() {
-        const newEl =  new ParserEl(this.token)
+        const newNode =  new ParserNode(this.token)
         this.erase()
         this.eatSpace()
         if (this.look() === "(") {
@@ -201,12 +200,12 @@ export class DlightParser {
             this.eatSpace()
 
             if (this.look() === "{") { // 参数
-                newEl.kv.props.push(...this.eatProps())
+                newNode.kv.props.push(...this.eatProps())
                 this.eat()  // eat )
             } else {
                 const content = this.eatContent()
                 if (content.trim() !== "") {
-                    newEl.kv.props.push({key: "_$content", value: content})
+                    newNode.kv.props.push({key: "_$content", value: content})
                 }
             }
             this.eatSpace()
@@ -214,10 +213,10 @@ export class DlightParser {
 
         if (this.look() === "{")  { // 子
             this.eat() // eat {
-            newEl.children = this.eatSubEl().children // add children
+            newNode.children = this.eatSubEl().children // add children
         }
 
-        this.parserEl.addChild(newEl)
+        this.parserNode.addChild(newNode)
     }
 
     // ---- if
@@ -228,13 +227,13 @@ export class DlightParser {
         const subEl = this.eatSubEl()
         this.el.kv.condition.push({
             condition: condition,
-            parserEl: subEl
+            parserNode: subEl
         })
         this.erase()
     }
 
     handleIf() {
-        this.parserEl.addChild(new ParserEl(this.token))
+        this.parserNode.addChild(new ParserNode(this.token))
         this.erase()
         this.eatSpace()
         this.eat() // eat (
@@ -267,12 +266,12 @@ export class DlightParser {
 
     // ---- for
     resolveFor() {
-        const newEl = new ParserEl(this.token)
+        const newNode = new ParserNode(this.token)
         this.erase()
         this.eatSpace()
         this.eat()  // eat (
         this.eatParentheses()
-        newEl.kv.forValue = this.token
+        newNode.kv.forValue = this.token
         this.erase()
         this.eatSpace()
         this.eat() // eat { or [
@@ -284,9 +283,15 @@ export class DlightParser {
             this.eat()  // eat {
         }
 
-        newEl.kv.parserEl = this.eatSubEl()
-        this.parserEl.addChild(newEl)
+        newNode.children = this.eatSubEl().children
+        this.parserNode.addChild(newNode)
     }
+}
 
 
+export function parseBody(bodyCode: string): ParserNode {
+    const parser = new DlightParser(bodyCode)
+    parser.parse()
+
+    return parser.parserNode
 }

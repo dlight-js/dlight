@@ -27,7 +27,7 @@ export class HtmlNode extends DLNode {
     _$addProp(key: string, valueOrFunc: any | (() => any), dlScope?: DLightNode, listenDeps?: string[]) {
         let func: (newValue: any) => any
 
-        if (key[0] === "*") {
+        if (key[0] === "_") {
             func = (newValue: any) => this._$el.style[key.slice(1) as any] = newValue
         } else if (key === "innerText") {
             func = (newValue: any) => this._$el.innerText = newValue

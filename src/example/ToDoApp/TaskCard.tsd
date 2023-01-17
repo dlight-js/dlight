@@ -25,12 +25,12 @@ export class TaskCard extends View {
         })
 
       span(this.task.name)
-        .*margin("0 5px")
-        .*text-decoration(this.task.finished ? "line-through" : "none")
+        ._margin("0 5px")
+        ._text-decoration(this.task.finished ? "line-through" : "none")
         
       button("delete")
         .onclick(this.deleteTask)
     }
-      .*padding("5px")
+      ._padding("5px")
   }
 }
