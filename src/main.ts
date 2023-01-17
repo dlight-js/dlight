@@ -16,7 +16,7 @@
 // export {}
 
 // // @ts-ignore
-// import {TestTest} from "./test.tsd"
+import {TestTest} from "./test.tsd"
 import {render} from "./core";
 // // @ts-ignore
 // import {SubElement} from "./example/test.tsd"
@@ -25,8 +25,9 @@ import {render} from "./core";
 import {Benchmark} from "./example/performance/benchmark.tsx";
 // // console.log(t2-t1)
 import {HH} from "./test"
+import {TestTest} from "./test.tsd";
 
-render("#app", new HH())
+render("#app", new TestTest())
 
 // switch (testType) {
 //     case TestType.ToDo:

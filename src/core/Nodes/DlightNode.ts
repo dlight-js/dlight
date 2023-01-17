@@ -142,12 +142,6 @@ export class DLightNode extends DLNode {
         }
         this.didAppear()
     }
-
-    // ---- lifecycles
-    willAppear() {}
-    didAppear() {}
-    willDisappear() {}
-    didDisappear() {}
 }
 
 

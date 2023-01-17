@@ -22,9 +22,6 @@ export class TestTest extends View {
     @Prop hht = this.jjj + 100
     a = this.jjj + 1
 
-    // toggle4 = this.jjj + this.toggle1 + 1
-    // toggle2 = this.toggle4 + this.jjj
-    // toggle3 = {ok: () => this.toggle1 + 1}
     @State apple = [1,2,3]
     Body() {
         button("+")
@@ -33,6 +30,9 @@ export class TestTest extends View {
                 // this.jjj ++
                 this.apple[0] = this.toggle1
                 this.apple = [...this.apple]
+            })
+            .didAppear(() => {
+                console.log("hahah")
             })
         div (this.hht)
         div (this.toggle1)

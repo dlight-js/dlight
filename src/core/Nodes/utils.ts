@@ -219,8 +219,8 @@ function runDlightNodeLifecycle(node: DLNode, lifecysle: "willAppear"|"didAppear
             }
             break
         case "dlight":
-            (node as DLightNode)[lifecysle]()
         case "html":
+            (node as DLightNode)[lifecysle]()
         case "if":
             runDlightNodesLifecycle(node._$dlNodes, lifecysle)
             break

@@ -169,6 +169,10 @@ export class Generator {
                 body.add(`${value} = ${nodeName}._$el`)
                 continue
             }
+            if (["willAppear", "didAppear", "willDisappear", "didDisappear"].includes(key)) {
+                body.add(`_$.addLifeCycle(${nodeName}, () => ${value}, ${key})`)
+                continue
+            }
             if (key === "_$content") {
                 key = "innerText"
             }
@@ -206,7 +210,7 @@ export class Generator {
                 continue
             }
             if (["willAppear", "didAppear", "willDisappear", "didDisappear"].includes(key)) {
-                body.add(`_$.addLifeCycle(${nodeName}, () => ${value}, ${key}`)
+                body.add(`_$.addLifeCycle(${nodeName}, () => ${value}, ${key})`)
                 continue
             }
 
