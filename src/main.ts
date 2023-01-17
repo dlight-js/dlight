@@ -26,7 +26,7 @@ import {Benchmark} from "./example/performance/benchmark.tsx";
 // // console.log(t2-t1)
 import {HH} from "./test"
 
-render("#app", new Benchmark())
+render("#app", new HH())
 
 // switch (testType) {
 //     case TestType.ToDo:

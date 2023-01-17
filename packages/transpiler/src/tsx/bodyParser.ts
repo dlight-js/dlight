@@ -66,9 +66,20 @@ class Parser {
         let forValue = ""
         if (forValueAttribute !== undefined) {
             const value = (forValueAttribute as t.JSXAttribute).value
-            forValue = t.isJSXExpressionContainer(value) ? generate(value.expression) : generate(value)
+            forValue = t.isJSXExpressionContainer(value)
+                ? generate(value.expression)
+                : generate(value).replace(/(^["'`])|(["'`]$)/g, "")
         }
-        newNode.kv.forValue = forValue.replace(/(^["'`])|(["'`]$)/g, "")
+        newNode.kv.forValue = forValue
+
+        const keyValueAttribute = jsxElement.openingElement.attributes
+            .filter(a=> (a as t.JSXAttribute).name.name === "key")[0]
+        if (keyValueAttribute !== undefined) {
+            const value = (keyValueAttribute as t.JSXAttribute).value
+            newNode.kv.key = t.isJSXExpressionContainer(value)
+                ? generate(value.expression)
+                : generate(value).replace(/(^["'`])|(["'`]$)/g, "")
+        }
 
         for (let child of jsxElement.children) {
             const parser = new Parser(child as any)

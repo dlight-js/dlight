@@ -47,7 +47,7 @@ export class HH extends View {
                 你对了
             </If>
             <ElseIf condition={this.count>-1}>
-                斤斤计较斤斤计较
+                斤斤计较斤斤计较突然r r r r
             </ElseIf>
             <JK ok={this.count} />
         </>
