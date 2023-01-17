@@ -6,7 +6,6 @@ import babelGenerate from "@babel/generator"
 import babelTraverse from "@babel/traverse"
 
 import * as t from "@babel/types"
-import path from "path";
 import {isMemberInFunction} from "../babel/nodeHelper";
 import {BodyStringBuilder} from './bodyBuilder';
 const parse = babel.parse
@@ -82,8 +81,8 @@ export function resolveForBody(body: BodyStringBuilder, item: string) {
         Identifier(innerPath: any) {
             if (identifierKeys.includes(innerPath.node.name)) {
                 const valueNode = t.memberExpression(
-                    t.identifier(innerPath.node.name),
-                    t.identifier("value")
+                    t.identifier("valuedItem"),
+                    t.identifier(innerPath.node.name)
                 )
                 innerPath.replaceWith(valueNode)
                 innerPath.skip()

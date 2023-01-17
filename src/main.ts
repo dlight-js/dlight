@@ -1,21 +1,24 @@
 // // @ts-ignore
 // import {ToDoApp} from "./example/ToDoApp/index.tsd";
-// // @ts-ignore
+// @ts-ignore
 import {NestedElement} from "./example/performance";
 // // @ts-ignore
 // import {TestElement} from "./example/el1.tsd";
 // import {render} from "./core/utils";
+// @ts-ignore
 import {IfTest, ForTest, FlowTest, EnvTest, LifeCycleTest} from "./example/features"
 // import { initNodes, bindParentNode, resolveEnvs } from "./core/Nodes/utils";
 // import {SubElement} from "./example/test.tsd"
 // @ts-ignore
 import {ToDoApp} from "./example/ToDoApp/index.tsd";
+// @ts-ignore
 import {Counter} from "./example/test.tsd"
 export {}
 
 // @ts-ignore
 import {TestTest} from "./test.tsd"
 import {render} from "./core";
+// @ts-ignore
 import {SubElement} from "./example/test.tsd"
 // @ts-ignore
 import {Benchmark} from "./example/performance/benchmark.tsd"

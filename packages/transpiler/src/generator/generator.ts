@@ -86,8 +86,25 @@ export class Generator {
         if (listenDeps.length > 0) {
             // ---- 如果有dependencies
             body.add(`${nodeName}._$addNodeFunc((key, _$idx${idAppendixNum}, forNode, updateIdx) => {`)
-            body.add(`const ${item} = forNode._$listen(this, "${item}", ()=>forNode._$getItem(key, _$idx${idAppendixNum}), \
-            ${geneDepsStr(listenDeps)}, ${geneId(idAppendixNum+1, "${updateIdx}")})`)
+            // ---- 前面的listen函数很复杂，主旨就是把 let {idx, item} of array
+            //      变成 let {idx.value, item.value} of array
+            const idArr = item.match(/[_$a-zA-Z][_$a-zA-Z0-9]*/g) ?? []
+            body.add(`const ${item} = forNode._$getItem(key, _$idx${idAppendixNum})`)
+            body.add(`const valuedItem = {}`)
+            for (let i of idArr) {
+                body.add(`valuedItem.${i} = ${i}`)
+            }
+            body.add(`forNode._$listen(this, ()=>forNode._$getItem(key, _$idx${idAppendixNum}), \
+            ${geneDepsStr(listenDeps)}, (item) => {`)
+            body.add(`const ${item} = item`)
+            for (let i of idArr) {
+                body.add(`valuedItem.${i} = ${i}`)
+            }
+            body.add(`}, ${geneId(idAppendixNum+1, "${updateIdx}")})`)
+            
+            //
+
+            // ---- 下面才是子body
             const newGenerator = new Generator(this.derivedArr)
             newGenerator.idDepsArr = [{ids: getIdentifiers(item), propNames: listenDeps}]
             for (let [idx, cEl] of childEls.children.entries()) {

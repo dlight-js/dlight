@@ -1,4 +1,4 @@
-import {DLNode} from "@/core/Nodes/Node";
+import {DLNode} from "../../core/Nodes/Node";
 
 export function setAfterNodesCreated(nodes: DLNode[], runFunc: any) {
     for (let node of nodes) {

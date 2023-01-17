@@ -150,6 +150,7 @@ export class ForNode extends DLNode {
      * 没有key这样是优化过的，非常快 
      */
     updateWithOutKey(parentNode: HtmlNode) {
+        tt.value = 0
         const parentEl = parentNode._$el
         const preLength = this.array.length
 
@@ -165,10 +166,16 @@ export class ForNode extends DLNode {
                     newFlowIndex += getFlowIndexFromNodes(this._$dlNodess[idx])
                     continue
                 }
+                let t1 = performance.now()
                 const newNodes = this.getNewNodes(null, idx);
+                let t2 = performance.now()
+                tt.value += t2-t1;
                 [newFlowIndex, length] = appendNodesWithIndex(newNodes, newFlowIndex, parentEl, length)
                 this._$dlNodess.push(newNodes)
             }
+            
+            console.log(tt.value)
+
             return
         }
 
@@ -267,46 +274,22 @@ export class ForNode extends DLNode {
 
 
     // ---- 用eval会变慢，但为了识别特殊for，没办法了
-    _$listen(dlScope: DLightNode, valueStr: string, valueFunc: () => any, listenDeps: string[], id: string) {
+    _$listen(dlScope: DLightNode, itemFunc: () => any, listenDeps: string[], updateFunc: any, id: string) {
         // ---* 必须把id放进去，不然删除不掉
-        // this._$depIds.push(id)
-        valueStr = valueStr.trim()
-        const replacedValueStr = valueStr.replace(/([_$a-zA-Z][_$a-zA-Z0-9]*)/g, "_$1")
-        let idArr = valueStr.match(/[_$a-zA-Z][_$a-zA-Z0-9]*/g) ?? []
-        // ----
-        let evalStr = `let ${valueStr} = arguments[0]\n`
-        for (let id of idArr) {
-            evalStr += `${id} = {value: ${id}}\n`
-        }
-        evalStr += `return ${valueStr}`
-        let valueObj = new Function(evalStr)(valueFunc())
-    
-        // ----
-        let newEvalStr = `let ${valueStr} = arguments[0]\n`
-        for (let id of idArr) {
-            newEvalStr += `let _${id} = ${id}\n`
-        }
-        newEvalStr += `return ${replacedValueStr}\n`
-    
-        // ----
-        let geneEvalStr = `let ${replacedValueStr} = middleObj\n`
-        geneEvalStr += `let ${valueStr} = valueObj\n`
-        for (let id of idArr) {
-            geneEvalStr += `${id}.value = _${id}\n`
-        }
-    
+        this._$depIds.push(id)
+
         addDeps(dlScope, listenDeps, id, () => {
-            const value = valueFunc()
+            const item = itemFunc()
             // ---- 空了直接删除
-            if (value === undefined) {
+            if (item === undefined) {
                 deleteDeps(dlScope, id)
                 return
             }
-            // @ts-ignore
-            const middleObj = new Function(newEvalStr)(value)
-            eval(geneEvalStr)
+            updateFunc(item)
+            
         })
-        return valueObj
     }
 
 }
+
+export const tt = {value:0}
