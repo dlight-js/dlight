@@ -3,8 +3,8 @@ import {View} from "@/core"
 export class Node extends View {
     @Prop _$content: any
 
-    Preset() {
-        this._$nodes = [this._$content]
+    Afterset() {
+        this._$bindNodes([this._$content])
     }
     Body() { }
 }

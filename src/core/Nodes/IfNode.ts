@@ -1,9 +1,8 @@
 import { addDeps } from "../utils/dep";
-import { bindParentNode, initNodes } from "../utils/nodes";
 import {DLightNode} from "./DlightNode";
 import { EnvNode } from "./EnvNode";
 import { HtmlNode } from "./HtmlNode";
-import { DLNode } from "./Node";
+import { DLNode, DLNodeType } from "./DLNode";
 import { appendNodesWithIndex, deleteNodesDeps, getFlowIndexFromParentNode, removeNodes } from "./utils";
 
 interface ConditionPair {
@@ -19,7 +18,7 @@ export class IfNode extends DLNode {
     _$envNodes?: EnvNode[] = []
 
     constructor(id: string) {
-        super("if", id)
+        super(DLNodeType.If, id)
     }
 
     get _$el() {
@@ -38,7 +37,7 @@ export class IfNode extends DLNode {
         // ---- 加if依赖
         // ---- 找到HTMLNode作为parentNode，因为它是有真实el的
         let parentNode: DLNode | undefined = this._$parentNode
-        while (parentNode && parentNode._$nodeType !== "html") {
+        while (parentNode && parentNode._$nodeType !== DLNodeType.HTML) {
             parentNode = parentNode._$parentNode
         }
         
@@ -48,16 +47,15 @@ export class IfNode extends DLNode {
 
         // ---- 生成nodes
         // ---- 只要找到符合条件的就break
+        let nodes: DLNode[] = []
         for (let conditionPair of this.conditionPairs) {
             if (conditionPair.condition()) {
                 this.condition = conditionPair.condition.toString()
-                this._$nodes = conditionPair.node()
-                this._$afterElsCreated(this._$nodes)
+                nodes = conditionPair.node()
                 break
             }
         }
-        bindParentNode(this._$dlNodes, this)
-        initNodes(this._$nodes)
+        this._$bindNodes(nodes)
     }
 
     update(parentNode: HtmlNode) {
@@ -69,7 +67,6 @@ export class IfNode extends DLNode {
                     // ---- 改变状态了，清除对应deps
                     this.condition = conditionPair.condition.toString()
                     nodes = conditionPair.node()
-                    this._$afterElsCreated(nodes)
                 } else {
                     // ---- 和之前状态一样就直接不管
                     nodes = this._$dlNodes
@@ -90,9 +87,7 @@ export class IfNode extends DLNode {
 
 
         const flowIndex = getFlowIndexFromParentNode(parentNode, this._$id)
-        this._$nodes = nodes
-        bindParentNode(this._$dlNodes, this)
-        initNodes(this._$dlNodes)
+        this._$bindNodes(nodes)
 
         const parentEl = parentNode._$el
         appendNodesWithIndex(this._$dlNodes, flowIndex, parentEl, parentEl.childNodes.length)

@@ -2,6 +2,7 @@ import { HtmlNode } from "./Nodes"
 import { DLightNode } from "./Nodes/DlightNode"
 
 export * from "./Nodes"
+export {loopNodes} from "./utils/nodes"
 
 export const View = DLightNode
 

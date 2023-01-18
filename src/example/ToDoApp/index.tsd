@@ -20,7 +20,7 @@ export class ToDoApp extends View {
   unfinishedNum = this.tasks.filter(t=>!t.finished).length
 
   watchUnfinishedNum = function() {
-    console.log("hh", this.unfinishedNum)
+    console.log(`remain ${this.unfinishedNum} tasks to do`)
   }.call(this)
 
   Body() {

@@ -7,7 +7,7 @@ class Parser {
     c = ""
     idx = -1
     flag = false
-    commentRegex = /(\/\*[\S\s]*\*\/)|(\/\/._)/g
+    commentRegex = /(\/\*[\S\s]*\*\/)|(\/\/.*)/g
 
     bodyMap: {[key:string]: string} = {}
 

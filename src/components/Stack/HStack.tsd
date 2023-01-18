@@ -1,62 +1,60 @@
-import {View} from "@/core"
-import {HtmlNode} from "@/core";
+import {View, HtmlNode, DLNode, loopNodes, DLNodeType} from "@/core"
 import {bindParentNode, initNodes} from "@/core/Nodes/utils";
-import {setAfterNodesCreated} from "./utils";
-import {Node} from "../Node";
+import {Nodes} from "../Node";
 
 export class HStack extends View {
     @Prop spacing=1
     @Prop alignment: "top" | "center" | "bottom" = "top"
-
     @Prop width = "100%"
     @Prop height = "max-content"
 
-    wrapperDiv = new HtmlNode("div")
-
-    AfterConstruct() {
-        bindParentNode(this._$children, this.wrapperDiv)
-        initNodes(this._$children)
-        this.wrapperDiv._$addProp("*display", "flex")
-        this.wrapperDiv._$addProp("*flexDirection", "row")
-        for (let childNode of this._$children) {
-            this.wrapperDiv._$addNode(childNode)
+    loopHTMLChildren = (nodes: DLNode[]) => {
+        for (let node of nodes) {
+            
         }
     }
 
-    manualUpdateWrapperDivColumnGap = function() {
-        this.wrapperDiv._$addProp("*columnGap", `${this.spacing}px`)
-    }.call(this)
-
-    manualUpdateWrapperDivHeight = function() {
-        this.wrapperDiv._$addProp("*height", this.height)
-    }.call(this)
-
-    manualUpdateWrapperDivWidth = function() {
-        this.wrapperDiv._$addProp("*width", this.width)
-    }.call(this)
-
-    manualUpdateChildren = function() {
-        setAfterNodesCreated(this._$children, function(node) {
-            console.log(node._$parentNode)
-            if (node._$parentNode._$tag === "Spacer") {
-                console.log("okk")
-                node._$addProp("*flexGrow", "1")
-                return
+    childrenLayout = (alignment: string) => {
+        loopNodes(this._$children, (node: DLNode) => {
+            if (node._$tag === "Spacer") {
+                node._$dlNodes[0]._$addProp("_flexGrow", "1")
+                return false
             }
-            node._$addProp("*flexShrink", "0")
+            if (node._$nodeType !== DLNodeType.HTML) return true
+            node._$addProp("_flexShrink", "0")
             let margin: string = "auto"
-            if (this.alignment === "top") {
+            if (alignment === "top") {
                 margin = "0 0 auto 0"
-            } else if (this.alignment === "bottom") {
+            } else if (alignment === "bottom") {
                 margin = "auto 0 0 0"
-            } else if (this.alignment === "center") {
+            } else if (alignment === "center") {
                 margin = "auto 0"
             }
-            node._$addProp("*margin", margin)
-        }.bind(this))
+            node._$addProp("_margin", margin)
+            return false
+        })
+    }
+
+    // ---- 第一次进来要用Afterset来调用，因为子node还没有配置好
+    Afterset() {
+        this.childrenLayout(this.alignment)
+    }
+    firstIn = true
+    manualUpdateChildren = function() {
+        if (this.firstIn) return
+        this.firstIn = false
+        this.childrenLayout(this.alignment)
     }.call(this)
 
+
     Body() {
-        Node(this.wrapperDiv)
+        div {
+            Nodes(this._$children)
+        }
+            ._height(this.height)
+            ._width(this.width)
+            ._columnGap(`${this.spacing}px`)
+            ._display("flex")
+            ._flexDirection("row")
     }
 }

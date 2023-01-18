@@ -1,5 +1,5 @@
 // // @ts-ignore
-// import {ToDoApp} from "./example/ToDoApp/index.tsd";
+import {ToDoApp} from "./example/ToDoApp/index.tsd";
 // @ts-ignore
 // import {NestedElement} from "./example/performance";
 // // // @ts-ignore

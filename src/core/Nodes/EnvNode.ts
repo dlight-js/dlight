@@ -1,7 +1,7 @@
 import { DLightNode } from './DlightNode';
-import {DLNode} from './Node';
+import {DLNode, DLNodeType} from './DLNode';
 import { addDLProp } from '../utils/prop';
-import { bindParentNode, initNodes } from '../utils/nodes';
+import { loopNodes } from '../utils/nodes';
 
 
 export class EnvNode extends DLNode {
@@ -10,7 +10,7 @@ export class EnvNode extends DLNode {
     _$envNodes?: EnvNode[]
 
     constructor(id?: string) {
-        super("env", id)
+        super(DLNodeType.Env, id)
     }
 
     _$addNode(dlNode: DLNode) {
@@ -23,28 +23,16 @@ export class EnvNode extends DLNode {
     }
 
     addNodesProp(nodes: DLNode[], key: string, propOrFunc: any | (() => any), dlScope?: DLightNode, listenDeps?: string[]) {
-        for (let node of nodes) {
-            switch (node._$nodeType) {
-                case "for":
-                    for (let ns of node._$dlNodess) {
-                        this.addNodesProp(ns, key, propOrFunc, dlScope, listenDeps)
-                    }
-                    break
-                case "if":
-                case "html":
-                    this.addNodesProp(node._$dlNodes, key, propOrFunc, dlScope, listenDeps)
-                    break
-                case "dlight":
-                    if ((node as any)[key] !== undefined) break
-                    addDLProp(node as DLightNode, "env", key, propOrFunc, dlScope, listenDeps)
-                    break
+        loopNodes(nodes, (node: DLNode) => {
+            if (node._$nodeType === DLNodeType.Dlight) {
+                addDLProp(node as DLightNode, "env", key, propOrFunc, dlScope, listenDeps)
             }
-        }
+            return true
+        })
     }
 
     _$init() {
-        bindParentNode(this._$dlNodes, this)
-        initNodes(this._$nodes)
+        this._$bindNodes(this._$nodes)
     }
 
     render(parentEl: HTMLElement) {

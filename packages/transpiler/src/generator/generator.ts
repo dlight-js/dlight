@@ -71,7 +71,7 @@ export class Generator {
 
     resolveFor(parserNode: ParserNode, idx: number, idAppendixNum: number=0, appendix="") {
         const body = new BodyStringBuilder()
-        const key = parserNode.kv["key"]
+        const key = parserNode.kv.key
         let forValueReg = /^(?:(?:let)|(?:var))\s+?(.+?)\s+?(?:of)\s+?(.+?)$/
 
         const id = geneId(idAppendixNum, appendix)
@@ -111,9 +111,9 @@ export class Generator {
             }
             body.add(`return ${geneChildNodesArray(parserNode)}`)
             body.add(`})`)
+            // ---- 第二个参数，keyFunc
             if (key) {
                 body.add(`${nodeName}._$addKeyFunc(() => {`)
-                // ---- 第二个参数，keyFunc
                 body.add(`const keys = []`)
                 body.add(`for (${parserNode.kv.forValue}) {`)
                 body.add(`keys.push(${key})`)

@@ -1,5 +1,7 @@
 import {View} from "./core";
-
+import {Transition} from "./components/Other/Transition.tsd"
+import {HStack} from "./components/Stack/HStack.tsd"
+import {Spacer} from "./components/Stack/Spacer.tsd"
 
 
 class Element extends View {
@@ -10,6 +12,7 @@ class Element extends View {
         div("-----")
         div(this.count)
         div(this.okk)
+        Spacer()
         button()
             .onclick(() => {
                 this.okk--
@@ -23,14 +26,21 @@ export class TestTest extends View {
     @Prop hht = this.jjj + 100
     a = this.jjj + 1
 
+    @State width = 50
+
     @State apple = [1,2,3]
     Body() {
         button("+")
             .onclick(() => {
+                this.width += 50
                 this.toggle1 ++
                 // this.jjj ++
                 this.apple[0] = this.toggle1
                 this.apple = [...this.apple]
+            })
+        button("-")
+            .onclick(() => {
+                this.width -= 50
             })
         button("toggle")
             .onclick(() => {
@@ -38,31 +48,23 @@ export class TestTest extends View {
             })
         div (this.hht)
         div (this.toggle1)
-        If(this.toggle) {
-            div("看看我")
-
+        Transition {
+            div("okk")
+                ._background-color("blue")
+                ._backgroundColor("red")
+                ._width(`${this.width}px`)
+        }
+        HStack({alignment: "center"}) {
+            div("猜测")
+                ._height("100px")
+                Spacer()
+            div("ok")
+            div("ok")
+            div("ok")
             Element()
-                .willAppear(() => {
-                    console.log("66")
-                })
-                .didAppear(() => {
-                    console.log("hahah")
-                })
-                .willDisappear(() => {
-                    console.log("no")
-                })
-                .didDisappear(() => {
-                    console.log("nooo")
-                })
-            "-----ok-----"
         }
-        div('--')
-        For(let i of this.apple.keys()) {
-            If (this.apple[i] > 1) {
-                div(this.apple[i])
-            }
-            
-        }
+            ._width("400px")
+ 
     }
 }
 

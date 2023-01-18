@@ -277,7 +277,7 @@ export class DlightParser {
         this.eat() // eat { or [
         if (this.c === "[") {
             this.eatSquareBrackets()
-            this.el.kv.key = this.token
+            newNode.kv.key = this.token
             this.erase()
             this.eatSpace()
             this.eat()  // eat {

@@ -1,21 +1,19 @@
 import { DLightNode } from './DlightNode';
-import {DLNode} from './Node';
+import {DLNode, DLNodeType} from './DLNode';
 
 import { EnvNode } from './EnvNode';
 import { addDeps } from '../utils/dep';
-import { bindParentNode, initNodes } from '../utils/nodes';
 
 
 export class HtmlNode extends DLNode {
     _$envNodes?: EnvNode[] = []
 
     constructor(tag: string, id?: string) {
-        super("html", id)
+        super(DLNodeType.HTML, id)
         this._$el = document.createElement(tag)
     }
     _$init(): void {
-        bindParentNode(this._$nodes, this)
-        initNodes(this._$nodes)
+        this._$bindNodes(this._$nodes)
         for (let node of this._$dlNodes) {
             node.render(this._$el)
         }

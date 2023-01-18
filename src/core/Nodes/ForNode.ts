@@ -1,9 +1,8 @@
-import { DLNode } from "./Node";
+import { DLNode, DLNodeType } from "./DLNode";
 import {appendNodesWithIndex, deleteNodesDeps, removeNodes, getFlowIndexFromNodes, getFlowIndexFromParentNode, replaceNodesWithFirstElement} from './utils';
 import { DLightNode } from "./DLightNode";
 import { HtmlNode } from "./HtmlNode";
 import { EnvNode } from "./EnvNode";
-import { bindParentNode, initNodes } from "../utils/nodes";
 import { addDeps, deleteDeps } from "../utils/dep";
 
 
@@ -18,7 +17,7 @@ export class ForNode extends DLNode {
     listenDeps?: string[]
     _$envNodes?: EnvNode[] = []
     constructor(id: string) {
-        super("for", id)         
+        super(DLNodeType.For, id)         
     }
     duplicatedOrNoKey = false
     updateIdx = 0
@@ -57,9 +56,6 @@ export class ForNode extends DLNode {
      */
     _$addNodesArr(nodess: DLNode[][]) {
         this._$nodes = nodess
-        for (let nodes of this._$dlNodess) {
-            this._$afterElsCreated(nodes)
-        }
     }
     _$addNodes(nodes: DLNode[]) {
         this._$dlNodess.push(nodes)
@@ -90,13 +86,12 @@ export class ForNode extends DLNode {
 
     _$init() {
         if (!this.listenDeps) {
-            bindParentNode(this._$nodes, this)
-            initNodes(this._$nodes)
+            this._$bindNodes(this._$nodes)
             return
         }
         // ---- 找到HTMLNode作为parentNode，因为它是有真实el的
         let parentNode: DLNode | undefined = this._$parentNode
-        while (parentNode && parentNode._$nodeType !== "html") {
+        while (parentNode && parentNode._$nodeType !== DLNodeType.HTML) {
             parentNode = parentNode._$parentNode
         }
         
@@ -115,18 +110,17 @@ export class ForNode extends DLNode {
 
         this.setArray()
         this.setKeys()
+        const nodess: DLNode[][] = []
         if (this.duplicatedOrNoKey) {
             for (let idx of this.array.keys()) {
-                this._$addNodes(this.nodeFunc!(null, idx, this, this.updateIdx))
+                nodess.push(this.nodeFunc!(null, idx, this, this.updateIdx))
             }
         } else {
             for (let [idx, key] of this.keys.entries()) {
-                this._$addNodes(this.nodeFunc!(key, idx, this, this.updateIdx))
+                nodess.push(this.nodeFunc!(key, idx, this, this.updateIdx))
             }
         }
-        
-        bindParentNode(this._$nodes, this)
-        initNodes(this._$nodes)
+        this._$bindNodes(nodess)
     }
 
     
@@ -140,9 +134,7 @@ export class ForNode extends DLNode {
 
     getNewNodes(key: any, idx: number) {
         const nodes = this.nodeFunc!(key, idx, this, this.updateIdx)
-        bindParentNode(nodes, this)
-        initNodes(nodes)
-        this._$afterElsCreated(nodes)
+        this._$bindNodes(nodes, false)
         return nodes
     }
 
@@ -155,10 +147,10 @@ export class ForNode extends DLNode {
 
         this.setArray()
         const currLength = this.array.length
-
         if (preLength === currLength) return
         if (preLength < currLength) {
             let newFlowIndex = getFlowIndexFromParentNode(parentNode, this._$id)
+
             let length = parentEl.childNodes.length  // 每次进去调用的话非常耗时
             for (let idx = 0; idx < currLength; idx++) {
                 if (idx < preLength) {
@@ -180,6 +172,10 @@ export class ForNode extends DLNode {
 
     }
 
+    /**
+     * 有 key，三步走
+     * 
+     */
     updateWithKey(parentNode: HtmlNode) {
         // ---- 如果提供了key，唯一目的就是为了保证element的reference不变，这样会变慢
         const parentEl = parentNode._$el

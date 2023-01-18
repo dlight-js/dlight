@@ -1,8 +1,8 @@
 import {DLightNode} from "./DLightNode";
-import { DLNode } from "./Node";
+import { DLNode, DLNodeType } from "./DLNode";
 import { HtmlNode } from "./HtmlNode";
 import { deleteDeps } from "../utils/dep";
-
+import { loopNodes } from "../utils/nodes";
 
 
 /**
@@ -11,29 +11,16 @@ import { deleteDeps } from "../utils/dep";
  */
 export function removeNodes(nodes: DLNode[]) {
     willDisappearDlightNodes(nodes)
-    for (let node of nodes) {
-        removeNode(node)
-    }
+    loopNodes(nodes, (node: DLNode) => {
+        if ([DLNodeType.HTML, DLNodeType.Text].includes(node._$nodeType)) {
+            node._$el.remove()
+            return false
+        }
+        return true
+    })
    didDisappearDlightNodes(nodes)
 }
-function removeNode(node: DLNode) {
-    switch (node._$nodeType) {
-        case "html":
-        case "text":
-            node._$el.remove()
-            break
-        case "for":
-            for (let nodes of node._$dlNodess) {
-                removeNodes(nodes)
-            }
-            break
-        case "dlight":
-        case "env":
-        case "if":
-            removeNodes(node._$dlNodes)
-            break
-    }
-}
+
 
 /**
  * 删掉所有有关node的deps
@@ -41,28 +28,13 @@ function removeNode(node: DLNode) {
  * @param dlScope 
  */
 export function deleteNodesDeps(nodes: DLNode[], dlScope: DLightNode) {
-    for (let node of nodes) {
-        deleteNodeDeps(node, dlScope)
-    }
-}
-function deleteNodeDeps(node: DLNode, dlScope: DLightNode) {
-    deleteDeps(dlScope, node._$id)
-    for (let i of node._$depIds) {
-        deleteDeps(dlScope, i)
-    }
-    switch (node._$nodeType) {
-        case "env":
-        case "dlight":
-        case "html":
-        case "if":
-            deleteNodesDeps(node._$dlNodes, dlScope)
-            break            
-        case "for":
-            for (let nodes of node._$dlNodess) {
-                deleteNodesDeps(nodes, dlScope)
-            }
-            break
-    }
+    loopNodes(nodes, (node: DLNode) => {
+        deleteDeps(dlScope, node._$id)
+        for (let i of node._$depIds) {
+            deleteDeps(dlScope, i)
+        }
+        return true
+    })
 }
 
 /**
@@ -78,17 +50,8 @@ function deleteNodeDeps(node: DLNode, dlScope: DLightNode) {
 export function appendNodesWithIndex(nodes: DLNode[], index: number, parentEl: HTMLElement, lengthIn?: number): [number, number] {
     let length = lengthIn ?? parentEl.childNodes.length
     willAppearDlightNodes(nodes)
-    for (let node of nodes) {
-        [index, length] = appendNodeWithIndex(node, index, parentEl, length)
-    }
-    didAppearDlightNodes(nodes)
-    return [index, length]
-}
-
-function appendNodeWithIndex(node: DLNode, index: number, parentEl: HTMLElement, length: number): [number, number] {
-    switch (node._$nodeType) {
-        case "text":
-        case "html":
+    loopNodes(nodes, (node: DLNode) => {
+        if ([DLNodeType.Text, DLNodeType.HTML].includes(node._$nodeType)) {
             if (index === length) {
                 parentEl!.appendChild(node._$el)
             } else {
@@ -96,19 +59,11 @@ function appendNodeWithIndex(node: DLNode, index: number, parentEl: HTMLElement,
             }
             index ++
             length ++
-            break
-        case "for":
-            for (let nodes of node._$dlNodess) {
-                [index, length] = appendNodesWithIndex(nodes, index, parentEl, length)
-            }
-            break
-        case "env":
-        case "dlight":
-        case "if":
-            [index, length] = appendNodesWithIndex(node._$dlNodes, index, parentEl, length)
-            break
-    }
-
+            return false
+        }
+        return true
+    })
+    didAppearDlightNodes(nodes)
     return [index, length]
 }
 
@@ -137,112 +92,63 @@ export function getFlowIndexFromNodes(nodes: DLNode[]) {
 }
 function getFlowIndexFromNodesTillId(nodes: DLNode[], index: number, stopId: string): [number, boolean] {
     let stop = false
-    for (let node of nodes) {
-        [index, stop] = getFlowIndexFromNodeTillId(node, index, stopId)
-        if (stop) break
-    }
-    return [index, stop]
-}
-function getFlowIndexFromNodeTillId(node: DLNode, index: number, stopId: string): [number, boolean] {
-    if (node._$id === stopId) return [index, true]
-
-    let stop = false
-    switch (node._$nodeType) {
-        case "html":
-        case "text":
+    loopNodes(nodes, (node: DLNode) => {
+        if (stop) return false
+        if (node._$id === stopId) {
+            stop = true
+            return false
+        }
+        if ([DLNodeType.Text, DLNodeType.HTML].includes(node._$nodeType)) {
             index ++
-            break
-        case "for":
-            for (let nodes of node._$dlNodess) {
-                [index, stop] = getFlowIndexFromNodesTillId(nodes, index, stopId)
-                if (stop) break
-            }
-            break
-        case "env":
-        case "dlight":
-        case "if":
-            [index, stop] = getFlowIndexFromNodesTillId(node._$dlNodes, index, stopId)
-            break
-    }
-
+        }
+        return true
+    })
     return [index, stop]
 }
+
 /**
  * 把DLNodes全部转化成HTMLElements来返回，在执行这个之前需要init
  * @param nodes 
  * @returns 
  */
 export function nodesToFlatEls(nodes: DLNode[]) {
-    const els = []
-    for (let node of nodes) {
-        els.push(...nodeToFlatEls(node))
-    }
-    return els
-}
-
-function nodeToFlatEls(node: DLNode) {
-    const els: HTMLElement[] = []
-    switch (node._$nodeType) {
-        case "text":
-        case "html":
+    const els: any[] = []
+    loopNodes(nodes, (node: DLNode) => {
+        if ([DLNodeType.Text, DLNodeType.HTML].includes(node._$nodeType)) {
             els.push(node._$el)
-            break
-        case "for":
-            for (let nodes of node._$dlNodess) {
-                els.push(...nodesToFlatEls(nodes))
-            }
-            break
-        case "env":
-        case "dlight":
-        case "if":
-            els.push(...nodesToFlatEls(node._$dlNodes))
-            break
-    }
-
+            return false
+        }
+        return true
+    })
     return els
 }
+
 
 /**
  * 四个生命周期
  * @param nodes 
  */
 function runDlightNodesLifecycle(nodes: DLNode[], lifecysle: "willAppear"|"didAppear"|"willDisappear"|"didDisappear") {
-    for (let node of nodes) {
-        runDlightNodeLifecycle(node, lifecysle)
-    }
-}
-function runDlightNodeLifecycle(node: DLNode, lifecysle: "willAppear"|"didAppear"|"willDisappear"|"didDisappear") {
-    switch (node._$nodeType) {
-        case "for":
-            for (let nodes of node._$dlNodess) {
-                runDlightNodesLifecycle(nodes, lifecysle)
-            }
-            break
-        case "dlight":
-        case "html":
-            (node as DLightNode)[lifecysle]()
-        case "if":
-            runDlightNodesLifecycle(node._$dlNodes, lifecysle)
-            break
-    }
+    loopNodes(nodes, (node: DLNode) => {
+        if ([DLNodeType.Dlight, DLNodeType.HTML].includes(node._$nodeType)) {
+            node[lifecysle]()
+            return false
+        }
+        return true
+    })
 }
 
 function willAppearDlightNodes(nodes: DLNode[]) {
     runDlightNodesLifecycle(nodes, "willAppear")
 }
 
-
 function didAppearDlightNodes(nodes: DLNode[]) {
     runDlightNodesLifecycle(nodes, "didAppear")
 }
 
-
-
 function willDisappearDlightNodes(nodes: DLNode[]) {
     runDlightNodesLifecycle(nodes, "willDisappear")
 }
-
-
 
 function didDisappearDlightNodes(nodes: DLNode[]) {
     runDlightNodesLifecycle(nodes, "didDisappear")

@@ -1,0 +1,20 @@
+import {View, loopNodes, DLNode, DLNodeType} from "@/core"
+import {Nodes} from "../Node"
+
+export class Transition extends View {
+    @Prop duration = 2
+
+    Afterset() {
+        loopNodes(this._$nodes, (node: DLNode) => {
+            if (node._$nodeType === DLNodeType.HTML) {
+                node._$addProp("_transition", `all ${this.duration}s`)
+            }
+            return true
+        })
+    }
+
+    Body() { 
+        Nodes(this._$children)
+    }
+}
+

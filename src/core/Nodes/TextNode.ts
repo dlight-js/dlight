@@ -1,10 +1,10 @@
 import { addDeps } from '../utils/dep';
 import { DLightNode } from './DlightNode';
-import {DLNode} from './Node';
+import {DLNode, DLNodeType} from './DLNode';
 
 export class TextNode extends DLNode {
     constructor(textOrFunc: string | (() => string),id?: string, dlScope?: DLightNode, listenDeps?: string[]) {
-        super("text", id)
+        super(DLNodeType.Text, id)
         if (!listenDeps) {
             this._$el = document.createTextNode(textOrFunc as string)
             return
