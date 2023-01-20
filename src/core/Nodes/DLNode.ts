@@ -3,7 +3,7 @@ import { uid } from "../utils/util"
 
 
 export enum DLNodeType {
-    HTML, Text, Dlight, For, If, Env, Node
+    HTML, Text, Custom, For, If, Env, Node
 }
 
 export class DLNode {
@@ -13,7 +13,7 @@ export class DLNode {
      * @member _$nodeType
      *      - 每一个Node都有具体的type，是一个枚举
      *      - enum DLNodeType {
-     *          HTML, Text, Dlight, For, If, Env
+     *          HTML, Text, Custom, For, If, Env
      *        }
      *      - 只提供基础类如HTML/Text，自定义类Dlight/Env，控制流类For/If
      *
@@ -49,37 +49,11 @@ export class DLNode {
     _$nodes: DLNode[] = []
     _$depIds: string[] = []
     
-    afterUpdateNewNodes(nodes: DLNode[]) {}
-    addAfterUpdateNewNodesFunc(func: (nodes: DLNode[]) => any) {
-        const preLifeCycle = this.afterUpdateNewNodes
-        this.afterUpdateNewNodes = function(nodes: DLNode[]) {
-            func.call(this, nodes)
-            preLifeCycle.call(this, nodes)
-        }
-    }
 
-    onUpdateNodes(prevNodes: DLNode[], nodes: DLNode[]) {}
-    addOnUpdateNodesFunc(func: (prevNodes: DLNode[], nodes: DLNode[]) => any) {
-        const prevonUpdateNodes = this.onUpdateNodes
-        this.onUpdateNodes = function(prevNodes: DLNode[], nodes: DLNode[]) {
-            func.call(this, prevNodes, nodes)
-            prevonUpdateNodes.call(this, prevNodes, nodes)
-        }
-    }
-
-    _$bindNodes(nodes?: DLNode[], bindNodes=true) {
-        if (nodes === undefined && !bindNodes) return
-        if (!bindNodes) {
-            this.afterUpdateNewNodes(nodes as any)
-            bindParentNode(nodes as any, this)
-            initNodes(nodes as any)
-            return
-        }
-        if (nodes !== undefined) this._$nodes = nodes
-        this.afterUpdateNewNodes(this._$nodes)
+    _$bindNodes() {
         bindParentNode(this._$nodes, this)
         initNodes(this._$nodes)
-       
+
     }
 
     constructor(nodeType: DLNodeType, id?: string) {

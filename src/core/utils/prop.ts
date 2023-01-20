@@ -1,8 +1,8 @@
-import { DLightNode } from "../Nodes"
+import { CustomNode } from "../Nodes"
 import { EnvNode } from "../Nodes"
 import { addDeps, addDep, deleteDep } from "./dep"
 
-export function addDLProp(dlNode: DLightNode, tag: string, key: string, propFunc: any | (() => any), dlScope?: DLightNode, listenDeps?: string[], isTwoWayConnected?: boolean) {
+export function addDLProp(dlNode: CustomNode, tag: string, key: string, propFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[], isTwoWayConnected?: boolean) {
     if (!(key in dlNode)) return
     if (!listenDeps) {
         (dlNode as any)[key] = propFunc
@@ -22,7 +22,7 @@ export function addDLProp(dlNode: DLightNode, tag: string, key: string, propFunc
 }
 
 
-export function addOneWayDLProp(dlScope: DLightNode, dlNode: DLightNode | EnvNode, key: string, propFunc: () => any, listenDeps: string[]) {
+export function addOneWayDLProp(dlScope: CustomNode, dlNode: CustomNode | EnvNode, key: string, propFunc: () => any, listenDeps: string[]) {
     const id = `${dlNode._$id}_${key}`
     dlNode._$depIds.push(id);
 
@@ -34,7 +34,7 @@ export function addOneWayDLProp(dlScope: DLightNode, dlNode: DLightNode | EnvNod
 
 }
 
-export function addTwoWayDLProp(dlScope: DLightNode, dlNode: DLightNode | EnvNode, key: string, propFunc: () => any, listenDeps: string[]) {
+export function addTwoWayDLProp(dlScope: CustomNode, dlNode: CustomNode | EnvNode, key: string, propFunc: () => any, listenDeps: string[]) {
     // ---- 如果是完整match且是state不是derived，比如 {flag: this.flag}
     //      则把子dl的flag参数当成state
     const id = `${dlNode._$id}_${key}`;
@@ -53,7 +53,7 @@ export function addTwoWayDLProp(dlScope: DLightNode, dlNode: DLightNode | EnvNod
     }
 }
 
-export function addHalfWayDLProp(dlScope: DLightNode, dlNode: DLightNode | EnvNode, key: string, propFunc: () => any, listenDeps: string[]) {
+export function addHalfWayDLProp(dlScope: CustomNode, dlNode: CustomNode | EnvNode, key: string, propFunc: () => any, listenDeps: string[]) {
     const id = `${dlNode._$id}_${key}`
     dlNode._$depIds.push(id);
 

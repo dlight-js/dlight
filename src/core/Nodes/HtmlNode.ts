@@ -1,4 +1,4 @@
-import { DLightNode } from './DlightNode';
+import { CustomNode } from './CustomNode';
 import {DLNode, DLNodeType} from './DLNode';
 
 import { EnvNode } from './EnvNode';
@@ -13,7 +13,7 @@ export class HtmlNode extends DLNode {
         this._$el = document.createElement(tag)
     }
     _$init(): void {
-        this._$bindNodes(this._$nodes)
+        this._$bindNodes()
         for (let node of this._$nodes) {
             node.render(this._$el)
         }
@@ -22,7 +22,7 @@ export class HtmlNode extends DLNode {
         this._$nodes.push(dlNode)
     }
 
-    _$addProp(key: string, valueOrFunc: any | (() => any), dlScope?: DLightNode, listenDeps?: string[]) {
+    _$addProp(key: string, valueOrFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]) {
         let func: (newValue: any) => any
 
         if (key[0] === "_") {

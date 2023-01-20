@@ -64,7 +64,7 @@ import { uid } from "../utils/util";
  *   -> initNodes()（递归init刚生成的nodes）
  *   -> this.Afterset（留的hook，目前只有.element()会调用)
  */
-export class DLightNode extends DLNode {
+export class CustomNode extends DLNode {
     _$deps: {[key: string]: {[key: string]: () => any}} = {}
     _$envNodes?: EnvNode[]
     _$derivedPairs?: {[key: string]: string[]}
@@ -74,7 +74,7 @@ export class DLightNode extends DLNode {
     Body: any
 
     constructor(tag?: string, id?: string) {
-        super(DLNodeType.Dlight, id)
+        super(DLNodeType.Custom, id)
         this._$tag = tag ?? this.constructor.name
     }
 
@@ -132,11 +132,12 @@ export class DLightNode extends DLNode {
     _$init() {
         this._$initDecorators()
         this.Preset()
-        this._$bindNodes(this.Body())
+        this._$nodes = this.Body()
+        this._$bindNodes()
         this.Afterset()
     }
 
-    _$addProp(key: string, propFunc: any | (() => any), dlScope?: DLightNode, listenDeps?: string[], isTwoWayConnected?: boolean) {
+    _$addProp(key: string, propFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[], isTwoWayConnected?: boolean) {
         addDLProp(this, "prop", key, propFunc, dlScope, listenDeps, isTwoWayConnected)
     }
 

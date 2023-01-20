@@ -1,26 +1,26 @@
-import { thisTypeAnnotation } from '@babel/types';
-import { addDeps } from '../utils/dep';
-import { loopEls, loopNodes } from '../utils/nodes';
-import { DLightNode } from './DlightNode';
-import {DLNode, DLNodeType} from './DLNode';
-import { HtmlNode } from './HtmlNode';
-import { TextNode } from './TextNode';
-import { appendNodesWithIndex, deleteNodesDeps, getFlowIndexFromParentNode, removeNodes } from './utils';
+import { addDeps } from '../../utils/dep';
+import { loopEls, loopNodes } from '../../utils/nodes';
+import { CustomNode } from '../CustomNode';
+import {DLNode, DLNodeType} from '../DLNode';
+import { HtmlNode } from '../HtmlNode';
+import { TextNode } from '../TextNode';
+import { appendNodesWithIndex, deleteNodesDeps, getFlowIndexFromParentNode, removeNodes } from '../utils';
+import { MutableNode } from './MutableNode';
 
 
 type NodeNodeType = DLNode | DLNode[]
 
-export class NodeNode extends DLNode {
+export class NodeNode extends MutableNode {
     nodeOrFunc?: () => NodeNodeType
     listenDeps?: string[]
-    dlScope?: DLightNode
+    dlScope?: CustomNode
 
     propFuncs: (() => any)[] = []
 
     propScope: ((el: HTMLElement, node: DLNode) => boolean) = () => true
     deepLoopEl = false
 
-    constructor(nodeOrFunc: NodeNodeType | (() => NodeNodeType),id?: string, dlScope?: DLightNode, listenDeps?: string[]) {
+    constructor(nodeOrFunc: NodeNodeType | (() => NodeNodeType),id?: string, dlScope?: CustomNode, listenDeps?: string[]) {
         super(DLNodeType.Node, id)
         if (!listenDeps) {
             this._$nodes = this.formatNodes(nodeOrFunc)
@@ -32,7 +32,7 @@ export class NodeNode extends DLNode {
         this._$nodes = this.formatNodes(this.nodeOrFunc!())
     }
 
-    _$addProp(key: string, valueOrFunc: any | (() => any), dlScope?: DLightNode, listenDeps?: string[]) {
+    _$addProp(key: string, valueOrFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]) {
         if (key === "_$propScope") {
             this.propScope = valueOrFunc
             return
@@ -43,8 +43,8 @@ export class NodeNode extends DLNode {
         }
         if (key === "onUpdateNodes") {
             loopNodes(this._$nodes, node => {
-                if (![DLNodeType.If, DLNodeType.For, DLNodeType.Node].includes(node._$nodeType)) return true
-                node.addOnUpdateNodesFunc(valueOrFunc)
+                if (![DLNodeType.If, DLNodeType.For, DLNodeType.Node].includes(node._$nodeType)) return true;
+                (node as MutableNode).addOnUpdateNodesFunc(valueOrFunc)
                 return true
             })
         }
@@ -70,7 +70,6 @@ export class NodeNode extends DLNode {
                     //      典型的如for循环，newNodes的时候也会bindNodes，也要加这些prop
                     case DLNodeType.For:
                     case DLNodeType.If:
-                    case DLNodeType.Dlight:
                     case DLNodeType.Node:
                         (node as any).addAfterUpdateNewNodesFunc((nodes: DLNode[]) => {
                             loopEls(nodes, (_: HTMLElement, node: HtmlNode) => {
@@ -138,7 +137,8 @@ export class NodeNode extends DLNode {
         removeNodes(this._$nodes)
 
         // ---- 创建新的
-        this._$bindNodes(this.formatNodes(this.nodeOrFunc!()))
+        this._$nodes = this.formatNodes(this.nodeOrFunc!())
+        this._$bindNewNodes(this._$nodes)
 
         // ---- 添加新的
         const parentEl = parentNode._$el

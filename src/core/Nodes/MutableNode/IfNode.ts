@@ -1,20 +1,21 @@
-import { addDeps } from "../utils/dep";
-import {DLightNode} from "./DlightNode";
-import { EnvNode } from "./EnvNode";
-import { HtmlNode } from "./HtmlNode";
-import { DLNode, DLNodeType } from "./DLNode";
-import { appendNodesWithIndex, deleteNodesDeps, getFlowIndexFromParentNode, removeNodes } from "./utils";
+import { addDeps } from "../../utils/dep";
+import {CustomNode} from "../CustomNode";
+import { EnvNode } from "../EnvNode";
+import { HtmlNode } from "../HtmlNode";
+import { DLNode, DLNodeType } from "../DLNode";
+import { appendNodesWithIndex, deleteNodesDeps, getFlowIndexFromParentNode, removeNodes } from "../utils";
+import { MutableNode } from "./MutableNode";
 
 interface ConditionPair {
     condition: () => boolean,
     node: () => DLNode[]
 }
 
-export class IfNode extends DLNode {
+export class IfNode extends MutableNode {
     conditionPairs: ConditionPair[] = []
     condition?: string
     listenDeps: string[] = []
-    dlScope?: DLightNode
+    dlScope?: CustomNode
     _$envNodes?: EnvNode[] = []
 
     constructor(id: string) {
@@ -25,7 +26,7 @@ export class IfNode extends DLNode {
         return this._$nodes.map(node => node._$el)
     }
 
-    _$addCond(condition: () => boolean, node: () => DLNode[], dlScope?: DLightNode, listenDeps?: string[]) {
+    _$addCond(condition: () => boolean, node: () => DLNode[], dlScope?: CustomNode, listenDeps?: string[]) {
         this.conditionPairs.push({condition, node})
         if (listenDeps) {
             if (!this.dlScope) this.dlScope = dlScope
@@ -55,7 +56,8 @@ export class IfNode extends DLNode {
                 break
             }
         }
-        this._$bindNodes(nodes)
+        this._$nodes = nodes
+        this._$bindNodes()
     }
 
     afterUpdateNewNodes(nodes: DLNode[]) {}
@@ -95,7 +97,7 @@ export class IfNode extends DLNode {
 
 
         const flowIndex = getFlowIndexFromParentNode(parentNode, this._$id)
-        this._$bindNodes()
+        this._$bindNewNodes(this._$nodes)
 
         const parentEl = parentNode._$el
         appendNodesWithIndex(this._$nodes, flowIndex, parentEl, parentEl.childNodes.length)

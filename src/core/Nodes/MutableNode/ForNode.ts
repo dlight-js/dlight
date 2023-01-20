@@ -1,12 +1,13 @@
-import { DLNode, DLNodeType } from "./DLNode";
-import {appendNodesWithIndex, deleteNodesDeps, removeNodes, getFlowIndexFromNodes, getFlowIndexFromParentNode} from './utils';
-import { DLightNode } from "./DLightNode";
-import { HtmlNode } from "./HtmlNode";
-import { EnvNode } from "./EnvNode";
-import { addDeps, deleteDeps } from "../utils/dep";
+import { DLNode, DLNodeType } from "../DLNode";
+import {appendNodesWithIndex, deleteNodesDeps, removeNodes, getFlowIndexFromNodes, getFlowIndexFromParentNode} from '../utils';
+import { CustomNode } from "../CustomNode";
+import { HtmlNode } from "../HtmlNode";
+import { EnvNode } from "../EnvNode";
+import { addDeps, deleteDeps } from "../../utils/dep";
+import { MutableNode } from "./MutableNode";
 
 
-export class ForNode extends DLNode {
+export class ForNode extends MutableNode {
     keys: any[] = []
     array: any[] = []
 
@@ -14,7 +15,7 @@ export class ForNode extends DLNode {
     nodeFunc?: (key: any, idx: number, forNode: any, updateIdx: number) => DLNode[]
     keyFunc?: () => any[]
     arrayFunc?: () => any[]
-    dlScope?: DLightNode
+    dlScope?: CustomNode
     listenDeps?: string[]
     _$envNodes?: EnvNode[] = []
     constructor(id: string) {
@@ -43,7 +44,7 @@ export class ForNode extends DLNode {
         this.keyFunc = keyFunc
     }
 
-    _$addArrayFunc(dlScope: DLightNode, arrayFunc: any | (() => any), listenDeps: string[]) {
+    _$addArrayFunc(dlScope: CustomNode, arrayFunc: any | (() => any), listenDeps: string[]) {
         this.dlScope = dlScope
         this.arrayFunc = arrayFunc
         this.listenDeps = listenDeps
@@ -114,7 +115,8 @@ export class ForNode extends DLNode {
                 this._$nodess.push(this.nodeFunc!(key, idx, this, this.updateIdx))
             }
         }
-        this._$bindNodes(this._$nodess.flat(1))
+        this._$nodes = this._$nodess.flat(1)
+        this._$bindNodes()
     }
 
     
@@ -126,7 +128,7 @@ export class ForNode extends DLNode {
 
     getNewNodes(key: any, idx: number) {
         const nodes = this.nodeFunc!(key, idx, this, this.updateIdx)
-        this._$bindNodes(nodes, false)
+        this._$bindNewNodes(nodes)
         return nodes
     }
 
@@ -243,7 +245,7 @@ export class ForNode extends DLNode {
 
 
     // ---- 识别特殊for
-    _$listen(dlScope: DLightNode, itemFunc: () => any, listenDeps: string[], updateFunc: any, id: string) {
+    _$listen(dlScope: CustomNode, itemFunc: () => any, listenDeps: string[], updateFunc: any, id: string) {
         // ---* 必须把id放进去，不然删除不掉
         this._$depIds.push(id)
         addDeps(dlScope, listenDeps, id, () => {

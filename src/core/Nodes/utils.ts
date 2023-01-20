@@ -1,4 +1,4 @@
-import {DLightNode} from "./DLightNode";
+import {CustomNode} from "./CustomNode";
 import { DLNode, DLNodeType } from "./DLNode";
 import { HtmlNode } from "./HtmlNode";
 import { deleteDeps } from "../utils/dep";
@@ -31,7 +31,7 @@ export function removeNodes(nodes: DLNode[]) {
  * @param nodes 
  * @param dlScope 
  */
-export function deleteNodesDeps(nodes: DLNode[], dlScope: DLightNode) {
+export function deleteNodesDeps(nodes: DLNode[], dlScope: CustomNode) {
     loopNodes(nodes, (node: DLNode) => {
         deleteDeps(dlScope, node._$id)
         for (let i of node._$depIds) {
@@ -114,8 +114,8 @@ function getFlowIndexFromNodesTillId(nodes: DLNode[], stopId: string) {
  */
 function runDlightNodesLifecycle(nodes: DLNode[], lifecysle: "willMount"|"didMount"|"willUnmount"|"didUnmount") {
     loopNodes(nodes, (node: DLNode) => {
-        if (node._$nodeType === DLNodeType.Dlight) {
-            (node as DLightNode)[lifecysle]()
+        if (node._$nodeType === DLNodeType.Custom) {
+            (node as CustomNode)[lifecysle]()
         }
         return true
     })

@@ -1,13 +1,13 @@
 import { HtmlNode } from "./Nodes"
-import { DLightNode } from "./Nodes/DlightNode"
+import { CustomNode } from "./Nodes/CustomNode"
 
 export * from "./Nodes"
 export * from "./utils/nodes"
 
-export const View = DLightNode
+export const View = CustomNode
 
 
-export function render(selectName: string, dl: DLightNode) {
+export function render(selectName: string, dl: CustomNode) {
     const appNode = new HtmlNode("div")
     appNode._$addNode(dl)
     appNode._$addProp("id", selectName)
