@@ -8,10 +8,14 @@ import babelTraverse from "@babel/traverse"
 import * as t from "@babel/types"
 import {isMemberInFunction} from "../babel/nodeHelper";
 import {BodyStringBuilder} from './bodyBuilder';
-const parse = babel.parse
-const traverse = babelTraverse.default
+const parse = (code: string) => babel.parse(code, babelConfig)
 const generate = (ast: any) => babelGenerate.default(ast).code
+const traverse = babelTraverse.default
 
+const babelConfig = {
+    filename: "*.ts",
+    presets: ["@babel/preset-typescript"]
+}
 
 export function geneDepsStr(listenDeps: string[]) {
     return "[" + listenDeps.map(v=>"\""+v+"\"").join(", ") + "]"
@@ -22,6 +26,7 @@ export function uid() {
 }
 
 export function geneDeps(valueStr: string, depChain: string[], otherDeps: string[]=[]) {
+    console.log("fuck", valueStr)
     const ast = parse(valueStr)
     let deps: string[] = []
     traverse(ast, {
@@ -34,6 +39,7 @@ export function geneDeps(valueStr: string, depChain: string[], otherDeps: string
         }
     })
     deps = [...new Set([...deps, ...otherDeps])]
+    console.log("shit")
 
     return deps
 }

@@ -14,12 +14,12 @@ export class EnvNode extends DLNode {
     }
 
     _$addNode(dlNode: DLNode) {
-        this._$dlNodes.push(dlNode)
+        this._$nodes.push(dlNode)
     }
 
     _$addProp(key: string, propOrFunc: any | (() => any), dlScope?: DLightNode, listenDeps?: string[]) {
         // ---- 每一次加一个prop都相当于给底下所有的DlightNode加一个prop，其他类型的就遍历直到dlight就
-        this.addNodesProp(this._$dlNodes, key, propOrFunc, dlScope, listenDeps)
+        this.addNodesProp(this._$nodes, key, propOrFunc, dlScope, listenDeps)
     }
 
     addNodesProp(nodes: DLNode[], key: string, propOrFunc: any | (() => any), dlScope?: DLightNode, listenDeps?: string[]) {
@@ -36,7 +36,7 @@ export class EnvNode extends DLNode {
     }
 
     render(parentEl: HTMLElement) {
-        for (let node of this._$dlNodes) {
+        for (let node of this._$nodes) {
             node.render(parentEl)
         }
     }

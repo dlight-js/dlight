@@ -1,5 +1,5 @@
 // // @ts-ignore
-import {ToDoApp} from "./example/ToDoApp/index.tsd";
+// import {ToDoApp} from "./example/ToDoApp/index.tsd";
 // @ts-ignore
 // import {NestedElement} from "./example/performance";
 // // // @ts-ignore
@@ -16,15 +16,16 @@ import {ToDoApp} from "./example/ToDoApp/index.tsd";
 // export {}
 
 // // @ts-ignore
-import {TestTest} from "./test.tsd"
+// import {TestTest} from "./test.tsd"
 import {render} from "./core";
 // // @ts-ignore
 // import {SubElement} from "./example/test.tsd"
 // // @ts-ignore
-// import {Benchmark} from "./example/performance/benchmark.tsd"
-import {Benchmark} from "./example/performance/benchmark.tsx";
+import {Benchmark} from "./example/performance/benchmark.tsd"
+// import {Benchmark} from "./example/performance/benchmark.tsx";
 // // console.log(t2-t1)
-import {HH} from "./test"
+// import {HH} from "./test"
+import {NodeTest} from "./example/features/node.tsd"
 import {TestTest} from "./test.tsd";
 
 render("#app", new TestTest())

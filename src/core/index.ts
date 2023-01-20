@@ -2,11 +2,10 @@ import { HtmlNode } from "./Nodes"
 import { DLightNode } from "./Nodes/DlightNode"
 
 export * from "./Nodes"
-export {loopNodes} from "./utils/nodes"
+export * from "./utils/nodes"
 
 export const View = DLightNode
 
-export {addLifeCycle} from "./Nodes/DlightNode"
 
 export function render(selectName: string, dl: DLightNode) {
     const appNode = new HtmlNode("div")

@@ -1,6 +1,5 @@
-import {ParserNode} from "../ParserNode";
-
-
+import { uid } from "../generator/utils";
+import { ParserNode } from "../ParserNode";
 
 export class DlightParser {
     code: string
@@ -56,7 +55,7 @@ export class DlightParser {
         if (content.trim() === "") {
             content = "true"
         }
-        this.el.kv.dotProps.push({key, value: content})
+        this.el.kv.props.push({key, value: content})
         this.erase()
     }
 
@@ -136,7 +135,7 @@ export class DlightParser {
 
     eatContent() {
         this.eatParentheses()
-        const content =  this.token
+        const content = this.token
         this.erase()
         return content
     }
@@ -159,6 +158,10 @@ export class DlightParser {
             }
 
             if (this.token.trim() !== "") {
+                if (["Node"].includes(this.token)) {
+                    this.resolveNode()
+                    continue
+                }
                 if (["If", "ElseIf", "Else"].includes(this.token)) {
                     this.resolveIf(this.token)
                     continue
@@ -217,6 +220,38 @@ export class DlightParser {
         }
 
         this.parserNode.addChild(newNode)
+    }
+
+    resolveNode() {
+        const newNode =  new ParserNode(this.token)
+        newNode.kv.nodes = {}
+        this.erase()
+        this.eatSpace()
+        this.eat()  // eat (
+        // ---- = this.eatParentheses
+        let depth = 1
+        while (this.ok()) {
+            this.eat()
+            if (this.c === "(") {
+                depth++
+            } else if (this.c === ")") {
+                depth--
+                if (depth === 0) break
+            } else if (this.c === "{") {
+                const id = uid()
+                const preToken = this.token
+                this.erase()
+                newNode.kv.nodes[id] = this.eatSubEl()
+                this.token = preToken + id
+                continue
+            }
+            this.add()
+        }
+        const content = this.token
+        newNode.kv.content = content.replaceAll("\n", " ")
+        this.parserNode.addChild(newNode)
+
+        this.erase()
     }
 
     // ---- if

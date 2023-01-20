@@ -1,0 +1,53 @@
+import {View, loopNodes, DLNode, DLNodeType, toEls} from "@/core"
+
+interface ElementInfo {
+    el: HTMLElment;
+  pos: BoundingRect;
+  newPos?: BoundingRect;
+  new?: boolean;
+  moved?: boolean;
+};
+
+
+export class Transition extends View {
+    @Prop duration = 0.5
+    durationMili = this.duration * 1000
+    @State prevElInfos
+    getElInfos = () => {
+        return toEls(this._$children).map(el => ({
+            el,
+            pos: el.getBoundingClientRect()
+        }))
+    }
+
+    didMount() {
+        setTimeout(() => {
+            this.prevElInfos = this.getElInfos()
+        }, 0)
+
+    }
+
+    Body() { 
+        Node(this._$children)
+            ._$deepLoopEl(true)
+            ._transition(`all ${this.duration}s`)
+            .onUpdateNodes((prevNodes, nodes)=> {
+                const currElInfos = this.getElInfos()
+                const currEls = currElInfos.map(({el}) => el)
+                for (let {el, pos} of this.prevElInfos) {
+                    if (currEls.includes(el)) {
+                        const currPos = currElInfos.filter(({el:currEl})=>el===currEl)[0].pos
+                        const moveY = pos.y - currPos.y
+                        el.style.transform = `translateY(${moveY}px)`               
+                        el.style.transitionDuration = "0s"
+                        setTimeout(() => {
+                            el.style.transform = ''
+                            el.style.transitionDuration = `${this.duration}s`
+                        }, 0)
+                    }
+                }
+                this.prevElInfos = currElInfos
+            })        
+    }
+}
+

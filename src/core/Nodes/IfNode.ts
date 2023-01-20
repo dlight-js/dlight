@@ -22,7 +22,7 @@ export class IfNode extends DLNode {
     }
 
     get _$el() {
-        return this._$dlNodes.map(node => node._$el)
+        return this._$nodes.map(node => node._$el)
     }
 
     _$addCond(condition: () => boolean, node: () => DLNode[], dlScope?: DLightNode, listenDeps?: string[]) {
@@ -58,43 +58,54 @@ export class IfNode extends DLNode {
         this._$bindNodes(nodes)
     }
 
+    afterUpdateNewNodes(nodes: DLNode[]) {}
+    addAfterUpdateNewNodesFunc(func: (nodes: DLNode[]) => any) {
+        const preLifeCycle = this.afterUpdateNewNodes
+        this.afterUpdateNewNodes = function(nodes: DLNode[]) {
+            func.call(this, nodes)
+            preLifeCycle.call(this, nodes)
+        }
+    }
+
     update(parentNode: HtmlNode) {
-        let nodes: DLNode[] = []
+        const prevNodes = this._$nodes
         const condition = this.condition
         for (let conditionPair of this.conditionPairs) {
             if (conditionPair.condition()) {
                 if (this.condition !== conditionPair.condition.toString()) {
                     // ---- 改变状态了，清除对应deps
                     this.condition = conditionPair.condition.toString()
-                    nodes = conditionPair.node()
+                    this._$nodes = conditionPair.node()
                 } else {
                     // ---- 和之前状态一样就直接不管
-                    nodes = this._$dlNodes
                 }
                 break
             }
         }
 
-        if (this._$nodes.length !== 0 && nodes.length === 0) {
+        if (prevNodes.length !== 0 && this._$nodes.length === 0) {
             // ---- 以前有，现在没有
             this.condition = "[none]"
         }
 
         if (condition === this.condition) return
-        deleteNodesDeps(this._$dlNodes, this.dlScope!)
+        deleteNodesDeps(prevNodes, this.dlScope!)
         // ---- 原本有全删掉
-        removeNodes(this._$dlNodes)
+        removeNodes(prevNodes)
 
 
         const flowIndex = getFlowIndexFromParentNode(parentNode, this._$id)
-        this._$bindNodes(nodes)
+        this._$bindNodes()
 
         const parentEl = parentNode._$el
-        appendNodesWithIndex(this._$dlNodes, flowIndex, parentEl, parentEl.childNodes.length)
+        appendNodesWithIndex(this._$nodes, flowIndex, parentEl, parentEl.childNodes.length)
+
+
+        this.onUpdateNodes(prevNodes, this._$nodes)
     }
 
     render(parentEl: HTMLElement) {
-        for (let node of this._$dlNodes) {
+        for (let node of this._$nodes) {
             node.render(parentEl)
         }
     }

@@ -23,9 +23,9 @@ function buildData(count) {
 class Row extends View {
     @Prop id: string
     @Prop label: string
-    @DotProp className: string
-    @DotProp selectRow: any
-    @DotProp deleteRow: any
+    @Prop className: string
+    @Prop selectRow: any
+    @Prop deleteRow: any
 
     Body() {
         tr {

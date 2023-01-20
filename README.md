@@ -70,8 +70,8 @@ re-calc on this weekend
  *                  .prop1(xxx)
  *                  .prop2(xxx)
  *             class MyComp extend View {
- *                 @DotProp prop1 = defaultProp1
- *                 @DotProp prop2
+ *                 @Prop prop1 = defaultProp1
+ *                 @Prop prop2
  *             }
  *          1. MyComp(props)
  *             class MyComp extend View {
@@ -123,7 +123,7 @@ re-calc on this weekend
 - [ ] animation
 - [ ] error hints
 - [x] deps optimization
-- [ ] PropState change to PropState/DotPropState/EnvState
+- [ ] PropState change to PropState/EnvState
 - [x] add lifeCycle to htmlNode
 
 * plugins

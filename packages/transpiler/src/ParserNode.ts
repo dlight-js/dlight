@@ -3,7 +3,6 @@ export class ParserNode {
     tag: string = ""
     kv: {[key: string]: any} = {
         props: [],
-        dotProps: []
     }
     children: ParserNode[] = []
     parent?: ParserNode

@@ -1,4 +1,4 @@
-import {View, Prop, DotProp} from "@/core"
+import {View, Prop, Prop} from "@/core"
 import {Task} from "./Task"
 
 export class TaskCard extends View {

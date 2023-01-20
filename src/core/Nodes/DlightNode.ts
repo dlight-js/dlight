@@ -32,8 +32,8 @@ import { uid } from "../utils/util";
  *                  .prop1(xxx)
  *                  .prop2(xxx)
  *             class MyComp extend View {
- *                 @DotProp prop1 = defaultProp1
- *                 @DotProp prop2
+ *                 @Prop prop1 = defaultProp1
+ *                 @Prop prop2
  *             }
  *          1. MyComp(props)
  *             class MyComp extend View {
@@ -79,7 +79,7 @@ export class DLightNode extends DLNode {
     }
 
     get _$el() {
-        return this._$dlNodes.map(node => node._$el)
+        return this._$nodes.map(node => node._$el)
     }
 
     _$addAfterset(func: () => any) {
@@ -140,29 +140,25 @@ export class DLightNode extends DLNode {
         addDLProp(this, "prop", key, propFunc, dlScope, listenDeps, isTwoWayConnected)
     }
 
-    _$addDotProp(key: string, propFunc: any | (() => any), dlScope?: DLightNode, listenDeps?: string[], isTwoWayConnected?: boolean) {
-        addDLProp(this, "dotProp", key, propFunc, dlScope, listenDeps, isTwoWayConnected)
-    }
-    
-
-    _$addEnv(key: string, propFunc: any | (() => any), dlScope?: DLightNode, listenDeps?: string[], isTwoWayConnected?: boolean) {
-        addDLProp(this, "env", key, propFunc, dlScope, listenDeps, isTwoWayConnected)
-    }
-
     render(parentEl: HTMLElement) {
-        this.willAppear()
-        for (let node of this._$dlNodes) {
+        this.willMount()
+        for (let node of this._$nodes) {
             node.render(parentEl)
         }
-        this.didAppear()
+        this.didMount()
     }
-}
 
+    // ---- lifecycles
+    willMount() {}
+    didMount() {}
+    willUnmount() {}
+    didUnmount() {}
 
-export function addLifeCycle(dlNode: DLightNode, func: () => any, lifeCycleName: "willAppear" | "didAppear" | "willDisappear" | "didDisappear") {
-    const preLifeCycle = dlNode[lifeCycleName]
-    dlNode[lifeCycleName] = function() {
-        func.call(this)
-        preLifeCycle.call(this)
+    _$addLifeCycle(func: () => any, lifeCycleName: "willMount" | "didMount" | "willUnmount" | "didUnmount") {
+        const preLifeCycle = this[lifeCycleName]
+        this[lifeCycleName] = function() {
+            func.call(this)
+            preLifeCycle.call(this)
+        }
     }
 }

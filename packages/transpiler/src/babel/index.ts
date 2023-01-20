@@ -13,7 +13,7 @@ import * as t from "@babel/types";
 import { resolveParserNode } from "../generator";
 import { ParserNode } from "../parserNode";
 
-const parse = babel.parse
+const parse = (code: string) => babel.parse(code, babelConfig)
 const generate = (ast: any) => babelGenerate.default(ast).code
 const traverse = babelTraverse.default
 
@@ -25,7 +25,7 @@ const babelConfig = {
 
 
 export function parseDlightFile(alteredFileCode: string, bodyMap: {[key: string]:ParserNode}) {
-    const ast = parse(alteredFileCode, babelConfig)
+    const ast = parse(alteredFileCode)
 
     let classDeclarationNode: t.ClassDeclaration | null = null
     let classBodyNode: t.ClassBody | null = null
@@ -61,11 +61,17 @@ export function parseDlightFile(alteredFileCode: string, bodyMap: {[key: string]
                 // ---- body处理
                 const bodyId = (node.value as any).value
                 const newBody = resolveParserNode(bodyMap[bodyId], depChain)
-                node.value = t.arrowFunctionExpression([], BabelParser.functionBlockStatement(`
+                let bodyFunc = `
                     function tmp() {
                         ${newBody}
                     }
-                `).body)
+                `
+                bodyFunc = babel.transform(bodyFunc, {
+                    filename: "*.ts",
+                    presets: ["@babel/preset-typescript"]
+                }).code
+
+                node.value = t.arrowFunctionExpression([], BabelParser.functionBlockStatement(bodyFunc).body)
                 return
             }
 
@@ -101,7 +107,7 @@ export function parseDlightFile(alteredFileCode: string, bodyMap: {[key: string]
                         DecoratorResolver.state(node, classBodyNode!)
                         break
                     }
-                    if (["Prop", "DotProp", "Environment"].includes(decoratorName)) {
+                    if (["Prop", "Environment"].includes(decoratorName)) {
                         depChain.push((node.key as any).name)
                         NodeHelper.pushDep((node.key as any).name, depsNode!, classBodyNode!)
                         DecoratorResolver.prop(node, classBodyNode!, decoratorName as any)

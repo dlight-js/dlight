@@ -1,4 +1,4 @@
-import {View, Derived, DotProp, Effect, Prop, PropDerived, State, Environment} from "@/core";
+import {View, Derived, Prop, Effect, Prop, PropDerived, State, Environment} from "@/core";
 
 export class ForTest extends View {
     @State count = 2

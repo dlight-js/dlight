@@ -14,12 +14,12 @@ export class HtmlNode extends DLNode {
     }
     _$init(): void {
         this._$bindNodes(this._$nodes)
-        for (let node of this._$dlNodes) {
+        for (let node of this._$nodes) {
             node.render(this._$el)
         }
     }
     _$addNode(dlNode: DLNode) {
-        this._$dlNodes.push(dlNode)
+        this._$nodes.push(dlNode)
     }
 
     _$addProp(key: string, valueOrFunc: any | (() => any), dlScope?: DLightNode, listenDeps?: string[]) {
@@ -50,9 +50,25 @@ export class HtmlNode extends DLNode {
         addDeps(dlScope!, listenDeps!, `${this._$id}_${key}`, depFunc)
     }
 
-    render(parentEl: HTMLElement) {
-        this.willAppear()
-        parentEl.appendChild(this._$el)
-        this.didAppear()
+    // ---- lifecycles
+    willAppear(el?: HTMLElement, props?: HTMLLifeCycleProp): any {}
+    didAppear(el?: HTMLElement, props?: HTMLLifeCycleProp): any {}
+    willDisappear(el?: HTMLElement, props?: HTMLLifeCycleProp): any {}
+    didDisappear(el?: HTMLElement, props?: HTMLLifeCycleProp): any {}
+    _$addLifeCycle(func: (el?: HTMLElement, props?: HTMLLifeCycleProp) => any, lifeCycleName: "willAppear" | "didAppear" | "willDisappear" | "didDisappear") {
+        const preLifeCycle = this[lifeCycleName]
+        this[lifeCycleName] = function(el?: HTMLElement, props?: HTMLLifeCycleProp) {
+            preLifeCycle.call(this, el, props)
+            return func.call(this, el, props)
+        }
     }
+    render(parentEl: HTMLElement) {
+        this.willAppear(this._$el, {})
+        parentEl.appendChild(this._$el)
+        this.didAppear(this._$el, {})
+    }
+}
+
+export interface HTMLLifeCycleProp {
+    [key: string]: any
 }

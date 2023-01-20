@@ -32,6 +32,7 @@ export class Generator {
     }
 
     resolveParserNode(parserNode: ParserNode, idx: number, idAppendixNum: number=0, appendix="") {
+        if (parserNode.tag === "Node") return this.resolveNode(parserNode, idx, idAppendixNum, appendix)
         if (parserNode.tag === "If") return this.resolveIf(parserNode, idx, idAppendixNum, appendix)
         if (parserNode.tag === "For") return this.resolveFor(parserNode, idx, idAppendixNum, appendix)
         if (parserNode.tag === "TextNode") return this.resolveText(parserNode, idx, idAppendixNum, appendix)
@@ -164,13 +165,13 @@ export class Generator {
         body.add(`const ${nodeName} = new _$.HtmlNode("${parserNode.tag}", ${id})`)
 
         // ---- properties
-        for (let {key, value} of [...parserNode.kv.props, ...parserNode.kv.dotProps]) {
+        for (let {key, value} of parserNode.kv.props) {
             if (key === "element") {
                 body.add(`${value} = ${nodeName}._$el`)
                 continue
             }
             if (["willAppear", "didAppear", "willDisappear", "didDisappear"].includes(key)) {
-                body.add(`_$.addLifeCycle(${nodeName}, ${value}, "${key}")`)
+                body.add(`${nodeName}._$addLifeCycle(${value}, "${key}")`)
                 continue
             }
             if (key === "_$content") {
@@ -209,8 +210,8 @@ export class Generator {
                 body.add(`${nodeName}._$addAfterset(() => ${value} = ${nodeName}._$el)`)
                 continue
             }
-            if (["willAppear", "didAppear", "willDisappear", "didDisappear"].includes(key)) {
-                body.add(`_$.addLifeCycle(${nodeName}, ${value}, "${key}")`)
+            if (["willMount", "didMount", "willUnmount", "didUnmount"].includes(key)) {
+                body.add(`${nodeName}._$addLifeCycle(${value}, "${key}")`)
                 continue
             }
 
@@ -220,26 +221,6 @@ export class Generator {
                 continue
             }
             body.add(`${nodeName}._$addProp("${key}", ${value})`)
-
-        }
-
-        // ---- dotProps
-        for (let {key, value} of parserNode.kv.dotProps) {
-            if (key === "element") {
-                body.add(`${nodeName}._$addAfterset(() => ${value} = ${nodeName}._$el)`)
-                continue
-            }
-            if (["willAppear", "didAppear", "willDisappear", "didDisappear"].includes(key)) {
-                body.add(`_$.addLifeCycle(${nodeName}, ${value}, "${key}")`)
-                continue
-            }
-
-            const listenDeps = this.geneDeps(value as string)
-            if (listenDeps.length > 0) {
-                body.add(`${nodeName}._$addDotProp("${key}", () => (${value}), this, ${geneDepsStr(listenDeps)}, ${geneIsTwoWayConnected(value)})`)
-                continue
-            }
-            body.add(`${nodeName}._$addDotProp("${key}", ${value})`)
 
         }
 
@@ -286,6 +267,41 @@ export class Generator {
         return body
     }
 
+    resolveNode(parserNode: ParserNode, idx: number, idAppendixNum: number=0, appendix="") {
+        const id = geneId(idAppendixNum, appendix)
+        const body = new BodyStringBuilder()
+        let content = parserNode.kv.content
+        const nodes = parserNode.kv.nodes
+
+        const nodeName = `node${idx}`
+        for (let [i, subParserNode] of Object.entries(nodes) as any) {
+            const subBody = new BodyStringBuilder()
+            subBody.add("(function(){")
+            subBody.add(this.generate(subParserNode))
+            subBody.add("}.call(this))")
+            content = content.replace(i, subBody.value)
+        }
+
+        const listenDeps = this.geneDeps(content)
+        if (listenDeps.length > 0) {
+            body.add(`const ${nodeName} = new _$.NodeNode(() => ${content}, ${id}, this, ${geneDepsStr(listenDeps)})`)
+        } else {
+            body.add(`const ${nodeName} = new _$.NodeNode(${content}, ${id})`)
+        }
+
+        // ---- forward props
+        for (let {key, value} of parserNode.kv.props) {
+            const listenDeps = this.geneDeps(value as string)
+            if (listenDeps.length > 0) {
+                body.add(`${nodeName}._$addProp("${key}", () => (${value}), this, ${geneDepsStr(listenDeps)}, ${geneIsTwoWayConnected(value)})`)
+                continue
+            }
+            body.add(`${nodeName}._$addProp("${key}", ${value})`)
+
+        }
+
+        return body
+    }
 
 }
 

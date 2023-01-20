@@ -10,9 +10,6 @@ export class TextNode extends DLNode {
             return
         }
 
-        addDeps(dlScope!, listenDeps, this._$id, (newValue: string) => {
-            this._$el.nodeValue = newValue
-        })
         textOrFunc = textOrFunc as (() => string)
         let prevValue: any = textOrFunc()
         this._$el = document.createTextNode(prevValue)

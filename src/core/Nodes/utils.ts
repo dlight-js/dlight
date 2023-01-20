@@ -2,7 +2,9 @@ import {DLightNode} from "./DLightNode";
 import { DLNode, DLNodeType } from "./DLNode";
 import { HtmlNode } from "./HtmlNode";
 import { deleteDeps } from "../utils/dep";
-import { loopNodes } from "../utils/nodes";
+import { loopNodes, loopEls } from "../utils/nodes";
+
+
 
 
 /**
@@ -10,15 +12,17 @@ import { loopNodes } from "../utils/nodes";
  * @param nodes 
  */
 export function removeNodes(nodes: DLNode[]) {
-    willDisappearDlightNodes(nodes)
-    loopNodes(nodes, (node: DLNode) => {
-        if ([DLNodeType.HTML, DLNodeType.Text].includes(node._$nodeType)) {
-            node._$el.remove()
-            return false
+    willUnmountDlightNodes(nodes)
+    loopEls(nodes, (el: HTMLElement, node: HtmlNode) => {
+        if (node._$nodeType === DLNodeType.HTML) {
+            node.willDisappear(el)
         }
-        return true
+        el.remove()
+        if (node._$nodeType === DLNodeType.HTML) {
+            node.didDisappear(el)
+        }
     })
-   didDisappearDlightNodes(nodes)
+   didUnmountDlightNodes(nodes)
 }
 
 
@@ -49,32 +53,28 @@ export function deleteNodesDeps(nodes: DLNode[], dlScope: DLightNode) {
  */
 export function appendNodesWithIndex(nodes: DLNode[], index: number, parentEl: HTMLElement, lengthIn?: number): [number, number] {
     let length = lengthIn ?? parentEl.childNodes.length
-    willAppearDlightNodes(nodes)
-    loopNodes(nodes, (node: DLNode) => {
-        if ([DLNodeType.Text, DLNodeType.HTML].includes(node._$nodeType)) {
-            if (index === length) {
-                parentEl!.appendChild(node._$el)
-            } else {
-                parentEl!.insertBefore(node._$el, parentEl.childNodes[index])
-            }
-            index ++
-            length ++
-            return false
+    willMountDlightNodes(nodes)
+
+    loopEls(nodes, (el: HTMLElement, node: HtmlNode) => {
+        const sibling = parentEl.childNodes[index] as any
+        if ([DLNodeType.HTML].includes(node._$nodeType)) {
+            node.willAppear(el)
         }
-        return true
+        if (index === length) {
+            parentEl!.appendChild(el)
+        } else {
+            parentEl!.insertBefore(el, sibling)
+        }
+        if ([DLNodeType.HTML].includes(node._$nodeType)) {
+            node.didAppear(el)
+        }
+        index ++
+        length ++
     })
-    didAppearDlightNodes(nodes)
+    didMountDlightNodes(nodes)
     return [index, length]
 }
 
-export function replaceNodesWithFirstElement(nodes: DLNode[], newNodes: DLNode[]) {
-    const firstEl = nodesToFlatEls(nodes)[0]
-    if (!firstEl) return false
-    willAppearDlightNodes(newNodes)
-    firstEl.replaceWith(...nodesToFlatEls(newNodes))
-    didAppearDlightNodes(newNodes)
-    return true
-}
 
 /**
  * flowCursor相关，index表明前面有n个普通HTMLElement
@@ -83,14 +83,15 @@ export function replaceNodesWithFirstElement(nodes: DLNode[], newNodes: DLNode[]
  * @returns 
  */
 export function getFlowIndexFromParentNode(parentNode: HtmlNode, stopId: string) {
-    const [index, _] = getFlowIndexFromNodesTillId(parentNode._$dlNodes, 0, stopId)
-    return index
+    return getFlowIndexFromNodesTillId(parentNode._$nodes, stopId)
 }
+
 export function getFlowIndexFromNodes(nodes: DLNode[]) {
-    const [index, _] = getFlowIndexFromNodesTillId(nodes, 0, "neverStop")
-    return index
+    return getFlowIndexFromNodesTillId(nodes, "neverStop")
 }
-function getFlowIndexFromNodesTillId(nodes: DLNode[], index: number, stopId: string): [number, boolean] {
+
+function getFlowIndexFromNodesTillId(nodes: DLNode[], stopId: string) {
+    let index = 0
     let stop = false
     loopNodes(nodes, (node: DLNode) => {
         if (stop) return false
@@ -103,24 +104,7 @@ function getFlowIndexFromNodesTillId(nodes: DLNode[], index: number, stopId: str
         }
         return true
     })
-    return [index, stop]
-}
-
-/**
- * 把DLNodes全部转化成HTMLElements来返回，在执行这个之前需要init
- * @param nodes 
- * @returns 
- */
-export function nodesToFlatEls(nodes: DLNode[]) {
-    const els: any[] = []
-    loopNodes(nodes, (node: DLNode) => {
-        if ([DLNodeType.Text, DLNodeType.HTML].includes(node._$nodeType)) {
-            els.push(node._$el)
-            return false
-        }
-        return true
-    })
-    return els
+    return index
 }
 
 
@@ -128,28 +112,27 @@ export function nodesToFlatEls(nodes: DLNode[]) {
  * 四个生命周期
  * @param nodes 
  */
-function runDlightNodesLifecycle(nodes: DLNode[], lifecysle: "willAppear"|"didAppear"|"willDisappear"|"didDisappear") {
+function runDlightNodesLifecycle(nodes: DLNode[], lifecysle: "willMount"|"didMount"|"willUnmount"|"didUnmount") {
     loopNodes(nodes, (node: DLNode) => {
-        if ([DLNodeType.Dlight, DLNodeType.HTML].includes(node._$nodeType)) {
-            node[lifecysle]()
-            return false
+        if (node._$nodeType === DLNodeType.Dlight) {
+            (node as DLightNode)[lifecysle]()
         }
         return true
     })
 }
 
-function willAppearDlightNodes(nodes: DLNode[]) {
-    runDlightNodesLifecycle(nodes, "willAppear")
+function willMountDlightNodes(nodes: DLNode[]) {
+    runDlightNodesLifecycle(nodes, "willMount")
 }
 
-function didAppearDlightNodes(nodes: DLNode[]) {
-    runDlightNodesLifecycle(nodes, "didAppear")
+function didMountDlightNodes(nodes: DLNode[]) {
+    runDlightNodesLifecycle(nodes, "didMount")
 }
 
-function willDisappearDlightNodes(nodes: DLNode[]) {
-    runDlightNodesLifecycle(nodes, "willDisappear")
+function willUnmountDlightNodes(nodes: DLNode[]) {
+    runDlightNodesLifecycle(nodes, "willUnmount")
 }
 
-function didDisappearDlightNodes(nodes: DLNode[]) {
-    runDlightNodesLifecycle(nodes, "didDisappear")
+function didUnmountDlightNodes(nodes: DLNode[]) {
+    runDlightNodesLifecycle(nodes, "didUnmount")
 }

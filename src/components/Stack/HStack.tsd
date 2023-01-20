@@ -1,55 +1,37 @@
 import {View, HtmlNode, DLNode, loopNodes, DLNodeType} from "@/core"
-import {bindParentNode, initNodes} from "@/core/Nodes/utils";
 import {Nodes} from "../Node";
+import {VAlignment} from "./types"
 
 export class HStack extends View {
     @Prop spacing=1
-    @Prop alignment: "top" | "center" | "bottom" = "top"
+    @Prop alignment: VAlignment = "top"
     @Prop width = "100%"
     @Prop height = "max-content"
-
-    loopHTMLChildren = (nodes: DLNode[]) => {
-        for (let node of nodes) {
-            
+    margin = function(){
+        let margin: string = "auto"
+        if (this.alignment === "top") {
+            margin = "0 0 auto 0"
+        } else if (this.alignment === "bottom") {
+            margin = "auto 0 0 0"
+        } else if (this.alignment === "center") {
+            margin = "auto 0"
         }
-    }
-
-    childrenLayout = (alignment: string) => {
-        loopNodes(this._$children, (node: DLNode) => {
-            if (node._$tag === "Spacer") {
-                node._$dlNodes[0]._$addProp("_flexGrow", "1")
-                return false
-            }
-            if (node._$nodeType !== DLNodeType.HTML) return true
-            node._$addProp("_flexShrink", "0")
-            let margin: string = "auto"
-            if (alignment === "top") {
-                margin = "0 0 auto 0"
-            } else if (alignment === "bottom") {
-                margin = "auto 0 0 0"
-            } else if (alignment === "center") {
-                margin = "auto 0"
-            }
-            node._$addProp("_margin", margin)
-            return false
-        })
-    }
-
-    // ---- 第一次进来要用Afterset来调用，因为子node还没有配置好
-    Afterset() {
-        this.childrenLayout(this.alignment)
-    }
-    firstIn = true
-    manualUpdateChildren = function() {
-        if (this.firstIn) return
-        this.firstIn = false
-        this.childrenLayout(this.alignment)
+        return margin
     }.call(this)
 
 
     Body() {
         div {
-            Nodes(this._$children)
+            For (let child of this._$children) {
+                If (child._$tag === "Spacer") {
+                    Node(child)
+                        ._flexGrow(1)
+                } Else {
+                    Node(child)
+                        ._flexShrink(0)
+                        ._margin(this.margin)
+                }
+            }
         }
             ._height(this.height)
             ._width(this.width)

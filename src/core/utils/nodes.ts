@@ -1,4 +1,4 @@
-import { DLNode, DLNodeType } from "../Nodes"
+import { DLNode, DLNodeType, HtmlNode } from "../Nodes"
 
 export function initNodes(nodes: DLNode[] | DLNode[][]) {
     for (let node of nodes) {
@@ -21,26 +21,28 @@ export function bindParentNode(nodes: DLNode[] | DLNode[][], parentNode: DLNode)
 
 export function loopNodes(nodes: DLNode[], runFunc: (node: DLNode) => boolean) {
     for (let node of nodes) {
-        let continueLoop
-        switch (node._$nodeType) {
-            case DLNodeType.Text:
-                runFunc(node) 
-                break
-            case DLNodeType.For:
-                continueLoop = runFunc(node) 
-                if (continueLoop) {
-                    for (let nodes of node._$dlNodess) {
-                        loopNodes(nodes, runFunc)
-                    }
-                }
-                break
-            case DLNodeType.Env:
-            case DLNodeType.Dlight:
-            case DLNodeType.If:
-            case DLNodeType.HTML:
-                continueLoop = runFunc(node) 
-                if (continueLoop) loopNodes(node._$dlNodes, runFunc)
-                break
+        const continueLoop = runFunc(node) 
+        if (continueLoop) loopNodes(node._$nodes, runFunc)
+    }
+}
+
+export function loopEls(nodes: DLNode[], runFunc: (el: HTMLElement, node: HtmlNode) => void, deep=true) {
+    for (let node of nodes) {
+        if ([DLNodeType.HTML, DLNodeType.Text].includes(node._$nodeType)) {
+            runFunc(node._$el, node as HtmlNode) 
+            if (deep) loopEls(node._$nodes, runFunc)
+        } else {
+            loopEls(node._$nodes, runFunc)        
         }
     }
+}
+
+export function toEls(nodes: DLNode[]) {
+    const els: HTMLElement[] = []
+    loopEls(nodes, (el, node) => {
+        if(node._$nodeType === DLNodeType.HTML) {
+            els.push(el)
+        }
+    }, false)
+    return els
 }

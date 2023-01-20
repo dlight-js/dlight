@@ -3,7 +3,7 @@ import { uid } from "../utils/util"
 
 
 export enum DLNodeType {
-    HTML, Text, Dlight, For, If, Env
+    HTML, Text, Dlight, For, If, Env, Node
 }
 
 export class DLNode {
@@ -46,20 +46,40 @@ export class DLNode {
         this.__$el = value
     }
     _$parentNode?: DLNode
-    _$nodes: DLNode[] | DLNode[][] = []
+    _$nodes: DLNode[] = []
     _$depIds: string[] = []
     
-    get _$dlNodes() {
-        return this._$nodes as DLNode[]
-    }
-    get _$dlNodess() {
-        return this._$nodes as DLNode[][]
+    afterUpdateNewNodes(nodes: DLNode[]) {}
+    addAfterUpdateNewNodesFunc(func: (nodes: DLNode[]) => any) {
+        const preLifeCycle = this.afterUpdateNewNodes
+        this.afterUpdateNewNodes = function(nodes: DLNode[]) {
+            func.call(this, nodes)
+            preLifeCycle.call(this, nodes)
+        }
     }
 
-    _$bindNodes(nodes: DLNode[] | DLNode[][], bindToThis=true) {
-        if (bindToThis) this._$nodes = nodes
-        bindParentNode(nodes, this)
-        initNodes(nodes)
+    onUpdateNodes(prevNodes: DLNode[], nodes: DLNode[]) {}
+    addOnUpdateNodesFunc(func: (prevNodes: DLNode[], nodes: DLNode[]) => any) {
+        const prevonUpdateNodes = this.onUpdateNodes
+        this.onUpdateNodes = function(prevNodes: DLNode[], nodes: DLNode[]) {
+            func.call(this, prevNodes, nodes)
+            prevonUpdateNodes.call(this, prevNodes, nodes)
+        }
+    }
+
+    _$bindNodes(nodes?: DLNode[], bindNodes=true) {
+        if (nodes === undefined && !bindNodes) return
+        if (!bindNodes) {
+            this.afterUpdateNewNodes(nodes as any)
+            bindParentNode(nodes as any, this)
+            initNodes(nodes as any)
+            return
+        }
+        if (nodes !== undefined) this._$nodes = nodes
+        this.afterUpdateNewNodes(this._$nodes)
+        bindParentNode(this._$nodes, this)
+        initNodes(this._$nodes)
+       
     }
 
     constructor(nodeType: DLNodeType, id?: string) {
@@ -67,19 +87,12 @@ export class DLNode {
         this._$nodeType = nodeType
     }
 
-
     _$init() {}
 
     // @ts-ignore
     render(parentEl: HTMLElement) {
         // ---- 同级别的append上去，不存在递归
     }
-
-    // ---- lifecycles
-    willAppear() {}
-    didAppear() {}
-    willDisappear() {}
-    didDisappear() {}
 
 }
 

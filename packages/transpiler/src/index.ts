@@ -2,8 +2,6 @@ import { parseDlightFile } from "./babel"
 import { ParserNode } from "./ParserNode"
 import { DlightTranpilerConfig } from "./type"
 
-
-
 export function geneParserNode(fileCode: string, dlightTranpilerConfig: DlightTranpilerConfig) {
     const {bodyGetter, bodyParser} = dlightTranpilerConfig
     // ---- 首先把body换成一个id的string，并拿到bodyMap

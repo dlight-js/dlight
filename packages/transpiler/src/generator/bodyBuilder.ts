@@ -15,8 +15,8 @@ export function newLine(value: string) {
 
 export function geneId(idAppendixNum: number, appendix: string) {
     if (idAppendixNum === -1) return ""
-    if (idAppendixNum === 0) return `\`${uid()}${appendix===""?"":"_"+appendix}\``
-    let id = `\`${uid()}`
+    if (idAppendixNum === 0) return `\`${uid()}_\${this._$id}${appendix===""?"":"_"+appendix}\``
+    let id = `\`${uid()}_\${this._$id}`
     for (let i of [...Array(idAppendixNum).keys()]) {
         id += `_\${_$idx${i}}`
     }
