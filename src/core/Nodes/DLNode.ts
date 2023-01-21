@@ -1,6 +1,4 @@
 import { bindParentNode, initNodes } from "../utils/nodes"
-import { uid } from "../utils/util"
-
 
 export enum DLNodeType {
     HTML, Text, Custom, For, If, Env, Expression
@@ -39,7 +37,6 @@ export class DLNode {
      * 所有的bindNodes都必须在init中进行，保证子的init都可以访问到父parentNode
      * 但是nodes初始化可以随便
      */
-    _$id: string = uid()
     _$nodeType: DLNodeType
     private __$el: Node | HTMLElement | any
     public get _$el(): Node | HTMLElement | any {
@@ -50,7 +47,7 @@ export class DLNode {
     }
     _$parentNode?: DLNode
     _$nodes: DLNode[] = []
-    _$depIds: string[] = []
+    _$depObjectIds: Object[] = []
     
 
     _$bindNodes() {

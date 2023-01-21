@@ -1,7 +1,6 @@
 import { CustomNode } from './CustomNode';
 import { DLNode, DLNodeType } from './DLNode';
 import { EnvNode } from './EnvNode';
-import { addDeps } from '../utils/dep';
 
 
 export class HtmlNode extends DLNode {
@@ -45,8 +44,9 @@ export class HtmlNode extends DLNode {
                 prevValue = newValue
             }
         }
-        this._$depIds.push(`${this._$id}_${key}`)
-        addDeps(dlScope!, listenDeps!, `${this._$id}_${key}`, depFunc)
+        const objectId = {}
+        this._$depObjectIds.push(objectId)
+        dlScope!._$addDeps(listenDeps!, objectId, depFunc)
     }
 
     // ---- lifecycles

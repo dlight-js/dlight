@@ -1,4 +1,3 @@
-import { addDeps } from '../utils/dep';
 import { CustomNode } from './CustomNode';
 import {DLNode, DLNodeType} from './DLNode';
 
@@ -19,7 +18,9 @@ export class TextNode extends DLNode {
             this._$el.nodeValue = newValue
             prevValue = newValue
         }
-        addDeps(dlScope!, listenDeps!, this._$id, depFunc)
+        const objectId = {}
+        this._$depObjectIds.push(objectId)
+        dlScope!._$addDeps(listenDeps!, objectId, depFunc)
     }
 
     render(parentEl: HTMLElement) {

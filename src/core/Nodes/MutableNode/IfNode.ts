@@ -1,5 +1,4 @@
-import { addDeps } from "../../utils/dep";
-import {CustomNode} from "../CustomNode";
+import { CustomNode } from "../CustomNode";
 import { EnvNode } from "../EnvNode";
 import { HtmlNode } from "../HtmlNode";
 import { DLNode, DLNodeType } from "../DLNode";
@@ -43,7 +42,9 @@ export class IfNode extends MutableNode {
         }
         
         if (parentNode) {
-            addDeps(this.dlScope!, this.listenDeps, this._$id, () => this.update(parentNode as HtmlNode))
+            const objectId = {}
+            this._$depObjectIds.push(objectId)
+            this.dlScope!._$addDeps(this.listenDeps, objectId, () => this.update(parentNode as HtmlNode))
         }
 
         // ---- 生成nodes
@@ -91,7 +92,7 @@ export class IfNode extends MutableNode {
         removeNodes(prevNodes)
 
 
-        const flowIndex = getFlowIndexFromParentNode(parentNode, this._$id)
+        const flowIndex = getFlowIndexFromParentNode(parentNode, this)
         this._$bindNewNodes(this._$nodes)
 
         const parentEl = parentNode._$el

@@ -1,7 +1,6 @@
 import {CustomNode} from "./CustomNode";
 import { DLNode, DLNodeType } from "./DLNode";
 import { HtmlNode } from "./HtmlNode";
-import { deleteDeps } from "../utils/dep";
 import { loopNodes, loopEls } from "../utils/nodes";
 
 
@@ -33,9 +32,8 @@ export function removeNodes(nodes: DLNode[]) {
  */
 export function deleteNodesDeps(nodes: DLNode[], dlScope: CustomNode) {
     loopNodes(nodes, (node: DLNode) => {
-        deleteDeps(dlScope, node._$id)
-        for (let i of node._$depIds) {
-            deleteDeps(dlScope, i)
+        for (let i of node._$depObjectIds) {
+            dlScope._$deleteDeps(i)
         }
         return true
     })
@@ -82,20 +80,20 @@ export function appendNodesWithIndex(nodes: DLNode[], index: number, parentEl: H
  * @param flowNodes 
  * @returns 
  */
-export function getFlowIndexFromParentNode(parentNode: HtmlNode, stopId: string) {
-    return getFlowIndexFromNodesTillId(parentNode._$nodes, stopId)
+export function getFlowIndexFromParentNode(parentNode: HtmlNode, stopNode: DLNode) {
+    return getFlowIndexFromNodesTillId(parentNode._$nodes, stopNode)
 }
 
 export function getFlowIndexFromNodes(nodes: DLNode[]) {
-    return getFlowIndexFromNodesTillId(nodes, "neverStop")
+    return getFlowIndexFromNodesTillId(nodes, undefined as any)
 }
 
-function getFlowIndexFromNodesTillId(nodes: DLNode[], stopId: string) {
+function getFlowIndexFromNodesTillId(nodes: DLNode[], stopNode: DLNode) {
     let index = 0
     let stop = false
     loopNodes(nodes, (node: DLNode) => {
         if (stop) return false
-        if (node._$id === stopId) {
+        if (node === stopNode) {
             stop = true
             return false
         }

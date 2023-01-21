@@ -1,5 +1,5 @@
 import { CustomNode } from './CustomNode';
-import {DLNode, DLNodeType} from './DLNode';
+import { DLNode, DLNodeType } from './DLNode';
 import { addDLProp } from '../utils/prop';
 import { loopNodes } from '../utils/nodes';
 

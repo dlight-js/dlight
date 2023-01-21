@@ -1,9 +1,7 @@
 import { bindParentNode, initNodes } from '../../utils/nodes';
-import {DLNode} from '../DLNode';
+import { DLNode } from '../DLNode';
 
 export class MutableNode extends DLNode {
-
-
     afterUpdateNewNodes(_nodes: DLNode[]) {}
     addAfterUpdateNewNodesFunc(func: (nodes: DLNode[]) => any) {
         const preLifeCycle = this.afterUpdateNewNodes

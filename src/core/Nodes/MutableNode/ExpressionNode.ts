@@ -1,7 +1,6 @@
-import { addDeps } from '../../utils/dep';
 import { loopEls, loopNodes } from '../../utils/nodes';
 import { CustomNode } from '../CustomNode';
-import {DLNode, DLNodeType} from '../DLNode';
+import { DLNode, DLNodeType } from '../DLNode';
 import { HtmlNode } from '../HtmlNode';
 import { TextNode } from '../TextNode';
 import { appendNodesWithIndex, deleteNodesDeps, getFlowIndexFromParentNode, removeNodes } from '../utils';
@@ -43,7 +42,7 @@ export class ExpressionNode extends MutableNode {
         }
         if (key === "onUpdateNodes") {
             loopNodes(this._$nodes, node => {
-                if (![DLNodeType.If, DLNodeType.For, DLNodeType.Node].includes(node._$nodeType)) return true;
+                if (![DLNodeType.If, DLNodeType.For, DLNodeType.Expression].includes(node._$nodeType)) return true;
                 (node as MutableNode).addOnUpdateNodesFunc(valueOrFunc)
                 return true
             })
@@ -70,7 +69,7 @@ export class ExpressionNode extends MutableNode {
                     //      典型的如for循环，newNodes的时候也会bindNodes，也要加这些prop
                     case DLNodeType.For:
                     case DLNodeType.If:
-                    case DLNodeType.Node:
+                    case DLNodeType.Expression:
                         (node as any).addAfterUpdateNewNodesFunc((nodes: DLNode[]) => {
                             loopEls(nodes, (_: HTMLElement, node: HtmlNode) => {
                                 if (node._$nodeType !== DLNodeType.HTML) return
@@ -116,11 +115,15 @@ export class ExpressionNode extends MutableNode {
          if (!parentNode) return
 
         // ---- 加deps
-        addDeps(this.dlScope!, this.listenDeps!, this._$id, () => this.update(parentNode as HtmlNode))
+        const objectId = {}
+        this._$depObjectIds.push(objectId)
+        this.dlScope!._$addDeps(this.listenDeps!, objectId, () => this.update)
 
-        for (let [idx, func] of this.propFuncs.entries()) {
+        for (let func of this.propFuncs) {
             func()
-            addDeps(this.dlScope!, this.listenDeps!, `${this._$id}_${idx}`, func)
+            const objectId = {}
+            this._$depObjectIds.push(objectId)
+            this.dlScope!._$addDeps(this.listenDeps!, objectId, func)
         }
 
         this._$bindNodes()
@@ -142,7 +145,7 @@ export class ExpressionNode extends MutableNode {
 
         // ---- 添加新的
         const parentEl = parentNode._$el
-        const flowIndex = getFlowIndexFromParentNode(parentNode, this._$id)
+        const flowIndex = getFlowIndexFromParentNode(parentNode, this)
         appendNodesWithIndex(this._$nodes, flowIndex, parentEl, parentEl.childNodes.length)
 
         this.onUpdateNodes(prevNodes, this._$nodes)

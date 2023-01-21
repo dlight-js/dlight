@@ -1,11 +1,9 @@
 import { DLNode, DLNodeType } from "../DLNode";
-import {appendNodesWithIndex, deleteNodesDeps, removeNodes, getFlowIndexFromNodes, getFlowIndexFromParentNode} from '../utils';
+import { appendNodesWithIndex, deleteNodesDeps, removeNodes, getFlowIndexFromNodes, getFlowIndexFromParentNode } from '../utils';
 import { CustomNode } from "../CustomNode";
 import { HtmlNode } from "../HtmlNode";
 import { EnvNode } from "../EnvNode";
-import { addDeps, deleteDeps } from "../../utils/dep";
 import { MutableNode } from "./MutableNode";
-import { uid } from "../../utils/util";
 
 
 export class ForNode extends MutableNode {
@@ -31,7 +29,7 @@ export class ForNode extends MutableNode {
     _$getItem(key: any, idx: number) {
         // ---- 重复key了就默认用index
         let index = this.duplicatedOrNoKey ? idx : this.keys.indexOf(key)
-        return Array.from(this.array)[index]
+        return this.array[index]
     }
     /**
      * @methodGroup - 只有有deps的时候才需要用各种func
@@ -99,9 +97,9 @@ export class ForNode extends MutableNode {
 
 
         // ---- 加deps
-        addDeps(this.dlScope!, this.listenDeps!, this._$id, () => {
-            update()
-        })
+        const objectId = {}
+        this._$depObjectIds.push(objectId)
+        this.dlScope!._$addDeps(this.listenDeps!, objectId, update)
 
         this.setArray()
         this.setKeys()
@@ -142,7 +140,7 @@ export class ForNode extends MutableNode {
         const currLength = this.array.length
         if (preLength === currLength) return
         if (preLength < currLength) {
-            let newFlowIndex = getFlowIndexFromParentNode(parentNode, this._$id)
+            let newFlowIndex = getFlowIndexFromParentNode(parentNode, this)
 
             let length = parentEl.childNodes.length  // 每次进去调用的话非常耗时
             for (let idx = 0; idx < currLength; idx++) {
@@ -172,7 +170,7 @@ export class ForNode extends MutableNode {
     async updateWithKey(parentNode: HtmlNode) {
         // ---- 如果提供了key，唯一目的就是为了保证element的reference不变，这样会变慢
         const parentEl = parentNode._$el
-        const flowIndex = getFlowIndexFromParentNode(parentNode, this._$id)
+        const flowIndex = getFlowIndexFromParentNode(parentNode, this)
         let prevKeys = this.keys
         const prevArray = [...this.array]
         const prevAllNodes = [...this._$nodess]
@@ -246,12 +244,13 @@ export class ForNode extends MutableNode {
     // ---- 识别特殊for
     _$listen(dlScope: CustomNode, itemFunc: () => any, listenDeps: string[], updateFunc: any) {
         // ---* 必须把id放进去，不然删除不掉
-        const id = uid()
-        addDeps(dlScope, listenDeps, id, () => {
+        const objectId = {}
+        dlScope._$depObjectIds.push(objectId);
+        dlScope._$addDeps(listenDeps, objectId, () => {
             const item = itemFunc()
             // ---- 空了直接删除
             if (item === undefined) {
-                deleteDeps(dlScope, id)
+                dlScope._$deleteDeps(objectId)
                 return
             }
             updateFunc(item)

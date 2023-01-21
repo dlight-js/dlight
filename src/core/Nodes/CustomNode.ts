@@ -1,8 +1,6 @@
 import { EnvNode } from "./EnvNode"
 import { DLNode, DLNodeType } from "./DLNode"
 import { addDLProp } from "../utils/prop";
-import { addDeps } from "../utils/dep";
-import { uid } from "../utils/util";
 
 /**
  * 整个依赖只有两种
@@ -65,7 +63,7 @@ import { uid } from "../utils/util";
  *   -> this.Afterset（留的hook，目前只有.element()会调用)
  */
 export class CustomNode extends DLNode {
-    _$deps: {[key: string]: {[key: string]: () => any}} = {}
+    _$deps: {[key: string]: Map<Object, ()=>any>} = {}
     _$envNodes?: EnvNode[]
     _$derivedPairs?: {[key: string]: string[]}
     _$children?: DLNode[]
@@ -95,8 +93,7 @@ export class CustomNode extends DLNode {
             console.warn(`${depName} is not a dependency in ${this.constructor.name}`)
             return
         }
-        for (let [key, func] of Object.entries(this._$deps[depName])) {
-            if (this._$deps[depName][key] === undefined) continue
+        for (let func of this._$deps[depName].values()) {
             func.call(this)
         }
     }
@@ -104,6 +101,7 @@ export class CustomNode extends DLNode {
         this._$children = nodes
     }
 
+    // ---- dep
     _$initDecorators() {
         if (this._$derivedPairs) {
             for (let [propertyKey, listenDeps] of Object.entries(this._$derivedPairs)) {
@@ -113,7 +111,8 @@ export class CustomNode extends DLNode {
                 (this as any)[propertyKey] = (this as any)[propertyKey]()
 
                 let prevValue = (this as any)[propertyKey]
-                addDeps(this, listenDeps, uid(), () => {
+                // ---- 不需要push到depObjectIds，因为是自己的
+                this._$addDeps(listenDeps, {}, () => {
                     const newValue = derivedFunc()
                     if (newValue === prevValue) return;
                     (this as any)[propertyKey] = newValue
@@ -123,6 +122,24 @@ export class CustomNode extends DLNode {
             }
         }
     }
+
+    _$addDeps(deps: string[], objectId: Object, func: (newValue?: any) => any) {
+        for (let dep of deps) {
+            this._$deps[dep].set(objectId, func)
+        }
+    }
+    
+    _$deleteDep(depName: string, objectId: Object) {
+        this._$deps[depName].delete(objectId)
+    }
+    
+    _$deleteDeps(objectId: Object) {
+        for (let depName in this._$deps) {
+            this._$deleteDep(depName, objectId)
+        }
+    }
+    
+
 
     Preset() {}
     Afterset() {}
