@@ -1,4 +1,4 @@
-import {View, State, Prop} from "@/core"
+import {View} from "@/core"
 import {Task} from "./Task"
 
 export class TaskAdder extends View {

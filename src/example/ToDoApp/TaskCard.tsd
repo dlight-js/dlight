@@ -1,14 +1,14 @@
-import {View, Prop, Prop} from "@/core"
+import {View} from "@/core"
 import {Task} from "./Task"
 
 export class TaskCard extends View {
   @Prop task: Task
   @Prop deleteTask: () => any
   @Prop toggleBox: (checked: any) => any
-  didAppear() {
+  didMount() {
     console.log(`[didAppear] Loaded task named ${this.task.name}, it is${this.task.finished?"":" not"} finished.`)
   }
-  didDisappear() {
+  didUnmount() {
     console.log(`[didUnMount] Unmount task named ${this.task.name}, it is${this.task.finished?"":" not"} finished.`)
   }
 

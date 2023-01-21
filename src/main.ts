@@ -10,8 +10,8 @@
 import {ForTest} from "./example/features/for.tsd"
 // // import { initNodes, bindParentNode, resolveEnvs } from "./core/Nodes/utils";
 // // import {SubElement} from "./example/test.tsd"
-// // @ts-ignore
-// import {ToDoApp} from "./example/ToDoApp/index.tsd";
+// @ts-ignore
+import {ToDoApp} from "./example/ToDoApp/index.tsd";
 // // @ts-ignore
 // import {Counter} from "./example/test.tsd"
 // export {}
@@ -21,29 +21,30 @@ import {ForTest} from "./example/features/for.tsd"
 import {render} from "./core";
 // // @ts-ignore
 // import {SubElement} from "./example/test.tsd"
-// // @ts-ignore
+// @ts-ignore
 import {Benchmark} from "./example/performance/benchmark.tsd"
 // import {Benchmark} from "./example/performance/benchmark.tsx";
 // // console.log(t2-t1)
 // import {HH} from "./test"
 // import {NodeTest} from "./example/features/node.tsd"
-import {TestTest} from "./test.tsd";
+// @ts-ignore
+// import {TestTest} from "./test.tsd";
 
 render("#app", new Benchmark())
-function uid() {
-    return Math.random().toString(36).slice(2)
-}
-console.time("0")
-for (let i = 0;i<100000; i++) {
-    let b = `xxxxxxxx${i}_${i}_${"fsfsfsfs"}`
-}
-console.timeEnd("0") 
+// function uid() {
+//     return Math.random().toString(36).slice(2)
+// }
+// console.time("0")
+// for (let i = 0;i<100000; i++) {
+//     let b = `xxxxxxxx${i}_${i}_${"fsfsfsfs"}`
+// }
+// console.timeEnd("0") 
 
-console.time("1")
-for (let i = 0;i<100000; i++) {
-    let b = uid()
-}
-console.timeEnd("1")
+// console.time("1")
+// for (let i = 0;i<100000; i++) {
+//     let b = uid()
+// }
+// console.timeEnd("1")
 
 // switch (testType) {
 //     case TestType.ToDo:

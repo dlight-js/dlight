@@ -51,10 +51,10 @@ export class HtmlNode extends DLNode {
     }
 
     // ---- lifecycles
-    willAppear(el?: HTMLElement, props?: HTMLLifeCycleProp): any {}
-    didAppear(el?: HTMLElement, props?: HTMLLifeCycleProp): any {}
-    willDisappear(el?: HTMLElement, props?: HTMLLifeCycleProp): any {}
-    didDisappear(el?: HTMLElement, props?: HTMLLifeCycleProp): any {}
+    willAppear(_el?: HTMLElement, _props?: HTMLLifeCycleProp): any {}
+    didAppear(_el?: HTMLElement, _props?: HTMLLifeCycleProp): any {}
+    willDisappear(_el?: HTMLElement, _props?: HTMLLifeCycleProp): any {}
+    didDisappear(_el?: HTMLElement, _props?: HTMLLifeCycleProp): any {}
     _$addLifeCycle(func: (el?: HTMLElement, props?: HTMLLifeCycleProp) => any, lifeCycleName: "willAppear" | "didAppear" | "willDisappear" | "didDisappear") {
         const preLifeCycle = this[lifeCycleName]
         this[lifeCycleName] = function(el?: HTMLElement, props?: HTMLLifeCycleProp) {
@@ -63,9 +63,9 @@ export class HtmlNode extends DLNode {
         }
     }
     render(parentEl: HTMLElement) {
-        // this.willAppear(this._$el, {})
+        this.willAppear(this._$el, {})
         parentEl.appendChild(this._$el)
-        // this.didAppear(this._$el, {})
+        this.didAppear(this._$el, {})
     }
 }
 

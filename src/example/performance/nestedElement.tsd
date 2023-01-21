@@ -496,7 +496,7 @@ export class NestedElement extends View {
             })
 
         If(this.toggle) {
-            For (let i of [...Array(1000).keys()]) {
+            For (let i of [...Array(5000).keys()]) {
                 SubElement1({count: this.count+1})
             }
         }

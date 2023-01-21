@@ -58,7 +58,7 @@ export function appendNodesWithIndex(nodes: DLNode[], index: number, parentEl: H
     loopEls(nodes, (el: HTMLElement, node: HtmlNode) => {
         const sibling = parentEl.childNodes[index] as any
         if ([DLNodeType.HTML].includes(node._$nodeType)) {
-            // node.willAppear(el)
+            node.willAppear(el)
         }
         if (index === length) {
             parentEl!.appendChild(el)
@@ -66,11 +66,11 @@ export function appendNodesWithIndex(nodes: DLNode[], index: number, parentEl: H
             parentEl!.insertBefore(el, sibling)
         }
         if ([DLNodeType.HTML].includes(node._$nodeType)) {
-            // node.didAppear(el)
+            node.didAppear(el)
         }
         index ++
         length ++
-    })
+    }, false)
     didMountDlightNodes(nodes)
     return [index, length]
 }

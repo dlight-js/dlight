@@ -32,7 +32,7 @@ export function loopEls(nodes: DLNode[], runFunc: (el: HTMLElement, node: HtmlNo
             runFunc(node._$el, node as HtmlNode) 
             if (deep) loopEls(node._$nodes, runFunc)
         } else {
-            loopEls(node._$nodes, runFunc)        
+            loopEls(node._$nodes, runFunc, deep)        
         }
     }
 }

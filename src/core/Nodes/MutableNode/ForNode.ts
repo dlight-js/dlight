@@ -211,6 +211,7 @@ export class ForNode extends MutableNode {
                 continue
             }
             const newNodes = this.getNewNodes(key, idx);
+            console.log(newNodes);
             [newFlowIndex, length] = appendNodesWithIndex(newNodes, newFlowIndex, parentEl, length)
             newDlNodes.splice(idx, 0, newNodes)
             prevKeys.splice(idx, 0, key)

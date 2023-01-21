@@ -60,15 +60,6 @@ export class IfNode extends MutableNode {
         this._$bindNodes()
     }
 
-    afterUpdateNewNodes(nodes: DLNode[]) {}
-    addAfterUpdateNewNodesFunc(func: (nodes: DLNode[]) => any) {
-        const preLifeCycle = this.afterUpdateNewNodes
-        this.afterUpdateNewNodes = function(nodes: DLNode[]) {
-            func.call(this, nodes)
-            preLifeCycle.call(this, nodes)
-        }
-    }
-
     update(parentNode: HtmlNode) {
         const prevNodes = this._$nodes
         const condition = this.condition
@@ -85,11 +76,15 @@ export class IfNode extends MutableNode {
             }
         }
 
+        if (this._$nodes === prevNodes) {
+            // ---- 根本没变，就是没有匹配的，置空
+            this._$nodes = []
+        }
+
         if (prevNodes.length !== 0 && this._$nodes.length === 0) {
             // ---- 以前有，现在没有
             this.condition = "[none]"
         }
-
         if (condition === this.condition) return
         deleteNodesDeps(prevNodes, this.dlScope!)
         // ---- 原本有全删掉
