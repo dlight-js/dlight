@@ -25,10 +25,26 @@ import {Benchmark} from "./example/performance/benchmark.tsd"
 // import {Benchmark} from "./example/performance/benchmark.tsx";
 // // console.log(t2-t1)
 // import {HH} from "./test"
-import {NodeTest} from "./example/features/node.tsd"
+// import {NodeTest} from "./example/features/node.tsd"
 import {TestTest} from "./test.tsd";
 
-render("#app", new TestTest())
+render("#app", new Benchmark())
+function uid() {
+    return Math.random().toString(36)
+}
+console.log(uid())
+let cc = "fsf"
+console.time("0")
+for (let i = 0;i<100000; i++) {
+    let b = `12sfafsaf3${i}_${cc}`
+}
+console.timeEnd("0") 
+
+console.time("1")
+for (let i = 0;i<100000; i++) {
+    let b  =  uid()
+}
+console.timeEnd("1")
 
 // switch (testType) {
 //     case TestType.ToDo:

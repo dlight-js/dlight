@@ -26,7 +26,6 @@ export function uid() {
 }
 
 export function geneDeps(valueStr: string, depChain: string[], otherDeps: string[]=[]) {
-    console.log("fuck", valueStr)
     const ast = parse(valueStr)
     let deps: string[] = []
     traverse(ast, {
@@ -39,7 +38,6 @@ export function geneDeps(valueStr: string, depChain: string[], otherDeps: string
         }
     })
     deps = [...new Set([...deps, ...otherDeps])]
-    console.log("shit")
 
     return deps
 }

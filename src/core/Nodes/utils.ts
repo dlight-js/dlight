@@ -15,11 +15,11 @@ export function removeNodes(nodes: DLNode[]) {
     willUnmountDlightNodes(nodes)
     loopEls(nodes, (el: HTMLElement, node: HtmlNode) => {
         if (node._$nodeType === DLNodeType.HTML) {
-            node.willDisappear(el)
+            // node.willDisappear(el)
         }
         el.remove()
         if (node._$nodeType === DLNodeType.HTML) {
-            node.didDisappear(el)
+            // node.didDisappear(el)
         }
     })
    didUnmountDlightNodes(nodes)
@@ -58,7 +58,7 @@ export function appendNodesWithIndex(nodes: DLNode[], index: number, parentEl: H
     loopEls(nodes, (el: HTMLElement, node: HtmlNode) => {
         const sibling = parentEl.childNodes[index] as any
         if ([DLNodeType.HTML].includes(node._$nodeType)) {
-            node.willAppear(el)
+            // node.willAppear(el)
         }
         if (index === length) {
             parentEl!.appendChild(el)
@@ -66,7 +66,7 @@ export function appendNodesWithIndex(nodes: DLNode[], index: number, parentEl: H
             parentEl!.insertBefore(el, sibling)
         }
         if ([DLNodeType.HTML].includes(node._$nodeType)) {
-            node.didAppear(el)
+            // node.didAppear(el)
         }
         index ++
         length ++
