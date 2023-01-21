@@ -20,8 +20,8 @@ export class NodeNode extends MutableNode {
     propScope: ((el: HTMLElement, node: DLNode) => boolean) = () => true
     deepLoopEl = false
 
-    constructor(nodeOrFunc: NodeNodeType | (() => NodeNodeType),id?: string, dlScope?: CustomNode, listenDeps?: string[]) {
-        super(DLNodeType.Node, id)
+    constructor(nodeOrFunc: NodeNodeType | (() => NodeNodeType), dlScope?: CustomNode, listenDeps?: string[]) {
+        super(DLNodeType.Node)
         if (!listenDeps) {
             this._$nodes = this.formatNodes(nodeOrFunc)
             return
@@ -94,7 +94,7 @@ export class NodeNode extends MutableNode {
         nodes = nodes.flat(1)
         nodes = nodes.filter((node: any)=>node).map((node: any) => {
             if (node._$nodeType !== undefined) return node
-            return new TextNode(node, undefined, this.dlScope, this.listenDeps)
+            return new TextNode(node, this.dlScope, this.listenDeps)
         })
         return nodes
     }

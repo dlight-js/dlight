@@ -5,6 +5,7 @@ import { HtmlNode } from "../HtmlNode";
 import { EnvNode } from "../EnvNode";
 import { addDeps, deleteDeps } from "../../utils/dep";
 import { MutableNode } from "./MutableNode";
+import { uid } from "../../utils/util";
 
 
 export class ForNode extends MutableNode {
@@ -12,17 +13,16 @@ export class ForNode extends MutableNode {
     array: any[] = []
 
     _$nodess: DLNode[][] = []
-    nodeFunc?: (key: any, idx: number, forNode: any, updateIdx: number) => DLNode[]
+    nodeFunc?: (key: any, idx: number, forNode: any) => DLNode[]
     keyFunc?: () => any[]
     arrayFunc?: () => any[]
     dlScope?: CustomNode
     listenDeps?: string[]
     _$envNodes?: EnvNode[] = []
-    constructor(id: string) {
-        super(DLNodeType.For, id)         
+    constructor() {
+        super(DLNodeType.For)         
     }
     duplicatedOrNoKey = false
-    updateIdx = 0
 
     get _$el() {
         return this._$nodes.map(node=> node._$el)
@@ -100,7 +100,6 @@ export class ForNode extends MutableNode {
 
         // ---- 加deps
         addDeps(this.dlScope!, this.listenDeps!, this._$id, () => {
-            this.updateIdx ++
             update()
         })
 
@@ -108,11 +107,11 @@ export class ForNode extends MutableNode {
         this.setKeys()
         if (this.duplicatedOrNoKey) {
             for (let idx of this.array.keys()) {
-                this._$nodess.push(this.nodeFunc!(null, idx, this, this.updateIdx))
+                this._$nodess.push(this.nodeFunc!(null, idx, this))
             }
         } else {
             for (let [idx, key] of this.keys.entries()) {
-                this._$nodess.push(this.nodeFunc!(key, idx, this, this.updateIdx))
+                this._$nodess.push(this.nodeFunc!(key, idx, this))
             }
         }
         this._$nodes = this._$nodess.flat(1)
@@ -127,7 +126,7 @@ export class ForNode extends MutableNode {
     }
 
     getNewNodes(key: any, idx: number) {
-        const nodes = this.nodeFunc!(key, idx, this, this.updateIdx)
+        const nodes = this.nodeFunc!(key, idx, this)
         this._$bindNewNodes(nodes)
         return nodes
     }
@@ -245,9 +244,9 @@ export class ForNode extends MutableNode {
 
 
     // ---- 识别特殊for
-    _$listen(dlScope: CustomNode, itemFunc: () => any, listenDeps: string[], updateFunc: any, id: string) {
+    _$listen(dlScope: CustomNode, itemFunc: () => any, listenDeps: string[], updateFunc: any) {
         // ---* 必须把id放进去，不然删除不掉
-        this._$depIds.push(id)
+        const id = uid()
         addDeps(dlScope, listenDeps, id, () => {
             const item = itemFunc()
             // ---- 空了直接删除

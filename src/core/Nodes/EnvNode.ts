@@ -9,8 +9,8 @@ export class EnvNode extends DLNode {
     _$deps?: any
     _$envNodes?: EnvNode[]
 
-    constructor(id?: string) {
-        super(DLNodeType.Env, id)
+    constructor() {
+        super(DLNodeType.Env)
     }
 
     _$addNode(dlNode: DLNode) {

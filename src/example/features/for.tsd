@@ -1,4 +1,4 @@
-import {View, Derived, Prop, Effect, Prop, PropDerived, State, Environment} from "@/core";
+import {View} from "@/core";
 
 export class ForTest extends View {
     @State count = 2
@@ -18,12 +18,13 @@ export class ForTest extends View {
                 this.apple[3] = this.count
                 this.count ++
                 this.apple = [...this.apple]
+                console.log(this.apple)
             })
 
         button("-")
             .onclick(() => {
                 this.apple[3] = this.count
-                this.count ++
+                this.count --
                 this.apple = [...this.apple]
             })
 

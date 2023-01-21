@@ -36,7 +36,7 @@ export class DLNode {
      * A1.render (A => Stop  B/C => B/C.render)
      *
      */
-    _$id: string = ""
+    _$id: string = uid()
     _$nodeType: DLNodeType
     private __$el: Node | HTMLElement | any
     public get _$el(): Node | HTMLElement | any {
@@ -56,8 +56,7 @@ export class DLNode {
 
     }
 
-    constructor(nodeType: DLNodeType, id?: string) {
-        this._$id = id ?? uid()
+    constructor(nodeType: DLNodeType) {
         this._$nodeType = nodeType
     }
 

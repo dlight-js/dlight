@@ -7,6 +7,7 @@
 // // import {render} from "./core/utils";
 // // @ts-ignore
 // import {IfTest, ForTest, FlowTest, EnvTest, LifeCycleTest} from "./example/features"
+import {ForTest} from "./example/features/for.tsd"
 // // import { initNodes, bindParentNode, resolveEnvs } from "./core/Nodes/utils";
 // // import {SubElement} from "./example/test.tsd"
 // // @ts-ignore
@@ -30,19 +31,17 @@ import {TestTest} from "./test.tsd";
 
 render("#app", new Benchmark())
 function uid() {
-    return Math.random().toString(36)
+    return Math.random().toString(36).slice(2)
 }
-console.log(uid())
-let cc = "fsf"
 console.time("0")
 for (let i = 0;i<100000; i++) {
-    let b = `12sfafsaf3${i}_${cc}`
+    let b = `xxxxxxxx${i}_${i}_${"fsfsfsfs"}`
 }
 console.timeEnd("0") 
 
 console.time("1")
 for (let i = 0;i<100000; i++) {
-    let b  =  uid()
+    let b = uid()
 }
 console.timeEnd("1")
 

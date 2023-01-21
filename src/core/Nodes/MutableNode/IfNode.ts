@@ -18,8 +18,8 @@ export class IfNode extends MutableNode {
     dlScope?: CustomNode
     _$envNodes?: EnvNode[] = []
 
-    constructor(id: string) {
-        super(DLNodeType.If, id)
+    constructor() {
+        super(DLNodeType.If)
     }
 
     get _$el() {

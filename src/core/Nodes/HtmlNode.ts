@@ -8,8 +8,8 @@ import { addDeps } from '../utils/dep';
 export class HtmlNode extends DLNode {
     _$envNodes?: EnvNode[] = []
 
-    constructor(tag: string, id?: string) {
-        super(DLNodeType.HTML, id)
+    constructor(tag: string) {
+        super(DLNodeType.HTML)
         this._$el = document.createElement(tag)
     }
     _$init(): void {

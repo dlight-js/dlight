@@ -73,8 +73,8 @@ export class CustomNode extends DLNode {
 
     Body: any
 
-    constructor(tag?: string, id?: string) {
-        super(DLNodeType.Custom, id)
+    constructor(tag?: string) {
+        super(DLNodeType.Custom)
         this._$tag = tag ?? this.constructor.name
     }
 

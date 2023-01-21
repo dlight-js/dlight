@@ -85,7 +85,7 @@ export function resolveForBody(body: BodyStringBuilder, item: string) {
         Identifier(innerPath: any) {
             if (identifierKeys.includes(innerPath.node.name)) {
                 const valueNode = t.memberExpression(
-                    t.identifier("valuedItem"),
+                    t.identifier("_$valuedItem"),
                     t.identifier(innerPath.node.name)
                 )
                 innerPath.replaceWith(valueNode)
