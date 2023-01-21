@@ -104,7 +104,33 @@ re-calc on this weekend
  */
 ```
 
+# Design Proposal
+
+## tsd
+
+```typescript
+Body() {
+  div(props) {
+    
+  }	
+  	.dotProps()
+  
+  "string"
+  `string ${anyVariable}`
+  {{ anyVariable === 1 ? "is 1" : "not 1" }}
+  {{ anyVariable === 1 ? {{ div(1) }} : {{ div(2) }} }}
+  
+  【 anyVariable === 1 ? "is 1" : "not 1" 】
+
+}
+```
+
+
+
+
+
 # TODO
+
 * features
 - [x] if
 - [x] for

@@ -8,10 +8,10 @@ import { appendNodesWithIndex, deleteNodesDeps, getFlowIndexFromParentNode, remo
 import { MutableNode } from './MutableNode';
 
 
-type NodeNodeType = DLNode | DLNode[]
+type ExpressionNodeType = DLNode | DLNode[]
 
-export class NodeNode extends MutableNode {
-    nodeOrFunc?: () => NodeNodeType
+export class ExpressionNode extends MutableNode {
+    nodeOrFunc?: () => ExpressionNodeType
     listenDeps?: string[]
     dlScope?: CustomNode
 
@@ -20,13 +20,13 @@ export class NodeNode extends MutableNode {
     propScope: ((el: HTMLElement, node: DLNode) => boolean) = () => true
     deepLoopEl = false
 
-    constructor(nodeOrFunc: NodeNodeType | (() => NodeNodeType), dlScope?: CustomNode, listenDeps?: string[]) {
-        super(DLNodeType.Node)
+    constructor(nodeOrFunc: ExpressionNodeType | (() => ExpressionNodeType), dlScope?: CustomNode, listenDeps?: string[]) {
+        super(DLNodeType.Expression)
         if (!listenDeps) {
             this._$nodes = this.formatNodes(nodeOrFunc)
             return
         }
-        this.nodeOrFunc = nodeOrFunc as () => NodeNodeType
+        this.nodeOrFunc = nodeOrFunc as () => ExpressionNodeType
         this.listenDeps = listenDeps   
         this.dlScope = dlScope   
         this._$nodes = this.formatNodes(this.nodeOrFunc!())

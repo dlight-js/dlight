@@ -5,16 +5,12 @@ import { loopNodes } from '../utils/nodes';
 
 
 export class EnvNode extends DLNode {
-    _$depIds: string[] = []
-    _$deps?: any
-    _$envNodes?: EnvNode[]
-
     constructor() {
         super(DLNodeType.Env)
     }
 
-    _$addNode(dlNode: DLNode) {
-        this._$nodes.push(dlNode)
+    _$addNodes(nodes: DLNode[]) {
+        this._$nodes = nodes
     }
 
     _$addProp(key: string, propOrFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]) {

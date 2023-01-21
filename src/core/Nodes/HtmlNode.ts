@@ -1,6 +1,5 @@
 import { CustomNode } from './CustomNode';
-import {DLNode, DLNodeType} from './DLNode';
-
+import { DLNode, DLNodeType } from './DLNode';
 import { EnvNode } from './EnvNode';
 import { addDeps } from '../utils/dep';
 
@@ -18,8 +17,8 @@ export class HtmlNode extends DLNode {
             node.render(this._$el)
         }
     }
-    _$addNode(dlNode: DLNode) {
-        this._$nodes.push(dlNode)
+    _$addNodes(nodes: DLNode[]) {
+        this._$nodes = nodes
     }
 
     _$addProp(key: string, valueOrFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]) {

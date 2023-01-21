@@ -53,7 +53,7 @@ export class ForNode extends MutableNode {
     /**
      * @methodGroup - 无deps的时候直接加nodes
      */
-    _$addNodesArr(nodess: DLNode[][]) {
+    _$addNodess(nodess: DLNode[][]) {
         this._$nodess = nodess
         this._$nodes = this._$nodess.flat(1)
     }
@@ -211,7 +211,6 @@ export class ForNode extends MutableNode {
                 continue
             }
             const newNodes = this.getNewNodes(key, idx);
-            console.log(newNodes);
             [newFlowIndex, length] = appendNodesWithIndex(newNodes, newFlowIndex, parentEl, length)
             newDlNodes.splice(idx, 0, newNodes)
             prevKeys.splice(idx, 0, key)

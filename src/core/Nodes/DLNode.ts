@@ -3,7 +3,7 @@ import { uid } from "../utils/util"
 
 
 export enum DLNodeType {
-    HTML, Text, Custom, For, If, Env, Node
+    HTML, Text, Custom, For, If, Env, Expression
 }
 
 export class DLNode {
@@ -34,7 +34,10 @@ export class DLNode {
      * A1._$init -> A2._$init -> B1._$init -> B2._$init -> C1._$init -> C2._$init 
      *           ↳ A2.render  ↳ B1.render 
      * A1.render (A => Stop  B/C => B/C.render)
-     *
+     * 
+     * @hint 
+     * 所有的bindNodes都必须在init中进行，保证子的init都可以访问到父parentNode
+     * 但是nodes初始化可以随便
      */
     _$id: string = uid()
     _$nodeType: DLNodeType

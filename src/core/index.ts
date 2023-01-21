@@ -9,7 +9,7 @@ export const View = CustomNode
 
 export function render(selectName: string, dl: CustomNode) {
     const appNode = new HtmlNode("div")
-    appNode._$addNode(dl)
+    appNode._$addNodes([dl])
     appNode._$addProp("id", selectName)
     appNode._$init()
     document.querySelector(selectName)!.replaceWith(appNode._$el)

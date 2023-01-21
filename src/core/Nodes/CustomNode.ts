@@ -100,11 +100,9 @@ export class CustomNode extends DLNode {
             func.call(this)
         }
     }
-    _$addChild(dlNode: DLNode) {
-        if (this._$children === undefined) this._$children = []
-        this._$children.push(dlNode)
+    _$addChilds(nodes: DLNode[]) {
+        this._$children = nodes
     }
-
 
     _$initDecorators() {
         if (this._$derivedPairs) {

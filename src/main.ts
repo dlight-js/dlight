@@ -28,23 +28,44 @@ import {Benchmark} from "./example/performance/benchmark.tsd"
 // import {HH} from "./test"
 // import {NodeTest} from "./example/features/node.tsd"
 // @ts-ignore
-// import {TestTest} from "./test.tsd";
+import {TestTest} from "./test.tsd";
 
-render("#app", new Benchmark())
-// function uid() {
-//     return Math.random().toString(36).slice(2)
-// }
-// console.time("0")
-// for (let i = 0;i<100000; i++) {
-//     let b = `xxxxxxxx${i}_${i}_${"fsfsfsfs"}`
-// }
-// console.timeEnd("0") 
+render("#app", new TestTest())
+function uid() {
+    return Math.random().toString(36).slice(2)
+}
+console.time("0")
+for (let i = 0;i<100000; i++) {
+    let b = `xxxxxxxx${i}_${i}_${"fsfsfsfs"}`
+}
+console.timeEnd("0") 
 
-// console.time("1")
-// for (let i = 0;i<100000; i++) {
-//     let b = uid()
-// }
-// console.timeEnd("1")
+console.time("1")
+for (let i = 0;i<100000; i++) {
+    let b = uid()
+}
+console.timeEnd("1")
+console.time("2")
+for (let i = 0;i<100000; i++) {
+    let b = {}
+    b[i] = i
+}
+console.timeEnd("2")
+console.time("3")
+for (let i = 0;i<100000; i++) {
+    let b = new Map()
+    
+    b.set({}, i)
+}
+console.timeEnd("3")
+
+let a = {}
+let b = new Map()
+b.set(a, "123")
+console.log(b)
+b.delete(a)
+console.log(a)
+
 
 // switch (testType) {
 //     case TestType.ToDo:

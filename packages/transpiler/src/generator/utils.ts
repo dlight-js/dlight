@@ -7,7 +7,6 @@ import babelTraverse from "@babel/traverse"
 
 import * as t from "@babel/types"
 import {isMemberInFunction} from "../babel/nodeHelper";
-import {BodyStringBuilder} from './bodyBuilder';
 const parse = (code: string) => babel.parse(code, babelConfig)
 const generate = (ast: any) => babelGenerate.default(ast).code
 const traverse = babelTraverse.default
@@ -71,7 +70,7 @@ export function geneIsTwoWayConnected(valueStr: string) {
     return t.isMemberExpression(ast.program.body[0].expression)
 }
 
-export function resolveForBody(body: BodyStringBuilder, item: string) {
+export function resolveForBody(bodyStr: string, item: string) {
     let identifierKeys: string[] = []
     // ---- 遍历拿到所有item里面的标识符，下面要把标识符转换成带.value的
     const itemAst = parse(item)
@@ -80,7 +79,7 @@ export function resolveForBody(body: BodyStringBuilder, item: string) {
             identifierKeys.push(innerPath.node.name)
         }
     })
-    const bodyAst = parse(body.value)
+    const bodyAst = parse(`function tempFunc() {${bodyStr}}`)
     traverse(bodyAst, {
         Identifier(innerPath: any) {
             if (identifierKeys.includes(innerPath.node.name)) {
@@ -93,7 +92,5 @@ export function resolveForBody(body: BodyStringBuilder, item: string) {
             }
         }
     })
-
-    body.value = generate(bodyAst)
-   
+    return generate(bodyAst.program.body[0].body).trim().replace(/(^\{)|(\}$)/g, "")
 }

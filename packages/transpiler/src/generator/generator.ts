@@ -17,7 +17,6 @@ export class Generator {
         this.depChain = depChain
     }
     generate(parserNode: ParserNode) {
-
         const body = new BodyStringBuilder()
         for (let [idx, child] of parserNode.children.entries()) {
             body.addBody(this.resolveParserNode(child, idx))
@@ -50,12 +49,7 @@ export class Generator {
         for (let idx in parserNode.kv.condition) {
             const condition = parserNode.kv.condition[idx]
             body.add(`${nodeName}._$addCond(() => ${condition.condition}, () => {`)
-            const conditionEl = condition.parserNode
-            for (let [idx, childEl] of conditionEl.children.entries()) {
-                body.addBody(this.resolveParserNode(childEl, idx))
-            }
-            body.add((`return ${geneChildNodesArray(conditionEl)}`))
-
+            body.add(this.generate(condition.parserNode))
             const listenDeps = this.geneDeps(condition.condition)
             if (listenDeps.length > 0) {
                 body.add(`}, this, ${geneDepsStr(listenDeps)})`)
@@ -104,13 +98,11 @@ export class Generator {
             // ---- 下面才是子body
             const newGenerator = new Generator(this.depChain)
             newGenerator.idDepsArr = [{ids: getIdentifiers(item), propNames: listenDeps}]
-            for (let [idx, cEl] of parserNode.children.entries()) {
-                const childBody = newGenerator.resolveParserNode(cEl, idx)
-                resolveForBody(childBody, item)
-                body.addBody(childBody)
-            }
-            body.add(`return ${geneChildNodesArray(parserNode)}`)
-            body.add(`})`)
+            let forBody = newGenerator.generate(parserNode)
+            forBody = resolveForBody(forBody, item)
+            body.add(forBody)
+            body.add("})")
+
             // ---- 第二个参数，keyFunc
             if (key) {
                 body.add(`${nodeName}._$addKeyFunc(() => {`)
@@ -123,16 +115,10 @@ export class Generator {
             }
             body.add(`${nodeName}._$addArrayFunc(this, () => (${array}), ${geneDepsStr(listenDeps)})`)
         } else {
-            body.add(`${nodeName}._$addNodesArr((() => {`)
+            body.add(`${nodeName}._$addNodess((() => {`)
             body.add(`const nodesArr = []`)
-            // ---- Array.from() 防止里面是个iterator
-            body.add(`for (let [_$idx, ${item}] of Array.from(${array}).entries()) {`)
-            for (let [idx, cEl] of parserNode.children.entries()) {
-                body.addBody(this.resolveParserNode(cEl, idx))
-            }
-            body.add(`nodesArr.push(${geneChildNodesArray(parserNode)})`)
-            body.add("}")
-            body.add("return nodesArr")
+            body.add(`for (let ${item} of ${array}) {`)
+            body.add(this.generate(parserNode))
             body.add("})())")
         }
 
@@ -149,7 +135,7 @@ export class Generator {
 
 
         if (listenDeps.length > 0) {
-            body.add(`const ${nodeName} = new _$.TextNode(() => ${strSymbol}${value}${strSymbol}, , this, ${geneDepsStr(listenDeps)})`)
+            body.add(`const ${nodeName} = new _$.TextNode(() => ${strSymbol}${value}${strSymbol}, this, ${geneDepsStr(listenDeps)})`)
         } else {
             body.add(`const ${nodeName} = new _$.TextNode(${strSymbol}${value}${strSymbol}, )`)
         }
@@ -184,10 +170,9 @@ export class Generator {
         }
 
         // ---- children
-        for (let childEl of parserNode.children) {
-            body.add(`${nodeName}._$addNode((() => {`)
-            body.addBody(this.resolveParserNode(childEl, 0))
-            body.add(`return _$node0`)
+        if (parserNode.children.length > 0) {
+            body.add(`${nodeName}._$addNodes((() => {`)
+            body.add(this.generate(parserNode))
             body.add("})())")
         }
 
@@ -218,19 +203,14 @@ export class Generator {
                 continue
             }
             body.add(`${nodeName}._$addProp("${key}", ${value})`)
-
         }
-
 
         // ---- child
-        for (let childEl of parserNode.children) {
-            body.add(`${nodeName}._$addChild((() => {`)
-            body.addBody(this.resolveParserNode(childEl, 0))
-            body.add(`return _$node0`)
+        if (parserNode.children.length > 0) {
+            body.add(`${nodeName}._$addChilds((() => {`)
+            body.add(this.generate(parserNode))
             body.add("})())")
         }
-
-
 
         return body
     }
@@ -242,10 +222,9 @@ export class Generator {
         const nodeName = `_$node${idx}`
         body.add(`const ${nodeName} = new _$.EnvNode()`)
         // ---- child 要先加children
-        for (let childEl of parserNode.children) {
-            body.add(`${nodeName}._$addNode((() => {`)
-            body.addBody(this.resolveParserNode(childEl, 0))
-            body.add(`return _$node0`)
+        if (parserNode.children.length > 0) {
+            body.add(`${nodeName}._$addNodes((() => {`)
+            body.add(this.generate(parserNode))
             body.add("})())")
         }
 
@@ -279,9 +258,9 @@ export class Generator {
 
         const listenDeps = this.geneDeps(content)
         if (listenDeps.length > 0) {
-            body.add(`const ${nodeName} = new _$.NodeNode(() => ${content}, , this, ${geneDepsStr(listenDeps)})`)
+            body.add(`const ${nodeName} = new _$.ExpressionNode(() => ${content}, this, ${geneDepsStr(listenDeps)})`)
         } else {
-            body.add(`const ${nodeName} = new _$.NodeNode(${content}, )`)
+            body.add(`const ${nodeName} = new _$.ExpressionNode(${content}, )`)
         }
 
         // ---- forward props
