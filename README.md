@@ -120,8 +120,7 @@ Body() {
   {{ anyVariable === 1 ? "is 1" : "not 1" }}
   {{ anyVariable === 1 ? {{ div(1) }} : {{ div(2) }} }}
   
-  【 anyVariable === 1 ? "is 1" : "not 1" 】
-
+  
 }
 ```
 

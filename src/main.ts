@@ -1,7 +1,7 @@
 // // @ts-ignore
 // import {ToDoApp} from "./example/ToDoApp/index.tsd";
 // @ts-ignore
-// import {NestedElement} from "./example/performance";
+import {NestedElement} from "./example/performance/nestedElement.tsd";
 // // // @ts-ignore
 // // import {TestElement} from "./example/el1.tsd";
 // // import {render} from "./core/utils";
@@ -30,7 +30,7 @@ import {Benchmark} from "./example/performance/benchmark.tsd"
 // @ts-ignore
 import {TestTest} from "./test.tsd";
 
-render("#app", new TestTest())
+render("#app", new ToDoApp())
 
 
 // switch (testType) {

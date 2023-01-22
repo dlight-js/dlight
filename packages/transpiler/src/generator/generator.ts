@@ -115,11 +115,9 @@ export class Generator {
             }
             body.add(`${nodeName}._$addArrayFunc(this, () => (${array}), ${geneDepsStr(listenDeps)})`)
         } else {
-            body.add(`${nodeName}._$addNodess((() => {`)
-            body.add(`const nodesArr = []`)
-            body.add(`for (let ${item} of ${array}) {`)
+            body.add(`${nodeName}._$addNodess(${array}.map(${item} => (() => {`)
             body.add(this.generate(parserNode))
-            body.add("})())")
+            body.add(`})()))`)
         }
 
         return body
