@@ -110,14 +110,15 @@ re-calc on this weekend
 
 ```typescript
 Body() {
-  div({prop1: "okk", prop2: "no"}) { 
-  	div("ok")
+  div(props) {
+    
   }	
   	.dotProps()
+  
   "string"
   `string ${anyVariable}`
   {{ anyVariable === 1 ? "is 1" : "not 1" }}
-  {{ anyVariable === 1 ? {{ div(1) }} : {{ div(2) }} }}
+  {{ anyVariable === 1 ? {{ div(1) }} : {{ div(2) }} }}  
 }
 ```
 
@@ -142,7 +143,8 @@ Body() {
 - [x] jsx control flow
 - [x] prop lifecycle
 - [x] support environment/context
-- [ ] animation
+- [ ] support prop expression nesting
+- [x] animation
 - [ ] error hints
 - [x] deps optimization
 - [ ] PropState change to PropState/EnvState

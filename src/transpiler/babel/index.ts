@@ -123,8 +123,8 @@ export function parseDlightFile(alteredFileCode: string, bodyMap: {[key: string]
     });
 
     const returnedCode = generate(ast)
-    const newCode = "import * as _$ from \"@dlightjs/dlight\" \n" + returnedCode
-
+    const newCode = "import * as _$ from \"@/core\" \n" + returnedCode
+    // const newCode = "import * as _$ from \"@dlightjs/dlight\" \n" + returnedCode
 
     return newCode
 }
