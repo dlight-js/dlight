@@ -99,6 +99,7 @@ function getFlowIndexFromNodesTillId(nodes: DLNode[], stopNode: DLNode) {
         }
         if ([DLNodeType.Text, DLNodeType.HTML].includes(node._$nodeType)) {
             index ++
+            return false
         }
         return true
     })
@@ -112,8 +113,8 @@ function getFlowIndexFromNodesTillId(nodes: DLNode[], stopNode: DLNode) {
  */
 function runDlightNodesLifecycle(nodes: DLNode[], lifecysle: "willMount"|"didMount"|"willUnmount"|"didUnmount") {
     loopNodes(nodes, (node: DLNode) => {
-        if (node._$nodeType === DLNodeType.Custom) {
-            (node as CustomNode)[lifecysle]()
+        if ([DLNodeType.Custom, DLNodeType.Expression].includes(node._$nodeType)) {
+            (node as any)[lifecysle](node)
         }
         return true
     })

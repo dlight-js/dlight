@@ -5,7 +5,7 @@ import {Transition} from "./components/Animation/Transition.tsd"
 // import {VStack} from "./components/Stack/VStack.tsd"
 // import {ZStack} from "./components/Stack/ZStack.tsd"
 // import {TextField} from "./components/Input"
-// import {Node, Nodes} from "./components/Node"
+import {Switch, Case} from "./components/Switch"
 
 
 function shuffle(array) {
@@ -29,10 +29,10 @@ export class TestTest extends View {
     this.list = randomList
     console.log(randomList.map(l=>l.id))
   }
-  timer = setInterval(() => {
+//   timer = setInterval(() => {
     
-    this.shuffle()
-  }, 1000);
+//     this.shuffle()
+//   }, 1000);
     add = () => {
         this.list = [...this.list, {id: this.list.length, value: "hhh"}]
     }
@@ -73,46 +73,7 @@ export class TestTest extends View {
                     ._margin("10px")
             }
         }
+        {{ !console.log("okkk") && {{div(`list: ${this.list.map(l=>l.id).join(" ")}`)}}}}
+
     }
 }
-
-class Case extends View {
-    @Prop _$content
-    Body() {}
-}
-class Switch extends View {
-    @Prop _$content
-    @State endIdx
-    @State targetNodes = []
-
-    getChild = () => {
-        let flag = true
-        for (let child of this._$children) {
-            if (child._$tag !== "Case") continue
-            if (this._$content === child._$content) {
-                flag = false
-                this.targetNodes = child._$children
-                break
-            }
-        }
-        if (flag) this.targetNodes = []
-    }
- 
-    // ---- 第一次进来要用Afterset来调用，因为子node还没有配置好
-    Preset() {
-        this.getChild()
-        this.firstIn = false
-    }
-    firstIn = true
-    manualUpdateChildren = function() {
-        if (this.firstIn) return
-        this.getChild()
-        let _ = this._$content
-    }.call(this)
-    
-    Body() {
-        Node(this.targetNodes)
-        
-    }
-}
-

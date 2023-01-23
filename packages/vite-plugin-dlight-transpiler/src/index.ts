@@ -1,13 +1,12 @@
-import { Plugin } from 'vite'
-import tsxConfig from "../../src/tsx"
-import tsdConfig from "../../src/tsd"
-import {geneParserNode} from "../../src"
+import tsxConfig from "../../../src/transpiler/tsx"
+import tsdConfig from "../../../src/transpiler/tsd"
+import {geneParserNode} from "../../../src/transpiler"
 
-export default function(): Plugin {
+export function dlight() {
     return {
         name: 'dlight',
         enforce: 'pre',
-        config(config) {
+        config(config: any) {
             return {
                 ...config,
                 esbuild: {
@@ -17,14 +16,15 @@ export default function(): Plugin {
                 },
             };
         },
-        transform(code, id) {
-            if (id.endsWith(".tsd")) {
+        transform(code: string, id: string) {
+            if (id.endsWith(".tsd") || id.endsWith(".jsd")) {
                 return geneParserNode(code, tsdConfig)
             }
-            if (id.endsWith(".tsx")) {
+            if (id.endsWith(".tsx") || id.endsWith(".jsx")) {
                 return geneParserNode(code, tsxConfig)
             }
+            return code
         }
-    };
+    } as any
 }
 

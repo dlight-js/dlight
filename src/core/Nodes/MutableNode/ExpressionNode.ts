@@ -16,6 +16,7 @@ export class ExpressionNode extends MutableNode {
 
     propFuncs: (() => any)[] = []
 
+    // ---- onUpdateNodes
     propScope: ((el: HTMLElement, node: DLNode) => boolean) = () => true
     deepLoopEl = false
 
@@ -26,27 +27,20 @@ export class ExpressionNode extends MutableNode {
             return
         }
         this.nodeOrFunc = nodeOrFunc as () => ExpressionNodeType
-        this.listenDeps = listenDeps   
-        this.dlScope = dlScope   
+        this.listenDeps = listenDeps
+        this.dlScope = dlScope
         this._$nodes = this.formatNodes(this.nodeOrFunc!())
     }
 
+    _$onUpdateNodes(func: () => any) {
+        loopNodes(this._$nodes, node => {
+            if (![DLNodeType.If, DLNodeType.For, DLNodeType.Expression].includes(node._$nodeType)) return true;
+            (node as MutableNode).addOnUpdateNodesFunc(func)
+            return true
+        })
+    }
+
     _$addProp(key: string, valueOrFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]) {
-        if (key === "_$propScope") {
-            this.propScope = valueOrFunc
-            return
-        }
-        if (key === "_$deepLoopEl") {
-            this.deepLoopEl = valueOrFunc
-            return
-        }
-        if (key === "onUpdateNodes") {
-            loopNodes(this._$nodes, node => {
-                if (![DLNodeType.If, DLNodeType.For, DLNodeType.Expression].includes(node._$nodeType)) return true;
-                (node as MutableNode).addOnUpdateNodesFunc(valueOrFunc)
-                return true
-            })
-        }
         const propScope = this.propScope
         const deepLoopEl = this.deepLoopEl
         // TODO 太复杂，要简化
@@ -56,10 +50,6 @@ export class ExpressionNode extends MutableNode {
             // ---- 不覆盖
             if (key[0] === "_" && (node._$el.style[key.slice(1)]??"").trim() !== "") return
             if (key[0] !== "_" && node._$el[key] !== undefined) return
-            if (["willAppear", "didAppear", "willDisappear", "didDisappear"].includes(key)) {
-                (node as HtmlNode)._$addLifeCycle(valueOrFunc, key as any)
-                return
-            }
             (node as HtmlNode)._$addProp(key, valueOrFunc, dlScope, listenDeps)
         }
         this.propFuncs.push(() => {
@@ -76,12 +66,12 @@ export class ExpressionNode extends MutableNode {
                                 addHtmlNodeProp(node)
                             }, deepLoopEl)
                         })
-                        return false
+                        break
                     case DLNodeType.HTML:
                         addHtmlNodeProp(node as HtmlNode)
-                        return deepLoopEl
+                        break
                 }
-                return false
+                return deepLoopEl
             })
         })
     }
@@ -91,19 +81,21 @@ export class ExpressionNode extends MutableNode {
             nodes = [nodes]
         } 
         nodes = nodes.flat(1)
-        nodes = nodes.filter((node: any)=>node).map((node: any) => {
+        nodes = nodes.filter((node: any)=>(
+                node !== undefined && node !== null
+            )).map((node: any) => {
             if (node._$nodeType !== undefined) return node
-            return new TextNode(node, this.dlScope, this.listenDeps)
+            return new TextNode(node)
         })
         return nodes
     }
 
     _$init() {
         if (this.listenDeps === undefined) {
+            this._$bindNodes()
             for (let func of this.propFuncs) {
                 func()
             }
-            this._$bindNodes()
             return
         }
          // ---- 找到HTMLNode作为parentNode，因为它是有真实el的
@@ -117,8 +109,9 @@ export class ExpressionNode extends MutableNode {
         // ---- 加deps
         const objectId = {}
         this._$depObjectIds.push(objectId)
-        this.dlScope!._$addDeps(this.listenDeps!, objectId, () => this.update)
+        this.dlScope!._$addDeps(this.listenDeps!, objectId, () => this.update(parentNode! as HtmlNode))
 
+        this._$bindNodes()
         for (let func of this.propFuncs) {
             func()
             const objectId = {}
@@ -126,13 +119,16 @@ export class ExpressionNode extends MutableNode {
             this.dlScope!._$addDeps(this.listenDeps!, objectId, func)
         }
 
-        this._$bindNodes()
     }
+
     render(parentEl: HTMLElement) {
+        this.willMount(this)
         for (let node of this._$nodes) {
             node.render(parentEl)
         }
+        this.didMount(this)
     }
+
     update(parentNode: HtmlNode) {
         const prevNodes = this._$nodes
         // ---- 把以前的删除了
@@ -151,6 +147,19 @@ export class ExpressionNode extends MutableNode {
         this.onUpdateNodes(prevNodes, this._$nodes)
     }
 
+    // ---- lifecycles
+    willMount(_node?: ExpressionNode) {}
+    didMount(_node?: ExpressionNode) {}
+    willUnmount(_node?: ExpressionNode) {}
+    didUnmount(_node?: ExpressionNode) {}
+
+    _$addLifeCycle(func: (_node: ExpressionNode) => any, lifeCycleName: "willMount" | "didMount" | "willUnmount" | "didUnmount") {
+        const preLifeCycle = this[lifeCycleName]
+        this[lifeCycleName] = function(_node: ExpressionNode) {
+            func.call(this, this)
+            preLifeCycle.call(this, this)
+        }
+    }
 }
 
 

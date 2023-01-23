@@ -22,10 +22,6 @@ export class ForNode extends MutableNode {
     }
     duplicatedOrNoKey = false
 
-    get _$el() {
-        return this._$nodes.map(node=> node._$el)
-    }
-
     _$getItem(key: any, idx: number) {
         // ---- 重复key了就默认用index
         let index = this.duplicatedOrNoKey ? idx : this.keys.indexOf(key)
@@ -141,7 +137,6 @@ export class ForNode extends MutableNode {
         if (preLength === currLength) return
         if (preLength < currLength) {
             let newFlowIndex = getFlowIndexFromParentNode(parentNode, this)
-
             let length = parentEl.childNodes.length  // 每次进去调用的话非常耗时
             for (let idx = 0; idx < currLength; idx++) {
                 if (idx < preLength) {
@@ -152,6 +147,7 @@ export class ForNode extends MutableNode {
                 [newFlowIndex, length] = appendNodesWithIndex(newNodes, newFlowIndex, parentEl, length)
                 this._$nodess.push(newNodes)
             }
+            this._$nodes = this._$nodess.flat(1)
             return
         }
 

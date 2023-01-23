@@ -1,7 +1,7 @@
 import { uid } from "../generator/utils";
 import { ParserNode } from "../ParserNode";
 
-export class DlightParser {
+class Parser {
     code: string
     token = ""
     c = ""
@@ -11,7 +11,7 @@ export class DlightParser {
         this.code = code
     }
 
-    stopCharacters = ["(", "{", " ", "\n"]
+    stopCharacters = ["(", "{", " ", "\n", "\"", "`", "'"]
 
     ok() {
         return this.idx < this.code.length - 1
@@ -142,7 +142,7 @@ export class DlightParser {
 
     eatSubEl() {
         this.eatCurlyBrackets()
-        const newParser = new DlightParser(this.token)
+        const newParser = new Parser(this.token)
         newParser.parse()
         this.erase()
 
@@ -158,20 +158,12 @@ export class DlightParser {
             }
 
             if (this.token.trim() !== "") {
-                if (["Node"].includes(this.token)) {
-                    this.resolveNode()
-                    continue
-                }
                 if (["If", "ElseIf", "Else"].includes(this.token)) {
                     this.resolveIf(this.token)
                     continue
                 }
                 if (["For"].includes(this.token)) {
                     this.resolveFor()
-                    continue
-                }
-                if (["\"", "'", "`"].includes(this.token[0])) {
-                    this.resolveText()
                     continue
                 }
                 if (this.token.startsWith(".")) {
@@ -181,7 +173,30 @@ export class DlightParser {
                 }
                 this.resolveEl()
             } else {
-                this.eat()
+                this.eat() 
+                if (["\"", "'", "`"].includes(this.c)) {
+                    // TextNode
+                    this.add()
+                    const strSymbol = this.c
+                    while (this.ok() && 
+                        (["\\"].includes(this.c) || !(this.look()===strSymbol))
+                    ) {
+                        this.eat()
+                        this.add()
+                    }
+                    if (this.ok()) {
+                        this.eat()
+                        this.add()
+                        this.resolveText()
+                    }
+                } else if (this.c === "{" && this.look() === "{") {
+                    // ExpressionNode
+                    this.eat() // eat another {
+                    this.eatCurlyBrackets()
+
+                    this.resolveExpression()
+                    this.eat() // eat another }
+                }
             }
         }
     }
@@ -222,33 +237,36 @@ export class DlightParser {
         this.parserNode.addChild(newNode)
     }
 
-    resolveNode() {
-        const newNode =  new ParserNode(this.token)
-        newNode.kv.nodes = {}
-        this.erase()
-        this.eatSpace()
-        this.eat()  // eat (
-        // ---- = this.eatParentheses
-        let depth = 1
-        while (this.ok()) {
-            this.eat()
-            if (this.c === "(") {
-                depth++
-            } else if (this.c === ")") {
-                depth--
-                if (depth === 0) break
-            } else if (this.c === "{") {
-                const id = uid()
-                const preToken = this.token
-                this.erase()
-                newNode.kv.nodes[id] = this.eatSubEl()
-                this.token = preToken + id
-                continue
-            }
-            this.add()
-        }
+    resolveExpression() {
+        const newNode =  new ParserNode("Expression")
         const content = this.token
-        newNode.kv.content = content.replaceAll("\n", " ")
+
+        newNode.kv.nodes = {}
+        let depth = 0
+        let tempSubContent = ""
+        let newContent = ""
+        for (let idx=0; idx < content.length; idx++) {
+            if (content[idx] === "{" && content[idx+1] === "{") {
+                depth ++
+                idx ++
+            } else if (content[idx] === "}" && content[idx+1] === "}") {
+                depth --
+                idx ++
+                if (depth === 0) {
+                    const id = uid()
+                    newContent += "\"" + id + "\""
+                    const newParser = new Parser(tempSubContent)
+                    newParser.parse()
+                    newNode.kv.nodes[id] = newParser.parserNode
+                    tempSubContent = ""
+                }
+            } else if (depth !== 0) {
+                tempSubContent += content[idx]
+            } else {
+                newContent += content[idx]
+            }
+        }
+        newNode.kv.content = newContent.replaceAll("\n", " ")
         this.parserNode.addChild(newNode)
 
         this.erase()
@@ -325,7 +343,7 @@ export class DlightParser {
 
 
 export function parseBody(bodyCode: string): ParserNode {
-    const parser = new DlightParser(bodyCode)
+    const parser = new Parser(bodyCode)
     parser.parse()
 
     return parser.parserNode

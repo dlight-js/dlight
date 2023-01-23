@@ -1,0 +1,24 @@
+import {View} from "@/core"
+
+export class Switch extends View {
+    @Prop _$content
+
+    caseChildren = function() {
+        let targetNodes = []
+        for (let child of this._$children) {
+            if (child._$tag !== "Case") {
+                targetNodes.push(child)
+                continue
+            }
+            if (this._$content === child._$content) {
+                targetNodes.push(...child._$children)
+                break
+            }
+        }
+        return targetNodes
+    }.call(this)
+
+    Body() {
+        {{ this.caseChildren }}
+    }
+}

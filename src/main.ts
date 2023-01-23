@@ -8,29 +8,31 @@ import {NestedElement} from "./example/performance/nestedElement.tsd";
 // // @ts-ignore
 // import {IfTest, ForTest, FlowTest, EnvTest, LifeCycleTest} from "./example/features"
 import {ForTest} from "./example/features/for.tsd"
+import {IfTest} from "./example/features/if.tsd"
+import {FlowTest} from "./example/features/flow.tsd"
 // // import { initNodes, bindParentNode, resolveEnvs } from "./core/Nodes/utils";
-// // import {SubElement} from "./example/test.tsd"
+// // import {SubElement} from "./example/test.jsd"
 // @ts-ignore
 import {ToDoApp} from "./example/ToDoApp/index.tsd";
 // // @ts-ignore
-// import {Counter} from "./example/test.tsd"
+// import {Counter} from "./example/test.jsd"
 // export {}
 
 // // @ts-ignore
-// import {TestTest} from "./test.tsd"
+// import {TestTest} from "./test.jsd"
 import {render} from "./core";
 // // @ts-ignore
-// import {SubElement} from "./example/test.tsd"
+// import {SubElement} from "./example/test.jsd"
 // @ts-ignore
 import {Benchmark} from "./example/performance/benchmark.tsd"
 // import {Benchmark} from "./example/performance/benchmark.tsx";
 // // console.log(t2-t1)
-// import {HH} from "./test"
+import {HH} from "./test.jsx"
 // import {NodeTest} from "./example/features/node.tsd"
 // @ts-ignore
-import {TestTest} from "./test.tsd";
+import {TestTest} from "./test.jsd";
 
-render("#app", new ToDoApp())
+render("#app", new TestTest())
 
 
 // switch (testType) {

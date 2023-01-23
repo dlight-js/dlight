@@ -1,0 +1,26 @@
+{
+  "name": "vite-plugin-dlight-transpiler",
+  "version": "0.0.8",
+  "keywords": [
+    "vite-plugin",
+    "dlightjs"
+  ],
+  "exports": {
+    "import": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "rm -rf dist/ && tsup src/index.ts --dts --no-splitting",
+    "publish": "npm publish"
+  },
+  "devDependencies": {
+    "@types/node": "^18.11.17",
+    "tsup": "^6.5.0",
+    "typescript": "^4.9.3"
+  },
+  "dependencies": {
+    "ts-node": "^10.9.1"
+  }
+}

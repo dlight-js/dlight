@@ -1,4 +1,4 @@
-import { bindParentNode, initNodes } from "../utils/nodes"
+import { bindParentNode, initNodes, toEls } from "../utils/nodes"
 
 export enum DLNodeType {
     HTML, Text, Custom, For, If, Env, Expression
@@ -39,10 +39,10 @@ export class DLNode {
      */
     _$nodeType: DLNodeType
     private __$el: Node | HTMLElement | any
-    public get _$el(): Node | HTMLElement | any {
-        return this.__$el
+    get _$el(): Node | HTMLElement | any {
+        return this.__$el ?? toEls(this._$nodes)
     }
-    public set _$el(value: Node | HTMLElement | any) {
+    set _$el(value: Node | HTMLElement | any) {
         this.__$el = value
     }
     _$parentNode?: DLNode
@@ -53,7 +53,6 @@ export class DLNode {
     _$bindNodes() {
         bindParentNode(this._$nodes, this)
         initNodes(this._$nodes)
-
     }
 
     constructor(nodeType: DLNodeType) {

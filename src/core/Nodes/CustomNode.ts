@@ -75,11 +75,7 @@ export class CustomNode extends DLNode {
         super(DLNodeType.Custom)
         this._$tag = tag ?? this.constructor.name
     }
-
-    get _$el() {
-        return this._$nodes.map(node => node._$el)
-    }
-
+    
     _$addAfterset(func: () => any) {
         const prePreset = this.Preset
         this.Preset = () => {
@@ -157,24 +153,24 @@ export class CustomNode extends DLNode {
     }
 
     render(parentEl: HTMLElement) {
-        this.willMount()
+        this.willMount(this)
         for (let node of this._$nodes) {
             node.render(parentEl)
         }
-        this.didMount()
+        this.didMount(this)
     }
 
     // ---- lifecycles
-    willMount() {}
-    didMount() {}
-    willUnmount() {}
-    didUnmount() {}
+    willMount(_node?: CustomNode) {}
+    didMount(_node?: CustomNode) {}
+    willUnmount(_node?: CustomNode) {}
+    didUnmount(_node?: CustomNode) {}
 
-    _$addLifeCycle(func: () => any, lifeCycleName: "willMount" | "didMount" | "willUnmount" | "didUnmount") {
+    _$addLifeCycle(func: (_node: CustomNode) => any, lifeCycleName: "willMount" | "didMount" | "willUnmount" | "didUnmount") {
         const preLifeCycle = this[lifeCycleName]
-        this[lifeCycleName] = function() {
-            func.call(this)
-            preLifeCycle.call(this)
+        this[lifeCycleName] = function(_node: CustomNode) {
+            func.call(this, this)
+            preLifeCycle.call(this, this)
         }
     }
 }

@@ -110,17 +110,14 @@ re-calc on this weekend
 
 ```typescript
 Body() {
-  div(props) {
-    
+  div({prop1: "okk", prop2: "no"}) { 
+  	div("ok")
   }	
   	.dotProps()
-  
   "string"
   `string ${anyVariable}`
   {{ anyVariable === 1 ? "is 1" : "not 1" }}
   {{ anyVariable === 1 ? {{ div(1) }} : {{ div(2) }} }}
-  
-  
 }
 ```
 

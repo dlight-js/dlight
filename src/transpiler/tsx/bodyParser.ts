@@ -6,6 +6,7 @@ import babelGenerate from "@babel/generator"
 // @ts-ignore
 import babelTraverse from "@babel/traverse"
 import * as t from "@babel/types";
+import { uid } from "../generator/utils";
 
 
 const babelConfig = {
@@ -13,6 +14,7 @@ const babelConfig = {
 }
 const parse = (code: string) => babel.parse(code, babelConfig)
 const generate = (ast: any) => babelGenerate.default(ast).code
+const traverse = babelTraverse.default
 
 class Parser {
     parserNode: ParserNode = new ParserNode("")
@@ -29,7 +31,7 @@ class Parser {
             attribute = attribute as t.JSXAttribute
             const key = attribute.name.name
             let value = attribute.value
-            value = t.isJSXExpressionContainer(value) ? generate(value.expression) : generate(value)
+            value = t.isJSXExpressionContainer(value!) ? generate(value.expression) : generate(value)
             newNode.kv.props.push({key, value})
         }
     
@@ -66,7 +68,7 @@ class Parser {
         let forValue = ""
         if (forValueAttribute !== undefined) {
             const value = (forValueAttribute as t.JSXAttribute).value
-            forValue = t.isJSXExpressionContainer(value)
+            forValue = t.isJSXExpressionContainer(value!)
                 ? generate(value.expression)
                 : generate(value).replace(/(^["'`])|(["'`]$)/g, "")
         }
@@ -76,7 +78,7 @@ class Parser {
             .filter(a=> (a as t.JSXAttribute).name.name === "key")[0]
         if (keyValueAttribute !== undefined) {
             const value = (keyValueAttribute as t.JSXAttribute).value
-            newNode.kv.key = t.isJSXExpressionContainer(value)
+            newNode.kv.key = t.isJSXExpressionContainer(value!)
                 ? generate(value.expression)
                 : generate(value).replace(/(^["'`])|(["'`]$)/g, "")
         }
@@ -99,7 +101,7 @@ class Parser {
         let condition = ""
         if (conditionAttribute !== undefined) {
             const value = (conditionAttribute as t.JSXAttribute).value
-            condition = t.isJSXExpressionContainer(value) ? generate(value.expression) : generate(value)
+            condition = t.isJSXExpressionContainer(value!) ? generate(value.expression) : generate(value)
         }
         // ---- condition node
         const parser = new Parser(jsxElement.children)
@@ -120,7 +122,7 @@ class Parser {
         let condition = ""
         if (conditionAttribute !== undefined) {
             const value = (conditionAttribute as t.JSXAttribute).value
-            condition = t.isJSXExpressionContainer(value) ? generate(value.expression) : generate(value)
+            condition = t.isJSXExpressionContainer(value!) ? generate(value.expression) : generate(value)
         }
         // ---- condition node
         const parser = new Parser(jsxElement.children)
@@ -152,11 +154,23 @@ class Parser {
     }
 
     resolveJSXExpression(jsxElement: t.JSXExpressionContainer) {
-        const newNode = new ParserNode("TextNode")
-        newNode.kv.strSymbol = ""
-        newNode.kv.value = generate(jsxElement.expression)
-    
-        this.parserNode.children.push(newNode)
+        const newNode = new ParserNode("Expression")
+        newNode.kv.nodes = {}
+        const newAst = parse(generate(jsxElement))
+        traverse(newAst, { 
+            JSXElement(path: any) {
+                const id = uid()
+                const newParser = new Parser(path.node)
+                newParser.parse()
+                newNode.kv.nodes[id] = newParser.parserNode
+                path.replaceWith(t.stringLiteral(id))
+            }
+        })
+
+        // TODO 后面是为了转换，看看有没有更好的
+        newNode.kv.content = generate(newAst).trim().slice(1,-1).replace(";","")
+
+        this.parserNode.addChild(newNode)
     }
 
     resolveJSXElement(jsxElement: t.JSXElement | t.JSXText | t.JSXExpressionContainer | t.JSXFragment | any): any {
@@ -182,9 +196,6 @@ class Parser {
 
 
 export function parseBody(bodyCode: string): ParserNode {
-    console.log(bodyCode)
-
-    console.log("------")
     const ast = parse(bodyCode)
     const firstJSXElement = ast.program.body[0].expression 
 

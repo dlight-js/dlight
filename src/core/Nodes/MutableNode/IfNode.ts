@@ -20,11 +20,7 @@ export class IfNode extends MutableNode {
     constructor() {
         super(DLNodeType.If)
     }
-
-    get _$el() {
-        return this._$nodes.map(node => node._$el)
-    }
-
+    
     _$addCond(condition: () => boolean, node: () => DLNode[], dlScope?: CustomNode, listenDeps?: string[]) {
         this.conditionPairs.push({condition, node})
         if (listenDeps) {
@@ -64,40 +60,40 @@ export class IfNode extends MutableNode {
     update(parentNode: HtmlNode) {
         const prevNodes = this._$nodes
         const condition = this.condition
+        this._$nodes = []
         for (let conditionPair of this.conditionPairs) {
             if (conditionPair.condition()) {
                 if (this.condition !== conditionPair.condition.toString()) {
                     // ---- 改变状态了，清除对应deps
+                    deleteNodesDeps(prevNodes, this.dlScope!)
+                    removeNodes(prevNodes)
+                    
                     this.condition = conditionPair.condition.toString()
+                    // ---- 新的
                     this._$nodes = conditionPair.node()
+                    this._$bindNewNodes(this._$nodes)
                 } else {
                     // ---- 和之前状态一样就直接不管
+                    this._$nodes = prevNodes
                 }
                 break
             }
         }
 
-        if (this._$nodes === prevNodes) {
-            // ---- 根本没变，就是没有匹配的，置空
-            this._$nodes = []
-        }
-
         if (prevNodes.length !== 0 && this._$nodes.length === 0) {
             // ---- 以前有，现在没有
             this.condition = "[none]"
+            // ---- 改变状态了，清除对应deps
+            deleteNodesDeps(prevNodes, this.dlScope!)
+            removeNodes(prevNodes)
         }
         if (condition === this.condition) return
-        deleteNodesDeps(prevNodes, this.dlScope!)
-        // ---- 原本有全删掉
-        removeNodes(prevNodes)
-
+        
 
         const flowIndex = getFlowIndexFromParentNode(parentNode, this)
-        this._$bindNewNodes(this._$nodes)
 
         const parentEl = parentNode._$el
         appendNodesWithIndex(this._$nodes, flowIndex, parentEl, parentEl.childNodes.length)
-
 
         this.onUpdateNodes(prevNodes, this._$nodes)
     }

@@ -1,5 +1,5 @@
 import { HtmlNode } from "./Nodes"
-import { CustomNode } from "./Nodes/CustomNode"
+import { CustomNode } from "./Nodes"
 
 export * from "./Nodes"
 export * from "./utils/nodes"

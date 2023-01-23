@@ -36,7 +36,7 @@ export class FlowTest extends View {
             })
         div (`length ${this.apple.length}`)
 
-        For(let j of [1,2,3]) {
+        For(let j of [1,2]) {
             If (this.toggle) {
                 For(let i of this.apple) {
                     If (this.toggle) {

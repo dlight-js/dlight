@@ -31,7 +31,7 @@ export class Generator {
     }
 
     resolveParserNode(parserNode: ParserNode, idx: number) {
-        if (parserNode.tag === "Node") return this.resolveNode(parserNode, idx)
+        if (parserNode.tag === "Expression") return this.resolveExpression(parserNode, idx)
         if (parserNode.tag === "If") return this.resolveIf(parserNode, idx)
         if (parserNode.tag === "For") return this.resolveFor(parserNode, idx)
         if (parserNode.tag === "TextNode") return this.resolveText(parserNode, idx)
@@ -115,7 +115,7 @@ export class Generator {
             }
             body.add(`${nodeName}._$addArrayFunc(this, () => (${array}), ${geneDepsStr(listenDeps)})`)
         } else {
-            body.add(`${nodeName}._$addNodess(${array}.map(${item} => (() => {`)
+            body.add(`${nodeName}._$addNodess(Array.from(${array}).map((${item}) => (() => {`)
             body.add(this.generate(parserNode))
             body.add(`})()))`)
         }
@@ -240,7 +240,7 @@ export class Generator {
         return body
     }
 
-    resolveNode(parserNode: ParserNode, idx: number) {
+    resolveExpression(parserNode: ParserNode, idx: number) {
         const body = new BodyStringBuilder()
         let content = parserNode.kv.content
         const nodes = parserNode.kv.nodes
@@ -251,7 +251,7 @@ export class Generator {
             subBody.add("(function(){")
             subBody.add(this.generate(subParserNode))
             subBody.add("}.call(this))")
-            content = content.replace(i, subBody.value)
+            content = content.replace("\""+i+"\"", subBody.value)
         }
 
         const listenDeps = this.geneDeps(content)
@@ -263,6 +263,23 @@ export class Generator {
 
         // ---- forward props
         for (let {key, value} of parserNode.kv.props) {
+            if (key === "propScope") {
+                body.add(`${nodeName}.propScope = ${value}`)
+                continue
+            }
+            if (key === "deepLoopEl") {
+                body.add(`${nodeName}.deepLoopEl = ${value}`)
+                continue
+            }
+            if (key === "onUpdateNodes") {
+                body.add(`${nodeName}._$onUpdateNodes(${value})`)
+                continue
+            }
+            if (["willMount", "didMount", "willUnmount", "didUnmount"].includes(key)) {
+                body.add(`${nodeName}._$addLifeCycle(${value}, "${key}")`)
+                continue
+            }
+
             const listenDeps = this.geneDeps(value as string)
             if (listenDeps.length > 0) {
                 body.add(`${nodeName}._$addProp("${key}", () => (${value}), this, ${geneDepsStr(listenDeps)}, ${geneIsTwoWayConnected(value)})`)
