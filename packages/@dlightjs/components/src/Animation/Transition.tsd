@@ -1,4 +1,4 @@
-import {View, loopNodes, DLNode, DLNodeType, toEls} from "@/dlight"
+import {View, loopNodes, DLNode, DLNodeType, toEls} from "@dlightjs/dlight"
 
 
 

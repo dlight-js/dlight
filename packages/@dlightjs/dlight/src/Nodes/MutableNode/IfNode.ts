@@ -40,7 +40,7 @@ export class IfNode extends MutableNode {
         if (parentNode) {
             const objectId = {}
             this._$depObjectIds.push(objectId)
-            this.dlScope!._$addDeps(this.listenDeps, objectId, () => this.update(parentNode as HtmlNode))
+            this.dlScope?._$addDeps(this.listenDeps, objectId, () => this.update(parentNode as HtmlNode))
         }
 
         // ---- 生成nodes

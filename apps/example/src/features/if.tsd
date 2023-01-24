@@ -1,4 +1,4 @@
-import {View, State} from "@/dlight";
+import {View, State} from "@dlightjs/dlight";
 
 export class IfTest extends View {
     @State toggle1 = false

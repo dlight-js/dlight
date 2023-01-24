@@ -1,9 +1,9 @@
 // @ts-ignore
-export * from "./Spacer.tsd"
+export {Spacer} from "./Spacer.tsd"
 // @ts-ignore
-export * from "./HStack.tsd"
+export {HStack} from "./HStack.tsd"
 // @ts-ignore
-export * from "./VStack.tsd"
+export {VStack} from "./VStack.tsd"
 // @ts-ignore
-export * from "./ZStack.tsd"
+export {ZStack} from "./ZStack.tsd"
 

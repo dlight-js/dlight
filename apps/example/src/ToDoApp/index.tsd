@@ -1,4 +1,4 @@
-import {View} from "@/dlight"
+import {View} from "@dlightjs/dlight"
 // @ts-ignore
 import {TaskCard} from "./TaskCard.tsd"
 // @ts-ignore

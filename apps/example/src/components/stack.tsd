@@ -1,8 +1,4 @@
 import {View} from "@dlightjs/dlight";
-// import {HStack} from "../../../packages/@dlightjs/components/src/Stack/HStack.tsd"
-// import {VStack} from "../../../packages/@dlightjs/components/src/Stack/VStack.tsd"
-// import {ZStack} from "../../../packages/@dlightjs/components/src/Stack/ZStack.tsd"
-// import {Spacer} from "../../../packages/@dlightjs/components/src/Stack/Spacer.tsd"
 import {HStack, VStack, ZStack, Spacer} from "@dlightjs/components";
 
 export class StackTest extends View {

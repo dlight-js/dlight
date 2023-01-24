@@ -1,4 +1,4 @@
-import {View, State} from "@/dlight";
+import {View, State} from "@dlightjs/dlight";
 
 class SubElement extends View {
     Body() {

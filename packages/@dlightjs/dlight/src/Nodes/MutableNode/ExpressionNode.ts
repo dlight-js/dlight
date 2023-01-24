@@ -53,8 +53,18 @@ export class ExpressionNode extends MutableNode {
             (node as HtmlNode)._$addProp(key, valueOrFunc, dlScope, listenDeps)
         }
         this.propFuncs.push(() => {
-            loopNodes(this._$nodes, node =>{
+            for (let node of this._$nodes) {
                 switch (node._$nodeType) {
+                    case DLNodeType.HTML:
+                        addHtmlNodeProp(node as HtmlNode)
+                        if (deepLoopEl) {
+                            // ---- 如果不是deepLoopEl，只要add自己就行了
+                            loopEls(node._$nodes, (_: HTMLElement, node: HtmlNode) => {
+                                if (node._$nodeType !== DLNodeType.HTML) return
+                                addHtmlNodeProp(node)
+                            }, true)
+                        }
+                        break
                     // ---- 这一些都是要bindNodes的，在bindNodes时候给里面的_$nodes进行遍历加prop
                     //      典型的如for循环，newNodes的时候也会bindNodes，也要加这些prop
                     case DLNodeType.For:
@@ -66,13 +76,13 @@ export class ExpressionNode extends MutableNode {
                                 addHtmlNodeProp(node)
                             }, deepLoopEl)
                         })
-                        break
-                    case DLNodeType.HTML:
-                        addHtmlNodeProp(node as HtmlNode)
-                        break
+                    default:
+                        loopEls(node._$nodes, (_: HTMLElement, node: HtmlNode) => {
+                            if (node._$nodeType !== DLNodeType.HTML) return
+                            addHtmlNodeProp(node)
+                        }, deepLoopEl)
                 }
-                return deepLoopEl
-            })
+            }
         })
     }
 

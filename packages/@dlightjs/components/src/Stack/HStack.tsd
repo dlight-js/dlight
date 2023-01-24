@@ -1,21 +1,22 @@
-import {View, HtmlNode, DLNode, loopNodes, DLNodeType} from "@dlightjs/dlight"
+import {View} from "@dlightjs/dlight"
 import {VAlignment} from "./types"
 
 export class HStack extends View {
-    @Prop spacing=1
+    @Prop spacing = 10
     @Prop alignment: VAlignment = "top"
     @Prop width = "100%"
     @Prop height = "max-content"
     margin = function(){
-        let margin: string = "auto"
-        if (this.alignment === "top") {
-            margin = "0 0 auto 0"
-        } else if (this.alignment === "bottom") {
-            margin = "auto 0 0 0"
-        } else if (this.alignment === "center") {
-            margin = "auto 0"
+        switch (this.alignment) {
+            case "top":
+                return "0 0 auto 0"
+            case "bottom":
+                return "auto 0 0 0"
+            case "center":
+                return "auto 0"
+            default:
+                return "auto"
         }
-        return margin
     }.call(this)
 
 
@@ -23,16 +24,16 @@ export class HStack extends View {
         div {
             For (let child of this._$children) {
                 If (child._$tag === "Spacer") {
-                    Node(child)
+                    {{ child }}
                         ._flexGrow(1)
                 } Else {
-                    Node(child)
+                    {{ child }}
                         ._flexShrink(0)
                         ._margin(this.margin)
                 }
             }
         }
-            ._height(this.height)
+    ._height(this.height)
             ._width(this.width)
             ._columnGap(`${this.spacing}px`)
             ._display("flex")

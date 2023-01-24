@@ -1,4 +1,4 @@
-import {View} from "@/dlight"
+import {View} from "@dlightjs/dlight"
 
 export class Switch extends View {
     @Prop _$content

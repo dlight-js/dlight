@@ -40,6 +40,12 @@ export function parseDlightFile(alteredFileCode: string, bodyMap: {[key: string]
             if(t.isIdentifier(node.superClass!, {name: "View"})) {
                 classDeclarationNode = node
                 classBodyNode = classDeclarationNode.body
+                classBodyNode.body.unshift(
+                    t.classProperty(
+                        t.identifier("_$tag"),
+                        t.stringLiteral(classDeclarationNode.id.name)
+                    )
+                )
                 derivedNode = t.classProperty(
                     t.identifier("_$derivedPairs"),
                     t.objectExpression([])
@@ -122,7 +128,6 @@ export function parseDlightFile(alteredFileCode: string, bodyMap: {[key: string]
     });
 
     const returnedCode = generate(ast)
-    // const newCode = "import * as _$ from \"@/dlight\" \n" + returnedCode
     const newCode = "import * as _$ from \"@dlightjs/dlight\" \n" + returnedCode
 
     return newCode

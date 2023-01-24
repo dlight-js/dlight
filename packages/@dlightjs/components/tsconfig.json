@@ -21,7 +21,6 @@
     "esm": true
   },
   "include": [
-    "apps/",
-    "packages/"
+    "src"
   ]
 }

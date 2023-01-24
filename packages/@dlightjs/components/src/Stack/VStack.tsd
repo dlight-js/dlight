@@ -1,56 +1,37 @@
-import {View, HtmlNode, DLNode, loopNodes, DLNodeType} from "@/dlight"
-import {Nodes} from "../Node";
-import {HAlignment} from "./types"
+import {View} from "@dlightjs/dlight"
+import {HAlignment, VAlignment} from "./types"
 
 
 export class VStack extends View {
-    @Prop spacing=1
-    @Prop alignment: HAlignment = "leading"
-    @Prop width = "100%"
-    @Prop height = "max-content"
-
-    loopHTMLChildren = (nodes: DLNode[]) => {
-        for (let node of nodes) {
-            
+    @Prop spacing = 10
+    @Prop alignment: HAlignment = "top"
+    @Prop width = "max-content"
+    @Prop height = "100%"
+    margin = function(){
+        switch (this.alignment) {
+            case "top":
+                return "0 auto 0 0"
+            case "bottom":
+                return "0 0 0 auto"
+            case "center":
+                return "0 auto"
+            default:
+                return "auto"
         }
-    }
-
-    childrenLayout = (alignment: string) => {
-        loopNodes(this._$children, (node: DLNode) => {
-            if (node._$tag === "Spacer") {
-                node._$nodes[0]._$addProp("_flexGrow", "1")
-                return false
-            }
-            if (node._$nodeType !== DLNodeType.HTML) return true
-            node._$addProp("_flexShrink", "0")
-            let margin: string = "auto"
-            if (alignment === "leading") {
-                margin = "0 auto 0 0"
-            } else if (alignment === "tailing") {
-                margin = "0 0 0 auto"
-            } else if (alignment === "center") {
-                margin = "0 auto"
-            }
-            node._$addProp("_margin", margin)
-            return false
-        })
-    }
-
-    // ---- 第一次进来要用Afterset来调用，因为子node还没有配置好
-    Afterset() {
-        this.childrenLayout(this.alignment)
-    }
-    firstIn = true
-    manualUpdateChildren = function() {
-        if (this.firstIn) return
-        this.firstIn = false
-        this.childrenLayout(this.alignment)
     }.call(this)
-
 
     Body() {
         div {
-            Nodes(this._$children)
+            For (let child of this._$children) {
+                If (child._$tag === "Spacer") {
+                    {{ child }}
+                        ._flexGrow(1)
+                } Else {
+                    {{ child }}
+                        ._flexShrink(0)
+                        ._margin(this.margin)
+                }
+            }
         }
             ._height(this.height)
             ._width(this.width)

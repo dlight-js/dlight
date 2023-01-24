@@ -182,7 +182,7 @@ export class Generator {
         const body = new BodyStringBuilder()
         const nodeName = `_$node${idx}`
 
-        body.add(`const ${nodeName} = new ${parserNode.tag}("${parserNode.tag}", )`)
+        body.add(`const ${nodeName} = new ${parserNode.tag}()`)
 
         // ---- props
         for (let {key, value} of parserNode.kv.props) {

@@ -67,13 +67,12 @@ export class CustomNode extends DLNode {
     _$envNodes?: EnvNode[]
     _$derivedPairs?: {[key: string]: string[]}
     _$children?: DLNode[]
-    _$tag: string
+    _$tag: string = ""
 
     Body: any
 
-    constructor(tag?: string) {
+    constructor() {
         super(DLNodeType.Custom)
-        this._$tag = tag ?? this.constructor.name
     }
     
     _$addAfterset(func: () => any) {

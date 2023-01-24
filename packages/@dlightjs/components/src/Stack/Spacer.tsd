@@ -1,4 +1,4 @@
-import {View} from "@/dlight"
+import {View} from "@dlightjs/dlight"
 
 export class Spacer extends View {
     Body() {

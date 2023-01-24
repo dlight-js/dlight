@@ -1,4 +1,4 @@
-import {View} from "@/dlight"
+import {View} from "@dlightjs/dlight"
 
 export class Button extends View {
     @Prop _$content
