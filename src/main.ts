@@ -32,7 +32,7 @@ import {HH} from "./test.jsx"
 // @ts-ignore
 import {TestTest} from "./test.jsd";
 
-render("#app", new TestTest())
+render("app", new TestTest())
 
 
 // switch (testType) {
