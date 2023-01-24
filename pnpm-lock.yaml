@@ -2,7 +2,7 @@ lockfileVersion: 5.4
 
 importers:
 
-  apps/dlight-test:
+  apps/test:
     specifiers:
       '@dlightjs/dlight': workspace:*
       '@types/node': ^18.11.17
@@ -20,6 +20,12 @@ importers:
       tslib: 2.4.1
       typescript: 4.9.4
       vite: 4.0.4_@types+node@18.11.18
+
+  packages/@dlightjs/cli:
+    specifiers:
+      commander: ^10.0.0
+    dependencies:
+      commander: 10.0.0
 
   packages/@dlightjs/dlight:
     specifiers:
@@ -1858,6 +1864,11 @@ packages:
 
   /color-name/1.1.3:
     resolution: {integrity: sha512-72fSenhMw2HZMTVHeCA9KCmpEIbzWiQsjN+BHcBbS9vr1mtt+vJjPdksIBNUmKAW8TFUDPJK5SUU3QhE9NEXDw==}
+    dev: false
+
+  /commander/10.0.0:
+    resolution: {integrity: sha512-zS5PnTI22FIRM6ylNW8G4Ap0IEOyk62fhLSD0+uHRT9McRCLGpkVNvao4bjimpK/GShynyQkFFxHhwMcETmduA==}
+    engines: {node: '>=14'}
     dev: false
 
   /commander/4.1.1:

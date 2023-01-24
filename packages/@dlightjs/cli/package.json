@@ -1,0 +1,16 @@
+{
+  "name": "@dlightjs/cli",
+  "version": "0.0.0",
+  "description": "",
+  "bin": {
+    "create-dlight-app": "./src/create-dlight-app.js"
+  },
+  "keywords": [
+    "dlight.js"
+  ],
+  "author": "IanDx",
+  "license": "ISC",
+  "dependencies": {
+    "commander": "^10.0.0"
+  }
+}
