@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-dlight-transpiler",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "keywords": [
     "vite-plugin",
     "dlightjs"
@@ -9,6 +9,10 @@
   "typings": "./dist/index.d.ts",
   "dependencies": {
     "@dlightjs/transpiler": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^4.9.4",
+    "tsup": "^6.5.0"
   },
   "author": "IanDx"
 }

@@ -31,8 +31,10 @@ import {render} from "@dlightjs/dlight";
 // import {NodeTest} from "./example/features/node.jsd"
 // @ts-ignore
 import {TestTest} from "./test.jsd";
+import {StackTest} from "./stack.tsd";
 
-render("app", new TestTest())
+
+render("app", new StackTest())
 
 
 // switch (testType) {

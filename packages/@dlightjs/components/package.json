@@ -1,0 +1,14 @@
+{
+  "name": "@dlightjs/components",
+  "version": "0.0.0",
+  "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "devDependencies": {
+    "typescript": "^4.9.3"
+  },
+  "dependencies": {
+    "@dlightjs/dlight": "workspace:*"
+  }
+}

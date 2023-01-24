@@ -15,10 +15,10 @@ export function dlight() {
             };
         },
         transform(code: string, id: string) {
-            if (id.endsWith(".jsd") || id.endsWith(".jsd")) {
+            if (id.endsWith(".jsd") || id.endsWith(".tsd")) {
                 return geneParserNode(code, JSDConfig)
             }
-            if (id.endsWith(".jsx") || id.endsWith(".jsx")) {
+            if (id.endsWith(".jsx") || id.endsWith(".tsx")) {
                 return geneParserNode(code, JSXConfig)
             }
             return code

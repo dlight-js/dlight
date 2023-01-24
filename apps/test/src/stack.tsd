@@ -1,0 +1,15 @@
+import {View} from "@dlightjs/dlight";
+import {HStack} from "./HStack.tsd"
+
+
+export class StackTest extends View {
+
+   Body() {
+       HStack() {
+           div("hh")
+           div("ok")
+       }
+
+   }
+
+}

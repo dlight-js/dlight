@@ -1,6 +1,5 @@
 import {View} from "@dlightjs/dlight";
 // import {Transition} from "./components/Animation/Transition.jsd"
-// import {HStack} from "./components/Stack/HStack.jsd"
 // import {Spacer} from "./components/Stack/Spacer.jsd"
 // import {VStack} from "./components/Stack/VStack.jsd"
 // import {ZStack} from "./components/Stack/ZStack.jsd"
@@ -15,12 +14,12 @@ function shuffle(array) {
 
 export class TestTest extends View {
     @State list = [
-    { id: 0, value: "bread" },
-    { id: 1, value: "milk" },
-    { id: 2, value: "honey" },
-    { id: 3, value: "chips" },
-    { id: 4, value: "cookie" }
-  ]
+        { id: 0, value: "bread" },
+        { id: 1, value: "milk" },
+        { id: 2, value: "honey" },
+        { id: 3, value: "chips" },
+        { id: 4, value: "cookie" }
+      ]
   shuffle = () => {
     let randomList = this.list
     while (JSON.stringify(this.list) === JSON.stringify(randomList)) {

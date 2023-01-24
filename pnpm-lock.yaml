@@ -27,6 +27,15 @@ importers:
     dependencies:
       commander: 10.0.0
 
+  packages/@dlightjs/components:
+    specifiers:
+      '@dlightjs/dlight': workspace:*
+      typescript: ^4.9.3
+    dependencies:
+      '@dlightjs/dlight': link:../dlight
+    devDependencies:
+      typescript: 4.9.4
+
   packages/@dlightjs/dlight:
     specifiers:
       tsup: ^6.5.0
@@ -69,8 +78,13 @@ importers:
   packages/vite-plugin-dlight-transpiler:
     specifiers:
       '@dlightjs/transpiler': workspace:*
+      tsup: ^6.5.0
+      typescript: ^4.9.4
     dependencies:
       '@dlightjs/transpiler': link:../@dlightjs/transpiler
+    devDependencies:
+      tsup: 6.5.0_typescript@4.9.4
+      typescript: 4.9.4
 
 packages:
 

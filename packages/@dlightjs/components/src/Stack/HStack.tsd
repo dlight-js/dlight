@@ -1,5 +1,4 @@
-import {View, HtmlNode, DLNode, loopNodes, DLNodeType} from "@/dlight"
-import {Nodes} from "../Node";
+import {View, HtmlNode, DLNode, loopNodes, DLNodeType} from "@dlightjs/dlight"
 import {VAlignment} from "./types"
 
 export class HStack extends View {
