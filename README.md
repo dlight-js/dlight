@@ -75,8 +75,8 @@ export class MyComp extends View {
   countPlus1 = this.count + 1  
 
   Body() {
-  	h1("hello, dlight js, jsd")
-  	div(this.count)
+    h1("hello, dlight js, jsd")
+    div(this.count)
     div(this.count + 1)
     button("+")
       .onclick(() => {
