@@ -1,0 +1,36 @@
+import {View} from "@/dlight"
+import {Task} from "./Task"
+
+export class TaskCard extends View {
+  @Prop task: Task
+  @Prop deleteTask: () => any
+  @Prop toggleBox: (checked: any) => any
+  didMount() {
+    console.log(`[didAppear] Loaded task named ${this.task.name}, it is${this.task.finished?"":" not"} finished.`)
+  }
+  didUnmount() {
+    console.log(`[didUnMount] Unmount task named ${this.task.name}, it is${this.task.finished?"":" not"} finished.`)
+  }
+
+  Body() {
+    div() {
+      input()
+        .type("checkbox")
+        .checked(this.task.finished)
+        .onchange(e => {
+            if (e.target.checked !== this.task.finished) {
+              this.toggleBox(e.target.checked)
+            }
+
+        })
+
+      span(this.task.name)
+        ._margin("0 5px")
+        ._text-decoration(this.task.finished ? "line-through" : "none")
+        
+      button("delete")
+        .onclick(this.deleteTask)
+    }
+      ._padding("5px")
+  }
+}

@@ -1,0 +1,77 @@
+import {View} from "@dlightjs/dlight";
+// import {Transition} from "./components/Animation/Transition.jsd"
+// import {HStack} from "./components/Stack/HStack.jsd"
+// import {Spacer} from "./components/Stack/Spacer.jsd"
+// import {VStack} from "./components/Stack/VStack.jsd"
+// import {ZStack} from "./components/Stack/ZStack.jsd"
+// import {TextField} from "./components/Input"
+// import {Switch, Case} from "./components/Switch"
+
+
+function shuffle(array) {
+  return array.sort(() => Math.random() - 0.5);
+}
+
+
+export class TestTest extends View {
+    @State list = [
+    { id: 0, value: "bread" },
+    { id: 1, value: "milk" },
+    { id: 2, value: "honey" },
+    { id: 3, value: "chips" },
+    { id: 4, value: "cookie" }
+  ]
+  shuffle = () => {
+    let randomList = this.list
+    while (JSON.stringify(this.list) === JSON.stringify(randomList)) {
+        randomList = shuffle(JSON.parse(JSON.stringify(this.list)))
+    }
+    this.list = randomList
+    console.log(randomList.map(l=>l.id))
+  }
+//   timer = setInterval(() => {
+    
+//     this.shuffle()
+//   }, 1000);
+    add = () => {
+        this.list = [...this.list, {id: this.list.length, value: "hhh"}]
+    }
+    subs = () => {
+        this.list = this.list.slice(0, -1)
+    }
+
+    toggle =true
+    parentNode
+    el1
+    el2
+
+    @State width = 50
+    Body() {
+        button("shuffle")
+            .onclick(() => {
+                this.shuffle()
+            })
+        button("+")
+            .onclick(() => {
+                this.width += 50
+            })
+        button("-")
+            .onclick(() => {
+                this.width -= 50
+            })
+        button("++")
+            .onclick(this.add)
+        button("--")
+            .onclick(this.subs)
+        div("hh")
+            ._width(`${this.width}px`)
+            ._backgroundColor("blue")
+        For(let {id, value} of this.list)[id] {
+            div (`${id} ${value}`)
+                ._backgroundColor("red")
+                ._margin("10px")
+        }
+        {{ !console.log("okkk") && {{div(`list: ${this.list.map(l=>l.id).join(" ")}`)}}}}
+
+    }
+}

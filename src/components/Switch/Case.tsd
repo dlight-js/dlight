@@ -1,7 +1,0 @@
-import {View} from "@/core";
-
-
-export class Case extends View {
-    @Prop _$content
-    Body() {}
-}

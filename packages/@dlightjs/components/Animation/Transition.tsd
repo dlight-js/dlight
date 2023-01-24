@@ -1,0 +1,14 @@
+import {View, loopNodes, DLNode, DLNodeType, toEls} from "@/dlight"
+
+
+
+export class Transition extends View {
+    @Prop _$content = 0.5
+
+    Body() { 
+        {{this._$children}}
+            .deepLoopEl(true)
+            ._transition((typeof this._$content === "string") ? this._$content : `all ${this._$content}s`)
+    }
+}
+

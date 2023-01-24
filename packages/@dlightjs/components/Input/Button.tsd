@@ -1,0 +1,41 @@
+import {View} from "@/dlight"
+
+export class Button extends View {
+    @Prop _$content
+    @Prop onClick = () => null
+
+    @State mouseDown = false
+    @Prop disable = false
+    
+    Body() {
+        
+        button(this._$content)
+            ._boxSizing("border-box")
+            ._border("solid")
+            ._borderRadius("5px")
+            ._borderWidth("1px")
+            ._height("max-content")
+            ._width("max-content")
+            ._padding("5px 10px")
+            ._textAlign("center")
+            ._verticalAlign("middle")
+            ._userSelect("none")
+            ._cursor("pointer")
+            ._backgroundColor("#832525")
+            ._color("#F1B1B1")
+            ._borderColor("#F1B1B1")
+            ._opacity((this.mouseDown || this.disable) ? "0.5" : "1")
+            ._pointerEvents(this.disable ? "none" : "")
+            .onclick(this.onClick)
+            .onmouseout(()=>{
+                this.mouseDown = false
+            })
+            .onmouseup(()=>{
+                this.mouseDown = false
+            })
+            .onmousedown(()=>{
+                this.mouseDown = true
+            })
+    }
+
+}

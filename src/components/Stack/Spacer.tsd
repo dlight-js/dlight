@@ -1,7 +1,0 @@
-import {View} from "@/core"
-
-export class Spacer extends View {
-    Body() {
-        div()
-    }
-}

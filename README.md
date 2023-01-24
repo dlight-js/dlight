@@ -19,7 +19,7 @@ Mount your dlight component to any html element with id.
 
 ```typescript
 import {render} from "@dlightjs/dlight"
-import {MyComp} from "./MyComp.tsx"
+import {MyComp} from "./MyComp.jsx"
 
 render("app", new MyComp())
 ```

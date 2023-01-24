@@ -20,7 +20,8 @@
   "ts-node": {
     "esm": true
   },
-  "include": ["src",
-    "packages/vite-plugin-dlight-transpiler/src/index.ts"
+  "include": [
+    "apps",
+    "packages"
   ]
 }

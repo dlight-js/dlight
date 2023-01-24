@@ -1,0 +1,16 @@
+{
+  "name": "@dlightjs/dlight",
+  "version": "0.0.10",
+  "description": "",
+  "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "devDependencies": {
+    "typescript": "^4.5.2",
+    "tsup": "^6.5.0"
+  },
+  "keywords": ["dlight.js"],
+  "author": "IanDx",
+  "license": "ISC"
+}

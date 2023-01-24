@@ -1,6 +1,4 @@
-import tsxConfig from "../../../src/transpiler/tsx"
-import tsdConfig from "../../../src/transpiler/tsd"
-import {geneParserNode} from "../../../src/transpiler"
+import {geneParserNode, JSXConfig, JSDConfig} from "@dlightjs/transpiler"
 
 export function dlight() {
     return {
@@ -17,11 +15,11 @@ export function dlight() {
             };
         },
         transform(code: string, id: string) {
-            if (id.endsWith(".tsd") || id.endsWith(".jsd")) {
-                return geneParserNode(code, tsdConfig)
+            if (id.endsWith(".jsd") || id.endsWith(".jsd")) {
+                return geneParserNode(code, JSDConfig)
             }
-            if (id.endsWith(".tsx") || id.endsWith(".jsx")) {
-                return geneParserNode(code, tsxConfig)
+            if (id.endsWith(".jsx") || id.endsWith(".jsx")) {
+                return geneParserNode(code, JSXConfig)
             }
             return code
         }
