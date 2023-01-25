@@ -119,7 +119,7 @@ class MyOtherComp extends View {
   @Prop countProp = required 
 
   Body = (
-   	<div id="other-comp">{this.countProp}</div>
+     <div id="other-comp">{this.countProp}</div>
   )
 }
 
@@ -134,7 +134,7 @@ export class MyComp extends View {
       <button onclick={() => {this.count--}}>
         -
       </button>
-    	<MyOtherComp countProp={this.count}/>
+      <MyOtherComp countProp={this.count}/>
     </>
   );
 }
@@ -169,7 +169,7 @@ export class MyComp extends View {
       .onclick(() => {
         this.count --
       })
-  	MyOtherComp({countProp: this.count})
+    MyOtherComp({countProp: this.count})
   }
 }
 
@@ -190,7 +190,7 @@ class MyOtherComp extends View {
 
   Body = (
     <>
-    	<button onclick={() => {this.countPropState++}}>
+      <button onclick={() => {this.countPropState++}}>
         +
       </button>
       <button onclick={() => {this.countPropState--}}>
@@ -206,7 +206,7 @@ export class MyComp extends View {
   Body = (
     <>
       <div id="mycomp">{this.count}</div>
-    	<MyOtherComp countPropState={this.count}/>
+      <MyOtherComp countPropState={this.count}/>
     </>
   );
 }
@@ -241,7 +241,7 @@ export class MyComp extends View {
   Body() {
     div(this.cout)
       .id("mycomp")
-  	MyOtherComp({countPropState: this.count})
+    MyOtherComp({countPropState: this.count})
   }
 }
 
@@ -265,8 +265,8 @@ Body() {
   div("this auto set it inner text")
   div {
     button("first child")
-    	.onclick(() => {
-      	console.log("write dot prop")
+      .onclick(() => {
+        console.log("write dot prop")
       })
     div({id: "second-child-div", innerText: "you can also set prop like this"})
   }
@@ -339,8 +339,8 @@ Three ways to set a prop, the 1st and 2nd ones are equal.
 
 2. ```TagName()
    TagName()
-   	.prop1("hello")
-   	.prop2("world")
+     .prop1("hello")
+     .prop2("world")
    ```
 
 3. ```js
@@ -387,7 +387,7 @@ For different tags, prop means different things.
      
      export class MyComp extends View {  
        Body() {
-       	MyOtherComp("hello world")
+         MyOtherComp("hello world")
        }
      }
      
@@ -395,7 +395,7 @@ For different tags, prop means different things.
 
 3. Internal tag
 
-   * See `Features` section	
+   * See `Features` section  
 
 ### children
 
@@ -422,14 +422,14 @@ For different tags, children means different things.
        Body() {
          div {
            {{ this._$children }}
-         }	
-         	._backgroundColor("red")
+         }  
+           ._backgroundColor("red")
        }
      }
      
      export class MyComp extends View {  
        Body() {
-       	RedDivHOC {
+         RedDivHOC {
            div("first child")
            button("second child")
            span("third child")
@@ -440,7 +440,7 @@ For different tags, children means different things.
      ```
 
 3. Internal tag
-   * See `Features` section	
+   * See `Features` section  
 
 ### contribution
 
@@ -471,8 +471,8 @@ Body = (
 Body() {
   div {
     {{ this.array.map(item => {{
-      	`${item}`
-    	}}
+        `${item}`
+      }}
     }}
   }
 }
@@ -550,13 +550,13 @@ Body() {
 Body = (
   <div>
     <If condition={this.show}>
-    	show me
+      show me
     </If>
     <ElseIf condition={this.alsoShow}>
-    	also show me
+      also show me
     </ElseIf>
     <Else>
-    	don't show me
+      don't show me
     </Else>
   </div>
 )
@@ -576,7 +576,7 @@ Body() {
     } ElseIf (this.alsoShow) {
       "also show me"
     } Else {
-    	"don't show me"
+      "don't show me"
     }
   }
 }
@@ -597,28 +597,28 @@ import {View, required} from "@dlightjs/dlight"
 class MyNestComp extends View {
   @Env myMessage = "default value"
   Body() {
-    div(this.myMessage)	// will show "use me anywhere inside this environment"
+    div(this.myMessage)  // will show "use me anywhere inside this environment"
   }
 }
 
 class MySubComp2 extends View {
   @Env myMessage = "default value"
   Body() {
-    div(this.myMessage)	// will show "use me anywhere inside this environment"
+    div(this.myMessage)  // will show "use me anywhere inside this environment"
   }
 }
 
 class MySubComp1 extends View {
   @Env myMessage = "default value"
   Body() {
-    MyNestComp()	// call MySubComp2
-    div(this.myMessage)	// will show "use me anywhere inside this environment"
+    MyNestComp()  // call MySubComp2
+    div(this.myMessage)  // will show "use me anywhere inside this environment"
   }
 }
 
 export class MyComp extends View {  
   Body() {
-  	Environment({myMessage: "use me anywhere inside this environment"}) {
+    Environment({myMessage: "use me anywhere inside this environment"}) {
       MySubComp1()
       MySubComp2()
     }
@@ -640,7 +640,7 @@ In Dlight, reactivity is simple and efficient!
 
   e.g. `() => { console.log(this.count) }` => won't be listened
 
-  ​		`function() { console.log(this.count) }` => will be listened
+  ​    `function() { console.log(this.count) }` => will be listened
 
 * Example 
 
@@ -660,7 +660,7 @@ In Dlight, reactivity is simple and efficient!
         <button onclick={() => {this.count--}}>
           -
         </button>
-      	<div>{this.count}</div>	// everytime you click the button, this div's innerText will be reset
+        <div>{this.count}</div>  // everytime you click the button, this div's innerText will be reset
       </>
     )
   }
@@ -683,7 +683,7 @@ In Dlight, reactivity is simple and efficient!
         .onclick(() => {
           this.count --
         })
-    	div(this.count)	// everytime you click the button, this div's innerText will be reset
+      div(this.count)  // everytime you click the button, this div's innerText will be reset
     }
   }
   ```
@@ -699,9 +699,9 @@ How react would do:
 ```jsx
 function ShowMeTheName() {
   const [firstName, setFirstName] = useState('John')
-	const [lastName, setLastName] = useState('Doe')
+  const [lastName, setLastName] = useState('Doe')
 
-	const fullName = useMemo(() => `${firstName} ${lastName}`, [firstName, lastName])
+  const fullName = useMemo(() => `${firstName} ${lastName}`, [firstName, lastName])
   
   return <div>{fullName}</div>
 }
@@ -713,10 +713,10 @@ How solid would do:
 ```jsx
 function ShowMeTheName() {
   const [firstName, setFirstName] = createSignal('John')
-	const [lastName, setLastName] = createSignal('Doe')
+  const [lastName, setLastName] = createSignal('Doe')
 
   // use "createMemo" to avoid re-calculate
-	const fullName = createMemo(() => `${firstName()} ${lastName()}`)
+  const fullName = createMemo(() => `${firstName()} ${lastName()}`)
   
   return <div>{fullName()}</div>
 }
@@ -840,7 +840,7 @@ Dep-chain examples:
    ```js
    class DepChainExample6_1 extends View {
      @State count = 0
-   	getCount = count => {
+     getCount = count => {
        // do other stuff.....
        return this.count
      }
