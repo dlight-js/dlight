@@ -32,9 +32,9 @@ import {render} from "@dlightjs/dlight";
 // @ts-ignore
 import {TestTest} from "./test.jsd";
 import {StackTest} from "./stack.tsd";
+import {TestConcurr} from "./testConcurr.tsd"
 
-
-render("app", new StackTest())
+render("app", new TestConcurr())
 
 
 // switch (testType) {

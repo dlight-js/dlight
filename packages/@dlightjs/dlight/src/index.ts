@@ -5,7 +5,7 @@ export * from "./Nodes"
 export * from "./utils/nodes"
 
 export const View = CustomNode
-
+export const required = undefined as any
 
 export function render(id: string, dl: CustomNode) {
     const appNode = new HtmlNode("div")
