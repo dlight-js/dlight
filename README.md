@@ -1,6 +1,6 @@
 # 🧬 DLight.js
 
-DLight.js is a gooooood web framework!
+DLight.js is a coooooool web framework!
 
 * ⚡️ Performant
   * Dlight optimizes codes in compiling stage and directly manipulates DOM. Dlight is even faster than vanilla JavaScript code(because sometimes you may not know how to write a fully optimized one).
@@ -26,7 +26,7 @@ create-dlight-app my-first-dlight-app
 ```
 
 2. Clone this repo https://github.com/dlight-js/dlight-vite-template for a quick start.
-3. 🌟 Play around in [codesandbox](https://codesandbox.io/p/sandbox/dlight-vite-template-4tgogd?file=%2Fsrc%2FMyComp.jsd&selection=%5B%7B%22endColumn%22%3A22%2C%22endLineNumber%22%3A15%2C%22startColumn%22%3A22%2C%22startLineNumber%22%3A15%7D%5D)
+3. 🌟 Play around in [codesandbox](https://codesandbox.io/p/sandbox/dlight-vite-quickstart-4tgogd?file=%2Fpackage.json)
 
 ## Render
 
@@ -291,6 +291,44 @@ We call strings like `div` /  `MyOtherComp` /  `If` in `Body` as tags. And it wi
 
    Current internal tag includes: `If` `ElseIf` `Else` `For` `Environment` 
 
+We also have invisible tag like expression and text
+
+1. Strings wrapped with `{{}}` are called expression, detailed in the next section.
+2. Strings wrapped with `"` \ `'` \ \`  are called textNode. It's created by `document.createTextNode()`
+
+### expression
+
+In jsx, strings wrapped with `{}` are called expression. e.g.
+
+```jsx
+...
+Body = (
+  <div>
+    { !console.log("expression just like you used to write") && "display this sentence" }
+    { this.show && <div>will show if this.show is true</div>}
+  </div>
+)
+...
+```
+
+In jsd, we use `{{}}` instead of single `{}` because it's the symbol for children wrapper. And inside the expression, we also use `{{}}` to mark that the content inside it is a sub-block of jsd Body. e.g.
+
+```jsx
+...
+Body() {
+  div {
+    {{ !console.log("expression just like you used to write") && "display this sentence" }}
+    {{ this.show && {{
+         div("will show if this.show is true")
+       }}
+    }}
+  }
+}
+...
+```
+
+(Not very elegant yet. Welcome to propose any syntax that you think is the best.)
+
 ### prop
 
 Three ways to set a prop, the 1st and 2nd ones are equal.
@@ -404,48 +442,15 @@ For different tags, children means different things.
 3. Internal tag
    * See `Features` section	
 
-### expression
-
-In jsx, strings wrapped with `{}` are called expression. e.g.
-
-```jsx
-...
-Body = (
-  <div>
-    { !console.log("expression just like you used to write") && "display this sentence" }
-    { this.show && <div>will show if this.show is true</div>}
-  </div>
-)
-...
-```
-
-In jsd, we use `{{}}` instead of single `{}` because it's the symbol for children wrapper. And inside the expression, we also use `{{}}` to mark that the content inside it is a sub-block of jsd Body. e.g.
-
-```jsx
-...
-Body() {
-  div {
-    {{ !console.log("expression just like you used to write") && "display this sentence" }}
-    {{ this.show && {{
-         div("will show if this.show is true")
-       }}
-    }}
-  }
-}
-...
-```
-
-(Not very elegant yet. Welcome to propose any syntax that you think is the best.)
-
 ### contribution
 
 Jsd is still under design and if you have a great design proposal or any problem about it, welcome to open an issue or a discussion!
 
-# Features
+# Internal tags
 
 ## Array
 
-1. You can first use unoptimized array map out to create an array of elements, but once the array is changed even with a single item of it, the whole array of elements will be removed and recreated. So don't use it unless you know what you're doing.
+1. You can first use unoptimized array map-out to create an array of elements, but once the array is changed even with a single item of it, the whole array of elements will be removed and recreated. So don't use it unless you know what you're doing.
 
 ### jsx
 
@@ -476,9 +481,9 @@ Body() {
 
 2. Use internal supported For node for optimization. 
 
-   You can use any "of" expression you write in js for loop. 
+   You can use any "of" expression you write in js `for` loop. 
 
-   e.g. -> ( let item of array ) / ( let [key, item] of array.entries() ) / ( let {key1, key2} of array) / ...
+   e.g. -> `let item of array` / `let [key, item] of array.entries()` / `let {key1, key2} of array` / ...
 
 ### jsx
 
@@ -582,7 +587,286 @@ Body() {
 
 ## Environment
 
+* Provide an internal easy and simple context management.
+* The underlying pricipal of `environment` is just like how you pass a prop in Dlight, so there're no extra cost!
+* We use `@Env` to indentify it.
 
+```js
+import {View, required} from "@dlightjs/dlight"
+
+class MyNestComp extends View {
+  @Env myMessage = "default value"
+  Body() {
+    div(this.myMessage)	// will show "use me anywhere inside this environment"
+  }
+}
+
+class MySubComp2 extends View {
+  @Env myMessage = "default value"
+  Body() {
+    div(this.myMessage)	// will show "use me anywhere inside this environment"
+  }
+}
+
+class MySubComp1 extends View {
+  @Env myMessage = "default value"
+  Body() {
+    MyNestComp()	// call MySubComp2
+    div(this.myMessage)	// will show "use me anywhere inside this environment"
+  }
+}
+
+export class MyComp extends View {  
+  Body() {
+  	Environment({myMessage: "use me anywhere inside this environment"}) {
+      MySubComp1()
+      MySubComp2()
+    }
+  }
+}
+```
+
+
+
+# Reactivity
+
+In Dlight, reactivity is simple and efficient!
+
+## @State
+
+* Use @State to mark a class member as reactive variable. Whenever the variable is set, all the attributes in a html element that uses this variable will recalculate the attribute(not rerender the element, it has much more fine granularity!)
+
+* One exception -- if you're using an arrow function to wrap this variable, dlight will consider it as a callback like `onclick`, which has no need to reset this attribute, so the reactivity will be dropped in this attribute. If somehow you still want dlight to listen inside it, use `function` instead of `arrow function`.
+
+  e.g. `() => { console.log(this.count) }` => won't be listened
+
+  ​		`function() { console.log(this.count) }` => will be listened
+
+* Example 
+
+  * jsx
+
+  ```jsx
+  import {View} from "@dlightjs/dlight"
+  
+  export class MyComp extends View {
+    @State count = 0  
+  
+    Body = (
+      <>
+        <button onclick={() => {this.count++}}>
+          +
+        </button>
+        <button onclick={() => {this.count--}}>
+          -
+        </button>
+      	<div>{this.count}</div>	// everytime you click the button, this div's innerText will be reset
+      </>
+    )
+  }
+  
+  
+  ```
+
+  * jsd
+
+  ```js
+  export class MyComp extends View {
+    @State count = 0
+    
+    Body() {
+      button("+")
+        .onclick(() => {
+          this.count ++
+        })
+      button("-")
+        .onclick(() => {
+          this.count --
+        })
+    	div(this.count)	// everytime you click the button, this div's innerText will be reset
+    }
+  }
+  ```
+
+### dep-chain
+
+Of all the frameworks in the market, there's no painless usage of a `derived state`.
+
+Say we have a list of people's first names and last names and we want to concat them as full names.
+
+How react would do:
+
+```jsx
+function ShowMeTheName() {
+  const [firstName, setFirstName] = useState('John')
+	const [lastName, setLastName] = useState('Doe')
+
+	const fullName = useMemo(() => `${firstName} ${lastName}`, [firstName, lastName])
+  
+  return <div>{fullName}</div>
+}
+
+```
+
+How solid would do:
+
+```jsx
+function ShowMeTheName() {
+  const [firstName, setFirstName] = createSignal('John')
+	const [lastName, setLastName] = createSignal('Doe')
+
+  // use "createMemo" to avoid re-calculate
+	const fullName = createMemo(() => `${firstName()} ${lastName()}`)
+  
+  return <div>{fullName()}</div>
+}
+```
+
+🌟This is how we do in dlight:
+
+```jsx
+class ShowMeTheName extends View {
+  @State firstName = 'John'
+  @State lastName = 'Doe'
+  fullName = `${this.firstName} ${this.lastName}`
+  
+  Body = <div>{this.fullName}</div>
+}
+```
+
+Yeah! That's right, you don't need to do anything to make a `derived` member reactive. Dlight will automatically make `fullName` reactive because it's derived from state variables. Whenever `firstName` or `lastName` changes, `fullName` will re-calculate for only once and change any html elements' attribute that uses it.
+
+So, what is dep-chain?
+
+🌟This is a term that describes how DLight's reactivity works. All the deps in the chain will be reactive because of the headnode of the chain(which is a state variable) and will be calculate again if the headnode changes, then all html elements' attributes related to them will be changed too.
+
+Dep-chain examples:
+
+1. Chains
+
+   `count => null`
+
+   `flag => null`
+
+   ```js
+   class DepChainExample1 extends View {
+     @State count = 0
+     @State flag = true
+   }
+   ```
+
+2. Chains
+
+   `count => countPlus1 => countPlus1Plus1 => null`
+
+   ​           `=> countPlus2 => null` 
+
+   `flag => noFlag => null`
+
+   ```js
+   class DepChainExample2 extends View {
+     @State count = 0
+     countPlus1 = this.count + 1
+     countPlus2 = this.count + 2
+     countPlus1Plus1 = this.countPlus1 + 1
+   
+     @State flag = true
+     noFlag = !this.flag
+   }
+   ```
+
+3. Chains
+
+   `count => null `
+
+   ```js
+   class DepChainExample3 extends View {
+     @State count = 0
+     // logCount will not be added into dep-chain because it's wrapped with an arrow function
+     logCount = () => {
+       console.log(this.count)
+     }
+   }
+   ```
+
+4. Chains
+
+   `count => logCount => null`
+
+   ```js
+   class DepChainExample4 extends View {
+     @State count = 0
+     // logCount will be added into dep-chain because it's wrapped with a function
+     logCount = function() {
+       console.log(this.count)
+     }.bind(this)
+   }
+   ```
+
+5. Use dep-chain to perform `useEffect`?
+
+   DLight won't have a lot of circumstances that require a "side effect" because `derived` variable can solve most of the case. However, if you still want to use it to listen changes or for other specific reason, you can try this:
+
+   ```js
+   class DepChainExample5 extends View {
+     @State count = 0
+     // watchCountChange will be added into dep-chain because it's wrapped with a function
+     // and this function will re-called if "count" changes
+     watchCountChange = function() {
+       console.log(this.count)
+     }.call(this)
+   }
+   ```
+
+6. My variable is a result of a function, how to make it reactive?
+
+   There're two ways to do it. Always remember the arrow function is the only exception, any other expression will automatically collect deps if you use one of the variables in the dep-chain
+
+   1. Just like how we implement `useEffect`
+
+   ```js
+   class DepChainExample6_1 extends View {
+     @State count = 0
+   
+     countPlus1 = function() {
+       // do other stuff.....
+       return this.count+1
+     }.call(this)
+   }
+   ```
+
+   2. Split the function out
+
+   ```js
+   class DepChainExample6_1 extends View {
+     @State count = 0
+   	getCount = count => {
+       // do other stuff.....
+       return this.count
+     }
+     countPlus1 = this.getCount(this.count)
+   }
+   ```
+
+# Tutorial
+
+After all these cool features of DLight listed above, let dive right into it!
+
+ps: we use jsd in these tutorials, jsx is just the same.
+
+## 🌟ToDoApp
+
+[Codesandbox](https://codesandbox.io/p/sandbox/beautiful-ives-i8se5e?file=%2Fsrc%2FApp.jsd)
+
+
+
+
+
+# Component
+
+We use monorepo to manage this project. Inside `packages/components`,  we provide some handy custom component like `HStack` /  `VStack` /  `ZStack` /  `Switch` /  `Transition` / ....
+
+Feel free to create your own dlight component library!
 
 # Performance
 
