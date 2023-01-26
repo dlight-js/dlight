@@ -19,7 +19,7 @@ DLight uses [vite](https://vitejs.dev/) to construct its apps. We mainly use thi
   * [Render](#render)
   * [Write your own component](#write-your-own-component)
   * [Pass a prop](#pass-a-prop)
-- [🌟JSD](#🌟jsd)
+- [JSD](#jsd)
   * [Why JSD?](#why-jsd-)
   * [Basic concepts](#basic-concepts)
     + [example](#example)
@@ -38,10 +38,10 @@ DLight uses [vite](https://vitejs.dev/) to construct its apps. We mainly use thi
 - [Lifecycle](#lifecycle)
 - [Tutorial](#tutorial)
   * [Switch-case](#switch-case)
-  * [🌟ToDoApp](#🌟todoapp)
-  * [🌟Benchmark](#🌟benchmark)
+  * [ToDoApp](#🌟todoapp)
+  * [Benchmark](#benchmark)
 - [Component](#component)
-- [🌟Performance](#🌟performance)
+- [Performance](#🌟performance)
   * [Test records](#test-records)
   * [Test results](#test-results)
   * [Result analysis](#result-analysis)
@@ -282,8 +282,9 @@ export class MyComp extends View {
    
    ```
 
+# JSD
 
-# 🌟JSD
+🌟
 
 ## Why JSD?
 
@@ -1093,7 +1094,9 @@ export class MyComp extends View {
 }
 ```
 
-## 🌟ToDoApp
+## ToDoApp
+
+🌟
 
 * jsd
 
@@ -1211,7 +1214,9 @@ export class TaskCard extends View {
 }
 ```
 
-## 🌟Benchmark
+## Benchmark
+
+🌟
 
 Same data build function with [js-framework-benchmark](https://github.com/krausest/js-framework-benchmark)
 
@@ -1354,7 +1359,9 @@ We use monorepo to manage this project. Inside `packages/components`,  we provid
 
 Feel free to create your own dlight component library!
 
-# 🌟Performance
+# Performance
+
+🌟
 
 ## Test records
 
