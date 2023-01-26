@@ -15,6 +15,9 @@ DLight.js is a coooooool web framework!
 # Introduction
 
 DLight uses [vite](https://vitejs.dev/) to construct its apps. We mainly use this vite plugin-`vite-plugin-dlight-transpiler` to transpile jsx/jsd file into pure js code.
+
+Search 🌟 in doc for important concepts and performance result.
+
 - [Quick start](#quick-start)
   * [Render](#render)
   * [Write your own component](#write-your-own-component)
