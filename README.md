@@ -109,143 +109,142 @@ export class MyComp extends View {
 
    `<div id="other-comp" />` in `MyOtherComp`  will change its innerText if `count` in `MyComp `changes.
 
-### jsx
+   * jsx
 
-```jsx
-import {View, required} from "@dlightjs/dlight"
+   ```jsx
+   import {View} from "@dlightjs/dlight"
+   
+   class MyOtherComp extends View {
+     @Prop countProp 
+   
+     Body = (
+        <div id="other-comp">{this.countProp}</div>
+     )
+   }
+   
+   export class MyComp extends View {
+     @State count = 0
+     
+     Body = (
+       <>
+         <button onclick={() => {this.count++}}>
+           +
+         </button>
+         <button onclick={() => {this.count--}}>
+           -
+         </button>
+         <MyOtherComp countProp={this.count}/>
+       </>
+     );
+   }
+   
+   
+   ```
 
-class MyOtherComp extends View {
-  // "required" is just `const required = undefined as any`, we use this to identify that this prop must be passed
-  @Prop countProp = required 
+   * jsd
 
-  Body = (
-     <div id="other-comp">{this.countProp}</div>
-  )
-}
-
-export class MyComp extends View {
-  @State count = 0
-  
-  Body = (
-    <>
-      <button onclick={() => {this.count++}}>
-        +
-      </button>
-      <button onclick={() => {this.count--}}>
-        -
-      </button>
-      <MyOtherComp countProp={this.count}/>
-    </>
-  );
-}
-
-
-```
-
-### jsd
-
-```jsx
-import {View, required} from "@dlightjs/dlight"
-
-class MyOtherComp extends View {
-  // "required" is just `const required = undefined as any`, we use this to identify that this prop must be passed
-  @Prop countProp = required 
-
-  Body() {
-    div(this.countProp)
-      .id("other-comp")
-  }
-}
-
-export class MyComp extends View {
-  @State count = 0
-  
-  Body() {
-    button("+")
-      .onclick(() => {
-        this.count ++
-      })
-    button("-")
-      .onclick(() => {
-        this.count --
-      })
-    MyOtherComp({countProp: this.count})
-  }
-}
-
-
-```
+   ```jsx
+   import {View, required} from "@dlightjs/dlight"
+   
+   class MyOtherComp extends View {
+     // "required" is just `const required = undefined as any`, we use this to identify that this prop must be passed
+     @Prop countProp = required 
+   
+     Body() {
+       div(this.countProp)
+         .id("other-comp")
+     }
+   }
+   
+   export class MyComp extends View {
+     @State count = 0
+     
+     Body() {
+       button("+")
+         .onclick(() => {
+           this.count ++
+         })
+       button("-")
+         .onclick(() => {
+           this.count --
+         })
+       MyOtherComp({countProp: this.count})
+     }
+   }
+   
+   
+   ```
 
 2. A reactive prop that changes with its passer's states and its passer's states change with it at the same time, which means these two props "bind" together.
 
    `<div id="mycomp" />` in `MyComp`  will change its innerText if `countPropState` in `MyOtherComp `changes.
 
-### jsx
+   * jsx
+   * * 
 
-```jsx
-import {View, required} from "@dlightjs/dlight"
+   ```jsx
+   import {View, required} from "@dlightjs/dlight"
+   
+   class MyOtherComp extends View {
+     @PropState countPropState = required 
+   
+     Body = (
+       <>
+         <button onclick={() => {this.countPropState++}}>
+           +
+         </button>
+         <button onclick={() => {this.countPropState--}}>
+           -
+         </button>
+       </>
+     )
+   }
+   
+   export class MyComp extends View {
+     @State count = 0
+     
+     Body = (
+       <>
+         <div id="mycomp">{this.count}</div>
+         <MyOtherComp countPropState={this.count}/>
+       </>
+     );
+   }
+   ```
 
-class MyOtherComp extends View {
-  @PropState countPropState = required 
+   * jsd
 
-  Body = (
-    <>
-      <button onclick={() => {this.countPropState++}}>
-        +
-      </button>
-      <button onclick={() => {this.countPropState--}}>
-        -
-      </button>
-    </>
-  )
-}
+   ```jsx
+   import {View, required} from "@dlightjs/dlight"
+   
+   class MyOtherComp extends View {
+     @PropState countPropState = required 
+   
+     Body() {
+       button("+")
+         .onclick(() => {
+           this.countPropState ++
+         })
+       button("-")
+         .onclick(() => {
+           this.countPropState --
+         })
+       
+     }
+   }
+   
+   export class MyComp extends View {
+     @State count = 0
+     
+     Body() {
+       div(this.cout)
+         .id("mycomp")
+       MyOtherComp({countPropState: this.count})
+     }
+   }
+   
+   ```
 
-export class MyComp extends View {
-  @State count = 0
-  
-  Body = (
-    <>
-      <div id="mycomp">{this.count}</div>
-      <MyOtherComp countPropState={this.count}/>
-    </>
-  );
-}
-
-
-```
-
-### jsd
-
-```jsx
-import {View, required} from "@dlightjs/dlight"
-
-class MyOtherComp extends View {
-  @PropState countPropState = required 
-
-  Body() {
-    button("+")
-      .onclick(() => {
-        this.countPropState ++
-      })
-    button("-")
-      .onclick(() => {
-        this.countPropState --
-      })
-    
-  }
-}
-
-export class MyComp extends View {
-  @State count = 0
-  
-  Body() {
-    div(this.cout)
-      .id("mycomp")
-    MyOtherComp({countPropState: this.count})
-  }
-}
-
-```
 
 # JSD
 
@@ -452,32 +451,32 @@ Jsd is still under design and if you have a great design proposal or any problem
 
 1. You can first use unoptimized array map-out to create an array of elements, but once the array is changed even with a single item of it, the whole array of elements will be removed and recreated. So don't use it unless you know what you're doing.
 
-### jsx
+   * jsx
 
-```jsx
-...
-Body = (
-  <div>
-    { this.array.map(item => <div>{item}</div>) }
-  </div>
-)
-...
-```
+   ```jsx
+   ...
+   Body = (
+     <div>
+       { this.array.map(item => <div>{item}</div>) }
+     </div>
+   )
+   ...
+   ```
 
-### jsd
+   * Jsd
 
-```js
-...
-Body() {
-  div {
-    {{ this.array.map(item => {{
-        `${item}`
-      }}
-    }}
-  }
-}
-...
-```
+   ```js
+   ...
+   Body() {
+     div {
+       {{ this.array.map(item => {{
+           `${item}`
+         }}
+       }}
+     }
+   }
+   ...
+   ```
 
 2. Use internal supported For node for optimization. 
 
@@ -485,105 +484,133 @@ Body() {
 
    e.g. -> `let item of array` / `let [key, item] of array.entries()` / `let {key1, key2} of array` / ...
 
-### jsx
+   * jsx
 
-```jsx
-...
-Body = (
-  <div>
-    <For expression="let item of this.array">
-      {item}
-    </For>
-  </div>
-)
-...
-```
+   ```jsx
+   ...
+   Body = (
+     <div>
+       <For expression="let item of this.array">
+         {item}
+       </For>
+     </div>
+   )
+   ...
+   ```
 
-### jsd
+   * 🌟jsd
 
-🌟
+   ```js
+   ...
+   Body() {
+     div {
+       For (let item of this.array) {
+         `${item}`
+       }
+     }
+   }
+   ...
+   ```
 
-```js
-...
-Body() {
-  div {
-    For (let item of this.array) {
-      `${item}`
-    }
-  }
-}
-...
-```
+   Also, we can use a `key` prop to bind the element with the key.
+
+   * jsx
+
+   ```jsx
+   ...
+   Body = (
+     <div>
+       <For expression="let {id, item} of this.array" key="id">
+         {item}
+       </For>
+     </div>
+   )
+   ...
+   ```
+
+   * 🌟 jsd
+
+   ```js
+   ...
+   Body() {
+     div {
+       For (let {id, item} of this.array)[id] {
+         `${item}`
+       }
+     }
+   }
+   ...
+   ```
+
 
 ## Condition
 
 1. You can first use ( condition && YourElement ) just like you always do in react.
 
-### jsx
+   * jsx
 
-```jsx
-...
-Body = (
-  <div>
-    { this.show && "show me" }
-  </div>
-)
-...
-```
+   ```jsx
+   ...
+   Body = (
+     <div>
+       { this.show && "show me" }
+     </div>
+   )
+   ...
+   ```
 
-### jsd
+   * jsd
 
-```js
-...
-Body() {
-  div({{ this.show && "show me" }})
-}
-...
-```
+   ```js
+   ...
+   Body() {
+     div({{ this.show && "show me" }})
+   }
+   ...
+   ```
 
 2. Use internal supported If/ElseIf/Else node for break. 
 
-### jsx
+   * jsx
 
-```jsx
-...
-Body = (
-  <div>
-    <If condition={this.show}>
-      show me
-    </If>
-    <ElseIf condition={this.alsoShow}>
-      also show me
-    </ElseIf>
-    <Else>
-      don't show me
-    </Else>
-  </div>
-)
-...
-```
+   ```jsx
+   ...
+   Body = (
+     <div>
+       <If condition={this.show}>
+         show me
+       </If>
+       <ElseIf condition={this.alsoShow}>
+         also show me
+       </ElseIf>
+       <Else>
+         don't show me
+       </Else>
+     </div>
+   )
+   ...
+   ```
 
-### jsd
+   * 🌟jsd
 
-🌟
+   ```js
+   ...
+   Body() {
+     div {
+       If (this.show) {
+         "show me"
+       } ElseIf (this.alsoShow) {
+         "also show me"
+       } Else {
+         "don't show me"
+       }
+     }
+   }
+   ...
+   ```
 
-```js
-...
-Body() {
-  div {
-    If (this.show) {
-      "show me"
-    } ElseIf (this.alsoShow) {
-      "also show me"
-    } Else {
-      "don't show me"
-    }
-  }
-}
-...
-```
 
-🌟 When using jsd, For and If expression are the same with for and if in javascript!
+🌟 When using jsd, For and If expression are the same with `for` and `if` in javascript!
 
 ## Environment
 
@@ -625,8 +652,6 @@ export class MyComp extends View {
   }
 }
 ```
-
-
 
 # Reactivity
 
@@ -688,7 +713,7 @@ In Dlight, reactivity is simple and efficient!
   }
   ```
 
-### dep-chain
+## dep-chain
 
 Of all the frameworks in the market, there's no painless usage of a `derived state`.
 
@@ -848,19 +873,443 @@ Dep-chain examples:
    }
    ```
 
+# Lifecycle
+
+In DLight, we provide real lifecycles for both custom components and html elements.
+
+1. Html elements
+
+   `willAppear` / `didAppear`  / `willDisappear`  / `didDisappear` 
+
+   * The calling timing can be described as the following pseudocode:
+
+     ```js
+     // appear
+     el.willAppear()
+     parentEl.appendChild(el)
+     el.didAppear()
+     
+     // disappear
+     el.willDisappear()
+     el.remove()
+     el.didDisappear()
+     
+     ```
+
+     Dlight only calls these hooks when the element is created or removed. That's why we say it is "real" lifecycles.
+
+   * Usage 
+
+     * jsx
+
+     ```jsx
+     ...
+     Body = (
+     	<div 
+       	willAppear={() => {
+           console.log("I will appear")
+     		}}
+         didAppear={el => {
+           console.log(`I just appeared, I am ${el}`)
+     		}}
+       />
+     )
+     ...
+     ```
+
+     * jsd
+
+     ```js
+     ...
+     Body() {
+       div()
+       	.willAppear(() => {
+           console.log("I will appear")
+       	})
+       	.didAppear(el => {
+           console.log(`I just appeared, I am ${el}`)
+     		})
+     }
+     ...
+     ```
+
+2. Custom components
+
+   `willMount` / `didMount`  / `willUnmount`  / `didUnmount` 
+
+   * The calling timing can be described as the following pseudocode:
+
+     ```js
+     // mount
+     MyComp.willMount()
+     MyComp.allHTMLEls.willAppear()
+     MyComp.allHTMLEls.didAppear()
+     MyComp.didMount()
+     
+     // unmount
+     MyComp.willUnmount()
+     MyComp.allHTMLEls.willDisappear()
+     MyComp.allHTMLEls.didDisappear()
+     MyComp.didUnmount()
+     delete MyComp
+     
+     ```
+
+   * Usage
+
+     ```jsx
+     class MyComp extends View {
+       didMount() {
+         console.log("I just mounted")
+       }
+       willUnmount() {
+         console.log("bye-bye")
+       }
+     }
+     ```
+
 # Tutorial
 
 After all these cool features of DLight listed above, let dive right into it!
 
-ps: we use jsd in these tutorials, jsx is just the same.
+ps: we use jsd in these tutorials, jsx is just the same and we also provide both code samples in /apps/example and codesandbox.
+
+
+
+## Switch-case
+
+```js
+// -> ./switch.jsd
+import {View, required} from "@dlightjs/dlight"
+
+export class Switch extends View {
+    @Prop _$content = required	// _$content is the default prop of Switch(xxx)
+
+    caseChildren = function() {
+        let targetNodes = []
+        for (let child of this._$children) {
+            // if the tag name is not "Case" or "Default", 
+          	// display it no matter the condition
+            if (["Default", "Case"].includes(child._$tag)) {
+                targetNodes.push(child)
+                continue
+            }
+            if (this._$content === child._$content || child._$tag !== "Default") {
+                targetNodes.push(...child._$children)
+                break
+            }
+        }
+        return targetNodes
+    }.call(this)
+
+    Body() {
+        {{ this.caseChildren }}
+    }
+}
+
+```
+
+```js
+// -> ./case.jsd
+import {View, required} from "@dlightjs/dlight";
+
+export class Case extends View {
+    @Prop _$content = required
+  	// We don't add anything to display anything in Case.Body
+  	// Because in Switch.Body, we find the matched Case._$children and display it directly
+}
+```
+
+```js
+// -> ./default.jsd
+import {View} from "@dlightjs/dlight";
+
+// nothing here, we only need to know this component's tag name is "Default"
+export class Default extends View {}
+
+```
+
+Usage
+
+```js
+import {Switch} from "./switch.jsd"
+import {Case} from "./case.jsd"
+import {Default} from "./default.jsd"
+
+
+export class MyComp extends View {
+    @State count = 0
+ 
+    Body() {
+      Switch(this.count) {
+        Case(0) {
+          div("I am 0")
+        }
+        Case(1) {
+          div("I am 1~~")
+        }
+        Default {
+          div("I am other number")
+        }
+      }
+    }  
+}
+```
 
 ## 🌟ToDoApp
 
-[Codesandbox](https://codesandbox.io/p/sandbox/beautiful-ives-i8se5e?file=%2Fsrc%2FApp.jsd)
+* jsd
+
+  [Codesandbox](https://codesandbox.io/p/sandbox/dlight-vite-quickstart-4tgogd)
+
+* jsx
+
+  [Codesandbox](https://codesandbox.io/p/sandbox/dlight-todoapp-jsd-i8se5e)
+
+```js
+// -> ./ToDoApp/index.jsd
+import {View} from "@dlightjs/dlight"
+import {TaskCard} from "./TaskCard.jsd"
+import {TaskAdder} from "./TaskAdder.jsd"
+
+export class ToDoApp extends View {
+  @State tasks = []  // type: {name: string, finished: boolean}[]
+  unfinishedNum = this.tasks.filter(t=>!t.finished).length
+
+  // watch when "unfinishedNum" changes
+  watchUnfinishedNum = function() {
+    console.log(`remain ${this.unfinishedNum} tasks to do`)
+  }.call(this)
+
+  Body() {
+    h1("ToDo App in DLight.js")
+    h2("What needs to be done?")
+
+    TaskAdder({tasks: this.tasks})  // add task
+
+    h2(this.unfinishedNum === 0 
+       ? "You've finished all tasks!" 
+       : `Remaining ${this.unfinishedNum} tasks to do.`)
+ 
+    For(let task of this.tasks)[task] {
+      TaskCard({task})
+        .deleteTask(() => {
+          this.tasks = this.tasks.filter(t=>t !== task)
+        })
+        .toggleBox((checked) => {
+          task.finished = checked
+          // force update "tasks", but "task" reference is not changed
+          // so it'll cost no time
+          this.tasks = [...this.tasks]  
+        })
+    }
+  }
+}
+```
+
+```js
+// -> ./ToDoApp/TaskAdder.jsd
+import {View, required} from "@dlightjs/dlight"
+
+export class TaskAdder extends View {
+  @PropState tasks = required
+  @State inputText = ""
+  inputEl
+
+  Body() {
+    input()
+      .value(this.inputText)
+      .oninput(e => {
+        this.inputText = e.target.value  // record "inputText" when type in the input
+      })
+      .element(this.inputEl)  // set "inputEl" as this element's HTMLElement
+    
+    button("add")
+      .onclick(() => {
+        this.tasks = [...this.tasks, {name: this.inputText, finished: false}]
+        this.inputText = ""  // clear inputText when click the button
+        this.inputEl.focus()  // auto focus to the input field when click the button
+      })
+
+  }   
+}
+```
+
+```js
+// -> ./ToDoApp/TaskCard.jsd
+import {View, required} from "@dlightjs/dlight"
+
+export class TaskCard extends View {
+  @Prop task = required
+  @Prop deleteTask = required
+  @Prop toggleBox = required
+  
+  // lifecycle
+  didMount() {
+    console.log(`[didMount] Loaded task named ${this.task.name}, it is${this.task.finished?"":" not"} finished.`)
+  }
+  didUnmount() {
+    console.log(`[didUnmount] Unmount task named ${this.task.name}, it is${this.task.finished?"":" not"} finished.`)
+  }
+
+  Body() {
+    div() {
+      input()
+        .type("checkbox")
+        .checked(this.task.finished)
+        .onchange(e => {
+            this.toggleBox(e.target.checked)
+        })
+
+      // set line-through if the task is finished
+      span(this.task.name)
+        ._margin("0 5px")
+        ._textDecoration(this.task.finished ? "line-through" : "none")
+        
+      button("delete")
+        .onclick(this.deleteTask)
+    }
+      ._padding("5px")
+  }
+}
+```
+
+## 🌟Benchmark
+
+Same data build function with [js-framework-benchmark](https://github.com/krausest/js-framework-benchmark)
+
+```js
+import {View, required} from "@dlightjs/dlight";
+
+// build data
+// ------------------------------
+let idCounter = 1;
+const adjectives = ["pretty", "large", "big", "small", "tall", "short", "long", "handsome", "plain", "quaint", "clean", "elegant", "easy", "angry", "crazy", "helpful", "mushy", "odd", "unsightly", "adorable", "important", "inexpensive", "cheap", "expensive", "fancy"],
+    colours = ["red", "yellow", "blue", "green", "pink", "brown", "purple", "brown", "white", "black", "orange"],
+    nouns = ["table", "chair", "house", "bbq", "desk", "car", "pony", "cookie", "sandwich", "burger", "pizza", "mouse", "keyboard"];
+
+function _random (max) { return Math.round(Math.random() * 1000) % max; };
+
+function buildData(count) {
+    let data = new Array(count);
+    for (let i = 0; i < count; i++) {
+        data[i] = {
+            id: idCounter++,
+            label: `${adjectives[_random(adjectives.length)]} ${colours[_random(colours.length)]} ${nouns[_random(nouns.length)]}`
+        }
+    }
+    return data;
+}
+// ------------------------------
 
 
+// views
+// ------------------------------
+class Row extends View {
+    @Prop id = required
+    @Prop label = required
+    @Prop className = required
+    @Prop selectRow = required
+    @Prop deleteRow = required
+    Body() {
+        tr {
+            td(this.id)
+                .className("col-md-1")
+            td(this.label)
+                .className("col-md-2")
+                .onclick(() => this.selectRow(this.id))
+            td("")
+                .className("col-md-3")
+                .onclick(() => this.deleteRow(this.id))
+            td("")
+                .className("col-md-4")
+        }
+            .className(this.className)
+    }
+}
 
+export class Benchmark extends View {
+    @State rows = []
+    @State selectIdx = -1
+    addRows = () => {
+        this.rows = buildData(1000)
+    }
+    swapRows = () => {
+        if (this.rows.length > 999) {
+            this.rows = [this.rows[0], this.rows[998], ...this.rows.slice(2, 998), this.rows[1], this.rows[999]]
+        }
+    }
+    clearRows = () => {
+        this.rows = []
+    }
+    selectRow = idx => {
+        this.selectIdx = idx
+    }
+    deleteRow = id => {
+        const idx = this.rows.findIndex(row => row.id === id);
+        this.rows = [...this.rows.slice(0, idx), ...this.rows.slice(idx + 1)]
+    }
+    addBig = () => {
+        this.rows = buildData(10000)
+    }
+    append = () => {
+        this.rows = [...this.rows, ...buildData(1000)]
+    }
+    update = () => {
+        for (let i=0;i<this.rows.length;i+=10) {
+            this.rows[i].label += "!!! "
+        }
+        
+        this.rows = [...this.rows]
+    }
 
+    @State count = -1
+
+    Body() {
+        h1('DLightJS-"keyed"')
+        div {
+            button("Create 1,000 rows")
+                .onclick(this.addRows)
+        }
+        div {
+            button("Create 10,000 rows")
+                .onclick(this.addBig)
+        }
+        div {
+            button("Append 1,000 rows")
+                .onclick(this.append)
+        }
+        div {
+            button("Update every 10th rows")
+                .onclick(this.update)
+        }
+        div {
+            button("Clear")
+                .onclick(this.clearRows)
+        }
+        div {
+            button("Swap Rows")
+                .onclick(this.swapRows)
+        }
+
+        div {
+            table {
+                For(let {id,label} of this.rows) {
+                    Row({id, label})
+                        .deleteRow(this.deleteRow)
+                        .selectRow(this.selectRow)
+                        .className(this.selectIdx === id ? "danger" : "")
+                }
+            }
+        }
+    }
+}
+// ------------------------------
+```
+
+[Codesandbox-jsd](https://codesandbox.io/p/sandbox/dlight-benchmark-14ytuc)
+
+🌟We've already built our benchmark into `codesandbox/dist/index.html `and copied [vanilla-js implementation](https://github.com/krausest/js-framework-benchmark/tree/master/frameworks/non-keyed/vanillajs) into `codesandbox/dist/vanillajs.html `. Download them and test performance by yourself and see how fast dlight is!
 
 # Component
 
@@ -868,11 +1317,54 @@ We use monorepo to manage this project. Inside `packages/components`,  we provid
 
 Feel free to create your own dlight component library!
 
-# Performance
+# 🌟Performance
 
-* 5 warm-ups, mean results of 10 times, will re-calc soon, currently approximately 1.01x vanilla js (but require more memory).
+## Test records
 
-# Core Concept
+| Test time | Environment                                                  | Test info                                    | DLight.js version |
+| --------- | ------------------------------------------------------------ | -------------------------------------------- | ----------------- |
+| 1/26/2023 | MacBook Air (M1, 2020) - 16G - macOS Monterey 12.4<br />Chrome 109.0.5414.87 | Warm ups: 5<br />Run: 5<br />Result: average | 0.1.1             |
+
+## Test results
+
+|                                        | Vanilla JS (ms) | DLight (ms) | Times (x) |
+| -------------------------------------- | --------------- | ----------- | --------- |
+| Creat 1,000 rows                       | 40.64           | 33.40       | 0.82      |
+| Update all 1,000 rows                  | 31.33           | 28.32       | 0.90      |
+| Update every 10th row for 1,000 rows   | 16.01           | 14.58       | 0.91      |
+| Highlight a selected row               | \               | \           | \         |
+| Swap 2 rows for table with 1,000 rows  | 7.01            | 6.24        | 0.89      |
+| Remove one row                         | \               | \           | \         |
+| Create 10,000 rows                     | 385.17          | 356.03      | 0.92      |
+| Append 1,000 to a table of 10,000 rows | 88.35           | 74.97       | 0.85      |
+| Clear a table with 1,000 rows          | 12.65           | 12.82       | 1.01      |
+
+## Result analysis 
+
+1. 🌟Creat & update rows
+
+   Really really really weird, but with 20 tries, DLight is always faster than vanilla js. And the vanilla code is downloaded from js-benchmark's GitHub repo and there's nothing wrong with it as far as I know....
+
+   If you're interested in this, just download the file that I describe above and test for yourself.
+
+2. Highlight a selected row & Remove one row
+
+   The origin implementation of vanilla js makes the clicking area too small or even none. I don't want to change it so I just skip testing them.
+
+# Advanced
+
+## Nodes
+
+### ForNode
+
+### MutableNode
+
+### ExpressionNode
+
+### Helper Functions
+
+* loopNodes()
+* loopEls()
 
 # TODO
 
@@ -891,20 +1383,30 @@ Feel free to create your own dlight component library!
 - [x] jsx control flow
 - [x] prop lifecycle
 - [x] support environment/context
-- [ ] support prop expression nesting
-- [x] animation
-- [ ] error hints
+- [ ] ❗️support prop expression nesting
+- [ ] ❗️error hints
 - [x] deps optimization
 - [ ] PropState change to PropState/EnvState
 - [x] add lifeCycle to htmlNode
-- [ ] route
+- [ ] ❗️route
+- [ ] concurrent mode
+- [ ] CLI
+
+* components
+* [x] V/H/ZStack
+* [x] Switch-Case
+* [ ] Animation
+  * [x] Transition
+  * [ ] TransitionGroup
 
 * plugins
 - [x] vite transpiler plugin
-- [ ] vscode language server for auto completion
+- [ ] ❗️vscode language server for auto completion
 
 * other
 
-- [ ] docs
-- [ ] tutorials
+- [x] docs
+- [x] tutorials
+- [ ] advanced docs
+- [ ] web homepage
 - [ ] video tutorials
