@@ -14,11 +14,11 @@ export function removeNodes(nodes: DLNode[]) {
     willUnmountDlightNodes(nodes)
     loopEls(nodes, (el: HTMLElement, node: HtmlNode) => {
         if (node._$nodeType === DLNodeType.HTML) {
-            // node.willDisappear(el)
+            node.willDisappear(el)
         }
         el.remove()
         if (node._$nodeType === DLNodeType.HTML) {
-            // node.didDisappear(el)
+            node.didDisappear(el)
         }
     })
    didUnmountDlightNodes(nodes)

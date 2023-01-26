@@ -50,24 +50,20 @@ export class HtmlNode extends DLNode {
     }
 
     // ---- lifecycles
-    willAppear(_el?: HTMLElement, _props?: HTMLLifeCycleProp): any {}
-    didAppear(_el?: HTMLElement, _props?: HTMLLifeCycleProp): any {}
-    willDisappear(_el?: HTMLElement, _props?: HTMLLifeCycleProp): any {}
-    didDisappear(_el?: HTMLElement, _props?: HTMLLifeCycleProp): any {}
-    _$addLifeCycle(func: (el?: HTMLElement, props?: HTMLLifeCycleProp) => any, lifeCycleName: "willAppear" | "didAppear" | "willDisappear" | "didDisappear") {
+    willAppear(_el?: HTMLElement): any {}
+    didAppear(_el?: HTMLElement): any {}
+    willDisappear(_el?: HTMLElement): any {}
+    didDisappear(_el?: HTMLElement): any {}
+    _$addLifeCycle(func: (el?: HTMLElement) => any, lifeCycleName: "willAppear" | "didAppear" | "willDisappear" | "didDisappear") {
         const preLifeCycle = this[lifeCycleName]
-        this[lifeCycleName] = function(el?: HTMLElement, props?: HTMLLifeCycleProp) {
-            preLifeCycle.call(this, el, props)
-            return func.call(this, el, props)
+        this[lifeCycleName] = function(el?: HTMLElement) {
+            preLifeCycle.call(this, el)
+            return func.call(this, el)
         }
     }
     render(parentEl: HTMLElement) {
-        this.willAppear(this._$el, {})
+        this.willAppear(this._$el)
         parentEl.appendChild(this._$el)
-        this.didAppear(this._$el, {})
+        this.didAppear(this._$el)
     }
-}
-
-export interface HTMLLifeCycleProp {
-    [key: string]: any
 }

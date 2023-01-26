@@ -1,7 +1,5 @@
 import {View} from "@dlightjs/dlight"
-// @ts-ignore
 import {TaskCard} from "./TaskCard.tsd"
-// @ts-ignore
 import {TaskAdder} from "./TaskAdder.tsd"
 import {Task} from "./Task";
 
@@ -11,12 +9,7 @@ function _(func: () => any, _: any) {
 }
 
 export class ToDoApp extends View {
-  @State tasks: Task[] = [
-    {name:"jj",finished:true},
-    {name:"jja",finished:false},
-    {name:"jok",finished:false},
-    {name:"fatk",finished:false},
-    ]
+  @State tasks: Task[] = []
   unfinishedNum = this.tasks.filter(t=>!t.finished).length
 
   watchUnfinishedNum = function() {
