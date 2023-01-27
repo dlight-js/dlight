@@ -219,6 +219,7 @@ class Parser {
 
             if (this.look() === "{") { // 参数
                 newNode.kv.props.push(...this.eatProps())
+                this.eatSpace()
                 this.eat()  // eat )
             } else {
                 const content = this.eatContent()

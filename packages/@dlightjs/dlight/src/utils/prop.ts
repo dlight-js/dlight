@@ -8,6 +8,7 @@ export function addDLProp(dlNode: CustomNode, tag: string, key: string, propFunc
         return
     }
 
+    console.log()
     if ((dlNode as any)[`_$$${key}`] === `_$${tag}`) {
         addOneWayDLProp(dlScope!, dlNode, key, propFunc, listenDeps)
         return

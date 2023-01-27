@@ -1,76 +1,59 @@
-import {View} from "@dlightjs/dlight";
-// import {Transition} from "./components/Animation/Transition.jsd"
-// import {Spacer} from "./components/Stack/Spacer.jsd"
-// import {VStack} from "./components/Stack/VStack.jsd"
-// import {ZStack} from "./components/Stack/ZStack.jsd"
-// import {TextField} from "./components/Input"
-// import {Switch, Case} from "./components/Switch"
+import {View, required} from "@dlightjs/dlight"
+import {VStack} from "@dlightjs/components";
 
-
-function shuffle(array) {
-  return array.sort(() => Math.random() - 0.5);
+class MyNestComp extends View {
+    @Env theme = {}
+    Body() {
+        div(this.theme.bg)  // will show "use me anywhere inside this environment"
+    }
 }
 
-
-export class TestTest extends View {
-    @State list = [
-        { id: 0, value: "bread" },
-        { id: 1, value: "milk" },
-        { id: 2, value: "honey" },
-        { id: 3, value: "chips" },
-        { id: 4, value: "cookie" }
-      ]
-  shuffle = () => {
-    let randomList = this.list
-    while (JSON.stringify(this.list) === JSON.stringify(randomList)) {
-        randomList = shuffle(JSON.parse(JSON.stringify(this.list)))
-    }
-    this.list = randomList
-    console.log(randomList.map(l=>l.id))
-  }
-//   timer = setInterval(() => {
-    
-//     this.shuffle()
-//   }, 1000);
-    add = () => {
-        this.list = [...this.list, {id: this.list.length, value: "hhh"}]
-    }
-    subs = () => {
-        this.list = this.list.slice(0, -1)
-    }
-
-    toggle =true
-    parentNode
-    el1
-    el2
-
-    @State width = 50
+class MySubComp2 extends View {
+    @Env theme = {}
     Body() {
-        button("shuffle")
-            .onclick(() => {
-                this.shuffle()
-            })
+        div(this.theme.bg)  // will show "use me anywhere inside this environment"
+    }
+}
+
+class MySubComp1 extends View {
+    @Env theme = {}
+    didMount(_node) {
+        console.log(this.theme)
+    }
+
+    Body() {
+        MyNestComp()  // call MySubComp2
+        div(this.theme.bg)  // will show "use me anywhere inside this environment"
+    }
+}
+const themeColor = {
+    apple:{
+        bg: "haha1"
+    },
+    pear: {
+        bg: "hh2"
+    },
+}
+
+export class MyComp extends View {
+    @State themeName = "apple"
+    theme = themeColor[this.themeName]
+
+    Body() {
         button("+")
             .onclick(() => {
-                this.width += 50
+                this.themeName = "pear"
             })
-        button("-")
-            .onclick(() => {
-                this.width -= 50
-            })
-        button("++")
-            .onclick(this.add)
-        button("--")
-            .onclick(this.subs)
-        div("hh")
-            ._width(`${this.width}px`)
-            ._backgroundColor("blue")
-        For(let {id, value} of this.list)[id] {
-            div (`${id} ${value}`)
-                ._backgroundColor("red")
-                ._margin("10px")
-        }
-        {{ !console.log("okkk") && {{div(`list: ${this.list.map(l=>l.id).join(" ")}`)}}}}
+        Environment({theme: this.theme}) {
+            div{
+                VStack{
+                    MySubComp1()
+                    MySubComp2()
 
+
+                }
+
+            }
+        }
     }
 }

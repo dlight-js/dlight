@@ -138,7 +138,6 @@ export class CustomNode extends DLNode {
 
     Preset() {}
     Afterset() {}
-    AfterConstruct() {}
     _$init() {
         this._$initDecorators()
         this.Preset()

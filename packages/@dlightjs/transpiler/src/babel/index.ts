@@ -106,13 +106,13 @@ export function parseDlightFile(alteredFileCode: string, bodyMap: {[key: string]
                     //      如 @Derived  /  @Derived("1","2")
                     const decoratorName = (decorator.expression as t.Identifier).name ??
                         ((decorator.expression as t.CallExpression).callee as t.Identifier).name
-                    if (["PropState", "State"].includes(decoratorName)) {
+                    if (["EnvState", "PropState", "State"].includes(decoratorName)) {
                         depChain.push((node.key as any).name)
                         NodeHelper.pushDep((node.key as any).name, depsNode!, classBodyNode!)
                         DecoratorResolver.state(node, classBodyNode!)
                         break
                     }
-                    if (["Prop", "Environment"].includes(decoratorName)) {
+                    if (["Prop", "Env"].includes(decoratorName)) {
                         depChain.push((node.key as any).name)
                         NodeHelper.pushDep((node.key as any).name, depsNode!, classBodyNode!)
                         DecoratorResolver.prop(node, classBodyNode!, decoratorName as any)

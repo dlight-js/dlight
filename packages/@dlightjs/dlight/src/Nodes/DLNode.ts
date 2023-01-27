@@ -50,8 +50,10 @@ export class DLNode {
     _$depObjectIds: Object[] = []
     
 
+    _$beforeInitSubNodes() {}
     _$bindNodes() {
         bindParentNode(this._$nodes, this)
+        this._$beforeInitSubNodes()
         initNodes(this._$nodes)
     }
 

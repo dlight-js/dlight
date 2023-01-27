@@ -1,6 +1,7 @@
 {
   "name": "@dlightjs/dlight",
-  "version": "0.1.2",
+  "version": "0.1.9",
+  "files": ["dist"],
   "description": "",
   "type": "module",
   "main": "dist/index.cjs",

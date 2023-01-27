@@ -30,11 +30,11 @@ import {render} from "@dlightjs/dlight";
 // import {HH} from "./test.jsx"
 // import {NodeTest} from "./example/features/node.jsd"
 // @ts-ignore
-import {TestTest} from "./test.jsd";
+import {MyComp} from "./test.jsd";
 import {StackTest} from "./stack.tsd";
 import {TestConcurr} from "./testConcurr.tsd"
 
-render("app", new TestConcurr())
+render("app", new MyComp())
 
 
 // switch (testType) {
