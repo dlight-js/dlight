@@ -23,7 +23,7 @@ Search 🌟 in doc for important concepts and performance result.
   * [Write your own component](#write-your-own-component)
   * [Pass a prop](#pass-a-prop)
 - [JSD](#jsd)
-  * [Why JSD?](#why-jsd-)
+  * [Why JSD](#why-jsd-)
   * [Basic concepts](#basic-concepts)
     + [example](#example)
     + [tag and node](#tag-and-node)
@@ -36,7 +36,7 @@ Search 🌟 in doc for important concepts and performance result.
   * [Condition](#condition)
   * [Environment](#environment)
 - [Reactivity](#reactivity)
-  * [@State](#-state)
+  * [State](#state)
   * [dep-chain](#dep-chain)
 - [Lifecycle](#lifecycle)
 - [Tutorial](#tutorial)
@@ -289,7 +289,7 @@ export class MyComp extends View {
 
 🌟
 
-## Why JSD?
+## Why JSD
 
 Because I'm a big fan of iOS and [SwiftUI](https://developer.apple.com/xcode/swiftui/) and don't like any html-like syntax like jsx.
 
@@ -698,7 +698,7 @@ export class MyComp extends View {
 
 In Dlight, reactivity is simple and efficient!
 
-## @State
+## State
 
 * Use @State to mark a class member as reactive variable. Whenever the variable is set, all the attributes in a html element that uses this variable will recalculate the attribute(not rerender the element, it has much more fine granularity!)
 
