@@ -287,7 +287,7 @@ class Parser {
                 newContent += content[idx]
             }
         }
-        newNode.kv.content = newContent.replaceAll("\n", " ")
+        newNode.kv.content = newContent.replace(/\n/, " ")
         this.parserNode.addChild(newNode)
 
         this.erase()
