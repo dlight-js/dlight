@@ -1,22 +1,17 @@
 import {View} from "@dlightjs/dlight";
 
+export class SubComp extends View {
+    @Env okk
+    Body() {
+        div(this.okk)
+    }
+}
 
 export class TestConcurr extends View {
-    @State list = []
-    @State num = 0
+
     Body() {
-        button("add list")
-            .onclick(() => {
-                this.list =  Array.from({ length: 40000 }, (i, k) => ({ value: k }));
-            })
-        button("add num")
-            .onclick(() => {
-                this.num ++
-            })
-        ul {
-            For (let l of this.list) {
-                li(`${l.value+this.num}`)
-            }
+        Environment({okk: "what"}) {
+            {{ {{SubComp()}} }}
         }
     }
 }

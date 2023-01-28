@@ -37,7 +37,7 @@ export function parseDlightFile(alteredFileCode: string, bodyMap: {[key: string]
         ClassDeclaration(path: any) {
             const node = path.node as t.ClassDeclaration
             // ---- 如果是继承View的，新建_$decorators, _$propDerivedPairs
-            if(t.isIdentifier(node.superClass!, {name: "View"})) {
+            if(t.isIdentifier(node.superClass!)) {
                 classDeclarationNode = node
                 classBodyNode = classDeclarationNode.body
                 classBodyNode.body.unshift(

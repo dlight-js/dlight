@@ -1,0 +1,122 @@
+import {CustomNode, required, View} from "@dlightjs/dlight";
+import {Navigator} from "./Navigator";
+import {getHashLocation, getHistoryLocation} from "./utils";
+import {Route} from "./Route.tsd";
+
+
+
+const rawHistoryPushState = history.pushState
+let historyPushStateFuncs: (()=>any)[] = []
+
+
+export class RouterSpace extends View {
+    @Prop mode: "hash" | "history" = "history"
+    @PropState navigator?: Navigator
+    @State currUrl = this.mode === "hash" ? getHashLocation() : getHistoryLocation()
+    baseUrl = ""
+
+    prevPathCondition = ""
+    prevRoutes = []
+    showedRoute = function() {
+        const prevPathCondition = this.prevPathCondition
+        this.prevPathCondition = ""
+        let targetNodes = []
+        for (let childFunc of this._$children) {
+            const child = childFunc()
+            if (child._$tag !== "Route") {
+                // ---- 如果不是Route直接加
+                targetNodes.push(child)
+                continue
+            }
+
+            if (this.currUrl.startsWith(this.baseUrl + child._$content) || child._$content === "_$default") {
+                if (child._$content === prevPathCondition) {
+                    // ---- 发现condition没有改变，直接return原来的
+                    this.prevPathCondition = prevPathCondition
+                    return this.prevRoutes
+                }
+                targetNodes.push(child)
+                this.prevPathCondition = child._$content
+                break
+            }
+        }
+        this.prevRoutes = targetNodes
+        return targetNodes
+    }.call(this)
+
+
+    historyChangeListen = () => {
+        this.currUrl = getHistoryLocation()
+    }
+    hashChangeListen = () => {
+        this.currUrl = getHashLocation()
+    }
+    didMount() {
+        if (this.mode === "hash") {
+            addEventListener("load", this.hashChangeListen)
+            addEventListener("hashchange", this.hashChangeListen)
+            return
+        }
+        addEventListener("load", this.historyChangeListen)
+        addEventListener("popstate", this.historyChangeListen)
+
+        // ---- 监听pushState
+        historyPushStateFuncs.push(this.historyChangeListen)
+        history.pushState = new Proxy(rawHistoryPushState, {
+            apply: (target, thisArg, argArray) => {
+                const res = target.apply(thisArg, argArray as any)
+                for (let func of historyPushStateFuncs) {
+                    func()
+                }
+                return res
+            },
+        });
+    }
+    willUnmount() {
+        if (this.mode === "hash") {
+            removeEventListener("load", this.hashChangeListen)
+            removeEventListener("hashchange", this.hashChangeListen)
+            return
+        }
+        removeEventListener("load", this.historyChangeListen)
+        removeEventListener("popstate", this.historyChangeListen)
+        historyPushStateFuncs = historyPushStateFuncs.filter(func=>func!==this.historyChangeListen)
+        if (historyPushStateFuncs.length > 0) {
+            history.pushState = new Proxy(rawHistoryPushState, {
+                apply: (target, thisArg, argArray) => {
+                    const res = target.apply(thisArg, argArray as any)
+                    for (let func of historyPushStateFuncs) {
+                        func()
+                    }
+                    return res
+                },
+            })
+        } else {
+            history.pushState = rawHistoryPushState
+        }
+    }
+
+    AfterConstruct() {
+        let parent = this._$parentNode
+        while (parent) {
+            if ((parent as CustomNode)._$tag === "Route") {
+                this.baseUrl = (parent as Route)._$content + "/" + this.baseUrl
+            }
+            parent = parent._$parentNode
+        }
+    }
+
+    Preset() {
+        const newNavigator = new Navigator()
+        newNavigator.mode = this.mode
+        newNavigator.baseUrl = this.baseUrl
+        this.navigator = newNavigator
+    }
+
+
+    Body() {
+        Environment({_$path: this.currUrl, _$navigator: this.navigator}) {
+            {{ this.showedRoute }}
+        }
+    }
+}

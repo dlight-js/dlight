@@ -69,7 +69,7 @@ export class CustomNode extends DLNode {
     _$children?: DLNode[]
     _$tag: string = ""
 
-    Body: any
+    Body = () => []
 
     constructor() {
         super(DLNodeType.Custom)
@@ -92,7 +92,7 @@ export class CustomNode extends DLNode {
             func.call(this)
         }
     }
-    _$addChilds(nodes: DLNode[]) {
+    _$addChildren(nodes: DLNode[]) {
         this._$children = nodes
     }
 
@@ -133,17 +133,17 @@ export class CustomNode extends DLNode {
             this._$deleteDep(depName, objectId)
         }
     }
-    
 
-
+    AfterConstruct() {}
     Preset() {}
     Afterset() {}
     _$init() {
+        this.AfterConstruct()
         this._$initDecorators()
         this.Preset()
         this._$nodes = this.Body()
-        this._$bindNodes()
         this.Afterset()
+        this._$bindNodes()
     }
 
     _$addProp(key: string, propFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[], isTwoWayConnected?: boolean) {

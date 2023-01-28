@@ -10,7 +10,7 @@ export class ZStack extends View {
     Body() {
         div {
             For (let child of this._$children) {
-                {{ child }}
+                {{ child() }}
                     ._position("relative")
                     ._gridArea("1 / 1/ 1 / 1")
             }

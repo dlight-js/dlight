@@ -1,0 +1,9 @@
+import {View} from "@dlightjs/dlight";
+
+export class Route extends View {
+    @Prop _$content = "_$default"
+
+    Body() {
+        {{ this._$children?.map(c => c()) }}
+    }
+}

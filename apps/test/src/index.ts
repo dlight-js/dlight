@@ -33,8 +33,9 @@ import {render} from "@dlightjs/dlight";
 import {MyComp} from "./test.jsd";
 import {StackTest} from "./stack.tsd";
 import {TestConcurr} from "./testConcurr.tsd"
+import {RouteTest} from "./Router.tsd";
 
-render("app", new MyComp())
+render("app", new RouteTest())
 
 
 // switch (testType) {

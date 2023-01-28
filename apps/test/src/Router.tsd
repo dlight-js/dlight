@@ -1,0 +1,74 @@
+import {View} from "@dlightjs/dlight";
+import {Route, RouterSpace} from "../../../packages/@dlightjs/components/src/Router";
+
+class SubComp2 extends View {
+    @State toggle = true
+    @State navigator
+
+    Body() {
+        button("hhh2h")
+            .onclick(() => {
+                this.navigator.to("not")
+            })
+        If (this.toggle){
+            RouterSpace({navigator: this.navigator}) {
+                Route("hi"){
+                    div("hi niubi")
+                }
+                Route("not"){
+                    div("not hihi")
+                }
+            }
+        }
+    }
+}
+
+class SubComp extends View {
+    @Env _$path
+    Body() {
+        div(this._$path)
+        div("hhhh")
+        SubComp2()
+    }
+}
+
+
+export class RouteTest extends View {
+    @State navigator
+    Body() {
+        div("hh")
+        button("push to /OKK")
+            .onclick(() => {
+                this.navigator.to("./OKK")
+            })
+        button("push to /fuck")
+            .onclick(() => {
+                this.navigator.to("./fuck")
+            })
+        button("push to /")
+            .onclick(() => {
+                this.navigator.to(".")
+            })
+        button("push to /OKK/hi")
+            .onclick(() => {
+                this.navigator.to("./OKK/hi")
+            })
+        button("push to /OKK/not")
+            .onclick(() => {
+                this.navigator.to("/OKK/not")
+            })
+        RouterSpace({mode:"hash",navigator: this.navigator}) {
+            Route("OKK") {
+                div("我是okk")
+                SubComp()
+            }
+            Route("fuck") {
+                div("我是fuckkkkkk")
+            }
+            Route() {
+                div("woshi kong")
+            }
+        }
+
+    }
+}

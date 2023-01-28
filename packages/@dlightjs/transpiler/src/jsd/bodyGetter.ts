@@ -39,7 +39,7 @@ class Parser {
         }
     }
     metBody() {
-        return this.codeOut.endsWith("Body()")
+        return /Body\(\)\s*\{$/.test(this.codeOut)
     }
     eatBrackets() {
         if (!this.flag) this.flag = true
@@ -59,12 +59,11 @@ class Parser {
     }
     eatBody() {
         this.eatSpace()
-        this.eat()  // eat {
         const id = uid()
         const body = this.eatBrackets() // eat body
         this.bodyMap[id] = body.replace(this.commentRegex, "")
 
-        this.codeOut = this.codeOut.slice(0, this.codeOut.length-2) + `= "${id}"`
+        this.codeOut = this.codeOut.replace(/\(\)\s*\{$/, "") + `= "${id}"`
     }
 
     parse() {

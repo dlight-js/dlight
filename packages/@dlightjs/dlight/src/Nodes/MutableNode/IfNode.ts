@@ -27,6 +27,17 @@ export class IfNode extends MutableNode {
             if (!this.dlScope) this.dlScope = dlScope
             this.listenDeps.push(...listenDeps)
         }
+        // ---- 生成nodes
+        // ---- 只要找到符合条件的就break
+        let nodes: DLNode[] = []
+        for (let conditionPair of this.conditionPairs) {
+            if (conditionPair.condition()) {
+                this.condition = conditionPair.condition.toString()
+                nodes = conditionPair.node()
+                break
+            }
+        }
+        this._$nodes = nodes
     }
 
     _$init() {
@@ -43,17 +54,6 @@ export class IfNode extends MutableNode {
             this.dlScope?._$addDeps(this.listenDeps, objectId, () => this.update(parentNode as HtmlNode))
         }
 
-        // ---- 生成nodes
-        // ---- 只要找到符合条件的就break
-        let nodes: DLNode[] = []
-        for (let conditionPair of this.conditionPairs) {
-            if (conditionPair.condition()) {
-                this.condition = conditionPair.condition.toString()
-                nodes = conditionPair.node()
-                break
-            }
-        }
-        this._$nodes = nodes
         this._$bindNodes()
     }
 

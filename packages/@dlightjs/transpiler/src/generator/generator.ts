@@ -205,9 +205,14 @@ export class Generator {
 
         // ---- child
         if (parserNode.children.length > 0) {
-            body.add(`${nodeName}._$addChilds((() => {`)
-            body.add(this.generate(parserNode))
-            body.add("})())")
+            body.add(`${nodeName}._$addChildren([`)
+            for (let child of parserNode.children) {
+                body.add("() => {")
+                body.addBody(this.resolveParserNode(child, 0))
+                body.add("return _$node0")
+                body.add("},")
+            }
+            body.add("])")
         }
 
         return body

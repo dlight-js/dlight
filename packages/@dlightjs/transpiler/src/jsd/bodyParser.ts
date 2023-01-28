@@ -113,6 +113,7 @@ class Parser {
                 this.eat()
                 this.add()
                 this.eatCurlyBrackets()
+                this.add()  // add }
             } else if (nextC === "}") {
                 break
             }

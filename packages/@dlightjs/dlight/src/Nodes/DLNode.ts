@@ -33,9 +33,9 @@ export class DLNode {
      *           ↳ A2.render  ↳ B1.render 
      * A1.render (A => Stop  B/C => B/C.render)
      * 
-     * @hint 
+     * @hint
+     * 所有的nodes初始化必须在construct阶段，除了customNode，因为customNode一旦call了Body，就没法进行额外操作了
      * 所有的bindNodes都必须在init中进行，保证子的init都可以访问到父parentNode
-     * 但是nodes初始化可以随便
      */
     _$nodeType: DLNodeType
     private __$el: Node | HTMLElement | any
