@@ -16,18 +16,18 @@ export class VStack extends View {
             case "center":
                 return "0 auto"
             default:
-                return "auto"
+                return ""
         }
     }.call(this)
 
     Body() {
         div {
-            For (let child of this._$children) {
+            For (let child of this._$children.map(c=>c())) {
                 If (child._$tag === "Spacer") {
-                    {{ child() }}
+                    {{ child }}
                         ._flexGrow(1)
                 } Else {
-                    {{ child() }}
+                    {{ child }}
                         ._flexShrink(0)
                         ._margin(this.margin)
                 }

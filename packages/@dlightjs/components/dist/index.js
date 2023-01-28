@@ -1,6 +1,6 @@
 var B = Object.defineProperty;
 var H = (i, e, t) => e in i ? B(i, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : i[e] = t;
-var n = (i, e, t) => (H(i, typeof e != "symbol" ? e + "" : e, t), t);
+var o = (i, e, t) => (H(i, typeof e != "symbol" ? e + "" : e, t), t);
 function C(i) {
   for (let e of i) {
     if (Array.isArray(e)) {
@@ -35,11 +35,11 @@ function G(i) {
 }
 var W = ((i) => (i[i.HTML = 0] = "HTML", i[i.Text = 1] = "Text", i[i.Custom = 2] = "Custom", i[i.For = 3] = "For", i[i.If = 4] = "If", i[i.Env = 5] = "Env", i[i.Expression = 6] = "Expression", i))(W || {}), b = class {
   constructor(i) {
-    n(this, "_$nodeType");
-    n(this, "__$el");
-    n(this, "_$parentNode");
-    n(this, "_$nodes", []);
-    n(this, "_$depObjectIds", []);
+    o(this, "_$nodeType");
+    o(this, "__$el");
+    o(this, "_$parentNode");
+    o(this, "_$nodes", []);
+    o(this, "_$depObjectIds", []);
     this._$nodeType = i;
   }
   get _$el() {
@@ -58,54 +58,54 @@ var W = ((i) => (i[i.HTML = 0] = "HTML", i[i.Text = 1] = "Text", i[i.Custom = 2]
   render(i) {
   }
 };
-function E(i, e, t, s, o, d, r) {
+function E(i, e, t, s, n, d, r) {
   if (t in i) {
     if (!d) {
       i[t] = s;
       return;
     }
     if (i[`_$$${t}`] === `_$${e}`) {
-      V(o, i, t, s, d);
+      V(n, i, t, s, d);
       return;
     }
     if (r && `_$$${d[0]}` in i) {
-      Z(o, i, t, s, d);
+      Z(n, i, t, s, d);
       return;
     }
-    q(o, i, t, s, d);
+    q(n, i, t, s, d);
   }
 }
-function V(i, e, t, s, o) {
+function V(i, e, t, s, n) {
   let d = {};
-  e._$depObjectIds.push(d), e[t] = s(), i._$addDeps(o, d, () => {
+  e._$depObjectIds.push(d), e[t] = s(), i._$addDeps(n, d, () => {
     e[t] = s(), e._$runDeps(t);
   });
 }
-function Z(i, e, t, s, o) {
+function Z(i, e, t, s, n) {
   let d = {};
   e._$depObjectIds.push(d);
-  for (let r of o) {
+  for (let r of n) {
     let l = () => i[r] = e[t];
-    e._$addDeps([t], d, l), e[t] = s(), i._$addDeps(o, d, () => {
+    e._$addDeps([t], d, l), e[t] = s(), i._$addDeps(n, d, () => {
       e._$deleteDep(t, d), e[t] = s(), e._$addDeps([t], d, l);
     });
   }
 }
-function q(i, e, t, s, o) {
+function q(i, e, t, s, n) {
   let d = {};
-  e._$depObjectIds.push(d), e[`_$${t}`] = s(), i._$addDeps(o, d, () => {
+  e._$depObjectIds.push(d), e[`_$${t}`] = s(), i._$addDeps(n, d, () => {
     e[`_$${t}`] = s(), e._$runDeps(t);
   });
 }
 var z = class extends b {
   constructor() {
     super(2);
-    n(this, "_$deps", {});
-    n(this, "_$envNodes");
-    n(this, "_$derivedPairs");
-    n(this, "_$children");
-    n(this, "_$tag", "");
-    n(this, "Body", () => []);
+    o(this, "_$deps", {});
+    o(this, "_$envNodes");
+    o(this, "_$derivedPairs");
+    o(this, "_$children");
+    o(this, "_$tag", "");
+    o(this, "Body", () => []);
   }
   _$addAfterset(e) {
     let t = this.Preset;
@@ -131,16 +131,16 @@ var z = class extends b {
         if (typeof s != "function")
           return;
         this[e] = this[e]();
-        let o = this[e];
+        let n = this[e];
         this._$addDeps(t, {}, () => {
           let d = s();
-          d !== o && (this[e] = d, o = d, this._$runDeps(e));
+          d !== n && (this[e] = d, n = d, this._$runDeps(e));
         });
       }
   }
   _$addDeps(e, t, s) {
-    for (let o of e)
-      this._$deps[o].set(t, s);
+    for (let n of e)
+      this._$deps[n].set(t, s);
   }
   _$deleteDep(e, t) {
     this._$deps[e].delete(t);
@@ -158,8 +158,8 @@ var z = class extends b {
   _$init() {
     this.AfterConstruct(), this._$initDecorators(), this.Preset(), this._$nodes = this.Body(), this.Afterset(), this._$bindNodes();
   }
-  _$addProp(e, t, s, o, d) {
-    E(this, "prop", e, t, s, o, d);
+  _$addProp(e, t, s, n, d) {
+    E(this, "prop", e, t, s, n, d);
   }
   render(e) {
     this.willMount(this);
@@ -177,14 +177,14 @@ var z = class extends b {
   }
   _$addLifeCycle(e, t) {
     let s = this[t];
-    this[t] = function(o) {
+    this[t] = function(n) {
       e.call(this, this), s.call(this, this);
     };
   }
 }, D = class extends b {
   constructor(e) {
     super(0);
-    n(this, "_$envNodes", []);
+    o(this, "_$envNodes", []);
     this._$el = document.createElement(e);
   }
   _$init() {
@@ -195,9 +195,9 @@ var z = class extends b {
   _$addNodes(e) {
     this._$nodes = e;
   }
-  _$addProp(e, t, s, o) {
+  _$addProp(e, t, s, n) {
     let d;
-    if (e[0] === "_" ? d = (h) => this._$el.style[e.slice(1)] = h : e === "innerText" ? d = (h) => this._$el.innerText = h : d = (h) => this._$el[e] = h, !o) {
+    if (e[0] === "_" ? d = (h) => this._$el.style[e.slice(1)] = h : e === "innerText" ? d = (h) => this._$el.innerText = h : d = (h) => this._$el[e] = h, !n) {
       d(t);
       return;
     }
@@ -207,7 +207,7 @@ var z = class extends b {
       let h = t();
       r !== h && (d(h), r = h);
     }, a = {};
-    this._$depObjectIds.push(a), s._$addDeps(o, a, l);
+    this._$depObjectIds.push(a), s._$addDeps(n, a, l);
   }
   willAppear(e) {
   }
@@ -219,8 +219,8 @@ var z = class extends b {
   }
   _$addLifeCycle(e, t) {
     let s = this[t];
-    this[t] = function(o) {
-      return s.call(this, o), e.call(this, o);
+    this[t] = function(n) {
+      return s.call(this, n), e.call(this, n);
     };
   }
   render(e) {
@@ -240,11 +240,11 @@ function P(i, e) {
   });
 }
 function m(i, e, t, s) {
-  let o = s ?? t.childNodes.length;
+  let n = s ?? t.childNodes.length;
   return J(i), u(i, (d, r) => {
     let l = t.childNodes[e];
-    [0].includes(r._$nodeType) && r.willAppear(d), e === o ? t.appendChild(d) : t.insertBefore(d, l), [0].includes(r._$nodeType) && r.didAppear(d), e++, o++;
-  }, !1), Q(i), [e, o];
+    [0].includes(r._$nodeType) && r.willAppear(d), e === n ? t.appendChild(d) : t.insertBefore(d, l), [0].includes(r._$nodeType) && r.didAppear(d), e++, n++;
+  }, !1), Q(i), [e, n];
 }
 function U(i, e) {
   return j(i._$nodes, e);
@@ -254,7 +254,7 @@ function x(i) {
 }
 function j(i, e) {
   let t = 0, s = !1;
-  return w(i, (o) => s ? !1 : o === e ? (s = !0, !1) : [1, 0].includes(o._$nodeType) ? (t++, !1) : !0), t;
+  return w(i, (n) => s ? !1 : n === e ? (s = !0, !1) : [1, 0].includes(n._$nodeType) ? (t++, !1) : !0), t;
 }
 function S(i, e) {
   w(i, (t) => ([2, 6].includes(t._$nodeType) && t[e](t), !0));
@@ -294,16 +294,16 @@ var T = class extends b {
 }, M = class extends T {
   constructor() {
     super(3);
-    n(this, "keys", []);
-    n(this, "array", []);
-    n(this, "_$nodess", []);
-    n(this, "nodeFunc");
-    n(this, "keyFunc");
-    n(this, "arrayFunc");
-    n(this, "dlScope");
-    n(this, "listenDeps");
-    n(this, "_$envNodes", []);
-    n(this, "duplicatedOrNoKey", !1);
+    o(this, "keys", []);
+    o(this, "array", []);
+    o(this, "_$nodess", []);
+    o(this, "nodeFunc");
+    o(this, "keyFunc");
+    o(this, "arrayFunc");
+    o(this, "dlScope");
+    o(this, "listenDeps");
+    o(this, "_$envNodes", []);
+    o(this, "duplicatedOrNoKey", !1);
   }
   _$getItem(e, t) {
     let s = this.duplicatedOrNoKey ? t : this.keys.indexOf(e);
@@ -348,11 +348,11 @@ var T = class extends b {
       return;
     let t = this.keyFunc ? () => this.updateWithKey(e) : () => this.updateWithOutKey(e), s = {};
     if (this._$depObjectIds.push(s), this.dlScope._$addDeps(this.listenDeps, s, t), this.setArray(), this.setKeys(), this.duplicatedOrNoKey)
-      for (let o of this.array.keys())
-        this._$nodess.push(this.nodeFunc(null, o, this));
+      for (let n of this.array.keys())
+        this._$nodess.push(this.nodeFunc(null, n, this));
     else
-      for (let [o, d] of this.keys.entries())
-        this._$nodess.push(this.nodeFunc(d, o, this));
+      for (let [n, d] of this.keys.entries())
+        this._$nodess.push(this.nodeFunc(d, n, this));
     this._$nodes = this._$nodess.flat(1), this._$bindNodes();
   }
   render(e) {
@@ -366,11 +366,11 @@ var T = class extends b {
   updateWithOutKey(e) {
     let t = e._$el, s = this.array.length;
     this.setArray();
-    let o = this.array.length;
-    if (s !== o) {
-      if (s < o) {
+    let n = this.array.length;
+    if (s !== n) {
+      if (s < n) {
         let d = U(e, this), r = t.childNodes.length;
-        for (let l = 0; l < o; l++) {
+        for (let l = 0; l < n; l++) {
           if (l < s) {
             d += x(this._$nodess[l]);
             continue;
@@ -381,45 +381,45 @@ var T = class extends b {
         this._$nodes = this._$nodess.flat(1);
         return;
       }
-      for (let d = o; d < s; d++)
+      for (let d = n; d < s; d++)
         P(this._$nodess[d], this.dlScope), v(this._$nodess[d]);
-      this._$nodess = this._$nodess.slice(0, o), this._$nodes = this._$nodess.flat(1);
+      this._$nodess = this._$nodess.slice(0, n), this._$nodes = this._$nodess.flat(1);
     }
   }
   async updateWithKey(e) {
-    let t = e._$el, s = U(e, this), o = this.keys, d = [...this.array], r = [...this._$nodess], l = [...this._$nodes];
-    this.setArray(), this.setKeys(), this.duplicatedOrNoKey && (o = [...Array(d.length).keys()]);
+    let t = e._$el, s = U(e, this), n = this.keys, d = [...this.array], r = [...this._$nodess], l = [...this._$nodes];
+    this.setArray(), this.setKeys(), this.duplicatedOrNoKey && (n = [...Array(d.length).keys()]);
     let a = [], h = [];
-    for (let [_, p] of o.entries()) {
-      if (this.keys.includes(p)) {
-        a.push(p), h.push(r[_]);
+    for (let [p, _] of n.entries()) {
+      if (this.keys.includes(_)) {
+        a.push(_), h.push(r[p]);
         continue;
       }
-      P(r[_], this.dlScope), v(r[_]);
+      P(r[p], this.dlScope), v(r[p]);
     }
-    o = a;
+    n = a;
     let $ = s, f = t.childNodes.length;
-    for (let [_, p] of this.keys.entries()) {
-      if (o.includes(p)) {
-        $ += x(h[o.indexOf(p)]);
+    for (let [p, _] of this.keys.entries()) {
+      if (n.includes(_)) {
+        $ += x(h[n.indexOf(_)]);
         continue;
       }
-      let c = this.getNewNodes(p, _);
-      [$, f] = m(c, $, t, f), h.splice(_, 0, c), o.splice(_, 0, p);
+      let c = this.getNewNodes(_, p);
+      [$, f] = m(c, $, t, f), h.splice(p, 0, c), n.splice(p, 0, _);
     }
     $ = s;
-    for (let [_, p] of this.keys.entries()) {
-      let c = o.indexOf(p);
-      if (c === _) {
-        $ += x(h[_]);
+    for (let [p, _] of this.keys.entries()) {
+      let c = n.indexOf(_);
+      if (c === p) {
+        $ += x(h[p]);
         continue;
       }
-      let k = h[c], R = o[c];
-      [$, f] = m(k, $, t, f), h.splice(c, 1), o.splice(c, 1), h.splice(_ + 1, 0, k), o.splice(_ + 1, 0, R);
+      let k = h[c], R = n[c];
+      [$, f] = m(k, $, t, f), h.splice(c, 1), n.splice(c, 1), h.splice(p + 1, 0, k), n.splice(p + 1, 0, R);
     }
     this._$nodess = h, this._$nodes = this._$nodess.flat(1), this.onUpdateNodes(l, this._$nodes);
   }
-  _$listen(e, t, s, o) {
+  _$listen(e, t, s, n) {
     let d = {};
     e._$depObjectIds.push(d), e._$addDeps(s, d, () => {
       let r = t();
@@ -427,20 +427,20 @@ var T = class extends b {
         e._$deleteDeps(d);
         return;
       }
-      o(r);
+      n(r);
     });
   }
 }, K = class extends T {
   constructor() {
     super(4);
-    n(this, "conditionPairs", []);
-    n(this, "condition");
-    n(this, "listenDeps", []);
-    n(this, "dlScope");
-    n(this, "_$envNodes", []);
+    o(this, "conditionPairs", []);
+    o(this, "condition");
+    o(this, "listenDeps", []);
+    o(this, "dlScope");
+    o(this, "_$envNodes", []);
   }
-  _$addCond(e, t, s, o) {
-    this.conditionPairs.push({ condition: e, node: t }), o && (this.dlScope || (this.dlScope = s), this.listenDeps.push(...o));
+  _$addCond(e, t, s, n) {
+    this.conditionPairs.push({ condition: e, node: t }), n && (this.dlScope || (this.dlScope = s), this.listenDeps.push(...n));
     let d = [];
     for (let r of this.conditionPairs)
       if (r.condition()) {
@@ -470,8 +470,8 @@ var T = class extends b {
       }
     if (t.length !== 0 && this._$nodes.length === 0 && (this.condition = "[none]", P(t, this.dlScope), v(t)), s === this.condition)
       return;
-    let o = U(e, this), d = e._$el;
-    m(this._$nodes, o, d, d.childNodes.length), this.onUpdateNodes(t, this._$nodes);
+    let n = U(e, this), d = e._$el;
+    m(this._$nodes, n, d, d.childNodes.length), this.onUpdateNodes(t, this._$nodes);
   }
   render(e) {
     for (let t of this._$nodes)
@@ -486,11 +486,11 @@ var T = class extends b {
     i = i;
     let s = i();
     this._$el = document.createTextNode(s);
-    let o = () => {
+    let n = () => {
       let r = i();
       s !== r && (this._$el.nodeValue = r, s = r);
     }, d = {};
-    this._$depObjectIds.push(d), e._$addDeps(t, d, o);
+    this._$depObjectIds.push(d), e._$addDeps(t, d, n);
   }
   render(i) {
     i.appendChild(this._$el);
@@ -498,13 +498,13 @@ var T = class extends b {
 }, te = class extends b {
   constructor() {
     super(5);
-    n(this, "addPropFuncs", []);
+    o(this, "addPropFuncs", []);
   }
   _$addNodes(e) {
     this._$nodes = e;
   }
-  _$addProp(e, t, s, o) {
-    this.addPropFuncs.push((d) => E(d, "env", e, t, s, o));
+  _$addProp(e, t, s, n) {
+    this.addPropFuncs.push((d) => E(d, "env", e, t, s, n));
   }
   addProps(e) {
     for (let t of this.addPropFuncs)
@@ -525,12 +525,12 @@ var T = class extends b {
 }, g = class extends T {
   constructor(e, t, s) {
     super(6);
-    n(this, "nodeOrFunc");
-    n(this, "listenDeps");
-    n(this, "dlScope");
-    n(this, "propFuncs", []);
-    n(this, "propScope", () => !0);
-    n(this, "deepLoopEl", !1);
+    o(this, "nodeOrFunc");
+    o(this, "listenDeps");
+    o(this, "dlScope");
+    o(this, "propFuncs", []);
+    o(this, "propScope", () => !0);
+    o(this, "deepLoopEl", !1);
     if (!s) {
       this._$nodes = this.formatNodes(e);
       return;
@@ -540,10 +540,10 @@ var T = class extends b {
   _$onUpdateNodes(e) {
     w(this._$nodes, (t) => ([4, 3, 6].includes(t._$nodeType) && t.addOnUpdateNodesFunc(e), !0));
   }
-  _$addProp(e, t, s, o) {
+  _$addProp(e, t, s, n) {
     let d = this.propScope, r = this.deepLoopEl, l = (a) => {
       let h = a._$el;
-      !d(h, a) || e[0] === "_" && (a._$el.style[e.slice(1)] ?? "").trim() !== "" || e[0] !== "_" && a._$el[e] !== void 0 || a._$addProp(e, t, s, o);
+      !d(h, a) || e[0] === "_" && (a._$el.style[e.slice(1)] ?? "").trim() !== "" || e[0] !== "_" && a._$el[e] !== void 0 || a._$addProp(e, t, s, n);
     };
     this.propFuncs.push(() => {
       for (let a of this._$nodes)
@@ -587,8 +587,8 @@ var T = class extends b {
     this._$depObjectIds.push(t), this.dlScope._$addDeps(this.listenDeps, t, () => this.update(e)), this._$bindNodes();
     for (let s of this.propFuncs) {
       s();
-      let o = {};
-      this._$depObjectIds.push(o), this.dlScope._$addDeps(this.listenDeps, o, s);
+      let n = {};
+      this._$depObjectIds.push(n), this.dlScope._$addDeps(this.listenDeps, n, s);
     }
   }
   render(e) {
@@ -600,8 +600,8 @@ var T = class extends b {
   update(e) {
     let t = this._$nodes;
     P(this._$nodes, this.dlScope), v(this._$nodes), this._$nodes = this.formatNodes(this.nodeOrFunc()), this._$bindNewNodes(this._$nodes);
-    let s = e._$el, o = U(e, this);
-    m(this._$nodes, o, s, s.childNodes.length), this.onUpdateNodes(t, this._$nodes);
+    let s = e._$el, n = U(e, this);
+    m(this._$nodes, n, s, s.childNodes.length), this.onUpdateNodes(t, this._$nodes);
   }
   willMount(e) {
   }
@@ -613,7 +613,7 @@ var T = class extends b {
   }
   _$addLifeCycle(e, t) {
     let s = this[t];
-    this[t] = function(o) {
+    this[t] = function(n) {
       e.call(this, this), s.call(this, this);
     };
   }
@@ -621,33 +621,33 @@ var T = class extends b {
 class ne extends N {
   constructor() {
     super(...arguments);
-    n(this, "_$tag", "Spacer");
-    n(this, "Body", () => [new D("div")]);
+    o(this, "_$tag", "Spacer");
+    o(this, "Body", () => [new D("div")]);
   }
 }
 class oe extends N {
   constructor() {
     super(...arguments);
-    n(this, "_$derivedPairs", {
+    o(this, "_$derivedPairs", {
       margin: ["alignment"]
     });
-    n(this, "_$deps", {
+    o(this, "_$deps", {
       spacing: /* @__PURE__ */ new Map(),
       alignment: /* @__PURE__ */ new Map(),
       width: /* @__PURE__ */ new Map(),
       height: /* @__PURE__ */ new Map(),
       margin: /* @__PURE__ */ new Map()
     });
-    n(this, "_$tag", "HStack");
-    n(this, "_$$spacing", "_$prop");
-    n(this, "spacing", 10);
-    n(this, "_$$alignment", "_$prop");
-    n(this, "alignment", "top");
-    n(this, "_$$width", "_$prop");
-    n(this, "width", "100%");
-    n(this, "_$$height", "_$prop");
-    n(this, "height", "max-content");
-    n(this, "margin", () => function() {
+    o(this, "_$tag", "HStack");
+    o(this, "_$$spacing", "_$prop");
+    o(this, "spacing", 10);
+    o(this, "_$$alignment", "_$prop");
+    o(this, "alignment", "top");
+    o(this, "_$$width", "_$prop");
+    o(this, "width", "100%");
+    o(this, "_$$height", "_$prop");
+    o(this, "height", "max-content");
+    o(this, "margin", () => function() {
       switch (this.alignment) {
         case "top":
           return "0 0 auto 0";
@@ -656,20 +656,20 @@ class oe extends N {
         case "center":
           return "auto 0";
         default:
-          return "auto";
+          return "";
       }
     }.call(this));
-    n(this, "Body", () => {
+    o(this, "Body", () => {
       const t = new D("div");
       return t._$addProp("_height", () => this.height, this, ["height"]), t._$addProp("_width", () => this.width, this, ["width"]), t._$addProp("_columnGap", () => `${this.spacing}px`, this, ["spacing"]), t._$addProp("_display", "flex"), t._$addProp("_flexDirection", "row"), t._$addNodes((() => {
         const s = new M();
-        return s._$addNodess(Array.from(this._$children).map((o) => (() => {
+        return s._$addNodess(Array.from(this._$children.map((n) => n())).map((n) => (() => {
           const d = new K();
-          return d._$addCond(() => o._$tag === "Spacer", () => {
-            const r = new g(o());
+          return d._$addCond(() => n._$tag === "Spacer", () => {
+            const r = new g(n);
             return r._$addProp("_flexGrow", 1), [r];
           }), d._$addCond(() => !0, () => {
-            const r = new g(o());
+            const r = new g(n);
             return r._$addProp("_flexShrink", 0), r._$addProp("_margin", () => this.margin, this, ["margin"], !0), [r];
           }), [d];
         })())), [s];
@@ -680,26 +680,26 @@ class oe extends N {
 class de extends N {
   constructor() {
     super(...arguments);
-    n(this, "_$derivedPairs", {
+    o(this, "_$derivedPairs", {
       margin: ["alignment"]
     });
-    n(this, "_$deps", {
+    o(this, "_$deps", {
       spacing: /* @__PURE__ */ new Map(),
       alignment: /* @__PURE__ */ new Map(),
       width: /* @__PURE__ */ new Map(),
       height: /* @__PURE__ */ new Map(),
       margin: /* @__PURE__ */ new Map()
     });
-    n(this, "_$tag", "VStack");
-    n(this, "_$$spacing", "_$prop");
-    n(this, "spacing", 10);
-    n(this, "_$$alignment", "_$prop");
-    n(this, "alignment", "top");
-    n(this, "_$$width", "_$prop");
-    n(this, "width", "max-content");
-    n(this, "_$$height", "_$prop");
-    n(this, "height", "100%");
-    n(this, "margin", () => function() {
+    o(this, "_$tag", "VStack");
+    o(this, "_$$spacing", "_$prop");
+    o(this, "spacing", 10);
+    o(this, "_$$alignment", "_$prop");
+    o(this, "alignment", "top");
+    o(this, "_$$width", "_$prop");
+    o(this, "width", "max-content");
+    o(this, "_$$height", "_$prop");
+    o(this, "height", "100%");
+    o(this, "margin", () => function() {
       switch (this.alignment) {
         case "top":
           return "0 auto 0 0";
@@ -708,20 +708,20 @@ class de extends N {
         case "center":
           return "0 auto";
         default:
-          return "auto";
+          return "";
       }
     }.call(this));
-    n(this, "Body", () => {
+    o(this, "Body", () => {
       const t = new D("div");
       return t._$addProp("_height", () => this.height, this, ["height"]), t._$addProp("_width", () => this.width, this, ["width"]), t._$addProp("_columnGap", () => `${this.spacing}px`, this, ["spacing"]), t._$addProp("_display", "flex"), t._$addProp("_flexDirection", "column"), t._$addNodes((() => {
         const s = new M();
-        return s._$addNodess(Array.from(this._$children).map((o) => (() => {
+        return s._$addNodess(Array.from(this._$children.map((n) => n())).map((n) => (() => {
           const d = new K();
-          return d._$addCond(() => o._$tag === "Spacer", () => {
-            const r = new g(o());
+          return d._$addCond(() => n._$tag === "Spacer", () => {
+            const r = new g(n);
             return r._$addProp("_flexGrow", 1), [r];
           }), d._$addCond(() => !0, () => {
-            const r = new g(o());
+            const r = new g(n);
             return r._$addProp("_flexShrink", 0), r._$addProp("_margin", () => this.margin, this, ["margin"], !0), [r];
           }), [d];
         })())), [s];
@@ -732,22 +732,22 @@ class de extends N {
 class re extends N {
   constructor() {
     super(...arguments);
-    n(this, "_$deps", {
+    o(this, "_$deps", {
       hAlignment: /* @__PURE__ */ new Map(),
       vAlignment: /* @__PURE__ */ new Map(),
       width: /* @__PURE__ */ new Map(),
       height: /* @__PURE__ */ new Map()
     });
-    n(this, "_$tag", "ZStack");
-    n(this, "_$$hAlignment", "_$prop");
-    n(this, "hAlignment", "center");
-    n(this, "_$$vAlignment", "_$prop");
-    n(this, "vAlignment", "center");
-    n(this, "_$$width", "_$prop");
-    n(this, "width", "max-content");
-    n(this, "_$$height", "_$prop");
-    n(this, "height", "max-content");
-    n(this, "Body", () => {
+    o(this, "_$tag", "ZStack");
+    o(this, "_$$hAlignment", "_$prop");
+    o(this, "hAlignment", "center");
+    o(this, "_$$vAlignment", "_$prop");
+    o(this, "vAlignment", "center");
+    o(this, "_$$width", "_$prop");
+    o(this, "width", "max-content");
+    o(this, "_$$height", "_$prop");
+    o(this, "height", "max-content");
+    o(this, "Body", () => {
       const t = new D("div");
       return t._$addProp("_height", () => this.height, this, ["height"]), t._$addProp("_width", () => this.width, this, ["width"]), t._$addProp("_columnGap", `${this.spacing}px`), t._$addProp("_display", "grid"), t._$addProp("_alignItems", () => ({
         top: "flex-start",
@@ -759,8 +759,8 @@ class re extends N {
         tailing: "right"
       })[this.hAlignment], this, ["hAlignment"]), t._$addNodes((() => {
         const s = new M();
-        return s._$addNodess(Array.from(this._$children).map((o) => (() => {
-          const d = new g(o());
+        return s._$addNodess(Array.from(this._$children.map((n) => n())).map((n) => (() => {
+          const d = new g(n);
           return d._$addProp("_position", "relative"), d._$addProp("_gridArea", "1 / 1/ 1 / 1"), [d];
         })())), [s];
       })()), [t];
@@ -779,21 +779,21 @@ function I(i, e) {
     t = i;
   else {
     i[0] !== "." && (i = "./" + i);
-    const s = i.split("/"), o = e.split("/").filter((r) => r);
+    const s = i.split("/"), n = e.split("/").filter((r) => r);
     let d = 0;
     for (let r of s) {
       if (![".", ".."].includes(r))
         break;
-      r === ".." && (o.length === 0 && console.warn(`no ../ in ${i}`), o.pop()), d++;
+      r === ".." && (n.length === 0 && console.warn(`no ../ in ${i}`), n.pop()), d++;
     }
-    t = "/" + [...o, ...s.slice(d)].join("/");
+    t = "/" + [...n, ...s.slice(d)].join("/");
   }
   return t;
 }
 class se {
   constructor() {
-    n(this, "mode", "hash");
-    n(this, "baseUrl", "");
+    o(this, "mode", "hash");
+    o(this, "baseUrl", "");
   }
   hashTo(e) {
     window.location.href = "#" + I(e, this.baseUrl);
@@ -812,15 +812,15 @@ class se {
 class he extends N {
   constructor() {
     super(...arguments);
-    n(this, "_$deps", {
+    o(this, "_$deps", {
       _$content: /* @__PURE__ */ new Map()
     });
-    n(this, "_$tag", "Route");
-    n(this, "_$$_$content", "_$prop");
-    n(this, "_$content", "_$default");
-    n(this, "Body", () => {
+    o(this, "_$tag", "Route");
+    o(this, "_$$_$content", "_$prop");
+    o(this, "_$content", "_$default");
+    o(this, "Body", () => {
       var s;
-      return [new g((s = this._$children) == null ? void 0 : s.map((o) => o()))];
+      return [new g((s = this._$children) == null ? void 0 : s.map((n) => n()))];
     });
   }
 }
@@ -829,30 +829,30 @@ let y = [];
 class ae extends N {
   constructor() {
     super(...arguments);
-    n(this, "_$derivedPairs", {
+    o(this, "_$derivedPairs", {
       currUrl: ["mode"],
       showedRoute: ["currUrl"]
     });
-    n(this, "_$deps", {
+    o(this, "_$deps", {
       mode: /* @__PURE__ */ new Map(),
       navigator: /* @__PURE__ */ new Map(),
       currUrl: /* @__PURE__ */ new Map(),
       showedRoute: /* @__PURE__ */ new Map()
     });
-    n(this, "_$tag", "RouterSpace");
-    n(this, "_$$mode", "_$prop");
-    n(this, "mode", "history");
-    n(this, "_$$navigator");
-    n(this, "_$$currUrl", () => this.mode === "hash" ? O() : L());
-    n(this, "baseUrl", "");
-    n(this, "prevPathCondition", "");
-    n(this, "prevRoutes", []);
-    n(this, "showedRoute", () => function() {
+    o(this, "_$tag", "RouterSpace");
+    o(this, "_$$mode", "_$prop");
+    o(this, "mode", "history");
+    o(this, "_$$navigator");
+    o(this, "_$$currUrl", () => this.mode === "hash" ? O() : L());
+    o(this, "baseUrl", "");
+    o(this, "prevPathCondition", "");
+    o(this, "prevRoutes", []);
+    o(this, "showedRoute", () => function() {
       const t = this.prevPathCondition;
       this.prevPathCondition = "";
       let s = [];
-      for (let o of this._$children) {
-        const d = o();
+      for (let n of this._$children) {
+        const d = n();
         if (d._$tag !== "Route") {
           s.push(d);
           continue;
@@ -866,13 +866,13 @@ class ae extends N {
       }
       return this.prevRoutes = s, s;
     }.call(this));
-    n(this, "historyChangeListen", () => {
+    o(this, "historyChangeListen", () => {
       this.currUrl = L();
     });
-    n(this, "hashChangeListen", () => {
+    o(this, "hashChangeListen", () => {
       this.currUrl = O();
     });
-    n(this, "Body", () => {
+    o(this, "Body", () => {
       const t = new te();
       return t._$addNodes((() => [new g(() => this.showedRoute, this, ["showedRoute"])])()), t._$addProp("RouteParam", () => ({
         path: this.currUrl,
@@ -898,8 +898,8 @@ class ae extends N {
       return;
     }
     addEventListener("load", this.historyChangeListen), addEventListener("popstate", this.historyChangeListen), y.push(this.historyChangeListen), history.pushState = new Proxy(A, {
-      apply: (t, s, o) => {
-        const d = t.apply(s, o);
+      apply: (t, s, n) => {
+        const d = t.apply(s, n);
         for (let r of y)
           r();
         return d;
@@ -912,8 +912,8 @@ class ae extends N {
       return;
     }
     removeEventListener("load", this.historyChangeListen), removeEventListener("popstate", this.historyChangeListen), y = y.filter((t) => t !== this.historyChangeListen), y.length > 0 ? history.pushState = new Proxy(A, {
-      apply: (t, s, o) => {
-        const d = t.apply(s, o);
+      apply: (t, s, n) => {
+        const d = t.apply(s, n);
         for (let r of y)
           r();
         return d;
