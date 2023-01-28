@@ -157,7 +157,7 @@ export class Generator {
                 continue
             }
             if (key === "_$content") {
-                key = "innerText"
+                key = "innerHTML"
             }
             const listenDeps = this.geneDeps(value as string)
             if (listenDeps.length > 0) {
