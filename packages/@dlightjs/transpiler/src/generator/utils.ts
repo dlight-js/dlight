@@ -25,7 +25,7 @@ export function uid() {
 }
 
 export function geneDeps(valueStr: string, depChain: string[], otherDeps: string[]=[]) {
-    const ast = parse(valueStr)
+    const ast = parse(`(${valueStr})`)
     let deps: string[] = []
     traverse(ast, {
         MemberExpression(innerPath: any) {
@@ -42,7 +42,7 @@ export function geneDeps(valueStr: string, depChain: string[], otherDeps: string
 }
 
 export function geneIdDeps(valueStr: string, arr: {ids: string[], propNames: string[]}[], otherDeps: string[]=[]) {
-    const ast = parse(valueStr)
+    const ast = parse(`(${valueStr})`)
     let deps: string[] = []
     traverse(ast, {
         Identifier(innerPath: any) {
@@ -66,7 +66,7 @@ export function getIdentifiers(valueStr: string) {
 }
 
 export function geneIsTwoWayConnected(valueStr: string) {
-    const ast = parse(valueStr)
+    const ast = parse(`(${valueStr})`)
     return t.isMemberExpression(ast.program.body[0].expression)
 }
 

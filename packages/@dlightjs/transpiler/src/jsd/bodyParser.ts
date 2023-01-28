@@ -1,5 +1,21 @@
 import { uid } from "../generator/utils";
 import { ParserNode } from "../ParserNode";
+// @ts-ignore
+import * as babel from "@babel/core"
+// @ts-ignore
+import babelGenerate from "@babel/generator"
+// @ts-ignore
+import traverse from "@babel/traverse"
+import * as t from "@babel/types"
+const babelConfig = {
+    filename: "*.ts",
+    presets: ["@babel/preset-typescript"]
+}
+const parse = (code: string) => babel.parse(code, babelConfig)
+const generate = (ast: any) => babelGenerate(ast).code
+
+
+
 
 class Parser {
     code: string
@@ -219,9 +235,12 @@ class Parser {
             this.eatSpace()
 
             if (this.look() === "{") { // 参数
-                newNode.kv.props.push(...this.eatProps())
-                this.eatSpace()
-                this.eat()  // eat )
+                const content = this.eatContent()
+                const ast = parse(`(${content})`)
+                const props = ast.program.body[0].expression.properties
+                for (let prop of props) {
+                    newNode.kv.props.push({key: prop.key.name, value: generate(prop.value)})
+                }
             } else {
                 const content = this.eatContent()
                 if (content.trim() !== "") {

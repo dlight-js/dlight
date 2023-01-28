@@ -194,7 +194,6 @@ export class Generator {
                 body.add(`${nodeName}._$addLifeCycle(${value}, "${key}")`)
                 continue
             }
-
             const listenDeps = this.geneDeps(value as string)
             if (listenDeps.length > 0) {
                 body.add(`${nodeName}._$addProp("${key}", () => (${value}), this, ${geneDepsStr(listenDeps)}, ${geneIsTwoWayConnected(value)})`)
@@ -241,7 +240,6 @@ export class Generator {
             body.add(`${nodeName}._$addProp("${key}", ${value})`)
 
         }
-
         return body
     }
 

@@ -115,7 +115,10 @@ export class RouterSpace extends View {
 
 
     Body() {
-        Environment({path: this.currUrl, navigator: this.navigator}) {
+        Environment({RouteParam: {
+            path: this.currUrl,
+            navigator: this.navigator
+        }}) {
             {{ this.showedRoute }}
         }
     }

@@ -4,7 +4,7 @@ export function dlight() {
     return {
         name: 'dlight',
         enforce: 'pre',
-        config(config: any) {
+        config(config) {
             return {
                 ...config,
                 esbuild: {
@@ -14,7 +14,7 @@ export function dlight() {
                 },
             };
         },
-        transform(code: string, id: string) {
+        transform(code, id) {
             if (id.endsWith(".jsd") || id.endsWith(".tsd")) {
                 return geneParserNode(code, JSDConfig)
             }
@@ -23,6 +23,6 @@ export function dlight() {
             }
             return code
         }
-    } as any
+    }
 }
 

@@ -24,9 +24,9 @@ class SubComp2 extends View {
 }
 
 class SubComp extends View {
-    @Env path
+    @Env RouteParam
     Body() {
-        div(this.path)
+        div(this.RouteParam.path)
         div("hhhh")
         SubComp2()
     }
