@@ -1,148 +1,114 @@
-var K = Object.defineProperty;
-var C = (o, s, e) => s in o ? K(o, s, { enumerable: !0, configurable: !0, writable: !0, value: e }) : o[s] = e;
-var d = (o, s, e) => (C(o, typeof s != "symbol" ? s + "" : s, e), e);
-function T(o) {
-  for (let s of o) {
-    if (Array.isArray(s)) {
-      T(s);
-      continue;
-    }
-    s._$init();
-  }
-}
-function S(o, s) {
-  for (let e of o) {
+var B = Object.defineProperty;
+var H = (i, e, t) => e in i ? B(i, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : i[e] = t;
+var n = (i, e, t) => (H(i, typeof e != "symbol" ? e + "" : e, t), t);
+function C(i) {
+  for (let e of i) {
     if (Array.isArray(e)) {
-      S(e, s);
+      C(e);
       continue;
     }
-    e._$parentNode = s;
+    e._$init();
   }
 }
-function P(o, s) {
-  for (let e of o)
-    s(e) && P(e._$nodes, s);
+function F(i, e) {
+  for (let t of i) {
+    if (Array.isArray(t)) {
+      F(t, e);
+      continue;
+    }
+    t._$parentNode = e;
+  }
 }
-function g(o, s, e = !0) {
-  for (let t of o)
-    [a.HTML, a.Text].includes(t._$nodeType) ? (s(t._$el, t), e && g(t._$nodes, s)) : g(t._$nodes, s, e);
+function w(i, e) {
+  for (let t of i)
+    e(t) && w(t._$nodes, e);
 }
-function E(o) {
-  const s = [];
-  return g(o, (e, t) => {
-    t._$nodeType === a.HTML && s.push(e);
-  }, !1), s;
+function u(i, e, t = !0) {
+  for (let s of i)
+    [0, 1].includes(s._$nodeType) ? (e(s._$el, s), t && u(s._$nodes, e)) : u(s._$nodes, e, t);
 }
-var a = /* @__PURE__ */ ((o) => (o[o.HTML = 0] = "HTML", o[o.Text = 1] = "Text", o[o.Custom = 2] = "Custom", o[o.For = 3] = "For", o[o.If = 4] = "If", o[o.Env = 5] = "Env", o[o.Expression = 6] = "Expression", o))(a || {});
-class v {
-  constructor(s) {
-    /**
-     * @member _$id
-     *      - 每一个Node都有id
-     * @member _$nodeType
-     *      - 每一个Node都有具体的type，是一个枚举
-     *      - enum DLNodeType {
-     *          HTML, Text, Custom, For, If, Env
-     *        }
-     *      - 只提供基础类如HTML/Text，自定义类Dlight/Env，控制流类For/If
-     *
-     * @member _$nodes
-     *      - 所有嵌套Node的抽象表示，就是个ast
-     * @member _$el
-     *      - 代表真实DOM上面的node，只有TextNode和HtmlNode有实体node
-     * @method _$init
-     *      - 这之前nodes和el都必须生成，flow需要更新整体结构
-     * @method _$render
-     *      - 传入parentEl，将_$nodes append上去
-     * 
-     * 
-     * @pipeline
-     * html: A; dlight: B; flow: C
-     * 嵌套调用：A1 { A2 { B1 { B2 { C1 { C2 } } } } }
-     * A1.construct <- A2.construct <- B1.construct <- B2.construct <- C1.construct <- C2.construct 
-     * A1._$init -> A2._$init -> B1._$init -> B2._$init -> C1._$init -> C2._$init 
-     *           ↳ A2.render  ↳ B1.render 
-     * A1.render (A => Stop  B/C => B/C.render)
-     * 
-     * @hint
-     * 所有的nodes初始化必须在construct阶段
-     * 所有的bindNodes都必须在init中进行，保证子的init都可以访问到父parentNode
-     */
-    d(this, "_$nodeType");
-    d(this, "__$el");
-    d(this, "_$parentNode");
-    d(this, "_$nodes", []);
-    d(this, "_$depObjectIds", []);
-    this._$nodeType = s;
+function G(i) {
+  let e = [];
+  return u(i, (t, s) => {
+    s._$nodeType === 0 && e.push(t);
+  }, !1), e;
+}
+var W = ((i) => (i[i.HTML = 0] = "HTML", i[i.Text = 1] = "Text", i[i.Custom = 2] = "Custom", i[i.For = 3] = "For", i[i.If = 4] = "If", i[i.Env = 5] = "Env", i[i.Expression = 6] = "Expression", i))(W || {}), b = class {
+  constructor(i) {
+    n(this, "_$nodeType");
+    n(this, "__$el");
+    n(this, "_$parentNode");
+    n(this, "_$nodes", []);
+    n(this, "_$depObjectIds", []);
+    this._$nodeType = i;
   }
   get _$el() {
-    return this.__$el ?? E(this._$nodes);
+    return this.__$el ?? G(this._$nodes);
   }
-  set _$el(s) {
-    this.__$el = s;
+  set _$el(i) {
+    this.__$el = i;
   }
   _$beforeInitSubNodes() {
   }
   _$bindNodes() {
-    S(this._$nodes, this), this._$beforeInitSubNodes(), T(this._$nodes);
+    F(this._$nodes, this), this._$beforeInitSubNodes(), C(this._$nodes);
   }
   _$init() {
   }
-  // @ts-ignore
-  render(s) {
+  render(i) {
+  }
+};
+function E(i, e, t, s, o, d, r) {
+  if (t in i) {
+    if (!d) {
+      i[t] = s;
+      return;
+    }
+    if (i[`_$$${t}`] === `_$${e}`) {
+      V(o, i, t, s, d);
+      return;
+    }
+    if (r && `_$$${d[0]}` in i) {
+      Z(o, i, t, s, d);
+      return;
+    }
+    q(o, i, t, s, d);
   }
 }
-function k(o, s, e, t, n, i, r) {
-  if (e in o) {
-    if (!i) {
-      o[e] = t;
-      return;
-    }
-    if (console.log(), o[`_$$${e}`] === `_$${s}`) {
-      V(n, o, e, t, i);
-      return;
-    }
-    if (r && n[`_$$${i[0]}`] !== void 0) {
-      B(n, o, e, t, i);
-      return;
-    }
-    W(n, o, e, t, i);
-  }
-}
-function V(o, s, e, t, n) {
-  const i = {};
-  s._$depObjectIds.push(i), s[e] = t(), o._$addDeps(n, i, () => {
-    s[e] = t(), s._$runDeps(e);
+function V(i, e, t, s, o) {
+  let d = {};
+  e._$depObjectIds.push(d), e[t] = s(), i._$addDeps(o, d, () => {
+    e[t] = s(), e._$runDeps(t);
   });
 }
-function B(o, s, e, t, n) {
-  const i = {};
-  s._$depObjectIds.push(i);
-  for (let r of n) {
-    const h = () => o[r] = s[e];
-    s._$addDeps([e], i, h), s[e] = t(), o._$addDeps(n, i, () => {
-      s._$deleteDep(e, i), s[e] = t(), s._$addDeps([e], i, h);
+function Z(i, e, t, s, o) {
+  let d = {};
+  e._$depObjectIds.push(d);
+  for (let r of o) {
+    let l = () => i[r] = e[t];
+    e._$addDeps([t], d, l), e[t] = s(), i._$addDeps(o, d, () => {
+      e._$deleteDep(t, d), e[t] = s(), e._$addDeps([t], d, l);
     });
   }
 }
-function W(o, s, e, t, n) {
-  const i = {};
-  s._$depObjectIds.push(i), s[`_$${e}`] = t(), o._$addDeps(n, i, () => {
-    s[`_$${e}`] = t(), s._$runDeps(e);
+function q(i, e, t, s, o) {
+  let d = {};
+  e._$depObjectIds.push(d), e[`_$${t}`] = s(), i._$addDeps(o, d, () => {
+    e[`_$${t}`] = s(), e._$runDeps(t);
   });
 }
-class G extends v {
+var z = class extends b {
   constructor() {
-    super(a.Custom);
-    d(this, "_$deps", {});
-    d(this, "_$envNodes");
-    d(this, "_$derivedPairs");
-    d(this, "_$children");
-    d(this, "_$tag", "");
-    d(this, "Body", () => []);
+    super(2);
+    n(this, "_$deps", {});
+    n(this, "_$envNodes");
+    n(this, "_$derivedPairs");
+    n(this, "_$children");
+    n(this, "_$tag", "");
+    n(this, "Body", () => []);
   }
   _$addAfterset(e) {
-    const t = this.Preset;
+    let t = this.Preset;
     this.Preset = () => {
       t(), e();
     };
@@ -158,24 +124,23 @@ class G extends v {
   _$addChildren(e) {
     this._$children = e;
   }
-  // ---- dep
   _$initDecorators() {
     if (this._$derivedPairs)
       for (let [e, t] of Object.entries(this._$derivedPairs)) {
-        const n = this[e];
-        if (typeof n != "function")
+        let s = this[e];
+        if (typeof s != "function")
           return;
         this[e] = this[e]();
-        let i = this[e];
+        let o = this[e];
         this._$addDeps(t, {}, () => {
-          const r = n();
-          r !== i && (this[e] = r, i = r, this._$runDeps(e));
+          let d = s();
+          d !== o && (this[e] = d, o = d, this._$runDeps(e));
         });
       }
   }
-  _$addDeps(e, t, n) {
-    for (let i of e)
-      this._$deps[i].set(t, n);
+  _$addDeps(e, t, s) {
+    for (let o of e)
+      this._$deps[o].set(t, s);
   }
   _$deleteDep(e, t) {
     this._$deps[e].delete(t);
@@ -184,18 +149,17 @@ class G extends v {
     for (let t in this._$deps)
       this._$deleteDep(t, e);
   }
+  AfterConstruct() {
+  }
   Preset() {
   }
   Afterset() {
   }
-  _$bodyRun() {
-    this._$initDecorators(), this.Preset(), this._$nodes = this.Body(), this.Afterset();
-  }
   _$init() {
-    this._$bodyRun(), this._$bindNodes();
+    this.AfterConstruct(), this._$initDecorators(), this.Preset(), this._$nodes = this.Body(), this.Afterset(), this._$bindNodes();
   }
-  _$addProp(e, t, n, i, r) {
-    k(this, "prop", e, t, n, i, r);
+  _$addProp(e, t, s, o, d) {
+    E(this, "prop", e, t, s, o, d);
   }
   render(e) {
     this.willMount(this);
@@ -203,7 +167,6 @@ class G extends v {
       t.render(e);
     this.didMount(this);
   }
-  // ---- lifecycles
   willMount(e) {
   }
   didMount(e) {
@@ -213,16 +176,15 @@ class G extends v {
   didUnmount(e) {
   }
   _$addLifeCycle(e, t) {
-    const n = this[t];
-    this[t] = function(i) {
-      e.call(this, this), n.call(this, this);
+    let s = this[t];
+    this[t] = function(o) {
+      e.call(this, this), s.call(this, this);
     };
   }
-}
-class I extends v {
+}, D = class extends b {
   constructor(e) {
-    super(a.HTML);
-    d(this, "_$envNodes", []);
+    super(0);
+    n(this, "_$envNodes", []);
     this._$el = document.createElement(e);
   }
   _$init() {
@@ -233,21 +195,20 @@ class I extends v {
   _$addNodes(e) {
     this._$nodes = e;
   }
-  _$addProp(e, t, n, i) {
-    let r;
-    if (e[0] === "_" ? r = (_) => this._$el.style[e.slice(1)] = _ : e === "innerText" ? r = (_) => this._$el.innerText = _ : r = (_) => this._$el[e] = _, !i) {
-      r(t);
+  _$addProp(e, t, s, o) {
+    let d;
+    if (e[0] === "_" ? d = (h) => this._$el.style[e.slice(1)] = h : e === "innerText" ? d = (h) => this._$el.innerText = h : d = (h) => this._$el[e] = h, !o) {
+      d(t);
       return;
     }
-    let h = t();
-    r(h);
-    const c = () => {
-      const _ = t();
-      h !== _ && (r(_), h = _);
-    }, $ = {};
-    this._$depObjectIds.push($), n._$addDeps(i, $, c);
+    let r = t();
+    d(r);
+    let l = () => {
+      let h = t();
+      r !== h && (d(h), r = h);
+    }, a = {};
+    this._$depObjectIds.push(a), s._$addDeps(o, a, l);
   }
-  // ---- lifecycles
   willAppear(e) {
   }
   didAppear(e) {
@@ -257,113 +218,106 @@ class I extends v {
   didDisappear(e) {
   }
   _$addLifeCycle(e, t) {
-    const n = this[t];
-    this[t] = function(i) {
-      return n.call(this, i), e.call(this, i);
+    let s = this[t];
+    this[t] = function(o) {
+      return s.call(this, o), e.call(this, o);
     };
   }
   render(e) {
     this.willAppear(this._$el), e.appendChild(this._$el), this.didAppear(this._$el);
   }
+};
+function v(i) {
+  X(i), u(i, (e, t) => {
+    t._$nodeType === 0 && t.willDisappear(e), e.remove(), t._$nodeType === 0 && t.didDisappear(e);
+  }), Y(i);
 }
-function y(o) {
-  z(o), g(o, (s, e) => {
-    e._$nodeType === a.HTML && e.willDisappear(s), s.remove(), e._$nodeType === a.HTML && e.didDisappear(s);
-  }), J(o);
-}
-function N(o, s) {
-  P(o, (e) => {
-    for (let t of e._$depObjectIds)
-      s._$deleteDeps(t);
+function P(i, e) {
+  w(i, (t) => {
+    for (let s of t._$depObjectIds)
+      e._$deleteDeps(s);
     return !0;
   });
 }
-function m(o, s, e, t) {
-  let n = t ?? e.childNodes.length;
-  return Z(o), g(o, (i, r) => {
-    const h = e.childNodes[s];
-    [a.HTML].includes(r._$nodeType) && r.willAppear(i), s === n ? e.appendChild(i) : e.insertBefore(i, h), [a.HTML].includes(r._$nodeType) && r.didAppear(i), s++, n++;
-  }, !1), q(o), [s, n];
+function m(i, e, t, s) {
+  let o = s ?? t.childNodes.length;
+  return J(i), u(i, (d, r) => {
+    let l = t.childNodes[e];
+    [0].includes(r._$nodeType) && r.willAppear(d), e === o ? t.appendChild(d) : t.insertBefore(d, l), [0].includes(r._$nodeType) && r.didAppear(d), e++, o++;
+  }, !1), Q(i), [e, o];
 }
-function b(o, s) {
-  return O(o._$nodes, s);
+function U(i, e) {
+  return j(i._$nodes, e);
 }
-function D(o) {
-  return O(o, void 0);
+function x(i) {
+  return j(i, void 0);
 }
-function O(o, s) {
-  let e = 0, t = !1;
-  return P(o, (n) => t ? !1 : n === s ? (t = !0, !1) : [a.Text, a.HTML].includes(n._$nodeType) ? (e++, !1) : !0), e;
+function j(i, e) {
+  let t = 0, s = !1;
+  return w(i, (o) => s ? !1 : o === e ? (s = !0, !1) : [1, 0].includes(o._$nodeType) ? (t++, !1) : !0), t;
 }
-function M(o, s) {
-  P(o, (e) => ([a.Custom, a.Expression].includes(e._$nodeType) && e[s](e), !0));
+function S(i, e) {
+  w(i, (t) => ([2, 6].includes(t._$nodeType) && t[e](t), !0));
 }
-function Z(o) {
-  M(o, "willMount");
+function J(i) {
+  S(i, "willMount");
 }
-function q(o) {
-  M(o, "didMount");
+function Q(i) {
+  S(i, "didMount");
 }
-function z(o) {
-  M(o, "willUnmount");
+function X(i) {
+  S(i, "willUnmount");
 }
-function J(o) {
-  M(o, "didUnmount");
+function Y(i) {
+  S(i, "didUnmount");
 }
-class F extends v {
-  afterUpdateNewNodes(s) {
+var T = class extends b {
+  afterUpdateNewNodes(i) {
   }
-  addAfterUpdateNewNodesFunc(s) {
-    const e = this.afterUpdateNewNodes;
+  addAfterUpdateNewNodesFunc(i) {
+    let e = this.afterUpdateNewNodes;
     this.afterUpdateNewNodes = function(t) {
-      s.call(this, t), e.call(this, t);
+      i.call(this, t), e.call(this, t);
     };
   }
-  onUpdateNodes(s, e) {
+  onUpdateNodes(i, e) {
   }
-  addOnUpdateNodesFunc(s) {
-    const e = this.onUpdateNodes;
-    this.onUpdateNodes = function(t, n) {
-      s.call(this, t, n), e.call(this, t, n);
+  addOnUpdateNodesFunc(i) {
+    let e = this.onUpdateNodes;
+    this.onUpdateNodes = function(t, s) {
+      i.call(this, t, s), e.call(this, t, s);
     };
   }
-  _$bindNewNodes(s) {
-    this.afterUpdateNewNodes(s), S(s, this), this._$beforeInitSubNodes(), T(s);
+  _$bindNewNodes(i) {
+    this.afterUpdateNewNodes(i), F(i, this), this._$beforeInitSubNodes(), C(i);
   }
-}
-class j extends F {
+}, M = class extends T {
   constructor() {
-    super(a.For);
-    d(this, "keys", []);
-    d(this, "array", []);
-    d(this, "_$nodess", []);
-    d(this, "nodeFunc");
-    d(this, "keyFunc");
-    d(this, "arrayFunc");
-    d(this, "dlScope");
-    d(this, "listenDeps");
-    d(this, "_$envNodes", []);
-    d(this, "duplicatedOrNoKey", !1);
+    super(3);
+    n(this, "keys", []);
+    n(this, "array", []);
+    n(this, "_$nodess", []);
+    n(this, "nodeFunc");
+    n(this, "keyFunc");
+    n(this, "arrayFunc");
+    n(this, "dlScope");
+    n(this, "listenDeps");
+    n(this, "_$envNodes", []);
+    n(this, "duplicatedOrNoKey", !1);
   }
   _$getItem(e, t) {
-    let n = this.duplicatedOrNoKey ? t : this.keys.indexOf(e);
-    return this.array[n];
+    let s = this.duplicatedOrNoKey ? t : this.keys.indexOf(e);
+    return this.array[s];
   }
-  /**
-   * @methodGroup - 只有有deps的时候才需要用各种func
-   */
   _$addNodeFunc(e) {
     this.nodeFunc = e;
   }
   _$addKeyFunc(e) {
     this.keyFunc = e;
   }
-  _$addArrayFunc(e, t, n) {
-    this.dlScope = e, this.arrayFunc = t, this.listenDeps = n;
+  _$addArrayFunc(e, t, s) {
+    this.dlScope = e, this.arrayFunc = t, this.listenDeps = s;
   }
-  /**
-   * @methodGroup - 无deps的时候直接加nodes
-   */
   _$addNodess(e) {
     this._$nodess = e, this._$nodes = this._$nodess.flat(1);
   }
@@ -375,7 +329,7 @@ class j extends F {
       this.duplicatedOrNoKey = !0;
       return;
     }
-    const e = [...this.keyFunc()];
+    let e = [...this.keyFunc()];
     if (e.length === [...new Set(e)].length) {
       this.keys = e;
       return;
@@ -388,17 +342,17 @@ class j extends F {
       return;
     }
     let e = this._$parentNode;
-    for (; e && e._$nodeType !== a.HTML; )
+    for (; e && e._$nodeType !== 0; )
       e = e._$parentNode;
     if (!e)
       return;
-    const t = this.keyFunc ? () => this.updateWithKey(e) : () => this.updateWithOutKey(e), n = {};
-    if (this._$depObjectIds.push(n), this.dlScope._$addDeps(this.listenDeps, n, t), this.setArray(), this.setKeys(), this.duplicatedOrNoKey)
-      for (let i of this.array.keys())
-        this._$nodess.push(this.nodeFunc(null, i, this));
+    let t = this.keyFunc ? () => this.updateWithKey(e) : () => this.updateWithOutKey(e), s = {};
+    if (this._$depObjectIds.push(s), this.dlScope._$addDeps(this.listenDeps, s, t), this.setArray(), this.setKeys(), this.duplicatedOrNoKey)
+      for (let o of this.array.keys())
+        this._$nodess.push(this.nodeFunc(null, o, this));
     else
-      for (let [i, r] of this.keys.entries())
-        this._$nodess.push(this.nodeFunc(r, i, this));
+      for (let [o, d] of this.keys.entries())
+        this._$nodess.push(this.nodeFunc(d, o, this));
     this._$nodes = this._$nodess.flat(1), this._$bindNodes();
   }
   render(e) {
@@ -406,223 +360,235 @@ class j extends F {
       t.render(e);
   }
   getNewNodes(e, t) {
-    const n = this.nodeFunc(e, t, this);
-    return this._$bindNewNodes(n), n;
+    let s = this.nodeFunc(e, t, this);
+    return this._$bindNewNodes(s), s;
   }
-  /**
-   * 没有key这样是优化过的，非常快 
-   */
   updateWithOutKey(e) {
-    const t = e._$el, n = this.array.length;
+    let t = e._$el, s = this.array.length;
     this.setArray();
-    const i = this.array.length;
-    if (n !== i) {
-      if (n < i) {
-        let r = b(e, this), h = t.childNodes.length;
-        for (let c = 0; c < i; c++) {
-          if (c < n) {
-            r += D(this._$nodess[c]);
+    let o = this.array.length;
+    if (s !== o) {
+      if (s < o) {
+        let d = U(e, this), r = t.childNodes.length;
+        for (let l = 0; l < o; l++) {
+          if (l < s) {
+            d += x(this._$nodess[l]);
             continue;
           }
-          const $ = this.getNewNodes(null, c);
-          [r, h] = m($, r, t, h), this._$nodess.push($);
+          let a = this.getNewNodes(null, l);
+          [d, r] = m(a, d, t, r), this._$nodess.push(a);
         }
         this._$nodes = this._$nodess.flat(1);
         return;
       }
-      for (let r = i; r < n; r++)
-        N(this._$nodess[r], this.dlScope), y(this._$nodess[r]);
-      this._$nodess = this._$nodess.slice(0, i), this._$nodes = this._$nodess.flat(1);
+      for (let d = o; d < s; d++)
+        P(this._$nodess[d], this.dlScope), v(this._$nodess[d]);
+      this._$nodess = this._$nodess.slice(0, o), this._$nodes = this._$nodess.flat(1);
     }
   }
-  /**
-   * 有 key，三步走
-   * 
-   */
   async updateWithKey(e) {
-    const t = e._$el, n = b(e, this);
-    let i = this.keys;
-    const r = [...this.array], h = [...this._$nodess], c = [...this._$nodes];
-    this.setArray(), this.setKeys(), this.duplicatedOrNoKey && (i = [...Array(r.length).keys()]);
-    let $ = [];
-    const _ = [];
-    for (let [l, u] of i.entries()) {
-      if (this.keys.includes(u)) {
-        $.push(u), _.push(h[l]);
+    let t = e._$el, s = U(e, this), o = this.keys, d = [...this.array], r = [...this._$nodess], l = [...this._$nodes];
+    this.setArray(), this.setKeys(), this.duplicatedOrNoKey && (o = [...Array(d.length).keys()]);
+    let a = [], h = [];
+    for (let [_, p] of o.entries()) {
+      if (this.keys.includes(p)) {
+        a.push(p), h.push(r[_]);
         continue;
       }
-      N(h[l], this.dlScope), y(h[l]);
+      P(r[_], this.dlScope), v(r[_]);
     }
-    i = $;
-    let p = n, w = t.childNodes.length;
-    for (let [l, u] of this.keys.entries()) {
-      if (i.includes(u)) {
-        p += D(_[i.indexOf(u)]);
+    o = a;
+    let $ = s, f = t.childNodes.length;
+    for (let [_, p] of this.keys.entries()) {
+      if (o.includes(p)) {
+        $ += x(h[o.indexOf(p)]);
         continue;
       }
-      const f = this.getNewNodes(u, l);
-      [p, w] = m(f, p, t, w), _.splice(l, 0, f), i.splice(l, 0, u);
+      let c = this.getNewNodes(p, _);
+      [$, f] = m(c, $, t, f), h.splice(_, 0, c), o.splice(_, 0, p);
     }
-    p = n;
-    for (let [l, u] of this.keys.entries()) {
-      const f = i.indexOf(u);
-      if (f === l) {
-        p += D(_[l]);
+    $ = s;
+    for (let [_, p] of this.keys.entries()) {
+      let c = o.indexOf(p);
+      if (c === _) {
+        $ += x(h[_]);
         continue;
       }
-      const L = _[f], H = i[f];
-      [p, w] = m(L, p, t, w), _.splice(f, 1), i.splice(f, 1), _.splice(l + 1, 0, L), i.splice(l + 1, 0, H);
+      let k = h[c], R = o[c];
+      [$, f] = m(k, $, t, f), h.splice(c, 1), o.splice(c, 1), h.splice(_ + 1, 0, k), o.splice(_ + 1, 0, R);
     }
-    this._$nodess = _, this._$nodes = this._$nodess.flat(1), this.onUpdateNodes(c, this._$nodes);
+    this._$nodess = h, this._$nodes = this._$nodess.flat(1), this.onUpdateNodes(l, this._$nodes);
   }
-  // ---- 识别特殊for
-  _$listen(e, t, n, i) {
-    const r = {};
-    e._$depObjectIds.push(r), e._$addDeps(n, r, () => {
-      const h = t();
-      if (h === void 0) {
-        e._$deleteDeps(r);
+  _$listen(e, t, s, o) {
+    let d = {};
+    e._$depObjectIds.push(d), e._$addDeps(s, d, () => {
+      let r = t();
+      if (r === void 0) {
+        e._$deleteDeps(d);
         return;
       }
-      i(h);
+      o(r);
     });
   }
-}
-class U extends F {
+}, K = class extends T {
   constructor() {
-    super(a.If);
-    d(this, "conditionPairs", []);
-    d(this, "condition");
-    d(this, "listenDeps", []);
-    d(this, "dlScope");
-    d(this, "_$envNodes", []);
+    super(4);
+    n(this, "conditionPairs", []);
+    n(this, "condition");
+    n(this, "listenDeps", []);
+    n(this, "dlScope");
+    n(this, "_$envNodes", []);
   }
-  _$addCond(e, t, n, i) {
-    this.conditionPairs.push({ condition: e, node: t }), i && (this.dlScope || (this.dlScope = n), this.listenDeps.push(...i));
-    let r = [];
-    for (let h of this.conditionPairs)
-      if (h.condition()) {
-        this.condition = h.condition.toString(), r = h.node();
+  _$addCond(e, t, s, o) {
+    this.conditionPairs.push({ condition: e, node: t }), o && (this.dlScope || (this.dlScope = s), this.listenDeps.push(...o));
+    let d = [];
+    for (let r of this.conditionPairs)
+      if (r.condition()) {
+        this.condition = r.condition.toString(), d = r.node();
         break;
       }
-    this._$nodes = r;
+    this._$nodes = d;
   }
   _$init() {
     var t;
     let e = this._$parentNode;
-    for (; e && e._$nodeType !== a.HTML; )
+    for (; e && e._$nodeType !== 0; )
       e = e._$parentNode;
     if (e) {
-      const n = {};
-      this._$depObjectIds.push(n), (t = this.dlScope) == null || t._$addDeps(this.listenDeps, n, () => this.update(e));
+      let s = {};
+      this._$depObjectIds.push(s), (t = this.dlScope) == null || t._$addDeps(this.listenDeps, s, () => this.update(e));
     }
     this._$bindNodes();
   }
   update(e) {
-    const t = this._$nodes, n = this.condition;
+    let t = this._$nodes, s = this.condition;
     this._$nodes = [];
-    for (let h of this.conditionPairs)
-      if (h.condition()) {
-        this.condition !== h.condition.toString() ? (N(t, this.dlScope), y(t), this.condition = h.condition.toString(), this._$nodes = h.node(), this._$bindNewNodes(this._$nodes)) : this._$nodes = t;
+    for (let r of this.conditionPairs)
+      if (r.condition()) {
+        this.condition !== r.condition.toString() ? (P(t, this.dlScope), v(t), this.condition = r.condition.toString(), this._$nodes = r.node(), this._$bindNewNodes(this._$nodes)) : this._$nodes = t;
         break;
       }
-    if (t.length !== 0 && this._$nodes.length === 0 && (this.condition = "[none]", N(t, this.dlScope), y(t)), n === this.condition)
+    if (t.length !== 0 && this._$nodes.length === 0 && (this.condition = "[none]", P(t, this.dlScope), v(t)), s === this.condition)
       return;
-    const i = b(e, this), r = e._$el;
-    m(this._$nodes, i, r, r.childNodes.length), this.onUpdateNodes(t, this._$nodes);
+    let o = U(e, this), d = e._$el;
+    m(this._$nodes, o, d, d.childNodes.length), this.onUpdateNodes(t, this._$nodes);
   }
   render(e) {
     for (let t of this._$nodes)
       t.render(e);
   }
-}
-class Q extends v {
-  constructor(s, e, t) {
-    if (super(a.Text), !t) {
-      this._$el = document.createTextNode(s);
+}, ee = class extends b {
+  constructor(i, e, t) {
+    if (super(1), !t) {
+      this._$el = document.createTextNode(i);
       return;
     }
-    s = s;
-    let n = s();
-    this._$el = document.createTextNode(n);
-    const i = () => {
-      const h = s();
-      n !== h && (this._$el.nodeValue = h, n = h);
-    }, r = {};
-    this._$depObjectIds.push(r), e._$addDeps(t, r, i);
+    i = i;
+    let s = i();
+    this._$el = document.createTextNode(s);
+    let o = () => {
+      let r = i();
+      s !== r && (this._$el.nodeValue = r, s = r);
+    }, d = {};
+    this._$depObjectIds.push(d), e._$addDeps(t, d, o);
   }
-  render(s) {
-    s.appendChild(this._$el);
+  render(i) {
+    i.appendChild(this._$el);
   }
-}
-class x extends F {
-  constructor(e, t, n) {
-    super(a.Expression);
-    d(this, "nodeOrFunc");
-    d(this, "listenDeps");
-    d(this, "dlScope");
-    d(this, "propFuncs", []);
-    // ---- onUpdateNodes
-    d(this, "propScope", () => !0);
-    d(this, "deepLoopEl", !1);
-    if (!n) {
+}, te = class extends b {
+  constructor() {
+    super(5);
+    n(this, "addPropFuncs", []);
+  }
+  _$addNodes(e) {
+    this._$nodes = e;
+  }
+  _$addProp(e, t, s, o) {
+    this.addPropFuncs.push((d) => E(d, "env", e, t, s, o));
+  }
+  addProps(e) {
+    for (let t of this.addPropFuncs)
+      t(e);
+  }
+  addPropsToNodes(e) {
+    w(e, (t) => (t._$beforeInitSubNodes = () => {
+      this.addPropsToNodes(t._$nodes);
+    }, t._$nodeType === 2 && this.addProps(t), !0));
+  }
+  _$init() {
+    this.addPropsToNodes(this._$nodes), this._$bindNodes();
+  }
+  render(e) {
+    for (let t of this._$nodes)
+      t.render(e);
+  }
+}, g = class extends T {
+  constructor(e, t, s) {
+    super(6);
+    n(this, "nodeOrFunc");
+    n(this, "listenDeps");
+    n(this, "dlScope");
+    n(this, "propFuncs", []);
+    n(this, "propScope", () => !0);
+    n(this, "deepLoopEl", !1);
+    if (!s) {
       this._$nodes = this.formatNodes(e);
       return;
     }
-    this.nodeOrFunc = e, this.listenDeps = n, this.dlScope = t, this._$nodes = this.formatNodes(this.nodeOrFunc());
+    this.nodeOrFunc = e, this.listenDeps = s, this.dlScope = t, this._$nodes = this.formatNodes(this.nodeOrFunc());
   }
   _$onUpdateNodes(e) {
-    P(this._$nodes, (t) => ([a.If, a.For, a.Expression].includes(t._$nodeType) && t.addOnUpdateNodesFunc(e), !0));
+    w(this._$nodes, (t) => ([4, 3, 6].includes(t._$nodeType) && t.addOnUpdateNodesFunc(e), !0));
   }
-  _$addProp(e, t, n, i) {
-    const r = this.propScope, h = this.deepLoopEl, c = ($) => {
-      const _ = $._$el;
-      r(_, $) && (e[0] === "_" && ($._$el.style[e.slice(1)] ?? "").trim() !== "" || e[0] !== "_" && $._$el[e] !== void 0 || $._$addProp(e, t, n, i));
+  _$addProp(e, t, s, o) {
+    let d = this.propScope, r = this.deepLoopEl, l = (a) => {
+      let h = a._$el;
+      !d(h, a) || e[0] === "_" && (a._$el.style[e.slice(1)] ?? "").trim() !== "" || e[0] !== "_" && a._$el[e] !== void 0 || a._$addProp(e, t, s, o);
     };
     this.propFuncs.push(() => {
-      for (let $ of this._$nodes)
-        switch ($._$nodeType) {
-          case a.HTML:
-            c($), h && g($._$nodes, (_, p) => {
-              p._$nodeType === a.HTML && c(p);
+      for (let a of this._$nodes)
+        switch (a._$nodeType) {
+          case 0:
+            l(a), r && u(a._$nodes, (h, $) => {
+              $._$nodeType === 0 && l($);
             }, !0);
             break;
-          case a.For:
-          case a.If:
-          case a.Expression:
-            $.addAfterUpdateNewNodesFunc((_) => {
-              g(_, (p, w) => {
-                w._$nodeType === a.HTML && c(w);
-              }, h);
+          case 3:
+          case 4:
+          case 6:
+            a.addAfterUpdateNewNodesFunc((h) => {
+              u(h, ($, f) => {
+                f._$nodeType === 0 && l(f);
+              }, r);
             });
           default:
-            g($._$nodes, (_, p) => {
-              p._$nodeType === a.HTML && c(p);
-            }, h);
+            u(a._$nodes, (h, $) => {
+              $._$nodeType === 0 && l($);
+            }, r);
         }
     });
   }
   formatNodes(e) {
-    return Array.isArray(e) || (e = [e]), e = e.flat(1), e = e.filter((t) => t != null).map((t) => t._$nodeType !== void 0 ? t : new Q(t)), e;
+    return Array.isArray(e) || (e = [e]), e = e.flat(1), e = e.filter((t) => t != null).map((t) => t._$nodeType !== void 0 ? t : new ee(t)), e;
   }
   _$init() {
     if (this.listenDeps === void 0) {
       this._$bindNodes();
-      for (let n of this.propFuncs)
-        n();
+      for (let s of this.propFuncs)
+        s();
       return;
     }
     let e = this._$parentNode;
-    for (; e && e._$nodeType !== a.HTML; )
+    for (; e && e._$nodeType !== 0; )
       e = e._$parentNode;
     if (!e)
       return;
-    const t = {};
+    let t = {};
     this._$depObjectIds.push(t), this.dlScope._$addDeps(this.listenDeps, t, () => this.update(e)), this._$bindNodes();
-    for (let n of this.propFuncs) {
-      n();
-      const i = {};
-      this._$depObjectIds.push(i), this.dlScope._$addDeps(this.listenDeps, i, n);
+    for (let s of this.propFuncs) {
+      s();
+      let o = {};
+      this._$depObjectIds.push(o), this.dlScope._$addDeps(this.listenDeps, o, s);
     }
   }
   render(e) {
@@ -632,12 +598,11 @@ class x extends F {
     this.didMount(this);
   }
   update(e) {
-    const t = this._$nodes;
-    N(this._$nodes, this.dlScope), y(this._$nodes), this._$nodes = this.formatNodes(this.nodeOrFunc()), this._$bindNewNodes(this._$nodes);
-    const n = e._$el, i = b(e, this);
-    m(this._$nodes, i, n, n.childNodes.length), this.onUpdateNodes(t, this._$nodes);
+    let t = this._$nodes;
+    P(this._$nodes, this.dlScope), v(this._$nodes), this._$nodes = this.formatNodes(this.nodeOrFunc()), this._$bindNewNodes(this._$nodes);
+    let s = e._$el, o = U(e, this);
+    m(this._$nodes, o, s, s.childNodes.length), this.onUpdateNodes(t, this._$nodes);
   }
-  // ---- lifecycles
   willMount(e) {
   }
   didMount(e) {
@@ -647,43 +612,42 @@ class x extends F {
   didUnmount(e) {
   }
   _$addLifeCycle(e, t) {
-    const n = this[t];
-    this[t] = function(i) {
-      e.call(this, this), n.call(this, this);
+    let s = this[t];
+    this[t] = function(o) {
+      e.call(this, this), s.call(this, this);
     };
   }
-}
-const A = G;
-class X extends A {
+}, N = z;
+class ne extends N {
   constructor() {
     super(...arguments);
-    d(this, "_$tag", "Spacer");
-    d(this, "Body", () => [new I("div")]);
+    n(this, "_$tag", "Spacer");
+    n(this, "Body", () => [new D("div")]);
   }
 }
-class Y extends A {
+class oe extends N {
   constructor() {
     super(...arguments);
-    d(this, "_$derivedPairs", {
+    n(this, "_$derivedPairs", {
       margin: ["alignment"]
     });
-    d(this, "_$deps", {
+    n(this, "_$deps", {
       spacing: /* @__PURE__ */ new Map(),
       alignment: /* @__PURE__ */ new Map(),
       width: /* @__PURE__ */ new Map(),
       height: /* @__PURE__ */ new Map(),
       margin: /* @__PURE__ */ new Map()
     });
-    d(this, "_$tag", "HStack");
-    d(this, "_$$spacing", "_$prop");
-    d(this, "spacing", 10);
-    d(this, "_$$alignment", "_$prop");
-    d(this, "alignment", "top");
-    d(this, "_$$width", "_$prop");
-    d(this, "width", "100%");
-    d(this, "_$$height", "_$prop");
-    d(this, "height", "max-content");
-    d(this, "margin", () => function() {
+    n(this, "_$tag", "HStack");
+    n(this, "_$$spacing", "_$prop");
+    n(this, "spacing", 10);
+    n(this, "_$$alignment", "_$prop");
+    n(this, "alignment", "top");
+    n(this, "_$$width", "_$prop");
+    n(this, "width", "100%");
+    n(this, "_$$height", "_$prop");
+    n(this, "height", "max-content");
+    n(this, "margin", () => function() {
       switch (this.alignment) {
         case "top":
           return "0 0 auto 0";
@@ -695,47 +659,47 @@ class Y extends A {
           return "auto";
       }
     }.call(this));
-    d(this, "Body", () => {
-      const e = new I("div");
-      return e._$addProp("_height", () => this.height, this, ["height"]), e._$addProp("_width", () => this.width, this, ["width"]), e._$addProp("_columnGap", () => `${this.spacing}px`, this, ["spacing"]), e._$addProp("_display", "flex"), e._$addProp("_flexDirection", "row"), e._$addNodes((() => {
-        const t = new j();
-        return t._$addNodess(Array.from(this._$children).map((n) => (() => {
-          const i = new U();
-          return i._$addCond(() => n._$tag === "Spacer", () => {
-            const r = new x(n());
+    n(this, "Body", () => {
+      const t = new D("div");
+      return t._$addProp("_height", () => this.height, this, ["height"]), t._$addProp("_width", () => this.width, this, ["width"]), t._$addProp("_columnGap", () => `${this.spacing}px`, this, ["spacing"]), t._$addProp("_display", "flex"), t._$addProp("_flexDirection", "row"), t._$addNodes((() => {
+        const s = new M();
+        return s._$addNodess(Array.from(this._$children).map((o) => (() => {
+          const d = new K();
+          return d._$addCond(() => o._$tag === "Spacer", () => {
+            const r = new g(o());
             return r._$addProp("_flexGrow", 1), [r];
-          }), i._$addCond(() => !0, () => {
-            const r = new x(n());
+          }), d._$addCond(() => !0, () => {
+            const r = new g(o());
             return r._$addProp("_flexShrink", 0), r._$addProp("_margin", () => this.margin, this, ["margin"], !0), [r];
-          }), [i];
-        })())), [t];
-      })()), [e];
+          }), [d];
+        })())), [s];
+      })()), [t];
     });
   }
 }
-class ee extends A {
+class de extends N {
   constructor() {
     super(...arguments);
-    d(this, "_$derivedPairs", {
+    n(this, "_$derivedPairs", {
       margin: ["alignment"]
     });
-    d(this, "_$deps", {
+    n(this, "_$deps", {
       spacing: /* @__PURE__ */ new Map(),
       alignment: /* @__PURE__ */ new Map(),
       width: /* @__PURE__ */ new Map(),
       height: /* @__PURE__ */ new Map(),
       margin: /* @__PURE__ */ new Map()
     });
-    d(this, "_$tag", "VStack");
-    d(this, "_$$spacing", "_$prop");
-    d(this, "spacing", 10);
-    d(this, "_$$alignment", "_$prop");
-    d(this, "alignment", "top");
-    d(this, "_$$width", "_$prop");
-    d(this, "width", "max-content");
-    d(this, "_$$height", "_$prop");
-    d(this, "height", "100%");
-    d(this, "margin", () => function() {
+    n(this, "_$tag", "VStack");
+    n(this, "_$$spacing", "_$prop");
+    n(this, "spacing", 10);
+    n(this, "_$$alignment", "_$prop");
+    n(this, "alignment", "top");
+    n(this, "_$$width", "_$prop");
+    n(this, "width", "max-content");
+    n(this, "_$$height", "_$prop");
+    n(this, "height", "100%");
+    n(this, "margin", () => function() {
       switch (this.alignment) {
         case "top":
           return "0 auto 0 0";
@@ -747,65 +711,231 @@ class ee extends A {
           return "auto";
       }
     }.call(this));
-    d(this, "Body", () => {
-      const e = new I("div");
-      return e._$addProp("_height", () => this.height, this, ["height"]), e._$addProp("_width", () => this.width, this, ["width"]), e._$addProp("_columnGap", () => `${this.spacing}px`, this, ["spacing"]), e._$addProp("_display", "flex"), e._$addProp("_flexDirection", "column"), e._$addNodes((() => {
-        const t = new j();
-        return t._$addNodess(Array.from(this._$children).map((n) => (() => {
-          const i = new U();
-          return i._$addCond(() => n._$tag === "Spacer", () => {
-            const r = new x(n());
+    n(this, "Body", () => {
+      const t = new D("div");
+      return t._$addProp("_height", () => this.height, this, ["height"]), t._$addProp("_width", () => this.width, this, ["width"]), t._$addProp("_columnGap", () => `${this.spacing}px`, this, ["spacing"]), t._$addProp("_display", "flex"), t._$addProp("_flexDirection", "column"), t._$addNodes((() => {
+        const s = new M();
+        return s._$addNodess(Array.from(this._$children).map((o) => (() => {
+          const d = new K();
+          return d._$addCond(() => o._$tag === "Spacer", () => {
+            const r = new g(o());
             return r._$addProp("_flexGrow", 1), [r];
-          }), i._$addCond(() => !0, () => {
-            const r = new x(n());
+          }), d._$addCond(() => !0, () => {
+            const r = new g(o());
             return r._$addProp("_flexShrink", 0), r._$addProp("_margin", () => this.margin, this, ["margin"], !0), [r];
-          }), [i];
-        })())), [t];
-      })()), [e];
+          }), [d];
+        })())), [s];
+      })()), [t];
     });
   }
 }
-class te extends A {
+class re extends N {
   constructor() {
     super(...arguments);
-    d(this, "_$deps", {
+    n(this, "_$deps", {
       hAlignment: /* @__PURE__ */ new Map(),
       vAlignment: /* @__PURE__ */ new Map(),
       width: /* @__PURE__ */ new Map(),
       height: /* @__PURE__ */ new Map()
     });
-    d(this, "_$tag", "ZStack");
-    d(this, "_$$hAlignment", "_$prop");
-    d(this, "hAlignment", "center");
-    d(this, "_$$vAlignment", "_$prop");
-    d(this, "vAlignment", "center");
-    d(this, "_$$width", "_$prop");
-    d(this, "width", "max-content");
-    d(this, "_$$height", "_$prop");
-    d(this, "height", "max-content");
-    d(this, "Body", () => {
-      const e = new I("div");
-      return e._$addProp("_height", () => this.height, this, ["height"]), e._$addProp("_width", () => this.width, this, ["width"]), e._$addProp("_columnGap", `${this.spacing}px`), e._$addProp("_display", "grid"), e._$addProp("_alignItems", () => ({
+    n(this, "_$tag", "ZStack");
+    n(this, "_$$hAlignment", "_$prop");
+    n(this, "hAlignment", "center");
+    n(this, "_$$vAlignment", "_$prop");
+    n(this, "vAlignment", "center");
+    n(this, "_$$width", "_$prop");
+    n(this, "width", "max-content");
+    n(this, "_$$height", "_$prop");
+    n(this, "height", "max-content");
+    n(this, "Body", () => {
+      const t = new D("div");
+      return t._$addProp("_height", () => this.height, this, ["height"]), t._$addProp("_width", () => this.width, this, ["width"]), t._$addProp("_columnGap", `${this.spacing}px`), t._$addProp("_display", "grid"), t._$addProp("_alignItems", () => ({
         top: "flex-start",
         center: "center",
         bottom: "flex-end"
-      })[this.vAlignment], this, ["vAlignment"]), e._$addProp("_justifyItems", () => ({
+      })[this.vAlignment], this, ["vAlignment"]), t._$addProp("_justifyItems", () => ({
         leading: "left",
         center: "center",
         tailing: "right"
-      })[this.hAlignment], this, ["hAlignment"]), e._$addNodes((() => {
-        const t = new j();
-        return t._$addNodess(Array.from(this._$children).map((n) => (() => {
-          const i = new x(n());
-          return i._$addProp("_position", "relative"), i._$addProp("_gridArea", "1 / 1/ 1 / 1"), [i];
-        })())), [t];
-      })()), [e];
+      })[this.hAlignment], this, ["hAlignment"]), t._$addNodes((() => {
+        const s = new M();
+        return s._$addNodess(Array.from(this._$children).map((o) => (() => {
+          const d = new g(o());
+          return d._$addProp("_position", "relative"), d._$addProp("_gridArea", "1 / 1/ 1 / 1"), [d];
+        })())), [s];
+      })()), [t];
     });
   }
 }
+function O() {
+  return location.hash.slice(2);
+}
+function L() {
+  return location.pathname.slice(1);
+}
+function I(i, e) {
+  let t;
+  if (i[0] === "/")
+    t = i;
+  else {
+    i[0] !== "." && (i = "./" + i);
+    const s = i.split("/"), o = e.split("/").filter((r) => r);
+    let d = 0;
+    for (let r of s) {
+      if (![".", ".."].includes(r))
+        break;
+      r === ".." && (o.length === 0 && console.warn(`no ../ in ${i}`), o.pop()), d++;
+    }
+    t = "/" + [...o, ...s.slice(d)].join("/");
+  }
+  return t;
+}
+class se {
+  constructor() {
+    n(this, "mode", "hash");
+    n(this, "baseUrl", "");
+  }
+  hashTo(e) {
+    window.location.href = "#" + I(e, this.baseUrl);
+  }
+  historyTo(e) {
+    window.history.pushState({}, "", I(e, this.baseUrl));
+  }
+  to(e) {
+    if (this.mode === "hash") {
+      this.hashTo(e);
+      return;
+    }
+    this.historyTo(e);
+  }
+}
+class he extends N {
+  constructor() {
+    super(...arguments);
+    n(this, "_$deps", {
+      _$content: /* @__PURE__ */ new Map()
+    });
+    n(this, "_$tag", "Route");
+    n(this, "_$$_$content", "_$prop");
+    n(this, "_$content", "_$default");
+    n(this, "Body", () => {
+      var s;
+      return [new g((s = this._$children) == null ? void 0 : s.map((o) => o()))];
+    });
+  }
+}
+const A = history.pushState;
+let y = [];
+class ae extends N {
+  constructor() {
+    super(...arguments);
+    n(this, "_$derivedPairs", {
+      currUrl: ["mode"],
+      showedRoute: ["currUrl"]
+    });
+    n(this, "_$deps", {
+      mode: /* @__PURE__ */ new Map(),
+      navigator: /* @__PURE__ */ new Map(),
+      currUrl: /* @__PURE__ */ new Map(),
+      showedRoute: /* @__PURE__ */ new Map()
+    });
+    n(this, "_$tag", "RouterSpace");
+    n(this, "_$$mode", "_$prop");
+    n(this, "mode", "history");
+    n(this, "_$$navigator");
+    n(this, "_$$currUrl", () => this.mode === "hash" ? O() : L());
+    n(this, "baseUrl", "");
+    n(this, "prevPathCondition", "");
+    n(this, "prevRoutes", []);
+    n(this, "showedRoute", () => function() {
+      const t = this.prevPathCondition;
+      this.prevPathCondition = "";
+      let s = [];
+      for (let o of this._$children) {
+        const d = o();
+        if (d._$tag !== "Route") {
+          s.push(d);
+          continue;
+        }
+        if (this.currUrl.startsWith(this.baseUrl + d._$content) || d._$content === "_$default") {
+          if (d._$content === t)
+            return this.prevPathCondition = t, this.prevRoutes;
+          s.push(d), this.prevPathCondition = d._$content;
+          break;
+        }
+      }
+      return this.prevRoutes = s, s;
+    }.call(this));
+    n(this, "historyChangeListen", () => {
+      this.currUrl = L();
+    });
+    n(this, "hashChangeListen", () => {
+      this.currUrl = O();
+    });
+    n(this, "Body", () => {
+      const t = new te();
+      return t._$addNodes((() => [new g(() => this.showedRoute, this, ["showedRoute"])])()), t._$addProp("RouteParam", () => ({
+        path: this.currUrl,
+        navigator: this.navigator
+      }), this, ["currUrl", "navigator"], !1), [t];
+    });
+  }
+  get navigator() {
+    return this._$$navigator;
+  }
+  set navigator(t) {
+    this._$$navigator !== t && (this._$$navigator = t, this._$runDeps("navigator"));
+  }
+  get currUrl() {
+    return this._$$currUrl;
+  }
+  set currUrl(t) {
+    this._$$currUrl !== t && (this._$$currUrl = t, this._$runDeps("currUrl"));
+  }
+  didMount() {
+    if (this.mode === "hash") {
+      addEventListener("load", this.hashChangeListen), addEventListener("hashchange", this.hashChangeListen);
+      return;
+    }
+    addEventListener("load", this.historyChangeListen), addEventListener("popstate", this.historyChangeListen), y.push(this.historyChangeListen), history.pushState = new Proxy(A, {
+      apply: (t, s, o) => {
+        const d = t.apply(s, o);
+        for (let r of y)
+          r();
+        return d;
+      }
+    });
+  }
+  willUnmount() {
+    if (this.mode === "hash") {
+      removeEventListener("load", this.hashChangeListen), removeEventListener("hashchange", this.hashChangeListen);
+      return;
+    }
+    removeEventListener("load", this.historyChangeListen), removeEventListener("popstate", this.historyChangeListen), y = y.filter((t) => t !== this.historyChangeListen), y.length > 0 ? history.pushState = new Proxy(A, {
+      apply: (t, s, o) => {
+        const d = t.apply(s, o);
+        for (let r of y)
+          r();
+        return d;
+      }
+    }) : history.pushState = A;
+  }
+  AfterConstruct() {
+    let t = this._$parentNode;
+    for (; t; )
+      t._$tag === "Route" && (this.baseUrl = t._$content + "/" + this.baseUrl), t = t._$parentNode;
+  }
+  Preset() {
+    const t = new se();
+    t.mode = this.mode, t.baseUrl = this.baseUrl, this.navigator = t;
+  }
+}
 export {
-  Y as HStack,
-  X as Spacer,
-  ee as VStack,
-  te as ZStack
+  oe as HStack,
+  se as Navigator,
+  he as Route,
+  ae as RouterSpace,
+  ne as Spacer,
+  de as VStack,
+  re as ZStack
 };
