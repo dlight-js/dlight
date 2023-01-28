@@ -25,20 +25,20 @@ export class EnvNode extends DLNode {
         }
     }
 
-    addPropsToNodes(nodes: DLNode[]) {
-        loopNodes(nodes, (node: DLNode) => {
-            node._$beforeInitSubNodes = () => {
-                this.addPropsToNodes(node._$nodes)
+    addPropsToNodes(node: DLNode) {
+        loopNodes(node._$nodes, (n: DLNode) => {
+            n._$addBeforeInitSubNodes(() => {
+                this.addPropsToNodes(n)
+            })
+            if (n._$nodeType === DLNodeType.Custom) {
+                this.addProps(n as CustomNode);
             }
-            if (node._$nodeType === DLNodeType.Custom) {
-                this.addProps(node as CustomNode);
-            }
-            return true
+            return false
         })
     }
 
     _$init() {
-        this.addPropsToNodes(this._$nodes)
+        this.addPropsToNodes(this)
         this._$bindNodes()
     }
 
