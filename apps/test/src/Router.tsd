@@ -24,9 +24,9 @@ class SubComp2 extends View {
 }
 
 class SubComp extends View {
-    @Env _$path
+    @Env path
     Body() {
-        div(this._$path)
+        div(this.path)
         div("hhhh")
         SubComp2()
     }
