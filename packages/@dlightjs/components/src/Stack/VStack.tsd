@@ -1,5 +1,6 @@
-import {View} from "@dlightjs/dlight"
+import {DLNode, DLNodeType, View} from "@dlightjs/dlight"
 import {HAlignment, VAlignment} from "./types"
+import {isChildSpacer} from "./Spacer.tsd";
 
 
 export class VStack extends View {
@@ -20,10 +21,12 @@ export class VStack extends View {
         }
     }.call(this)
 
+
+
     Body() {
         div {
             For (let child of this._$children.map(c=>c())) {
-                If (child._$tag === "Spacer") {
+                If (isChildSpacer(child)) {
                     {{ child }}
                         ._flexGrow(1)
                 } Else {

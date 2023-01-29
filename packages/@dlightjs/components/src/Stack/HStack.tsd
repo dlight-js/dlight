@@ -1,5 +1,6 @@
 import {View} from "@dlightjs/dlight"
 import {VAlignment} from "./types"
+import {isChildSpacer} from "./Spacer.tsd";
 
 export class HStack extends View {
     @Prop spacing = 10
@@ -23,7 +24,7 @@ export class HStack extends View {
     Body() {
         div {
             For (let child of this._$children.map(c=>c())) {
-                If (child._$tag === "Spacer") {
+                If (isChildSpacer(child)) {
                     {{ child }}
                         ._flexGrow(1)
                 } Else {

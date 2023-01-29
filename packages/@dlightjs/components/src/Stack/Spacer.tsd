@@ -1,7 +1,21 @@
-import {View} from "@dlightjs/dlight"
+import {DLNode, DLNodeType, View} from "@dlightjs/dlight"
 
 export class Spacer extends View {
     Body() {
         div()
     }
+}
+
+export function isChildSpacer(child: DLNode) {
+    if (![DLNodeType.HTML, DLNodeType.Text].includes(child._$nodeType)) {
+        if ((child as any)._$tag === "Spacer") {
+            return true
+        }
+        for (let node of child._$nodes ?? []) {
+            if (isChildSpacer(node)) {
+                return true
+            }
+        }
+    }
+    return false
 }
