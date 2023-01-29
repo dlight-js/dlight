@@ -1,16 +1,16 @@
-var g = Object.defineProperty;
-var u = (a, o, t) => o in a ? g(a, o, { enumerable: !0, configurable: !0, writable: !0, value: t }) : a[o] = t;
-var e = (a, o, t) => (u(a, typeof o != "symbol" ? o + "" : o, t), t);
+var f = Object.defineProperty;
+var v = (s, o, t) => o in s ? f(s, o, { enumerable: !0, configurable: !0, writable: !0, value: t }) : s[o] = t;
+var e = (s, o, t) => (v(s, typeof o != "symbol" ? o + "" : o, t), t);
 import * as h from "@dlightjs/dlight";
-import { View as p } from "@dlightjs/dlight";
-class v extends p {
+import { View as $ } from "@dlightjs/dlight";
+class N extends $ {
   constructor() {
     super(...arguments);
     e(this, "_$tag", "Spacer");
     e(this, "Body", () => [new h.HtmlNode("div")]);
   }
 }
-class P extends p {
+class C extends $ {
   constructor() {
     super(...arguments);
     e(this, "_$derivedPairs", {
@@ -49,20 +49,20 @@ class P extends p {
       return t._$addProp("_height", () => this.height, this, ["height"]), t._$addProp("_width", () => this.width, this, ["width"]), t._$addProp("_columnGap", () => `${this.spacing}px`, this, ["spacing"]), t._$addProp("_display", "flex"), t._$addProp("_flexDirection", "row"), t._$addNodes((() => {
         const i = new h.ForNode();
         return i._$addNodess(Array.from(this._$children.map((n) => n())).map((n) => (() => {
-          const r = new h.IfNode();
-          return r._$addCond(() => n._$tag === "Spacer", () => {
-            const s = new h.ExpressionNode(n);
-            return s._$addProp("_flexGrow", 1), [s];
-          }), r._$addCond(() => !0, () => {
-            const s = new h.ExpressionNode(n);
-            return s._$addProp("_flexShrink", 0), s._$addProp("_margin", () => this.margin, this, ["margin"], !0), [s];
-          }), [r];
+          const a = new h.IfNode();
+          return a._$addCond(() => n._$tag === "Spacer", () => {
+            const r = new h.ExpressionNode(n);
+            return r._$addProp("_flexGrow", 1), [r];
+          }), a._$addCond(() => !0, () => {
+            const r = new h.ExpressionNode(n);
+            return r._$addProp("_flexShrink", 0), r._$addProp("_margin", () => this.margin, this, ["margin"], !0), [r];
+          }), [a];
         })())), [i];
       })()), [t];
     });
   }
 }
-class y extends p {
+class L extends $ {
   constructor() {
     super(...arguments);
     e(this, "_$derivedPairs", {
@@ -101,20 +101,20 @@ class y extends p {
       return t._$addProp("_height", () => this.height, this, ["height"]), t._$addProp("_width", () => this.width, this, ["width"]), t._$addProp("_columnGap", () => `${this.spacing}px`, this, ["spacing"]), t._$addProp("_display", "flex"), t._$addProp("_flexDirection", "column"), t._$addNodes((() => {
         const i = new h.ForNode();
         return i._$addNodess(Array.from(this._$children.map((n) => n())).map((n) => (() => {
-          const r = new h.IfNode();
-          return r._$addCond(() => n._$tag === "Spacer", () => {
-            const s = new h.ExpressionNode(n);
-            return s._$addProp("_flexGrow", 1), [s];
-          }), r._$addCond(() => !0, () => {
-            const s = new h.ExpressionNode(n);
-            return s._$addProp("_flexShrink", 0), s._$addProp("_margin", () => this.margin, this, ["margin"], !0), [s];
-          }), [r];
+          const a = new h.IfNode();
+          return a._$addCond(() => n._$tag === "Spacer", () => {
+            const r = new h.ExpressionNode(n);
+            return r._$addProp("_flexGrow", 1), [r];
+          }), a._$addCond(() => !0, () => {
+            const r = new h.ExpressionNode(n);
+            return r._$addProp("_flexShrink", 0), r._$addProp("_margin", () => this.margin, this, ["margin"], !0), [r];
+          }), [a];
         })())), [i];
       })()), [t];
     });
   }
 }
-class x extends p {
+class M extends $ {
   constructor() {
     super(...arguments);
     e(this, "_$deps", {
@@ -145,46 +145,46 @@ class x extends p {
       })[this.hAlignment], this, ["hAlignment"]), t._$addNodes((() => {
         const i = new h.ForNode();
         return i._$addNodess(Array.from(this._$children.map((n) => n())).map((n) => (() => {
-          const r = new h.ExpressionNode(n);
-          return r._$addProp("_position", "relative"), r._$addProp("_gridArea", "1 / 1/ 1 / 1"), [r];
+          const a = new h.ExpressionNode(n);
+          return a._$addProp("_position", "relative"), a._$addProp("_gridArea", "1 / 1/ 1 / 1"), [a];
         })())), [i];
       })()), [t];
     });
   }
 }
-function _() {
+function l() {
   return location.hash.slice(2);
 }
-function c() {
+function g() {
   return location.pathname.slice(1);
 }
-function l(a, o) {
+function u(s, o) {
   let t;
-  if (a[0] === "/")
-    t = a;
+  if (s[0] === "/")
+    t = s;
   else {
-    a[0] !== "." && (a = "./" + a);
-    const i = a.split("/"), n = o.split("/").filter((s) => s);
-    let r = 0;
-    for (let s of i) {
-      if (![".", ".."].includes(s))
+    s[0] !== "." && (s = "./" + s);
+    const i = s.split("/"), n = o.split("/").filter((r) => r);
+    let a = 0;
+    for (let r of i) {
+      if (![".", ".."].includes(r))
         break;
-      s === ".." && (n.length === 0 && console.warn(`no ../ in ${a}`), n.pop()), r++;
+      r === ".." && (n.length === 0 && console.warn(`no ../ in ${s}`), n.pop()), a++;
     }
-    t = "/" + [...n, ...i.slice(r)].join("/");
+    t = "/" + [...n, ...i.slice(a)].join("/");
   }
   return t;
 }
-class m {
+class P {
   constructor() {
     e(this, "mode", "hash");
     e(this, "baseUrl", "");
   }
   hashTo(o) {
-    window.location.href = "#" + l(o, this.baseUrl);
+    window.location.href = "#" + u(o, this.baseUrl);
   }
   historyTo(o) {
-    window.history.pushState({}, "", l(o, this.baseUrl));
+    window.history.pushState({}, "", u(o, this.baseUrl));
   }
   to(o) {
     if (this.mode === "hash") {
@@ -194,7 +194,7 @@ class m {
     this.historyTo(o);
   }
 }
-class N extends p {
+class S extends $ {
   constructor() {
     super(...arguments);
     e(this, "_$deps", {
@@ -202,16 +202,16 @@ class N extends p {
     });
     e(this, "_$tag", "Route");
     e(this, "_$$_$content", "_$prop");
-    e(this, "_$content", "_$default");
+    e(this, "_$content", " none");
     e(this, "Body", () => {
       var i;
       return [new h.ExpressionNode((i = this._$children) == null ? void 0 : i.map((n) => n()))];
     });
   }
 }
-const $ = history.pushState;
-let d = [];
-class U extends p {
+const c = history.pushState;
+let p = [];
+class R extends $ {
   constructor() {
     super(...arguments);
     e(this, "_$derivedPairs", {
@@ -228,34 +228,43 @@ class U extends p {
     e(this, "_$$mode", "_$prop");
     e(this, "mode", "history");
     e(this, "_$$navigator");
-    e(this, "_$$currUrl", () => this.mode === "hash" ? _() : c());
+    e(this, "_$$currUrl", () => this.mode === "hash" ? l() : g());
     e(this, "baseUrl", "");
-    e(this, "prevPathCondition", "");
+    e(this, "prevPathCondition", " none");
+    // 空格不是合法url，所以不会有问题
     e(this, "prevRoutes", []);
     e(this, "showedRoute", () => function() {
       const t = this.prevPathCondition;
-      this.prevPathCondition = "";
-      let i = [];
-      for (let n of this._$children) {
-        const r = n();
+      this.prevPathCondition = " none";
+      const i = this.currUrl.replace(new RegExp(`^${this.baseUrl}`), "");
+      let n = [];
+      for (let a of this._$children) {
+        const r = a();
         if (r._$tag !== "Route") {
-          i.push(r);
+          n.push(r);
           continue;
         }
-        if (this.currUrl.startsWith(this.baseUrl + r._$content) || r._$content === "_$default") {
-          if (r._$content === t)
+        let d = r._$content, _ = !1;
+        if (typeof r._$content == "string") {
+          d = d.replace(/^(\.\/)+/, "");
+          const m = d === "." && i === "", w = (i + "/").startsWith(d + "/");
+          _ = m || w || d === " none";
+        } else
+          d instanceof RegExp && (_ = d.test(i));
+        if (_) {
+          if (d === t)
             return this.prevPathCondition = t, this.prevRoutes;
-          i.push(r), this.prevPathCondition = r._$content;
+          n.push(r), this.prevPathCondition = d;
           break;
         }
       }
-      return this.prevRoutes = i, i;
+      return this.prevRoutes = n, n;
     }.call(this));
     e(this, "historyChangeListen", () => {
-      this.currUrl = c();
+      this.currUrl = g();
     });
     e(this, "hashChangeListen", () => {
-      this.currUrl = _();
+      this.currUrl = l();
     });
     e(this, "Body", () => {
       const t = new h.EnvNode();
@@ -282,12 +291,12 @@ class U extends p {
       addEventListener("load", this.hashChangeListen), addEventListener("hashchange", this.hashChangeListen);
       return;
     }
-    addEventListener("load", this.historyChangeListen), addEventListener("popstate", this.historyChangeListen), d.push(this.historyChangeListen), history.pushState = new Proxy($, {
+    addEventListener("load", this.historyChangeListen), addEventListener("popstate", this.historyChangeListen), p.push(this.historyChangeListen), history.pushState = new Proxy(c, {
       apply: (t, i, n) => {
-        const r = t.apply(i, n);
-        for (let s of d)
-          s();
-        return r;
+        const a = t.apply(i, n);
+        for (let r of p)
+          r();
+        return a;
       }
     });
   }
@@ -296,14 +305,14 @@ class U extends p {
       removeEventListener("load", this.hashChangeListen), removeEventListener("hashchange", this.hashChangeListen);
       return;
     }
-    removeEventListener("load", this.historyChangeListen), removeEventListener("popstate", this.historyChangeListen), d = d.filter((t) => t !== this.historyChangeListen), d.length > 0 ? history.pushState = new Proxy($, {
+    removeEventListener("load", this.historyChangeListen), removeEventListener("popstate", this.historyChangeListen), p = p.filter((t) => t !== this.historyChangeListen), p.length > 0 ? history.pushState = new Proxy(c, {
       apply: (t, i, n) => {
-        const r = t.apply(i, n);
-        for (let s of d)
-          s();
-        return r;
+        const a = t.apply(i, n);
+        for (let r of p)
+          r();
+        return a;
       }
-    }) : history.pushState = $;
+    }) : history.pushState = c;
   }
   AfterConstruct() {
     let t = this._$parentNode;
@@ -311,16 +320,16 @@ class U extends p {
       t._$tag === "Route" && (this.baseUrl = t._$content + "/" + this.baseUrl), t = t._$parentNode;
   }
   Preset() {
-    const t = new m();
+    const t = new P();
     t.mode = this.mode, t.baseUrl = this.baseUrl, this.navigator = t;
   }
 }
 export {
-  P as HStack,
-  m as Navigator,
-  N as Route,
-  U as RouterSpace,
-  v as Spacer,
-  y as VStack,
-  x as ZStack
+  C as HStack,
+  P as Navigator,
+  S as Route,
+  R as RouterSpace,
+  N as Spacer,
+  L as VStack,
+  M as ZStack
 };

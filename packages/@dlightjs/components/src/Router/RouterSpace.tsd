@@ -15,28 +15,42 @@ export class RouterSpace extends View {
     @State currUrl = this.mode === "hash" ? getHashLocation() : getHistoryLocation()
     baseUrl = ""
 
-    prevPathCondition = ""
+    prevPathCondition = " none"  // 空格不是合法url，所以不会有问题
     prevRoutes = []
     showedRoute = function() {
         const prevPathCondition = this.prevPathCondition
-        this.prevPathCondition = ""
+        this.prevPathCondition = " none"
+        const currUrl = this.currUrl.replace(new RegExp(`^${this.baseUrl}`), "")
         let targetNodes = []
+
         for (let childFunc of this._$children) {
             const child = childFunc()
             if (child._$tag !== "Route") {
-                // ---- 如果不是Route直接加
+                // ---- 如果不是Route直接加，虽然没有意义也不建议这么写
                 targetNodes.push(child)
                 continue
             }
+            let targetUrl = child._$content
+            let isMatch = false
+            if (typeof child._$content === "string") {
+                targetUrl = targetUrl.replace(/^(\.\/)+/, "")
+                const isRootRoute = (targetUrl === "." && currUrl === "")
+                const isPathMatch = ((currUrl+"/").startsWith(targetUrl+"/"))
+                const isOther = (targetUrl === " none")
+                isMatch = isRootRoute || isPathMatch || isOther
+            } else if (targetUrl instanceof RegExp) {
+                // ---- 匹配正则
+                isMatch = targetUrl.test(currUrl)
+            }
 
-            if (this.currUrl.startsWith(this.baseUrl + child._$content) || child._$content === "_$default") {
-                if (child._$content === prevPathCondition) {
+            if (isMatch) {
+                if (targetUrl === prevPathCondition) {
                     // ---- 发现condition没有改变，直接return原来的
                     this.prevPathCondition = prevPathCondition
                     return this.prevRoutes
                 }
                 targetNodes.push(child)
-                this.prevPathCondition = child._$content
+                this.prevPathCondition = targetUrl
                 break
             }
         }

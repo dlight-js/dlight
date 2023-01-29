@@ -49,6 +49,10 @@ export class RouteTest extends View {
             .onclick(() => {
                 this.navigator.to(".")
             })
+        button("push to afafa")
+            .onclick(() => {
+                this.navigator.to("dfafa")
+            })
         button("push to /OKK/hi")
             .onclick(() => {
                 this.navigator.to("./OKK/hi")
@@ -57,7 +61,14 @@ export class RouteTest extends View {
             .onclick(() => {
                 this.navigator.to("/OKK/not")
             })
-        RouterSpace({mode:"hash",navigator: this.navigator}) {
+        button("push to /abccccca")
+            .onclick(() => {
+                this.navigator.to("/abccccca")
+            })
+        RouterSpace({navigator: this.navigator}) {
+            Route(/abc+/) {
+                div("正则")
+            }
             Route("OKK") {
                 div("我是okk")
                 SubComp()
@@ -65,6 +76,10 @@ export class RouteTest extends View {
             Route("fuck") {
                 div("我是fuckkkkkk")
             }
+            Route(".") {
+                div("在家root")
+            }
+
             Route() {
                 div("woshi kong")
             }
