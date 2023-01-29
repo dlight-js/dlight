@@ -1,6 +1,6 @@
 import {geneParserNode, JSXConfig, JSDConfig} from "@dlightjs/transpiler"
 
-export function dlight() {
+export default function() {
     return {
         name: 'dlight',
         enforce: 'pre',
