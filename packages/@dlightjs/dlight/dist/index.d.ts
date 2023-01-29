@@ -48,6 +48,7 @@ declare class DLNode {
     _$nodes: DLNode[];
     _$depObjectIds: Object[];
     _$beforeInitSubNodes(): void;
+    _$addBeforeInitSubNodes(func: () => any): void;
     _$bindNodes(): void;
     constructor(nodeType: DLNodeType);
     _$init(): void;
@@ -60,7 +61,7 @@ declare class EnvNode extends DLNode {
     _$addNodes(nodes: DLNode[]): void;
     _$addProp(key: string, propOrFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]): void;
     addProps(node: CustomNode): void;
-    addPropsToNodes(nodes: DLNode[]): void;
+    addPropsToNodes(node: DLNode): void;
     _$init(): void;
     render(parentEl: HTMLElement): void;
 }
