@@ -15,11 +15,11 @@ export class RouterSpace extends View {
     @State currUrl = this.mode === "hash" ? getHashLocation() : getHistoryLocation()
     baseUrl = ""
 
-    prevPathCondition = " none"  // 空格不是合法url，所以不会有问题
+    prevPathCondition = ""
     prevRoutes = []
     showedRoute = function() {
         const prevPathCondition = this.prevPathCondition
-        this.prevPathCondition = " none"
+        this.prevPathCondition = ""
         const currUrl = this.currUrl.replace(new RegExp(`^${this.baseUrl}`), "")
         let targetNodes = []
 
@@ -42,7 +42,7 @@ export class RouterSpace extends View {
                 // ---- 匹配正则
                 isMatch = targetUrl.test(currUrl)
             }
-
+            
             if (isMatch) {
                 if (targetUrl === prevPathCondition) {
                     // ---- 发现condition没有改变，直接return原来的
