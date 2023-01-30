@@ -26,9 +26,6 @@ export class Transition extends View {
     }
 
     Body() {
-        Node(this.flag && @{
-            div("ok")
-        })
         {{this._$children}}
             .deepLoopEl(true)
             ._transition(`all ${this.duration}s, transform 0s`)
