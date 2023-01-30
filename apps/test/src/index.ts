@@ -34,8 +34,9 @@ import {MyComp} from "./test.jsd";
 import {StackTest} from "./stack.tsd";
 import {TestConcurr} from "./testConcurr.tsd"
 import {RouteTest} from "./Router.tsd";
+import {TransitionTest} from "./transition.tsd";
 
-render("app", new RouteTest())
+render("app", new TransitionTest())
 
 
 // switch (testType) {

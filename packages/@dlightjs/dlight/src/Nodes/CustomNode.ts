@@ -66,7 +66,6 @@ export class CustomNode extends DLNode {
     _$deps: {[key: string]: Map<Object, ()=>any>} = {}
     _$envNodes?: EnvNode[]
     _$derivedPairs?: {[key: string]: string[]}
-    _$children?: DLNode[]
     _$tag: string = ""
 
     Body = () => []
@@ -92,8 +91,19 @@ export class CustomNode extends DLNode {
             func.call(this)
         }
     }
-    _$addChildren(nodes: DLNode[]) {
-        this._$children = nodes
+
+    _$childrenFunc?: (() => DLNode)[]
+    _$_children?: DLNode[]
+    get _$children(): DLNode[] {
+        if (!this._$childrenFunc) return []
+        if (!this._$_children) {
+            this._$_children = this._$childrenFunc.map(c => c())
+        }
+        return this._$_children!
+    }
+
+    _$addChildren(nodeFuncs: (() => DLNode)[]) {
+        this._$childrenFunc = nodeFuncs
     }
 
     // ---- dep

@@ -1,0 +1,60 @@
+import {View} from "@dlightjs/dlight";
+import {Transition} from "@dlightjs/components";
+
+
+class OK {
+    id
+    text
+    constructor(id, text) {
+        this.id = id
+        this.text= text
+    }
+}
+function ok(id, text) {
+    return new OK(id, text)
+}
+export class TransitionTest extends View {
+    @State list = [
+        ok(0, "第一个"),
+        ok(1, "ererer"),
+        ok(2, "333333"),
+        ok(3, "四个四个个"),
+        ok(4, "义务！！"),
+    ]
+
+    shuffle() {
+        let newList = this.list
+        while(JSON.stringify(newList) === JSON.stringify(this.list)) {
+            newList = this.list
+                .map(value => ({ value, sort: Math.random() }))
+                .sort((a, b) => a.sort - b.sort)
+                .map(({ value }) => value)
+        }
+        this.list = [...newList]
+        console.log(this.list.map(l=>l.id))
+    }
+    @State length = 100
+    Body() {
+        button("shuffle")
+            .onclick(() => {
+                this.shuffle()
+            })
+        button("+")
+            .onclick(() => {
+                this.length += 50
+            })
+        button("-")
+            .onclick(() => {
+                this.length -= 50
+            })
+        Transition {
+            For (let ok of this.list)[ok.id] {
+                div(ok.text)
+                    ._marginTop("10px")
+                    ._backgroundColor("red")
+                    ._width(`${this.length}px`)
+            }
+        }
+    }
+
+}
