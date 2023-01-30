@@ -1,5 +1,5 @@
 import {View} from "@dlightjs/dlight";
-import {Transition} from "@dlightjs/components";
+import {Transition} from "../../../packages/@dlightjs/components/src/Animation/index";
 
 
 class OK {

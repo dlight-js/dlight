@@ -147,7 +147,8 @@ export class Generator {
         body.add(`const ${nodeName} = new _$.HtmlNode("${parserNode.tag}", )`)
 
         // ---- properties
-        for (let {key, value} of parserNode.kv.props) {
+        for (let {key, value, nodes} of parserNode.kv.props) {
+            value = this.parsePropNodes(value, nodes)
             if (key === "element") {
                 body.add(`${value} = ${nodeName}._$el`)
                 continue
@@ -185,7 +186,8 @@ export class Generator {
         body.add(`const ${nodeName} = new ${parserNode.tag}()`)
 
         // ---- props
-        for (let {key, value} of parserNode.kv.props) {
+        for (let {key, value, nodes} of parserNode.kv.props) {
+            value = this.parsePropNodes(value, nodes)
             if (key === "element") {
                 body.add(`${nodeName}._$addAfterset(() => ${value} = ${nodeName}._$el)`)
                 continue
@@ -231,7 +233,8 @@ export class Generator {
         }
 
         // ---- props
-        for (let {key, value} of parserNode.kv.props) {
+        for (let {key, value, nodes} of parserNode.kv.props) {
+            value = this.parsePropNodes(value, nodes)
             const listenDeps = this.geneDeps(value as string)
             if (listenDeps.length > 0) {
                 body.add(`${nodeName}._$addProp("${key}", () => (${value}), this, ${geneDepsStr(listenDeps)}, ${geneIsTwoWayConnected(value)})`)
@@ -245,27 +248,21 @@ export class Generator {
 
     resolveExpression(parserNode: ParserNode, idx: number) {
         const body = new BodyStringBuilder()
-        let content = parserNode.kv.content
-        const nodes = parserNode.kv.nodes
-
         const nodeName = `_$node${idx}`
-        for (let [i, subParserNode] of Object.entries(nodes) as any) {
-            const subBody = new BodyStringBuilder()
-            subBody.add("(function(){")
-            subBody.add(this.generate(subParserNode))
-            subBody.add("}.call(this))")
-            content = content.replace("\""+i+"\"", subBody.value)
-        }
-
-        const listenDeps = this.geneDeps(content)
-        if (listenDeps.length > 0) {
-            body.add(`const ${nodeName} = new _$.ExpressionNode(() => ${content}, this, ${geneDepsStr(listenDeps)})`)
-        } else {
-            body.add(`const ${nodeName} = new _$.ExpressionNode(${content}, )`)
-        }
-
+        
         // ---- forward props
-        for (let {key, value} of parserNode.kv.props) {
+        for (let {key, value, nodes} of parserNode.kv.props) {
+            value = this.parsePropNodes(value, nodes)
+
+            if (key === "_$content") {
+                const listenDeps = this.geneDeps(value)
+                if (listenDeps.length > 0) {
+                    body.add(`const ${nodeName} = new _$.ExpressionNode(() => ${value}, this, ${geneDepsStr(listenDeps)})`)
+                } else {
+                    body.add(`const ${nodeName} = new _$.ExpressionNode(${value}, )`)
+                }
+                continue
+            }
             if (key === "propScope") {
                 body.add(`${nodeName}.propScope = ${value}`)
                 continue
@@ -274,7 +271,7 @@ export class Generator {
                 body.add(`${nodeName}.deepLoopEl = ${value}`)
                 continue
             }
-            if (key === "onUpdateNodes") {
+            if (key === "onUpdate") {
                 body.add(`${nodeName}._$onUpdateNodes(${value})`)
                 continue
             }
@@ -293,6 +290,17 @@ export class Generator {
         }
 
         return body
+    }
+
+    parsePropNodes(value: string, nodes: {[key: string]: ParserNode}) {
+        for (let [i, subParserNode] of Object.entries(nodes)) {
+            const subBody = new BodyStringBuilder()
+            subBody.add("((()=>{")
+            subBody.add(this.generate(subParserNode))
+            subBody.add("})())")
+            value = value.replace("\""+i+"\"", subBody.value)
+        }
+        return value
     }
 
 }

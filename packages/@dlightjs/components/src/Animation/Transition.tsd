@@ -1,4 +1,4 @@
-import {View, toEls} from "@dlightjs/dlight"
+import {View, toEls, ExpressionNode} from "@dlightjs/dlight"
 
 
 export class Transition extends View {
@@ -26,10 +26,10 @@ export class Transition extends View {
     }
 
     Body() {
-        {{this._$children}}
+        Expression(this._$children)
             .deepLoopEl(true)
             ._transition(`all ${this.duration}s, transform 0s`)
-            .onUpdateNodes((prevNodes, nodes)=> {
+            .onUpdate((prevNodes, nodes)=> {
                 const currElInfos = this.getElInfos()
                 for (let [el, prevEl] of this.prevElInfos.entries()) {
                     if (currElInfos.has(el)) {

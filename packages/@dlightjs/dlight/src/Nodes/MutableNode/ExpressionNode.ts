@@ -16,7 +16,7 @@ export class ExpressionNode extends MutableNode {
 
     propFuncs: (() => any)[] = []
 
-    // ---- onUpdateNodes
+    // ---- onUpdate
     propScope: ((el: HTMLElement, node: DLNode) => boolean) = () => true
     deepLoopEl = false
 
@@ -154,7 +154,7 @@ export class ExpressionNode extends MutableNode {
         const flowIndex = getFlowIndexFromParentNode(parentNode, this)
         appendNodesWithIndex(this._$nodes, flowIndex, parentEl, parentEl.childNodes.length)
 
-        this.onUpdateNodes(prevNodes, this._$nodes)
+        this.onUpdate(prevNodes, this._$nodes)
     }
 
     // ---- lifecycles

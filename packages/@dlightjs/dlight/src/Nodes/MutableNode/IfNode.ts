@@ -95,7 +95,7 @@ export class IfNode extends MutableNode {
         const parentEl = parentNode._$el
         appendNodesWithIndex(this._$nodes, flowIndex, parentEl, parentEl.childNodes.length)
 
-        this.onUpdateNodes(prevNodes, this._$nodes)
+        this.onUpdate(prevNodes, this._$nodes)
     }
 
     render(parentEl: HTMLElement) {

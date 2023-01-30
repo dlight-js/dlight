@@ -6,7 +6,6 @@ import * as babel from "@babel/core"
 import babelGenerate from "@babel/generator"
 // @ts-ignore
 import traverse from "@babel/traverse"
-import * as t from "@babel/types"
 const babelConfig = {
     filename: "*.ts",
     presets: ["@babel/preset-typescript"]
@@ -71,7 +70,7 @@ class Parser {
         if (content.trim() === "") {
             content = "true"
         }
-        this.el.kv.props.push({key, value: content})
+        this.el.kv.props.push(this.parseProp(key, content))
         this.erase()
     }
 
@@ -99,55 +98,6 @@ class Parser {
 
     eatSquareBrackets() {
         this.eatBrackets("[", "]")
-    }
-
-    eatProps() {
-        this.eat()  // eat {
-        const propsArrStore: {key: string, value: string}[] = []
-        while (true) {
-            while (this.ok() && !["{", ":", ",", "}"].includes(this.look())) {
-                this.eat()
-                this.add()
-            }
-            const nextC = this.look()
-            if (nextC === ":") {
-                propsArrStore.push({key: this.token.trim(), value: "_$none"})
-                this.eat()
-                this.erase()
-            } else if (nextC === ",") {
-                const value = this.token.trim()
-                const lastProp = propsArrStore[propsArrStore.length-1]
-                if (lastProp?.value === "_$none") {
-                    lastProp.value = value
-                } else {
-                    // ---- 代表是 {key}的简写情况
-                    propsArrStore.push({key: value, value})
-                }
-                this.eat()
-                this.erase()
-            } else if (nextC === "{") {
-                this.eat()
-                this.add()
-                this.eatCurlyBrackets()
-                this.add()  // add }
-            } else if (nextC === "}") {
-                break
-            }
-        }
-        // ---- 最后没有"，"结尾
-        if (this.token.trim() !== "") {
-            const value = this.token.trim()
-            const lastProp = propsArrStore[propsArrStore.length-1]
-            if (lastProp?.value === "_$none") {
-                lastProp.value = value
-            } else {
-                // ---- 代表是 {key}的简写情况
-                propsArrStore.push({key: value, value: value})
-            }
-        }
-        this.eat()  // eat }
-        this.erase()
-        return propsArrStore
     }
 
     eatContent() {
@@ -206,16 +156,36 @@ class Parser {
                         this.add()
                         this.resolveText()
                     }
-                } else if (this.c === "{" && this.look() === "{") {
-                    // ExpressionNode
-                    this.eat() // eat another {
-                    this.eatCurlyBrackets()
-
-                    this.resolveExpression()
-                    this.eat() // eat another }
                 }
             }
         }
+    }
+
+    parseProp(key: string, value: string) {
+        let depth = 0
+        let tempSubContent = ""
+        let newContent = ""
+        const prop: any = {key, nodes: {}}
+        for (let idx=0; idx < value.length; idx++) {
+            if (value[idx] === "@" && value[idx+1] === "{") {
+                depth ++
+                idx ++
+            } else if (value[idx] === "}" && depth === 1) {
+                depth --
+                const id = uid()
+                newContent += "\"" + id + "\""
+                const newParser = new Parser(tempSubContent)
+                newParser.parse()
+                prop.nodes[id] = newParser.parserNode
+                tempSubContent = ""
+            } else if (depth !== 0) {
+                tempSubContent += value[idx]
+            } else {
+                newContent += value[idx]
+            }
+        }
+        prop.value = newContent
+        return prop
     }
 
     resolveText() {
@@ -239,12 +209,12 @@ class Parser {
                 const ast = parse(`(${content})`)
                 const props = ast.program.body[0].expression.properties
                 for (let prop of props) {
-                    newNode.kv.props.push({key: prop.key.name, value: generate(prop.value)})
+                    newNode.kv.props.push(this.parseProp(prop.key.name, generate(prop.value)))
                 }
             } else {
                 const content = this.eatContent()
                 if (content.trim() !== "") {
-                    newNode.kv.props.push({key: "_$content", value: content})
+                    newNode.kv.props.push(this.parseProp("_$content", content))
                 }
             }
             this.eatSpace()
