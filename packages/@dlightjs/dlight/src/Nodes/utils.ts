@@ -13,13 +13,21 @@ import { loopNodes, loopEls } from "../utils/nodes";
 export function removeNodes(nodes: DLNode[]) {
     willUnmountDlightNodes(nodes)
     loopEls(nodes, (el: HTMLElement, node: HtmlNode) => {
-        if (node._$nodeType === DLNodeType.HTML) {
-            node.willDisappear(el)
+        // ---- delay disappear 为了各种动画提供
+        if (node._$nodeType === DLNodeType.HTML && document.body.contains(el)) {
+            // ---- 在DOM上
+            const delay = {value: 0}
+            const setDelay = (v: number) => {
+                delay.value = v
+            }
+            node.willDisappear(el, setDelay)
+            setTimeout(() => {
+                el.remove()
+                node.didDisappear(el)
+            }, delay.value)
+            return
         }
         el.remove()
-        if (node._$nodeType === DLNodeType.HTML) {
-            node.didDisappear(el)
-        }
     })
    didUnmountDlightNodes(nodes)
 }
@@ -55,7 +63,9 @@ export function appendNodesWithIndex(nodes: DLNode[], index: number, parentEl: H
 
     loopEls(nodes, (el: HTMLElement, node: HtmlNode) => {
         const sibling = parentEl.childNodes[index] as any
-        if ([DLNodeType.HTML].includes(node._$nodeType)) {
+        const isInDOM = document.body.contains(el)
+        if ([DLNodeType.HTML].includes(node._$nodeType) && !isInDOM) {
+            // ---- 不在DOM上
             node.willAppear(el)
         }
         if (index === length) {
@@ -63,7 +73,7 @@ export function appendNodesWithIndex(nodes: DLNode[], index: number, parentEl: H
         } else {
             parentEl!.insertBefore(el, sibling)
         }
-        if ([DLNodeType.HTML].includes(node._$nodeType)) {
+        if ([DLNodeType.HTML].includes(node._$nodeType) && !isInDOM) {
             node.didAppear(el)
         }
         index ++

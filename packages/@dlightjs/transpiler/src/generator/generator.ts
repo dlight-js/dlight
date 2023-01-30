@@ -31,12 +31,12 @@ export class Generator {
     }
 
     resolveParserNode(parserNode: ParserNode, idx: number) {
-        if (parserNode.tag === "Expression") return this.resolveExpression(parserNode, idx)
+        if (parserNode.tag === "Exp") return this.resolveExpression(parserNode, idx)
         if (parserNode.tag === "If") return this.resolveIf(parserNode, idx)
         if (parserNode.tag === "For") return this.resolveFor(parserNode, idx)
-        if (parserNode.tag === "TextNode") return this.resolveText(parserNode, idx)
-        if (parserNode.tag === "Environment") return this.resolveEnv(parserNode, idx)
+        if (parserNode.tag === "Env") return this.resolveEnv(parserNode, idx)
         if (isCustomEl(parserNode)) return this.resolveCustom(parserNode, idx)
+        if (parserNode.tag === "text") return this.resolveText(parserNode, idx)
         return this.resolveHTML(parserNode, idx)
     }
 

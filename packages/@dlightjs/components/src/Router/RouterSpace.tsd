@@ -1,4 +1,4 @@
-import {CustomNode, required, View} from "@dlightjs/dlight";
+import {CustomNode, Env, Exp, ExpressionNode, required, View} from "@dlightjs/dlight";
 import {Navigator} from "./Navigator";
 import {getHashLocation, getHistoryLocation} from "./utils";
 import {Route} from "./Route.tsd";
@@ -23,7 +23,7 @@ export class RouterSpace extends View {
         const currUrl = this.currUrl.replace(new RegExp(`^${this.baseUrl}`), "")
         let targetNodes = []
 
-        for (let childFunc of this._$children) {
+        for (let childFunc of this._$childrenFunc) {
             const child = childFunc()
             if (child._$tag !== "Route") {
                 // ---- 如果不是Route直接加，虽然没有意义也不建议这么写
@@ -129,11 +129,11 @@ export class RouterSpace extends View {
 
 
     Body() {
-        Environment({RouteParam: {
+        Env({RouteParam: {
             path: this.currUrl,
             navigator: this.navigator
         }}) {
-            {{ this.showedRoute }}
+            Exp(this.showedRoute)
         }
     }
 }

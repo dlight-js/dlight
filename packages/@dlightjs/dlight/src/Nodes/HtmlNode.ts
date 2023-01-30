@@ -52,13 +52,13 @@ export class HtmlNode extends DLNode {
     // ---- lifecycles
     willAppear(_el?: HTMLElement): any {}
     didAppear(_el?: HTMLElement): any {}
-    willDisappear(_el?: HTMLElement): any {}
+    willDisappear(_el?: HTMLElement, ..._: any): any {}
     didDisappear(_el?: HTMLElement): any {}
-    _$addLifeCycle(func: (el?: HTMLElement) => any, lifeCycleName: "willAppear" | "didAppear" | "willDisappear" | "didDisappear") {
+    _$addLifeCycle(func: (el?: HTMLElement, ..._: any) => any, lifeCycleName: "willAppear" | "didAppear" | "willDisappear" | "didDisappear") {
         const preLifeCycle = this[lifeCycleName]
-        this[lifeCycleName] = function(el?: HTMLElement) {
-            preLifeCycle.call(this, el)
-            return func.call(this, el)
+        this[lifeCycleName] = function(el?: HTMLElement, ..._: any) {
+            preLifeCycle.call(this, el, ..._)
+            return func.call(this, el, ..._)
         }
     }
     render(parentEl: HTMLElement) {

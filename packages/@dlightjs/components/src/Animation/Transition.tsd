@@ -1,11 +1,15 @@
-import {View, toEls, ExpressionNode} from "@dlightjs/dlight"
+import {View, toEls, Exp, Prop, State} from "@dlightjs/dlight"
 
 
 export class Transition extends View {
-    @Prop duration: string | number = 1
-    transition = typeof this.duration === "string" ? this.duration : `all ${this.duration}s`
+    @Prop duration = 0.5
+    @Prop easing = "ease-in-out"
+    transition = `all ${this.duration}s ${this.easing}`
+    @Prop appearWith: string | {[key: string]: any} = {opacity: 0}
+    @Prop disappearWith: string | {[key: string]: any} = {opacity: 0}
+    @Prop movable = true
 
-    @State prevElInfos
+    prevElInfos = new Map()
 
     getElInfos = () => {
         return toEls(this._$children).reduce((acc, el) => {
@@ -19,62 +23,94 @@ export class Transition extends View {
         }, new Map())
     }
 
-    didMount() {
+
+    didAppear(el: HTMLElement) {
+        const prevStyle  = el.style.cssText
+        if (typeof this.appearWith === "string") {
+            el.setAttribute("style", prevStyle + this.appearWith)
+        } else {
+            for (let [key, value] of Object.entries(this.appearWith)) {
+                el.style[key as any] = value
+            }
+        }
+
+        requestAnimationFrame(() => {
+            el.setAttribute("style", prevStyle)
+        })
+
+        const listener =() => {
+            this.prevElInfos.set(el, {
+                rect: el.getBoundingClientRect(),
+                stopTrigger: false
+            })
+            el.removeEventListener("transitionend", listener)
+        }
+        el.addEventListener("transitionend", listener)
+
+    }
+
+
+    willDisappear(el: HTMLElement) {
+        const prevStyle = el.style.cssText
+
+        // TODO 这里 requestAnimationFrame 没用，看看为什么
         setTimeout(() => {
-            this.prevElInfos = this.getElInfos()
+            if (typeof this.disappearWith === "string") {
+                el.setAttribute("style", prevStyle + this.disappearWith)
+            } else {
+                for (let [key, value] of Object.entries(this.disappearWith)) {
+                    el.style[key as any] = value
+                }
+            }
         }, 0)
     }
 
-    Body() {
-        Expression(this._$children)
-            .deepLoopEl(true)
-            ._transition(`all ${this.duration}s, transform 0s`)
-            .onUpdate((prevNodes, nodes)=> {
-                const currElInfos = this.getElInfos()
-                for (let [el, prevEl] of this.prevElInfos.entries()) {
-                    if (currElInfos.has(el)) {
-                        // ---* 原来有，就移动。逻辑非常非常绕
-                        // ---- 让上一次如果没有进行完的动画提前停止
-                        prevEl.stopTrigger = true
-                        const currEl = currElInfos.get(el)
-                        // ---- 由于prevEl.rect的位置一直在更新，
-                        //      最终的结果就是element已经在当前位置，
-                        //      transform从目标位置到当前位置，所以是 prev - curr
-                        const moveX = prevEl.rect.x - currEl.rect.x
-                        const moveY = prevEl.rect.y - currEl.rect.y
-                        moveElement(el, this.duration, moveX, moveY, currEl)
-                    } else {
-                        // ---- 原来没有，就appear
-                        el.style.opacity = "0"
-                        setTimeout(() => {
-                            el.style.opacity = "1"
-                        }, 0)
-                    }
 
-                }
-                this.prevElInfos = currElInfos
+
+    Body() {
+        Exp(this._$children)
+            .deepLoopEl()
+            ._transition(this.transition)
+            // .onUpdate(()=> {
+            //     const currElInfos = this.getElInfos()
+            //     for (let [el, currElInfo] of currElInfos.entries()) {
+            //         if (this.prevElInfos.has(el) && this.movable) {
+            //             // ---* 原来有，就移动。逻辑非常非常绕
+            //             // ---- 让上一次如果没有进行完的动画提前停止
+            //             const prevElInfo = this.prevElInfos.get(el)
+            //             prevElInfo.stopTrigger = true
+            //             // ---- 由于prevEl.rect的位置一直在更新，
+            //             //      最终的结果就是element已经在当前位置，
+            //             //      transform从目标位置到当前位置，所以是 prev - curr
+            //             const moveX = prevElInfo.rect.x - currElInfo.rect.x
+            //             const moveY = prevElInfo.rect.y - currElInfo.rect.y
+            //             moveElement(el, this.duration, this.transition, moveX, moveY, currElInfo)
+            //         }
+            //     }
+            //     this.prevElInfos = currElInfos
+            // })
+            .deepLoopEl(false)
+            .didAppear((el) => {
+                console.log(el)
+                this.didAppear(el)
             })
-            .didMount((node) => {
-                for (let el of node._$el) {
-                    el.style.opacity = "0"
-                    setTimeout(() => {
-                        el.style.opacity = ""
-                    }, 0)
-                }
+            .willDisappear((el, setDelay) => {
+                setDelay(this.duration * 1000)
+                this.willDisappear(el)
             })
     }
 }
 
 
-// TODO 这里requestAnimationFrame会中断transition，所以想着把所有的transition都转成rAF
-//      就是找到现在存在的prop，然后看是不是支持，支持就getComputedStyle然后match数字一点点转过来
+// TODO! 这里requestAnimationFrame会中断transition
 // ---- 太牛逼了
-function moveElement(element: HTMLElement, duration: number, moveX: number, moveY: number, currEl: {rect: any, stopTrigger: boolean}) {
+function moveElement(element: HTMLElement, duration: number, transition: string, moveX: number, moveY: number, currEl: {rect: any, stopTrigger: boolean}) {
     let start: number | undefined, previousTimeStamp: number | undefined
     let done = false
     function step(timestamp: number) {
         if (start === undefined) {
             start = timestamp
+            element.style.transition = transition + ", transform 0s"
         }
         const elapsed = timestamp - start;
 
@@ -85,6 +121,7 @@ function moveElement(element: HTMLElement, duration: number, moveX: number, move
 
             if (percentTime >= 1) {
                 element.style.transform = ""
+                currEl.rect = element.getBoundingClientRect()
                 done = true
             } else {
                 element.style.transform = `translate(${moveX - goX}px, ${moveY - goY}px)`
@@ -98,8 +135,10 @@ function moveElement(element: HTMLElement, duration: number, moveX: number, move
         if (!done && !currEl.stopTrigger) {
             requestAnimationFrame(step)
         } else {
-            // element.style.transition = `all ${duration}s`
+            element.style.transition = transition
         }
     }
     requestAnimationFrame(step)
 }
+
+

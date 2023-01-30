@@ -189,7 +189,7 @@ class Parser {
     }
 
     resolveText() {
-        const newNode =  new ParserNode("TextNode")
+        const newNode =  new ParserNode("text")
         newNode.kv.strSymbol = this.token[0]
         newNode.kv.value = this.token.slice(1, -1)
         this.erase()
@@ -226,41 +226,6 @@ class Parser {
         }
 
         this.parserNode.addChild(newNode)
-    }
-
-    resolveExpression() {
-        const newNode =  new ParserNode("Expression")
-        const content = this.token
-
-        newNode.kv.nodes = {}
-        let depth = 0
-        let tempSubContent = ""
-        let newContent = ""
-        for (let idx=0; idx < content.length; idx++) {
-            if (content[idx] === "{" && content[idx+1] === "{") {
-                depth ++
-                idx ++
-            } else if (content[idx] === "}" && content[idx+1] === "}") {
-                depth --
-                idx ++
-                if (depth === 0) {
-                    const id = uid()
-                    newContent += "\"" + id + "\""
-                    const newParser = new Parser(tempSubContent)
-                    newParser.parse()
-                    newNode.kv.nodes[id] = newParser.parserNode
-                    tempSubContent = ""
-                }
-            } else if (depth !== 0) {
-                tempSubContent += content[idx]
-            } else {
-                newContent += content[idx]
-            }
-        }
-        newNode.kv.content = newContent.replace(/\n/, " ")
-        this.parserNode.addChild(newNode)
-
-        this.erase()
     }
 
     // ---- if
