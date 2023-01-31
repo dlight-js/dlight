@@ -23,80 +23,107 @@ export class Transition extends View {
         }, new Map())
     }
 
-
-    didAppear(el: HTMLElement) {
-        const prevStyle  = el.style.cssText
-        if (typeof this.appearWith === "string") {
-            el.setAttribute("style", prevStyle + this.appearWith)
-        } else {
-            for (let [key, value] of Object.entries(this.appearWith)) {
-                el.style[key as any] = value
-            }
-        }
-
-        requestAnimationFrame(() => {
-            el.setAttribute("style", prevStyle)
-        })
-
-        const listener =() => {
-            this.prevElInfos.set(el, {
-                rect: el.getBoundingClientRect(),
-                stopTrigger: false
-            })
-            el.removeEventListener("transitionend", listener)
-        }
-        el.addEventListener("transitionend", listener)
-
+    removeStore?: {
+        parentNode: HTMLElement,
+        el: HTMLElement,
+        rect: any,
+        nextSibling: HTMLElement
     }
-
-
-    willDisappear(el: HTMLElement) {
-        const prevStyle = el.style.cssText
-
-        // TODO 这里 requestAnimationFrame 没用，看看为什么
-        setTimeout(() => {
-            if (typeof this.disappearWith === "string") {
-                el.setAttribute("style", prevStyle + this.disappearWith)
-            } else {
-                for (let [key, value] of Object.entries(this.disappearWith)) {
-                    el.style[key as any] = value
-                }
-            }
-        }, 0)
-    }
-
-
 
     Body() {
         Exp(this._$children)
             .deepLoopEl()
             ._transition(this.transition)
-            // .onUpdate(()=> {
-            //     const currElInfos = this.getElInfos()
-            //     for (let [el, currElInfo] of currElInfos.entries()) {
-            //         if (this.prevElInfos.has(el) && this.movable) {
-            //             // ---* 原来有，就移动。逻辑非常非常绕
-            //             // ---- 让上一次如果没有进行完的动画提前停止
-            //             const prevElInfo = this.prevElInfos.get(el)
-            //             prevElInfo.stopTrigger = true
-            //             // ---- 由于prevEl.rect的位置一直在更新，
-            //             //      最终的结果就是element已经在当前位置，
-            //             //      transform从目标位置到当前位置，所以是 prev - curr
-            //             const moveX = prevElInfo.rect.x - currElInfo.rect.x
-            //             const moveY = prevElInfo.rect.y - currElInfo.rect.y
-            //             moveElement(el, this.duration, this.transition, moveX, moveY, currElInfo)
-            //         }
-            //     }
-            //     this.prevElInfos = currElInfos
-            // })
+            .onUpdateNodes(()=> {
+                for (let [el, prevElInfo] of this.prevElInfos.entries()) {
+                    if (this.movable) {
+                        // ---- 不管怎么样先停transform
+                        el.style.transform = ""
+                        // ---- 如果上次还在add中，这里的prevElInfo.stopTrigger就是true
+                        //      此时不进行update的移动
+                        const currElInfo = {
+                            rect: el.getBoundingClientRect(),
+                            stopTrigger: prevElInfo.stopTrigger
+                        }
+                        this.prevElInfos.set(el, currElInfo)
+                        if (currElInfo.stopTrigger) continue
+                        // ---* 原来有，就移动。逻辑非常非常绕
+                        // ---- 让上一次如果没有进行完的动画提前停止
+                        prevElInfo.stopTrigger = true
+                        // ---- 由于prevEl.rect的位置一直在更新，
+                        //      最终的结果就是element已经在当前位置，
+                        //      transform从目标位置到当前位置，所以是 prev - curr
+                        const moveX = prevElInfo.rect.x - currElInfo.rect.x
+                        const moveY = prevElInfo.rect.y - currElInfo.rect.y
+                        moveElement(el, this.duration, this.transition, moveX, moveY, currElInfo)
+                    }
+                }
+            })
             .deepLoopEl(false)
             .didAppear((el) => {
-                console.log(el)
-                this.didAppear(el)
+                requestAnimationFrame(() => {
+                    // ---- 刚进来先设置成true，只有可以避免进来就再次移动
+                    this.prevElInfos.set(el, {
+                        rect: el.getBoundingClientRect(),
+                        stopTrigger: true
+                    })
+                })
+                if (!this.appearWith) return
+                const prevStyle  = el.style.cssText
+                if (typeof this.appearWith === "string") {
+                    el.setAttribute("style", prevStyle + this.appearWith)
+                } else {
+                    for (let [key, value] of Object.entries(this.appearWith)) {
+                        el.style[key as any] = value
+                    }
+                }
+                requestAnimationFrame(() => {
+                    el.setAttribute("style", prevStyle)
+                    const listener =() => {
+                        this.prevElInfos.set(el, {
+                            rect: el.getBoundingClientRect(),
+                            stopTrigger: false
+                        })
+                        el.removeEventListener("transitionend", listener)
+                    }
+                    el.addEventListener("transitionend", listener)
+                })
+
             })
-            .willDisappear((el, setDelay) => {
-                setDelay(this.duration * 1000)
-                this.willDisappear(el)
+            .willDisappear((el) => {
+                this.removeStore = {
+                    el: el.cloneNode(true),
+                    parentNode: el.parentNode,
+                    rect: {top: el.offsetTop, left: el.offsetLeft},
+                    nextSibling: el.nextSibling
+                }
+                this.prevElInfos.delete(el)
+            })
+            .didDisappear(() => {
+                const {el, parentNode, rect, nextSibling} = this.removeStore!
+                el.style.position = "absolute"
+                el.style.margin = ""
+                el.style.transform = ""
+                el.style.transition = this.transition
+                el.style.top = `${rect.top}px`
+                el.style.left = `${rect.left}px`
+                parentNode.insertBefore(el, nextSibling)
+
+                const prevStyle = el.style.cssText
+                setTimeout(() => {
+                    if (typeof this.disappearWith === "string") {
+                        el.setAttribute("style", prevStyle + this.disappearWith)
+                    } else {
+                        for (let [key, value] of Object.entries(this.disappearWith)) {
+                            el.style[key as any] = value
+                        }
+                    }
+                }, 100)
+                const listener =() => {
+                    el.removeEventListener("transitionend", listener)
+                    el.remove()
+                }
+                el.addEventListener("transitionend", listener)
             })
     }
 }

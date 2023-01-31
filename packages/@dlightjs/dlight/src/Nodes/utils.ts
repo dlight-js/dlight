@@ -14,20 +14,15 @@ export function removeNodes(nodes: DLNode[]) {
     willUnmountDlightNodes(nodes)
     loopEls(nodes, (el: HTMLElement, node: HtmlNode) => {
         // ---- delay disappear 为了各种动画提供
-        if (node._$nodeType === DLNodeType.HTML && document.body.contains(el)) {
-            // ---- 在DOM上
-            const delay = {value: 0}
-            const setDelay = (v: number) => {
-                delay.value = v
-            }
-            node.willDisappear(el, setDelay)
-            setTimeout(() => {
-                el.remove()
-                node.didDisappear(el)
-            }, delay.value)
-            return
+        const isInDOM = document.body.contains(el)
+        if (!isInDOM) return
+        if (node._$nodeType === DLNodeType.HTML) {
+            node.willDisappear(el)
         }
         el.remove()
+        if (node._$nodeType === DLNodeType.HTML) {
+            node.didDisappear(el)
+        }
     })
    didUnmountDlightNodes(nodes)
 }

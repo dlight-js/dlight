@@ -11,12 +11,12 @@ export class MutableNode extends DLNode {
         }
     }
 
-    onUpdate(_prevNodes: DLNode[], _nodes: DLNode[]) {}
+    onUpdateNodes(_prevNodes: DLNode[], _nodes: DLNode[]) {}
     addOnUpdateNodesFunc(func: (prevNodes: DLNode[], nodes: DLNode[]) => any) {
-        const prevonUpdateNodes = this.onUpdate
-        this.onUpdate = function(prevNodes: DLNode[], nodes: DLNode[]) {
+        const prevOnUpdateNodes = this.onUpdateNodes
+        this.onUpdateNodes = function(prevNodes: DLNode[], nodes: DLNode[]) {
             func.call(this, prevNodes, nodes)
-            prevonUpdateNodes.call(this, prevNodes, nodes)
+            prevOnUpdateNodes.call(this, prevNodes, nodes)
         }
     }
 

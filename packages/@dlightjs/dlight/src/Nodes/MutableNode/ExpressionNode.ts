@@ -16,7 +16,7 @@ export class ExpressionNode extends MutableNode {
 
     propFuncs: (() => any)[] = []
 
-    // ---- onUpdate
+    // ---- onUpdateNodes
     propScope: ((el: HTMLElement, node: DLNode) => boolean) = () => true
     deepLoopEl = false
 
@@ -47,7 +47,7 @@ export class ExpressionNode extends MutableNode {
         const addHtmlNodeProp = (node: HtmlNode) => {
             const el = node._$el
             if (!propScope(el, node)) return
-            if (["willAppear", "didAppear", "willDisappear", "didDisappear"].includes(key)) {
+            if (["willRelocate", "didRelocate", "willAppear", "didAppear", "willDisappear", "didDisappear"].includes(key)) {
                 (node as HtmlNode)._$addLifeCycle(valueOrFunc, key as any)
                 return
             }
@@ -158,7 +158,7 @@ export class ExpressionNode extends MutableNode {
         const flowIndex = getFlowIndexFromParentNode(parentNode, this)
         appendNodesWithIndex(this._$nodes, flowIndex, parentEl, parentEl.childNodes.length)
 
-        this.onUpdate(prevNodes, this._$nodes)
+        this.onUpdateNodes(prevNodes, this._$nodes)
     }
 
     // ---- lifecycles

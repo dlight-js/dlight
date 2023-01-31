@@ -177,7 +177,7 @@ declare class HtmlNode extends DLNode {
 declare class MutableNode extends DLNode {
     afterUpdateNewNodes(_nodes: DLNode[]): void;
     addAfterUpdateNewNodesFunc(func: (nodes: DLNode[]) => any): void;
-    onUpdate(_prevNodes: DLNode[], _nodes: DLNode[]): void;
+    onUpdateNodes(_prevNodes: DLNode[], _nodes: DLNode[]): void;
     addOnUpdateNodesFunc(func: (prevNodes: DLNode[], nodes: DLNode[]) => any): void;
     _$bindNewNodes(nodes: DLNode[]): void;
 }

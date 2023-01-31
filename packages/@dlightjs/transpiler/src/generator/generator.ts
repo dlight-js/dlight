@@ -271,7 +271,7 @@ export class Generator {
                 body.add(`${nodeName}.deepLoopEl = ${value}`)
                 continue
             }
-            if (key === "onUpdate") {
+            if (key === "onUpdateNodes") {
                 body.add(`${nodeName}._$onUpdateNodes(${value})`)
                 continue
             }

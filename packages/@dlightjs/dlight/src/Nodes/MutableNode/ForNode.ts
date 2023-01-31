@@ -232,7 +232,7 @@ export class ForNode extends MutableNode {
         this._$nodess = newDlNodes
         this._$nodes = this._$nodess.flat(1)
 
-        this.onUpdate(prevNodes, this._$nodes)
+        this.onUpdateNodes(prevNodes, this._$nodes)
     }
 
 

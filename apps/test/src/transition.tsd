@@ -62,7 +62,10 @@ export class TransitionTest extends View {
             .onclick(() => {
                 this.length -= 50
             })
-        Transition({appearWith: {opacity:0, transform:"translateY(100px)", "background-color":"blue"}}) {
+        Transition({
+            appearWith: {opacity:0, transform:"translate(300px, 300px)", "background-color":"blue"},
+            disappearWith: {opacity:0, transform:"translateX(100px)", "background-color":"yellow", transitionDelay:"1s"},
+        }) {
             For (let ok of this.list)[ok.id] {
                 div(ok.text)
                     ._marginTop("10px")
