@@ -1,0 +1,121 @@
+import {View} from "@dlightjs/dlight";
+
+let idCounter = 1;
+
+const adjectives = ["pretty", "large", "big", "small", "tall", "short", "long", "handsome", "plain", "quaint", "clean", "elegant", "easy", "angry", "crazy", "helpful", "mushy", "odd", "unsightly", "adorable", "important", "inexpensive", "cheap", "expensive", "fancy"],
+    colours = ["red", "yellow", "blue", "green", "pink", "brown", "purple", "brown", "white", "black", "orange"],
+    nouns = ["table", "chair", "house", "bbq", "desk", "car", "pony", "cookie", "sandwich", "burger", "pizza", "mouse", "keyboard"];
+
+function _random (max) { return Math.round(Math.random() * 1000) % max; };
+
+function buildData(count) {
+    let data = new Array(count);
+    for (let i = 0; i < count; i++) {
+        data[i] = {
+            id: idCounter++,
+            label: `${adjectives[_random(adjectives.length)]} ${colours[_random(colours.length)]} ${nouns[_random(nouns.length)]}`
+        }
+    }
+    return data;
+}
+
+
+class Row extends View {
+    @Prop id: string
+    @Prop label: string
+    @Prop className: string
+    @Prop selectRow: any
+    @Prop deleteRow: any
+    Body() {
+        tr {
+            td(this.id)
+                .className("col-md-1")
+            td(this.label)
+                .className("col-md-2")
+                .onclick(() => this.selectRow(this.id))
+            td("")
+                .className("col-md-3")
+                .onclick(() => this.deleteRow(this.id))
+            td("")
+                .className("col-md-4")
+        }
+            .className(this.className)
+    }
+}
+
+export class Benchmark extends View {
+    @State rows = []
+    @State selectIdx = -1
+    addRows = () => {
+        this.rows = buildData(1000)
+    }
+    swapRows = () => {
+        if (this.rows.length > 999) {
+            this.rows = [this.rows[0], this.rows[998], ...this.rows.slice(2, 998), this.rows[1], this.rows[999]]
+        }
+    }
+    clearRows = () => {
+        this.rows = []
+    }
+    selectRow = idx => {
+        this.selectIdx = idx
+    }
+    deleteRow = id => {
+        const idx = this.rows.findIndex(row => row.id === id);
+        this.rows = [...this.rows.slice(0, idx), ...this.rows.slice(idx + 1)]
+    }
+    addBig = () => {
+        this.rows = buildData(10000)
+    }
+    append = () => {
+        this.rows = [...this.rows, ...buildData(1000)]
+    }
+    update = () => {
+        for (let i=0;i<this.rows.length;i+=10) {
+            this.rows[i].label += "!!! "
+        }
+        
+        this.rows = [...this.rows]
+    }
+
+    @State count = -1
+
+    Body() {
+        h1('DLightJS-"keyed"')
+        div {
+            button("Create 1,000 rows")
+                .onclick(this.addRows)
+        }
+        div {
+            button("Create 10,000 rows")
+                .onclick(this.addBig)
+        }
+        div {
+            button("Append 1,000 rows")
+                .onclick(this.append)
+        }
+        div {
+            button("Update every 10th rows")
+                .onclick(this.update)
+        }
+        div {
+            button("Clear")
+                .onclick(this.clearRows)
+        }
+        div {
+            button("Swap Rows")
+                .onclick(this.swapRows)
+        }
+
+        div {
+            table {
+                For(let {id,label} of this.rows) {
+                    Row({id, label})
+                        .deleteRow(this.deleteRow)
+                        .selectRow(this.selectRow)
+                        .className(this.selectIdx === id ? "danger" : "")
+                }
+            }
+        }
+    }
+}

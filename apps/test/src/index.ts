@@ -32,12 +32,13 @@ import {render} from "@dlightjs/dlight";
 // import {NodeTest} from "./example/features/node.jsd"
 // @ts-ignore
 // import {MyComp} from "./test.jsd";
-// import {StackTest} from "./stack.tsd";
+import {StackTest} from "./stack.tsd";
 // import {TestConcurr} from "./testConcurr.tsd"
 // import {RouteTest} from "./Router.tsd";
 import {TransitionTest} from "./transition.tsd";
+import {Benchmark} from "./benchmark.tsd";
 
-render("app", TransitionTest)
+render("app", StackTest)
 
 
 // switch (testType) {
