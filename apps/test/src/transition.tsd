@@ -63,11 +63,15 @@ export class TransitionTest extends View {
                 this.length -= 50
             })
         Transition({
-            appearWith: {opacity:0, transform:"translate(300px, 300px)", "background-color":"blue"},
-            disappearWith: {opacity:0, transform:"translateX(100px)", "background-color":"yellow", transitionDelay:"1s"},
+            duration: 2,
+            appearWith: (el)=> ({opacity:0, transform:`translateX(${30*el.dataset.index}px)`, "background-color":"blue"}),
+            disappearWith: {opacity:0, transform:"translateX(100px)", "background-color":"yellow"},
         }) {
-            For (let ok of this.list)[ok.id] {
+            For (let [idx, ok] of Object.entries(this.list))[ok.id] {
                 div(ok.text)
+                    .willAppear((el)=>{
+                        el.dataset.index = idx
+                    })
                     ._marginTop("10px")
                     ._backgroundColor("red")
                     ._width(`${this.length}px`)

@@ -28,7 +28,7 @@ export class HtmlNode extends DLNode {
         } else if (key === "innerText") {
             func = (newValue: any) => this._$el.innerText = newValue
         } else {
-            func = (newValue: any) => (this._$el as any)[key] = newValue
+            func = (newValue: any) => this._$el[key] = newValue
         }
 
         if (!listenDeps) {

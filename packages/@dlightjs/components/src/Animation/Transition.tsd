@@ -1,28 +1,16 @@
 import {View, toEls, Exp, Prop, State} from "@dlightjs/dlight"
 
 
+type StyleWith = string | {[key: string]: any}
 export class Transition extends View {
     @Prop duration = 0.5
     @Prop easing = "ease-in-out"
     transition = `all ${this.duration}s ${this.easing}`
-    @Prop appearWith: string | {[key: string]: any} = {opacity: 0}
-    @Prop disappearWith: string | {[key: string]: any} = {opacity: 0}
+    @Prop appearWith: StyleWith | (() => StyleWith) = {opacity: 0}
+    @Prop disappearWith: StyleWith | (() => StyleWith) = {opacity: 0}
     @Prop movable = true
 
     prevElInfos = new Map()
-
-    getElInfos = () => {
-        return toEls(this._$children).reduce((acc, el) => {
-            // ---- 这时候新el已经到新位置了，直接transform置空，拿到真实位置
-            el.style.transform = ""
-            acc.set(el, {
-                rect: el.getBoundingClientRect(),
-                stopTrigger: false
-            })
-            return acc
-        }, new Map())
-    }
-
     removeStore?: {
         parentNode: HTMLElement,
         el: HTMLElement,
@@ -70,13 +58,7 @@ export class Transition extends View {
                 })
                 if (!this.appearWith) return
                 const prevStyle  = el.style.cssText
-                if (typeof this.appearWith === "string") {
-                    el.setAttribute("style", prevStyle + this.appearWith)
-                } else {
-                    for (let [key, value] of Object.entries(this.appearWith)) {
-                        el.style[key as any] = value
-                    }
-                }
+                changeElStyle(el, this.appearWith)
                 requestAnimationFrame(() => {
                     el.setAttribute("style", prevStyle)
                     const listener =() => {
@@ -109,16 +91,9 @@ export class Transition extends View {
                 el.style.left = `${rect.left}px`
                 parentNode.insertBefore(el, nextSibling)
 
-                const prevStyle = el.style.cssText
-                setTimeout(() => {
-                    if (typeof this.disappearWith === "string") {
-                        el.setAttribute("style", prevStyle + this.disappearWith)
-                    } else {
-                        for (let [key, value] of Object.entries(this.disappearWith)) {
-                            el.style[key as any] = value
-                        }
-                    }
-                }, 100)
+                requestAnimationFrame(() => {
+                    changeElStyle(el, this.disappearWith)
+                })
                 const listener =() => {
                     el.removeEventListener("transitionend", listener)
                     el.remove()
@@ -128,6 +103,17 @@ export class Transition extends View {
     }
 }
 
+function changeElStyle(el: HTMLElement, styleWith: StyleWith|((el: HTMLElement)=>StyleWith)) {
+    if (typeof styleWith === "function") styleWith = styleWith(el)
+    const prevStyle = el.style.cssText
+    if (typeof styleWith === "string") {
+        el.setAttribute("style", prevStyle + styleWith)
+    } else {
+        for (let [key, value] of Object.entries(styleWith)) {
+            el.style[key as any] = value
+        }
+    }
+}
 
 // TODO! 这里requestAnimationFrame会中断transition
 // ---- 太牛逼了
