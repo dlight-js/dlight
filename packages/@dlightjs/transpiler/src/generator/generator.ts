@@ -158,7 +158,7 @@ export class Generator {
                 continue
             }
             if (key === "_$content") {
-                key = "innerHTML"
+                key = "innerText"
             }
             const listenDeps = this.geneDeps(value as string)
             if (listenDeps.length > 0) {
@@ -263,20 +263,8 @@ export class Generator {
                 }
                 continue
             }
-            if (key === "propScope") {
-                body.add(`${nodeName}.propScope = ${value}`)
-                continue
-            }
-            if (key === "deepLoopEl") {
-                body.add(`${nodeName}.deepLoopEl = ${value}`)
-                continue
-            }
             if (key === "onUpdateNodes") {
                 body.add(`${nodeName}._$onUpdateNodes(${value})`)
-                continue
-            }
-            if (["willMount", "didMount", "willUnmount", "didUnmount"].includes(key)) {
-                body.add(`${nodeName}._$addLifeCycle(${value}, "${key}")`)
                 continue
             }
 

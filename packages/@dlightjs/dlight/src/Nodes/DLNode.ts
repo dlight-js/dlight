@@ -1,5 +1,4 @@
 import { bindParentNode, initNodes, toEls } from "../utils/nodes"
-import {HtmlNode} from './HtmlNode';
 
 export enum DLNodeType {
     HTML, Text, Custom, For, If, Env, Expression

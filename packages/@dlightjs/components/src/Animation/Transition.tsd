@@ -1,12 +1,19 @@
-import {View, toEls, Exp, Prop, State} from "@dlightjs/dlight"
+import {View, Exp, Prop} from "@dlightjs/dlight"
 
-type TransitionPropSub<T> = T | ((el: HTMLElement) => T) 
+type TransitionPropSub<T> = T | ((el: HTMLElement) => T)
+type Timing = "appear" | "firstAppear" | "move" | "disappear" | "lastDisappear"
 type TransitionProp<T> = TransitionPropSub<T> | ({
-    appear: TransitionPropSub<T>,
-    disappear: TransitionPropSub<T>,
-    move: TransitionPropSub<T>
+    [key: Timing]: TransitionPropSub<T>
 })
 type StyleWith = string | {[key: string]: any}
+
+interface RemoveStore {
+    parentNode: ParentNode,
+    el: HTMLElement,
+    rect: { top: number, left: number },
+    idx: number
+}
+
 export class Transition extends View {
     _$duration = 0.5
     _$easing = "ease-in-out"
@@ -16,41 +23,95 @@ export class Transition extends View {
     @Prop delay: TransitionProp<number> = this._$delay  // 这里的delay在新建会先把下面的push下去，等delay时间到了再出现，这其实是符合预期的，因为不然你setTimeOut控制它出现
 
     parseProp(el: HTMLElement, key: string) {
-        let prop = {}
-        if (this[key].appear !== undefined ||
-            this[key].disappear !== undefined ||
-            this[key].move !== undefined ) {
-            prop.appear = this[key].appear ?? this["_$"+key]
-            prop.disappear = this[key].disappear ?? this["_$"+key]
-            prop.move = this[key].move ?? this["_$"+key]
+        let prop: any = {}
+        const defaultValue = this["_$" + key]
+        const value = this[key]
+        if (typeof value === "object") {
+            prop.appear = value.appear ?? defaultValue
+            prop.firstAppear = value.firstAppear ?? prop.appear
+            prop.disappear = value.disappear ?? defaultValue
+            prop.lastDisappear = value.lastDisappear ?? prop.disappear
+            prop.move = value.move ?? defaultValue
         } else {
-            prop.appear = this[key]
-            prop.disappear = this[key]
-            prop.move = this[key]
+            prop.firstAppear = value
+            prop.appear = value
+            prop.disappear = value
+            prop.lastDisappear = value
+            prop.move = value
         }
-        for (let k in prop) {
-            if (typeof prop[k] === "function") {
-                prop[k] = prop[k](el) ?? this["_$"+key]
-            }
-        }
+        const toValue = (prop: any) => (typeof prop === "function") ? prop(el) : prop
+
+        prop.appear = toValue(prop.appear) ?? defaultValue
+        prop.firstAppear = toValue(prop.firstAppear) ?? prop.appear
+        prop.disappear = toValue(prop.disappear) ?? defaultValue
+        prop.lastDisappear = toValue(prop.lastDisappear) ?? prop.disappear
+        prop.move = toValue(prop.move) ?? defaultValue
+
         return prop
     }
     _duration = (el: HTMLElement) => this.parseProp(el, "duration")
     _easing = (el: HTMLElement) => this.parseProp(el, "easing")
     _delay = (el: HTMLElement) => this.parseProp(el, "delay")
 
-    transition = (duration: number, easing: string, delay: number) => `all ${duration}s ${easing} ${delay}s`
+    firstRender = true
+
+    transition = (el: HTMLElement, timing: Timing) => (
+        `all ${this._duration(el)[timing]}s ${this._easing(el)[timing]} ${this._delay(el)[timing]}s`
+    )
 
     @Prop appearWith: StyleWith | ((el: HTMLElement) => StyleWith) = {opacity: 0}
     @Prop disappearWith: StyleWith | ((el: HTMLElement) => StyleWith) = {opacity: 0}
     @Prop movable = true
 
+
+    resolveDisappear(removeStore: RemoveStore) {
+        const {el, parentNode, rect, idx} = removeStore
+        el.style.position = "absolute"
+        el.style.transition = this.lastDisappear
+            ? this.transition(el, "lastDisappear")
+            : this.transition(el, "disappear")
+        el.style.margin = ""
+        el.style.transform = ""
+        loopEls(el, (e)=>{
+            e.style.margin = ""
+            e.style.transform = ""
+        })
+        el.style.top = `${rect.top}px`
+        el.style.left = `${rect.left}px`
+        if (parentNode.childNodes.length >= idx) {
+            parentNode.appendChild(el)
+        } else {
+            parentNode.insertBefore(el, parentNode.childNodes[idx])
+        }
+
+        requestAnimationFrame(() => {
+            const listener =() => {
+                el.removeEventListener("transitionend", listener)
+                el.remove()
+            }
+            el.addEventListener("transitionend", listener)
+            changeElStyle(el, this.disappearWith)
+        })
+    }
     prevElInfos = new Map()
-    removeStore?: {
-        parentNode: HTMLElement,
-        el: HTMLElement,
-        rect: any,
-        nextSibling: HTMLElement
+    removeStore?: RemoveStore
+    lastDisappear = false
+    removeStores?: RemoveStore[]
+
+    // ---- 最后一次消失
+    willUnmount() {
+        this.lastDisappear = true
+        const els = this._$el
+        this.removeStores = []
+        for (let el of els) {
+            this.removeStores.push(setRemoveStore(el))
+        }
+    }
+
+    didUnmount() {
+        for (let removeStore of this.removeStores!) {
+            this.resolveDisappear(removeStore)
+        }
     }
 
     Body() {
@@ -83,9 +144,13 @@ export class Transition extends View {
                 }
             })
             .didAppear((el) => {
-                el.style.transition = this.transition(this._duration(el).appear, this._easing(el).appear, this._delay(el).appear)
+                el.style.transition = this.firstRender
+                    ? this.transition(el, "firstAppear")
+                    : this.transition(el, "appear")
                 loopEls(el, (e)=>{
-                    e.style.transition = this.transition(this._duration(e).appear, this._easing(e).appear, this._delay(e).appear)
+                    e.style.transition = this.firstRender
+                        ? this.transition(e, "firstAppear")
+                        : this.transition(e, "appear")
                 })
                 requestAnimationFrame(() => {
                     // ---- 刚进来先设置成true，只有可以避免进来就再次移动
@@ -97,6 +162,8 @@ export class Transition extends View {
                 if (!this.appearWith) return
                 const prevStyle  = el.style.cssText
                 changeElStyle(el, this.appearWith)
+
+                const firstRender = this.firstRender
                 requestAnimationFrame(() => {
                     el.setAttribute("style", prevStyle)
                     const listener =() => {
@@ -106,50 +173,46 @@ export class Transition extends View {
                         el.removeEventListener("transitionend", listener)
                     }
                     el.addEventListener("transitionend", listener)
+                    // ---- 在这里设置firstRender因为是在一轮微任务后面，初始的已经全部加载完了
+                    if (this.firstRender) this.firstRender = false
+                    setTimeout(() => {
+                        // ---- 为了保护transitionend被打断，触发不了导致stopTrigger永远为true
+                        this.prevElInfos.get(el).stopTrigger = false
+                    }, this._duration(el).appear * 1000)
+                    if (firstRender) {
+                        // ---- 这是对于firstRender而言的，重新设置transition
+                        requestAnimationFrame(() => {
+                            el.style.transition = this.transition(el, "appear")
+                        })
+                    }
                 })
 
             })
             .willDisappear((el) => {
-                this.removeStore = {
-                    el: el.cloneNode(true),
-                    parentNode: el.parentNode,
-                    rect: {top: el.offsetTop, left: el.offsetLeft},
-                    nextSibling: el.nextSibling
-                }
+                if (this.lastDisappear) return
+                this.removeStore = setRemoveStore(el)
                 this.prevElInfos.delete(el)
             })
             .didDisappear(() => {
-                const {el, parentNode, rect, nextSibling} = this.removeStore!
-                el.style.position = "absolute"
-                el.style.transition = this.transition(this._duration(el).disappear, this._easing(el).disappear, this._delay(el).disappear)
-                el.style.margin = ""
-                el.style.transform = ""
-                loopEls(el, (e)=>{
-                    e.style.margin = ""
-                    e.style.transform = ""
-                })
-                el.style.top = `${rect.top}px`
-                el.style.left = `${rect.left}px`
-                parentNode.insertBefore(el, nextSibling)
-
-                requestAnimationFrame(() => {
-                    const listener =() => {
-                        el.removeEventListener("transitionend", listener)
-                        el.remove()
-                    }
-                    el.addEventListener("transitionend", listener)
-                    changeElStyle(el, this.disappearWith)
-                })
-                
+                if (this.lastDisappear) return
+                this.resolveDisappear(this.removeStore!)
             })
     }
 }
-function loopEls(el: HTMLElement, func: ()=>any) {
+
+function setRemoveStore(el: HTMLElement) {
+    return ({
+        el: el.cloneNode(true) as HTMLElement,
+        parentNode: el.parentNode!,
+        rect: {top: el.offsetTop, left: el.offsetLeft},
+        idx: Array.from(el.parentNode?.childNodes??[]).indexOf(el)
+    }) as RemoveStore
+}
+
+function loopEls(el: HTMLElement, func: (el: HTMLElement) => any) {
     if (el.nodeType === Node.TEXT_NODE) return
     func(el)
-    for (let e of el.childNodes) {
-        loopEls(e, func)
-    }
+    el.childNodes.forEach(e => loopEls(e as HTMLElement, func))
 }
 
 function changeElStyle(el: HTMLElement, styleWith: StyleWith|((el: HTMLElement)=>StyleWith)) {
@@ -166,7 +229,7 @@ function changeElStyle(el: HTMLElement, styleWith: StyleWith|((el: HTMLElement)=
 
 // TODO! 这里requestAnimationFrame会中断transition
 // ---- 太牛逼了
-async function moveElement(element: HTMLElement, duration: number, easing: string, delay: number, moveX: number, moveY: number, currEl: {rect: any, stopTrigger: boolean}) {
+function moveElement(element: HTMLElement, duration: number, easing: string, delay: number, moveX: number, moveY: number, currEl: {rect: any, stopTrigger: boolean}) {
     let start: number | undefined, previousTimeStamp: number | undefined
     let done = false
     const transition = `all ${duration}s ${easing} ${delay}s`

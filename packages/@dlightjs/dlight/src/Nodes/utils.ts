@@ -71,7 +71,6 @@ export function appendNodesWithIndex(nodes: DLNode[], index: number, parentEl: H
     willMountDlightNodes(nodes)
 
     loopEls(nodes, (el: HTMLElement, node: HtmlNode) => {
-        const sibling = parentEl.childNodes[index] as any
         const isInDOM = document.body.contains(el)
         if ([DLNodeType.HTML].includes(node._$nodeType) && !isInDOM) {
             // ---- 不在DOM上
@@ -80,7 +79,7 @@ export function appendNodesWithIndex(nodes: DLNode[], index: number, parentEl: H
         if (index === length) {
             parentEl!.appendChild(el)
         } else {
-            parentEl!.insertBefore(el, sibling)
+            parentEl!.insertBefore(el, parentEl.childNodes[index] as any)
         }
         if ([DLNodeType.HTML].includes(node._$nodeType) && !isInDOM) {
             node.didAppear(el, node)
