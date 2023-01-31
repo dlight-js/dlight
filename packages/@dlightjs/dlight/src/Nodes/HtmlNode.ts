@@ -11,6 +11,7 @@ export class HtmlNode extends DLNode {
         this._$el = document.createElement(tag)
     }
     _$init(): void {
+        // this._$bindNodes()
         this._$bindNodes()
         for (let node of this._$nodes) {
             node.render(this._$el)
@@ -62,8 +63,6 @@ export class HtmlNode extends DLNode {
         }
     }
     render(parentEl: HTMLElement) {
-        this.willAppear(this._$el)
         parentEl.appendChild(this._$el)
-        this.didAppear(this._$el)
     }
 }

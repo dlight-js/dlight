@@ -41,11 +41,5 @@ export class EnvNode extends DLNode {
         this.addPropsToNodes(this)
         this._$bindNodes()
     }
-
-    render(parentEl: HTMLElement) {
-        for (let node of this._$nodes) {
-            node.render(parentEl)
-        }
-    }
 }
 

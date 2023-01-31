@@ -46,8 +46,10 @@ export class ExpressionNode extends MutableNode {
         // TODO 太复杂，要简化
         const addHtmlNodeProp = (node: HtmlNode) => {
             const el = node._$el
+            // console.log(el.innerHTML, key)
             if (!propScope(el, node)) return
-            if (["willRelocate", "didRelocate", "willAppear", "didAppear", "willDisappear", "didDisappear"].includes(key)) {
+
+            if (["willAppear", "didAppear", "willDisappear", "didDisappear"].includes(key)) {
                 (node as HtmlNode)._$addLifeCycle(valueOrFunc, key as any)
                 return
             }
@@ -135,13 +137,6 @@ export class ExpressionNode extends MutableNode {
 
     }
 
-    render(parentEl: HTMLElement) {
-        this.willMount(this)
-        for (let node of this._$nodes) {
-            node.render(parentEl)
-        }
-        this.didMount(this)
-    }
 
     update(parentNode: HtmlNode) {
         const prevNodes = this._$nodes

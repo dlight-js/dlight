@@ -12,10 +12,12 @@ function render(idOrEl: string | HTMLElement, dl: CustomNode) {
     appNode._$addNodes([dl])
     appNode._$addProp("id", typeof idOrEl === "string" ? idOrEl : idOrEl.id)
     appNode._$init()
+    appNode._$pre()
     if (typeof idOrEl === "string") {
         idOrEl = document.getElementById(idOrEl)!
     }
     idOrEl.replaceWith(appNode._$el)
+    appNode._$after()
 }
 
 export {View, required, render}

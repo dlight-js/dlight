@@ -98,9 +98,4 @@ export class IfNode extends MutableNode {
         this.onUpdateNodes(prevNodes, this._$nodes)
     }
 
-    render(parentEl: HTMLElement) {
-        for (let node of this._$nodes) {
-            node.render(parentEl)
-        }
-    }
 }

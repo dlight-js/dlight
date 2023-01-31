@@ -69,10 +69,26 @@ export class DLNode {
     }
 
     _$init() {}
+    _$pre() {
+        this.willMount && this.willMount(this._$el, this)
+        this.willAppear && this.willAppear(this._$el, this)
+        for (let node of this._$nodes) {
+            node._$pre()
+        }
+    }
+    _$after() {
+        for (let node of this._$nodes) {
+            node._$after()
+        }
+        this.didAppear && this.didAppear(this._$el, this)
+        this.didMount && this.didMount(this._$el, this)
+    }
 
     // @ts-ignore
     render(parentEl: HTMLElement) {
-        // ---- 同级别的append上去，不存在递归
+        for (let node of this._$nodes) {
+            node.render(parentEl)
+        }
     }
 
 }

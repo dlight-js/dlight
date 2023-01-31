@@ -160,14 +160,6 @@ export class CustomNode extends DLNode {
         addDLProp(this, "prop", key, propFunc, dlScope, listenDeps, isTwoWayConnected)
     }
 
-    render(parentEl: HTMLElement) {
-        this.willMount(this)
-        for (let node of this._$nodes) {
-            node.render(parentEl)
-        }
-        this.didMount(this)
-    }
-
     // ---- lifecycles
     willMount(_node?: CustomNode) {}
     didMount(_node?: CustomNode) {}

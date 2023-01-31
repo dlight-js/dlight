@@ -41,10 +41,16 @@ export class TransitionTest extends View {
         this.list = [...newList]
     }
     @State length = 100
+    @State toggle = true
+
     Body() {
         button("shuffle")
             .onclick(() => {
                 this.shuffle()
+            })
+        button("toggle")
+            .onclick(() => {
+                this.toggle = !this.toggle
             })
         button("remove")
             .onclick(() => {
@@ -63,18 +69,28 @@ export class TransitionTest extends View {
                 this.length -= 50
             })
         Transition({
-            duration: 2,
-            appearWith: (el)=> ({opacity:0, transform:`translateX(${30*el.dataset.index}px)`, "background-color":"blue"}),
-            disappearWith: {opacity:0, transform:"translateX(100px)", "background-color":"yellow"},
+            duration: 1,
+            delay: {appear: (el) => (() => {
+                // return 0
+                return el.dataset.index ?? 0
+            })()},
+            appearWith: (el)=> ({opacity:0, transform:`translateX(${40+30*el.dataset.index??0}px)`}),
+            // disappearWith: {opacity:0, transform:"translateX(100px)", "background-color":"yellow"},
         }) {
             For (let [idx, ok] of Object.entries(this.list))[ok.id] {
+                div{
                 div(ok.text)
                     .willAppear((el)=>{
                         el.dataset.index = idx
                     })
-                    ._marginTop("10px")
-                    ._backgroundColor("red")
                     ._width(`${this.length}px`)
+                    ._marginTop("10px")
+                    ._backgroundColor(this.toggle ? "blue":"red")
+                } .willAppear((el)=>{
+                        el.dataset.index = idx
+                    })
+                
+
             }
         }
     }

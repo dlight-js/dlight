@@ -1,13 +1,48 @@
 import {View, toEls, Exp, Prop, State} from "@dlightjs/dlight"
 
-
+type TransitionPropSub<T> = T | ((el: HTMLElement) => T) 
+type TransitionProp<T> = TransitionPropSub<T> | ({
+    appear: TransitionPropSub<T>,
+    disappear: TransitionPropSub<T>,
+    move: TransitionPropSub<T>
+})
 type StyleWith = string | {[key: string]: any}
 export class Transition extends View {
-    @Prop duration = 0.5
-    @Prop easing = "ease-in-out"
-    transition = `all ${this.duration}s ${this.easing}`
-    @Prop appearWith: StyleWith | (() => StyleWith) = {opacity: 0}
-    @Prop disappearWith: StyleWith | (() => StyleWith) = {opacity: 0}
+    _$duration = 0.5
+    _$easing = "ease-in-out"
+    _$delay = 0
+    @Prop duration: TransitionProp<number> = this._$duration
+    @Prop easing: TransitionProp<string> = this._$easing
+    @Prop delay: TransitionProp<number> = this._$delay
+
+    parseProp(el: HTMLElement, key: string) {
+        let prop = {}
+        if (this[key].appear !== undefined ||
+            this[key].disappear !== undefined ||
+            this[key].move !== undefined ) {
+            prop.appear = this[key].appear ?? this["_$"+key]
+            prop.disappear = this[key].disappear ?? this["_$"+key]
+            prop.move = this[key].move ?? this["_$"+key]
+        } else {
+            prop.appear = this[key]
+            prop.disappear = this[key]
+            prop.move = this[key]
+        }
+        for (let k in prop) {
+            if (typeof prop[k] === "function") {
+                prop[k] = prop[k](el) ?? this["_$"+key]
+            }
+        }
+        return prop
+    }
+    _duration = (el: HTMLElement) => this.parseProp(el, "duration")
+    _easing = (el: HTMLElement) => this.parseProp(el, "easing")
+    _delay = (el: HTMLElement) => this.parseProp(el, "delay")
+
+    transition = (duration: number, easing: string, delay: number) => `all ${duration}s ${easing} ${delay}s`
+
+    @Prop appearWith: StyleWith | ((el: HTMLElement) => StyleWith) = {opacity: 0}
+    @Prop disappearWith: StyleWith | ((el: HTMLElement) => StyleWith) = {opacity: 0}
     @Prop movable = true
 
     prevElInfos = new Map()
@@ -20,8 +55,6 @@ export class Transition extends View {
 
     Body() {
         Exp(this._$children)
-            .deepLoopEl()
-            ._transition(this.transition)
             .onUpdateNodes(()=> {
                 for (let [el, prevElInfo] of this.prevElInfos.entries()) {
                     if (this.movable) {
@@ -43,12 +76,17 @@ export class Transition extends View {
                         //      transform从目标位置到当前位置，所以是 prev - curr
                         const moveX = prevElInfo.rect.x - currElInfo.rect.x
                         const moveY = prevElInfo.rect.y - currElInfo.rect.y
-                        moveElement(el, this.duration, this.transition, moveX, moveY, currElInfo)
+                        moveElement(el, 
+                        this._duration(el).move, this._easing(el).move, this._delay(el).move,
+                        moveX, moveY, currElInfo)
                     }
                 }
             })
-            .deepLoopEl(false)
             .didAppear((el) => {
+                el.style.transition = this.transition(this._duration(el).appear, this._easing(el).appear, this._delay(el).appear)
+                loopEls(el, (e)=>{
+                    e.style.transition = this.transition(this._duration(e).appear, this._easing(e).appear, this._delay(e).appear)
+                })
                 requestAnimationFrame(() => {
                     // ---- 刚进来先设置成true，只有可以避免进来就再次移动
                     this.prevElInfos.set(el, {
@@ -62,10 +100,9 @@ export class Transition extends View {
                 requestAnimationFrame(() => {
                     el.setAttribute("style", prevStyle)
                     const listener =() => {
-                        this.prevElInfos.set(el, {
-                            rect: el.getBoundingClientRect(),
-                            stopTrigger: false
-                        })
+                        const elInfo = this.prevElInfos.get(el)
+                        elInfo.rect = el.getBoundingClientRect()
+                        elInfo.stopTrigger = false
                         el.removeEventListener("transitionend", listener)
                     }
                     el.addEventListener("transitionend", listener)
@@ -86,20 +123,28 @@ export class Transition extends View {
                 el.style.position = "absolute"
                 el.style.margin = ""
                 el.style.transform = ""
-                el.style.transition = this.transition
+                el.style.transition = this.transition(this._duration(el).disappear, this._easing(el).disappear, this._delay(el).disappear)
                 el.style.top = `${rect.top}px`
                 el.style.left = `${rect.left}px`
                 parentNode.insertBefore(el, nextSibling)
 
                 requestAnimationFrame(() => {
+                    const listener =() => {
+                        el.removeEventListener("transitionend", listener)
+                        el.remove()
+                    }
+                    el.addEventListener("transitionend", listener)
                     changeElStyle(el, this.disappearWith)
                 })
-                const listener =() => {
-                    el.removeEventListener("transitionend", listener)
-                    el.remove()
-                }
-                el.addEventListener("transitionend", listener)
+                
             })
+    }
+}
+function loopEls(el: HTMLElement, func: ()=>any) {
+    if (el.nodeType === Node.TEXT_NODE) return
+    func(el)
+    for (let e of el.childNodes) {
+        loopEls(e, func)
     }
 }
 
@@ -117,30 +162,32 @@ function changeElStyle(el: HTMLElement, styleWith: StyleWith|((el: HTMLElement)=
 
 // TODO! 这里requestAnimationFrame会中断transition
 // ---- 太牛逼了
-function moveElement(element: HTMLElement, duration: number, transition: string, moveX: number, moveY: number, currEl: {rect: any, stopTrigger: boolean}) {
+async function moveElement(element: HTMLElement, duration: number, easing: string, delay: number, moveX: number, moveY: number, currEl: {rect: any, stopTrigger: boolean}) {
     let start: number | undefined, previousTimeStamp: number | undefined
     let done = false
+    const transition = `all ${duration}s ${easing} ${delay}s`
     function step(timestamp: number) {
         if (start === undefined) {
             start = timestamp
             element.style.transition = transition + ", transform 0s"
         }
-        const elapsed = timestamp - start;
+        const elapsed = timestamp - start
 
         if (previousTimeStamp !== timestamp) {
-            const percentTime = elapsed / (duration * 1000)
+            // ---- 有delay的时候，elapsed比delay小就相当于没开始，percentTime是0
+            const percentTime = Math.max(elapsed / (duration * 1000) - delay, 0)
+
             const goX = percentTime * moveX
             const goY = percentTime * moveY
 
             if (percentTime >= 1) {
                 element.style.transform = ""
-                currEl.rect = element.getBoundingClientRect()
                 done = true
             } else {
                 element.style.transform = `translate(${moveX - goX}px, ${moveY - goY}px)`
-                // ---- 实时更新现在的位置
-                currEl.rect = element.getBoundingClientRect()
             }
+            // ---- 实时更新现在的位置
+            currEl.rect = element.getBoundingClientRect()
         }
 
         previousTimeStamp = timestamp

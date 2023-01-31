@@ -113,11 +113,6 @@ export class ForNode extends MutableNode {
     }
 
     
-    render(parentEl: HTMLElement) {
-        for (let node of this._$nodes) {
-            node.render(parentEl)
-        }
-    }
 
     getNewNodes(key: any, idx: number) {
         const nodes = this.nodeFunc!(key, idx, this)
