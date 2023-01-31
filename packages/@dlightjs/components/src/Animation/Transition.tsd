@@ -13,7 +13,7 @@ export class Transition extends View {
     _$delay = 0
     @Prop duration: TransitionProp<number> = this._$duration
     @Prop easing: TransitionProp<string> = this._$easing
-    @Prop delay: TransitionProp<number> = this._$delay
+    @Prop delay: TransitionProp<number> = this._$delay  // 这里的delay在新建会先把下面的push下去，等delay时间到了再出现，这其实是符合预期的，因为不然你setTimeOut控制它出现
 
     parseProp(el: HTMLElement, key: string) {
         let prop = {}
@@ -121,9 +121,13 @@ export class Transition extends View {
             .didDisappear(() => {
                 const {el, parentNode, rect, nextSibling} = this.removeStore!
                 el.style.position = "absolute"
+                el.style.transition = this.transition(this._duration(el).disappear, this._easing(el).disappear, this._delay(el).disappear)
                 el.style.margin = ""
                 el.style.transform = ""
-                el.style.transition = this.transition(this._duration(el).disappear, this._easing(el).disappear, this._delay(el).disappear)
+                loopEls(el, (e)=>{
+                    e.style.margin = ""
+                    e.style.transform = ""
+                })
                 el.style.top = `${rect.top}px`
                 el.style.left = `${rect.left}px`
                 parentNode.insertBefore(el, nextSibling)

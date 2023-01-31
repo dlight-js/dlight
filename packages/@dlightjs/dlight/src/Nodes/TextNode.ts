@@ -22,10 +22,6 @@ export class TextNode extends DLNode {
         this._$depObjectIds.push(objectId)
         dlScope!._$addDeps(listenDeps!, objectId, depFunc)
     }
-
-    render(parentEl: HTMLElement) {
-        parentEl.appendChild(this._$el)
-    }
 }
 
 

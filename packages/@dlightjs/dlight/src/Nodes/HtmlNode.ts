@@ -1,6 +1,7 @@
 import { CustomNode } from './CustomNode';
 import { DLNode, DLNodeType } from './DLNode';
 import { EnvNode } from './EnvNode';
+import {appendEls} from './utils';
 
 
 export class HtmlNode extends DLNode {
@@ -11,12 +12,10 @@ export class HtmlNode extends DLNode {
         this._$el = document.createElement(tag)
     }
     _$init(): void {
-        // this._$bindNodes()
         this._$bindNodes()
-        for (let node of this._$nodes) {
-            node.render(this._$el)
-        }
+        appendEls(this, this._$nodes)
     }
+
     _$addNodes(nodes: DLNode[]) {
         this._$nodes = nodes
     }
@@ -51,18 +50,15 @@ export class HtmlNode extends DLNode {
     }
 
     // ---- lifecycles
-    willAppear(_el?: HTMLElement): any {}
-    didAppear(_el?: HTMLElement): any {}
-    willDisappear(_el?: HTMLElement, ..._: any): any {}
-    didDisappear(_el?: HTMLElement): any {}
-    _$addLifeCycle(func: (el?: HTMLElement, ..._: any) => any, lifeCycleName: "willAppear" | "didAppear" | "willDisappear" | "didDisappear") {
+    willAppear(_el: HTMLElement, _node: HtmlNode): any {}
+    didAppear(_el: HTMLElement, _node: HtmlNode): any {}
+    willDisappear(_el: HTMLElement, _node: HtmlNode): any {}
+    didDisappear(_el: HTMLElement, _node: HtmlNode): any {}
+    _$addLifeCycle(func: (_el: HTMLElement, _node: HtmlNode) => any, lifeCycleName: "willAppear" | "didAppear" | "willDisappear" | "didDisappear") {
         const preLifeCycle = this[lifeCycleName]
-        this[lifeCycleName] = function(el?: HTMLElement, ..._: any) {
-            preLifeCycle.call(this, el, ..._)
-            return func.call(this, el, ..._)
+        this[lifeCycleName] = function(_el: HTMLElement, _node: HtmlNode, ..._: any) {
+            preLifeCycle.call(this, _el, _node)
+            return func.call(this, _el, _node)
         }
-    }
-    render(parentEl: HTMLElement) {
-        parentEl.appendChild(this._$el)
     }
 }

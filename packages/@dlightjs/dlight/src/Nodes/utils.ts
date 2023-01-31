@@ -4,6 +4,20 @@ import { HtmlNode } from "./HtmlNode";
 import { loopNodes, loopEls } from "../utils/nodes";
 
 
+export function appendEls(htmlNode: HtmlNode, nodes: DLNode[]) {
+    loopNodes(nodes, node => {
+        switch (node._$nodeType) {                    
+            case DLNodeType.Text:
+            case DLNodeType.HTML:
+                htmlNode._$el.appendChild(node._$el)
+                break
+            default:
+                appendEls(htmlNode, node._$nodes)
+                break
+        }
+        return false
+    })
+}
 
 
 /**
@@ -17,11 +31,11 @@ export function removeNodes(nodes: DLNode[]) {
         const isInDOM = document.body.contains(el)
         if (!isInDOM) return
         if (node._$nodeType === DLNodeType.HTML) {
-            node.willDisappear(el)
+            node.willDisappear(el, node)
         }
         el.remove()
         if (node._$nodeType === DLNodeType.HTML) {
-            node.didDisappear(el)
+            node.didDisappear(el, node)
         }
     })
    didUnmountDlightNodes(nodes)
@@ -61,7 +75,7 @@ export function appendNodesWithIndex(nodes: DLNode[], index: number, parentEl: H
         const isInDOM = document.body.contains(el)
         if ([DLNodeType.HTML].includes(node._$nodeType) && !isInDOM) {
             // ---- 不在DOM上
-            node.willAppear(el)
+            node.willAppear(el, node)
         }
         if (index === length) {
             parentEl!.appendChild(el)
@@ -69,7 +83,7 @@ export function appendNodesWithIndex(nodes: DLNode[], index: number, parentEl: H
             parentEl!.insertBefore(el, sibling)
         }
         if ([DLNodeType.HTML].includes(node._$nodeType) && !isInDOM) {
-            node.didAppear(el)
+            node.didAppear(el, node)
         }
         index ++
         length ++

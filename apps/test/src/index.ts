@@ -37,7 +37,7 @@ import {render} from "@dlightjs/dlight";
 // import {RouteTest} from "./Router.tsd";
 import {TransitionTest} from "./transition.tsd";
 
-render("app", new TransitionTest())
+render("app", TransitionTest)
 
 
 // switch (testType) {
