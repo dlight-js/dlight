@@ -1,10 +1,10 @@
 # Tip
 
-Search ? in doc for important concepts and performance result.
+Search ðŸŒŸ in doc for important concepts and performance results.
 
 # Quick start
 
-DLight uses [vite](https://vitejs.dev/) to construct its apps. We mainly use this vite plugin-`vite-plugin-dlight-transpiler` to transpile jsx/jsd file into pure js code.
+DLight uses [vite](https://vitejs.dev/) to construct its apps. We mainly use [this vite plugin](https://www.npmjs.com/package/vite-plugin-dlight-transpiler) to transpile jsx/jsd file into pure js code.
 
 Three ways to try DLight.js out.
 
@@ -16,17 +16,17 @@ create-dlight-app my-first-dlight-app
 ```
 
 2. Clone this repo https://github.com/dlight-js/dlight-vite-template for a quick start.
-3. ?ŒŸ Play around in [codesandbox](https://codesandbox.io/p/sandbox/dlight-vite-quickstart-4tgogd?file=%2Fpackage.json)
+3. ?Ã¥Ã¼ Play around in [codesandbox](https://codesandbox.io/p/sandbox/dlight-vite-quickstart-4tgogd?file=%2Fpackage.json)
 
 ## Render
 
-Mount your dlight component to any html element with id.
+Mount your dlight component to any html element with an id.
 
 ```typescript
 import {render} from "@dlightjs/dlight"
 import {MyComp} from "./MyComp.jsx"
 
-render("app", new MyComp())
+render("app", MyComp)
 ```
 
 ## Write your own component
@@ -228,7 +228,7 @@ export class MyComp extends View {
 
 # JSD
 
-?ŒŸ
+?Ã¥Ã¼
 
 ## Why JSD
 
@@ -478,7 +478,7 @@ Jsd is still under design and if you have a great design proposal or any problem
    ...
    ```
    
-   - ?ŒŸjsd
+   - ?Ã¥Ã¼jsd
    
    ```js
    ...
@@ -508,7 +508,7 @@ Jsd is still under design and if you have a great design proposal or any problem
    ...
    ```
    
-   - ?ŒŸ jsd
+   - ?Ã¥Ã¼ jsd
    
    ```js
    ...
@@ -570,7 +570,7 @@ Jsd is still under design and if you have a great design proposal or any problem
    ...
    ```
    
-   - ?ŒŸjsd
+   - ?Ã¥Ã¼jsd
    
    ```js
    ...
@@ -588,7 +588,7 @@ Jsd is still under design and if you have a great design proposal or any problem
    ...
    ```
 
-?ŒŸ When using jsd, For and If expression are the same with `for` and `if` in javascript!
+?Ã¥Ã¼ When using jsd, For and If expression are the same with `for` and `if` in javascript!
 
 ## Environment
 
@@ -643,7 +643,7 @@ In Dlight, reactivity is simple and efficient!
   
   e.g. `() => { console.log(this.count) }` => won't be listened
   
-  â€? `function() { console.log(this.count) }` => will be listened
+  â€šÃ„? `function() { console.log(this.count) }` => will be listened
 
 - Example
   
@@ -723,7 +723,7 @@ function ShowMeTheName() {
 }
 ```
 
-?ŒŸThis is how we do in dlight:
+?Ã¥Ã¼This is how we do in dlight:
 
 ```jsx
 class ShowMeTheName extends View {
@@ -739,7 +739,7 @@ Yeah! That's right, you don't need to do anything to make a `derived` member rea
 
 So, what is dep-chain?
 
-?ŒŸThis is a term that describes how DLight's reactivity works. All the deps in the chain will be reactive because of the headnode of the chain(which is a state variable) and will be calculate again if the headnode changes, then all html elements' attributes related to them will be changed too.
+?Ã¥Ã¼This is a term that describes how DLight's reactivity works. All the deps in the chain will be reactive because of the headnode of the chain(which is a state variable) and will be calculate again if the headnode changes, then all html elements' attributes related to them will be changed too.
 
 Dep-chain examples:
 
@@ -760,7 +760,7 @@ Dep-chain examples:
    
    `count => countPlus1 => countPlus1Plus1 => null`
    
-   â€? `=> countPlus2 => null`
+   â€šÃ„? `=> countPlus2 => null`
    
    `flag => noFlag => null`
    

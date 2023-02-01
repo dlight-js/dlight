@@ -2,7 +2,11 @@ import {View} from "@dlightjs/dlight"
 
 export {}
 class JK extends View {
-    @PropState ok
+    @Prop ok
+
+    didMount() {
+        console.log(this.ok)
+    }
 
     Body = (
         <div>

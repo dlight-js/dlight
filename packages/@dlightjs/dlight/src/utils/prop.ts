@@ -7,12 +7,17 @@ export function addDLProp(dlNode: CustomNode, tag: string, key: string, propFunc
         (dlNode as any)[key] = propFunc
         return
     }
+    if ((dlNode as any)[`_$$${key}`] !== `_$${tag}` ||
+        !(`_$$${key}` in dlNode)) {
+        // ---- 既不是@Prop，也不是@PropState，直接不传
+        return
+    }
     if ((dlNode as any)[`_$$${key}`] === `_$${tag}`) {
         addOneWayDLProp(dlScope!, dlNode, key, propFunc, listenDeps)
         return
     }
-    
-    if (isTwoWayConnected && `_$$${listenDeps[0]}` in dlNode) {
+
+    if (isTwoWayConnected && `_$$${listenDeps[0]}` in dlScope!) {
         addTwoWayDLProp(dlScope!, dlNode, key, propFunc, listenDeps)
         return
     }

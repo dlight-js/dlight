@@ -30,9 +30,11 @@ class Parser {
         for (let attribute of jsxElement.openingElement.attributes) {
             attribute = attribute as t.JSXAttribute
             const key = attribute.name.name
-            let value = attribute.value
-            value = t.isJSXExpressionContainer(value!) ? generate(value.expression) : generate(value)
-            newNode.kv.props.push({key, value})
+            const value = attribute.value
+            const prop = t.isJSXExpressionContainer(value!) ?
+                this.parseProp(key as string, value.expression) :
+                {key, value: generate(value), nodes: {}}
+            newNode.kv.props.push(prop)
         }
     
         for (let child of jsxElement.children) {
@@ -61,6 +63,22 @@ class Parser {
         this.parserNode.addChild(newNode)
     }
 
+    parseProp(key: string, expression: t.Expression | t.JSXEmptyExpression) {
+        const newAst = parse(generate(expression))
+        const prop: any = {key, nodes: {}}
+
+        traverse(newAst, {
+            JSXElement(path: any) {
+                const id = uid()
+                const newParser = new Parser(path.node)
+                newParser.parse()
+                prop.nodes[id] = newParser.parserNode
+                path.replaceWith(t.stringLiteral(id))
+            }
+        })
+        prop.value = generate(newAst).trim().replaceAll(";", " ")
+        return prop
+    }
     resolveFor(jsxElement: t.JSXElement) {
         const newNode = new ParserNode("For")
         const forValueAttribute = jsxElement.openingElement.attributes
@@ -155,20 +173,7 @@ class Parser {
 
     resolveJSXExpression(jsxElement: t.JSXExpressionContainer) {
         const newNode = new ParserNode("Exp")
-        newNode.kv.nodes = {}
-        const newAst = parse(generate(jsxElement))
-        traverse(newAst, { 
-            JSXElement(path: any) {
-                const id = uid()
-                const newParser = new Parser(path.node)
-                newParser.parse()
-                newNode.kv.nodes[id] = newParser.parserNode
-                path.replaceWith(t.stringLiteral(id))
-            }
-        })
-
-        // TODO 后面是为了转换，看看有没有更好的
-        newNode.kv.content = generate(newAst).trim().slice(1,-1).replace(";","")
+        newNode.kv.props.push(this.parseProp("_$content", jsxElement.expression))
 
         this.parserNode.addChild(newNode)
     }
