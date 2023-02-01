@@ -18,7 +18,7 @@
 
 同时使用jsx和jsd的计数器
 
-# DLight.jsx
+## DLight.jsx
 
 ```jsx
 // -> ./MyComp.jsx
@@ -69,6 +69,8 @@ export class MyComp extends View {
   }
 }
 ```
+
+# Documentation
 
 # Introduction
 
