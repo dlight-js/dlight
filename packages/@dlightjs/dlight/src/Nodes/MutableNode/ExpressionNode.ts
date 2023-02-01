@@ -16,10 +16,6 @@ export class ExpressionNode extends MutableNode {
 
     propFuncs: (() => any)[] = []
 
-    // ---- onUpdateNodes
-    propScope: ((el: HTMLElement, node: DLNode) => boolean) = () => true
-    deepLoopEl = false
-
     constructor(nodeOrFunc: ExpressionNodeType | (() => ExpressionNodeType), dlScope?: CustomNode, listenDeps?: string[]) {
         super(DLNodeType.Expression)
         if (!listenDeps) {
@@ -41,14 +37,8 @@ export class ExpressionNode extends MutableNode {
     }
 
     _$addProp(key: string, valueOrFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]) {
-        const propScope = this.propScope
-        const deepLoopEl = this.deepLoopEl
         // TODO 太复杂，要简化
         const addHtmlNodeProp = (node: HtmlNode) => {
-            const el = node._$el
-            // console.log(el.innerHTML, key)
-            if (!propScope(el, node)) return
-
             if (["willAppear", "didAppear", "willDisappear", "didDisappear"].includes(key)) {
                 (node as HtmlNode)._$addLifeCycle(valueOrFunc, key as any)
                 return
@@ -63,13 +53,6 @@ export class ExpressionNode extends MutableNode {
                 switch (node._$nodeType) {
                     case DLNodeType.HTML:
                         addHtmlNodeProp(node as HtmlNode)
-                        if (deepLoopEl) {
-                            // ---- 如果不是deepLoopEl，只要add自己就行了
-                            loopEls(node._$nodes, (_: HTMLElement, node: HtmlNode) => {
-                                if (node._$nodeType !== DLNodeType.HTML) return
-                                addHtmlNodeProp(node)
-                            }, true)
-                        }
                         break
                     // ---- 这一些都是要bindNodes的，在bindNodes时候给里面的_$nodes进行遍历加prop
                     //      典型的如for循环，newNodes的时候也会bindNodes，也要加这些prop
@@ -80,13 +63,13 @@ export class ExpressionNode extends MutableNode {
                             loopEls(nodes, (_: HTMLElement, node: HtmlNode) => {
                                 if (node._$nodeType !== DLNodeType.HTML) return
                                 addHtmlNodeProp(node)
-                            }, deepLoopEl)
+                            }, false)
                         })
                     default:
                         loopEls(node._$nodes, (_: HTMLElement, node: HtmlNode) => {
                             if (node._$nodeType !== DLNodeType.HTML) return
                             addHtmlNodeProp(node)
-                        }, deepLoopEl)
+                        }, false)
                 }
             }
         })
@@ -154,20 +137,6 @@ export class ExpressionNode extends MutableNode {
         appendNodesWithIndex(this._$nodes, flowIndex, parentEl, parentEl.childNodes.length)
 
         this.onUpdateNodes(prevNodes, this._$nodes)
-    }
-
-    // ---- lifecycles
-    willMount(_node?: ExpressionNode) {}
-    didMount(_node?: ExpressionNode) {}
-    willUnmount(_node?: ExpressionNode) {}
-    didUnmount(_node?: ExpressionNode) {}
-
-    _$addLifeCycle(func: (_node: ExpressionNode) => any, lifeCycleName: "willMount" | "didMount" | "willUnmount" | "didUnmount") {
-        const preLifeCycle = this[lifeCycleName]
-        this[lifeCycleName] = function(_node: ExpressionNode) {
-            func.call(this, this)
-            preLifeCycle.call(this, this)
-        }
     }
 }
 
