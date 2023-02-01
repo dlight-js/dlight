@@ -19,7 +19,7 @@
 // export {}
 
 // // @ts-ignore
-// import {TestTest} from "./test.jsd"
+import {TestTest} from "./test.tsd"
 import {render} from "@dlightjs/dlight";
 // import {MyComp} from "./transpiler.tsd";
 // // @ts-ignore
@@ -38,7 +38,7 @@ import {StackTest} from "./stack.tsd";
 import {TransitionTest} from "./transition.tsd";
 import {Benchmark} from "./benchmark.tsd";
 
-render("app", StackTest)
+render("app", TestTest)
 
 
 // switch (testType) {

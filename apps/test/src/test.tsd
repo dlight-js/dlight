@@ -1,0 +1,62 @@
+import {View, required, render} from "@dlightjs/dlight"
+import {VStack} from "@dlightjs/components";
+
+`
+class New extends View {
+  _$deps = {
+    count: /* @__PURE__ */ new Map()
+  };
+  _$tag = "New";
+  _$$count = 1;
+  get count() {
+    return this._$$count;
+  }
+  set count(value) {
+    if (this._$$count === value)
+      return;
+    this._$$count = value;
+    this._$runDeps("count");
+  }
+  Body = () => {
+    const _$node0 = new _$.HtmlNode("div");
+    _$node0._$addProp("innerHTML", () => this.count, this, ["count"]);
+    const _$node1 = new _$.HtmlNode("button");
+    _$node1._$addProp("innerHTML", "+");
+    _$node1._$addProp("onclick", () => {
+      this.count++;
+    });
+    const _$node2 = new _$.HtmlNode("button");
+    _$node2._$addProp("innerHTML", "-");
+    _$node2._$addProp("onclick", () => {
+      this.count--;
+    });
+    return [_$node0, _$node1, _$node2];
+  };
+}
+render("meme", New)
+`
+
+export class TestTest extends View {
+    @State text = ""
+
+    watchText = function() {
+        console.log(this.text)
+        try {
+            eval(this.text)
+        } catch(e) {
+            console.warn("no", e)
+        }
+
+    }.call(this)
+
+    Body() {
+        textarea()
+            ._width("600px")
+            ._height("700px")
+            .oninput(e=> {
+                this.text = e.target.value
+            })
+       div()
+        .id("meme")
+    }
+}
