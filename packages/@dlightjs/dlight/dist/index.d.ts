@@ -52,7 +52,6 @@ declare class DLNode {
     _$bindNodes(): void;
     constructor(nodeType: DLNodeType);
     _$init(): void;
-    render(parentEl: HTMLElement): void;
 }
 
 declare class EnvNode extends DLNode {
@@ -63,7 +62,6 @@ declare class EnvNode extends DLNode {
     addProps(node: CustomNode): void;
     addPropsToNodes(node: DLNode): void;
     _$init(): void;
-    render(parentEl: HTMLElement): void;
 }
 
 /**
@@ -152,12 +150,12 @@ declare class CustomNode extends DLNode {
     Afterset(): void;
     _$init(): void;
     _$addProp(key: string, propFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[], isTwoWayConnected?: boolean): void;
-    render(parentEl: HTMLElement): void;
-    willMount(_node?: CustomNode): void;
-    didMount(_node?: CustomNode): void;
-    willUnmount(_node?: CustomNode): void;
-    didUnmount(_node?: CustomNode): void;
-    _$addLifeCycle(func: (_node: CustomNode) => any, lifeCycleName: "willMount" | "didMount" | "willUnmount" | "didUnmount"): void;
+    willMount(_els: HTMLElement[], _node: CustomNode): void;
+    didMount(_els: HTMLElement[], _node: CustomNode): void;
+    willUnmount(_els: HTMLElement[], _node: CustomNode): void;
+    didUnmount(_els: HTMLElement[], _node: CustomNode): void;
+    _$addLifeCycle(func: (_els: HTMLElement[], _node: CustomNode) => any, lifeCycleName: "willMount" | "didMount" | "willUnmount" | "didUnmount"): void;
+    render(idOrEl: string | HTMLElement): void;
 }
 
 declare class HtmlNode extends DLNode {
@@ -166,12 +164,11 @@ declare class HtmlNode extends DLNode {
     _$init(): void;
     _$addNodes(nodes: DLNode[]): void;
     _$addProp(key: string, valueOrFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]): void;
-    willAppear(_el?: HTMLElement): any;
-    didAppear(_el?: HTMLElement): any;
-    willDisappear(_el?: HTMLElement): any;
-    didDisappear(_el?: HTMLElement): any;
-    _$addLifeCycle(func: (el?: HTMLElement) => any, lifeCycleName: "willAppear" | "didAppear" | "willDisappear" | "didDisappear"): void;
-    render(parentEl: HTMLElement): void;
+    willAppear(_el: HTMLElement, _node: HtmlNode): any;
+    didAppear(_el: HTMLElement, _node: HtmlNode): any;
+    willDisappear(_el: HTMLElement, _node: HtmlNode): any;
+    didDisappear(_el: HTMLElement, _node: HtmlNode): any;
+    _$addLifeCycle(func: (_el: HTMLElement, _node: HtmlNode) => any, lifeCycleName: "willAppear" | "didAppear" | "willDisappear" | "didDisappear"): void;
 }
 
 declare class MutableNode extends DLNode {
@@ -208,7 +205,6 @@ declare class ForNode extends MutableNode {
     setArray(): void;
     setKeys(): void;
     _$init(): void;
-    render(parentEl: HTMLElement): void;
     getNewNodes(key: any, idx: number): DLNode[];
     /**
      * 没有key这样是优化过的，非常快
@@ -236,12 +232,10 @@ declare class IfNode extends MutableNode {
     _$addCond(condition: () => boolean, node: () => DLNode[], dlScope?: CustomNode, listenDeps?: string[]): void;
     _$init(): void;
     update(parentNode: HtmlNode): void;
-    render(parentEl: HTMLElement): void;
 }
 
 declare class TextNode extends DLNode {
     constructor(textOrFunc: string | (() => string), dlScope?: CustomNode, listenDeps?: string[]);
-    render(parentEl: HTMLElement): void;
 }
 
 type ExpressionNodeType = DLNode | DLNode[];
@@ -250,20 +244,12 @@ declare class ExpressionNode extends MutableNode {
     listenDeps?: string[];
     dlScope?: CustomNode;
     propFuncs: (() => any)[];
-    propScope: ((el: HTMLElement, node: DLNode) => boolean);
-    deepLoopEl: boolean;
     constructor(nodeOrFunc: ExpressionNodeType | (() => ExpressionNodeType), dlScope?: CustomNode, listenDeps?: string[]);
     _$onUpdateNodes(func: () => any): void;
     _$addProp(key: string, valueOrFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]): void;
     formatNodes(nodes: any): any;
     _$init(): void;
-    render(parentEl: HTMLElement): void;
     update(parentNode: HtmlNode): void;
-    willMount(_node?: ExpressionNode): void;
-    didMount(_node?: ExpressionNode): void;
-    willUnmount(_node?: ExpressionNode): void;
-    didUnmount(_node?: ExpressionNode): void;
-    _$addLifeCycle(func: (_node: ExpressionNode) => any, lifeCycleName: "willMount" | "didMount" | "willUnmount" | "didUnmount"): void;
 }
 
 declare function initNodes(nodes: DLNode[] | DLNode[][]): void;
@@ -274,7 +260,9 @@ declare function toEls(nodes: DLNode[]): HTMLElement[];
 
 declare const View: typeof CustomNode;
 declare const required: any;
-declare function render(idOrEl: string | HTMLElement, dl: CustomNode): void;
+declare function render(idOrEl: string | HTMLElement, dl: {
+    new (): CustomNode;
+}): void;
 
 declare const For: any;
 declare const If: any;
