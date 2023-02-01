@@ -14,51 +14,73 @@ Your modern web framework ~
 * 🦋 Beautiful
   * Every line of code in DLight is elegant and beautiful!
 
-# Introduction
+# Preview
 
-DLight uses [vite](https://vitejs.dev/) to construct its apps. We mainly use this vite plugin-`vite-plugin-dlight-transpiler` to transpile jsx/jsd file into pure js code.
+A simple counter with both jsx and jsd, choose it as you like!
+
+## DLight.jsx
+
+```jsx
+// -> ./MyComp.jsx
+import {View} from "@dlightjs/dlight"
+
+export class MyComp extends View {
+  @State count = 0  
+  countPlus1 = this.count + 1 
+
+  Body = (
+    <>
+      <h1>hello, dlight js, jsx</h1>
+      <div> {this.count} </div>
+      <div> {this.countPlus1} </div>
+      <button onclick={() => {this.count++}}>
+        +
+      </button>
+      <button onclick={() => {this.count--}}>
+        -
+      </button>
+    </>
+  )
+}
+```
+
+## DLight.jsd
+
+```js
+// -> ./MyComp.jsd
+import {View} from "@dlightjs/dlight"
+
+export class MyComp extends View {
+  @State count = 0  
+  countPlus1 = this.count + 1  
+
+  Body() {
+    h1("hello, dlight js, jsd")
+    div(this.count)
+    div(this.countPlus1)
+    button("+")
+      .onclick(() => {
+        this.count ++
+      })
+    button("-")
+      .onclick(() => {
+        this.count --
+      })
+  }
+}
+```
+
+# Documentation
+
+# Introduction
 
 Search 🌟 in doc for important concepts and performance result.
 
-- [Quick start](#quick-start)
-  * [Render](#render)
-  * [Write your own component](#write-your-own-component)
-  * [Pass a prop](#pass-a-prop)
-- [JSD](#jsd)
-  * [Why JSD](#why-jsd-)
-  * [Basic concepts](#basic-concepts)
-    + [example](#example)
-    + [tag and node](#tag-and-node)
-    + [expression](#expression)
-    + [prop](#prop)
-    + [children](#children)
-    + [contribution](#contribution)
-- [Internal tags](#internal-tags)
-  * [Array](#array)
-  * [Condition](#condition)
-  * [Environment](#environment)
-- [Reactivity](#reactivity)
-  * [State](#state)
-  * [dep-chain](#dep-chain)
-- [Lifecycle](#lifecycle)
-- [Tutorial](#tutorial)
-  * [Switch-case](#switch-case)
-  * [ToDoApp](#todoapp)
-  * [Benchmark](#benchmark)
-- [Component](#component)
-- [Performance](#performance)
-  * [Test records](#test-records)
-  * [Test results](#test-results)
-  * [Result analysis](#result-analysis)
-- [Advanced](#advanced)
-  * [Nodes](#nodes)
-    + [ForNode](#fornode)
-    + [MutableNode](#mutablenode)
-    + [ExpressionNode](#expressionnode)
-    + [Helper Functions](#helper-functions)
-- [TODO](#todo)
-
 # Quick start
+
+DLight uses [vite](https://vitejs.dev/) to construct its apps. We mainly use this vite plugin-`vite-plugin-dlight-transpiler` to transpile jsx/jsd file into pure js code.
+
+Three ways to try DLight.js out.
 
 1. Use CLI to build a dlight app. (This feature is still in development.)
 
