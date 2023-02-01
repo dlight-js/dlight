@@ -19,6 +19,6 @@ export class Switch extends View {
     }.call(this)
 
     Body() {
-        {{ this.caseChildren }}
+        Exp(this.caseChildren)
     }
 }

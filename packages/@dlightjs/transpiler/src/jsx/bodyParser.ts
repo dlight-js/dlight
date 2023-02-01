@@ -51,7 +51,7 @@ class Parser {
     }
 
     resolveText(jsxElement: t.JSXText) {
-        const newNode = new ParserNode("TextNode")
+        const newNode = new ParserNode("text")
         const value = jsxElement.value.trim()
         // ---- 空的就不要了
         if (value === "") return
@@ -154,7 +154,7 @@ class Parser {
     }
 
     resolveJSXExpression(jsxElement: t.JSXExpressionContainer) {
-        const newNode = new ParserNode("Expression")
+        const newNode = new ParserNode("Exp")
         newNode.kv.nodes = {}
         const newAst = parse(generate(jsxElement))
         traverse(newAst, { 

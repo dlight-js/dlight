@@ -1,0 +1,13 @@
+import {View} from "@dlightjs/dlight";
+import {VStack} from "@dlightjs/components";
+
+export class MyComp extends View {
+    @State themeName = "apple"
+
+    Body() {
+        Expression(this.themeName && @{
+            div(100)
+        })
+
+    }
+}

@@ -13,18 +13,18 @@ export class MutableNode extends DLNode {
 
     onUpdateNodes(_prevNodes: DLNode[], _nodes: DLNode[]) {}
     addOnUpdateNodesFunc(func: (prevNodes: DLNode[], nodes: DLNode[]) => any) {
-        const prevonUpdateNodes = this.onUpdateNodes
+        const prevOnUpdateNodes = this.onUpdateNodes
         this.onUpdateNodes = function(prevNodes: DLNode[], nodes: DLNode[]) {
             func.call(this, prevNodes, nodes)
-            prevonUpdateNodes.call(this, prevNodes, nodes)
+            prevOnUpdateNodes.call(this, prevNodes, nodes)
         }
     }
 
     _$bindNewNodes(nodes: DLNode[]) {
-        this.afterUpdateNewNodes(nodes)
         bindParentNode(nodes, this)
         this._$beforeInitSubNodes()
         initNodes(nodes)
+        this.afterUpdateNewNodes(nodes)
     }
 
 }

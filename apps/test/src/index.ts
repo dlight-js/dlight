@@ -21,6 +21,7 @@
 // // @ts-ignore
 // import {TestTest} from "./test.jsd"
 import {render} from "@dlightjs/dlight";
+// import {MyComp} from "./transpiler.tsd";
 // // @ts-ignore
 // import {SubElement} from "./example/test.jsd"
 // @ts-ignore
@@ -30,12 +31,14 @@ import {render} from "@dlightjs/dlight";
 // import {HH} from "./test.jsx"
 // import {NodeTest} from "./example/features/node.jsd"
 // @ts-ignore
-import {MyComp} from "./test.jsd";
+// import {MyComp} from "./test.jsd";
 import {StackTest} from "./stack.tsd";
-import {TestConcurr} from "./testConcurr.tsd"
-import {RouteTest} from "./Router.tsd";
+// import {TestConcurr} from "./testConcurr.tsd"
+// import {RouteTest} from "./Router.tsd";
+import {TransitionTest} from "./transition.tsd";
+import {Benchmark} from "./benchmark.tsd";
 
-render("app", new RouteTest())
+render("app", StackTest)
 
 
 // switch (testType) {

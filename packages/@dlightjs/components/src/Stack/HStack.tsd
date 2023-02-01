@@ -23,12 +23,12 @@ export class HStack extends View {
 
     Body() {
         div {
-            For (let child of this._$children.map(c=>c())) {
+            For (let child of this._$children) {
                 If (isChildSpacer(child)) {
-                    {{ child }}
+                    Exp(child)
                         ._flexGrow(1)
                 } Else {
-                    {{ child }}
+                    Exp(child)
                         ._flexShrink(0)
                         ._margin(this.margin)
                 }

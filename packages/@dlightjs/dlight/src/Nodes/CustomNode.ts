@@ -1,6 +1,8 @@
 import { EnvNode } from "./EnvNode"
 import { DLNode, DLNodeType } from "./DLNode"
 import { addDLProp } from "../utils/prop";
+import {HtmlNode} from '../Nodes';
+import { loopNodes } from "../utils/nodes";
 
 /**
  * 整个依赖只有两种
@@ -66,7 +68,6 @@ export class CustomNode extends DLNode {
     _$deps: {[key: string]: Map<Object, ()=>any>} = {}
     _$envNodes?: EnvNode[]
     _$derivedPairs?: {[key: string]: string[]}
-    _$children?: DLNode[]
     _$tag: string = ""
 
     Body = () => []
@@ -92,8 +93,19 @@ export class CustomNode extends DLNode {
             func.call(this)
         }
     }
-    _$addChildren(nodes: DLNode[]) {
-        this._$children = nodes
+
+    _$childrenFunc?: (() => DLNode)[]
+    _$_children?: DLNode[]
+    get _$children(): DLNode[] {
+        if (!this._$childrenFunc) return []
+        if (!this._$_children) {
+            this._$_children = this._$childrenFunc.map(c => c())
+        }
+        return this._$_children!
+    }
+
+    _$addChildren(nodeFuncs: (() => DLNode)[]) {
+        this._$childrenFunc = nodeFuncs
     }
 
     // ---- dep
@@ -150,25 +162,57 @@ export class CustomNode extends DLNode {
         addDLProp(this, "prop", key, propFunc, dlScope, listenDeps, isTwoWayConnected)
     }
 
-    render(parentEl: HTMLElement) {
-        this.willMount(this)
-        for (let node of this._$nodes) {
-            node.render(parentEl)
+    // ---- lifecycles
+    willMount(_els: HTMLElement[], _node: CustomNode) {}
+    didMount(_els: HTMLElement[], _node: CustomNode) {}
+    willUnmount(_els: HTMLElement[], _node: CustomNode) {}
+    didUnmount(_els: HTMLElement[], _node: CustomNode) {}
+
+    _$addLifeCycle(func: (_els: HTMLElement[], _node: CustomNode) => any, lifeCycleName: "willMount" | "didMount" | "willUnmount" | "didUnmount") {
+        const preLifeCycle = this[lifeCycleName]
+        this[lifeCycleName] = function(_els: HTMLElement[], _node: CustomNode) {
+            func.call(this, this._$el, this)
+            preLifeCycle.call(this, this._$el, this)
         }
-        this.didMount(this)
     }
 
-    // ---- lifecycles
-    willMount(_node?: CustomNode) {}
-    didMount(_node?: CustomNode) {}
-    willUnmount(_node?: CustomNode) {}
-    didUnmount(_node?: CustomNode) {}
 
-    _$addLifeCycle(func: (_node: CustomNode) => any, lifeCycleName: "willMount" | "didMount" | "willUnmount" | "didUnmount") {
-        const preLifeCycle = this[lifeCycleName]
-        this[lifeCycleName] = function(_node: CustomNode) {
-            func.call(this, this)
-            preLifeCycle.call(this, this)
+    render(idOrEl: string | HTMLElement) {
+        const appNode = new HtmlNode("div")
+        appNode._$addNodes([this])
+        appNode._$addProp("id", typeof idOrEl === "string" ? idOrEl : idOrEl.id)
+        appNode._$init()
+        this.willMount(this._$el, this)
+        loopNodes(this._$nodes, node => {
+            switch (node._$nodeType) {
+                case DLNodeType.HTML:
+                    (node as HtmlNode).willAppear(node._$el, node as HtmlNode)
+                    break
+                case DLNodeType.Custom:
+                    (node as CustomNode).willMount(node._$el, node as CustomNode)
+                    break
+            }
+            return true
+        })
+         
+        // ----
+        if (typeof idOrEl === "string") {
+            idOrEl = document.getElementById(idOrEl)!
         }
+        idOrEl.replaceWith(appNode._$el)
+        // -----
+        loopNodes(this._$nodes, node => {
+            switch (node._$nodeType) {
+                case DLNodeType.HTML:
+                    (node as HtmlNode).didAppear(node._$el, node as HtmlNode)
+                    break
+                case DLNodeType.Custom:
+                    (node as CustomNode).didMount(node._$el, node as CustomNode)
+                    break
+            }
+            return true
+        })
+        this.didMount(this._$el, this)
+        
     }
 }

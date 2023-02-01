@@ -134,13 +134,15 @@ declare class CustomNode extends DLNode {
     _$derivedPairs?: {
         [key: string]: string[];
     };
-    _$children?: DLNode[];
     _$tag: string;
     Body: () => never[];
     constructor();
     _$addAfterset(func: () => any): void;
     _$runDeps(depName: string): void;
-    _$addChildren(nodes: DLNode[]): void;
+    _$childrenFunc?: (() => DLNode)[];
+    _$_children?: DLNode[];
+    get _$children(): DLNode[];
+    _$addChildren(nodeFuncs: (() => DLNode)[]): void;
     _$initDecorators(): void;
     _$addDeps(deps: string[], objectId: Object, func: (newValue?: any) => any): void;
     _$deleteDep(depName: string, objectId: Object): void;
@@ -274,4 +276,15 @@ declare const View: typeof CustomNode;
 declare const required: any;
 declare function render(idOrEl: string | HTMLElement, dl: CustomNode): void;
 
-export { CustomNode, DLNode, DLNodeType, EnvNode, ExpressionNode, ForNode, HtmlNode, IfNode, TextNode, View, bindParentNode, initNodes, loopEls, loopNodes, render, required, toEls };
+declare const For: any;
+declare const If: any;
+declare const ElseIf: any;
+declare const Else: any;
+declare const Env: any;
+declare const Exp: any;
+declare const State: any;
+declare const Prop: any;
+declare const PropState: any;
+declare const EnvState: any;
+
+export { CustomNode, DLNode, DLNodeType, Else, ElseIf, Env, EnvNode, EnvState, Exp, ExpressionNode, For, ForNode, HtmlNode, If, IfNode, Prop, PropState, State, TextNode, View, bindParentNode, initNodes, loopEls, loopNodes, render, required, toEls };

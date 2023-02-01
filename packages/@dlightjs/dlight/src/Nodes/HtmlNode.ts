@@ -1,6 +1,7 @@
 import { CustomNode } from './CustomNode';
 import { DLNode, DLNodeType } from './DLNode';
 import { EnvNode } from './EnvNode';
+import {appendEls} from './utils';
 
 
 export class HtmlNode extends DLNode {
@@ -12,10 +13,9 @@ export class HtmlNode extends DLNode {
     }
     _$init(): void {
         this._$bindNodes()
-        for (let node of this._$nodes) {
-            node.render(this._$el)
-        }
+        appendEls(this, this._$nodes)
     }
+
     _$addNodes(nodes: DLNode[]) {
         this._$nodes = nodes
     }
@@ -28,7 +28,7 @@ export class HtmlNode extends DLNode {
         } else if (key === "innerText") {
             func = (newValue: any) => this._$el.innerText = newValue
         } else {
-            func = (newValue: any) => (this._$el as any)[key] = newValue
+            func = (newValue: any) => this._$el[key] = newValue
         }
 
         if (!listenDeps) {
@@ -50,20 +50,15 @@ export class HtmlNode extends DLNode {
     }
 
     // ---- lifecycles
-    willAppear(_el?: HTMLElement): any {}
-    didAppear(_el?: HTMLElement): any {}
-    willDisappear(_el?: HTMLElement): any {}
-    didDisappear(_el?: HTMLElement): any {}
-    _$addLifeCycle(func: (el?: HTMLElement) => any, lifeCycleName: "willAppear" | "didAppear" | "willDisappear" | "didDisappear") {
+    willAppear(_el: HTMLElement, _node: HtmlNode): any {}
+    didAppear(_el: HTMLElement, _node: HtmlNode): any {}
+    willDisappear(_el: HTMLElement, _node: HtmlNode): any {}
+    didDisappear(_el: HTMLElement, _node: HtmlNode): any {}
+    _$addLifeCycle(func: (_el: HTMLElement, _node: HtmlNode) => any, lifeCycleName: "willAppear" | "didAppear" | "willDisappear" | "didDisappear") {
         const preLifeCycle = this[lifeCycleName]
-        this[lifeCycleName] = function(el?: HTMLElement) {
-            preLifeCycle.call(this, el)
-            return func.call(this, el)
+        this[lifeCycleName] = function(_el: HTMLElement, _node: HtmlNode, ..._: any) {
+            preLifeCycle.call(this, _el, _node)
+            return func.call(this, _el, _node)
         }
-    }
-    render(parentEl: HTMLElement) {
-        this.willAppear(this._$el)
-        parentEl.appendChild(this._$el)
-        this.didAppear(this._$el)
     }
 }

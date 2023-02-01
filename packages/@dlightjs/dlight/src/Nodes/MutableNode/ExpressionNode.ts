@@ -46,7 +46,13 @@ export class ExpressionNode extends MutableNode {
         // TODO 太复杂，要简化
         const addHtmlNodeProp = (node: HtmlNode) => {
             const el = node._$el
+            // console.log(el.innerHTML, key)
             if (!propScope(el, node)) return
+
+            if (["willAppear", "didAppear", "willDisappear", "didDisappear"].includes(key)) {
+                (node as HtmlNode)._$addLifeCycle(valueOrFunc, key as any)
+                return
+            }
             // ---- 不覆盖
             if (key[0] === "_" && (node._$el.style[key.slice(1)]??"").trim() !== "") return
             if (key[0] !== "_" && node._$el[key] !== undefined) return
@@ -131,13 +137,6 @@ export class ExpressionNode extends MutableNode {
 
     }
 
-    render(parentEl: HTMLElement) {
-        this.willMount(this)
-        for (let node of this._$nodes) {
-            node.render(parentEl)
-        }
-        this.didMount(this)
-    }
 
     update(parentNode: HtmlNode) {
         const prevNodes = this._$nodes

@@ -69,11 +69,5 @@ export class DLNode {
     }
 
     _$init() {}
-
-    // @ts-ignore
-    render(parentEl: HTMLElement) {
-        // ---- 同级别的append上去，不存在递归
-    }
-
 }
 
