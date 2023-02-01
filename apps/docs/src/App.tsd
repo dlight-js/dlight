@@ -1,20 +1,20 @@
 import {View} from "@dlightjs/dlight";
 import {RouterSpace, Route} from "@dlightjs/components";
-import {Header} from "./Header.tsd";
-import {Menu} from "./Menu.tsd";
-import {GuidePage} from "./GuidePage.tsd";
 import {HStack} from "@dlightjs/components/src";
+import {HomePage} from "./pages/HomePage.tsd";
+import {GuidePage} from "./pages/GuidePage.tsd";
+import {Header} from "./components/Header.tsd";
 
 
 
-export class HomePage extends View {
+export class App extends View {
     @State navigator
 
     Body() {
         Header({navigator: this.navigator})
         RouterSpace({navigator: this.navigator}) {
             Route(".") {
-                div("home")
+                HomePage()
             }
             Route("guide") {
                 GuidePage()

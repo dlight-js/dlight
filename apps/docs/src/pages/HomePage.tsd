@@ -1,0 +1,50 @@
+import {View} from "@dlightjs/dlight";
+import {RouterSpace, Route, HStack, Spacer, VStack} from "@dlightjs/components";
+import {marked} from "marked";
+import {menuListNameMap} from "../menuConfig";
+import {Transition} from "@dlightjs/components";
+
+const width = window.innerWidth;
+const height = window.innerHeight
+
+class FeatureContent extends View {
+    Body() {
+        div{
+            VStack{
+                div('Beautiful')
+                div('Every line of code in DLight is elegant and beautiful!')
+            }
+            .alignment("top")
+        }
+    }
+}
+
+export class HomePage extends View {
+    didMount() {
+        console.log(width)
+    }
+
+    Body() {
+        div{
+            div("DLight")
+                ._fontSize("100px")
+            Transition{
+                FeatureContent()
+            }
+            .duration({
+                firstAppear: 1
+            })
+            .appearWith({
+                transform: "translateX(300px)"
+            })  
+
+        }
+            ._display("flex")
+            ._justifyContent("center")
+            ._alignItems("center")
+            // ._width(width)
+            ._flex("1")
+            ._height(`${height}px`)
+            ._backgroundColor("rgba(199, 188, 68, 0.3)")
+    }
+}

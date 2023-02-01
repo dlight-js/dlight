@@ -1360,6 +1360,24 @@ export class Benchmark extends View {
 
 We use monorepo to manage this project. Inside `packages/components`,  we provide some handy custom component like `HStack` /  `VStack` /  `ZStack` /  `Switch` /  `Transition` / ....
 
+## Transition
+
+| Props         | Description                    |                                                 |                                                              |
+| ------------- | ------------------------------ | ----------------------------------------------- | ------------------------------------------------------------ |
+| duration      | css.transition -duration       | 1                                               | 1s                                                           |
+|               |                                | el=>2                                           | 根据每一个Element给予不同的值                                |
+|               |                                | {appear:1, lastDisappear: el=>el.dataset.index} | 给予每个阶段不同的值。<br />六个阶段 "firstAppear", "appear","move", "exist", "disappear", "lastDisappear" |
+| easing        | css.transition-timing-function | 同上                                            |                                                              |
+| delay         | css.transition-delay           | 同上                                            |                                                              |
+| appearWith    | 怎么出来的                     | {opacity: 0}                                    |                                                              |
+| disappearWith | 怎么消失的                     | {opacity: 0}                                    |                                                              |
+| movable       | 元素移动要不要出现动画         | true                                            |                                                              |
+|               |                                |                                                 |                                                              |
+
+
+
+
+
 Feel free to create your own dlight component library!
 
 # Performance

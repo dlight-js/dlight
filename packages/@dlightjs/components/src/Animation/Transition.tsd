@@ -1,7 +1,7 @@
 import {View, Exp, Prop} from "@dlightjs/dlight"
 
 type TransitionPropSub<T> = T | ((el: HTMLElement) => T)
-type Timing = "appear" | "firstAppear" | "move" | "disappear" | "lastDisappear"
+type Timing = "appear" | "firstAppear" | "move" | "exist" | "disappear" | "lastDisappear"
 type TransitionProp<T> = TransitionPropSub<T> | ({
     [key: Timing]: TransitionPropSub<T>
 })
@@ -30,12 +30,14 @@ export class Transition extends View {
             prop.appear = value.appear ?? defaultValue
             prop.firstAppear = value.firstAppear ?? prop.appear
             prop.disappear = value.disappear ?? defaultValue
+            prop.exist = value.exist ?? defaultValue
             prop.lastDisappear = value.lastDisappear ?? prop.disappear
             prop.move = value.move ?? defaultValue
         } else {
             prop.firstAppear = value
             prop.appear = value
             prop.disappear = value
+            prop.exist = value
             prop.lastDisappear = value
             prop.move = value
         }
@@ -45,6 +47,7 @@ export class Transition extends View {
         prop.firstAppear = toValue(prop.firstAppear) ?? prop.appear
         prop.disappear = toValue(prop.disappear) ?? defaultValue
         prop.lastDisappear = toValue(prop.lastDisappear) ?? prop.disappear
+        prop.exist = toValue(prop.exist) ?? defaultValue
         prop.move = toValue(prop.move) ?? defaultValue
 
         return prop
@@ -163,7 +166,6 @@ export class Transition extends View {
                 const prevStyle  = el.style.cssText
                 changeElStyle(el, this.appearWith)
 
-                const firstRender = this.firstRender
                 requestAnimationFrame(() => {
                     el.setAttribute("style", prevStyle)
                     const listener =() => {
@@ -179,12 +181,11 @@ export class Transition extends View {
                         // ---- 为了保护transitionend被打断，触发不了导致stopTrigger永远为true
                         this.prevElInfos.get(el).stopTrigger = false
                     }, this._duration(el).appear * 1000)
-                    if (firstRender) {
-                        // ---- 这是对于firstRender而言的，重新设置transition
-                        requestAnimationFrame(() => {
-                            el.style.transition = this.transition(el, "appear")
-                        })
-                    }
+
+                    // ---- 重新设置transition变成exist
+                    requestAnimationFrame(() => {
+                        el.style.transition = this.transition(el, "exist")
+                    })
                 })
 
             })

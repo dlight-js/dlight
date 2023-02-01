@@ -1,7 +1,6 @@
 import {View} from "@dlightjs/dlight";
 import {HStack} from "@dlightjs/components";
 import {Spacer} from "@dlightjs/components";
-import {LogoTitle} from "./Menu.tsd";
 
 class NavButton extends View {
     @Prop navigator
@@ -28,11 +27,32 @@ class NavButton extends View {
     }
 }
 
+export class LogoTitle extends View {
+    @Prop navigator
+
+    Body() {
+        div
+        {
+            HStack
+            {
+                div("🧬")
+                div("Dlight")
+                    ._fontWeight("3px")
+                    ._fontSize("20px")
+            }
+        }
+        .onclick(()=>{
+            this.navigator.to("./")
+        })
+    }
+}
+
 export class Header extends View {
     @Prop navigator
     Body() {
         HStack{
             LogoTitle()
+                .navigator(this.navigator)
             Spacer()
             NavButton("Guide")
                 .navigator(this.navigator)

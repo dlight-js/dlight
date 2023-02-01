@@ -1,9 +1,9 @@
 import {View} from "@dlightjs/dlight";
-import {RouterSpace, Route} from "@dlightjs/components";
-import {Menu} from "./Menu.tsd";
+import {HStack, Spacer, VStack, RouterSpace, Route} from "@dlightjs/components";
 import {marked} from "marked";
-import {HStack, Spacer, VStack} from "@dlightjs/components/src";
-import {menuListNameMap} from "./menuConfig";
+import {Menu} from "../components/Menu.tsd";
+import {menuListNameMap} from "../menuConfig";
+
 
 class GuideButton extends View {
     @Prop type
@@ -64,7 +64,7 @@ class GuideContent extends View {
 
     Body() {
         div{
-            div(this.content)
+            div({innerHTML: this.content})
                 ._width("100%")
                 // ._width("calc(100% - 420px)")
             HStack{
@@ -85,7 +85,7 @@ export class GuidePage extends View {
 
     Body() {
         HStack{
-            Environment({navigator: this.navigator}) {
+            Env({navigator: this.navigator}) {
                 Menu({prevContent: this.prevContent, nextContent: this.nextContent})
             }
             RouterSpace({navigator: this.navigator}) {
