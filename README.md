@@ -1,11 +1,13 @@
 # 🧬 DLight.js
 
-DLight.js is a coooooool web framework!
+Your modern web framework ~
 
 * ⚡️ Performant
-  * Dlight optimizes codes in compiling stage and directly manipulates DOM. Dlight is even faster than vanilla JavaScript code(because sometimes you may not know how to write a fully optimized one).
+  * Dlight enhances code performance at compile time by directly manipulating the DOM, which makes the execution speed of the code as close to vanilla JavaScript as possible, even with limited optimization knowledge.
+* Light
+  * DLight is only 12KB.
 * 🚲 Simple
-  * No more complex hooks towards reactivity, only use @State, and dep-chain will help you do the rest.
+  * No more complex hooks towards reactivity. Just use @State, and dep-chain will help you do the rest.
   * Dlight provides context managing power by default.
 * 🍼 Friendly
   * Support jsx and jsd(our new domain syntax) to help you write everything in js.
@@ -60,7 +62,7 @@ Search 🌟 in doc for important concepts and performance result.
 
 1. Use CLI to build a dlight app. (This feature is still in development.)
 
-``` shell
+```shell
 npm install -g @dlightjs/cli
 create-dlight-app my-first-dlight-app
 ```
@@ -79,7 +81,7 @@ import {MyComp} from "./MyComp.jsx"
 render("app", new MyComp())
 ```
 
-## Write your own component 
+## Write your own component
 
 First thing first, DLight is not using template/functional components. It uses Class component instead, but not like React Class component. There're two ways to write a component.
 
@@ -108,12 +110,10 @@ export class MyComp extends View {
     </>
   )
 }
-
-
 ```
 
 2. Our new `.jsd` file
-
+   
    We create a new domain syntax in `(class xx extends View).Body`. It is pretty similar to SwiftUI syntax. We will walk you through in the next section. Here's an example with the same output of the previous `.jsx` file.
 
 ```js
@@ -138,19 +138,17 @@ export class MyComp extends View {
       })
   }
 }
-
 ```
 
 ## Pass a prop
 
 * Dlight use @Prop to identify if this class member is a prop.
-
 1. A reactive prop that changes with its passer's states.
-
+   
    `<div id="other-comp" />` in `MyOtherComp`  will change its innerText if `count` in `MyComp `changes.
-
+   
    * jsx
-
+   
    ```jsx
    import {View} from "@dlightjs/dlight"
    
@@ -164,7 +162,7 @@ export class MyComp extends View {
    
    export class MyComp extends View {
      @State count = 0
-     
+   
      Body = (
        <>
          <button onclick={() => {this.count++}}>
@@ -177,51 +175,48 @@ export class MyComp extends View {
        </>
      );
    }
-   
-   
    ```
 
-   * jsd
+```
+* jsd
 
-   ```jsx
-   import {View, required} from "@dlightjs/dlight"
-   
-   class MyOtherComp extends View {
-     // "required" is just `const required = undefined as any`, we use this to identify that this prop must be passed
-     @Prop countProp = required 
-   
-     Body() {
-       div(this.countProp)
-         .id("other-comp")
-     }
-   }
-   
-   export class MyComp extends View {
-     @State count = 0
-     
-     Body() {
-       button("+")
-         .onclick(() => {
-           this.count ++
-         })
-       button("-")
-         .onclick(() => {
-           this.count --
-         })
-       MyOtherComp({countProp: this.count})
-     }
-   }
-   
-   
-   ```
+```jsx
+import {View, required} from "@dlightjs/dlight"
+
+class MyOtherComp extends View {
+  // "required" is just `const required = undefined as any`, we use this to identify that this prop must be passed
+  @Prop countProp = required 
+
+  Body() {
+    div(this.countProp)
+      .id("other-comp")
+  }
+}
+
+export class MyComp extends View {
+  @State count = 0
+
+  Body() {
+    button("+")
+      .onclick(() => {
+        this.count ++
+      })
+    button("-")
+      .onclick(() => {
+        this.count --
+      })
+    MyOtherComp({countProp: this.count})
+  }
+}
+```
 
 2. A reactive prop that changes with its passer's states and its passer's states change with it at the same time, which means these two props "bind" together.
-
+   
    `<div id="mycomp" />` in `MyComp`  will change its innerText if `countPropState` in `MyOtherComp `changes.
-
+   
    * jsx
    * * 
-
+   
    ```jsx
    import {View, required} from "@dlightjs/dlight"
    
@@ -242,7 +237,7 @@ export class MyComp extends View {
    
    export class MyComp extends View {
      @State count = 0
-     
+   
      Body = (
        <>
          <div id="mycomp">{this.count}</div>
@@ -251,9 +246,9 @@ export class MyComp extends View {
      );
    }
    ```
-
+   
    * jsd
-
+   
    ```jsx
    import {View, required} from "@dlightjs/dlight"
    
@@ -269,20 +264,19 @@ export class MyComp extends View {
          .onclick(() => {
            this.countPropState --
          })
-       
+   
      }
    }
    
    export class MyComp extends View {
      @State count = 0
-     
+   
      Body() {
        div(this.cout)
          .id("mycomp")
        MyOtherComp({countPropState: this.count})
      }
    }
-   
    ```
 
 # JSD
@@ -317,8 +311,6 @@ Body() {
 ...
 ```
 
-
-
 ### tag and node
 
 We call strings like `div` /  `MyOtherComp` /  `If` in `Body` as tags. And it will compile to a node in the transpiler stage. We have these following protocols.
@@ -328,7 +320,7 @@ We call strings like `div` /  `MyOtherComp` /  `If` in `Body` as tags. And it wi
 2. Tag that starts with a uppercase letter is a custom component tag, e.g. `MyComp` `MyOtherComp`
 
 3. Tag that starts with a uppercase letter maybe an internal tag. 
-
+   
    Current internal tag includes: `If` `ElseIf` `Else` `For` `Environment` 
 
 We also have invisible tag like expression and text
@@ -390,30 +382,31 @@ Three ways to set a prop, the 1st and 2nd ones are equal.
 For different tags, prop means different things.
 
 1. Html tag
-
+   
    * 1/2 prop means html element attributes.
-
+     
      e.g. `div("hello").id("hello-div")` =>` el.id = "hello-div"`
-
+   
    * 1/2 prop that starts with a "_" is a shorthand of style attributes.
-
+     
      e.g. `div("hello")._color("red")` =>` el.style.color = "red"`
-
+   
    * 3 prop sets html element innerText and will be replaced by its children.
-
+     
      e.g. `div("hello")` =>` el.style.innerText = "hello"`
-
+     
      ```js
      div("this will not show") {
        div("because I'm its child, I overwrite its innerText")
      }
+     ```
 
 2. Custom component
-
+   
    * 1/2 prop means custom component props as `Quick start - pass a prop` section describes.
-
+   
    * 3 prop set the custom component prop named  `_$content`
-
+     
      ```js
      import {View, required} from "@dlightjs/dlight"
      
@@ -430,11 +423,10 @@ For different tags, prop means different things.
          MyOtherComp("hello world")
        }
      }
-     
      ```
 
 3. Internal tag
-
+   
    * See `Features` section  
 
 ### children
@@ -446,15 +438,15 @@ In jsd, we don't need a empty tag like `<></>` to wrap multiple elements, jsd wi
 For different tags, children means different things.
 
 1. Html tag
-
+   
    * Children are it's HTMLNodes.
 
 2. Custom component
-
+   
    * Children will be stored in `class._$children`, you need to manually control it if you want to use them.
-
+     
      e.g. let's write an HOC that wraps all childnodes with a red div:
-
+     
      ```js
      import {View, required} from "@dlightjs/dlight"
      
@@ -476,10 +468,10 @@ For different tags, children means different things.
          }
        }
      }
-     
      ```
 
 3. Internal tag
+   
    * See `Features` section  
 
 ### contribution
@@ -491,9 +483,9 @@ Jsd is still under design and if you have a great design proposal or any problem
 ## Array
 
 1. You can first use unoptimized array map-out to create an array of elements, but once the array is changed even with a single item of it, the whole array of elements will be removed and recreated. So don't use it unless you know what you're doing.
-
+   
    * jsx
-
+   
    ```jsx
    ...
    Body = (
@@ -503,9 +495,9 @@ Jsd is still under design and if you have a great design proposal or any problem
    )
    ...
    ```
-
+   
    * Jsd
-
+   
    ```js
    ...
    Body() {
@@ -520,13 +512,13 @@ Jsd is still under design and if you have a great design proposal or any problem
    ```
 
 2. Use internal supported For node for optimization. 
-
+   
    You can use any "of" expression you write in js `for` loop. 
-
+   
    e.g. -> `let item of array` / `let [key, item] of array.entries()` / `let {key1, key2} of array` / ...
-
+   
    * jsx
-
+   
    ```jsx
    ...
    Body = (
@@ -538,9 +530,9 @@ Jsd is still under design and if you have a great design proposal or any problem
    )
    ...
    ```
-
+   
    * 🌟jsd
-
+   
    ```js
    ...
    Body() {
@@ -552,11 +544,11 @@ Jsd is still under design and if you have a great design proposal or any problem
    }
    ...
    ```
-
+   
    Also, we can use a `key` prop to bind the element with the key.
-
+   
    * jsx
-
+   
    ```jsx
    ...
    Body = (
@@ -568,9 +560,9 @@ Jsd is still under design and if you have a great design proposal or any problem
    )
    ...
    ```
-
+   
    * 🌟 jsd
-
+   
    ```js
    ...
    Body() {
@@ -583,13 +575,12 @@ Jsd is still under design and if you have a great design proposal or any problem
    ...
    ```
 
-
 ## Condition
 
 1. You can first use ( condition && YourElement ) just like you always do in react.
-
+   
    * jsx
-
+   
    ```jsx
    ...
    Body = (
@@ -599,9 +590,9 @@ Jsd is still under design and if you have a great design proposal or any problem
    )
    ...
    ```
-
+   
    * jsd
-
+   
    ```js
    ...
    Body() {
@@ -611,9 +602,9 @@ Jsd is still under design and if you have a great design proposal or any problem
    ```
 
 2. Use internal supported If/ElseIf/Else node for break. 
-
+   
    * jsx
-
+   
    ```jsx
    ...
    Body = (
@@ -631,9 +622,9 @@ Jsd is still under design and if you have a great design proposal or any problem
    )
    ...
    ```
-
+   
    * 🌟jsd
-
+   
    ```js
    ...
    Body() {
@@ -649,7 +640,6 @@ Jsd is still under design and if you have a great design proposal or any problem
    }
    ...
    ```
-
 
 🌟 When using jsd, For and If expression are the same with `for` and `if` in javascript!
 
@@ -703,15 +693,15 @@ In Dlight, reactivity is simple and efficient!
 * Use @State to mark a class member as reactive variable. Whenever the variable is set, all the attributes in a html element that uses this variable will recalculate the attribute(not rerender the element, it has much more fine granularity!)
 
 * One exception -- if you're using an arrow function to wrap this variable, dlight will consider it as a callback like `onclick`, which has no need to reset this attribute, so the reactivity will be dropped in this attribute. If somehow you still want dlight to listen inside it, use `function` instead of `arrow function`.
-
+  
   e.g. `() => { console.log(this.count) }` => won't be listened
-
+  
   ​    `function() { console.log(this.count) }` => will be listened
 
 * Example 
-
+  
   * jsx
-
+  
   ```jsx
   import {View} from "@dlightjs/dlight"
   
@@ -730,29 +720,28 @@ In Dlight, reactivity is simple and efficient!
       </>
     )
   }
-  
-  
   ```
 
-  * jsd
+```
+* jsd
 
-  ```js
-  export class MyComp extends View {
-    @State count = 0
-    
-    Body() {
-      button("+")
-        .onclick(() => {
-          this.count ++
-        })
-      button("-")
-        .onclick(() => {
-          this.count --
-        })
-      div(this.count)  // everytime you click the button, this div's innerText will be reset
-    }
+```js
+export class MyComp extends View {
+  @State count = 0
+
+  Body() {
+    button("+")
+      .onclick(() => {
+        this.count ++
+      })
+    button("-")
+      .onclick(() => {
+        this.count --
+      })
+    div(this.count)  // everytime you click the button, this div's innerText will be reset
   }
-  ```
+}
+```
 
 ## dep-chain
 
@@ -768,10 +757,9 @@ function ShowMeTheName() {
   const [lastName, setLastName] = useState('Doe')
 
   const fullName = useMemo(() => `${firstName} ${lastName}`, [firstName, lastName])
-  
+
   return <div>{fullName}</div>
 }
-
 ```
 
 How solid would do:
@@ -783,7 +771,7 @@ function ShowMeTheName() {
 
   // use "createMemo" to avoid re-calculate
   const fullName = createMemo(() => `${firstName()} ${lastName()}`)
-  
+
   return <div>{fullName()}</div>
 }
 ```
@@ -795,7 +783,7 @@ class ShowMeTheName extends View {
   @State firstName = 'John'
   @State lastName = 'Doe'
   fullName = `${this.firstName} ${this.lastName}`
-  
+
   Body = <div>{this.fullName}</div>
 }
 ```
@@ -809,11 +797,11 @@ So, what is dep-chain?
 Dep-chain examples:
 
 1. Chains
-
+   
    `count => null`
-
+   
    `flag => null`
-
+   
    ```js
    class DepChainExample1 extends View {
      @State count = 0
@@ -822,13 +810,13 @@ Dep-chain examples:
    ```
 
 2. Chains
-
+   
    `count => countPlus1 => countPlus1Plus1 => null`
-
+   
    ​           `=> countPlus2 => null` 
-
+   
    `flag => noFlag => null`
-
+   
    ```js
    class DepChainExample2 extends View {
      @State count = 0
@@ -842,9 +830,9 @@ Dep-chain examples:
    ```
 
 3. Chains
-
+   
    `count => null `
-
+   
    ```js
    class DepChainExample3 extends View {
      @State count = 0
@@ -856,9 +844,9 @@ Dep-chain examples:
    ```
 
 4. Chains
-
+   
    `count => logCount => null`
-
+   
    ```js
    class DepChainExample4 extends View {
      @State count = 0
@@ -870,9 +858,9 @@ Dep-chain examples:
    ```
 
 5. Use dep-chain to perform `useEffect`?
-
+   
    DLight won't have a lot of circumstances that require a "side effect" because `derived` variable can solve most of the case. However, if you still want to use it to listen changes or for other specific reason, you can try this:
-
+   
    ```js
    class DepChainExample5 extends View {
      @State count = 0
@@ -885,11 +873,11 @@ Dep-chain examples:
    ```
 
 6. My variable is a result of a function, how to make it reactive?
-
+   
    There're two ways to do it. Always remember the arrow function is the only exception, any other expression will automatically collect deps if you use one of the variables in the dep-chain
-
+   
    1. Just like how we implement `useEffect`
-
+   
    ```js
    class DepChainExample6_1 extends View {
      @State count = 0
@@ -900,9 +888,9 @@ Dep-chain examples:
      }.call(this)
    }
    ```
-
+   
    2. Split the function out
-
+   
    ```js
    class DepChainExample6_1 extends View {
      @State count = 0
@@ -919,11 +907,11 @@ Dep-chain examples:
 In DLight, we provide real lifecycles for both custom components and html elements.
 
 1. Html elements
-
+   
    `willAppear` / `didAppear`  / `willDisappear`  / `didDisappear` 
-
+   
    * The calling timing can be described as the following pseudocode:
-
+     
      ```js
      // appear
      el.willAppear()
@@ -934,52 +922,51 @@ In DLight, we provide real lifecycles for both custom components and html elemen
      el.willDisappear()
      el.remove()
      el.didDisappear()
-     
      ```
-
+     
      Dlight only calls these hooks when the element is created or removed. That's why we say it is "real" lifecycles.
-
+   
    * Usage 
-
+     
      * jsx
-
+     
      ```jsx
      ...
      Body = (
-     	<div 
-       	willAppear={() => {
+         <div 
+           willAppear={() => {
            console.log("I will appear")
-     		}}
+             }}
          didAppear={el => {
            console.log(`I just appeared, I am ${el}`)
-     		}}
+             }}
        />
      )
      ...
      ```
-
+     
      * jsd
-
+     
      ```js
      ...
      Body() {
        div()
-       	.willAppear(() => {
+           .willAppear(() => {
            console.log("I will appear")
-       	})
-       	.didAppear(el => {
+           })
+           .didAppear(el => {
            console.log(`I just appeared, I am ${el}`)
-     		})
+             })
      }
      ...
      ```
 
 2. Custom components
-
+   
    `willMount` / `didMount`  / `willUnmount`  / `didUnmount` 
-
+   
    * The calling timing can be described as the following pseudocode:
-
+     
      ```js
      // mount
      MyComp.willMount()
@@ -993,11 +980,10 @@ In DLight, we provide real lifecycles for both custom components and html elemen
      MyComp.allHTMLEls.didDisappear()
      MyComp.didUnmount()
      delete MyComp
-     
      ```
-
+   
    * Usage
-
+     
      ```jsx
      class MyComp extends View {
        didMount() {
@@ -1015,8 +1001,6 @@ After all these cool features of DLight listed above, let dive right into it!
 
 ps: we use jsd in these tutorials, jsx is just the same and we also provide both code samples in /apps/example and codesandbox.
 
-
-
 ## Switch-case
 
 ```js
@@ -1024,13 +1008,13 @@ ps: we use jsd in these tutorials, jsx is just the same and we also provide both
 import {View, required} from "@dlightjs/dlight"
 
 export class Switch extends View {
-    @Prop _$content = required	// _$content is the default prop of Switch(xxx)
+    @Prop _$content = required    // _$content is the default prop of Switch(xxx)
 
     caseChildren = function() {
         let targetNodes = []
         for (let child of this._$children) {
             // if the tag name is not "Case" or "Default", 
-          	// display it no matter the condition
+              // display it no matter the condition
             if (["Default", "Case"].includes(child._$tag)) {
                 targetNodes.push(child)
                 continue
@@ -1047,7 +1031,6 @@ export class Switch extends View {
         {{ this.caseChildren }}
     }
 }
-
 ```
 
 ```js
@@ -1056,8 +1039,8 @@ import {View, required} from "@dlightjs/dlight";
 
 export class Case extends View {
     @Prop _$content = required
-  	// We don't add anything to display anything in Case.Body
-  	// Because in Switch.Body, we find the matched Case._$children and display it directly
+      // We don't add anything to display anything in Case.Body
+      // Because in Switch.Body, we find the matched Case._$children and display it directly
 }
 ```
 
@@ -1067,7 +1050,6 @@ import {View} from "@dlightjs/dlight";
 
 // nothing here, we only need to know this component's tag name is "Default"
 export class Default extends View {}
-
 ```
 
 Usage
@@ -1080,7 +1062,7 @@ import {Default} from "./default.jsd"
 
 export class MyComp extends View {
     @State count = 0
- 
+
     Body() {
       Switch(this.count) {
         Case(0) {
@@ -1102,11 +1084,11 @@ export class MyComp extends View {
 🌟
 
 * jsd
-
+  
   [Codesandbox](https://codesandbox.io/p/sandbox/dlight-vite-quickstart-4tgogd)
 
 * jsx
-
+  
   [Codesandbox](https://codesandbox.io/p/sandbox/dlight-todoapp-jsd-i8se5e)
 
 ```js
@@ -1133,7 +1115,7 @@ export class ToDoApp extends View {
     h2(this.unfinishedNum === 0 
        ? "You've finished all tasks!" 
        : `Remaining ${this.unfinishedNum} tasks to do.`)
- 
+
     For(let task of this.tasks)[task] {
       TaskCard({task})
         .deleteTask(() => {
@@ -1166,7 +1148,7 @@ export class TaskAdder extends View {
         this.inputText = e.target.value  // record "inputText" when type in the input
       })
       .element(this.inputEl)  // set "inputEl" as this element's HTMLElement
-    
+
     button("add")
       .onclick(() => {
         this.tasks = [...this.tasks, {name: this.inputText, finished: false}]
@@ -1186,7 +1168,7 @@ export class TaskCard extends View {
   @Prop task = required
   @Prop deleteTask = required
   @Prop toggleBox = required
-  
+
   // lifecycle
   didMount() {
     console.log(`[didMount] Loaded task named ${this.task.name}, it is${this.task.finished?"":" not"} finished.`)
@@ -1208,7 +1190,7 @@ export class TaskCard extends View {
       span(this.task.name)
         ._margin("0 5px")
         ._textDecoration(this.task.finished ? "line-through" : "none")
-        
+
       button("delete")
         .onclick(this.deleteTask)
     }
@@ -1304,7 +1286,7 @@ export class Benchmark extends View {
         for (let i=0;i<this.rows.length;i+=10) {
             this.rows[i].label += "!!! "
         }
-        
+
         this.rows = [...this.rows]
     }
 
@@ -1368,8 +1350,8 @@ Feel free to create your own dlight component library!
 
 ## Test records
 
-| Test time | Environment                                                  | Test info                                    | DLight.js version |
-| --------- | ------------------------------------------------------------ | -------------------------------------------- | ----------------- |
+| Test time | Environment                                                                  | Test info                                    | DLight.js version |
+| --------- | ---------------------------------------------------------------------------- | -------------------------------------------- | ----------------- |
 | 1/26/2023 | MacBook Air (M1, 2020) - 16G - macOS Monterey 12.4<br />Chrome 109.0.5414.87 | Warm ups: 5<br />Run: 5<br />Result: average | 0.1.1             |
 
 ## Test results
@@ -1386,16 +1368,16 @@ Feel free to create your own dlight component library!
 | Append 1,000 to a table of 10,000 rows | 88.35           | 74.97       | 0.85      |
 | Clear a table with 1,000 rows          | 12.65           | 12.82       | 1.01      |
 
-## Result analysis 
+## Result analysis
 
 1. 🌟Creat & update rows
-
+   
    Really really really weird, but with 20 tries, DLight is always faster than vanilla js. And the vanilla code is downloaded from js-benchmark's GitHub repo and there's nothing wrong with it as far as I know....
-
+   
    If you're interested in this, just download the file that I describe above and test for yourself.
 
 2. Highlight a selected row & Remove one row
-
+   
    The origin implementation of vanilla js makes the clicking area too small or even none. I don't want to change it so I just skip testing them.
 
 # Advanced
@@ -1417,43 +1399,70 @@ Feel free to create your own dlight component library!
 
 * features
 - [x] if
-- [x] for
-- [x] state
-- [x] derived
-- [x] effect
-- [x] prop
-- [x] dot prop
-- [x] shortcut for style (e.g. div("hello")._height)
-- [x] element map out
-- [x] support text node
-- [x] support jsx
-- [x] jsx control flow
-- [x] prop lifecycle
-- [x] support environment/context
-- [ ] ❗️support prop expression nesting
-- [ ] ❗️error hints
-- [x] deps optimization
-- [ ] PropState change to PropState/EnvState
-- [x] add lifeCycle to htmlNode
-- [ ] ❗️route
-- [ ] concurrent mode
-- [ ] CLI
 
+- [x] for
+
+- [x] state
+
+- [x] derived
+
+- [x] effect
+
+- [x] prop
+
+- [x] dot prop
+
+- [x] shortcut for style (e.g. div("hello")._height)
+
+- [x] element map out
+
+- [x] support text node
+
+- [x] support jsx
+
+- [x] jsx control flow
+
+- [x] prop lifecycle
+
+- [x] support environment/context
+
+- [ ] ❗️support prop expression nesting
+
+- [ ] ❗️error hints
+
+- [x] deps optimization
+
+- [ ] PropState change to PropState/EnvState
+
+- [x] add lifeCycle to htmlNode
+
+- [ ] ❗️route
+
+- [ ] concurrent mode
+
+- [ ] CLI
 * components
+
 * [x] V/H/ZStack
+
 * [x] Switch-Case
+
 * [ ] Animation
+  
   * [x] Transition
   * [ ] TransitionGroup
 
 * plugins
 - [x] vite transpiler plugin
+
 - [ ] ❗️vscode language server for auto completion
-
 * other
-
 - [x] docs
+
 - [x] tutorials
+
 - [ ] advanced docs
+
 - [ ] web homepage
+
 - [ ] video tutorials
