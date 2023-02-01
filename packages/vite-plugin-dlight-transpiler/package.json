@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-dlight-transpiler",
-  "version": "0.2.0-alpha",
+  "version": "0.2.0-beta",
   "files": ["src"],
   "type": "module",
   "keywords": [
