@@ -1,59 +1,57 @@
 import {View} from "@dlightjs/dlight"
 
 export {}
-class JK extends View {
-    @Prop ok
+// class JK extends View {
+//     @Prop ok
 
-    didMount() {
-        console.log(this.ok)
-    }
+//     didMount() {
+//         console.log(this.ok)
+//     }
 
-    Body = (
-        <div>
-            <button
-                onclick={() => {
-                    this.ok ++
-                }}
-            > go</button>
-            {this.ok}
-        </div>
+//     Body = (
+//         <div>
+//             <button
+//                 onclick={() => {
+//                     this.ok ++
+//                 }}
+//             > go</button>
+//             {this.ok}
+//         </div>
 
-    )
+//     )
 
-}
+// }
 
 
 export class HH extends View {
-    a = "11"
     @State count = 0
-    @State apple = [1,2,3]
-    clickme = () => {
-        this.count ++
-        this.add()
-    }
-    add = () => {
-        this.apple = [...this.apple, this.apple.length]
-    }
+    watchCount0 = function() {
+        this.count = this.count + 1
+        console.log("0")
+    }.call(this)
+    watchCount1 = function() {
+        this.count = (this.count + 1) * 100
+        console.log("1")
+    }.call(this)
+    watchCount2 = function() {
+        this.count = 1
+        console.log("2")
+    }.call(this)
+    watchCount3 = function() {
+        this.count += 1
+        console.log("3")
+    }.call(this)
+    watchCount4 = function() {
+        const a = this.count
+        console.log("4")
+    }.call(this)
 
     Body = (
         <>
-            <div _color="red">
-                <For expression="let t of this.apple">
-                    <div>jj-1</div>
-                </For>
-                <div>{this.count}</div>
-                <button onclick={this.clickme}> 试试 </button>
-            </div>
-            <div>
-                {!console.log("fuck") && <div>very good</div>}
-            </div>
-            <If condition={this.count>1}>
-                你对了
-            </If>
-            <ElseIf condition={this.count>-1}>
-                斤斤计较斤斤计较突然r r r r
-            </ElseIf>
-            <JK ok={this.count} />
+            <button onclick={() => this.count ++}>
+                hh
+            </button>
+            {this.count}
         </>
     )
 }

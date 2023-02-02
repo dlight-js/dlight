@@ -1,7 +1,7 @@
 import * as BabelNode from "./babelNode"
 import * as NodeHelper from "./nodeHelper"
 import * as DecoratorResolver from "./decoratorResolver"
-import {isMemberInFunction} from "./nodeHelper";
+import {shouldBeListened} from './nodeHelper';
 import * as BabelParser from "./babelParser"
 // @ts-ignore
 import * as babel from "@babel/core"
@@ -86,7 +86,7 @@ export function parseDlightFile(alteredFileCode: string, bodyMap: {[key: string]
             path.scope.traverse(node,{
                 MemberExpression(innerPath: any) {
                     if (depChain.includes(innerPath.node.property.name)) {
-                        if (!isMemberInFunction(innerPath, classDeclarationNode!)) {
+                        if (shouldBeListened(innerPath, classDeclarationNode!)) {
                             deps.push(innerPath.node.property.name)
                         }
                     }
