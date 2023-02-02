@@ -16,7 +16,7 @@ create-dlight-app my-first-dlight-app
 ```
 
 2. Clone this repo https://github.com/dlight-js/dlight-vite-template for a quick start.
-3. 🌟 Play around in [codesandbox](https://codesandbox.io/p/sandbox/dlight-vite-quickstart-4tgogd?file=%2Fpackage.json)
+3. 🌟 Play around in [codesandbox](https://codesandbox.io/p/sandbox/dlight-vite-quickstart-4tgogd)
 
 ## Render
 
