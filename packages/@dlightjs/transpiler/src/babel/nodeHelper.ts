@@ -73,7 +73,7 @@ export function isAssignmentExpressionRight(innerPath: any, classDeclarationNode
 }
 
 export function shouldBeListened(innerPath: any, classDeclarationNode?: t.Node) {
-    return (!isMemberInFunction(innerPath) &&
+    return (!isMemberInFunction(innerPath, classDeclarationNode) &&
             !isAssignmentExpressionLeft(innerPath) &&
-            !isAssignmentExpressionRight(innerPath))
+            !isAssignmentExpressionRight(innerPath, classDeclarationNode))
 }
