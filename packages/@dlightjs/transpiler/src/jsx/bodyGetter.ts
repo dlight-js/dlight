@@ -16,6 +16,7 @@ const babelConfig = {
 const parse = (code: string) => babel.parse(code, babelConfig)
 const generate = (ast: any) => babelGenerate(ast).code
 
+const commentRegex = /(\/\*[\S\s]*\*\/)|(\/\/.*)/g
 
 
 export function alterBody(fileCode: string) {
@@ -25,7 +26,7 @@ export function alterBody(fileCode: string) {
         ClassProperty(path: any) {
             if (path.node.key.name === "Body") {
                 const id = uid()
-                bodyMap[id] = generate(path.node.value)
+                bodyMap[id] = generate(path.node.value).replace(commentRegex, "")
                 path.node.value = t.stringLiteral(id)
             }
         }

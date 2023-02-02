@@ -76,7 +76,12 @@ class Parser {
                 path.replaceWith(t.stringLiteral(id))
             }
         })
-        prop.value = generate(newAst).trim().replaceAll(";", " ")
+
+        let value = generate(newAst).trim().replaceAll(";", " ")
+        if (value.trim() === "") {
+            value = "\"\""
+        }
+        prop.value = value
         return prop
     }
     resolveFor(jsxElement: t.JSXElement) {
