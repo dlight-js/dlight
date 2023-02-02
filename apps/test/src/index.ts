@@ -13,7 +13,7 @@
 // // import { initNodes, bindParentNode, resolveEnvs } from "./dlight/Nodes/utils";
 // // import {SubElement} from "./example/test.jsd"
 // @ts-ignore
-// import {ToDoApp} from "./example/ToDoApp/index.tsd";
+// import {ToDoApp} from "./example/ToDoApp/index.jsx";
 // // @ts-ignore
 // import {Counter} from "./example/test.jsd"
 // export {}

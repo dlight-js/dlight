@@ -1,5 +1,5 @@
 import {render} from "@dlightjs/dlight";
 // import {ToDoApp} from "./ToDoApp/tsd/index.tsd";
-import {Test} from "./ToDoApp/jsx/test.jsx"
+import {ToDoApp} from "./ToDoApp/jsx/index.jsx";
 
-render("app", Test)
+render("app", ToDoApp)
