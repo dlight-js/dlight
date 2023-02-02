@@ -86,7 +86,7 @@ export function resolveForBody(bodyStr: string, item: string) {
         Identifier(innerPath: any) {
             // ---- 必须key相等，但是不能是 xxx.keyname，也就是不是memberExpreesion
             if (identifierKeys.includes(innerPath.node.name) &&
-                t.isMemberExpression(innerPath.parentPath.node)) {
+                !t.isMemberExpression(innerPath.parentPath.node)) {
                 const valueNode = t.memberExpression(
                     t.identifier("_$valuedItem"),
                     t.identifier(innerPath.node.name)

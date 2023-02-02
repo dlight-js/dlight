@@ -34,6 +34,7 @@ class Button extends View {
     }
 }
 
+
 class Row extends View {
     @Prop id: string
     @Prop label: string
@@ -44,7 +45,10 @@ class Row extends View {
         tr {
             td(this.id)
                 .className("col-md-1")
-            td(this.label)
+            td {
+                a(this.label)
+                    .className("lbl")
+            }
                 .className("col-md-4")
                 .onclick(() => this.selectRow(this.id))
             td {
@@ -57,9 +61,10 @@ class Row extends View {
             }
                 .className("col-md-1")
                 .onclick(() => this.deleteRow(this.id))
-            td("")
+            td()
                 .className("col-md-6")
         }
+        .data_id(this.id)
             .className(this.className)
     }
 }
@@ -95,7 +100,6 @@ export class Benchmark extends View {
         for (let i=0;i<this.rows.length;i+=10) {
             this.rows[i].label += "!!! "
         }
-        
         this.rows = [...this.rows]
     }
 
@@ -136,9 +140,33 @@ export class Benchmark extends View {
             table {
                 tbody {
                     For(let {id,label} of this.rows) {
-                        Row({id, label})
-                            .deleteRow(this.deleteRow)
-                            .selectRow(this.selectRow)
+                        // Row({id, label})
+                        //     .deleteRow(this.deleteRow)
+                        //     .selectRow(this.selectRow)
+                        //     .className(this.selectIdx === id ? "danger" : "")
+                        tr {
+                            td(id)
+                                .className("col-md-1")
+                            td {
+                                a(label)
+                                    .className("lbl")
+                            }
+                                .className("col-md-4")
+                                .onclick(() => this.selectRow(id))
+                            td {
+                                a {
+                                    span()
+                                        .className("remove glyphicon glyphicon-remove")
+                                        .ariaHidden(true)
+                                }
+                                    .className("remove")
+                            }
+                                .className("col-md-1")
+                                .onclick(() => this.deleteRow(id))
+                            td()
+                                .className("col-md-6")
+                        }
+                            .data_id(id)
                             .className(this.selectIdx === id ? "danger" : "")
                     }
                 }
