@@ -4,7 +4,7 @@ Your modern and elegant web framework ~
 
 * ⚡️ Performant
   * Dlight enhances code performance at compile time by directly manipulating the DOM, which makes the execution speed of the code as close to vanilla JavaScript as possible, even with limited optimization knowledge.
-* Light
+* 🪶 Light
   * DLight is only 12KB.
 * 🚲 Simple
   * No more complex hooks towards reactivity. Just use @State, and dep-chain will help you do the rest.
