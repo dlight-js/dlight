@@ -1,0 +1,29 @@
+import {View} from "@dlightjs/dlight"
+import {Task} from "./Task"
+
+export class TaskAdder extends View {
+  @State inputText = ""
+  @PropState tasks: Task[] = []
+  inputEl: HTMLInputElement
+
+    handleInput = e => {
+        this.inputText = e.target.value
+    }
+
+  Body() {
+      <input value={this.inputText} oninput={this.handleInput} />
+    // input()
+    //   .value(this.inputText)
+    //   .oninput()
+    //   .element(this.inputEl)
+
+      <button>"add"</button>
+    button("add")
+      .onclick(() => {
+        this.tasks = [...this.tasks, {name: this.inputText, finished: false}]
+        this.inputText = ""
+        this.inputEl.focus()
+      })
+
+  }
+}
