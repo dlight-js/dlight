@@ -15,14 +15,16 @@ export class TaskCard extends View {
       this.toggleBox(e.target.checked, this.task)
     }
   }
+  spanStyle = {margin:"0 5px", textDecoration:this.task.finished ? "line-through" : "none"}
+  buttonStyle = {padding: "5px"}
 
   Body=(
     <>
       <div>
         <input type={"checkbox"} checked={this.task.finished} onchange={this.handleChange} />
       </div>
-      <span style={{margin:"0 5px", textDecoration:this.task.finished ? "line-through" : "none"}}>{this.task.name}</span>
-      <button onclick={()=>this.deleteTask(this.task)} style={{padding: "5px"}}>delete</button>
+      <span style={this.spanStyle}>{this.task.name}</span>
+      <button onclick={()=>this.deleteTask(this.task)} style={this.buttonStyle}>delete</button>
     </>
   )
 }

@@ -38,7 +38,7 @@ export class ToDoApp extends View {
             <TaskCard task={task} deleteTask={this.deleteTask} toggleBox={this.toggleBox} />
           ))
         }
-        </>
+    </>
       )
 
 }

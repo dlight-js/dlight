@@ -8,16 +8,17 @@ export class TaskAdder extends View {
     handleInput = e => {
         this.inputText = e.target.value
     }
-    handleAdd = () => {
-        this.tasks = [...this.tasks, {name: this.inputText, finished: false}]
-        this.inputText = ""
-        this.inputEl.focus()
-    }
+    // handleAdd =
   Body=(
       <>
-          <input value={this.inputText} onInput={this.handleInput} element={this.inputEl}/>
+          <input value={this.inputText} oninput={this.handleInput} ref={this.inputEl}/>
 
-          <button onClick={this.handleAdd}>add</button>
+          <button onclick={() => {
+              this.tasks = [...this.tasks, {name: this.inputText, finished: false}]
+              this.inputText = ""
+              console.log(this.inputEl,'hhh')
+              this.inputEl.focus()
+          }}>add</button>
 
       </>
  )
