@@ -131,7 +131,7 @@ function getFlowIndexFromNodesTillId(nodes: DLNode[], stopNode: DLNode) {
  */
 function runDlightNodesLifecycle(nodes: DLNode[], lifecysle: "willMount"|"didMount"|"willUnmount"|"didUnmount") {
     loopNodes(nodes, (node: DLNode) => {
-        if ([DLNodeType.Custom, DLNodeType.Expression].includes(node._$nodeType)) {
+        if ([DLNodeType.Custom].includes(node._$nodeType)) {
             (node as any)[lifecysle](node)
         }
         return true
