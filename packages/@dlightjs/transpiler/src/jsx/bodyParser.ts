@@ -77,7 +77,7 @@ class Parser {
             }
         })
 
-        let value = generate(newAst).trim().replaceAll(";", " ")
+        let value = generate(newAst).trim().replace(/;/g, " ")
         if (value.trim() === "") {
             value = "\"\""
         }
