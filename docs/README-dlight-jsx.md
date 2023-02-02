@@ -1,41 +1,39 @@
 # Tip
 
-在文档里搜索🌟查看重要概念和演示结果
+Search 🌟 in doc for important concepts and performance results.
 
-# 快速开始
+# Quick start
 
-DLight使用vite构建应用，主要使用到了[vite插件](https://www.npmjs.com/package/vite-plugin-dlight-transpiler)来将jsx/jsd编译成纯js代码
+DLight uses [vite](https://vitejs.dev/) to construct its apps. We mainly use [this vite plugin](https://www.npmjs.com/package/vite-plugin-dlight-transpiler) to transpile jsx/jsd file into pure js code.
 
-三种方法开始体验DLight.js
+Three ways to try DLight.js out.
 
-1. 用CLI搭建一个dlight应用。（开发中）
+1. Use CLI to build a dlight app. (This feature is still in development.)
 
 ```shell
 npm install -g @dlightjs/cli
 create-dlight-app my-first-dlight-app
 ```
 
-2. clone这个[github仓库](https://github.com/dlight-js/dlight-vite-template)，快速开始
-3. 在[codesandbox](https://codesandbox.io/p/sandbox/dlight-vite-quickstart-4tgogd?file=%2Fpackage.json)中体验
+2. Clone this repo https://github.com/dlight-js/dlight-vite-template for a quick start.
+3. ?åü Play around in [codesandbox](https://codesandbox.io/p/sandbox/dlight-vite-quickstart-4tgogd?file=%2Fpackage.json)
 
-## Render方法
+## Render
 
-将你的dlight组件挂载在相应id的html元素上
+Mount your dlight component to any html element with id.
 
 ```typescript
 import {render} from "@dlightjs/dlight"
 import {MyComp} from "./MyComp.jsx"
 
-render("app", MyComp)
+render("app", new MyComp())
 ```
 
-## 自定义组件
+## Write your own component
 
 First thing first, DLight is not using template/functional components. It uses Class component instead, but not like React Class component. There're two ways to write a component.
 
-首页，DLight不用模版组件或函数式组件，而是使用class组件。有两种方法来写一个组件。
-
-1. `.jsx`文件（使用jsx语法）
+1. Your familiar `.jsx` file
 
 ```jsx
 // -> ./MyComp.jsx
@@ -62,11 +60,9 @@ export class MyComp extends View {
 }
 ```
 
-2.  `.jsd` 文件（使用jsd语法，我们的新语法）
+2. Our new `.jsd` file
    
    We create a new domain syntax in `(class xx extends View).Body`. It is pretty similar to SwiftUI syntax. We will walk you through in the next section. Here's an example with the same output of the previous `.jsx` file.
-   
-   我们创造了一个新的js扩展语法 `(class xx extends View).Body`
 
 ```js
 // -> ./MyComp.jsd
@@ -232,7 +228,7 @@ export class MyComp extends View {
 
 # JSD
 
-?��
+?åü
 
 ## Why JSD
 
@@ -482,7 +478,7 @@ Jsd is still under design and if you have a great design proposal or any problem
    ...
    ```
    
-   - ?��jsd
+   - ?åüjsd
    
    ```js
    ...
@@ -512,7 +508,7 @@ Jsd is still under design and if you have a great design proposal or any problem
    ...
    ```
    
-   - ?�� jsd
+   - ?åü jsd
    
    ```js
    ...
@@ -574,7 +570,7 @@ Jsd is still under design and if you have a great design proposal or any problem
    ...
    ```
    
-   - ?��jsd
+   - ?åüjsd
    
    ```js
    ...
@@ -592,7 +588,7 @@ Jsd is still under design and if you have a great design proposal or any problem
    ...
    ```
 
-?�� When using jsd, For and If expression are the same with `for` and `if` in javascript!
+?åü When using jsd, For and If expression are the same with `for` and `if` in javascript!
 
 ## Environment
 
@@ -647,7 +643,7 @@ In Dlight, reactivity is simple and efficient!
   
   e.g. `() => { console.log(this.count) }` => won't be listened
   
-  �? `function() { console.log(this.count) }` => will be listened
+  ‚Ä? `function() { console.log(this.count) }` => will be listened
 
 - Example
   
@@ -727,7 +723,7 @@ function ShowMeTheName() {
 }
 ```
 
-?��This is how we do in dlight:
+?åüThis is how we do in dlight:
 
 ```jsx
 class ShowMeTheName extends View {
@@ -743,7 +739,7 @@ Yeah! That's right, you don't need to do anything to make a `derived` member rea
 
 So, what is dep-chain?
 
-?��This is a term that describes how DLight's reactivity works. All the deps in the chain will be reactive because of the headnode of the chain(which is a state variable) and will be calculate again if the headnode changes, then all html elements' attributes related to them will be changed too.
+?åüThis is a term that describes how DLight's reactivity works. All the deps in the chain will be reactive because of the headnode of the chain(which is a state variable) and will be calculate again if the headnode changes, then all html elements' attributes related to them will be changed too.
 
 Dep-chain examples:
 
@@ -764,7 +760,7 @@ Dep-chain examples:
    
    `count => countPlus1 => countPlus1Plus1 => null`
    
-   �? `=> countPlus2 => null`
+   ‚Ä? `=> countPlus2 => null`
    
    `flag => noFlag => null`
    
@@ -982,6 +978,9 @@ export class Switch extends View {
         {{ this.caseChildren }}
     }
 }
+```
+
+```js
 // -> ./case.jsd
 import {View, required} from "@dlightjs/dlight";
 
@@ -990,6 +989,9 @@ export class Case extends View {
       // We don't add anything to display anything in Case.Body
       // Because in Switch.Body, we find the matched Case._$children and display it directly
 }
+```
+
+```js
 // -> ./default.jsd
 import {View} from "@dlightjs/dlight";
 
@@ -1075,6 +1077,9 @@ export class ToDoApp extends View {
     }
   }
 }
+```
+
+```js
 // -> ./ToDoApp/TaskAdder.jsd
 import {View, required} from "@dlightjs/dlight"
 
@@ -1100,6 +1105,9 @@ export class TaskAdder extends View {
 
   }   
 }
+```
+
+```js
 // -> ./ToDoApp/TaskCard.jsd
 import {View, required} from "@dlightjs/dlight"
 

@@ -46,3 +46,34 @@ export function isMemberInFunction(innerPath: any, classDeclarationNode?: t.Node
 
     return isInFunction
 }
+
+export function isAssignmentExpressionLeft(innerPath: any) {
+    // ---- 判断是不是 this.count = 1 的情况
+    const parentNode = innerPath.parentPath.node
+    return t.isAssignmentExpression(parentNode) && parentNode.left === innerPath.node
+}
+
+export function isAssignmentExpressionRight(innerPath: any, classDeclarationNode?: t.Node) {
+    // ---- 判断是不是 this.count = this.count + 1 的情况
+    //      因为有可能无限嵌套 this.count = function(){return this.count}.call(this) 这种情况所以
+    const currNode = innerPath.node
+    let isRightExp = false
+    let reversePath = innerPath.parentPath
+    while (reversePath && reversePath.node !== classDeclarationNode) {
+        if (t.isAssignmentExpression(reversePath.node)) {
+            const leftNode = reversePath.node.left
+            const typeEqual = currNode.type === leftNode.type
+            const identifierEqual = currNode.property.name === leftNode.property.name
+            isRightExp = typeEqual && identifierEqual
+        }
+        reversePath = reversePath.parentPath
+    }
+
+    return isRightExp
+}
+
+export function shouldBeListened(innerPath: any, classDeclarationNode?: t.Node) {
+    return (!isMemberInFunction(innerPath, classDeclarationNode) &&
+            !isAssignmentExpressionLeft(innerPath) &&
+            !isAssignmentExpressionRight(innerPath, classDeclarationNode))
+}

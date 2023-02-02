@@ -6,7 +6,7 @@ import babelGenerate from "@babel/generator"
 import traverse from "@babel/traverse"
 
 import * as t from "@babel/types"
-import {isMemberInFunction} from "../babel/nodeHelper";
+import {isMemberInFunction, shouldBeListened} from '../babel/nodeHelper';
 const parse = (code: string) => babel.parse(code, babelConfig)
 const generate = (ast: any) => babelGenerate(ast).code
 
@@ -30,7 +30,7 @@ export function geneDeps(valueStr: string, depChain: string[], otherDeps: string
     traverse(ast, {
         MemberExpression(innerPath: any) {
             if (depChain.includes(innerPath.node.property.name)) {
-                if (!isMemberInFunction(innerPath)) {
+                if (shouldBeListened(innerPath)) {
                     deps.push(innerPath.node.property.name)
                 }
             }
@@ -41,6 +41,7 @@ export function geneDeps(valueStr: string, depChain: string[], otherDeps: string
     return deps
 }
 
+// ---- 只给for的解构用
 export function geneIdDeps(valueStr: string, arr: {ids: string[], propNames: string[]}[], otherDeps: string[]=[]) {
     const ast = parse(`(${valueStr})`)
     let deps: string[] = []
@@ -48,6 +49,7 @@ export function geneIdDeps(valueStr: string, arr: {ids: string[], propNames: str
         Identifier(innerPath: any) {
             for (let {ids, propNames} of arr) {
                 if (ids.includes(innerPath.node.name)) {
+                    // ---- 这里不会遇到赋值的情况，所以只要判断在不在function里面就行
                     if (!isMemberInFunction(innerPath)) {
                         deps.push(...propNames)
                     }
@@ -82,7 +84,9 @@ export function resolveForBody(bodyStr: string, item: string) {
     const bodyAst = parse(`function tempFunc() {${bodyStr}}`)
     traverse(bodyAst, {
         Identifier(innerPath: any) {
-            if (identifierKeys.includes(innerPath.node.name)) {
+            // ---- 必须key相等，但是不能是 xxx.keyname，也就是不是memberExpreesion
+            if (identifierKeys.includes(innerPath.node.name) &&
+                !t.isMemberExpression(innerPath.parentPath.node)) {
                 const valueNode = t.memberExpression(
                     t.identifier("_$valuedItem"),
                     t.identifier(innerPath.node.name)

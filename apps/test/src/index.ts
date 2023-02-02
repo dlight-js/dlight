@@ -28,17 +28,37 @@ import {render} from "@dlightjs/dlight";
 // import {Benchmark} from "./example/performance/benchmark.tsd"
 // import {Benchmark} from "./example/performance/benchmark.jsx";
 // // console.log(t2-t1)
-import {HH} from "./test.jsx"
+// import {HH} from "./test.jsx"
 // import {NodeTest} from "./example/features/node.jsd"
 // @ts-ignore
 // import {MyComp} from "./test.jsd";
-import {StackTest} from "./stack.tsd";
+// import {StackTest} from "./stack.tsd";
 // import {TestConcurr} from "./testConcurr.tsd"
 // import {RouteTest} from "./Router.tsd";
-import {TransitionTest} from "./transition.tsd";
+// import {TransitionTest} from "./transition.tsd";
 import {Benchmark} from "./benchmark.tsd";
 
-render("app", HH)
+render("app", Benchmark)
+class A {
+    a() {
+        console.log("fuck")
+    }
+    b() {
+        console.log("fuck")
+    }
+    c() {
+        console.log("fuck")
+    }
+    d() {
+        console.log("fuck")
+    }
+}
+console.time("0")
+
+for (let i=0;i<10000;i++) {
+    let a = new A()
+}
+console.timeEnd("0")
 
 
 // switch (testType) {
