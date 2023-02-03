@@ -1,5 +1,5 @@
 import {View} from "@dlightjs/dlight";
-import {HStack, VStack} from "@dlightjs/components/src";
+import {HStack, VStack} from "@dlightjs/components";
 import {menuListConfig} from "./menuConfig";
 
 class SubMenuList extends View {
