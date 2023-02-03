@@ -3,12 +3,6 @@ import {ParserNode} from "../parserNode";
 import {geneDeps, geneDepsStr, geneIsTwoWayConnected, resolveForBody, geneIdDeps, getIdentifiers} from './utils';
 
 
-/**
- * idAppendixNum:
- * -1 => 不返回id => ""
- * 0 => 不加后缀，直接生成uid() => TOGE23FibQ
- * n => 加后缀，加载生成的uid()后面 => TOGE23FibQ_idx0_..._idx_n-1
- */
 export class Generator {
     depChain: string[]
     idDepsArr: {ids: string[], propNames: string[]}[] = []
@@ -292,4 +286,3 @@ export class Generator {
     }
 
 }
-

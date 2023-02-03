@@ -85,7 +85,7 @@ export class GuidePage extends View {
 
     Body() {
         HStack{
-            Environment({navigator: this.navigator}) {
+            Env({navigator: this.navigator}) {
                 Menu({prevContent: this.prevContent, nextContent: this.nextContent})
             }
             RouterSpace({navigator: this.navigator}) {

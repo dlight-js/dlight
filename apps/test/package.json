@@ -18,6 +18,7 @@
     "ts-node": "^10.9.1",
     "vite-plugin-dlight-transpiler": "workspace:*",
     "@dlightjs/dlight": "workspace:*",
-    "@dlightjs/components": "workspace:*"
+    "@dlightjs/components": "workspace:*",
+    "@dlightjs/transpiler": "workspace:*"
   }
 }
