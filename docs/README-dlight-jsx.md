@@ -142,7 +142,7 @@ In Dlight, reactivity is **simple and efficient**!
 
 ## State
 
-- Use **@State **to mark a class member as **reactive variable**. Whenever the variable is set, all the attributes in a html element that uses this variable will recalculate the attribute(🌟not rerender the element, it has much more fine granularity!)
+- Use **@State** to mark a class member as **reactive variable**. Whenever the variable is set, all the attributes in a html element that uses this variable will recalculate the attribute(🌟not rerender the element, it has much more fine granularity!)
 
 - **Two exceptions** 
   
@@ -153,9 +153,9 @@ In Dlight, reactivity is **simple and efficient**!
      `function() { console.log(this.count) }` => will be listened
   
   2. If you're setting a state, we won't listen to it because it will cause a dep loop.
-  
-     For example, imagine you're using React, `this.count = 1` should be `setCount(1)`, so we won't treat count as a react prop. Another case: `this.count = this.count + 1`, in React it should be `setCount(prev => prev+1)`. Also, we won't let DLight that. 
-  
+
+     For example, imagine you're using React, `this.count = 1` should be `setCount(1)`, so we won't treat count as a reactive variable. Another case: `this.count = this.count + 1`, in React it should be `setCount(prev => prev+1)`. Also, we won't let DLight track it.
+
 - Example
 
   ```jsx
@@ -247,7 +247,7 @@ Dep-chain examples:
    
    `count => countPlus1 => countPlus1Plus1 => null`
    
-    		  `=> countPlus2 => null`
+    `=> countPlus2 => null`
    
    `flag => noFlag => null`
    
@@ -330,7 +330,7 @@ Dep-chain examples:
      @State count = 0
      getCount = count => {
        // do other stuff.....
-       return this.count
+       return count
      }
      countPlus1 = this.getCount(this.count)
    }
@@ -622,7 +622,7 @@ export class MyComp extends View {
     <Env myMessage="use me anywhere inside this environment"> 
       <MySubComp1/>
       <MySubComp2/>
-    </Env
+    </Env>
   )
 }
 ```

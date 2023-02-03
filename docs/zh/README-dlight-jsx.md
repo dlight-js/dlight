@@ -1,8 +1,8 @@
 # DLight
 
-EN | [中文](../../../docs/zh/README-dlight.md)
+[EN](../README-dlight-jsx.md) | 中文
 
-JSD | [JSX](../../../docs/README-dlight-jsx.md)
+[JSD](../packages/@dlightjs/dlight/docs/README.md) | JSX
 
 # Tip
 
@@ -30,7 +30,7 @@ Mount your dlight component to any **html element with an id**.
 
 ```typescript
 import {render} from "@dlightjs/dlight"
-import {MyComp} from "./MyComp.jsd"
+import {MyComp} from "./MyComp.jsx"
 
 render("app", MyComp)
 ```
@@ -40,26 +40,27 @@ render("app", MyComp)
 First thing first, DLight is not using template/functional components. It uses **Class component** instead, but not like React Class component. We are not fans of writing nesting logic inside your view and want to **split the view and logic**, so we choose not to use functional component with its returned value as view. In the meantime, we want to make our component **as flexible as possible**,so here we comes the DLight class component. We realize there's one big burden to write a class component -- 'this'. You have to use this.xxx to access a class property. So **currently we're building a babel plugin to 'eliminate this' in a class and auto find the binding object**. Sadly now you have to write 'this.value'. But it's still okay, right?
 
 ```jsx
-// -> ./MyComp.jsd
+// -> ./MyComp.jsx
 import {View} from "@dlightjs/dlight"
 
 export class MyComp extends View {
-  @State count = 0  
-  countPlus1 = this.count + 1  
+  @State count = 0  // use @State to make the class member "count" reactive
+  countPlus1 = this.count + 1  // "countPlus1" will automatically be reactive because it's derived from "count"
 
-  Body() {
-    h1("hello, dlight js, jsd")
-    div(this.count)
-    div(this.count + 1)
-    button("+")
-      .onclick(() => {
-        this.count ++
-      })
-    button("-")
-      .onclick(() => {
-        this.count --
-      })
-  }
+  // all the prop are DOM properties, so we use onclick instead of onClick
+  Body = (
+    <>
+      <h1>hello, dlight js, jsx</h1>
+      <div> {this.count} </div>
+      <div> {this.countPlus1} </div>
+      <button onclick={() => {this.count++}}>
+        +
+      </button>
+      <button onclick={() => {this.count--}}>
+        -
+      </button>
+    </>
+  )
 }
 ```
 
@@ -75,215 +76,65 @@ Dlight use @Prop to identify if this class member is a prop.
    import {View, required} from "@dlightjs/dlight"
    
    class MyOtherComp extends View {
-     // "required" is just `const required = undefined as any`, we use this to identify that this prop must be passed
-     @Prop countProp = required 
+       // "required" is just `const required = undefined as any`, we use this to identify that this prop must be passed
+     @Prop countProp = required
    
-     Body() {
-       div(this.countProp)
-         .id("other-comp")
-     }
+     Body = (
+        <div id="other-comp">{this.countProp}</div>
+     )
    }
    
    export class MyComp extends View {
      @State count = 0
    
-     Body() {
-       button("+")
-         .onclick(() => {
-           this.count ++
-         })
-       button("-")
-         .onclick(() => {
-           this.count --
-         })
-       MyOtherComp({countProp: this.count})
-     }
+     Body = (
+       <>
+         <button onclick={() => {this.count++}}>
+           +
+         </button>
+         <button onclick={() => {this.count--}}>
+           -
+         </button>
+         <MyOtherComp countProp={this.count}/>
+       </>
+     )
    }
    ```
    
 2. A reactive prop that changes with its passer's states and its passer's states change with it at the same time, which means these two props **"bind" together**.
    
    `<div id="mycomp" />` in `MyComp` will change its innerText if `countPropState` in `MyOtherComp` changes.
-    
+   
    ```jsx
    import {View, required} from "@dlightjs/dlight"
    
    class MyOtherComp extends View {
      @PropState countPropState = required 
    
-     Body() {
-       button("+")
-         .onclick(() => {
-           this.countPropState ++
-         })
-       button("-")
-         .onclick(() => {
-           this.countPropState --
-         })
-   
-     }
+     Body = (
+       <>
+         <button onclick={() => {this.countPropState++}}>
+           +
+         </button>
+         <button onclick={() => {this.countPropState--}}>
+           -
+         </button>
+       </>
+     )
    }
    
    export class MyComp extends View {
      @State count = 0
    
-     Body() {
-       div(this.cout)
-         .id("mycomp")
-       MyOtherComp({countPropState: this.count})
-     }
+     Body = (
+       <>
+         <div id="mycomp">{this.count}</div>
+         <MyOtherComp countPropState={this.count}/>
+       </>
+     )
    }
    ```
    
-
-# JSD
-
-## 🌟Why JSD
-
-Because I'm a big fan of iOS and [SwiftUI](https://developer.apple.com/xcode/swiftui/) and don't like any html-like syntax like jsx.
-
-So if you're like me, just try jsd and make your js code more js! If not, just try it. Still not, ignore it and go back to jsx because we also support it.
-
-## Basic concepts
-
-### example
-
-```js
-...
-Body() {
-  div("this auto set it inner text")
-  div {
-    button("first child")
-      .onclick(() => {
-        console.log("write dot prop")
-      })
-    div({id: "second-child-div", innerText: "you can also set prop like this"})
-  }
-  "plain text node"
-  `this is text node too, ${this.anyMessage}`
-  Exp("this is expression")
-}
-...
-```
-
-### tag and node
-
-We call strings like `div` / `MyOtherComp` / `If` in `Body` as tags. And it will compile to a node in the transpiler stage. We have these following protocols.
-
-1. Tag that starts with a lowercase letter is a html tag, e.g. `div` `button`
-
-2. Tag that starts with a uppercase letter is a custom component tag, e.g. `MyComp` `MyOtherComp`
-
-3. Tag that starts with a uppercase letter maybe an internal tag.
-
-   Current internal tag includes: `If` `ElseIf` `Else` `For` `Environment`
-
-We also have invisible tag like expression and text
-
-1. Strings wrapped with `Exp` are called expression, detailed in the next section.
-2. Strings wrapped with `"` \ `'` \ ` are called textNode. It's created by `document.createTextNode()`
-
-### expression
-
-In jsx, strings wrapped with `{}` are called expression. e.g.
-
-```jsx
-...
-Body = (
-  <div>
-    { !console.log("expression just like you used to write") && "display this sentence" }
-    { this.show && <div>will show if this.show is true</div> }
-  </div>
-)
-...
-```
-
-In jsd, we use `Exp` to identifier expression. And inside the expression, we use `@{}` to mark that the content inside it is a sub-block of jsd Body. e.g.
-
-```jsx
-...
-Body() {
-  div {
-    Exp(!console.log("expression just like you used to write") && "display this sentence")
-    Exp(this.show && @{
-      div("will show if this.show is true")
-    })
-  }
-}
-...
-```
-
-### prop
-
-Three ways to set a prop, the 1st and 2nd ones are equal.
-
-1. ```js
-   TagName({ prop1: "hello", prop2: "world" })
-   ```
-
-2. ```TagName()
-   TagName()
-     .prop1("hello")
-     .prop2("world")
-   ```
-
-3. ```js
-   TagName("your _$content prop")
-   ```
-
-For different tags, prop means different things.
-
-1. Html tag
-
-   - 1/2 prop means html element attributes.
-
-     e.g. `div("hello").id("hello-div")` => `el.id = "hello-div"`
-
-   - 1/2 prop that starts with a "_" is a shorthand of style attributes.
-
-     e.g. `div("hello")._color("red")` => `el.style.color = "red"`
-
-   - 3 prop sets html element innerText and will be replaced by its children.
-
-     e.g. `div("hello")` => `el.style.innerText = "hello"`
-
-     ```js
-     div("this will not show") {
-       div("because I'm its child, I overwrite its innerText")
-     }
-     ```
-
-2. Custom component
-
-   - 1/2 prop means custom component props as `Quick start - pass a prop` section describes.
-
-   - 3 prop set the custom component prop named `_$content`
-
-     ```js
-     import {View, required} from "@dlightjs/dlight"
-     
-     class MyOtherComp extends View {
-       @Prop _$content = required
-     
-       Body() {
-         div(this._$content) // display "hello world"
-       }
-     }
-     
-     export class MyComp extends View {  
-       Body() {
-         MyOtherComp("hello world")
-       }
-     }
-     ```
-
-3. Internal tag
-
-   - See `Features` section
-
-### contribution
-
-Jsd is still under design and if you have a great design proposal or any problem about it, welcome to open an issue or a discussion!
 
 # Reactivity
 
@@ -302,28 +153,27 @@ In Dlight, reactivity is **simple and efficient**!
      `function() { console.log(this.count) }` => will be listened
   
   2. If you're setting a state, we won't listen to it because it will cause a dep loop.
-  
-     For example, imagine you're using React, `this.count = 1` should be `setCount(1)`, so we won't treat count as a reactive variable. Another case: `this.count = this.count + 1`, in React it should be `setCount(prev => prev+1)`. Also, we won't let DLight track it. 
-  
+
+     For example, imagine you're using React, `this.count = 1` should be `setCount(1)`, so we won't treat count as a reactive variable. Another case: `this.count = this.count + 1`, in React it should be `setCount(prev => prev+1)`. Also, we won't let DLight track it.
+
 - Example
 
   ```jsx
   import {View} from "@dlightjs/dlight"
   
   export class MyComp extends View {
-    @State count = 0
+    @State count = 0  
   
-    Body() {
-      button("+")
-        .onclick(() => {
-          this.count ++  // this won't be listened because it's inside an arrow function
-        })
-      button("-")
-        .onclick(() => {
-          this.count --
-        })
-      div(this.count)  // everytime you click the button, this div's innerText will be reset
-    }
+    Body = (
+      <>
+        <button onclick={() => {
+          this.count++	// this won't be listened because it's inside an arrow function
+        }}>
+          +
+        </button>
+        <div>{this.count}</div>  // everytime you click the button, this div's innerText will be reset
+      </>
+    )
   }
   ```
 
@@ -368,9 +218,7 @@ class ShowMeTheName extends View {
   @State lastName = 'Doe'
   fullName = `${this.firstName} ${this.lastName}`
 
-  Body() {
-    div(this.fullName)
-  }
+  Body = <div>{this.fullName}</div>
 }
 ```
 
@@ -399,7 +247,7 @@ Dep-chain examples:
    
    `count => countPlus1 => countPlus1Plus1 => null`
    
-    `=> countPlus2 => null`
+   `=> countPlus2 => null`
    
    `flag => noFlag => null`
    
@@ -482,7 +330,7 @@ Dep-chain examples:
      @State count = 0
      getCount = count => {
        // do other stuff.....
-       return count
+       return this.count
      }
      countPlus1 = this.getCount(this.count)
    }
@@ -514,17 +362,18 @@ In DLight, we provide real lifecycles for both custom components and html elemen
 
 - Usage
   
-  ```js
+  ```jsx
   ...
-  Body() {
-    div 
-      .willAppear(() => {
+  Body = (
+    <div 
+      willAppear={() => {
         console.log("I will appear")
-      })
-      .didAppear=(el => {
+      }}
+      didAppear={el => {
         console.log(`I just appeared, I am ${el}`)
-      })
-  }
+      }}
+    />
+  )
   ...
   ```
   
@@ -573,23 +422,25 @@ You can get children in a custom component with a inner class member called `thi
 import {View} from "@dlightjs/dlight"
 
 class MySubComp extends View {
-  // this._$children will be div("hello") and div("dlight") in this case
-  // this._$childrenFunc will be () => div("hello") and () => div("dlight") in this case
+  // this._$children will be <div>hello</div> and <div>dlight</div> in this case
+  // this._$childrenFunc will be () => <div>hello</div> and () => <div>dlight</div> in this case
 
 
-  Body() {
-    Exp(this._$children)
-    Exp(this._$childrenFunc.map(childFunc => childFunc()))
-  }
+  Body = (
+    <>
+    	{this._$children}
+			{this._$childrenFunc.map(childFunc => childFunc())}
+		</>
+  )
 }
 
 export class MyComp extends View {
-  Body() {
-    MySubComp {
-      div("hello")
-      div("dlight")
-    }
-  }
+  Body = (
+    <MySubComp>
+      <div>hello</div>
+      <div>dlight</div>
+    </MySubComp>
+  )
 }
 ```
 
@@ -617,10 +468,12 @@ Sometimes, you need to access the html element in DOM and alter it manually.
 import {View} from "@dlightjs/dlight"
 
 class MySubComp extends View {
-  Body() {
-    div("hello")
-    div("dlight")
-  }
+  Body = (
+    <>
+      <div>hello</div>
+      <div>dlight</div>
+    </>
+  )
 }
 
 class MyComp extends View {
@@ -630,12 +483,12 @@ class MyComp extends View {
     console.log(myHTMLElement) // will be <div>good morning</div>
     console.log(myHTMLElements) // will be [<div>hello</div>, <div>dlight</div>]
   }
-  Body() {
-    div("good morning")
-    	.element(this.myHTMLElement)
-    MySubComp()
-  		.element(this.myHTMLElements)
-  }
+  Body = (
+    <>
+      <div element={this.myHTMLElement}>good morning</div>
+      <MySubComp element={this.myHTMLElements}/>
+    </>
+  )
 }
 ```
 
@@ -647,13 +500,11 @@ class MyComp extends View {
 
    ```jsx
    ...
-   Body() {
-     div {
-       Exp(this.array.map(item => @{
-           div(item)
-       }))
-     }
-   }
+   Body = (
+     <div>
+       { this.array.map(item => <div>{item}</div>) }
+     </div>
+   )
    ...
    ```
 
@@ -665,13 +516,13 @@ class MyComp extends View {
 
    ```jsx
    ...
-   Body() {
-     div {
-       For (let item of this.array) {
-         div(item)
-       }
-     }
-   }
+   Body = (
+     <div>
+       <For expression="let item of this.array">
+         <div>{item}</div>
+       </For>
+     </div>
+   )
    ...
    ```
 
@@ -679,13 +530,13 @@ class MyComp extends View {
 
    ```jsx
    ...
-   Body() {
-     div {
-       For (let {id, item} of this.array)[id] {
-         div(item)
-       }
-     }
-   }
+   Body = (
+     <div>
+       <For expression="let {id, item} of this.array" key="id">
+         <div>{item}</div>
+       </For>
+     </div>
+   )
    ...
    ```
 
@@ -695,27 +546,31 @@ class MyComp extends View {
 
    ```jsx
    ...
-   Body() {
-     div(this.show && "show me")
-   }
+   Body = (
+     <div>
+       { this.show && "show me" }
+     </div>
+   )
    ...
    ```
-   
+
 2. 🌟Use internal supported If/ElseIf/Else node for **condition break**.
 
    ```jsx
    ...
-   Body() {
-     div {
-       If (this.show) {
-         "show me"
-       } ElseIf (this.alsoShow) {
-         "also show me"
-       } Else {
-         "don't show me"
-       }
-     }
-   }
+   Body = (
+     <div>
+       <If condition={this.show}>
+         show me
+       </If>
+       <ElseIf condition={this.alsoShow}>
+         also show me
+       </ElseIf>
+       <Else>
+         don't show me
+       </Else>
+     </div>
+   )
    ...
    ```
 
@@ -725,37 +580,49 @@ class MyComp extends View {
 - The underlying pricipal of `environment` is just like how you pass a prop in Dlight, so **there're no extra cost**!
 - We use `@Env` to indentify it.
 
-```js
+```jsx
 import {View, required} from "@dlightjs/dlight"
 
 class MyNestComp extends View {
   @Env myMessage = "default value"
-  Body() {
-    div(this.myMessage)  // will show "use me anywhere inside this environment"
-  }
+  // will show "use me anywhere inside this environment"
+  Body = (
+    <div>
+      {this.myMessage}
+    </div>
+  )
 }
 
 class MySubComp2 extends View {
   @Env myMessage = "default value"
-  Body() {
-    div(this.myMessage)  // will show "use me anywhere inside this environment"
-  }
+  // will show "use me anywhere inside this environment"
+  Body = (
+    <div>
+      {this.myMessage}
+    </div>
+  )
 }
 
 class MySubComp1 extends View {
   @Env myMessage = "default value"
-  Body() {
-    MyNestComp()  // call MySubComp2
-    div(this.myMessage)  // will show "use me anywhere inside this environment"
-  }
+  // call MySubComp
+  // will show "use me anywhere inside this environment"
+  Body = (
+    <>
+      <MyNestComp/>  
+      <div>
+        {this.myMessage}
+      </div> 
+    </>
+  )
 }
 
 export class MyComp extends View {  
-  Body() {
-    Env({myMessage: "use me anywhere inside this environment"}) {
-      MySubComp1()
-      MySubComp2()
-    }
-  }
+  Body = (
+    <Env myMessage="use me anywhere inside this environment"> 
+      <MySubComp1/>
+      <MySubComp2/>
+    </Env>
+  )
 }
 ```
