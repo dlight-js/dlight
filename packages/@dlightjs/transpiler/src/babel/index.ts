@@ -3,28 +3,13 @@ import * as NodeHelper from "./nodeHelper"
 import * as DecoratorResolver from "./decoratorResolver"
 import {shouldBeListened} from './nodeHelper';
 import * as BabelParser from "./babelParser"
-// @ts-ignore
-import * as babel from "@babel/core"
-// @ts-ignore
-import babelGenerate from "@babel/generator"
-// @ts-ignore
-import traverse from "@babel/traverse"
 import * as t from "@babel/types";
 import { resolveParserNode } from "../generator";
 import { ParserNode } from "../parserNode";
-
-const parse = (code: string) => babel.parse(code, babelConfig)
-const generate = (ast: any) => babelGenerate(ast).code
-
-const babelConfig = {
-    filename: "*.ts",
-    presets: ["@babel/preset-typescript"],
-    plugins: [['@babel/plugin-proposal-decorators', { legacy: true }]]
-}
-
+import Transpiler from "../transpiler"
 
 export function parseDlightFile(alteredFileCode: string, bodyMap: {[key: string]:ParserNode}) {
-    const ast = parse(alteredFileCode)
+    const ast = Transpiler.parse.deco(alteredFileCode)
 
     let classDeclarationNode: t.ClassDeclaration | null = null
     let classBodyNode: t.ClassBody | null = null
@@ -33,7 +18,7 @@ export function parseDlightFile(alteredFileCode: string, bodyMap: {[key: string]
     let derivedNode: t.ClassProperty | null = null
     let depChain: string[] = []
 
-    traverse(ast, {
+    Transpiler.traverse(ast, {
         ClassDeclaration(path: any) {
             const node = path.node as t.ClassDeclaration
             // ---- 如果是继承View的，新建_$decorators, _$propDerivedPairs
@@ -66,15 +51,11 @@ export function parseDlightFile(alteredFileCode: string, bodyMap: {[key: string]
                 // ---- body处理
                 const bodyId = (node.value as any).value
                 const newBody = resolveParserNode(bodyMap[bodyId], depChain)
-                let bodyFunc = `
+                const bodyFunc = Transpiler.transform.ts(`
                     function tmp() {
                         ${newBody}
                     }
-                `
-                bodyFunc = babel.transform(bodyFunc, {
-                    filename: "*.ts",
-                    presets: ["@babel/preset-typescript"]
-                }).code
+                `)
 
                 node.value = t.arrowFunctionExpression([], BabelParser.functionBlockStatement(bodyFunc).body)
                 return
@@ -127,7 +108,7 @@ export function parseDlightFile(alteredFileCode: string, bodyMap: {[key: string]
         },
     });
 
-    const returnedCode = generate(ast)
+    const returnedCode = Transpiler.generate(ast)
     const newCode = "import * as _$ from \"@dlightjs/dlight\" \n" + returnedCode
 
     return newCode

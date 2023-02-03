@@ -23,6 +23,6 @@ declare const _default$1: any;
 
 declare const _default: any;
 
-declare function geneParserNode(fileCode: string, dlightTranspilerConfig: DlightTranspilerConfig): string;
+declare function geneParserNode(fileCode: string, dlightTranspilerConfig: DlightTranspilerConfig, transpilerType?: "babel"): string;
 
 export { _default as JSDConfig, _default$1 as JSXConfig, geneParserNode };

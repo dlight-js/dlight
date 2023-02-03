@@ -3,7 +3,6 @@ import {ParserNode} from "../parserNode";
 import {geneDeps, geneDepsStr, geneIsTwoWayConnected, resolveForBody, geneIdDeps, getIdentifiers} from './utils';
 
 
-
 export class Generator {
     depChain: string[]
     idDepsArr: {ids: string[], propNames: string[]}[] = []

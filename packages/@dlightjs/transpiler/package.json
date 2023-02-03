@@ -2,27 +2,31 @@
   "name": "@dlightjs/transpiler",
   "version": "0.2.2",
   "description": "",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "main": "dist/index.js",
+  "module": "dist/index.mjs",
   "typings": "dist/index.d.ts",
   "dependencies": {
+    "@babel/core": "^7.20.12",
+    "@babel/generator": "^7.20.7",
     "@babel/plugin-proposal-decorators": "^7.20.7",
     "@babel/preset-env": "^7.20.2",
     "@babel/preset-react": "^7.18.6",
     "@babel/preset-typescript": "^7.18.6",
-    "@babel/core": "^7.20.12",
-    "@babel/generator": "^7.20.7",
-    "@babel/traverse": "^7.20.13",
+    "@babel/standalone": "^7.20.15",
     "@babel/types": "^7.20.7"
   },
   "devDependencies": {
     "@types/babel-core": "^6.25.7",
     "@types/babel-generator": "^6.25.5",
-    "@types/babel-traverse": "^6.25.7",
     "tsup": "^6.5.0",
     "typescript": "^4.5.2"
   },
-  "keywords": ["dlight.js"],
+  "keywords": [
+    "dlight.js"
+  ],
   "author": "IanDx",
   "license": "ISC"
 }

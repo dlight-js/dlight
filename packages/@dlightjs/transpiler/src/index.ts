@@ -1,8 +1,11 @@
 import { parseDlightFile } from "./babel"
 import { ParserNode } from "./ParserNode"
 import { DlightTranspilerConfig } from "./type"
+import {changeTranspilerType} from "./transpilerFuncs";
 
-export function geneParserNode(fileCode: string, dlightTranspilerConfig: DlightTranspilerConfig) {
+export function geneParserNode(fileCode: string, dlightTranspilerConfig: DlightTranspilerConfig, transpilerType: "babel" = "babel") {
+    changeTranspilerType(transpilerType)
+    // changeBabelType("standalone")
     const {bodyGetter, bodyParser} = dlightTranspilerConfig
     // ---- 首先把body换成一个id的string，并拿到bodyMap
     const {code, bodyMap} = bodyGetter(fileCode)

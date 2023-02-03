@@ -1,19 +1,8 @@
 import { ParserNode } from "../ParserNode";
+import Transpiler from "../transpiler"
 // @ts-ignore
-import * as babel from "@babel/core"
-// @ts-ignore
-import babelGenerate from "@babel/generator"
-// @ts-ignore
-import traverse from "@babel/traverse"
 import * as t from "@babel/types";
 import { uid } from "../generator/utils";
-
-
-const babelConfig = {
-    presets: ["@babel/preset-react"],
-}
-const parse = (code: string) => babel.parse(code, babelConfig)
-const generate = (ast: any) => babelGenerate(ast).code
 
 
 class Parser {
@@ -33,7 +22,7 @@ class Parser {
             const value = attribute.value
             const prop = t.isJSXExpressionContainer(value!) ?
                 this.parseProp(key as string, value.expression) :
-                {key, value: generate(value), nodes: {}}
+                {key, value: Transpiler.generate(value), nodes: {}}
             newNode.kv.props.push(prop)
         }
 
@@ -64,10 +53,10 @@ class Parser {
     }
 
     parseProp(key: string, expression: t.Expression | t.JSXEmptyExpression) {
-        const newAst = parse(generate(expression))
+        const newAst = Transpiler.parse.jsx(Transpiler.generate(expression))
         const prop: any = {key, nodes: {}}
 
-        traverse(newAst, {
+        Transpiler.traverse(newAst, {
             JSXElement(path: any) {
                 const id = uid()
                 const newParser = new Parser(path.node)
@@ -77,7 +66,7 @@ class Parser {
             }
         })
 
-        let value = generate(newAst).trim().replace(/;$/g, " ")
+        let value = Transpiler.generate(newAst).trim().replace(/;$/g, " ")
         if (value.trim() === "") {
             value = "\"\""
         }
@@ -92,8 +81,8 @@ class Parser {
         if (forValueAttribute !== undefined) {
             const value = (forValueAttribute as t.JSXAttribute).value
             forValue = t.isJSXExpressionContainer(value!)
-                ? generate(value.expression)
-                : generate(value).replace(/(^["'`])|(["'`]$)/g, "")
+                ? Transpiler.generate(value.expression)
+                : Transpiler.generate(value).replace(/(^["'`])|(["'`]$)/g, "")
         }
         newNode.kv.forValue = forValue
 
@@ -102,8 +91,8 @@ class Parser {
         if (keyValueAttribute !== undefined) {
             const value = (keyValueAttribute as t.JSXAttribute).value
             newNode.kv.key = t.isJSXExpressionContainer(value!)
-                ? generate(value.expression)
-                : generate(value).replace(/(^["'`])|(["'`]$)/g, "")
+                ? Transpiler.generate(value.expression)
+                : Transpiler.generate(value).replace(/(^["'`])|(["'`]$)/g, "")
         }
 
         for (let child of jsxElement.children) {
@@ -124,7 +113,7 @@ class Parser {
         let condition = ""
         if (conditionAttribute !== undefined) {
             const value = (conditionAttribute as t.JSXAttribute).value
-            condition = t.isJSXExpressionContainer(value!) ? generate(value.expression) : generate(value)
+            condition = t.isJSXExpressionContainer(value!) ? Transpiler.generate(value.expression) : Transpiler.generate(value)
         }
         // ---- condition node
         const parser = new Parser(jsxElement.children)
@@ -145,7 +134,7 @@ class Parser {
         let condition = ""
         if (conditionAttribute !== undefined) {
             const value = (conditionAttribute as t.JSXAttribute).value
-            condition = t.isJSXExpressionContainer(value!) ? generate(value.expression) : generate(value)
+            condition = t.isJSXExpressionContainer(value!) ? Transpiler.generate(value.expression) : Transpiler.generate(value)
         }
         // ---- condition node
         const parser = new Parser(jsxElement.children)
@@ -206,7 +195,7 @@ class Parser {
 
 
 export function parseBody(bodyCode: string): ParserNode {
-    const ast = parse(bodyCode)
+    const ast = Transpiler.parse.jsx(bodyCode)
     const firstJSXElement = ast.program.body[0].expression
 
     const parser = new Parser(firstJSXElement)
