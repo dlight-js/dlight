@@ -1,6 +1,6 @@
 import {View} from "@dlightjs/dlight";
-import {HStack, VStack} from "@dlightjs/components";
-import {menuListConfig} from "./menuConfig";
+import {HStack, VStack} from "@dlightjs/components/src";
+import {menuListConfig} from "../menuConfig";
 
 class SubMenuList extends View {
     @Prop subMemu
@@ -43,20 +43,6 @@ class MenuList extends View {
     }
 }
 
-export class LogoTitle extends View {
-    Body() {
-        div
-        {
-            HStack
-            {
-                div("🧬")
-                div("Dlight")
-                    ._fontWeight("3px")
-                    ._fontSize("20px")
-            }
-        }
-    }
-}
 
 export class Menu extends View {
 
