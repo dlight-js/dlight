@@ -1,5 +1,5 @@
 {
-  "name": "dlight-test",
+  "name": "dlight-tutorial",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -15,10 +15,11 @@
     "vite": "^4.0.0"
   },
   "dependencies": {
-    "ts-node": "^10.9.1",
-    "vite-plugin-dlight-transpiler": "workspace:*",
-    "@dlightjs/dlight": "workspace:*",
     "@dlightjs/components": "workspace:*",
-    "@dlightjs/transpiler": "workspace:*"
+    "@dlightjs/dlight": "workspace:*",
+    "@types/marked": "^4.0.8",
+    "marked": "^4.2.12",
+    "ts-node": "^10.9.1",
+    "vite-plugin-dlight-transpiler": "workspace:*"
   }
 }

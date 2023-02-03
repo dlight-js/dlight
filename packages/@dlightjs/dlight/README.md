@@ -1,6 +1,6 @@
 # DLight
 
-EN | [中文](../../../docs/zh/README-dlight.md)
+EN | [中文](../../../docs/zh/README-dlight-jsd.md)
 
 JSD | [JSX](../../../docs/README-dlight-jsx.md)
 
@@ -104,7 +104,7 @@ Dlight use @Prop to identify if this class member is a prop.
 2. A reactive prop that changes with its passer's states and its passer's states change with it at the same time, which means these two props **"bind" together**.
    
    `<div id="mycomp" />` in `MyComp` will change its innerText if `countPropState` in `MyOtherComp` changes.
-    
+   
    ```jsx
    import {View, required} from "@dlightjs/dlight"
    

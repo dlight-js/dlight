@@ -3,7 +3,6 @@ import {ParserNode} from "../parserNode";
 import {geneDeps, geneDepsStr, geneIsTwoWayConnected, resolveForBody, geneIdDeps, getIdentifiers} from './utils';
 
 
-
 export class Generator {
     depChain: string[]
     idDepsArr: {ids: string[], propNames: string[]}[] = []
@@ -244,7 +243,7 @@ export class Generator {
     resolveExpression(parserNode: ParserNode, idx: number) {
         const body = new BodyStringBuilder()
         const nodeName = `_$node${idx}`
-        
+
         // ---- forward props
         for (let {key, value, nodes} of parserNode.kv.props) {
             value = this.parsePropNodes(value, nodes)
@@ -287,4 +286,3 @@ export class Generator {
     }
 
 }
-
