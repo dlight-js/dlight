@@ -165,12 +165,14 @@ class Parser {
         let depth = 0
         let tempSubContent = ""
         let newContent = ""
+        let isSubContent = false
         const prop: any = {key, nodes: {}}
         for (let idx=0; idx < value.length; idx++) {
             if (value[idx] === "@" && value[idx+1] === "{") {
+                isSubContent = true
                 depth ++
                 idx ++
-            } else if (value[idx] === "}" && depth === 1) {
+            } else if (value[idx] === "}" && depth === 1 && isSubContent) {
                 depth --
                 const id = uid()
                 newContent += "\"" + id + "\""
@@ -178,12 +180,24 @@ class Parser {
                 newParser.parse()
                 prop.nodes[id] = newParser.parserNode
                 tempSubContent = ""
-            } else if (depth !== 0) {
+                isSubContent = false
+            } else if (depth !== 0 && isSubContent) {
+                if (value[idx] === "{") {
+                    depth ++
+                } else if (value[idx] === "}") {
+                    depth --
+                }
                 tempSubContent += value[idx]
             } else {
+                if (value[idx] === "{") {
+                    depth ++
+                } else if (value[idx] === "}") {
+                    depth --
+                }
                 newContent += value[idx]
             }
         }
+        console.log(newContent)
         prop.value = newContent
         return prop
     }
