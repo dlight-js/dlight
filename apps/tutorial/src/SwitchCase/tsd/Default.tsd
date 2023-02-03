@@ -1,0 +1,6 @@
+import {required, View} from "@dlightjs/dlight";
+
+export class Default extends View {
+    @Prop _$content
+
+}

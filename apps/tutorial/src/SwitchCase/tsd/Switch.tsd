@@ -1,11 +1,26 @@
-import {View} from "@dlightjs/dlight";
+import {required, View} from "@dlightjs/dlight";
 
 export class Switch extends View {
+    @Prop _$content = required
 
-
-
+    caseNode = function() {
+        let showNode
+        for(let node of this._$children){
+            console.log(node)
+            console.log(node._$content)
+            if(node._$tag==="Case"){
+                if(node._$content===this._$content) {
+                    showNode = node._$children
+                    return showNode
+                }
+            } else if(node._$tag==="Default"){
+                showNode = node._$children
+            }
+        }
+        return showNode
+    }.call(this)
 
     Body() {
-
+        Exp(this.caseNode)
     }
 }
