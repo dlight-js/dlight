@@ -37,26 +37,18 @@ render("meme", New)
 `
 
 export class TestTest extends View {
-    @State text = ""
-
-    watchText = function() {
-        console.log(this.text)
-        try {
-            eval(this.text)
-        } catch(e) {
-            console.warn("no", e)
-        }
-
-    }.call(this)
+    @State count = 0
 
     Body() {
-        textarea()
-            ._width("600px")
-            ._height("700px")
-            .oninput(e=> {
-                this.text = e.target.value
+       Exp(this.count > 1 
+        ? @{
+            div(this.count)
+          } 
+        : @{
+          button(this.count)
+            .onclick(() =>{
+              this.count ++ 
             })
-       div()
-        .id("meme")
+       })
     }
 }

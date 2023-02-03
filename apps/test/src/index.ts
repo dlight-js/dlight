@@ -38,28 +38,7 @@ import {render} from "@dlightjs/dlight";
 // import {TransitionTest} from "./transition.tsd";
 import {Benchmark} from "./benchmark.tsd";
 
-render("app", Benchmark)
-class A {
-    a() {
-        console.log("fuck")
-    }
-    b() {
-        console.log("fuck")
-    }
-    c() {
-        console.log("fuck")
-    }
-    d() {
-        console.log("fuck")
-    }
-}
-console.time("0")
-
-for (let i=0;i<10000;i++) {
-    let a = new A()
-}
-console.timeEnd("0")
-
+render("app", TestTest)
 
 // switch (testType) {
 //     case TestType.ToDo:
