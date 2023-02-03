@@ -4,11 +4,11 @@ import {geneDeps, geneDepsStr, geneIsTwoWayConnected, resolveForBody, geneIdDeps
 
 
 /**
- * idAppendixNum: 
+ * idAppendixNum:
  * -1 => 不返回id => ""
  * 0 => 不加后缀，直接生成uid() => TOGE23FibQ
  * n => 加后缀，加载生成的uid()后面 => TOGE23FibQ_idx0_..._idx_n-1
- */ 
+ */
 export class Generator {
     depChain: string[]
     idDepsArr: {ids: string[], propNames: string[]}[] = []
@@ -249,7 +249,7 @@ export class Generator {
     resolveExpression(parserNode: ParserNode, idx: number) {
         const body = new BodyStringBuilder()
         const nodeName = `_$node${idx}`
-        
+
         // ---- forward props
         for (let {key, value, nodes} of parserNode.kv.props) {
             value = this.parsePropNodes(value, nodes)

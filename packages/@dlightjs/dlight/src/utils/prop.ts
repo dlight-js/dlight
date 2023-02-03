@@ -12,6 +12,7 @@ export function addDLProp(dlNode: CustomNode, tag: string, key: string, propFunc
         // ---- 既不是@Prop，也不是@PropState，直接不传
         return
     }
+
     if ((dlNode as any)[`_$$${key}`] === `_$${tag}`) {
         addOneWayDLProp(dlScope!, dlNode, key, propFunc, listenDeps)
         return

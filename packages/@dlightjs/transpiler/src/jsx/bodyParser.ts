@@ -36,7 +36,7 @@ class Parser {
                 {key, value: generate(value), nodes: {}}
             newNode.kv.props.push(prop)
         }
-    
+
         for (let child of jsxElement.children) {
             const parser = new Parser(child as any)
             parser.parse()
@@ -207,7 +207,7 @@ class Parser {
 
 export function parseBody(bodyCode: string): ParserNode {
     const ast = parse(bodyCode)
-    const firstJSXElement = ast.program.body[0].expression 
+    const firstJSXElement = ast.program.body[0].expression
 
     const parser = new Parser(firstJSXElement)
     parser.parse()
