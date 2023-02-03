@@ -139,7 +139,7 @@ export class Benchmark extends View {
         div {
             table {
                 tbody {
-                    For(let {id,label} of this.rows) {
+                    For(let {id,label} of this.rows)[id] {
                         // Row({id, label})
                         //     .deleteRow(this.deleteRow)
                         //     .selectRow(this.selectRow)

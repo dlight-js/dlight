@@ -22,7 +22,12 @@ export {}
 
 // }
 
-
+class NN extends View {
+    @Prop count
+    Body = (
+        <div>{this.count}</div>
+    )
+}
 export class HH extends View {
     @State count = 0
     watchCount0 = function() {
@@ -48,6 +53,8 @@ export class HH extends View {
 
     Body = (
         <>
+            {/*111*/}
+            <NN count={this.count} />
             <button onclick={() => this.count ++}>
                 hh
             </button>

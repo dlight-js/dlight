@@ -28,7 +28,7 @@ import {render} from "@dlightjs/dlight";
 // import {Benchmark} from "./example/performance/benchmark.tsd"
 // import {Benchmark} from "./example/performance/benchmark.jsx";
 // // console.log(t2-t1)
-// import {HH} from "./test.jsx"
+import {HH} from "./test.jsx"
 // import {NodeTest} from "./example/features/node.jsd"
 // @ts-ignore
 // import {MyComp} from "./test.jsd";
@@ -38,7 +38,10 @@ import {render} from "@dlightjs/dlight";
 // import {TransitionTest} from "./transition.tsd";
 import {Benchmark} from "./benchmark.tsd";
 
+
+
 render("app", TestTest)
+
 
 // switch (testType) {
 //     case TestType.ToDo:

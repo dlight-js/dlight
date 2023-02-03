@@ -197,7 +197,6 @@ class Parser {
                 newContent += value[idx]
             }
         }
-        console.log(newContent)
         prop.value = newContent
         return prop
     }
