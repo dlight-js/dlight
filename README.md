@@ -1,6 +1,7 @@
 # 🧬 DLight.js
+EN | [中文](./docs/zh/README.md)
 
-Your modern and elegant web framework ~
+Your modern web framework ~
 
 * ⚡️ Performant
   * Dlight enhances code performance at compile time and directly manipulates the DOM, which makes the execution speed of the code as close to vanilla JavaScript as possible, even with limited optimization knowledge.

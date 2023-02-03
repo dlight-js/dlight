@@ -4,29 +4,29 @@
 
 [JSD](../packages/@dlightjs/dlight/docs/README.md) | JSX
 
-# Tip
+# 提示
 
-Search 🌟 in doc for important concepts and performance results.
+在文档中搜索🌟来查看重要概念。
 
-# Quick start
+# 快速开始
 
-DLight uses [vite](https://vitejs.dev/) to construct its apps. We mainly use [this vite plugin](https://www.npmjs.com/package/vite-plugin-dlight-transpiler) to transpile jsx/jsd file into pure js code.
+DLight使用[vite](https://vitejs.dev/)来构建应用。我们主要使用[这个插件](https://www.npmjs.com/package/vite-plugin-dlight-transpiler)来将jsx/jsd文件编译成纯js代码。
 
-Three ways to try DLight.js out.
+三种方法来尝试DLight.js
 
-1. Use CLI to build a dlight app. (**This feature is still in development.**)
+1. 使用脚手架来构建DLight应用 (**这个功能仍在开发中**)
 
 ```shell
 npm install -g @dlightjs/cli
 create-dlight-app my-first-dlight-app
 ```
 
-2. Clone this repo https://github.com/dlight-js/dlight-vite-template for a quick start.
-3. 🌟 Play around in [codesandbox](https://codesandbox.io/p/sandbox/dlight-vite-quickstart-4tgogd)
+2. Clone 这个仓库 https://github.com/dlight-js/dlight-vite-template 来快速开始.
+3. 🌟 在 [codesandbox](https://codesandbox.io/p/sandbox/dlight-vite-quickstart-4tgogd) 中尝试。
 
-## Render
+## 渲染
 
-Mount your dlight component to any **html element with an id**.
+将你的dlight组件挂在到任何**含有id的html元素**上
 
 ```typescript
 import {render} from "@dlightjs/dlight"
@@ -35,9 +35,9 @@ import {MyComp} from "./MyComp.jsx"
 render("app", MyComp)
 ```
 
-## Write your own component
+## 自定义组件
 
-First thing first, DLight is not using template/functional components. It uses **Class component** instead, but not like React Class component. We are not fans of writing nesting logic inside your view and want to **split the view and logic**, so we choose not to use functional component with its returned value as view. In the meantime, we want to make our component **as flexible as possible**,so here we comes the DLight class component. We realize there's one big burden to write a class component -- 'this'. You have to use this.xxx to access a class property. So **currently we're building a babel plugin to 'eliminate this' in a class and auto find the binding object**. Sadly now you have to write 'this.value'. But it's still okay, right?
+首先，DLight没有使用模版/函数式组件。它使用**类组件**，但不是想React的类组件那样。我们不是很喜欢将嵌套的逻辑写在视图里面并且希望将视图和逻辑分离，使用我们选择不使用函数式组件。同时，我们想要让我们的组件尽可能的**灵活**，所以迎来了我们的DLight类组件。我们意识到写一个类组件有一个很大的心智负担 -- 'this'。你必须用this.xxx来访问一个成员变量。所以**目前我们正在构建一个babel插件来在类中"消除this"并且自动和对象绑定**。可惜的是现在你不得不写 'this.value'。但是这也还行，对吧？
 
 ```jsx
 // -> ./MyComp.jsx
@@ -64,11 +64,11 @@ export class MyComp extends View {
 }
 ```
 
-## Pass a prop
+## 传递一个参数
 
-Dlight use @Prop to identify if this class member is a prop.
+Dlight 使用 @Prop 来标明这个成员变量是不是一个参数。
 
-1. A reactive prop that **changes with its passer's states**.
+1. **跟着传递者state改变**的响应式参数
    
    `<div id="other-comp" />` in `MyOtherComp` will change its innerText if `count` in `MyComp` changes.
    
@@ -101,7 +101,7 @@ Dlight use @Prop to identify if this class member is a prop.
    }
    ```
    
-2. A reactive prop that changes with its passer's states and its passer's states change with it at the same time, which means these two props **"bind" together**.
+2. 一个响应式参数，它会跟着传递者的state改变，并且传递者的state也会同时跟着它改变。这说明这两个变量**互相"绑定"**。
    
    `<div id="mycomp" />` in `MyComp` will change its innerText if `countPropState` in `MyOtherComp` changes.
    
@@ -136,27 +136,27 @@ Dlight use @Prop to identify if this class member is a prop.
    ```
    
 
-# Reactivity
+# 响应式
 
-In Dlight, reactivity is **simple and efficient**!
+在 Dlight中, 响应式**简单并高效**!
 
 ## State
 
-- Use **@State** to mark a class member as **reactive variable**. Whenever the variable is set, all the attributes in a html element that uses this variable will recalculate the attribute(🌟not rerender the element, it has much more fine granularity!)
+- 使用 **@State** 来标明一个成员变量是**响应式变量**。当这个变量被set，所有用到这个变量的html元素上的属性都会重新计算这个属性（🌟不会重新渲染这个元素，它有更细的粒度！）
 
-- **Two exceptions** 
-  
-  1. If you're using an **arrow function** to wrap this variable, dlight will **consider it as a callback** like `onclick`, which has no need to reset this attribute, so the reactivity will be dropped in this attribute. If somehow you still want dlight to listen inside it, use `function` instead of `arrow function`.
+- **两个特例** 
+
+  1. 如果你使用**剪头函数**来包裹这个变量，dlight会**认为它是一个回调**，想`onclick`一样。 所以没有必要来重新设置这个属性，于是在这个属性上响应式就会丢失。如果出于某种原因你仍想要dlight来监听它，使用`function`而不是`arrow function`。
   
      e.g. `() => { console.log(this.count) }` => won't be listened
 
      `function() { console.log(this.count) }` => will be listened
   
-  2. If you're setting a state, we won't listen to it because it will cause a dep loop.
+  2. 如果你set了一个state，我们不会监听它因为这回引起依赖循环。
+  
+     比如说，想象你在使用React，`this.count = 1` 就是 `setCount(1)`，使用我们不会监听count的变化。另一个例子：`this.count = this.count + 1`，在React中是`setCount(prev => prev+1)`。同样的，我们不会让DLight追踪它。
 
-     For example, imagine you're using React, `this.count = 1` should be `setCount(1)`, so we won't treat count as a reactive variable. Another case: `this.count = this.count + 1`, in React it should be `setCount(prev => prev+1)`. Also, we won't let DLight track it.
-
-- Example
+- 例子
 
   ```jsx
   import {View} from "@dlightjs/dlight"
@@ -177,13 +177,13 @@ In Dlight, reactivity is **simple and efficient**!
   }
   ```
 
-## dep-chain
+## 依赖链
 
-Of all the frameworks in the market, there's **no painless usage of a `derived state`** (of course other mvvm frameworks are great, I love react, vue, solid, svelte, ...).
+在目前市场上所有的框架中，没有一个能**无痛苦的使用`derived state`**（当然其他mvvm的框架都很好，我喜欢react，vue，solid，svelte，...）。
 
-Say we have a list of people's first names and last names and we want to concatenate them as full names.
+比如说我们有一些人的姓和名并且我们想要把他们组合起来变成完整的姓名。
 
-How react would do it:
+React会这么做：
 
 ```jsx
 function ShowMeTheName() {
@@ -196,7 +196,7 @@ function ShowMeTheName() {
 }
 ```
 
-How solid would do it:
+Solid会这么做：
 
 ```jsx
 function ShowMeTheName() {
@@ -210,7 +210,7 @@ function ShowMeTheName() {
 }
 ```
 
-🌟This is how we do this in dlight:
+🌟这是DLight的做法：
 
 ```jsx
 class ShowMeTheName extends View {
@@ -222,15 +222,15 @@ class ShowMeTheName extends View {
 }
 ```
 
-Yeah! That's right, **you don't need to do anything to make a `derived` member reactive**. Dlight will automatically make `fullName` reactive because it's derived from state variables. Whenever `firstName` or `lastName` changes, `fullName` will re-calculate for only once and change any html elements' attribute that uses it.
+哈！没错，**你不需要做任何事情来让一个`derived`的成员变量变成响应式**。DLight会自动使`fullName`变得响应因为它是从一个state变量中延伸出来的。每一次`firstName` 和 `lastName`改变，`fullName`都只会重新计算一次并且改变任何使用到它都html元素都属性。
 
-**So, what is dep-chain?**
+**所以，什么是依赖链**
 
-🌟This is a term that describes how DLight's reactivity works. All the deps in the chain will be reactive because of the headnode of the chain(which is a state variable) and **will be calculate again if the headnode changes**, then all html elements' attributes related to them will be changed too.
+🌟这是一个用来描述DLight的响应式是如何工作的术语。所有在链上的依赖都会变得响应式因为这个链的头节点（它是个state变量）并且**会被重新计算如果头节点改变了**，然后所有和它相关的html元素的属性也会同样被改变。
 
-Dep-chain examples:
+依赖链例子:
 
-1. Chains
+1. 链
    
    `count => null`
    
@@ -243,7 +243,7 @@ Dep-chain examples:
    }
    ```
 
-2. Chains
+2. 链
    
    `count => countPlus1 => countPlus1Plus1 => null`
    
@@ -263,7 +263,7 @@ Dep-chain examples:
    }
    ```
 
-3. Chains
+3. 链
    
    `count => null`
    
@@ -277,7 +277,7 @@ Dep-chain examples:
    }
    ```
 
-4. Chains
+4. 链
    
    `count => logCount => null`
    
@@ -291,9 +291,9 @@ Dep-chain examples:
    }
    ```
 
-5. Use dep-chain to perform `useEffect`?
+5. 使用依赖链来进行 `useEffect`?
    
-   DLight won't have a lot of circumstances that require a "side effect" because **`derived` variable can solve most of the case**. However, if you still want to use it to listen changes or for other specific reason, you can try this:
+   DLight不会有很多需要"副作用"的场景，因为**`derived`变量可以解决大部分**。但是，如果你仍想要使用它来监听改变或者有其他的原因，你可以试试这样：
    
    ```js
    class DepChainExample5 extends View {
@@ -306,11 +306,11 @@ Dep-chain examples:
    }
    ```
 
-6. 🌟My variable is a result of a function, how to make it reactive?
+6. 🌟我的变量是一个函数的返回值，我怎么让他变得响应？
+
+   有两种方法来实现它。永远记住肩头函数和setValue是唯一的特例，其他的表达式都会自动收集依赖如果你使用到了在依赖链中的变量。
    
-   There're two ways to do it. Always remember the arrow function and setValue are the only exception, any other expression will automatically collect deps if you use one of the variables in the dep-chain
-   
-   1. Just like how we implement `useEffect`
+   1. 就像我们实现 `useEffect` 那样
    
    ```js
    class DepChainExample6_1 extends View {
@@ -323,7 +323,7 @@ Dep-chain examples:
    }
    ```
    
-   2. Split the function out
+   2. 把函数拆分出来
    
    ```js
    class DepChainExample6_1 extends View {
@@ -336,15 +336,15 @@ Dep-chain examples:
    }
    ```
 
-# Lifecycle
+# 生命周期
 
-In DLight, we provide real lifecycles for both custom components and html elements.
+在DLight中，我们给自定义组件和html元素提供真正的生命周期。
 
-## Html elements
+## Html 元素
 
 `willAppear` / `didAppear` / `willDisappear` / `didDisappear`
 
-- The calling timing can be described as the following pseudocode:
+- 调用时机可以用下面的伪代码来描述：
   
   ```js
   // appear
@@ -358,9 +358,9 @@ In DLight, we provide real lifecycles for both custom components and html elemen
   el.didDisappear()
   ```
   
-  Dlight only calls these hooks when the element is created or removed. That's why we say it is "real" lifecycles.
+  DLight只会调用这些钩子函数当这个元素生成或者移除。这也是为什么我们叫它"真正的"生命周期。
 
-- Usage
+- 用法
   
   ```jsx
   ...
@@ -378,11 +378,11 @@ In DLight, we provide real lifecycles for both custom components and html elemen
   ```
   
 
-## Custom components
+## 自定义组件
 
 `willMount` / `didMount` / `willUnmount` / `didUnmount`
 
-- The calling timing can be described as the following pseudocode:
+- 调用时机可以用下面的伪代码来描述：
   
   ```js
   // mount
@@ -399,7 +399,7 @@ In DLight, we provide real lifecycles for both custom components and html elemen
   delete MyComp
   ```
 
-- Usage
+- 用法
   
   ```jsx
   class MyComp extends View {
@@ -412,11 +412,11 @@ In DLight, we provide real lifecycles for both custom components and html elemen
   }
   ```
 
-# Features
+# 特性
 
-## Custom Component's Children
+## 自定义组件的子组件
 
-You can get children in a custom component with a inner class member called `this._$children` and `this._$childrenFunc`. The difference is that the child of `this._$children` is a node in dlight and that of `this._$childrenFunc` is **a function that returns the node**. The latter one may be useful if you want to **build a conditional component and called the function to return the node multiple times** like `If` or `Route`.
+你可以通过内置的成员变量 `this._$children` 和 `this._$childrenFunc` 来拿到自定义组件中的子组件。他们的区别在于`this._$children`的子是一个dlight中的节点但`this._$childrenFunc`的子是**一个返回这个节点的函数**。如果你想要**构建一个条件化的组件并且调用这个函数来返回这个节点很多次**像`If`或者`Route`，你可以用后者。
 
 ```jsx
 import {View} from "@dlightjs/dlight"
@@ -428,9 +428,9 @@ class MySubComp extends View {
 
   Body = (
     <>
-    	{this._$children}
-			{this._$childrenFunc.map(childFunc => childFunc())}
-		</>
+       {this._$children}
+       {this._$childrenFunc.map(childFunc => childFunc())}
+    </>
   )
 }
 
@@ -444,9 +444,9 @@ export class MyComp extends View {
 }
 ```
 
-## Custom Component's name
+## 自定义组件的名字
 
-You can access your component or your children component's tag name by using `this._$tag`
+你可以通过 `this._$tag` 来拿到你的自定义组件或者子组件的名字。（这个名字在打包后类名转成其他的也不会变）
 
 ```jsx
 import {View} from "@dlightjs/dlight"
@@ -458,11 +458,11 @@ class ThisIsMyComponentHah extends View {
 }
 ```
 
-## Element map out
+## 获取元素
 
-Sometimes, you need to access the html element in DOM and alter it manually.
+有时候，你需要访问DOM上的html元素并且手动改变它。
 
-🌟Both HTMLNode and your CustomNode can get element(s)
+🌟HTML元素和自定义组件都可以拿到元素（数组）
 
 ```jsx
 import {View} from "@dlightjs/dlight"
@@ -492,11 +492,11 @@ class MyComp extends View {
 }
 ```
 
-# Internal tags
+# 内置标签
 
-## Array
+## 数组
 
-1. You can first use unoptimized array map-out to create an array of elements, but once the array is changed even with a single item of it, the whole array of elements will be removed and recreated. So don't use it **unless it's a fixed array or you know what you're doing**.
+1. 首先你可以使用没有优化的数组map来建立一个数组元素，但是一旦这个数组改变了，即使是它里面的一个东西，整个数组都会被删除并且重新构建，所以**除非这是个固定数组或者你知道你在干什么**，不然别用它。
 
    ```jsx
    ...
@@ -508,9 +508,9 @@ class MyComp extends View {
    ...
    ```
 
-2. 🌟Use internal supported For node for **optimization**.
+2. 🌟使用内置支持的For节点来进行**优化**。
 
-   You can use any **"of" expression** that you write in js `for` loop.
+   你可以使用任何你写在js `for` 循环里面的 **"of"表达式**。
 
    e.g. -> `let item of array` / `let [key, item] of array.entries()` / `let {key1, key2} of array` / ...
 
@@ -526,7 +526,7 @@ class MyComp extends View {
    ...
    ```
 
-   Also, we can use a `key` prop to bind the element with the key.
+   此外，我们可以使用一个`key`参数来将元素和这个key绑定。
 
    ```jsx
    ...
@@ -540,9 +540,9 @@ class MyComp extends View {
    ...
    ```
 
-## Condition
+## 条件化
 
-1. You can first use ( condition && YourElement ) just like you always do in react.
+1. 你可以首先像你写在React里面那样使用 ( condition && YourElement )。
 
    ```jsx
    ...
@@ -554,7 +554,7 @@ class MyComp extends View {
    ...
    ```
 
-2. 🌟Use internal supported If/ElseIf/Else node for **condition break**.
+2. 🌟使用内置支持的 If/ElseIf/Else 节点来进行**条件中断**.
 
    ```jsx
    ...
@@ -574,11 +574,11 @@ class MyComp extends View {
    ...
    ```
 
-## Environment
+## 环境变量
 
-- Provide an internal easy and simple context management.
-- The underlying pricipal of `environment` is just like how you pass a prop in Dlight, so **there're no extra cost**!
-- We use `@Env` to indentify it.
+- 提供一个内置的简单方便的上下文管理。
+- `environment`的底层原理和DLight中传递参数是一样的，所以**没有额外开销**！
+- 我们使用 `@Env` 来标明它。
 
 ```jsx
 import {View, required} from "@dlightjs/dlight"
