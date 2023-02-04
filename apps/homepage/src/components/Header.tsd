@@ -31,8 +31,7 @@ export class LogoTitle extends View {
     @Prop navigator
 
     Body() {
-        div
-        {
+        div{
             HStack
             {
                 div("🧬")
@@ -50,21 +49,25 @@ export class LogoTitle extends View {
 export class Header extends View {
     @Env navigator
     Body() {
-        HStack{
-            LogoTitle()
-                .navigator(this.navigator)
-            Spacer()
-            NavButton("Guide")
-                .navigator(this.navigator)
-                .path("./guide/home")
-            NavButton("PlayGround")
-                .navigator(this.navigator)
-                .path("./playground")
-            NavButton("Ecosystem")
-                .navigator(this.navigator)
-                .path("./ecosystem")
+        div{
+            HStack{
+                LogoTitle()
+                    .navigator(this.navigator)
+                Spacer()
+                NavButton("Guide")
+                    .navigator(this.navigator)
+                    .path("./guide/home")
+                NavButton("PlayGround")
+                    .navigator(this.navigator)
+                    .path("./playground")
+                NavButton("Ecosystem")
+                    .navigator(this.navigator)
+                    .path("./ecosystem")
+            }
+            .width("100%")
         }
-        .width("100%")
+        ._backgroundColor("white")
+
     }
 }
 

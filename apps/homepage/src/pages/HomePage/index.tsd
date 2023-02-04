@@ -1,6 +1,7 @@
 import {View} from "@dlightjs/dlight";
 import {SceneOne} from "./components/SceneOne.tsd";
 import {Header} from "../../components/Header.tsd";
+import {FeatureDisplay} from "./components/FeatureDisplay.tsd";
 
 
 export class HomePage extends View {
@@ -19,12 +20,10 @@ export class HomePage extends View {
                 ._position(this.pinHeader?"fixed":"")
                 ._top(this.pinHeader?"0":"")
                 ._width("100%")
-            For(let i of [...Array(100).keys()]) {
-                div(i)
-                    ._height("50px")
-                    ._margin("70px")
-                    ._backgroundColor("blue")
+            div {
+                FeatureDisplay()
             }
+                ._marginTop(this.pinHeader?"38px":"")
         }
             ._height("5000px")
     }

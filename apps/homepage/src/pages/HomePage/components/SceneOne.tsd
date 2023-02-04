@@ -8,6 +8,7 @@ export class SceneOne extends View {
     wrapperHeight = 0
 
     prevScrollTop = 0
+
     handleScroll = () => {
         const {scrollTop} = document.documentElement
         if (scrollTop > this.prevScrollTop &&
