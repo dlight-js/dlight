@@ -18,7 +18,6 @@ export class App extends View {
             }
             Route("guide") {
                 HeaderHOC(@{GuidePage})
-                    .navigator(this.navigator)
             }
             Route("playground") {
                 div("I am PlayGround")

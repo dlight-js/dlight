@@ -1,21 +1,29 @@
-import {View} from "@dlightjs/dlight";
+import {PropState, View} from "@dlightjs/dlight";
 import {animatie} from "../utils";
 import {HStack, Spacer, VStack} from "@dlightjs/components/src";
 
 export class SceneOne extends View {
+    @PropState pinHeader
     wrapperEl
     wrapperHeight = 0
 
     prevScrollTop = 0
     handleScroll = () => {
         const {scrollTop} = document.documentElement
-        if (scrollTop > this.prevScrollTop && scrollTop > this.wrapperHeight / 3) {
+        if (scrollTop > this.prevScrollTop &&
+            scrollTop > this.wrapperHeight / 3 &&
+            scrollTop < this.wrapperHeight
+        ) {
             removeEventListener("scroll", this.handleScroll)
             animatie(percentTime => {
                 scrollTo(0, scrollTop + percentTime * (this.wrapperHeight - scrollTop))
-            }, 0.2, () => {
+            }, 0.5, () => {
                 addEventListener("scroll", this.handleScroll)
             })
+        } else if (scrollTop > this.wrapperHeight) {
+            this.pinHeader = true
+        } else {
+            this.pinHeader = false
         }
         this.prevScrollTop = scrollTop
 

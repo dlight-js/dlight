@@ -48,7 +48,7 @@ export class LogoTitle extends View {
 }
 
 export class Header extends View {
-    @Prop navigator
+    @Env navigator
     Body() {
         HStack{
             LogoTitle()
@@ -70,7 +70,7 @@ export class Header extends View {
 
 export class HeaderHOC extends View {
     @Prop _$content
-    @Prop navigator
+    @Env navigator
     didMount(_els: HTMLElement[], _node: CustomNode) {
         console.log(this._$content)
     }
