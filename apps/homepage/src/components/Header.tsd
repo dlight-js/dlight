@@ -1,5 +1,5 @@
 import {View} from "@dlightjs/dlight";
-import {HStack} from "@dlightjs/components";
+import {VStack, HStack} from "@dlightjs/components";
 import {Spacer} from "@dlightjs/components";
 
 class NavButton extends View {
@@ -65,5 +65,20 @@ export class Header extends View {
                 .path("./ecosystem")
         }
         .width("100%")
+    }
+}
+
+export class HeaderHOC extends View {
+    @Prop _$content
+    @Prop navigator
+    didMount(_els: HTMLElement[], _node: CustomNode) {
+        console.log(this._$content)
+    }
+
+    Body() {
+        VStack{
+            Header({navigator:this.navigator})
+            Exp(this._$content)
+        }
     }
 }

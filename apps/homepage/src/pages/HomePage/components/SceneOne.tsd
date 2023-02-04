@@ -1,0 +1,58 @@
+import {View} from "@dlightjs/dlight";
+import {animatie} from "../utils";
+import {HStack, Spacer, VStack} from "@dlightjs/components/src";
+
+export class SceneOne extends View {
+    wrapperEl
+    wrapperHeight = 0
+
+    prevScrollTop = 0
+    handleScroll = () => {
+        const {scrollTop} = document.documentElement
+        if (scrollTop > this.prevScrollTop && scrollTop > this.wrapperHeight / 3) {
+            removeEventListener("scroll", this.handleScroll)
+            animatie(percentTime => {
+                scrollTo(0, scrollTop + percentTime * (this.wrapperHeight - scrollTop))
+            }, 0.2, () => {
+                addEventListener("scroll", this.handleScroll)
+            })
+        }
+        this.prevScrollTop = scrollTop
+
+    }
+    didMount() {
+        const heightStr = getComputedStyle(this.wrapperEl).height
+        this.wrapperHeight = +heightStr.replace("px", "")
+        addEventListener("scroll", this.handleScroll)
+    }
+
+    willUnmount() {
+        removeEventListener("scroll", this.handleScroll)
+    }
+
+    Body() {
+        div{
+            VStack {
+                Spacer()
+                HStack {
+                    Spacer()
+                    div("DLight")
+                        ._fontSize("100px")
+                    Spacer()
+                }
+                Spacer()
+            }
+                .width("100%")
+
+        }
+            ._width("100%")
+            ._height("100vh")
+            ._backgroundColor("rgba(199, 188, 68, 0.3)")
+            .element(this.wrapperEl)
+
+
+
+    }
+
+
+}

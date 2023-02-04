@@ -1,0 +1,13 @@
+import {View} from "@dlightjs/dlight";
+import {SceneOne} from "./components/SceneOne.tsd";
+
+
+export class HomePage extends View {
+
+    Body() {
+        div {
+            SceneOne()
+        }
+            ._height("5000px")
+    }
+}

@@ -78,7 +78,7 @@ export class ExpressionNode extends MutableNode {
     formatNodes(nodes: any) {
         if (!Array.isArray(nodes)) {
             nodes = [nodes]
-        } 
+        }
         nodes = nodes.flat(1)
         nodes = nodes.filter((node: any)=>(
                 node !== undefined && node !== null
@@ -102,7 +102,7 @@ export class ExpressionNode extends MutableNode {
          while (parentNode && parentNode._$nodeType !== DLNodeType.HTML) {
              parentNode = parentNode._$parentNode
          }
-         
+
          if (!parentNode) return
 
         // ---- 加deps

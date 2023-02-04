@@ -1,9 +1,9 @@
 import {View} from "@dlightjs/dlight";
 import {RouterSpace, Route} from "@dlightjs/components";
 import {HStack} from "@dlightjs/components/src";
-import {HomePage} from "./pages/HomePage.tsd";
+import {HomePage} from "./pages/HomePage/index.tsd";
 import {GuidePage} from "./pages/GuidePage.tsd";
-import {Header} from "./components/Header.tsd";
+import {Header, HeaderHOC} from "./components/Header.tsd";
 
 
 
@@ -11,13 +11,14 @@ export class App extends View {
     @State navigator
 
     Body() {
-        Header({navigator: this.navigator})
+        // Header({navigator: this.navigator})
         RouterSpace({navigator: this.navigator}) {
             Route(".") {
                 HomePage()
             }
             Route("guide") {
-                GuidePage()
+                HeaderHOC(@{GuidePage})
+                    .navigator(this.navigator)
             }
             Route("playground") {
                 div("I am PlayGround")
