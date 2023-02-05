@@ -2,7 +2,7 @@
 
 [EN](../README-dlight-jsx.md) | 中文
 
-[JSD](../packages/@dlightjs/dlight/docs/README.md) | JSX
+[JSD](../packages/@dlightjs/dlight/README.md) | JSX
 
 # 提示
 
