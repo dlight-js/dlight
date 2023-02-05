@@ -11,11 +11,10 @@
 
 * ⚡️ 快
   * DLight 通过直接操纵 DOM 来在编译阶段增强代码性能，这使得代码的执行速度接近纯 JavaScript ，即使在优化知识有限的情况下也是如此。
-* 🪶 轻量
-  * DLight包大小只有12KB。
 * 🚲 简单
   * 不再需要记忆各种复杂的hooks。只需要使用 @State, dep-chain就会帮你完成剩下的工作。
   * DLight原生提供Context管理功能。
+  * 网页开发从来没有如此简单。
 * 🍼 友好
   * 支持jsx and jsd(我们提供的新语法) 来帮助你wirte everything in js。
 * 🦋 好看
