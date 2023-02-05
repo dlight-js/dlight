@@ -3,7 +3,7 @@ import {VStack, HStack} from "@dlightjs/components";
 import {Spacer} from "@dlightjs/components";
 
 class NavButton extends View {
-    @Prop navigator
+    @Env RouteParam
     @Prop _$content
     @Prop path
     @State mouseState
@@ -16,7 +16,8 @@ class NavButton extends View {
             ._borderWidth("0px")
             ._color(this.mouseState==='over'?"blue":"black")
             .onclick(()=>{
-                this.navigator.to(this.path)
+                console.log(this.RouteParam.navigator)
+                this.RouteParam.navigator.to(this.path)
             })
             .onmouseover(()=>{
                 this.mouseState = 'over'
@@ -28,44 +29,47 @@ class NavButton extends View {
 }
 
 export class LogoTitle extends View {
-    @Prop navigator
+    @Env RouteParam
 
     Body() {
         div{
             HStack
             {
-                div("🧬")
-                div("Dlight")
-                    ._fontWeight("3px")
-                    ._fontSize("20px")
-            }
+                img({src: '/img/logo.png'})
+                    ._padding('5px')
+                    ._paddingTop('3px')
+                    ._width("30px")
+                div("light")
+                    ._fontWeight("900")
+                    ._fontSize("25px")
+            }.spacing("0")
         }
+        ._margin("5px")
         .onclick(()=>{
-            this.navigator.to("./")
+            this.RouteParam.navigator.to("./")
         })
     }
 }
 
 export class Header extends View {
-    @Env navigator
+    // @Env RouteParam
+
     Body() {
         div{
             HStack{
                 LogoTitle()
-                    .navigator(this.navigator)
                 Spacer()
                 NavButton("Guide")
-                    .navigator(this.navigator)
                     .path("./guide/home")
                 NavButton("PlayGround")
-                    .navigator(this.navigator)
                     .path("./playground")
                 NavButton("Ecosystem")
-                    .navigator(this.navigator)
                     .path("./ecosystem")
             }
             .width("100%")
         }
+        ._padding("16px 50px")
+        ._boxShadow("0px 3px 8px rgb(197,197,197, 0.3)")
         ._backgroundColor("white")
 
     }
@@ -85,3 +89,4 @@ export class HeaderHOC extends View {
         }
     }
 }
+

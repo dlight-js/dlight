@@ -1,9 +1,8 @@
 import {View} from "@dlightjs/dlight";
 import {HStack, Spacer, VStack, RouterSpace, Route} from "@dlightjs/components";
-import {marked} from "marked";
 import {Menu} from "../components/Menu.tsd";
 import {menuListNameMap} from "../menuConfig";
-
+import {render} from "@iandx/markit"
 
 class GuideButton extends View {
     @Prop type
@@ -64,7 +63,8 @@ class GuideContent extends View {
         fetch(filePath)
             .then(response => response.text())
             .then(text => {
-                this.content = marked.parse(text)
+                console.log(render(text))
+                this.content = render(text)
                 // console.log(text)
             })
 

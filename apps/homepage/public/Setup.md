@@ -67,7 +67,7 @@ export class MyComp extends View {
 
 1. A reactive prop that changes with its passer's states.
 
-   `<div id="other-comp" />` in `MyOtherComp`  will change its innerText if `count` in `MyComp `changes.
+   `<div id="other-comp" />` in `My**Other**Comp`  will change its innerText if `count` in `MyComp `changes.
 
   * jsx
 

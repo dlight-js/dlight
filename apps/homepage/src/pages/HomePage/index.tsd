@@ -5,9 +5,8 @@ import {FeatureDisplay} from "./components/FeatureDisplay.tsd";
 
 
 export class HomePage extends View {
+    @Env RouteParam
     @State pinHeader = false
-    @Env navigator
-
 
     Body() {
         div {

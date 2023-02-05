@@ -17,8 +17,9 @@
   "dependencies": {
     "@dlightjs/components": "workspace:*",
     "@dlightjs/dlight": "workspace:*",
-    "@types/marked": "^4.0.8",
-    "marked": "^4.2.12",
+    "@iandx/markit": "^0.0.6",
+    "codemirror": "^6.0.1",
+    "highlight.js": "^11.7.0",
     "ts-node": "^10.9.1",
     "vite-plugin-dlight-transpiler": "workspace:*"
   }
