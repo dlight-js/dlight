@@ -1,6 +1,4 @@
-<div style="margin: auto; width: 50%;">
-  <img src="./docs/imgs/logo_title.png"/>
-</div>
+<img src="./docs/imgs/logo_title.png" style="display:block; margin: auto; width: 50%;"/>
 
 [![dlight](https://badgen.net/npm/v/@dlightjs/dlight?label=@dlightjs/dlight)](https://www.npmjs.com/package/@dlightjs/dlight)
 [![transpiler](https://badgen.net/npm/v/@dlightjs/transpiler?label=@dlightjs/transpiler)](https://www.npmjs.com/package/@dlightjs/transpiler)
