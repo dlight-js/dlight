@@ -16,6 +16,9 @@ export class App extends View {
             Route(".") {
                 HomePage()
             }
+            Route("home") {
+                HomePage()
+            }
             Route("guide") {
                 HeaderHOC(@{GuidePage})
             }
