@@ -1,0 +1,30 @@
+import {View} from "@dlightjs/dlight";
+import {SceneOne} from "./components/SceneOne.tsd";
+import {Header} from "../../components/Header.tsd";
+import {FeatureDisplay} from "./components/FeatureDisplay.tsd";
+
+
+export class HomePage extends View {
+    @State pinHeader = false
+    @Env navigator
+
+
+    Body() {
+        div {
+            SceneOne()
+                .pinHeader(this.pinHeader)
+            div {
+                Header()
+            }
+                // ._transform(`translateY(${this.headerOffset}px)`)
+                ._position(this.pinHeader?"fixed":"")
+                ._top(this.pinHeader?"0":"")
+                ._width("100%")
+            div {
+                FeatureDisplay()
+            }
+                ._marginTop(this.pinHeader?"38px":"")
+        }
+            ._height("5000px")
+    }
+}

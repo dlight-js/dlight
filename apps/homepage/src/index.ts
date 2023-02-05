@@ -1,6 +1,5 @@
 import {render} from "@dlightjs/dlight";
-// @ts-ignore
-import {HomePage} from "./HomePage.tsd";
+import {App} from "./App.tsd";
 
-render("app", HomePage)
+render("app", App)
 

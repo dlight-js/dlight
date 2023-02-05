@@ -1,0 +1,87 @@
+import {View} from "@dlightjs/dlight";
+import {VStack, HStack} from "@dlightjs/components";
+import {Spacer} from "@dlightjs/components";
+
+class NavButton extends View {
+    @Prop navigator
+    @Prop _$content
+    @Prop path
+    @State mouseState
+
+    Body() {
+        button(this._$content)
+            ._width("100px")
+            ._height("38px")
+            ._backgroundColor("rgba(255,255,255,0.3)")
+            ._borderWidth("0px")
+            ._color(this.mouseState==='over'?"blue":"black")
+            .onclick(()=>{
+                this.navigator.to(this.path)
+            })
+            .onmouseover(()=>{
+                this.mouseState = 'over'
+            })
+            .onmouseout(()=>{
+                this.mouseState = 'out'
+            })
+    }
+}
+
+export class LogoTitle extends View {
+    @Prop navigator
+
+    Body() {
+        div{
+            HStack
+            {
+                div("🧬")
+                div("Dlight")
+                    ._fontWeight("3px")
+                    ._fontSize("20px")
+            }
+        }
+        .onclick(()=>{
+            this.navigator.to("./")
+        })
+    }
+}
+
+export class Header extends View {
+    @Env navigator
+    Body() {
+        div{
+            HStack{
+                LogoTitle()
+                    .navigator(this.navigator)
+                Spacer()
+                NavButton("Guide")
+                    .navigator(this.navigator)
+                    .path("./guide/home")
+                NavButton("PlayGround")
+                    .navigator(this.navigator)
+                    .path("./playground")
+                NavButton("Ecosystem")
+                    .navigator(this.navigator)
+                    .path("./ecosystem")
+            }
+            .width("100%")
+        }
+        ._backgroundColor("white")
+
+    }
+}
+
+export class HeaderHOC extends View {
+    @Prop _$content
+    @Env navigator
+    didMount(_els: HTMLElement[], _node: CustomNode) {
+        console.log(this._$content)
+    }
+
+    Body() {
+        VStack{
+            Header({navigator:this.navigator})
+            Exp(this._$content)
+        }
+    }
+}

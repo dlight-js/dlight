@@ -1,13 +1,14 @@
 import {View} from "@dlightjs/dlight";
-import {RouterSpace, Route} from "@dlightjs/components";
-import {Menu} from "./Menu.tsd";
+import {HStack, Spacer, VStack, RouterSpace, Route} from "@dlightjs/components";
 import {marked} from "marked";
-import {HStack, Spacer, VStack} from "@dlightjs/components/src";
-import {menuListNameMap} from "./menuConfig";
+import {Menu} from "../components/Menu.tsd";
+import {menuListNameMap} from "../menuConfig";
+
 
 class GuideButton extends View {
     @Prop type
     @Prop title
+    @Env RouteParam
 
     Body() {
         div
@@ -37,40 +38,51 @@ class GuideButton extends View {
             ._height("50px")
             ._borderRadius("4px")
             ._padding("5px 15px 0px 15px")
+            .onclick(()=>{
+                this.RouteParam.navigator.to(`guide/${this.title}`);
+            })
     }
 }
 
 class GuideContent extends View {
-    @Prop nextContent
-    @Prop prevContent
-    @State content = ""
+    @State content = "fi"
+    @State prevContent
+    @State nextContent
     @Env RouteParam
     path = this.RouteParam.path
     watchPathChange = function() {
+        // console.log("changed", this.RouteParam)
         if (!this.path.startsWith("guide/")) {
             console.warn(`curr path: ${this.path}, no file`)
             return
         }
         const fileName = this.path.replace("guide/", "")
+        const index = Object.keys(menuListNameMap).indexOf(fileName)
+        this.prevContent = Object.keys(menuListNameMap)[index-1]
+        this.nextContent = Object.keys(menuListNameMap)[index+1]
         const filePath = "/" + menuListNameMap[fileName]
         fetch(filePath)
             .then(response => response.text())
             .then(text => {
                 this.content = marked.parse(text)
-                console.log(text)
+                // console.log(text)
             })
 
     }.call(this)
 
     Body() {
         div{
-            div(this.content)
+            div({innerHTML: this.content})
                 ._width("100%")
                 // ._width("calc(100% - 420px)")
             HStack{
-                GuideButton({type:"prev",title:"Setup"})
+                If(this.prevContent){
+                    GuideButton({type:"prev", title: this.prevContent})
+                }
                 Spacer()
-                GuideButton({type:"next",title:"Install"})
+                If(this.nextContent){
+                    GuideButton({type: "next", title: this.nextContent})
+                }
             }
         }
         ._width("70%")
@@ -80,16 +92,14 @@ class GuideContent extends View {
 
 export class GuidePage extends View {
     @State navigator
-    @State nextContent
-    @State prevContent
 
     Body() {
         HStack{
             Env({navigator: this.navigator}) {
-                Menu({prevContent: this.prevContent, nextContent: this.nextContent})
+                Menu()
             }
             RouterSpace({navigator: this.navigator}) {
-                Route {
+                Route() {
                     GuideContent()
                 }
             }

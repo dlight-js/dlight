@@ -1,0 +1,32 @@
+import {render, View} from "@dlightjs/dlight";
+import {HStack} from "@dlightjs/components/src";
+import {Env, i18n} from "../../../utils/i18n";
+import {App} from "../../../App.tsd";
+
+
+class FeatureCard extends View {
+    @Prop _$content
+    Body() {
+        div(this._$content)
+            ._width("100px")
+            ._height("100px")
+            ._backgroundColor("red")
+    }
+}
+
+
+export class FeatureDisplay extends View {
+    Body() {
+        HStack {
+            FeatureCard(i18n`Delightful`)
+            FeatureCard(i18n`Light`)
+            FeatureCard(i18n`Friendly`)
+            FeatureCard(i18n`Beautiful`)
+        }
+        button("change language")
+            .onclick(() => {
+                Env.language = Env.language === "en" ? "zh" : "en"
+                render("app", App)
+            })
+    }
+}
