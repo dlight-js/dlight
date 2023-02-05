@@ -11,12 +11,14 @@ Your modern web framework ~
 
 * ⚡️ Performant
   * Dlight enhances code performance at compile time and directly manipulates the DOM, which makes the execution speed of the code as close to vanilla JavaScript as possible, even with limited optimization knowledge.
+  * The performance of updating states is 1.03x vanilla JS!
 * 🚲 Simple
   * No more complex hooks towards reactivity. Just use @State, and dep-chain will help you do the rest.
   * Dlight provides context managing power by default.
   * Website development has never been so easy.
 * 🍼 Friendly
   * Support jsx and jsd(our new domain syntax) to help you write everything in js.
+  * Jsd is a swiftui-style syntax, friendly to iOS developer.
 * 🦋 Beautiful
   * Every line of code in DLight is elegant and beautiful!
 
