@@ -7,14 +7,18 @@ class NavButton extends View {
     @Prop _$content
     @Prop path
     @State mouseState
+    @State disabled = false
 
     Body() {
         button(this._$content)
-            ._width("100px")
+            ._fontSize("18px")
             ._height("38px")
             ._backgroundColor("rgba(255,255,255,0.3)")
             ._borderWidth("0px")
             ._color(this.mouseState==='over'?"blue":"black")
+            ._color(this.disabled&&"#b0b0b0")
+            ._cursor(this.disabled?"default":"pointer")
+            .disabled(this.disabled)
             .onclick(()=>{
                 console.log(this.RouteParam.navigator)
                 this.RouteParam.navigator.to(this.path)
@@ -52,8 +56,6 @@ export class LogoTitle extends View {
 }
 
 export class Header extends View {
-    // @Env RouteParam
-
     Body() {
         div{
             HStack{
@@ -62,9 +64,11 @@ export class Header extends View {
                 NavButton("Guide")
                     .path("./guide/home")
                 NavButton("PlayGround")
+                    .disabled()
                     .path("./playground")
                 NavButton("Ecosystem")
                     .path("./ecosystem")
+                    .disabled()
             }
             .width("100%")
         }
@@ -83,10 +87,10 @@ export class HeaderHOC extends View {
     }
 
     Body() {
-        VStack{
+        // VStack{
             Header({navigator:this.navigator})
             Exp(this._$content)
-        }
+        // }
     }
 }
 

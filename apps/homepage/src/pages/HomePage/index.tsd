@@ -22,7 +22,7 @@ export class HomePage extends View {
             div {
                 FeatureDisplay()
             }
-                ._marginTop(this.pinHeader?"38px":"")
+                ._marginTop(this.pinHeader?"182px":"100px")
         }
             ._height("5000px")
     }

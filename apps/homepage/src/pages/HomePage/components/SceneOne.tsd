@@ -1,6 +1,7 @@
 import {PropState, View} from "@dlightjs/dlight";
 import {animatie} from "../utils";
 import {HStack, Spacer, VStack} from "@dlightjs/components/src";
+import {welcomePage} from "./style.module.css"
 
 export class SceneOne extends View {
     @PropState pinHeader
@@ -54,9 +55,7 @@ export class SceneOne extends View {
                 .width("100%")
 
         }
-            ._width("100%")
-            ._height("100vh")
-            ._backgroundColor("rgba(199, 188, 68, 0.3)")
+            .className(welcomePage)
             .element(this.wrapperEl)
 
 

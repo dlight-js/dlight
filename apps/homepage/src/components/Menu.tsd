@@ -39,13 +39,13 @@ class MenuList extends View {
                 SubMenuList({subMemu: menuListConfig[title]})
             }
         }
+        ._height("100%")
         // ._marginTop("20px")
     }
 }
 
 
 export class Menu extends View {
-
     Body() {
         div{
             VStack{
@@ -53,9 +53,9 @@ export class Menu extends View {
             }
             .alignment("center")
         }
+            ._height("100%")
             ._padding("20px")
             ._width("200px")
-            ._height("100%")
             ._backgroundColor("#F9F9F9")
     }
 }
