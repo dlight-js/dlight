@@ -1,0 +1,67 @@
+import {PropState, View} from "@dlightjs/dlight";
+import {animatie} from "../utils";
+import {HStack, Spacer, VStack} from "@dlightjs/components/src";
+
+export class SceneOne extends View {
+    @PropState pinHeader
+    wrapperEl
+    wrapperHeight = 0
+
+    prevScrollTop = 0
+
+    handleScroll = () => {
+        const {scrollTop} = document.documentElement
+        if (scrollTop > this.prevScrollTop &&
+            scrollTop > this.wrapperHeight / 3 &&
+            scrollTop < this.wrapperHeight
+        ) {
+            removeEventListener("scroll", this.handleScroll)
+            animatie(percentTime => {
+                scrollTo(0, scrollTop + percentTime * (this.wrapperHeight - scrollTop))
+            }, 0.5, () => {
+                addEventListener("scroll", this.handleScroll)
+            })
+        } else if (scrollTop > this.wrapperHeight) {
+            this.pinHeader = true
+        } else {
+            this.pinHeader = false
+        }
+        this.prevScrollTop = scrollTop
+
+    }
+    didMount() {
+        const heightStr = getComputedStyle(this.wrapperEl).height
+        this.wrapperHeight = +heightStr.replace("px", "")
+        addEventListener("scroll", this.handleScroll)
+    }
+
+    willUnmount() {
+        removeEventListener("scroll", this.handleScroll)
+    }
+
+    Body() {
+        div{
+            VStack {
+                Spacer()
+                HStack {
+                    Spacer()
+                    div("DLight")
+                        ._fontSize("100px")
+                    Spacer()
+                }
+                Spacer()
+            }
+                .width("100%")
+
+        }
+            ._width("100%")
+            ._height("100vh")
+            ._backgroundColor("rgba(199, 188, 68, 0.3)")
+            .element(this.wrapperEl)
+
+
+
+    }
+
+
+}

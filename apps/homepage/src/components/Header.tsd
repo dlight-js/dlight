@@ -1,0 +1,92 @@
+import {View} from "@dlightjs/dlight";
+import {VStack, HStack} from "@dlightjs/components";
+import {Spacer} from "@dlightjs/components";
+
+class NavButton extends View {
+    @Env RouteParam
+    @Prop _$content
+    @Prop path
+    @State mouseState
+
+    Body() {
+        button(this._$content)
+            ._width("100px")
+            ._height("38px")
+            ._backgroundColor("rgba(255,255,255,0.3)")
+            ._borderWidth("0px")
+            ._color(this.mouseState==='over'?"blue":"black")
+            .onclick(()=>{
+                console.log(this.RouteParam.navigator)
+                this.RouteParam.navigator.to(this.path)
+            })
+            .onmouseover(()=>{
+                this.mouseState = 'over'
+            })
+            .onmouseout(()=>{
+                this.mouseState = 'out'
+            })
+    }
+}
+
+export class LogoTitle extends View {
+    @Env RouteParam
+
+    Body() {
+        div{
+            HStack
+            {
+                img({src: '/img/logo.png'})
+                    ._padding('5px')
+                    ._paddingTop('3px')
+                    ._width("30px")
+                div("light")
+                    ._fontWeight("900")
+                    ._fontSize("25px")
+            }.spacing("0")
+        }
+        ._margin("5px")
+        .onclick(()=>{
+            this.RouteParam.navigator.to("./")
+        })
+    }
+}
+
+export class Header extends View {
+    // @Env RouteParam
+
+    Body() {
+        div{
+            HStack{
+                LogoTitle()
+                Spacer()
+                NavButton("Guide")
+                    .path("./guide/home")
+                NavButton("PlayGround")
+                    .path("./playground")
+                NavButton("Ecosystem")
+                    .path("./ecosystem")
+            }
+            .width("100%")
+        }
+        ._padding("16px 50px")
+        ._boxShadow("0px 3px 8px rgb(197,197,197, 0.3)")
+        ._backgroundColor("white")
+
+    }
+}
+
+export class HeaderHOC extends View {
+    @Prop _$content
+    @Env navigator
+    didMount(_els: HTMLElement[], _node: CustomNode) {
+        console.log(this._$content)
+    }
+
+    Body() {
+        VStack{
+            Header({navigator:this.navigator})
+            Exp(this._$content)
+        }
+    }
+}
+
