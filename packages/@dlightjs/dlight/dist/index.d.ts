@@ -264,15 +264,4 @@ declare function render(idOrEl: string | HTMLElement, dl: {
     new (): CustomNode;
 }): void;
 
-declare const For: any;
-declare const If: any;
-declare const ElseIf: any;
-declare const Else: any;
-declare const Env: any;
-declare const Exp: any;
-declare const State: any;
-declare const Prop: any;
-declare const PropState: any;
-declare const EnvState: any;
-
-export { CustomNode, DLNode, DLNodeType, Else, ElseIf, Env, EnvNode, EnvState, Exp, ExpressionNode, For, ForNode, HtmlNode, If, IfNode, Prop, PropState, State, TextNode, View, bindParentNode, initNodes, loopEls, loopNodes, render, required, toEls };
+export { CustomNode, DLNode, DLNodeType, EnvNode, ExpressionNode, ForNode, HtmlNode, IfNode, TextNode, View, bindParentNode, initNodes, loopEls, loopNodes, render, required, toEls };
