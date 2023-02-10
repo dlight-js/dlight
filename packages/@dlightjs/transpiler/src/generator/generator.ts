@@ -82,8 +82,8 @@ export class Generator {
                 body.add(`_$valuedItem.${i} = ${i}`)
             }
             body.add(`${nodeName}_for._$listen(this, ()=>${nodeName}_for._$getItem(_$key, _$idx), \
-            ${geneDepsStr(listenDeps)}, (item) => {`)
-            body.add(`const ${item} = item`)
+            ${geneDepsStr(listenDeps)}, (_$item) => {`)
+            body.add(`const ${item} = _$item`)
             for (let i of idArr) {
                 body.add(`_$valuedItem.${i} = ${i}`)
             }
