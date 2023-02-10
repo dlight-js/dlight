@@ -1,0 +1,20 @@
+import {View} from "@dlightjs/dlight";
+
+class FooterItem extends View {
+    @Prop title
+    @Prop 
+    Body() {
+        div{
+            div(this.title)
+
+        }
+    }
+}
+
+export class Footer extends View {
+    Body() {
+        div{
+
+                }
+    }
+}

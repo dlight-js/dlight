@@ -2,7 +2,8 @@ import {Prop, render, View} from "@dlightjs/dlight";
 import {HStack, Spacer, VStack} from "@dlightjs/components/src";
 import {Env, i18n} from "../../../utils/i18n";
 import {App} from "../../../App.tsd";
-import {featureContent} from "./constant";
+import {featureContent, whyDlight} from "./constant";
+import {featureWrap, featureCardWrap, whyDlightText} from "./style.module.css";
 
 
 class FeatureCard extends View {
@@ -12,49 +13,44 @@ class FeatureCard extends View {
     Body() {
         div{
             VStack{
+                Spacer()
                 div(this.icon)
                 div(this._$content)
                     ._fontSize("20px")
                     ._fontWeight("900")
                 div(this.description)
-                    ._width("200px")
+                    ._width("220px")
                     ._padding("40px 0")
                     ._color("#a09090")
                     // ._flexWrap('wrap')
                 Spacer()
             }
         }
-        ._paddingLeft("30px")
-            ._width("250px")
-            ._height("400px")
-            ._backgroundColor("white")
-            ._boxShadow("0px 5px 8px rgb(197,197,197, 0.3)")
+        .className(featureCardWrap)
     }
 }
 
 
 export class FeatureDisplay extends View {
     Body() {
-
+        div(whyDlight)
+            .className(whyDlightText)
         div{
-            HStack({spacing: 60}) {
-                Spacer()
-                For(let {name, icon, description} of featureContent) {
-                    FeatureCard(name)
-                        .icon(icon)
-                        .description(description)
-                }
-                // FeatureCard(i18n`Performant`)
-                //     .description('Dlight enhances code performance at compile time and directly manipulates the DOM,\ ' +
-                //         'which makes the execution speed of the code as close to vanilla JavaScript as possible,\ ' +
-                //         'even with limited optimization knowledge.')
-                // FeatureCard(i18n`Simple`)
-                //     .description
-                // FeatureCard(i18n`Friendly`)
-                // FeatureCard(i18n`Beautiful`)
-                Spacer()
+            For(let {name, icon, description} of featureContent) {
+                FeatureCard(name)
+                    .icon(icon)
+                    .description(description)
             }
+            // FeatureCard(i18n`Performant`)
+            //     .description('Dlight enhances code performance at compile time and directly manipulates the DOM,\ ' +
+            //         'which makes the execution speed of the code as close to vanilla JavaScript as possible,\ ' +
+            //         'even with limited optimization knowledge.')
+            // FeatureCard(i18n`Simple`)
+            //     .description
+            // FeatureCard(i18n`Friendly`)
+            // FeatureCard(i18n`Beautiful`)
         }
+        .className(featureWrap)
         // button("change language")
         //     .onclick(() => {
         //         Env.language = Env.language === "en" ? "zh" : "en"

@@ -2,16 +2,12 @@ export const featureContent = [
     {
         icon: '⚡️',
         name: 'Performant',
-        description: 'Dlight enhances code performance at compile time and directly manipulates the DOM,\ ' +
-            'which makes the execution speed of the code as close to vanilla JavaScript as possible,\ ' +
-            'even with limited optimization knowledge.',
+        description: 'The performance of updating states is 1.03x vanilla JS!',
     },
     {
         icon: '🚲',
         name: 'Simple',
-        description: 'Dlight enhances code performance at compile time and directly manipulates the DOM,\ ' +
-            'which makes the execution speed of the code as close to vanilla JavaScript as possible,\ ' +
-            'even with limited optimization knowledge.',
+        description: 'No more complex hooks towards reactivity. Just use @State, and dep-chain will help you do the rest.',
     },
     {
         icon: '🍼',
@@ -23,4 +19,9 @@ export const featureContent = [
         name: 'Beautiful',
         description: 'Every line of code in DLight is elegant and beautiful!',
     },
-]
+];
+
+export const dlightDescription = 'Your modern JavaScript framework~';
+export const dlight = 'DLight';
+export const whyDlight = 'Why DLight'
+export const tryTitle = 'Try it now'
