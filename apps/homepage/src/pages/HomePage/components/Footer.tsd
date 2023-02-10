@@ -1,20 +1,68 @@
 import {View} from "@dlightjs/dlight";
+import {footerWrap, footerMenuTitle, footerMenuWrap, footerMenuItem} from "./style.module.css"
 
 class FooterItem extends View {
     @Prop title
-    @Prop 
+    @Prop menu
     Body() {
         div{
             div(this.title)
-
+                .className(footerMenuTitle)
+            div{
+                For(let item of this.menu){
+                    a(item.itemName)
+                        .className(footerMenuItem)
+                        .href(item.path??'')
+                }
+            }
+            .className(footerMenuWrap)
         }
     }
 }
 
 export class Footer extends View {
+    menus = [
+        {
+            title: 'Docs',
+            menu: [{
+                    itemName: 'Guide',
+                    path: '',
+                },
+                {
+                    itemName: 'Tutorial',
+                    path: '',
+                },
+                {
+                    itemName: 'Advance',
+                    path: ''
+                }],
+        },
+        {
+            title: 'Team',
+            menu: [{
+                    itemName: 'duan yihan',
+                    path: '',
+                },
+                {
+                    itemName: 'chen xinyi',
+                    path: '',
+                },
+            ]
+        },
+        {
+            title: 'News',
+            menu: [{
+                itemName: 'Blog',
+                path: '',
+            }]
+        }
+    ]
     Body() {
         div{
-
-                }
+            For(let menuItem of this.menus){
+                FooterItem({title: menuItem.title, menu: menuItem.menu})
+            }
+        }
+        .className(footerWrap)
     }
 }

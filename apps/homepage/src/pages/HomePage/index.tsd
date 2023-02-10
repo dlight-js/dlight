@@ -3,7 +3,8 @@ import {SceneOne} from "./components/SceneOne.tsd";
 import {Header} from "../../components/Header.tsd";
 import {FeatureDisplay} from "./components/FeatureDisplay.tsd";
 import {TryModule} from "./components/TryModule.tsd";
-import {SceneTwo, SceneThree} from "./style.module.css"
+import {Footer} from "./components/Footer.tsd"
+import {SceneTwo, SceneThree, SceneFour} from "./style.module.css"
 
 
 export class HomePage extends View {
@@ -66,6 +67,9 @@ export class HomePage extends View {
                 TryModule()
             }
             .className(SceneThree)
+            div{
+                Footer()
+            }.className(SceneFour)
         }
             ._height("5000px")
     }

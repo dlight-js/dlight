@@ -9,10 +9,12 @@ export class TryDescription extends View {
         div{
             div(i18n`Try it now`)
                 .className(tryTitleText)
-            div(i18n`A simple counter with both jsx and jsd, choose it as you like!
+            div(i18n`A simple counter with both jsx and jsd,
+                choose it as you like!
                 Play around in codesandbox`)
                 .className(tryDescText)
         }
+        ._width("35%")
         // @ts-ignore
     }
 }
