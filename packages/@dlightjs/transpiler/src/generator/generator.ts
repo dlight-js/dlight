@@ -1,4 +1,4 @@
-import {BodyStringBuilder, geneChildNodesArray, isCustomEl} from './bodyBuilder';
+import {BodyStringBuilder, geneChildNodesArray, isHTMLTag} from './bodyBuilder';
 import {ParserNode} from "../parserNode";
 import {
     geneDeps,
@@ -24,7 +24,6 @@ export class Generator {
             body.addBody(this.resolveParserNode(child, idx))
         }
         body.add(`return ${geneChildNodesArray(parserNode)}`)
-
         return body.value
     }
 
@@ -37,9 +36,9 @@ export class Generator {
         if (parserNode.tag === "If") return this.resolveIf(parserNode, idx)
         if (parserNode.tag === "For") return this.resolveFor(parserNode, idx)
         if (parserNode.tag === "Env") return this.resolveEnv(parserNode, idx)
-        if (isCustomEl(parserNode)) return this.resolveCustom(parserNode, idx)
         if (parserNode.tag === "text") return this.resolveText(parserNode, idx)
-        return this.resolveHTML(parserNode, idx)
+        if (isHTMLTag(parserNode)) return this.resolveHTML(parserNode, idx)
+        return this.resolveCustom(parserNode, idx)
     }
 
 
@@ -146,7 +145,12 @@ export class Generator {
     resolveHTML(parserNode: ParserNode, idx: number) {
         const body = new BodyStringBuilder()
         const nodeName = `_$node${idx}`
-        body.add(`const ${nodeName} = new _$.HtmlNode("${parserNode.tag}", )`)
+        if (parserNode.tag.startsWith("_")) {
+            // ---- 强制变成html tag
+            body.add(`const ${nodeName} = new _$.HtmlNode(${parserNode.tag.slice(1)}, )`)
+        } else {
+            body.add(`const ${nodeName} = new _$.HtmlNode("${parserNode.tag}", )`)
+        }
 
         // ---- properties
         for (let {key, value, nodes} of parserNode.kv.props) {

@@ -1,20 +1,15 @@
 import {ParserNode} from "../parserNode";
 
-function isEl(parserNode: ParserNode) {
-    return !["If", "For", "TextNode"].includes(parserNode.tag)
+export function isHTMLTag(parserNode: ParserNode) {
+    const tag = parserNode.tag
+    return /^[a-z][a-z0-9]*$/.test(tag) || tag.startsWith("_")
 }
 
-export function isCustomEl(parserNode: ParserNode) {
-    return parserNode.tag[0].toUpperCase() === parserNode.tag[0] && isEl(parserNode)
-}
 
 export function newLine(value: string) {
     return `${value}\n`
 }
 
-export function geneAppendix(newAppendix: string, idAppendix?: string) {
-    return idAppendix ? `${idAppendix}-${newAppendix}` : newAppendix
-}
 
 export function geneChildNodesArray(parserNode: ParserNode) {
     return "[" + parserNode.children.map((_: any, idx: number)=>`_$node${idx}`).join(", ") + "]"

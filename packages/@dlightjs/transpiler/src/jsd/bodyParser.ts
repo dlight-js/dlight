@@ -60,19 +60,6 @@ class Parser {
         return this.parserNode.lastChild
     } 
 
-    addElKey() {
-        const key = this.token.slice(1)
-        this.erase()
-        this.eatSpace()
-        this.eat()  // eat (
-        this.eatSpace()
-        let content = this.eatContent()
-        if (content.trim() === "") {
-            content = "true"
-        }
-        this.el.kv.props.push(this.parseProp(key, content))
-        this.erase()
-    }
 
     eatBrackets(left: string, right: string) {
         let depth = 1
@@ -131,11 +118,6 @@ class Parser {
                 }
                 if (["For"].includes(this.token)) {
                     this.resolveFor()
-                    continue
-                }
-                if (this.token.startsWith(".")) {
-                    // ---- 代表是key
-                    this.addElKey()
                     continue
                 }
                 this.resolveEl()
@@ -201,6 +183,30 @@ class Parser {
         return prop
     }
 
+
+    eatDotProp(node: ParserNode) {
+        while (this.look() !== "(") {
+            this.eat()
+            this.add()
+        }
+        const key = this.token
+        this.erase()
+        this.eatSpace()
+        this.eat()  // eat (
+        this.eatSpace()
+        let content = this.eatContent()
+        if (content.trim() === "") {
+            content = "true"
+        }
+        node.kv.props.push(this.parseProp(key, content))
+        this.erase()
+        this.eatSpace()
+        if (this.look() === ".") {
+            this.eat()
+            this.eatDotProp(node)
+        }
+    }
+
     resolveText() {
         const newNode =  new ParserNode("text")
         newNode.kv.strSymbol = this.token[0]
@@ -213,11 +219,11 @@ class Parser {
         const newNode =  new ParserNode(this.token)
         this.erase()
         this.eatSpace()
-        if (this.look() === "(") {
+
+        if (this.look() === "(") {// 参数
             this.eat()  // eat (
             this.eatSpace()
-
-            if (this.look() === "{") { // 参数
+            if (this.look() === "{") {
                 const content = this.eatContent()
                 const ast = parse(`(${content})`)
                 const props = ast.program.body[0].expression.properties
@@ -236,6 +242,12 @@ class Parser {
         if (this.look() === "{")  { // 子
             this.eat() // eat {
             newNode.children = this.eatSubEl().children // add children
+            this.eatSpace()
+        }
+        if (this.look() === ".") {
+            this.eat() // eat .
+            this.eatDotProp(newNode)
+            this.eatSpace()
         }
 
         this.parserNode.addChild(newNode)

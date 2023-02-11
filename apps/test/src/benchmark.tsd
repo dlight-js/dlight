@@ -24,7 +24,7 @@ class Button extends View {
     @Prop onclick
     @Prop _$content
     Body() {
-        div {
+        div() {
             button(this._$content)
                 .onclick(this.onclick)
                 .id(this.id)
@@ -42,17 +42,17 @@ class Row extends View {
     @Prop selectRow: any
     @Prop deleteRow: any
     Body() {
-        tr {
+        tr() {
             td(this.id)
                 .className("col-md-1")
-            td {
+            td() {
                 a(this.label)
                     .className("lbl")
             }
                 .className("col-md-4")
                 .onclick(() => this.selectRow(this.id))
-            td {
-                a {
+            td() {
+                a() {
                     span()
                         .className("remove glyphicon glyphicon-remove")
                         .ariaHidden(true)
@@ -106,12 +106,12 @@ export class Benchmark extends View {
     @State count = -1
 
     Body() {
-        div {
+        div() {
             h1("dlight")
         }
             .className("col-sm-6")
-        div {
-            div {
+        div() {
+            div() {
                 Button("Create 1,000 rows")
                     .onclick(this.addRows)
                     .id("run")
@@ -136,25 +136,25 @@ export class Benchmark extends View {
         }            
             .className("row")
 
-        div {
-            table {
-                tbody {
+        div() {
+            table() {
+                tbody() {
                     For(let {id,label} of this.rows)[id] {
                         // Row({id, label})
                         //     .deleteRow(this.deleteRow)
                         //     .selectRow(this.selectRow)
                         //     .className(this.selectIdx === id ? "danger" : "")
-                        tr {
+                        tr() {
                             td(id)
                                 .className("col-md-1")
-                            td {
+                            td() {
                                 a(label)
                                     .className("lbl")
                             }
                                 .className("col-md-4")
                                 .onclick(() => this.selectRow(id))
-                            td {
-                                a {
+                            td() {
+                                a() {
                                     span()
                                         .className("remove glyphicon glyphicon-remove")
                                         .ariaHidden(true)
