@@ -1,6 +1,14 @@
 import {BodyStringBuilder, geneChildNodesArray, isCustomEl} from './bodyBuilder';
 import {ParserNode} from "../parserNode";
-import {geneDeps, geneDepsStr, geneIsTwoWayConnected, resolveForBody, geneIdDeps, getIdentifiers} from './utils';
+import {
+    geneDeps,
+    geneDepsStr,
+    geneIsTwoWayConnected,
+    resolveForBody,
+    geneIdDeps,
+    getIdentifiers,
+    isElementFunction
+} from './utils';
 
 
 export class Generator {
@@ -183,7 +191,12 @@ export class Generator {
         for (let {key, value, nodes} of parserNode.kv.props) {
             value = this.parsePropNodes(value, nodes)
             if (key === "element") {
-                body.add(`${nodeName}._$addAfterset(() => ${value} = ${nodeName}._$el)`)
+                const isFunction = isElementFunction(value)
+                if (isFunction) {
+                    body.add(`${nodeName}._$addAfterset(() => (${value})(${nodeName}._$el))`)
+                } else {
+                    body.add(`${nodeName}._$addAfterset(() => ${value} = ${nodeName}._$el)`)
+                }
                 continue
             }
             if (["willMount", "didMount", "willUnmount", "didUnmount"].includes(key)) {

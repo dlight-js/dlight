@@ -34,29 +34,36 @@ class New extends View {
 }
 render("meme", New)
 `
+class TT extends View {
+
+
+    Afterset() {
+        console.log('jj')
+        console.log(this._$el, 'tt')
+        this._$el = this._$el[0]
+    }
+
+    Body() {
+        div("hhh")
+    }
+
+
+}
+
 
 export class TestTest extends View {
     @State text = ""
-
-    watchText = function() {
-        console.log(this.text)
-        try {
-            console.log(geneParserNode(this.text, JSDConfig, "standalone"))
-            // eval(this.text)
-        } catch(e) {
-            console.warn("no", e)
-        }
-
-    }.call(this)
+    @State el
+    // didMount(_els: HTMLElement[], _node: CustomNode) {
+    //     console.log(this.el)
+    // }
 
     Body() {
-        textarea()
-            ._width("600px")
-            ._height("700px")
-            .oninput(e=> {
-                this.text = e.target.value
+        TT()
+            .element((els) => {
+                console.log(els)
+                this.el = els
             })
-       div()
-        .id("meme")
+
     }
 }

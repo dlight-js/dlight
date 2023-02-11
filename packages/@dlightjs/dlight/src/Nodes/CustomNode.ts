@@ -77,11 +77,11 @@ export class CustomNode extends DLNode {
     }
     
     _$addAfterset(func: () => any) {
-        const prePreset = this.Preset
-        this.Preset = () => {
-            prePreset()
+        const preAfterset = this.Afterset.bind(this)
+        this.Afterset = function() {
+            preAfterset()
             func()
-        }
+        }.bind(this)
     }
 
     _$runDeps(depName: string) {

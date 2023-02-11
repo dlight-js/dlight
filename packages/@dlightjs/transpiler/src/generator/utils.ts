@@ -84,3 +84,11 @@ export function resolveForBody(bodyStr: string, item: string) {
     })
     return Transpiler.generate(bodyAst.program.body[0].body).trim().replace(/(^\{)|(\}$)/g, "")
 }
+
+
+
+export function isElementFunction(str: string) {
+    const ast = Transpiler.parse.ts(`let _ = ${str}`).program.body[0].declarations[0].init
+    return !!(t.isArrowFunctionExpression(ast) || t.isFunctionExpression(ast));
+
+}
