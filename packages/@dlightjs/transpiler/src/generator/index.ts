@@ -258,11 +258,9 @@ export class Generator {
     resolveExpression(parserNode: ParserNode, idx: number) {
         const body = new BodyStringBuilder()
         const nodeName = `_$node${idx}`
-
         // ---- forward props
         for (let {key, value, nodes} of parserNode.attr.props) {
             value = this.parsePropNodes(value, nodes)
-
             if (key === "_$content") {
                 const listenDeps = this.geneDeps(value)
                 if (listenDeps.length > 0) {

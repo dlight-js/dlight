@@ -85,7 +85,11 @@ export function parseDlightFile(sourceFileCode: string, type: "jsx" | "jsd") {
             // ---- 要提前判断是不是最后一个，因为后面会赠加
             const willParseBody = classBodyNode!.body.indexOf(path.node) === classBodyNode!.body.length - 1
             // ---- 如果是view，直接return
-            if (node.decorators?.find(d => t.isIdentifier(d.expression) && d.expression.name === "View")) return
+            if (node.decorators?.find(d => t.isIdentifier(d.expression) && d.expression.name === "View")
+            || (node.key as t.Identifier).name === "Body") {
+                if (willParseBody) handleBody(classBodyNode!, depChain, type)
+                return
+            }
 
             // ---- 看是不是有属性是 prop derived，有就加一个()=>
             //      同时在propDerived中记录，这会在constructor的调用一遍

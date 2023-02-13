@@ -18,11 +18,10 @@ function parseProp(
             path.replaceWith(t.stringLiteral(id))
         }
     })
+    let value = Transpiler.generate(valueNode)
+    if (t.isJSXExpressionContainer(valueNode)) value = value.replace(/^\{(.+)\}$/, "$1")
+    if (value.trim() === "") value = "\"\""
 
-    let value = Transpiler.generate(newAst).trim().replace(/;$/g, " ")
-    if (value.trim() === "") {
-        value = "\"\""
-    }
     return {key, value, nodes}
 }
 
@@ -109,7 +108,7 @@ function parseFor(jsxElement: t.JSXElement): ParserNode {
 function parseJSXExpression(jsxElement: t.JSXExpressionContainer) {
     return {
         tag: "_",
-        attr: {props: parseProp("_$content", jsxElement)},
+        attr: {props: [parseProp("_$content", jsxElement)]},
         children: [],
     }
 }
