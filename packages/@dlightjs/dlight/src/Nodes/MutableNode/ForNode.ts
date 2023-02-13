@@ -91,7 +91,6 @@ export class ForNode extends MutableNode {
             ? () => this.updateWithKey(parentNode as HtmlNode)
             : () => this.updateWithOutKey(parentNode as HtmlNode)
 
-
         // ---- 加deps
         const objectId = {}
         this._$depObjectIds.push(objectId)
@@ -158,7 +157,7 @@ export class ForNode extends MutableNode {
      * 有 key，三步走
      * 
      */
-    async updateWithKey(parentNode: HtmlNode) {
+    updateWithKey(parentNode: HtmlNode) {
         // ---- 如果提供了key，唯一目的就是为了保证element的reference不变，这样会变慢
         const parentEl = parentNode._$el
         const flowIndex = getFlowIndexFromParentNode(parentNode, this)

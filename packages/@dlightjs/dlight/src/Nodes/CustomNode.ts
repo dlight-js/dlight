@@ -70,18 +70,16 @@ export class CustomNode extends DLNode {
     _$derivedPairs?: {[key: string]: string[]}
     _$tag: string = ""
 
-    Body = () => []
-
     constructor() {
         super(DLNodeType.Custom)
     }
     
     _$addAfterset(func: () => any) {
-        const prePreset = this.Preset
-        this.Preset = () => {
-            prePreset()
+        const preAfterset = this.Afterset.bind(this)
+        this.Afterset = function() {
+            preAfterset()
             func()
-        }
+        }.bind(this)
     }
 
     _$runDeps(depName: string) {
@@ -153,7 +151,7 @@ export class CustomNode extends DLNode {
         this.AfterConstruct()
         this._$initDecorators()
         this.Preset()
-        this._$nodes = this.Body()
+        this._$nodes = ((this as any).Body.bind(this) ?? (() => []))()
         this.Afterset()
         this._$bindNodes()
     }

@@ -1,23 +1,27 @@
-import {ParserNode} from "../parserNode";
+import {ParserNode} from "../parser/ParserNode";
 
-function isEl(parserNode: ParserNode) {
-    return !["If", "For", "TextNode"].includes(parserNode.tag)
+export function isHTMLTag(parserNode: ParserNode) {
+    const tag = parserNode.tag
+    const htmlReg = /html\((.+)\)/
+    if (htmlReg.test(parserNode.tag)) {
+        parserNode.tag = parserNode.tag.replace(htmlReg, "$1")
+        return true
+    }
+    if (/^[a-z][a-z0-9]*$/.test(tag)) {
+        parserNode.tag = `"${parserNode.tag}"`
+        return true
+    }
+    return false
 }
 
-export function isCustomEl(parserNode: ParserNode) {
-    return parserNode.tag[0].toUpperCase() === parserNode.tag[0] && isEl(parserNode)
-}
 
 export function newLine(value: string) {
     return `${value}\n`
 }
 
-export function geneAppendix(newAppendix: string, idAppendix?: string) {
-    return idAppendix ? `${idAppendix}-${newAppendix}` : newAppendix
-}
 
-export function geneChildNodesArray(parserNode: ParserNode) {
-    return "[" + parserNode.children.map((_: any, idx: number)=>`_$node${idx}`).join(", ") + "]"
+export function geneChildNodesArray(parserNodes: ParserNode[]) {
+    return "[" + parserNodes.map((_: any, idx: number)=>`_$node${idx}`).join(", ") + "]"
 }
 
 export class BodyStringBuilder {
