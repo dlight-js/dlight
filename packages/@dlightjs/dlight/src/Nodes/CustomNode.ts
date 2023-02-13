@@ -70,8 +70,6 @@ export class CustomNode extends DLNode {
     _$derivedPairs?: {[key: string]: string[]}
     _$tag: string = ""
 
-    Body = () => []
-
     constructor() {
         super(DLNodeType.Custom)
     }
@@ -153,7 +151,7 @@ export class CustomNode extends DLNode {
         this.AfterConstruct()
         this._$initDecorators()
         this.Preset()
-        this._$nodes = this.Body()
+        this._$nodes = ((this as any).Body.bind(this) ?? (() => []))()
         this.Afterset()
         this._$bindNodes()
     }

@@ -1,4 +1,4 @@
-import {geneParserNode, JSXConfig, JSDConfig} from "@dlightjs/transpiler"
+import {parseDlightFile} from "@dlightjs/transpiler"
 
 export default function() {
     return {
@@ -16,10 +16,10 @@ export default function() {
         },
         transform(code, id) {
             if (id.endsWith(".jsd") || id.endsWith(".tsd")) {
-                return geneParserNode(code, JSDConfig)
+                return parseDlightFile(code, "jsd")
             }
             if (id.endsWith(".jsx") || id.endsWith(".tsx")) {
-                return geneParserNode(code, JSXConfig)
+                return parseDlightFile(code, "jsx")
             }
             return code
         }

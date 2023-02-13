@@ -19,7 +19,7 @@
 // export {}
 
 // // @ts-ignore
-import {TestTest} from "./test.tsd"
+import {HH} from "./test.jsx"
 import {render} from "@dlightjs/dlight";
 // import {MyComp} from "./transpiler.tsd";
 // // @ts-ignore
@@ -28,7 +28,7 @@ import {render} from "@dlightjs/dlight";
 // import {Benchmark} from "./example/performance/benchmark.tsd"
 // import {Benchmark} from "./example/performance/benchmark.jsx";
 // // console.log(t2-t1)
-import {HH} from "./test.jsx"
+// import {HH} from "./test.jsx"
 // import {NodeTest} from "./example/features/node.jsd"
 // @ts-ignore
 // import {MyComp} from "./test.jsd";
@@ -36,11 +36,11 @@ import {HH} from "./test.jsx"
 // import {TestConcurr} from "./testConcurr.tsd"
 // import {RouteTest} from "./Router.tsd";
 // import {TransitionTest} from "./transition.tsd";
-import {Benchmark} from "./benchmark.tsd";
+// import {Benchmark} from "./benchmark.tsd";
 
 
 
-render("app", TestTest)
+render("app", HH)
 
 
 // switch (testType) {

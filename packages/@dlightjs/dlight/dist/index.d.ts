@@ -133,7 +133,6 @@ declare class CustomNode extends DLNode {
         [key: string]: string[];
     };
     _$tag: string;
-    Body: () => never[];
     constructor();
     _$addAfterset(func: () => any): void;
     _$runDeps(depName: string): void;
@@ -214,7 +213,7 @@ declare class ForNode extends MutableNode {
      * 有 key，三步走
      *
      */
-    updateWithKey(parentNode: HtmlNode): Promise<void>;
+    updateWithKey(parentNode: HtmlNode): void;
     _$listen(dlScope: CustomNode, itemFunc: () => any, listenDeps: string[], updateFunc: any): void;
 }
 

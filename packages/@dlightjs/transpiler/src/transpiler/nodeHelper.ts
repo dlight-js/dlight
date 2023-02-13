@@ -1,4 +1,5 @@
 import * as t from "@babel/types";
+import Transpiler from "./babelTranspiler";
 
 
 export function pushDerived(name: string, deps: string[], propDerivedNode: t.ClassProperty, classBodyNode: t.ClassBody) {
@@ -76,4 +77,31 @@ export function shouldBeListened(innerPath: any, classDeclarationNode?: t.Node) 
     return (!isMemberInFunction(innerPath, classDeclarationNode) &&
             !isAssignmentExpressionLeft(innerPath) &&
             !isAssignmentExpressionRight(innerPath, classDeclarationNode))
+}
+
+
+
+export function functionBlockStatement(code: string) {
+    return (Transpiler.parse(code).program.body[0] as t.FunctionDeclaration).body
+}
+
+export function createGetterSetter(
+    name: string,
+    getterBody: t.BlockStatement,
+    setterBody: t.BlockStatement
+) {
+
+    return [
+        t.classMethod("get", t.identifier(name), [], getterBody),
+        t.classMethod("set", t.identifier(name), [t.identifier("value")], setterBody)
+    ]
+}
+
+export function valueWithArrowFunc(node: any) {
+    const originValue = node.value
+    node.value = {
+        type: "ArrowFunctionExpression",
+        params: [],
+        body: originValue as any
+    } as any
 }

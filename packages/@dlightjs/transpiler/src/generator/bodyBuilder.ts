@@ -1,8 +1,17 @@
-import {ParserNode} from "../parserNode";
+import {ParserNode} from "../parser/ParserNode";
 
 export function isHTMLTag(parserNode: ParserNode) {
     const tag = parserNode.tag
-    return /^[a-z][a-z0-9]*$/.test(tag) || tag.startsWith("_")
+    const htmlReg = /html\((.+)\)/
+    if (htmlReg.test(parserNode.tag)) {
+        parserNode.tag = parserNode.tag.replace(htmlReg, "$1")
+        return true
+    }
+    if (/^[a-z][a-z0-9]*$/.test(tag)) {
+        parserNode.tag = `"${parserNode.tag}"`
+        return true
+    }
+    return false
 }
 
 
@@ -11,8 +20,8 @@ export function newLine(value: string) {
 }
 
 
-export function geneChildNodesArray(parserNode: ParserNode) {
-    return "[" + parserNode.children.map((_: any, idx: number)=>`_$node${idx}`).join(", ") + "]"
+export function geneChildNodesArray(parserNodes: ParserNode[]) {
+    return "[" + parserNodes.map((_: any, idx: number)=>`_$node${idx}`).join(", ") + "]"
 }
 
 export class BodyStringBuilder {

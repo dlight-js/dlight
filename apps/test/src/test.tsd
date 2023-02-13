@@ -1,41 +1,25 @@
-import {View, required, render} from "@dlightjs/dlight"
-import {geneParserNode, JSDConfig} from "@dlightjs/transpiler"
-
-class TT extends View {
+import {View} from "@dlightjs/dlight";
+import {_, button, div, State} from "@dlightjs/useless";
 
 
-    Afterset() {
-        console.log('jj')
-        console.log(this._$el, 'tt')
-        this._$el = this._$el[0]
-    }
-
+class Tjj extends View {
     Body() {
-        div("hhh")
+        div("hfh")
     }
-
-
 }
 
-
+let a = {
+    ok: Tjj
+}
+console.log((a["oo"] ?? a.ok))
 export class TestTest extends View {
     @State text = ""
-    @State el
-    // didMount(_els: HTMLElement[], _node: CustomNode) {
-    //     console.log(this.el)
-    // }
-    MyTT = TT
-    hh = "h1"
+    @State apples = [1,2,3]
+    @State toggle = false
+    asts = []
+    aa = Tjj
 
     Body() {
-        this.MyTT()
-            .element((els) => {
-                this.el = els
-            })
-
-        _this.hh("okk")
-            ._backgroundColor('red')
-            ._color('yellow')
-
+        (a["oo"])("ok")
     }
 }

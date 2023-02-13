@@ -1,6 +1,6 @@
-import Transpiler from "../transpiler"
+import Transpiler from "../transpiler/babelTranspiler"
 import * as t from "@babel/types"
-import {isMemberInFunction, shouldBeListened} from "../babel/nodeHelper";
+import {isMemberInFunction, shouldBeListened} from "../transpiler/nodeHelper";
 
 export function geneDepsStr(listenDeps: string[]) {
     return "[" + listenDeps.map(v=>"\""+v+"\"").join(", ") + "]"
@@ -11,7 +11,7 @@ export function uid() {
 }
 
 export function geneDeps(valueStr: string, depChain: string[], otherDeps: string[]=[]) {
-    const ast = Transpiler.parse.ts(`(${valueStr})`)
+    const ast = Transpiler.parse(`(${valueStr})`)
     let deps: string[] = []
     Transpiler.traverse(ast, {
         MemberExpression(innerPath: any) {
@@ -29,7 +29,7 @@ export function geneDeps(valueStr: string, depChain: string[], otherDeps: string
 
 // ---- 只给for的解构用
 export function geneIdDeps(valueStr: string, arr: {ids: string[], propNames: string[]}[], otherDeps: string[]=[]) {
-    const ast = Transpiler.parse.ts(`(${valueStr})`)
+    const ast = Transpiler.parse(`(${valueStr})`)
     let deps: string[] = []
     Transpiler.traverse(ast, {
         Identifier(innerPath: any) {
@@ -54,20 +54,20 @@ export function getIdentifiers(valueStr: string) {
 }
 
 export function geneIsTwoWayConnected(valueStr: string) {
-    const ast = Transpiler.parse.ts(`(${valueStr})`)
+    const ast = Transpiler.parse(`(${valueStr})`)
     return t.isMemberExpression(ast.program.body[0].expression)
 }
 
 export function resolveForBody(bodyStr: string, item: string) {
     let identifierKeys: string[] = []
     // ---- 遍历拿到所有item里面的标识符，下面要把标识符转换成带.value的
-    const itemAst = Transpiler.parse.ts(item)
+    const itemAst = Transpiler.parse(item)
     Transpiler.traverse(itemAst, {
         Identifier(innerPath: any) {
             identifierKeys.push(innerPath.node.name)
         }
     })
-    const bodyAst = Transpiler.parse.ts(`function tempFunc() {${bodyStr}}`)
+    const bodyAst = Transpiler.parse(`function tempFunc() {${bodyStr}}`)
     Transpiler.traverse(bodyAst, {
         Identifier(innerPath: any) {
             // ---- 必须key相等，但是不能是 xxx.keyname，也就是不是memberExpreesion
@@ -88,7 +88,7 @@ export function resolveForBody(bodyStr: string, item: string) {
 
 
 export function isElementFunction(str: string) {
-    const ast = Transpiler.parse.ts(`let _ = ${str}`).program.body[0].declarations[0].init
+    const ast = Transpiler.parse(`let _ = ${str}`).program.body[0].declarations[0].init
     return !!(t.isArrowFunctionExpression(ast) || t.isFunctionExpression(ast));
 
 }

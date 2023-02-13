@@ -91,7 +91,6 @@ export class ForNode extends MutableNode {
             ? () => this.updateWithKey(parentNode as HtmlNode)
             : () => this.updateWithOutKey(parentNode as HtmlNode)
 
-
         // ---- 加deps
         const objectId = {}
         this._$depObjectIds.push(objectId)
