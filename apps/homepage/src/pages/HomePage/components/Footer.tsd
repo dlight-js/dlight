@@ -1,5 +1,8 @@
 import {View} from "@dlightjs/dlight";
+import { css } from '@emotion/css'
 import {footerWrap, footerMenuTitle, footerMenuWrap, footerMenuItem} from "./style.module.css"
+
+const color = 'black'
 
 class FooterItem extends View {
     @Prop title
@@ -11,7 +14,11 @@ class FooterItem extends View {
             div{
                 For(let item of this.menu){
                     a(item.itemName)
-                        .className(footerMenuItem)
+                        // .className(footerMenuItem)
+                        .className(css`
+                            color: rgb(101, 90, 63);
+                          text-decoration: none;
+                        `)
                         .href(item.path??'')
                 }
             }
@@ -64,5 +71,12 @@ export class Footer extends View {
             }
         }
         .className(footerWrap)
+        div("copyright")
+            .className(css`
+                width: 70px;
+                color: rgb(101, 90, 63);
+                margin: 0px auto;
+                padding-bottom: 10px;
+            `)
     }
 }
