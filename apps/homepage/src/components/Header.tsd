@@ -2,6 +2,7 @@ import {View} from "@dlightjs/dlight";
 import {VStack, HStack} from "@dlightjs/components";
 import {Spacer} from "@dlightjs/components";
 import {logoTitleImg, logoTitleText, logoTitleWrap, headerWrap, navButton} from './components.module.css'
+import {a, button, div, img, Prop } from "@dlightjs/useless";
 
 class NavButton extends View {
     @Env RouteParam
@@ -12,9 +13,7 @@ class NavButton extends View {
     @State disabled = false
 
     Body() {
-        button{
-            Exp(this._$content?? @{img({src: this.img})})
-        }
+        button()
             .className(navButton)
             ._color(this.mouseState==='over'?"blue":"black")
             ._color(this.disabled&&"#b0b0b0")
@@ -29,6 +28,9 @@ class NavButton extends View {
             .onmouseout(()=>{
                 this.mouseState = 'out'
             })
+        {
+            Exp(this._$content?? do{img().src(this.img)})
+        }
     }
 }
 
@@ -38,14 +40,20 @@ export class IconButton extends View {
     @Prop imgSrc = ""
     @Prop url = ""
 
+    @View
+    Img() {
+        img()
+            ._width(this.width)
+            ._height(this.height)
+            .src(this.imgSrc)
+    }
+
     Body() {
-        a{
-            img()
-                ._width(this.width)
-                ._height(this.height)
-                .src(this.imgSrc)
+        a()
+            .href(this.url)
+        {
+            this.Img()
         }
-        .href(this.url)
     }
 }
 
@@ -55,19 +63,23 @@ export class LogoTitle extends View {
     @State data = ""
 
     Body() {
-        div{
-            HStack
+        div()
+            .className(logoTitleWrap)
+            .onclick(()=>{
+                this.RouteParam.navigator.to("./")
+            })
+        {
+            HStack()
+                .spacing("0")
             {
-                img({src: '/img/logo.png'})
+                img()
+                    .src('/img/logo.png')
                     .className(logoTitleImg)
                 div("light")
                     .className(logoTitleText)
-            }.spacing("0")
+            }
         }
-        .className(logoTitleWrap)
-        .onclick(()=>{
-            this.RouteParam.navigator.to("./")
-        })
+
     }
 }
 
@@ -75,8 +87,12 @@ export class Header extends View {
     url = "https://github.com/dlight-js/dlight"
 
     Body() {
-        div{
-            HStack{
+        div()
+            .className(headerWrap)
+        {
+            HStack()
+                .width("100%")
+            {
                 LogoTitle()
                 Spacer()
                 NavButton("Guide")
@@ -91,9 +107,9 @@ export class Header extends View {
                     .imgSrc("./img/github.png")
                     .url(this.url)
             }
-            .width("100%")
+
         }
-        .className(headerWrap)
+
 
     }
 }
@@ -103,7 +119,8 @@ export class HeaderHOC extends View {
     @Env navigator
 
     Body() {
-            Header({navigator:this.navigator})
+            Header()
+                .navigator(this.navigator)
             Exp(this._$content)
     }
 }

@@ -3,6 +3,7 @@ import {HStack, Spacer, VStack, RouterSpace, Route} from "@dlightjs/components";
 import {Menu} from "../components/Menu.tsd";
 import {menuListNameMap} from "../menuConfig";
 import {render} from "@iandx/markit"
+import { env } from "@dlightjs/useless";
 
 class GuideButton extends View {
     @Prop type
@@ -10,28 +11,7 @@ class GuideButton extends View {
     @Env RouteParam
 
     Body() {
-        div
-        {
-            HStack
-            {
-                If(this.type === 'next'){
-                    Spacer()
-                }
-                VStack
-                {
-                    div(this.type === 'prev' ? "Previous Page" : "Next Page")
-                        ._color("gray")
-                        ._fontSize("13px")
-                    div(this.title)
-                        ._fontSize("18px")
-                        ._color("purple")
-                }
-                .alignment(this.type === 'prev' ? "top" : "bottom")
-                If(this.type === 'prev'){
-                    Spacer()
-                }
-            }
-        }
+        div()
             ._border("solid 1px gray")
             ._width("300px")
             ._height("50px")
@@ -40,6 +20,28 @@ class GuideButton extends View {
             .onclick(()=>{
                 this.RouteParam.navigator.to(`guide/${this.title}`);
             })
+        {
+            HStack()
+            {
+                if(this.type === 'next'){
+                    Spacer()
+                }
+                VStack
+                    .alignment(this.type === 'prev' ? "top" : "bottom")
+                {
+                    div(this.type === 'prev' ? "Previous Page" : "Next Page")
+                        ._color("gray")
+                        ._fontSize("13px")
+                    div(this.title)
+                        ._fontSize("18px")
+                        ._color("purple")
+                }
+                if(this.type === 'prev'){
+                    Spacer()
+                }
+            }
+        }
+
     }
 }
 
@@ -71,21 +73,24 @@ class GuideContent extends View {
     }.call(this)
 
     Body() {
-        div{
+        div()
+            ._width("70%")
+        {
             div({innerHTML: this.content})
                 ._width("100%")
                 // ._width("calc(100% - 420px)")
-            HStack{
-                If(this.prevContent){
+            HStack()
+            {
+                if(this.prevContent){
                     GuideButton({type:"prev", title: this.prevContent})
                 }
                 Spacer()
-                If(this.nextContent){
+                if(this.nextContent){
                     GuideButton({type: "next", title: this.nextContent})
                 }
             }
         }
-        ._width("70%")
+
 
     }
 }
@@ -94,17 +99,24 @@ export class GuidePage extends View {
     @State navigator
 
     Body() {
-        HStack{
-            Env({navigator: this.navigator}) {
+        HStack()
+            .height("100%")
+        {
+            env()
+                .navigator(this.navigator)
+            {
                 Menu()
             }
-            RouterSpace({navigator: this.navigator}) {
-                Route() {
+            RouterSpace()
+                .navigator(this.navigator)
+            {
+                Route()
+                {
                     GuideContent()
                 }
             }
         }
-        .height("100%")
+
 
 
     }

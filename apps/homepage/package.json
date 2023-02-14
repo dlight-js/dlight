@@ -18,6 +18,7 @@
     "@babel/core": "^7.0.0",
     "@dlightjs/components": "workspace:*",
     "@dlightjs/dlight": "workspace:*",
+    "@dlightjs/useless": "workspace:*",
     "@emotion/css": "^11.10.5",
     "@iandx/markit": "^0.0.6",
     "codemirror": "^6.0.1",
