@@ -115,7 +115,7 @@ export class Transition extends View {
     }
 
     Body() {
-        Exp(this._$children)
+        _(this._$children)
             .onUpdateNodes(()=> {
                 for (let [el, prevElInfo] of this.prevElInfos.entries()) {
                     if (this.movable) {

@@ -1,9 +1,10 @@
 import {Exp, View} from "@dlightjs/dlight";
+import {_, Prop} from "@dlightjs/useless";
 
 export class Route extends View {
     @Prop _$content = " none" // 空格不是合法url，所以不会有问题
 
     Body() {
-        Exp(this._$children)
+        _(this._$children)
     }
 }

@@ -4,28 +4,34 @@ import {View} from "@dlightjs/dlight";
 // import {ZStack} from "../../../packages/@dlightjs/components/src/Stack/ZStack.tsd"
 // import {Spacer} from "../../../packages/@dlightjs/components/src/Stack/Spacer.tsd"
 import {HStack, VStack, ZStack, Spacer} from "@dlightjs/components";
+import {div} from "@dlightjs/useless";
 
 export class StackTest extends View {
 
    Body() {
-       HStack() {
+       HStack()
+           .width("400px")
+       {
            div("hh")
                ._backgroundColor("red")
            Spacer()
            div("ok")
                ._backgroundColor("red")
        }
-            .width("400px")
-       VStack() {
-           div("hh")
-               ._backgroundColor("blue")
-           Spacer()
-           div("ok")
-               ._backgroundColor("blue")
-       }
-           .height("400px")
 
-       ZStack {
+       VStack()
+           .height("400px")
+       {
+           div("hh")
+               ._backgroundColor("blue")
+           Spacer()
+           div("ok")
+               ._backgroundColor("blue")
+       }
+
+
+       ZStack()
+       {
            div()
                ._backgroundColor("red")
                ._width("100px")

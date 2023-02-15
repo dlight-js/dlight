@@ -1,5 +1,6 @@
 import {View} from "@dlightjs/dlight";
 import {HAlignment, VAlignment} from "./types"
+import {div, Prop, _} from "@dlightjs/useless";
 
 export class ZStack extends View {
     @Prop hAlignment: HAlignment  = "center"
@@ -8,16 +9,9 @@ export class ZStack extends View {
     @Prop height = "max-content"
 
     Body() {
-        div {
-            For (let child of this._$children) {
-                Exp(child)
-                    ._position("relative")
-                    ._gridArea("1 / 1/ 1 / 1")
-            }
-        }
+        div()
             ._height(this.height)
             ._width(this.width)
-            ._columnGap(`${this.spacing}px`)
             ._display("grid")
             ._alignItems(({
                 "top": "flex-start",
@@ -29,5 +23,13 @@ export class ZStack extends View {
                 "center": "center",
                 "tailing": "right"
             })[this.hAlignment])
+        {
+            for (let child of this._$children) {
+                _(child)
+                    ._position("relative")
+                    ._gridArea("1 / 1/ 1 / 1")
+            }
+        }
+
     }
 }

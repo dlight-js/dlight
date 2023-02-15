@@ -8,7 +8,7 @@ function uid() {
 
 function parseProp(key: string, propAst: any) {
     if (!propAst) return {key, value: true, nodes: {}}
-    const ast = Transpiler.parse(Transpiler.generate(propAst))
+    const ast = Transpiler.parse(`let _ = ${Transpiler.generate(propAst)}`)
     const nodes: {[key: string]: ParserNode[]} = {}
     Transpiler.traverse(ast, {
         DoExpression(path: any) {
@@ -20,7 +20,7 @@ function parseProp(key: string, propAst: any) {
     })
     return {
         key,
-        value: Transpiler.generate(ast).replace(/;$/, ""),
+        value: Transpiler.generate(ast.program.body[0].declarations[0].init),
         nodes
     }
 }
@@ -35,12 +35,12 @@ function parseTag(node: t.CallExpression) {
         // ---- 取第1个参数，如果参数是空，那就默认是true
         const prop = n.arguments[0]
         const key = ((n.callee as t.MemberExpression).property as t.Identifier).name
-        parserNode.attr.props.push(parseProp(key, prop))
+        parserNode.attr.props.unshift(parseProp(key, prop))
         // ---- 继续迭代直到变成tag在同一行
         n = (n.callee as t.MemberExpression).object as t.CallExpression
     }
     if (n.arguments.length > 0) {
-        parserNode.attr.props.push(parseProp("_$content", n.arguments[0]))
+        parserNode.attr.props.unshift(parseProp("_$content", n.arguments[0]))
     }
     parserNode.tag = Transpiler.generate(n.callee)
     return parserNode

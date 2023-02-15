@@ -21,6 +21,7 @@
 // // @ts-ignore
 import {HH} from "./test.jsx"
 import {render} from "@dlightjs/dlight";
+import {StackTest} from "./stack.tsd";
 // import {MyComp} from "./transpiler.tsd";
 // // @ts-ignore
 // import {SubElement} from "./example/test.jsd"
@@ -40,7 +41,7 @@ import {render} from "@dlightjs/dlight";
 
 
 
-render("app", HH)
+render("app", StackTest)
 
 
 // switch (testType) {

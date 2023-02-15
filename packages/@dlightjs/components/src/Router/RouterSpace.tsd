@@ -2,6 +2,7 @@ import {CustomNode, Env, Exp, ExpressionNode, required, View} from "@dlightjs/dl
 import {Navigator} from "./Navigator";
 import {getHashLocation, getHistoryLocation} from "./utils";
 import {Route} from "./Route.tsd";
+import {_, env} from "@dlightjs/useless";
 
 
 
@@ -129,11 +130,13 @@ export class RouterSpace extends View {
 
 
     Body() {
-        Env({RouteParam: {
-            path: this.currUrl,
-            navigator: this.navigator
-        }}) {
-            Exp(this.showedRoute)
+        env()
+            .RouteParam(({
+                path: this.currUrl,
+                navigator: this.navigator
+            }))
+        {
+            _(this.showedRoute)
         }
     }
 }
