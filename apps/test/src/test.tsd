@@ -1,5 +1,15 @@
 import {View} from "@dlightjs/dlight";
-import {_, button, div, State} from "@dlightjs/useless";
+import {_, button, div, Prop, State} from "@dlightjs/useless";
+
+
+class TT extends View {
+    @Prop hh = 0
+
+    Body() {
+        div(`iam TT ${this.hh}`)
+        // _(this._$children)
+    }
+}
 
 export class TestTest extends View {
     @State text = ""
@@ -10,19 +20,22 @@ export class TestTest extends View {
     @State fine = 2
     asts = []
 
-    @View
-    ok({a}): any {
-        div(a)
-    }
 
     Body() {
         div("hh")
         button("a")
             .onclick(() => {
-                this.hh ++
-                this.fine ++
+                this.toggle = !this.toggle
+                this.hh += 1
             })
-        this.ok()
-            .a(`${this.hh} ${this.fine}`)
+        TT()
+            .hh(this.hh)
+        {
+            if (this.toggle) {
+                for (let i of [...Array(100000).keys()]) {
+                    div(i)
+                }
+            }
+        }
     }
 }

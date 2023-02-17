@@ -233,7 +233,6 @@ export class Generator {
             key,
             value: this.parsePropNodes(value, nodes)
         }))
-        console.log(props)
 
         const keyId = uid()
         const passProps: ({ key: string, keyWithId: string })[] = []
@@ -243,13 +242,10 @@ export class Generator {
             body.add(`const ${keyWithId} = {value: ${value}, deps: ${depsStr}}`)
             body.add(`this._$addDeps(${depsStr}, {}, () => {${keyWithId}.value = ${value}})`)
             passProps.push({key, keyWithId})
-            console.log(`const ${keyWithId} = {value: ${value}, deps: ${geneDepsStr(this.geneDeps(value))}}`)
         }
         body.add(`const _$node${idx} = ${parserNode.tag}({${passProps.map(
             ({key, keyWithId}) => `${key}: ${keyWithId}`
         ).join(", ")}})`)
-
-
 
         return body
     }
