@@ -1,13 +1,11 @@
 import {View} from "@dlightjs/dlight";
-import {_, button, div, Prop, State} from "@dlightjs/useless";
+import {_, button, div, State} from "@dlightjs/useless";
 
 
 class TT extends View {
-    @Prop hh = 0
 
     Body() {
-        div(`iam TT ${this.hh}`)
-        // _(this._$children)
+        div("iam TT")
     }
 }
 
@@ -20,22 +18,27 @@ export class TestTest extends View {
     @State fine = 2
     asts = []
 
+    @View
+    nonono({what=100}) {
+        div(what)
+    }
 
     Body() {
         div("hh")
         button("a")
             .onclick(() => {
-                this.toggle = !this.toggle
-                this.hh += 1
+                this.hh ++
+                this.fine ++
+                this.apples[0] ++
+                this.apples = [...this.apples]
             })
-        TT()
-            .hh(this.hh)
-        {
-            if (this.toggle) {
-                for (let i of [...Array(100000).keys()]) {
-                    div(i)
-                }
-            }
+        for (let apple of this.apples) {
+            this.nonono()
+                .what(apple + 5)
         }
+        this.nonono()
+            // .what(this.apples + 5)
+
+
     }
 }

@@ -24,8 +24,7 @@ export class RouterSpace extends View {
         const currUrl = this.currUrl.replace(new RegExp(`^${this.baseUrl}`), "")
         let targetNodes = []
 
-        for (let childFunc of this._$childrenFunc) {
-            const child = childFunc()
+        for (let child of this._$children) {
             if (child._$tag !== "Route") {
                 // ---- 如果不是Route直接加，虽然没有意义也不建议这么写
                 targetNodes.push(child)

@@ -3,7 +3,7 @@ import { CustomNode } from '../CustomNode';
 import { DLNode, DLNodeType } from '../DLNode';
 import { HtmlNode } from '../HtmlNode';
 import { TextNode } from '../TextNode';
-import { appendNodesWithIndex, deleteNodesDeps, getFlowIndexFromParentNode, removeNodes } from '../utils';
+import {appendNodesWithIndex, deleteNodesDeps, detachNodes, getFlowIndexFromParentNode, removeNodes} from '../utils';
 import { MutableNode } from './MutableNode';
 
 
@@ -81,9 +81,10 @@ export class ExpressionNode extends MutableNode {
         }
         nodes = nodes.flat(1)
         nodes = nodes.filter((node: any)=>(
-                node !== undefined && node !== null
+                node !== undefined && node !== null && typeof node !== "boolean"
             )).map((node: any) => {
             if (node._$nodeType !== undefined) return node
+            // TODO 其他 Array 什么的不处理？默认传成text？
             return new TextNode(node)
         })
         return nodes
@@ -136,6 +137,8 @@ export class ExpressionNode extends MutableNode {
         const flowIndex = getFlowIndexFromParentNode(parentNode, this)
         appendNodesWithIndex(this._$nodes, flowIndex, parentEl, parentEl.childNodes.length)
 
+        // ---- 以前的detach掉
+        detachNodes(prevNodes)
         this.onUpdateNodes(prevNodes, this._$nodes)
     }
 }

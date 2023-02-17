@@ -1,21 +1,27 @@
 import {View} from "@dlightjs/dlight";
 import {Route, RouterSpace} from "../../../packages/@dlightjs/components/src/Router";
+import {button, div, Env, State} from "@dlightjs/useless";
 
 class SubComp2 extends View {
     @State toggle = true
-    @State navigator
+    @Env RouteParam
 
     Body() {
         button("hhh2h")
             .onclick(() => {
-                this.navigator.to("not")
+                this.RouteParam.navigator.to("not")
             })
-        If (this.toggle){
-            RouterSpace({navigator: this.navigator}) {
-                Route("hi"){
+        if (this.toggle)
+        {
+            RouterSpace()
+                .navigator(this.RouteParam.navigator)
+            {
+                Route("hi")
+                {
                     div("hi niubi")
                 }
-                Route("not"){
+                Route("not")
+                {
                     div("not hihi")
                 }
             }
@@ -25,10 +31,13 @@ class SubComp2 extends View {
 
 class SubComp extends View {
     @Env RouteParam
+    didMount(_els: HTMLElement[], _node: CustomNode) {
+        console.log("hello")
+    }
+
     Body() {
         div(this.RouteParam.path)
         div("hhhh")
-        SubComp2()
     }
 }
 
@@ -65,23 +74,21 @@ export class RouteTest extends View {
             .onclick(() => {
                 this.navigator.to("/abccccca")
             })
-        RouterSpace({navigator: this.navigator}) {
-            Route(/abc+/) {
-                div("正则")
+        RouterSpace()
+            .navigator(this.navigator)
+        {
+            Route("OKK")
+            {
+                for (let i of [...Array(10000).keys()]) {
+                    div("我是okk")
+                }
             }
-            Route("OKK") {
-                div("我是okk")
+            Route("fuck")
+            {
                 SubComp()
-            }
-            Route("fuck") {
-                div("我是fuckkkkkk")
-            }
-            Route(".") {
-                div("在家root")
-            }
-
-            Route() {
-                div("woshi kong")
+                    .didMount(() => {
+                        console.log("jj")
+                    })
             }
         }
 

@@ -20,10 +20,10 @@ export function newLine(value: string) {
 }
 
 
-export function geneChildNodesArray(parserNodes: ParserNode[], subViewIdx: number[]) {
-    return "[" + parserNodes.map((_: any, idx: number)=> {
+export function geneChildNodesArray(parserNodes: ParserNode[]) {
+    return "[" + parserNodes.map((parserNode: ParserNode, idx: number)=> {
         // ---- 如果是class内部调用的，因为返回的是数组
-        if (subViewIdx.includes(idx)) return `..._$node${idx}`
+        if (parserNode.attr.isSubView) return `..._$node${idx}`
         return `_$node${idx}`
     }).join(", ") + "]"
 }

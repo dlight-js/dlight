@@ -29,15 +29,25 @@ function parseTag(node: t.CallExpression) {
     const parserNode: any = {tag: "", attr: {props: []}, children: []}
     let n = node
 
-    while (n && n.callee) {
-        // ---- 会存在.xxx()不知道是预期tag还是prop的情况，所有强制tag的链式调用在同一行
-        if (n.callee.loc?.start.line === n.callee.loc?.end.line) break
+    // ---- 会存在.xxx()不知道是预期tag还是prop的情况，所有强制tag只能有一层
+    //      比如 div().width(100) 默认用div
+    //      第三个&&是排除this.subView()
+    // ---- 由于callee是从外到内，所以最后一个循环的就是tag，其余都要加到prop里面
+    while (n && (n.callee as t.MemberExpression)?.object
+            && !t.isThisExpression((n.callee as t.MemberExpression)?.object)) {
         // ---- 取第1个参数，如果参数是空，那就默认是true
         const prop = n.arguments[0]
         const key = ((n.callee as t.MemberExpression).property as t.Identifier).name
         parserNode.attr.props.unshift(parseProp(key, prop))
         // ---- 继续迭代直到变成tag在同一行
         n = (n.callee as t.MemberExpression).object as t.CallExpression
+    }
+    // ---- 除非碰到名字叫tag，可以嵌套：tag(MyTagList[100].getTag())().height(100)
+    if (((n.callee as t.CallExpression)?.callee as t.Identifier)?.name === "tag") {
+        // ---- 如果名字是tag，那标签就是它包裹着的第一个参数
+        //      这里把 tag(div)() => 包成tag(div())()
+        //      好在下面parserNode.tag = Transpiler.generate(n.callee) 调用n.callee
+        n = t.callExpression((n.callee as t.CallExpression).arguments[0] as any, [])
     }
     if (n.arguments.length > 0) {
         parserNode.attr.props.unshift(parseProp("_$content", n.arguments[0]))

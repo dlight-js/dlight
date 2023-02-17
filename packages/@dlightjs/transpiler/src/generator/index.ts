@@ -14,7 +14,6 @@ import {
 export class Generator {
     depChain: string[]
     subViews: string[]
-    subViewIdx: number[] = []
     // ---- 通过对应拿到deps，比如 监听this.apples导致的apple变化 {ids: [apple], propNames: [this.apples]}
     idDepsArr: {ids: string[], propNames: string[]}[] = []
 
@@ -28,7 +27,7 @@ export class Generator {
         for (let [idx, child] of parserNodes.entries()) {
             body.addBody(this.resolveParserNode(child, idx))
         }
-        body.add(`return ${geneChildNodesArray(parserNodes, this.subViewIdx)}`)
+        body.add(`return ${geneChildNodesArray(parserNodes)}`)
         return body.value
     }
 
@@ -121,7 +120,7 @@ export class Generator {
             }
             body.add(`${nodeName}._$addArrayFunc(this, () => (${array}), ${geneDepsStr(listenDeps)})`)
         } else {
-            body.add(`${nodeName}._$addNodess(Array.from(${array}).map((${item}) => (() => {`)
+            body.add(`${nodeName}._$addNodess(() => Array.from(${array}).map((${item}) => (() => {`)
             body.add(this.generate(parserNode.children))
             body.add(`})()))`)
         }
@@ -213,21 +212,16 @@ export class Generator {
 
         // ---- child
         if (parserNode.children.length > 0) {
-            body.add(`${nodeName}._$addChildren([`)
-            for (let child of parserNode.children) {
-                body.add("() => {")
-                body.addBody(this.resolveParserNode(child, 0))
-                body.add("return _$node0")
-                body.add("},")
-            }
-            body.add("])")
+            body.add(`${nodeName}._$addChildren((() => {`)
+            body.add(this.generate(parserNode.children))
+            body.add("})())")
         }
 
         return body
     }
 
     resolveSubView(parserNode: ParserNode, idx: number) {
-        this.subViewIdx.push(idx)
+        parserNode.attr.isSubView = true
         const body = new BodyStringBuilder()
         const props = parserNode.attr.props.map(({key, value, nodes}: any) => ({
             key,

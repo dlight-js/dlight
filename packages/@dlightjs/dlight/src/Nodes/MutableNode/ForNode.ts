@@ -1,8 +1,14 @@
 import { DLNode, DLNodeType } from "../DLNode";
-import { appendNodesWithIndex, deleteNodesDeps, removeNodes, getFlowIndexFromNodes, getFlowIndexFromParentNode } from '../utils';
+import {
+    appendNodesWithIndex,
+    deleteNodesDeps,
+    removeNodes,
+    getFlowIndexFromNodes,
+    getFlowIndexFromParentNode,
+    detachNodes
+} from '../utils';
 import { CustomNode } from "../CustomNode";
 import { HtmlNode } from "../HtmlNode";
-import { EnvNode } from "../EnvNode";
 import { MutableNode } from "./MutableNode";
 
 
@@ -11,12 +17,16 @@ export class ForNode extends MutableNode {
     array: any[] = []
 
     _$nodess: DLNode[][] = []
+    // ---- 有deps
     nodeFunc?: (key: any, idx: number, forNode: any) => DLNode[]
     keyFunc?: () => any[]
     arrayFunc?: () => any[]
     dlScope?: CustomNode
     listenDeps?: string[]
-    _$envNodes?: EnvNode[] = []
+
+    // ---- 没有依赖
+    nodesFunc?: () => DLNode[][]
+
     constructor() {
         super(DLNodeType.For)         
     }
@@ -47,9 +57,8 @@ export class ForNode extends MutableNode {
     /**
      * @methodGroup - 无deps的时候直接加nodes
      */
-    _$addNodess(nodess: DLNode[][]) {
-        this._$nodess = nodess
-        this._$nodes = this._$nodess.flat(1)
+    _$addNodess(nodesFunc: () => DLNode[][]) {
+        this.nodesFunc = nodesFunc
     }
 
     setArray() {
@@ -76,6 +85,8 @@ export class ForNode extends MutableNode {
 
     _$init() {
         if (!this.listenDeps) {
+            this._$nodess = this.nodesFunc!()
+            this._$nodes = this._$nodess.flat(1)
             this._$bindNodes()
             return
         }
@@ -226,6 +237,8 @@ export class ForNode extends MutableNode {
         this._$nodess = newDlNodes
         this._$nodes = this._$nodess.flat(1)
 
+        // ---- 以前的detach掉
+        detachNodes(prevNodes)
         this.onUpdateNodes(prevNodes, this._$nodes)
     }
 
@@ -245,6 +258,11 @@ export class ForNode extends MutableNode {
             }
             updateFunc(item)
         })
+    }
+
+    _$detach() {
+        super._$detach()
+        this._$nodess = []
     }
 
 }

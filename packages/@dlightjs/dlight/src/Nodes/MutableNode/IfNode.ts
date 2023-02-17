@@ -2,7 +2,7 @@ import { CustomNode } from "../CustomNode";
 import { EnvNode } from "../EnvNode";
 import { HtmlNode } from "../HtmlNode";
 import { DLNode, DLNodeType } from "../DLNode";
-import { appendNodesWithIndex, deleteNodesDeps, getFlowIndexFromParentNode, removeNodes } from "../utils";
+import {appendNodesWithIndex, deleteNodesDeps, detachNodes, getFlowIndexFromParentNode, removeNodes} from "../utils";
 import { MutableNode } from "./MutableNode";
 
 interface ConditionPair {
@@ -27,6 +27,9 @@ export class IfNode extends MutableNode {
             if (!this.dlScope) this.dlScope = dlScope
             this.listenDeps.push(...listenDeps)
         }
+    }
+
+    _$init() {
         // ---- 生成nodes
         // ---- 只要找到符合条件的就break
         let nodes: DLNode[] = []
@@ -38,9 +41,6 @@ export class IfNode extends MutableNode {
             }
         }
         this._$nodes = nodes
-    }
-
-    _$init() {
         // ---- 加if依赖
         // ---- 找到HTMLNode作为parentNode，因为它是有真实el的
         let parentNode: DLNode | undefined = this._$parentNode
@@ -95,6 +95,8 @@ export class IfNode extends MutableNode {
         const parentEl = parentNode._$el
         appendNodesWithIndex(this._$nodes, flowIndex, parentEl, parentEl.childNodes.length)
 
+        // ---- 以前的detach掉
+        detachNodes(prevNodes)
         this.onUpdateNodes(prevNodes, this._$nodes)
     }
 

@@ -68,27 +68,26 @@ export class TransitionTest extends View {
             .onclick(() => {
                 this.length -= 50
             })
-        If (this.toggle){
-            Transition({
-                duration: 3,
-                delay: {
+        if (this.toggle){
+            Transition()
+                .duration(3)
+                .delay({
                     firstAppear: (el) => {
                         return el.dataset.index * 0.7 ?? 0
                     }
-                },
-                appearWith: (el) => ({
+                })
+                .appearWith((el) => ({
                     opacity: 0,
                     backgroundColor: "yellow",
                     transform: `translateX(${40 + 80 * el.dataset.index ?? 0}px)`
-                }),
-                disappearWith: {
+                }))
+                .disappearWith({
                     opacity: 0,
                     transform: "translateX(100px)",
                     backgroundColor: "yellow"
-                },
-            })
+                })
             {
-                For(let [idx, ok] of Object.entries(this.list))[ok.id] {
+                for(let [idx, ok] of Object.entries(this.list)) { [ok.id]
                     div(ok.text)
                         .willAppear((el) => {
                             el.dataset.index = idx

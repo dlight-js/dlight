@@ -1,7 +1,7 @@
 import {CustomNode} from "./CustomNode";
-import { DLNode, DLNodeType } from "./DLNode";
-import { HtmlNode } from "./HtmlNode";
-import { loopNodes, loopEls } from "../utils/nodes";
+import {DLNode, DLNodeType} from "./DLNode";
+import {HtmlNode} from "./HtmlNode";
+import {loopEls, loopNodes} from "../utils/nodes";
 
 
 export function appendEls(htmlNode: HtmlNode, nodes: DLNode[]) {
@@ -38,10 +38,14 @@ export function removeNodes(nodes: DLNode[]) {
             node.didDisappear(el, node)
         }
     })
-   didUnmountDlightNodes(nodes)
+    didUnmountDlightNodes(nodes)
 }
 
-
+export function detachNodes(nodes: DLNode[]) {
+    for (let node of nodes) {
+        node._$detach()
+    }
+}
 /**
  * 删掉所有有关node的deps
  * @param nodes 
@@ -51,6 +55,9 @@ export function deleteNodesDeps(nodes: DLNode[], dlScope: CustomNode) {
     loopNodes(nodes, (node: DLNode) => {
         for (let i of node._$depObjectIds) {
             dlScope._$deleteDeps(i)
+        }
+        if (node._$nodeType === DLNodeType.Custom) {
+            deleteNodesDeps((node as CustomNode)._$children, dlScope)
         }
         return true
     })

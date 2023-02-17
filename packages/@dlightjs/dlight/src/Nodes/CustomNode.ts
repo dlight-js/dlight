@@ -3,6 +3,7 @@ import { DLNode, DLNodeType } from "./DLNode"
 import { addDLProp } from "../utils/prop";
 import {HtmlNode} from '../Nodes';
 import { loopNodes } from "../utils/nodes";
+import {detachNodes} from "./utils";
 
 /**
  * 整个依赖只有两种
@@ -92,18 +93,17 @@ export class CustomNode extends DLNode {
         }
     }
 
-    _$childrenFunc?: (() => DLNode)[]
-    _$_children?: DLNode[]
-    get _$children(): DLNode[] {
-        if (!this._$childrenFunc) return []
-        if (!this._$_children) {
-            this._$_children = this._$childrenFunc.map(c => c())
-        }
-        return this._$_children!
+
+    _$children: DLNode[] = []
+
+    _$addChildren(nodeFuncs: DLNode[]) {
+        this._$children = nodeFuncs
     }
 
-    _$addChildren(nodeFuncs: (() => DLNode)[]) {
-        this._$childrenFunc = nodeFuncs
+    _$resetChildren() {
+        for (let child of this._$children) {
+            child._$nodes = []
+        }
     }
 
     // ---- dep
@@ -212,5 +212,10 @@ export class CustomNode extends DLNode {
         })
         this.didMount(this._$el, this)
         
+    }
+
+    _$detach() {
+        super._$detach()
+        detachNodes(this._$children)
     }
 }

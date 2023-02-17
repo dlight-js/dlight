@@ -16,6 +16,8 @@ export const Prop = undefined as any
 export const Env =  undefined as any
 export const _ = undefined as any
 export const env = undefined as any
+export const tag = undefined as any
+export const required = undefined as any
 
 // ---- html tags
 export const a = undefined as any
