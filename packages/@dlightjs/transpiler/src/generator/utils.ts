@@ -3,7 +3,12 @@ import * as t from "@babel/types"
 import {isMemberInFunction, shouldBeListened} from "../transpiler/nodeHelper";
 
 export function geneDepsStr(listenDeps: string[]) {
-    return "[" + listenDeps.map(v=>"\""+v+"\"").join(", ") + "]"
+    return "[" + listenDeps.map(v=> {
+        if (v.startsWith("...")) {
+            return v
+        }
+        return "\""+v+"\""
+    }).join(", ") + "]"
 }
 
 export function uid() {
@@ -58,7 +63,7 @@ export function geneIsTwoWayConnected(valueStr: string) {
     return t.isMemberExpression(ast.program.body[0].expression)
 }
 
-export function resolveForBody(bodyStr: string, item: string) {
+export function resolveForBody(bodyStr: string, item: string, valueItemStr: string) {
     let identifierKeys: string[] = []
     // ---- 遍历拿到所有item里面的标识符，下面要把标识符转换成带.value的
     const itemAst = Transpiler.parse(item)
@@ -74,7 +79,7 @@ export function resolveForBody(bodyStr: string, item: string) {
             if (identifierKeys.includes(innerPath.node.name) &&
                 !t.isMemberExpression(innerPath.parentPath.node)) {
                 const valueNode = t.memberExpression(
-                    t.identifier("_$valuedItem"),
+                    t.identifier(valueItemStr),
                     t.identifier(innerPath.node.name)
                 )
                 innerPath.replaceWith(valueNode)

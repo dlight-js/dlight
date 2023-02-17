@@ -7,25 +7,28 @@ import {
     resolveForBody,
     geneIdDeps,
     getIdentifiers,
-    isElementFunction
+    isElementFunction, uid
 } from './utils';
 
 
 export class Generator {
     depChain: string[]
     subViews: string[]
+    subViewIdx: number[] = []
+    // ---- 通过对应拿到deps，比如 监听this.apples导致的apple变化 {ids: [apple], propNames: [this.apples]}
     idDepsArr: {ids: string[], propNames: string[]}[] = []
 
-    constructor(depChain: string[], subViews: string[]) {
+    constructor(depChain: string[], subViews: string[], idDepsArr: {ids: string[], propNames: string[]}[]=[]) {
         this.depChain = depChain
         this.subViews = subViews
+        this.idDepsArr = idDepsArr
     }
     generate(parserNodes: ParserNode[]) {
         const body = new BodyStringBuilder()
         for (let [idx, child] of parserNodes.entries()) {
             body.addBody(this.resolveParserNode(child, idx))
         }
-        body.add(`return ${geneChildNodesArray(parserNodes)}`)
+        body.add(`return ${geneChildNodesArray(parserNodes, this.subViewIdx)}`)
         return body.value
     }
 
@@ -84,23 +87,25 @@ export class Generator {
             //      变成 let {idx.value, item.value} of array
             const idArr = item.match(/[_$a-zA-Z][_$a-zA-Z0-9]*/g) ?? []
             body.add(`const ${item} = node_for._$getItem(_$key, _$idx)`)
-            body.add(`const _$valuedItem = {}`)
+            const valueId = uid()
+            const valueItemStr = `_$valuedItem${valueId}`
+            body.add(`const ${valueItemStr} = {}`)
             for (let i of idArr) {
-                body.add(`_$valuedItem.${i} = ${i}`)
+                body.add(`${valueItemStr}.${i} = ${i}`)
             }
             body.add(`node_for._$listen(this, ()=>node_for._$getItem(_$key, _$idx), \
             ${geneDepsStr(listenDeps)}, (_$item) => {`)
             body.add(`const ${item} = _$item`)
             for (let i of idArr) {
-                body.add(`_$valuedItem.${i} = ${i}`)
+                body.add(`${valueItemStr}.${i} = ${i}`)
             }
             body.add(`})`)
 
             // ---- 下面才是子body
-            const newGenerator = new Generator(this.depChain, this.subViews)
-            newGenerator.idDepsArr = [{ids: getIdentifiers(item), propNames: listenDeps}]
+            const newGenerator = new Generator(this.depChain, this.subViews,
+                [...this.idDepsArr, {ids: getIdentifiers(item), propNames: listenDeps}])
             let forBody = newGenerator.generate(parserNode.children)
-            forBody = resolveForBody(forBody, item)
+            forBody = resolveForBody(forBody, item, valueItemStr)
             body.add(forBody)
             body.add("})")
 
@@ -176,7 +181,6 @@ export class Generator {
         return body
     }
 
-
     resolveCustom(parserNode: ParserNode, idx: number){
         const body = new BodyStringBuilder()
         const nodeName = `_$node${idx}`
@@ -223,8 +227,29 @@ export class Generator {
     }
 
     resolveSubView(parserNode: ParserNode, idx: number) {
+        this.subViewIdx.push(idx)
         const body = new BodyStringBuilder()
-        body.add(`const _$node${idx} = ${parserNode.tag}()`)
+        const props = parserNode.attr.props.map(({key, value, nodes}: any) => ({
+            key,
+            value: this.parsePropNodes(value, nodes)
+        }))
+        console.log(props)
+
+        const keyId = uid()
+        const passProps: ({ key: string, keyWithId: string })[] = []
+        for (let {key, value} of props) {
+            const keyWithId = `${key}_${keyId}`
+            const depsStr = geneDepsStr(this.geneDeps(value))
+            body.add(`const ${keyWithId} = {value: ${value}, deps: ${depsStr}}`)
+            body.add(`this._$addDeps(${depsStr}, {}, () => {${keyWithId}.value = ${value}})`)
+            passProps.push({key, keyWithId})
+            console.log(`const ${keyWithId} = {value: ${value}, deps: ${geneDepsStr(this.geneDeps(value))}}`)
+        }
+        body.add(`const _$node${idx} = ${parserNode.tag}({${passProps.map(
+            ({key, keyWithId}) => `${key}: ${keyWithId}`
+        ).join(", ")}})`)
+
+
 
         return body
     }
@@ -300,6 +325,6 @@ export class Generator {
 
 }
 
-export function resolveParserNode(parserNodes: ParserNode[], depChain: string[], subViews: string[]) {
-    return new Generator(depChain, subViews).generate(parserNodes)
+export function resolveParserNode(parserNodes: ParserNode[], depChain: string[], subViews: string[], idDepsArr: {ids: string[], propNames: string[]}[]=[]) {
+    return new Generator(depChain, subViews, idDepsArr).generate(parserNodes)
 }

@@ -1,25 +1,28 @@
 import {View} from "@dlightjs/dlight";
 import {_, button, div, State} from "@dlightjs/useless";
 
-
-class Tjj extends View {
-    Body() {
-        div("hfh")
-    }
-}
-
-let a = {
-    ok: Tjj
-}
-console.log((a["oo"] ?? a.ok))
 export class TestTest extends View {
     @State text = ""
     @State apples = [1,2,3]
-    @State toggle = false
+    @State orange = [1,2,3]
+    @State toggle = true
+    @State hh = 1
+    @State fine = 2
     asts = []
-    aa = Tjj
+
+    @View
+    ok({a}): any {
+        div(a)
+    }
 
     Body() {
-        (a["oo"])("ok")
+        div("hh")
+        button("a")
+            .onclick(() => {
+                this.hh ++
+                this.fine ++
+            })
+        this.ok()
+            .a(`${this.hh} ${this.fine}`)
     }
 }

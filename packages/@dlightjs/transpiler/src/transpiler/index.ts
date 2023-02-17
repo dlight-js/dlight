@@ -7,8 +7,16 @@ import parseJsxBody from "../parser/jsxParser";
 import {resolveProp, resolveState} from "./decoratorResolver";
 
 
-function handleJsdBody(node: t.ClassMethod, depChain: string[], subViews: string[]) {
-    const newBody = resolveParserNode(parseJsdBody(node.body.body), depChain, subViews)
+function handleJsdBody(node: t.ClassMethod, depChain: string[], subViews: string[], isSubView=false) {
+    let newBody
+
+    if (isSubView) {
+        const propNames: string[] = (node.params[0] as t.ObjectPattern).properties.map((p: any) => p.key.name)
+        const idDepsArr = propNames.map(propName => ({ids: [propName], propNames: [`...${propName}.deps`]}))
+        newBody = resolveParserNode(parseJsdBody(node.body.body), depChain, subViews, idDepsArr)
+    } else {
+        newBody = resolveParserNode(parseJsdBody(node.body.body), depChain, subViews)
+    }
     node.body = functionBlockStatement(`function tmp() { ${newBody} }`)
 }
 function handleJsxBody(node: t.ClassProperty, depChain: string[], subViews: string[]) {
@@ -16,10 +24,49 @@ function handleJsxBody(node: t.ClassProperty, depChain: string[], subViews: stri
     node.value = t.arrowFunctionExpression([], functionBlockStatement(`function tmp() { ${newBody} }`))
 }
 
+function handleSubView(view: t.ClassMethod) {
+    const param = view.params[0]
+    if (!param || !t.isObjectPattern(param)) return
+    const props: string[] = []
+    for (let property of param.properties) {
+        const name = (property as any).key.name
+        props.push(name)
+        // ---- 如果是 {a=1} 这种有赋值的情况
+        if (t.isAssignmentPattern((property as any).value)) {
+            (property as any).value.right = t.objectExpression(
+                [t.objectProperty(
+                    t.identifier("value"),
+                    (property as any).value.right
+                ),
+                t.objectProperty(
+                    t.identifier("deps"),
+                    t.arrayExpression()
+                )]
+            )
+        }
+    }
+    // ---- 遍历拿到所有item里面的标识符，下面要把标识符转换成带.value的
+    //      注意这里转换，view.body是blockStatement，自带括号
+    const ast = Transpiler.parse(`function tmp() ${Transpiler.generate(view.body)}`)
+    Transpiler.traverse(ast, {
+        Identifier(path: any) {
+            if (props.includes(path.node.name) &&
+                !t.isMemberExpression(path.parentPath.node)) {
+                path.replaceWith(t.memberExpression(
+                    t.identifier(path.node.name),
+                    t.identifier("value")
+                ))
+                path.skip()
+            }
+        }
+    })
+    view.body = ast.program.body[0].body
+}
+
 function handleBody(classBodyNode: t.ClassBody, depChain: string[], type: "jsx" | "jsd") {
     const handleBodyFunc = type === "jsd" ? handleJsdBody : handleJsxBody
     let body: undefined | t.Node = undefined
-    const views = []
+    const views: any[] = []
     for (let c of classBodyNode.body) {
         if ((c as any).decorators?.find((d: any) =>
             t.isIdentifier(d.expression) && d.expression.name === "View"
@@ -32,7 +79,8 @@ function handleBody(classBodyNode: t.ClassBody, depChain: string[], type: "jsx" 
     }
     const subViews = views.map(v => "this." + (v as any).key.name)
     for (let view of views) {
-        handleBodyFunc(view as any, depChain, subViews)
+        handleBodyFunc(view as any, depChain, subViews, true)
+        handleSubView(view)
     }
     handleBodyFunc(body as any, depChain, subViews)
 
