@@ -1,34 +1,28 @@
 import {View} from "@dlightjs/dlight";
 import {TransitionGroup} from "../../../packages/@dlightjs/components/src/Transition/index";
-import {button} from "@dlightjs/useless";
+import {button, div, State} from "@dlightjs/useless";
 
 
-class OK {
-    id
-    text
-    constructor(text) {
-        this.id = Math.random().toString(20)
-        this.text= text
+function getData(text) {
+    return {
+        id: Math.random().toString(20),
+        text
     }
-}
-function ok(text) {
-    return new OK(text)
 }
 export class TransitionTest extends View {
     @State list = [
-        ok("第一个"),
-        ok("ererer"),
-        ok("333333"),
-        ok("四个四个个"),
-        ok("义务！！"),
+        getData("First one"),
+        getData("II 222"),
+        getData("333333 okk"),
+        getData("This is four"),
+        getData("555555!!"),
     ]
     remove() {
         this.list.splice(Math.floor(Math.random()*(this.list.length-1)), 1)
         this.list = [...this.list]
     }
     add() {
-        this.list.splice(Math.floor(Math.random()*(this.list.length-1)), 0, ok(`---${this.list.length}`))
-        // this.list.unshift(ok(`---${this.list.length}`))
+        this.list.splice(Math.floor(Math.random()*(this.list.length-1)), 0, getData(`---${this.list.length}`))
         this.list = [...this.list]
     }
     shuffle() {
@@ -71,7 +65,7 @@ export class TransitionTest extends View {
             })
         if (this.toggle){
             TransitionGroup()
-                .duration(3)
+                .duration(1)
                 .delay({
                     firstAppear: (el) => {
                         return el.dataset.index * 0.7 ?? 0

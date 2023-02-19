@@ -82,6 +82,7 @@ export class MyComp extends View {
 # Documentation
 
 * [README-dlight.md](./packages/@dlightjs/dlight/README.md)
+* [README-components.md](./packages/@dlightjs/components/README.md)
 * website-doc(building with DLight now👨🏻‍💻)
 
 # Tutorial
