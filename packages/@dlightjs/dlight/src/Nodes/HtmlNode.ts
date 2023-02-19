@@ -26,7 +26,8 @@ export class HtmlNode extends DLNode {
         if (key[0] === "_") {
             func = (newValue: any) => this._$el.style[key.slice(1) as any] = newValue
         } else if (key === "className") {
-            func = (newValue: any) => this._$el.className = `${this._$el.className} ${newValue}`.trim()
+            const prevClassNames = this._$el.className
+            func = (newValue: any) => this._$el.className = `${prevClassNames} ${newValue}`.trim()
         } else {
             func = (newValue: any) => this._$el[key] = newValue
         }
