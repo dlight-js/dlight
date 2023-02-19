@@ -1,17 +1,24 @@
 import {ParserNode} from "../parser/ParserNode";
 
 export function isHTMLTag(parserNode: ParserNode) {
-    const tag = parserNode.tag
     const htmlReg = /html\((.+)\)/
     if (htmlReg.test(parserNode.tag)) {
         parserNode.tag = parserNode.tag.replace(htmlReg, "$1")
         return true
     }
-    if (/^[a-z][a-z0-9]*$/.test(tag)) {
+    if (/^[a-z][a-z0-9]*$/.test(parserNode.tag)) {
         parserNode.tag = `"${parserNode.tag}"`
         return true
     }
     return false
+}
+
+export function parseCustomTag(parserNode: ParserNode) {
+    const tagReg = /tag\((.+)\)/
+    // ---- 碰到名字叫tag，可以嵌套：tag(MyTagList[100].getTag())().height(100)
+    if (tagReg.test(parserNode.tag)) {
+        parserNode.tag = parserNode.tag.replace(tagReg, "$1")
+    }
 }
 
 

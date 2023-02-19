@@ -1,4 +1,4 @@
-import {BodyStringBuilder, geneChildNodesArray, isHTMLTag} from './bodyBuilder';
+import {BodyStringBuilder, geneChildNodesArray, isHTMLTag, parseCustomTag} from './bodyBuilder';
 import {ParserNode} from "../parser/parserNode";
 import {
     geneDeps,
@@ -43,6 +43,7 @@ export class Generator {
         if (parserNode.tag === "for") return this.resolveFor(parserNode, idx)
         if (parserNode.tag === "_$text") return this.resolveText(parserNode, idx)
         if (isHTMLTag(parserNode)) return this.resolveHTML(parserNode, idx)
+        parseCustomTag(parserNode)
         return this.resolveCustom(parserNode, idx)
     }
 

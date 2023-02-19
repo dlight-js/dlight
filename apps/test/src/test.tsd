@@ -13,37 +13,12 @@ class TT extends View {
 }
 
 export class TestTest extends View {
-    @State text = ""
-    @State apples = [1,2,3]
-    @State orange = [1,2,3]
-    @State toggle = true
-    @State hh = 1
-    @State fine = 2
-    @State curId = 1
-    asts = []
-
-    @View
-    MyButton({aa}): any {
-        div(`zheshi ${aa}`)
+    ok = {
+        hh: () => () => TT
     }
 
     Body() {
-        for(let i of this.orange) {
-            button("click")
-                .className(css`
-                background-color: ${i===this.curId?"red":""};
-            `)
-                .onclick(() => {
-                    this.curId = i
-                    this.hh ++
-                    this.apples[0] ++
-                    this.apples = [...this.apples]
-                })
-        }
-        for (let apple of this.apples) {
-            this.MyButton()
-                .aa(apple)
-        }
+        tag(this.ok.hh()())
 
 
     }

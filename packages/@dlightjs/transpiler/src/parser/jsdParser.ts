@@ -45,15 +45,7 @@ function parseTag(node: t.CallExpression) {
     if (n.arguments.length > 0) {
         parserNode.attr.props.unshift(parseProp("_$content", n.arguments[0]))
     }
-    // ---- 除非碰到名字叫tag，可以嵌套：tag(MyTagList[100].getTag())().height(100)
-    if (((n.callee as t.CallExpression)?.callee as t.Identifier)?.name === "tag") {
-        // ---- 如果名字是tag，那标签就是它包裹着的第一个参数
-        //      这里把 tag(div)() => 包成tag(div())()
-        //      好在下面parserNode.tag = Transpiler.generate(n.callee) 调用n.callee
-        parserNode.tag = Transpiler.generate((n.callee as t.CallExpression).arguments[0])
-    } else {
-        parserNode.tag = Transpiler.generate(n.callee)
-    }
+    parserNode.tag = Transpiler.generate(n.callee)
     return parserNode
 
 }
