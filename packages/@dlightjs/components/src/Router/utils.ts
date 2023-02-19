@@ -7,13 +7,14 @@ export function getHistoryLocation() {
     return location.pathname.slice(1)
 }
 
-export function getPath(url: string, baseUrl: string) {
+export function getPath(url: string, mode: "history" | "hash") {
     let newHref
     if (url[0] === "/") {
         newHref = url
     } else {
         // ---- 相对位置
         if (url[0] !== ".") url = "./" + url
+        const baseUrl = mode === "history" ? window.location.pathname : window.location.hash.replace(/^#/, "")
         const splitUrls = url.split("/")
         const currUrls = baseUrl.split("/").filter(u=>u)
         let idx = 0

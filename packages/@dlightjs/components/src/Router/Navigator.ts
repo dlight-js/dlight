@@ -2,14 +2,13 @@ import {getPath} from "./utils";
 
 export class Navigator {
     mode: "history" | "hash" = "hash"
-    baseUrl: string = ""
 
     hashTo(url: string) {
-        window.location.href = "#" + getPath(url, this.baseUrl)
+        window.location.href = "#" + getPath(url, this.mode)
     }
 
     historyTo(url: string) {
-        window.history.pushState({},"", getPath(url, this.baseUrl))
+        window.history.pushState({},"", getPath(url, this.mode))
     }
 
     to(url: string) {

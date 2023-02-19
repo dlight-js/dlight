@@ -1,7 +1,8 @@
-import {View} from "@dlightjs/dlight"
+import { View } from "@dlightjs/dlight"
+import { Prop, required } from "@dlightjs/useless";
 
 export class Switch extends View {
-    @Prop _$content
+    @Prop _$content = required
 
     caseChildren = function() {
         let targetNodes = []
@@ -10,7 +11,8 @@ export class Switch extends View {
                 targetNodes.push(child)
                 continue
             }
-            if (this._$content === child._$content) {
+            if (this._$content === child._$content
+                || child._$content === " default") {
                 targetNodes.push(...child._$children)
                 break
             }
@@ -19,6 +21,6 @@ export class Switch extends View {
     }.call(this)
 
     Body() {
-        Exp(this.caseChildren)
+        _(this.caseChildren)
     }
 }

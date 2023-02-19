@@ -1,7 +1,9 @@
 import {View} from "@dlightjs/dlight"
 import {_, div, Prop} from "@dlightjs/useless"
 import {VAlignment} from "./types"
+// @ts-expect-error
 import {isChildSpacer} from "./Spacer.tsd";
+import {css} from "@emotion/css";
 
 export class HStack extends View {
     @Prop spacing = 10
@@ -21,25 +23,28 @@ export class HStack extends View {
         }
     }.call(this)
 
-
     Body() {
         div()
-            ._height(this.height)
-            ._width(this.width)
-            ._columnGap(`${this.spacing}px`)
-            ._display("flex")
-            ._flexDirection("row")
+            .className(css`
+              height: ${this.height};
+              width: ${this.width};
+              column-gap: ${this.spacing}px;
+              display: flex;
+              flex-direction: row;
+            `)
         {
             for (let child of this._$children) {
                 if (isChildSpacer(child)) {
                     _(child)
-                        ._flexGrow(1)
                 } else {
                     _(child)
-                        ._flexShrink(0)
-                        ._margin(this.margin)
+                        .className(css`
+                           flex-shrink: 0;
+                           margin: ${this.margin};
+                        `)
                 }
             }
         }
     }
 }
+

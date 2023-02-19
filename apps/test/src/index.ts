@@ -6,5 +6,5 @@ import {TransitionTest} from "./transition.tsd";
 
 
 
-render("app", TestTest)
+render("app", RouteTest)
 

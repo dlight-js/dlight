@@ -1,9 +1,10 @@
-import {View, Exp, Prop} from "@dlightjs/dlight"
+import {View} from "@dlightjs/dlight"
+import {_, Prop} from "@dlightjs/useless";
 
 type TransitionPropSub<T> = T | ((el: HTMLElement) => T)
 type Timing = "appear" | "firstAppear" | "move" | "disappear" | "lastDisappear"
 type TransitionProp<T> = TransitionPropSub<T> | ({
-    [key: Timing]: TransitionPropSub<T>
+    [key in Timing]: TransitionPropSub<T>
 })
 type StyleWith = string | {[key: string]: any}
 
@@ -14,7 +15,7 @@ interface RemoveStore {
     idx: number
 }
 
-export class Transition extends View {
+export class TransitionGroup extends View {
     _$duration = 0.5
     _$easing = "ease-in-out"
     _$delay = 0
@@ -22,9 +23,9 @@ export class Transition extends View {
     @Prop easing: TransitionProp<string> = this._$easing
     @Prop delay: TransitionProp<number> = this._$delay  // 这里的delay在新建会先把下面的push下去，等delay时间到了再出现，这其实是符合预期的，因为不然你setTimeOut控制它出现
 
-    parseProp(el: HTMLElement, key: string) {
+    parseProp(el: HTMLElement, key: "duration" | "easing" | "delay") {
         let prop: any = {}
-        const defaultValue = this["_$" + key]
+        const defaultValue = this[`_$${key}`]
         const value = this[key]
         if (typeof value === "object") {
             prop.appear = value.appear ?? defaultValue
@@ -143,7 +144,7 @@ export class Transition extends View {
                     }
                 }
             })
-            .didAppear((el) => {
+            .didAppear((el: any) => {
                 el.style.transition = this.firstRender
                     ? this.transition(el, "firstAppear")
                     : this.transition(el, "appear")
@@ -188,7 +189,7 @@ export class Transition extends View {
                 })
 
             })
-            .willDisappear((el) => {
+            .willDisappear((el: any) => {
                 if (this.lastDisappear) return
                 this.removeStore = setRemoveStore(el)
                 this.prevElInfos.delete(el)

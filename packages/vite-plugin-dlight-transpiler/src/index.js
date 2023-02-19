@@ -15,7 +15,8 @@ export default function() {
             };
         },
         transform(code, id) {
-            if (id.endsWith(".jsd") || id.endsWith(".tsd")) {
+            if (id.endsWith(".jsd") || id.endsWith(".tsd")
+                || id.endsWith(".dlight.js") || id.endsWith(".dlight.ts")) {
                 return parseDlightFile(code, "jsd")
             }
             if (id.endsWith(".jsx") || id.endsWith(".tsx")) {

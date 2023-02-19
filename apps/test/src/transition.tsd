@@ -1,5 +1,6 @@
 import {View} from "@dlightjs/dlight";
-import {Transition} from "../../../packages/@dlightjs/components/src/Animation/index";
+import {TransitionGroup} from "../../../packages/@dlightjs/components/src/Transition/index";
+import {button} from "@dlightjs/useless";
 
 
 class OK {
@@ -69,7 +70,7 @@ export class TransitionTest extends View {
                 this.length -= 50
             })
         if (this.toggle){
-            Transition()
+            TransitionGroup()
                 .duration(3)
                 .delay({
                     firstAppear: (el) => {

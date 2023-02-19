@@ -159,6 +159,7 @@ export class ForNode extends MutableNode {
         for (let idx = currLength; idx < preLength; idx++) {
             deleteNodesDeps(this._$nodess[idx], this.dlScope!)
             removeNodes(this._$nodess[idx])
+            detachNodes(this._$nodess[idx])
         }
         this._$nodess = this._$nodess.slice(0, currLength)
         this._$nodes = this._$nodess.flat(1)
@@ -194,6 +195,8 @@ export class ForNode extends MutableNode {
             }
             deleteNodesDeps(prevAllNodes[prevIdx], this.dlScope!)
             removeNodes(prevAllNodes[prevIdx])
+            // ---- 以前的detach掉
+            detachNodes(prevAllNodes[prevIdx])
             // ---- 删了原来的key那个位置也要删除
             deletedIdx.push(prevIdx)
         }
@@ -237,8 +240,6 @@ export class ForNode extends MutableNode {
         this._$nodess = newDlNodes
         this._$nodes = this._$nodess.flat(1)
 
-        // ---- 以前的detach掉
-        detachNodes(prevNodes)
         this.onUpdateNodes(prevNodes, this._$nodes)
     }
 

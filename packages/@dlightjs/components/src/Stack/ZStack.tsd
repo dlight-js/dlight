@@ -1,6 +1,7 @@
 import {View} from "@dlightjs/dlight";
 import {HAlignment, VAlignment} from "./types"
 import {div, Prop, _} from "@dlightjs/useless";
+import {css} from "@emotion/css";
 
 export class ZStack extends View {
     @Prop hAlignment: HAlignment  = "center"
@@ -10,24 +11,28 @@ export class ZStack extends View {
 
     Body() {
         div()
-            ._height(this.height)
-            ._width(this.width)
-            ._display("grid")
-            ._alignItems(({
+            .className(css`
+              height: ${this.height};
+              width: ${this.width};
+              display: grid;
+              align-items: ${({
                 "top": "flex-start",
                 "center": "center",
                 "bottom": "flex-end"
-            })[this.vAlignment])
-            ._justifyItems(({
+                })[this.vAlignment]};
+              justify-items: ${({
                 "leading": "left",
                 "center": "center",
                 "tailing": "right"
-            })[this.hAlignment])
+                })[this.hAlignment]};
+            `)
         {
             for (let child of this._$children) {
                 _(child)
-                    ._position("relative")
-                    ._gridArea("1 / 1/ 1 / 1")
+                    .className(css`
+                      position: relative;
+                      grid-area: 1 / 1/ 1 / 1;
+                    `)
             }
         }
 

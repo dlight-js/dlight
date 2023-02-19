@@ -48,47 +48,28 @@ export class RouteTest extends View {
         div("hh")
         button("push to /OKK")
             .onclick(() => {
-                this.navigator.to("./OKK")
+                this.navigator.to("../OKK")
             })
         button("push to /fuck")
             .onclick(() => {
-                this.navigator.to("./fuck")
+                this.navigator.to("../fuck")
             })
-        button("push to /")
+        button("push to /fuck")
             .onclick(() => {
-                this.navigator.to(".")
-            })
-        button("push to afafa")
-            .onclick(() => {
-                this.navigator.to("dfafa")
-            })
-        button("push to /OKK/hi")
-            .onclick(() => {
-                this.navigator.to("./OKK/hi")
-            })
-        button("push to /OKK/not")
-            .onclick(() => {
-                this.navigator.to("/OKK/not")
-            })
-        button("push to /abccccca")
-            .onclick(() => {
-                this.navigator.to("/abccccca")
+                this.navigator.to("..")
             })
         RouterSpace()
             .navigator(this.navigator)
+            .mode("hash")
         {
             Route("OKK")
             {
-                for (let i of [...Array(10000).keys()]) {
-                    div("我是okk")
-                }
+               div("okk")
             }
             Route("fuck")
             {
                 SubComp()
-                    .didMount(() => {
-                        console.log("jj")
-                    })
+
             }
         }
 

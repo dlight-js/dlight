@@ -1,7 +1,8 @@
 import {View} from "@dlightjs/dlight";
+import {Prop} from "@dlightjs/useless";
 
 
 export class Case extends View {
-    @Prop _$content
+    @Prop _$content = " default"
     Body() {}
 }

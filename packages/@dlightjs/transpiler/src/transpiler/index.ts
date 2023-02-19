@@ -11,9 +11,14 @@ function handleJsdBody(node: t.ClassMethod, depChain: string[], subViews: string
     let newBody
 
     if (isSubView) {
-        const propNames: string[] = (node.params[0] as t.ObjectPattern).properties.map((p: any) => p.key.name)
-        const idDepsArr = propNames.map(propName => ({ids: [propName], propNames: [`...${propName}.deps`]}))
-        newBody = resolveParserNode(parseJsdBody(node.body.body), depChain, subViews, idDepsArr)
+        const param = node.params[0]
+        if (!param || !t.isObjectPattern(param)) {
+            newBody = resolveParserNode(parseJsdBody(node.body.body), depChain, subViews)
+        } else {
+            const propNames: string[] = param.properties.map((p: any) => p.key.name)
+            const idDepsArr = propNames.map(propName => ({ids: [propName], propNames: [`...${propName}.deps`]}))
+            newBody = resolveParserNode(parseJsdBody(node.body.body), depChain, subViews, idDepsArr)
+        }
     } else {
         newBody = resolveParserNode(parseJsdBody(node.body.body), depChain, subViews)
     }

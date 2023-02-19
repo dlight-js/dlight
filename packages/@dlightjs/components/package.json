@@ -1,26 +1,26 @@
 {
   "name": "@dlightjs/components",
-  "version": "0.3.0",
+  "version": "0.3.4",
   "type": "module",
   "files": [
     "dist"
   ],
-  "main": "src/index.ts",
+  "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build"
   },
   "devDependencies": {
+    "@dlightjs/useless": "workspace:*",
     "path": "^0.12.7",
     "typescript": "^4.9.3",
     "vite": "^4.0.0",
     "vite-plugin-dlight-transpiler": "workspace:*",
-    "vite-plugin-dts": "^1.7.1",
-    "@dlightjs/useless": "workspace:*"
-
+    "vite-plugin-dts": "^1.7.1"
   },
   "dependencies": {
-    "@dlightjs/dlight": "workspace:*"
+    "@dlightjs/dlight": "workspace:*",
+    "@emotion/css": "^11.10.6"
   }
 }

@@ -1,8 +1,13 @@
 import {DLNode, DLNodeType, View} from "@dlightjs/dlight"
+import {div} from "@dlightjs/useless";
+import {css} from "@emotion/css";
 
 export class Spacer extends View {
     Body() {
         div()
+            .className(css`
+              flex-grow: 1;
+            `)
     }
 }
 

@@ -37,7 +37,7 @@ declare class DLNode {
      * A1.render (A => Stop  B/C => B/C.render)
      *
      * @hint
-     * 所有的nodes初始化必须在construct阶段，除了customNode，因为customNode一旦call了Body，就没法进行额外操作了
+     * 所有的nodes初始化必须在init阶段，除了customNode，因为customNode一旦call了Body，就没法进行额外操作了
      * 所有的bindNodes都必须在init中进行，保证子的init都可以访问到父parentNode
      */
     _$nodeType: DLNodeType;
@@ -47,6 +47,7 @@ declare class DLNode {
     _$parentNode?: DLNode;
     _$nodes: DLNode[];
     _$depObjectIds: Object[];
+    _$detach(): void;
     _$beforeInitSubNodes(): void;
     _$addBeforeInitSubNodes(func: () => any): void;
     _$bindNodes(): void;
@@ -136,10 +137,9 @@ declare class CustomNode extends DLNode {
     constructor();
     _$addAfterset(func: () => any): void;
     _$runDeps(depName: string): void;
-    _$childrenFunc?: (() => DLNode)[];
-    _$_children?: DLNode[];
-    get _$children(): DLNode[];
-    _$addChildren(nodeFuncs: (() => DLNode)[]): void;
+    _$children: DLNode[];
+    _$addChildren(nodeFuncs: DLNode[]): void;
+    _$resetChildren(): void;
     _$initDecorators(): void;
     _$addDeps(deps: string[], objectId: Object, func: (newValue?: any) => any): void;
     _$deleteDep(depName: string, objectId: Object): void;
@@ -155,6 +155,7 @@ declare class CustomNode extends DLNode {
     didUnmount(_els: HTMLElement[], _node: CustomNode): void;
     _$addLifeCycle(func: (_els: HTMLElement[], _node: CustomNode) => any, lifeCycleName: "willMount" | "didMount" | "willUnmount" | "didUnmount"): void;
     render(idOrEl: string | HTMLElement): void;
+    _$detach(): void;
 }
 
 declare class HtmlNode extends DLNode {
@@ -176,6 +177,7 @@ declare class MutableNode extends DLNode {
     onUpdateNodes(_prevNodes: DLNode[], _nodes: DLNode[]): void;
     addOnUpdateNodesFunc(func: (prevNodes: DLNode[], nodes: DLNode[]) => any): void;
     _$bindNewNodes(nodes: DLNode[]): void;
+    _$detach(): void;
 }
 
 declare class ForNode extends MutableNode {
@@ -187,7 +189,7 @@ declare class ForNode extends MutableNode {
     arrayFunc?: () => any[];
     dlScope?: CustomNode;
     listenDeps?: string[];
-    _$envNodes?: EnvNode[];
+    nodesFunc?: () => DLNode[][];
     constructor();
     duplicatedOrNoKey: boolean;
     _$getItem(key: any, idx: number): any;
@@ -200,7 +202,7 @@ declare class ForNode extends MutableNode {
     /**
      * @methodGroup - 无deps的时候直接加nodes
      */
-    _$addNodess(nodess: DLNode[][]): void;
+    _$addNodess(nodesFunc: () => DLNode[][]): void;
     setArray(): void;
     setKeys(): void;
     _$init(): void;
@@ -215,6 +217,7 @@ declare class ForNode extends MutableNode {
      */
     updateWithKey(parentNode: HtmlNode): void;
     _$listen(dlScope: CustomNode, itemFunc: () => any, listenDeps: string[], updateFunc: any): void;
+    _$detach(): void;
 }
 
 interface ConditionPair {
@@ -258,9 +261,8 @@ declare function loopEls(nodes: DLNode[], runFunc: (el: HTMLElement, node: HtmlN
 declare function toEls(nodes: DLNode[]): HTMLElement[];
 
 declare const View: typeof CustomNode;
-declare const required: any;
 declare function render(idOrEl: string | HTMLElement, dl: {
     new (): CustomNode;
 }): void;
 
-export { CustomNode, DLNode, DLNodeType, EnvNode, ExpressionNode, ForNode, HtmlNode, IfNode, TextNode, View, bindParentNode, initNodes, loopEls, loopNodes, render, required, toEls };
+export { CustomNode, DLNode, DLNodeType, EnvNode, ExpressionNode, ForNode, HtmlNode, IfNode, TextNode, View, bindParentNode, initNodes, loopEls, loopNodes, render, toEls };

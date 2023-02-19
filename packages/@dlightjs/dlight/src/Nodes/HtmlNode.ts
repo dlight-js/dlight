@@ -25,10 +25,8 @@ export class HtmlNode extends DLNode {
 
         if (key[0] === "_") {
             func = (newValue: any) => this._$el.style[key.slice(1) as any] = newValue
-        } else if (key === "innerText") {
-            func = (newValue: any) => this._$el.innerText = newValue
-        } else if (key === "innerHTML") {
-            func = (newValue: any) => this._$el.innerHTML = newValue
+        } else if (key === "className") {
+            func = (newValue: any) => this._$el.className = `${this._$el.className} ${newValue}`.trim()
         } else {
             func = (newValue: any) => this._$el[key] = newValue
         }

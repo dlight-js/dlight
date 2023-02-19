@@ -1,3 +1,3 @@
-export * from "./Navigator";
-export * from "./Route.tsd";
-export * from "./RouterSpace.tsd";
+export { Navigator } from "./Navigator";
+export { Route } from "./Route.tsd";
+export { RouterSpace } from "./RouterSpace.tsd";

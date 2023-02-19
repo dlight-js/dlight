@@ -11,10 +11,9 @@
     "isolatedModules": true,
     "esModuleInterop": true,
     "noEmit": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noImplicitReturns": true,
     "skipLibCheck": true,
+    "noImplicitThis": false,
+    "noImplicitAny": false,
     "experimentalDecorators": true
   },
   "ts-node": {
