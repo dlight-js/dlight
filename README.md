@@ -5,6 +5,8 @@
 [![components](https://badgen.net/npm/v/@dlightjs/components?label=@dlightjs/components)](https://www.npmjs.com/package/@dlightjs/components)
 [![vite-plugin-dlight-transpiler](https://badgen.net/npm/v/vite-plugin-dlight-transpiler?label=vite-plugin-dlight-transpiler)](https://www.npmjs.com/package/https://badgen.net/npm/v/vite-plugin-dlight-transpiler?label=vite-plugin-dlight-transpiler)
 
+[![transpiler](https://badgen.net/npm/v/@dlightjs/useless?label=@dlightjs/useless)](https://www.npmjs.com/package/@dlightjs/useless)
+
 EN | [中文](./docs/zh/README.md)
 
 Your modern web framework ~
@@ -32,7 +34,23 @@ Play around in [codesandbox](https://codesandbox.io/p/sandbox/dlight-vite-quicks
 // -> ./MyComp.jsx
 import {View} from "@dlightjs/dlight"
 
-233
+export class MyComp extends View {
+  @State count = 0  
+  countPlus1 = this.count + 1 
+  Body = (
+    <>
+      <h1>hello, dlight js, jsx</h1>
+      <div> {this.count} </div>
+      <div> {this.countPlus1} </div>
+      <button onclick={() => {this.count++}}>
+        +
+      </button>
+      <button onclick={() => {this.count--}}>
+        -
+      </button>
+    </>
+  )
+}
 ```
 
 ## DLight.jsd

@@ -96,7 +96,8 @@ Dlight use @Prop to identify if this class member is a prop.
          .onclick(() => {
            this.count --
          })
-       MyOtherComp({countProp: this.count})
+       MyOtherComp()
+       	.countProp(this.count)
      }
    }
    ```
@@ -130,7 +131,8 @@ Dlight use @Prop to identify if this class member is a prop.
      Body() {
        div(this.cout)
          .id("mycomp")
-       MyOtherComp({countPropState: this.count})
+       MyOtherComp()
+       	.countPropState(this.count)
      }
    }
    ```
@@ -152,16 +154,19 @@ So if you're like me, just try jsd and make your js code more js! If not, just t
 ...
 Body() {
   div("this auto set it inner text")
-  div {
+  div()
+  {
     button("first child")
       .onclick(() => {
         console.log("write dot prop")
       })
-    div({id: "second-child-div", innerText: "you can also set prop like this"})
+    div()
+    	.id("second-child-div")
+      .innerText("you can also set prop like this"})
   }
   "plain text node"
   `this is text node too, ${this.anyMessage}`
-  Exp("this is expression")
+  _("this is expression")
 }
 ...
 ```
@@ -195,14 +200,15 @@ Body = (
 ...
 ```
 
-In jsd, we use `Exp` to identifier expression. And inside the expression, we use `@{}` to mark that the content inside it is a sub-block of jsd Body. e.g.
+In jsd, we use `_` to identifier expression. And inside the expression, we use `do {}` to mark that the content inside it is a sub-block of jsd Body. e.g.
 
 ```jsx
 ...
 Body() {
-  div {
-    Exp(!console.log("expression just like you used to write") && "display this sentence")
-    Exp(this.show && @{
+  div()
+  {
+    _(!console.log("expression just like you used to write") && "display this sentence")
+    _(this.show && do {
       div("will show if this.show is true")
     })
   }
@@ -212,19 +218,15 @@ Body() {
 
 ### prop
 
-Three ways to set a prop, the 1st and 2nd ones are equal.
+Two ways to set a prop, the 1st and 2nd ones are equal.
 
-1. ```js
-   TagName({ prop1: "hello", prop2: "world" })
-   ```
-
-2. ```TagName()
+1. ```TagName()
    TagName()
      .prop1("hello")
      .prop2("world")
    ```
 
-3. ```js
+2. ```js
    TagName("your _$content prop")
    ```
 
@@ -232,11 +234,11 @@ For different tags, prop means different things.
 
 1. Html tag
 
-   - 1/2 prop means html element attributes.
+   - 1 prop means html element attributes.
 
      e.g. `div("hello").id("hello-div")` => `el.id = "hello-div"`
 
-   - 1/2 prop that starts with a "_" is a shorthand of style attributes.
+   - 1 prop that starts with a "_" is a shorthand of style attributes.
 
      e.g. `div("hello")._color("red")` => `el.style.color = "red"`
 
@@ -252,7 +254,7 @@ For different tags, prop means different things.
 
 2. Custom component
 
-   - 1/2 prop means custom component props as `Quick start - pass a prop` section describes.
+   - 1 prop means custom component props as `Quick start - pass a prop` section describes.
 
    - 3 prop set the custom component prop named `_$content`
 
@@ -514,7 +516,7 @@ In DLight, we provide real lifecycles for both custom components and html elemen
   ```js
   ...
   Body() {
-    div 
+    div()
       .willAppear(() => {
         console.log("I will appear")
       })
@@ -582,7 +584,8 @@ class MySubComp extends View {
 
 export class MyComp extends View {
   Body() {
-    MySubComp {
+    MySubComp()
+    {
       div("hello")
       div("dlight")
     }
@@ -636,6 +639,61 @@ class MyComp extends View {
 }
 ```
 
+## Sub views
+
+Build reusable subviews inside your components. Props inside @View will automatically be reactive.
+
+```js
+class MyComp extends View {
+  @View
+  MyButton({id}) {
+    button(`I am button ${id}`)
+  }
+  Body() {
+    for (let i of [1,2,3]) {
+      this.MyButton()
+      	.id(i)
+    }
+  }
+}
+```
+
+## Complex tag
+
+Force a expression to be a custom tag.
+
+```js
+class MySubComp extends View {
+  Body() {
+    "hello"
+  }
+}
+
+class MyComp extends View {
+  myTagObject = {
+    getTag: () => MySubComp
+  }
+  Body() {
+    tag(this.myTagObject.getTag())()
+  }
+}
+```
+
+Force a expression to be a html tag.
+
+```js
+class MyComp extends View {
+  myTagObject = {
+    getTag: () => "span"
+  }
+  Body() {
+    html(this.myTagObject.getTag())()
+  }
+}
+```
+
+
+
 # Internal tags
 
 ## Array
@@ -646,7 +704,7 @@ class MyComp extends View {
    ...
    Body() {
      div {
-       Exp(this.array.map(item => @{
+       _(this.array.map(item => do {
            div(item)
        }))
      }
@@ -664,7 +722,7 @@ class MyComp extends View {
    ...
    Body() {
      div {
-       For (let item of this.array) {
+       for (let item of this.array) {
          div(item)
        }
      }
@@ -678,7 +736,7 @@ class MyComp extends View {
    ...
    Body() {
      div {
-       For (let {id, item} of this.array)[id] {
+       for (let {id, item} of this.array) { [id]
          div(item)
        }
      }
@@ -704,11 +762,11 @@ class MyComp extends View {
    ...
    Body() {
      div {
-       If (this.show) {
+       if (this.show) {
          "show me"
-       } ElseIf (this.alsoShow) {
+       } else if (this.alsoShow) {
          "also show me"
-       } Else {
+       } else {
          "don't show me"
        }
      }
@@ -749,7 +807,9 @@ class MySubComp1 extends View {
 
 export class MyComp extends View {  
   Body() {
-    Env({myMessage: "use me anywhere inside this environment"}) {
+    Env()
+    	.myMessage("use me anywhere inside this environment") 
+    {
       MySubComp1()
       MySubComp2()
     }

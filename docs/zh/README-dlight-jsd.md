@@ -96,15 +96,16 @@ Dlight 使用 @Prop 来标明这个成员变量是不是一个参数。
          .onclick(() => {
            this.count --
          })
-       MyOtherComp({countProp: this.count})
+       MyOtherComp()
+       	.countProp(this.count)
      }
    }
    ```
-
+   
 2. 一个响应式参数，它会跟着传递者的state改变，并且传递者的state也会同时跟着它改变。这说明这两个变量**互相"绑定"**。
    
    `<div id="mycomp" />` in `MyComp` will change its innerText if `countPropState` in `MyOtherComp` changes.
-    
+   
    ```jsx
    import {View, required} from "@dlightjs/dlight"
    
@@ -130,7 +131,8 @@ Dlight 使用 @Prop 来标明这个成员变量是不是一个参数。
      Body() {
        div(this.cout)
          .id("mycomp")
-       MyOtherComp({countPropState: this.count})
+       MyOtherComp()
+       	.countPropState(this.count)
      }
    }
    ```
@@ -158,11 +160,13 @@ Body() {
       .onclick(() => {
         console.log("write dot prop")
       })
-    div({id: "second-child-div", innerText: "you can also set prop like this"})
+    div()
+    	.id("second-child-div")
+    	.innerText("you can also set prop like this")
   }
   "plain text node"
   `this is text node too, ${this.anyMessage}`
-  Exp("this is expression")
+  _("this is expression")
 }
 ...
 ```
@@ -177,7 +181,7 @@ Body() {
 
 3. 大写字母开头的标签可能是一个内置标签，
 
-   当前内置标签包括： `If` `ElseIf` `Else` `For` `Env` `Exp`
+   当前内置标签包括： `If` `ElseIf` `Else` `For` `Env` `_`
 
 我们同样还有隐藏标签：被`"` \ `'` \ ` 包裹的字符串称作textNode。通过 `document.createTextNode()` 创建。
 
@@ -196,14 +200,14 @@ Body = (
 ...
 ```
 
-在jsd中，我们通过`Exp`来标明表达式。在表达式用，我们使用`@{}`来标注它的内容是一个jsd Body的子模块。e.g.
+在jsd中，我们通过`_`来标明表达式。在表达式用，我们使用`do{}`来标注它的内容是一个jsd Body的子模块。e.g.
 
 ```jsx
 ...
 Body() {
   div {
-    Exp(!console.log("expression just like you used to write") && "display this sentence")
-    Exp(this.show && @{
+    _(!console.log("expression just like you used to write") && "display this sentence")
+    _(this.show && do {
       div("will show if this.show is true")
     })
   }
@@ -576,8 +580,8 @@ class MySubComp extends View {
 
 
   Body() {
-    Exp(this._$children)
-    Exp(this._$childrenFunc.map(childFunc => childFunc()))
+    _(this._$children)
+    _(this._$childrenFunc.map(childFunc => childFunc()))
   }
 }
 
@@ -637,6 +641,59 @@ class MyComp extends View {
 }
 ```
 
+## 子视图
+
+Build reusable subviews inside your components. Props inside @View will automatically be reactive.
+
+```js
+class MyComp extends View {
+  @View
+  MyButton({id}) {
+    button(`I am button ${id}`)
+  }
+  Body() {
+    for (let i of [1,2,3]) {
+      this.MyButton()
+      	.id(i)
+    }
+  }
+}
+```
+
+## 复杂标签
+
+Force a expression to be a custom tag.
+
+```js
+class MySubComp extends View {
+  Body() {
+    "hello"
+  }
+}
+
+class MyComp extends View {
+  myTagObject = {
+    getTag: () => MySubComp
+  }
+  Body() {
+    tag(this.myTagObject.getTag())()
+  }
+}
+```
+
+Force a expression to be a html tag.
+
+```js
+class MyComp extends View {
+  myTagObject = {
+    getTag: () => "span"
+  }
+  Body() {
+    html(this.myTagObject.getTag())()
+  }
+}
+```
+
 # 内置标签
 
 ## 数组
@@ -647,7 +704,7 @@ class MyComp extends View {
    ...
    Body() {
      div {
-       Exp(this.array.map(item => @{
+       _(this.array.map(item => do {
            div(item)
        }))
      }
@@ -665,7 +722,7 @@ class MyComp extends View {
    ...
    Body() {
      div {
-       For (let item of this.array) {
+       for (let item of this.array) {
          div(item)
        }
      }
@@ -679,7 +736,7 @@ class MyComp extends View {
    ...
    Body() {
      div {
-       For (let {id, item} of this.array)[id] {
+       for (let {id, item} of this.array) { [id]
          div(item)
        }
      }
@@ -705,11 +762,11 @@ class MyComp extends View {
    ...
    Body() {
      div {
-       If (this.show) {
+       if (this.show) {
          "show me"
-       } ElseIf (this.alsoShow) {
+       } else if (this.alsoShow) {
          "also show me"
-       } Else {
+       } else {
          "don't show me"
        }
      }
