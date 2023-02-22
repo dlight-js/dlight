@@ -155,7 +155,8 @@ Dlight 使用 @Prop 来标明这个成员变量是不是一个参数。
 ...
 Body() {
   div("this auto set it inner text")
-  div {
+  div()
+  {
     button("first child")
       .onclick(() => {
         console.log("write dot prop")
@@ -205,7 +206,8 @@ Body = (
 ```jsx
 ...
 Body() {
-  div {
+  div()
+  {
     _(!console.log("expression just like you used to write") && "display this sentence")
     _(this.show && do {
       div("will show if this.show is true")
@@ -217,19 +219,15 @@ Body() {
 
 ### 参数
 
-三种方法来设置一个参数，第一种和第二种是一样的。
+两种方法来设置一个参数
 
 1. ```js
-   TagName({ prop1: "hello", prop2: "world" })
-   ```
-
-2. ```TagName()
    TagName()
      .prop1("hello")
      .prop2("world")
    ```
 
-3. ```js
+2. ```js
    TagName("your _$content prop")
    ```
 
@@ -237,20 +235,21 @@ Body() {
 
 1. Html 标签
 
-   - 1/2 参数代表html标签的属性。
+   - 1 参数代表html标签的属性。
 
      e.g. `div("hello").id("hello-div")` => `el.id = "hello-div"`
 
-   - 1/2 以"_"开头的参数是样式属性的简写。
+   - 1 以"_"开头的参数是样式属性的简写。
 
      e.g. `div("hello")._color("red")` => `el.style.color = "red"`
 
-   - 3 参数可以设置html元素的innerText并且会被它的子元素替代。
+   - 2 参数可以设置html元素的innerText并且会被它的子元素替代。
 
      e.g. `div("hello")` => `el.style.innerText = "hello"`
 
      ```js
-     div("this will not show") {
+     div("this will not show")()
+     {
        div("because I'm its child, I overwrite its innerText")
      }
      ```
@@ -703,7 +702,8 @@ class MyComp extends View {
    ```jsx
    ...
    Body() {
-     div {
+     div()
+     {
        _(this.array.map(item => do {
            div(item)
        }))
@@ -721,7 +721,8 @@ class MyComp extends View {
    ```jsx
    ...
    Body() {
-     div {
+     div()
+     {
        for (let item of this.array) {
          div(item)
        }
@@ -735,7 +736,8 @@ class MyComp extends View {
    ```jsx
    ...
    Body() {
-     div {
+     div()
+     {
        for (let {id, item} of this.array) { [id]
          div(item)
        }
@@ -761,7 +763,8 @@ class MyComp extends View {
    ```jsx
    ...
    Body() {
-     div {
+     div()
+     {
        if (this.show) {
          "show me"
        } else if (this.alsoShow) {

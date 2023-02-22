@@ -161,8 +161,8 @@ Body() {
         console.log("write dot prop")
       })
     div()
-    	.id("second-child-div")
-      .innerText("you can also set prop like this"})
+      .id("second-child-div")
+      .innerText("you can also set prop like this")
   }
   "plain text node"
   `this is text node too, ${this.anyMessage}`
@@ -220,7 +220,7 @@ Body() {
 
 Two ways to set a prop, the 1st and 2nd ones are equal.
 
-1. ```TagName()
+1. ```js
    TagName()
      .prop1("hello")
      .prop2("world")
@@ -703,7 +703,8 @@ class MyComp extends View {
    ```jsx
    ...
    Body() {
-     div {
+     div()
+     {
        _(this.array.map(item => do {
            div(item)
        }))
@@ -721,7 +722,8 @@ class MyComp extends View {
    ```jsx
    ...
    Body() {
-     div {
+     div()
+     {
        for (let item of this.array) {
          div(item)
        }
@@ -735,7 +737,8 @@ class MyComp extends View {
    ```jsx
    ...
    Body() {
-     div {
+     div()
+     {
        for (let {id, item} of this.array) { [id]
          div(item)
        }
@@ -761,7 +764,8 @@ class MyComp extends View {
    ```jsx
    ...
    Body() {
-     div {
+     div()
+     {
        if (this.show) {
          "show me"
        } else if (this.alsoShow) {
