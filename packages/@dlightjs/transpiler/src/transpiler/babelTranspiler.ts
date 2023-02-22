@@ -11,7 +11,7 @@ export default {
             ["@babel/plugin-syntax-typescript", {isTSX: true}],
             "@babel/plugin-syntax-jsx",
             "@babel/plugin-syntax-do-expressions",
-            ['@babel/plugin-proposal-decorators', { legacy: true }]
+            ['@babel/plugin-syntax-decorators', { legacy: true }]
         ]
     })
 }

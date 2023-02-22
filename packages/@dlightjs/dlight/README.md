@@ -37,7 +37,55 @@ render("app", MyComp)
 
 ## Write your own component
 
-First thing first, DLight is not using template/functional components. It uses **Class component** instead, but not like React Class component. We are not fans of writing nesting logic inside your view and want to **split the view and logic**, so we choose not to use functional component with its returned value as view. In the meantime, we want to make our component **as flexible as possible**,so here we comes the DLight class component. We realize there's one big burden to write a class component -- 'this'. You have to use this.xxx to access a class property. So **currently we're building a babel plugin to 'eliminate this' in a class and auto find the binding object**. Sadly now you have to write 'this.value'. But it's still okay, right?
+First thing first, DLight is not using template/functional components. 
+It uses **Class component** instead, but not like React Class component. 
+We are not fans of writing nesting logic inside your view and want to **split the view and logic**, 
+so we choose not to use functional component with its returned value as view. In the meantime, 
+we want to make our component **as flexible as possible**,
+so here we comes the DLight class component. 
+
+We realize there's one big burden to write a class component -- 'this'. 
+You have to use this.xxx to access a class property. 
+So **currently we're building a babel plugin to 'eliminate this' in a class and auto find the binding object**. 
+And now it's **done**!!
+
+We offer a babel plugin called `babel-plugin-optional-this` for any js/ts code to eliminate the ugly `this`, e.g.:
+```js
+export class MyComp extends View {
+  @State count = 0  
+
+  Body() {
+    div(this.count)
+  }
+}
+```
+now becomes:
+
+```jsx
+export class MyComp extends View {
+  @State count = 0  
+
+  Body() {
+    div(count)
+  }
+}
+````
+(we've of course considered some scenarios like params of a function, a member expression.... So just don't hesitate to use it)
+Enable it in dlight is pretty easy, in vite.config.ts, just replace:
+```js
+...
+dlight()
+...
+```
+with
+```js
+...
+dlight({optionalThis: true})
+...
+```
+Then you're all set! 
+
+Let's go back to **Write your own component**
 
 ```jsx
 // -> ./MyComp.jsd
@@ -177,11 +225,11 @@ We call strings like `div` / `MyOtherComp` / `If` in `Body` as tags. And it will
 
 1. Tag that starts with a lowercase letter is a html tag, e.g. `div` `button`
 
-2. Tag that starts with a uppercase letter is a custom component tag, e.g. `MyComp` `MyOtherComp`
+2. Tag that starts with an uppercase letter is a custom component tag, e.g. `MyComp` `MyOtherComp`
 
-3. Tag that starts with a uppercase letter maybe an internal tag.
+3. Tag that starts with a lowercase letter maybe an internal tag.
 
-   Current internal tag includes: `If` `ElseIf` `Else` `For` `Env` `Exp`
+   Current internal tag includes: `if` `else if` `else` `for` `env` `_`
 
 We also have invisible tag: strings wrapped with `"` \ `'` \ ` are called textNode. It's created by `document.createTextNode()`
 
@@ -218,7 +266,7 @@ Body() {
 
 ### prop
 
-Two ways to set a prop, the 1st and 2nd ones are equal.
+Two ways to set a prop
 
 1. ```js
    TagName()
@@ -242,7 +290,7 @@ For different tags, prop means different things.
 
      e.g. `div("hello")._color("red")` => `el.style.color = "red"`
 
-   - 3 prop sets html element innerText and will be replaced by its children.
+   - 2 prop sets html element innerText and will be replaced by its children.
 
      e.g. `div("hello")` => `el.style.innerText = "hello"`
 
@@ -256,7 +304,7 @@ For different tags, prop means different things.
 
    - 1 prop means custom component props as `Quick start - pass a prop` section describes.
 
-   - 3 prop set the custom component prop named `_$content`
+   - 2 prop set the custom component prop named `_$content`
 
      ```js
      import {View, required} from "@dlightjs/dlight"

@@ -1,25 +1,24 @@
 import {View} from "@dlightjs/dlight";
-import {_, button, div, Prop, State, tag} from "@dlightjs/useless";
-import {Case, Switch} from "@dlightjs/components";
-import {css} from "@emotion/css";
-
-
-class TT extends View {
-    @Prop _$content = 1
-
-    Body() {
-        div(`I am TT: ${this._$content}`)
-    }
-}
+import {_, button, div, State} from "@dlightjs/useless";
 
 export class TestTest extends View {
-    ok = {
-        hh: () => () => TT
+    @State count = 1
+    dontTransThis(count: string) {
+        console.log(count)
     }
+    ok = {a:100}
 
     Body() {
-        tag(this.ok.hh()())
-
+        div(ok.a)
+        div(count)
+        button("+")
+            .onclick(() => {
+                count ++
+            })
+        button("-")
+            .onclick(() => {
+                count --
+            })
 
     }
 }

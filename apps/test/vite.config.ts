@@ -8,6 +8,6 @@ export default defineConfig({
     },
     base: '',
     plugins: [
-        dlight(),
+        dlight({optionalThis: true}),
     ]
 });

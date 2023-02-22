@@ -1,0 +1,16 @@
+{
+  "name": "babel-plugin-optional-this",
+  "version": "0.0.2",
+  "files": [
+    "src"
+  ],
+  "type": "module",
+  "keywords": [
+    "babel-plugin"
+  ],
+  "main": "src/index.js",
+  "dependencies": {
+    "@babel/types": "^7.20.7"
+  },
+  "author": "IanDx"
+}
