@@ -1,24 +1,45 @@
 import {View} from "@dlightjs/dlight";
 import {_, button, div, State} from "@dlightjs/useless";
 
+
+function timeout(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function go() {
+  await timeout(1000);
+  return '100';
+}
+
+function wrapper(promise: any, callback, defaultValue=undefined) {
+    if (promise.then) {
+        promise.then(callback)
+        return defaultValue
+    }
+    return promise
+}
+
 export class TestTest extends View {
-    @State count = 1
-    dontTransThis(count: string) {
-        console.log(count)
-    }
-    ok = {a:100}
+    @State count = 0;
+      derivedCount = count + 1;
+      @State t = wrapper(go(), d=>t=d, "66" )
 
-    Body() {
-        div(ok.a)
-        div(count)
-        button("+")
-            .onclick(() => {
-                count ++
-            })
-        button("-")
-            .onclick(() => {
-                count --
-            })
+       b = t;
 
-    }
+
+      Body() {
+        div(b);
+        div();
+        {
+          h1('DLight.js');
+          div(count);
+          div(derivedCount);
+        }
+        button('+').onclick(() => {
+          count++;
+        });
+        button('-').onclick(() => {
+          count--;
+        });
+      }
 }

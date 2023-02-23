@@ -5,7 +5,7 @@
   "description": "",
   "type": "module",
   "main": "dist/index.cjs",
-  "module": "dist/index.js",
+  "module": "src/index.ts",
   "typings": "dist/index.d.ts",
   "devDependencies": {
     "typescript": "^4.5.2",
