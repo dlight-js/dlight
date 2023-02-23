@@ -105,3 +105,9 @@ export function valueWithArrowFunc(node: any) {
         body: originValue as any
     } as any
 }
+
+
+export function getDecoName(decorator: t.Decorator) {
+    return (decorator.expression as t.Identifier).name ??
+        ((decorator.expression as t.CallExpression).callee as t.Identifier).name
+}

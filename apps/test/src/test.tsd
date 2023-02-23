@@ -5,41 +5,33 @@ import {_, button, div, State} from "@dlightjs/useless";
 function timeout(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+const Await = undefined as any
 
-async function go() {
+async function go(count: number) {
   await timeout(1000);
-  return '100';
+  return {
+    loading: false,
+    a: `Okkkkkkk${count}`,
+  }
 }
-
-function wrapper(promise: any, callback, defaultValue=undefined) {
-    if (promise.then) {
-        promise.then(callback)
-        return defaultValue
-    }
-    return promise
-}
-
 export class TestTest extends View {
-    @State count = 0;
-      derivedCount = count + 1;
-      @State t = wrapper(go(), d=>t=d, "66" )
+    @State count = 0
 
-       b = t;
+    @State@Await
+    t: any = go(this.count) ?? ({loading: true, a: "no"})
 
+    a = this.t.a;
+    loading = this.t.loading
 
-      Body() {
-        div(b);
-        div();
-        {
-          h1('DLight.js');
-          div(count);
-          div(derivedCount);
-        }
+    Body() {
+        div(this.loading)
+        div(this.a);
+        div(this.count);
         button('+').onclick(() => {
-          count++;
+          this.count++;
         });
         button('-').onclick(() => {
-          count--;
+          this.count--;
         });
-      }
+    }
 }

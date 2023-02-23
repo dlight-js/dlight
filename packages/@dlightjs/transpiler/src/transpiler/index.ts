@@ -1,10 +1,17 @@
-import {functionBlockStatement, pushDep, pushDerived, shouldBeListened, valueWithArrowFunc} from './nodeHelper';
+import {
+    functionBlockStatement,
+    getDecoName,
+    pushDep,
+    pushDerived,
+    shouldBeListened,
+    valueWithArrowFunc
+} from './nodeHelper'
 import * as t from "@babel/types";
 import { resolveParserNode } from "../generator";
 import Transpiler from "./babelTranspiler"
 import parseJsdBody from "../parser/jsdParser";
 import parseJsxBody from "../parser/jsxParser";
-import {resolveProp, resolveState} from "./decoratorResolver";
+import { resolveAwait, resolveProp, resolveState } from './decoratorResolver'
 
 
 function handleJsdBody(node: t.ClassMethod, depChain: string[], subViews: string[], isSubView=false) {
@@ -144,6 +151,14 @@ export function parseDlightFile(sourceFileCode: string, type: "jsx" | "jsd") {
                 return
             }
 
+            // ---- decorator有@Await，直接改哦
+            let decoratorNames = (node.decorators ?? []).map(deco => getDecoName(deco))
+            if (decoratorNames.includes("Await")) {
+                resolveAwait(node)
+                decoratorNames = decoratorNames.filter(decoName =>decoName !== "Await")
+            }
+
+
             // ---- 看是不是有属性是 prop derived，有就加一个()=>
             //      同时在propDerived中记录，这会在constructor的调用一遍
             let deps: string[] = []
@@ -163,27 +178,24 @@ export function parseDlightFile(sourceFileCode: string, type: "jsx" | "jsd") {
                 valueWithArrowFunc(node)
                 depChain.push((node.key as any).name)
             }
-            // ---- 如果有修饰器
-            if (node.decorators) {
-                for (let decorator of node.decorators) {
-                    const decoratorName = (decorator.expression as t.Identifier).name ??
-                        ((decorator.expression as t.CallExpression).callee as t.Identifier).name
-                    if (["EnvState", "PropState", "State"].includes(decoratorName)) {
-                        depChain.push((node.key as any).name)
-                        pushDep((node.key as any).name, depsNode!, classBodyNode!)
-                        resolveState(node, classBodyNode!)
-                        break
-                    }
-                    if (["Prop", "Env"].includes(decoratorName)) {
-                        depChain.push((node.key as any).name)
-                        pushDep((node.key as any).name, depsNode!, classBodyNode!)
-                        resolveProp(node, classBodyNode!, decoratorName as any)
-                        break
-                    }
 
+            // ---- 如果有修饰器
+            for (let decoratorName of decoratorNames) {
+                if (["EnvState", "PropState", "State"].includes(decoratorName)) {
+                    depChain.push((node.key as any).name)
+                    pushDep((node.key as any).name, depsNode!, classBodyNode!)
+                    resolveState(node, classBodyNode!)
+                    break
                 }
-                node.decorators = null
+                if (["Prop", "Env"].includes(decoratorName)) {
+                    depChain.push((node.key as any).name)
+                    pushDep((node.key as any).name, depsNode!, classBodyNode!)
+                    resolveProp(node, classBodyNode!, decoratorName as any)
+                    break
+                }
+
             }
+            node.decorators = null
 
             // ---- 最后处理body
             if (willParseBody) {
