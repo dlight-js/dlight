@@ -152,12 +152,14 @@ export function parseDlightFile(sourceFileCode: string, type: "jsx" | "jsd") {
             }
 
             // ---- decorator有@Await，直接改哦
-            let decoratorNames = (node.decorators ?? []).map(deco => getDecoName(deco))
-            if (decoratorNames.includes("Await")) {
-                resolveAwait(node)
-                decoratorNames = decoratorNames.filter(decoName =>decoName !== "Await")
-            }
-
+            let decoratorNames = (node.decorators ?? []).map(deco => {
+                const decoName = getDecoName(deco)
+                if (decoName === "Await") {
+                    resolveAwait(node)
+                    return "State"  // 有Await一定要State
+                }
+                return decoName
+            })
 
             // ---- 看是不是有属性是 prop derived，有就加一个()=>
             //      同时在propDerived中记录，这会在constructor的调用一遍

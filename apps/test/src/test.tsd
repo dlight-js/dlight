@@ -17,8 +17,7 @@ async function go(count: number) {
 export class TestTest extends View {
     @State count = 0
 
-    @State@Await
-    t: any = go(this.count) ?? ({loading: true, a: "no"})
+    @Await t: {loading: boolean, a: string} = go(this.count) ?? ({loading: true, a: "no"})
 
     a = this.t.a;
     loading = this.t.loading
