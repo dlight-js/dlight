@@ -45,11 +45,11 @@ export function resolveCustom(node: t.ClassProperty, decoratorNode: any) {
     node.value = t.callExpression(
         decoratorNode,
         [value ?? t.identifier("undefined"), t.arrowFunctionExpression(
-            [t.identifier("$_newMember")],
+            [t.identifier("_$newMember")],
             t.assignmentExpression(
                 "=",
                 t.memberExpression(t.thisExpression(), t.identifier((node.key as any).name)),
-                t.identifier("$_newMember"))
+                t.identifier("_$newMember"))
         )]
     )
 }
