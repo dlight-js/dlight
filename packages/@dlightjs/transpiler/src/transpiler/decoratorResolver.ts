@@ -39,30 +39,17 @@ export function resolveProp(node: t.ClassProperty, classBodyNode: t.ClassBody, d
 }
 
 
-export function resolveAwait(node: t.ClassProperty) {
-    let defaultValue: any
-    let value: any
-    if (t.isLogicalExpression(node.value) && node.value.operator === "??") {
-        value = node.value.left
-        defaultValue = node.value.right
-    } else {
-        value = node.value
-        defaultValue = t.identifier("undefined")
-    }
+export function resolveCustom(node: t.ClassProperty, decoratorNode: any) {
+    let value = node.value
 
     node.value = t.callExpression(
-        t.memberExpression(
-            t.functionExpression(null, [], t.blockStatement(
-                [t.expressionStatement(t.callExpression(
-                    t.memberExpression(value, t.identifier("then")),
-                    [t.arrowFunctionExpression([t.identifier("_$data")], t.blockStatement([t.expressionStatement(t.assignmentExpression(
-                        "=", t.memberExpression(t.thisExpression(), t.identifier((node.key as any).name)), t.identifier("_$data")
-                    ))]))]
-                )),
-                t.returnStatement(defaultValue)]
-            )),
-            t.identifier("call")
-        ),
-        [t.thisExpression()]
+        decoratorNode,
+        [value ?? t.identifier("undefined"), t.arrowFunctionExpression(
+            [t.identifier("$_newMember")],
+            t.assignmentExpression(
+                "=",
+                t.memberExpression(t.thisExpression(), t.identifier((node.key as any).name)),
+                t.identifier("$_newMember"))
+        )]
     )
 }

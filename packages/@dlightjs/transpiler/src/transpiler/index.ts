@@ -1,6 +1,6 @@
 import {
     functionBlockStatement,
-    getDecoName,
+    getDecoName, getDecoNode,
     pushDep,
     pushDerived,
     shouldBeListened,
@@ -11,7 +11,7 @@ import { resolveParserNode } from "../generator";
 import Transpiler from "./babelTranspiler"
 import parseJsdBody from "../parser/jsdParser";
 import parseJsxBody from "../parser/jsxParser";
-import { resolveAwait, resolveProp, resolveState } from './decoratorResolver'
+import { resolveCustom, resolveProp, resolveState } from './decoratorResolver'
 
 
 function handleJsdBody(node: t.ClassMethod, depChain: string[], subViews: string[], isSubView=false) {
@@ -151,15 +151,13 @@ export function parseDlightFile(sourceFileCode: string, type: "jsx" | "jsd") {
                 return
             }
 
-            // ---- decorator有@Await，直接改哦
-            let decoratorNames = (node.decorators ?? []).map(deco => {
+            // ---- decorator有自定义的，直接改哦
+            const internalDecoratorNames = ["EnvState", "PropState", "State", "Prop", "Env"]
+            const decoratorNames: string[] = (node.decorators ?? []).map((deco): any => {
                 const decoName = getDecoName(deco)
-                if (decoName === "Await") {
-                    resolveAwait(node)
-                    return "State"  // 有Await一定要State
-                }
-                return decoName
-            })
+                if (internalDecoratorNames.includes(decoName)) return decoName
+                resolveCustom(node, getDecoNode(decoName))
+            }).filter(n => n)
 
             // ---- 看是不是有属性是 prop derived，有就加一个()=>
             //      同时在propDerived中记录，这会在constructor的调用一遍

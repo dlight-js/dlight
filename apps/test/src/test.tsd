@@ -2,46 +2,39 @@ import {View} from "@dlightjs/dlight";
 import {_, button, div, State} from "@dlightjs/useless";
 
 
-function timeout(ms) {
+function timeout(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
-const Await = undefined as any
 
-async function go(count: number) {
+async function go(count: number): any {
   await timeout(1000);
-  return {
-    loading: false,
-    a: `Okkkkkkk${count}`,
-  }
+  return `Okkkkkkk${count}`
 }
 
-type StateObjectProxy<T extends object> = (memberSet: (newState: T)=>any) => ProxyHandler<T>
-const _$stateObjectProxy: StateObjectProxy<any> = memberSet => ({
-    get(target, key) {
-        if (typeof target[key] === 'object' && target[key] !== null) {
-            return new Proxy(target[key], _$stateObjectProxy(memberSet))
-        } else {
-            return target[key];
-        }
-    },
-    set(target, property, value) {
-        target[property] = value;
-        memberSet(target)
-        return false
+const Await = (value: any, setValue?: any): any => {
+    // ---- 一个参数认为是defaultValue，两个认为是value, setValue
+    const defaultValue = setValue ? undefined : value
+    const awaitFunc = (v: any, setV: any) => {
+        v.then((d: any) => setV(d))
+        setV(defaultValue)
+        return defaultValue
     }
-})
+    return defaultValue ? awaitFunc : awaitFunc(value, setValue)
+}
+
+
+const FuckMe = (defaultValue: number) => (_: any, setValue: any): any => {
+    let i =  defaultValue ?? 0
+    setInterval(() => {
+        setValue(i++)
+    }, 1000)
+    return defaultValue
+}
 export class TestTest extends View {
-    @State count = 0
-    @State AA = new Proxy({a: 100},_$stateObjectProxy(d=>this.AA=d))
-
+    @State @FuckMe(0) ok
     Body() {
-        div(this.AA.a)
-        button('+').onclick(() => {
-          this.count++;
-          this.AA.a ++
-        });
-        button('-').onclick(() => {
-          this.count--;
-        });
+        div(this.ok)
     }
 }
+
+

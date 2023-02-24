@@ -108,6 +108,9 @@ export function valueWithArrowFunc(node: any) {
 
 
 export function getDecoName(decorator: t.Decorator) {
-    return (decorator.expression as t.Identifier).name ??
-        ((decorator.expression as t.CallExpression).callee as t.Identifier).name
+    return Transpiler.generate(decorator.expression)
+}
+
+export function getDecoNode(decoratorName: string) {
+    return Transpiler.parse(decoratorName).program.body[0].expression
 }
