@@ -1,0 +1,1 @@
+var c=(e,o)=>{let t=o?void 0:e,n=(r,y)=>(r.then(a=>y(a)),y(t),t);return t?n:n(e,o)},u=(e,o)=>{let t={get(n,r){return n[r]&&typeof n[r]=="object"?new Proxy(n[r],t):n[r]},set(n,r,y){return n[r]=y,o(new Proxy(n,t)),!0}};return new Proxy(e,t)};export{c as Await,u as Object};
