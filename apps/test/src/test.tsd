@@ -14,20 +14,31 @@ async function go(count: number) {
     a: `Okkkkkkk${count}`,
   }
 }
+
+type StateObjectProxy<T extends object> = (memberSet: (newState: T)=>any) => ProxyHandler<T>
+const _$stateObjectProxy: StateObjectProxy<any> = memberSet => ({
+    get(target, key) {
+        if (typeof target[key] === 'object' && target[key] !== null) {
+            return new Proxy(target[key], _$stateObjectProxy(memberSet))
+        } else {
+            return target[key];
+        }
+    },
+    set(target, property, value) {
+        target[property] = value;
+        memberSet(target)
+        return false
+    }
+})
 export class TestTest extends View {
     @State count = 0
-
-    @Await t: {loading: boolean, a: string} = go(this.count) ?? ({loading: true, a: "no"})
-
-    a = this.t.a;
-    loading = this.t.loading
+    @State AA = new Proxy({a: 100},_$stateObjectProxy(d=>this.AA=d))
 
     Body() {
-        div(this.loading)
-        div(this.a);
-        div(this.count);
+        div(this.AA.a)
         button('+').onclick(() => {
           this.count++;
+          this.AA.a ++
         });
         button('-').onclick(() => {
           this.count--;
