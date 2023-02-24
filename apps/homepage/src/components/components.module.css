@@ -1,0 +1,24 @@
+.logoTitleImg {
+    padding: 5px;
+    padding-top: 3px;
+    width: 30px;
+}
+.logoTitleText {
+    font-weight: 900;
+    font-size: 25px;
+}
+.logoTitleWrap {
+    margin: 5px;
+}
+.headerWrap {
+    padding: 16px 50px;
+    box-shadow: 0px 3px 8px rgba(197,197,197, 0.3);
+    background-color: rgba(255, 255, 255);
+    /*backdrop-filter: blur(10px);*/
+}
+.navButton {
+    font-size: 18px;
+    height: 38px;
+    background-color: rgba(255,255,255,0.3);
+    border-width: 0px;
+}

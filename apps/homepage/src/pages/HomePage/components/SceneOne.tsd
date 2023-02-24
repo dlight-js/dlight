@@ -1,62 +1,68 @@
 import {PropState, View} from "@dlightjs/dlight";
 import {animatie} from "../utils";
-import {HStack, Spacer, VStack} from "@dlightjs/components/src";
+import {HStack, Spacer, VStack} from "@dlightjs/components";
+import {welcomePage, welcomeText, welcomeDescriptionText, learnMoreBtn} from "./style.module.css"
+import {dlightDescription, dlight} from "./constant"
+import { Transition } from '@dlightjs/components'
 
 export class SceneOne extends View {
-    @PropState pinHeader
+    @PropState wrapperHeight
+    @Prop titleVisiable
     wrapperEl
-    wrapperHeight = 0
 
-    prevScrollTop = 0
-
-    handleScroll = () => {
-        const {scrollTop} = document.documentElement
-        if (scrollTop > this.prevScrollTop &&
-            scrollTop > this.wrapperHeight / 3 &&
-            scrollTop < this.wrapperHeight
-        ) {
-            removeEventListener("scroll", this.handleScroll)
-            animatie(percentTime => {
-                scrollTo(0, scrollTop + percentTime * (this.wrapperHeight - scrollTop))
-            }, 0.5, () => {
-                addEventListener("scroll", this.handleScroll)
-            })
-        } else if (scrollTop > this.wrapperHeight) {
-            this.pinHeader = true
-        } else {
-            this.pinHeader = false
-        }
-        this.prevScrollTop = scrollTop
-
-    }
+    // handleScroll = () => {
+    //     const {scrollTop} = document.documentElement
+    //     if (scrollTop > this.prevScrollTop &&
+    //         scrollTop > this.wrapperHeight / 4 &&
+    //         scrollTop < this.wrapperHeight
+    //     ) {
+    //         removeEventListener("scroll", this.handleScroll)
+    //     } else if (scrollTop > this.wrapperHeight) {
+    //         this.pinHeader = true
+    //     } else {
+    //         this.pinHeader = false
+    //     }
+    //     this.prevScrollTop = scrollTop
+    //
+    // }
     didMount() {
         const heightStr = getComputedStyle(this.wrapperEl).height
         this.wrapperHeight = +heightStr.replace("px", "")
-        addEventListener("scroll", this.handleScroll)
-    }
-
-    willUnmount() {
-        removeEventListener("scroll", this.handleScroll)
     }
 
     Body() {
         div{
-            VStack {
+            HStack {
                 Spacer()
-                HStack {
+                VStack {
                     Spacer()
-                    div("DLight")
-                        ._fontSize("100px")
+                    Transition() {
+                        div(dlight)
+                            .className(welcomeText)
+                            ._opacity(this.titleVisiable?1:0)
+                        div(dlightDescription)
+                            .className(welcomeDescriptionText)
+                            ._opacity(this.titleVisiable?1:0)
+                    }
+                    button("Learn More")
+                        .className(learnMoreBtn)
+                        .onclick(()=>{
+                            const {scrollTop} = document.documentElement
+                            // animatie(percentTime => {
+                            //     scrollTo(0, scrollTop + percentTime * (this.wrapperHeight - scrollTop))
+                            // }, 0.8, ()=>{addEventListener("scroll", this.handleScroll)})
+
+                        })
                     Spacer()
                 }
+                .alignment("center")
+                    .height("100%")
                 Spacer()
             }
-                .width("100%")
+                .height("100%")
 
         }
-            ._width("100%")
-            ._height("100vh")
-            ._backgroundColor("rgba(199, 188, 68, 0.3)")
+            .className(welcomePage)
             .element(this.wrapperEl)
 
 

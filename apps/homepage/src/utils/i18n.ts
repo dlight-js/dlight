@@ -1,3 +1,5 @@
+import { dlightDescription } from "../pages/HomePage/components/constant"
+
 interface EnvProp {
     language: "en" | "zh"
 }
@@ -6,11 +8,11 @@ export const Env: EnvProp = {
     language: "en"
 }
 
-
 const zhTranslateMap: any = {
     performance: "性能",
     Delightful: "开心",
-    Light: "轻量"
+    Light: "轻量",
+    [dlightDescription]: "你的现代化JS框架～"
 }
 export function i18n(strings: any, ...values: any) {
     let str = ""

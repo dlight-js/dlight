@@ -1,0 +1,32 @@
+import {Prop, render, View} from "@dlightjs/dlight";
+import {HStack, Spacer, VStack} from "@dlightjs/components/src";
+import {CodeSandBox} from "./CodeSandFrame"
+import {Env, i18n} from "../../../utils/i18n";
+import {tryTitleText, tryDescText} from "./style.module.css"
+
+export class TryDescription extends View {
+    Body() {
+        div{
+            div(i18n`Try it now`)
+                .className(tryTitleText)
+            div(i18n`A simple counter with both jsx and jsd,
+                choose it as you like!
+                Play around in codesandbox`)
+                .className(tryDescText)
+        }
+        ._width("35%")
+        // @ts-ignore
+    }
+}
+
+
+export class TryModule extends View {
+    Body() {
+        div{
+            HStack{
+                TryDescription()
+                CodeSandBox()
+            }
+        }
+    }
+}

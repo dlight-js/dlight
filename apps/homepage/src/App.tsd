@@ -4,6 +4,7 @@ import {HStack} from "@dlightjs/components/src";
 import {HomePage} from "./pages/HomePage/index.tsd";
 import {GuidePage} from "./pages/GuidePage.tsd";
 import {Header, HeaderHOC} from "./components/Header.tsd";
+import { div } from "@dlightjs/useless";
 
 
 
@@ -12,23 +13,30 @@ export class App extends View {
 
     Body() {
         // Header({navigator: this.navigator})
-        RouterSpace({navigator: this.navigator}) {
-            Route(".") {
+        RouterSpace({navigator: this.navigator})
+        {
+            Route(".")
+            {
                 HomePage()
             }
-            Route("home") {
+            Route("home")
+            {
                 HomePage()
             }
-            Route("guide") {
-                HeaderHOC(@{GuidePage})
+            Route("guide")
+            {
+                HeaderHOC(do{GuidePage()})
             }
-            Route("playground") {
+            Route("playground")
+            {
                 div("I am PlayGround")
             }
-            Route("ecosystem") {
+            Route("ecosystem")
+            {
                 div("I am Ecosystem")
             }
-            Route {
+            Route
+            {
                 div("我是error")
                     ._color("red")
             }

@@ -1,0 +1,11 @@
+import {PropState, View} from "@dlightjs/dlight";
+
+export class Button extends View {
+    @Prop _$content
+    @Prop
+    @State mouseState
+
+    Body() {
+        button(this._$content)
+    }
+}
