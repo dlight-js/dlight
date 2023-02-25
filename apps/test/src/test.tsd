@@ -1,5 +1,6 @@
 import {View} from "@dlightjs/dlight";
-import {_, button, div, State} from "@dlightjs/useless";
+import {_, button, div, Prop, PropState, required, State} from "@dlightjs/useless";
+import {Await, StateObject, Watch} from "@dlightjs/decorators";
 
 
 function timeout(ms: number) {
@@ -8,33 +9,72 @@ function timeout(ms: number) {
 
 async function go(count: number): any {
   await timeout(1000);
-  return `Okkkkkkk${count}`
-}
-
-const Await = (value: any, setValue?: any): any => {
-    // ---- 一个参数认为是defaultValue，两个认为是value, setValue
-    const defaultValue = setValue ? undefined : value
-    const awaitFunc = (v: any, setV: any) => {
-        v.then((d: any) => setV(d))
-        setV(defaultValue)
-        return defaultValue
-    }
-    return defaultValue ? awaitFunc : awaitFunc(value, setValue)
+  return {aa: `Okkkkkkk${count}`}
 }
 
 
 const FuckMe = (defaultValue: number) => (_: any, setValue: any): any => {
     let i =  defaultValue ?? 0
     setInterval(() => {
-        setValue(i++)
+        setValue(++i)
     }, 1000)
-    return defaultValue
+    return {aa: defaultValue}
 }
-export class TestTest extends View {
-    @State @FuckMe(0) ok
+
+class T2 extends View {
+    @Prop
+    apples = required
+
     Body() {
-        div(this.ok)
+        button("add")
+            .onclick(() => {
+                this.apples.push({a: this.apples.length + 1})
+            })
     }
 }
 
+class T3 extends View {
+    @Prop
+    apple = required
+    @Prop deleteT
+    Body() {
+        div(this.apple.a)
+        button("+")
+            .onclick(() => {
+                this.apple.a += 1
+            })
+        button("-")
+            .onclick(this.deleteT)
+    }
+}
+export class TestTest extends View {
+    @State @StateObject @Watch(() => {
+        console.log(this.apples, "changed")
+    })
+    apples = [{a: 1}, {a: 2}, {a: 3}]
 
+    @State @StateObject
+    b = {a: {b: {c:1}}}
+
+    Body() {
+        div(this.b.a.b.c)
+        button("fuck")
+            .onclick(() => {
+                this.b.a.b.c ++
+            })
+        T2()
+            .apples(this.apples)
+        for (let [idx, apple] of this.apples.entries()) {
+            div(apple.a)
+            button("+")
+                .onclick(() => {
+                    apple.a += 1
+                })
+            button("-")
+                .onclick(() => {
+                    delete this.apples[idx]
+                })
+        }
+
+    }
+}

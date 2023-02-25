@@ -1,6 +1,6 @@
 import {
     functionBlockStatement,
-    getDecoName, getDecoNode,
+    getDecoName,
     pushDep,
     pushDerived,
     shouldBeListened,
@@ -153,10 +153,12 @@ export function parseDlightFile(sourceFileCode: string, type: "jsx" | "jsd") {
 
             // ---- decorator有自定义的，直接改哦
             const internalDecoratorNames = ["EnvState", "PropState", "State", "Prop", "Env"]
+            const customDecoratorNames: string[] = []
             const decoratorNames: string[] = (node.decorators ?? []).map((deco): any => {
                 const decoName = getDecoName(deco)
                 if (internalDecoratorNames.includes(decoName)) return decoName
-                resolveCustom(node, getDecoNode(decoName))
+                customDecoratorNames.push(resolveCustom(node, decoName, classBodyNode!))
+
             }).filter(n => n)
 
             // ---- 看是不是有属性是 prop derived，有就加一个()=>
@@ -184,7 +186,7 @@ export function parseDlightFile(sourceFileCode: string, type: "jsx" | "jsd") {
                 if (["EnvState", "PropState", "State"].includes(decoratorName)) {
                     depChain.push((node.key as any).name)
                     pushDep((node.key as any).name, depsNode!, classBodyNode!)
-                    resolveState(node, classBodyNode!)
+                    resolveState(node, classBodyNode!, customDecoratorNames)
                     break
                 }
                 if (["Prop", "Env"].includes(decoratorName)) {

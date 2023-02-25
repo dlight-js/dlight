@@ -18,6 +18,7 @@
   "dependencies": {
     "@dlightjs/components": "workspace:*",
     "@dlightjs/dlight": "workspace:*",
+    "@dlightjs/decorators": "workspace:*",
     "@dlightjs/transpiler": "workspace:*",
     "@dlightjs/useless": "workspace:*",
     "ts-node": "^10.9.1",
