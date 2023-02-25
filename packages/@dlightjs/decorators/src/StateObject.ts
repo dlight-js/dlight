@@ -36,6 +36,11 @@ export const StateObject = {
 
         const stateObjectProxy: ProxyHandler<any> = {
             set(target, property, value) {
+                // ---- 长度会重复设置，所以不管
+                if (Array.isArray(target) && property === "length") {
+                    target[property] = value
+                    return true
+                }
                 target[property] = value
                 // ---- 为了从 proxyValue 中拿到不带proxy的，用了一点hack
                 proxyValue = JSON.parse(JSON.stringify(proxyValue))
@@ -43,12 +48,15 @@ export const StateObject = {
                 return true
             },
             deleteProperty(target, property) {
+                console.log(target,property)
+
                 if (!(property in target)) {
-                    return false
+                    return true
                 }
                 delete target[property]
                 // ---- 这里还要去除空的
                 proxyValue = removeEmpty(JSON.parse(JSON.stringify(proxyValue)))
+                console.log(proxyValue, 'kk')
                 setState(proxyValue)
                 return true
             },

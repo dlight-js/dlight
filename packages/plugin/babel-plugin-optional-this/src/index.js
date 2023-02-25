@@ -53,11 +53,11 @@ function isAttrFromFunction(path, idName, stopNode) {
 }
 
 /**
- * check if the identifier is already like `this.a` / `xx.a`
+ * check if the identifier is already like `this.a` / `xx.a` but not like `a.xx` / xx[a]
  */
 function isMemberExpression(path) {
   const parentNode = path.parentPath.node
-  return t.isMemberExpression(parentNode) && parentNode.property === path.node
+  return t.isMemberExpression(parentNode) && parentNode.property === path.node && parentNode.computed = false
 }
 
 /**

@@ -1,7 +1,7 @@
 
 export const Watch = (func: any) => ({
     preset: (value: any) => {
-        func()
+        func(value)
         return value
     },
 }) as any

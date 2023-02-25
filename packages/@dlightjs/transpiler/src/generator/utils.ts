@@ -76,9 +76,13 @@ export function resolveForBody(bodyStr: string, item: string, valueItemStr: stri
     Transpiler.traverse(bodyAst, {
         Identifier(innerPath: any) {
             // ---- 必须key相等，但是不能是 xxx.keyname，也就是不是memberExpression
-            //      但可以是 keyname.xxx
+            //      但可以是 keyname.xxx 或者 xxx[keyname] -> computed = true
             if (identifierKeys.includes(innerPath.node.name) &&
-                !(t.isMemberExpression(innerPath.parentPath.node) && innerPath.parentPath.node.property === innerPath.node)) {
+                !(t.isMemberExpression(innerPath.parentPath.node) &&
+                    innerPath.parentPath.node.computed === false &&
+                    innerPath.parentPath.node.property === innerPath.node
+                )
+            ) {
                 const valueNode = t.memberExpression(
                     t.identifier(valueItemStr),
                     t.identifier(innerPath.node.name)

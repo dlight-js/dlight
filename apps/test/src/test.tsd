@@ -1,5 +1,5 @@
 import {View} from "@dlightjs/dlight";
-import {_, button, div, Prop, PropState, required, State} from "@dlightjs/useless";
+import {_, button, div, object, Prop, PropState, required, State} from "@dlightjs/useless";
 import {Await, StateObject, Watch} from "@dlightjs/decorators";
 
 
@@ -28,7 +28,7 @@ class T2 extends View {
     Body() {
         button("add")
             .onclick(() => {
-                this.apples.push({a: this.apples.length + 1})
+                this.apples[`ff${Object.keys(this.apples).length}`] = ({a: Object.keys(this.apples).length + 1})
             })
     }
 }
@@ -48,10 +48,10 @@ class T3 extends View {
     }
 }
 export class TestTest extends View {
-    @State @StateObject @Watch(() => {
-        console.log(this.apples, "changed")
+    @State @StateObject @Watch((value) => {
+        console.log(value, "changed")
     })
-    apples = [{a: 1}, {a: 2}, {a: 3}]
+    apples = {hh: {a: 1}, jj: {a: 2}, tt: {a: 3}}
 
     @State @StateObject
     b = {a: {b: {c:1}}}
@@ -64,7 +64,7 @@ export class TestTest extends View {
             })
         T2()
             .apples(this.apples)
-        for (let [idx, apple] of this.apples.entries()) {
+        for (let [idx, apple] of Object.entries(this.apples)) {
             div(apple.a)
             button("+")
                 .onclick(() => {
@@ -72,6 +72,7 @@ export class TestTest extends View {
                 })
             button("-")
                 .onclick(() => {
+                    console.log(idx, this.apples)
                     delete this.apples[idx]
                 })
         }
