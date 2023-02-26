@@ -48,15 +48,12 @@ export const StateObject = {
                 return true
             },
             deleteProperty(target, property) {
-                console.log(target,property)
-
                 if (!(property in target)) {
                     return true
                 }
                 delete target[property]
                 // ---- 这里还要去除空的
                 proxyValue = removeEmpty(JSON.parse(JSON.stringify(proxyValue)))
-                console.log(proxyValue, 'kk')
                 setState(proxyValue)
                 return true
             },
