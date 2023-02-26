@@ -57,7 +57,7 @@ function isAttrFromFunction(path, idName, stopNode) {
  */
 function isMemberExpression(path) {
   const parentNode = path.parentPath.node
-  return t.isMemberExpression(parentNode) && parentNode.property === path.node && parentNode.computed = false
+  return t.isMemberExpression(parentNode) && parentNode.property === path.node && parentNode.computed === false
 }
 
 /**
