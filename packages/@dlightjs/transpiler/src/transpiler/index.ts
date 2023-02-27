@@ -1,6 +1,7 @@
 import {
     functionBlockStatement,
-    getDecoName,
+    getDecoName, isMemberExpressionProperty,
+    isObjectKey,
     pushDep,
     pushDerived,
     shouldBeListened,
@@ -63,10 +64,8 @@ function handleSubView(view: t.ClassMethod) {
     Transpiler.traverse(ast, {
         Identifier(path: any) {
             if (props.includes(path.node.name) &&
-                !(t.isMemberExpression(path.parentPath.node) &&
-                    (path.parentPath.node.computed === false &&
-                    path.parentPath.node.property === path.node)
-                )
+                !isMemberExpressionProperty(path.parentPath.node, path.node) &&
+                !isObjectKey(path.parentPath.node, path.node)
             ){
                 path.replaceWith(t.memberExpression(
                     t.identifier(path.node.name),

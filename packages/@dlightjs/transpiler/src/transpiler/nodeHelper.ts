@@ -114,3 +114,12 @@ export function getDecoName(decorator: t.Decorator) {
 export function getDecoNode(decoratorName: string) {
     return Transpiler.parse(decoratorName).program.body[0].expression
 }
+
+
+export function isMemberExpressionProperty(parentNode: t.Node, currentNode: t.Node) {
+    return t.isMemberExpression(parentNode) && !parentNode.computed && parentNode.property === currentNode
+}
+
+export function isObjectKey(parentNode: t.Node, currentNode: t.Node) {
+    return t.isObjectProperty(parentNode) && parentNode.key === currentNode
+}

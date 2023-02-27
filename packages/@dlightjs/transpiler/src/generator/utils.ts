@@ -1,6 +1,6 @@
 import Transpiler from "../transpiler/babelTranspiler"
 import * as t from "@babel/types"
-import {isMemberInFunction, shouldBeListened} from "../transpiler/nodeHelper";
+import {isMemberExpressionProperty, isMemberInFunction, isObjectKey, shouldBeListened} from "../transpiler/nodeHelper";
 
 export function geneDepsStr(listenDeps: string[]) {
     return "[" + listenDeps.map(v=> {
@@ -78,10 +78,8 @@ export function resolveForBody(bodyStr: string, item: string, valueItemStr: stri
             // ---- 必须key相等，但是不能是 xxx.keyname，也就是不是memberExpression
             //      但可以是 keyname.xxx 或者 xxx[keyname] -> computed = true
             if (identifierKeys.includes(innerPath.node.name) &&
-                !(t.isMemberExpression(innerPath.parentPath.node) &&
-                    innerPath.parentPath.node.computed === false &&
-                    innerPath.parentPath.node.property === innerPath.node
-                )
+                !isMemberExpressionProperty(innerPath.parentPath.node, innerPath.node) &&
+                !isObjectKey(innerPath.parentPath.node, innerPath.node)
             ) {
                 const valueNode = t.memberExpression(
                     t.identifier(valueItemStr),
@@ -96,9 +94,7 @@ export function resolveForBody(bodyStr: string, item: string, valueItemStr: stri
 }
 
 
-
 export function isElementFunction(str: string) {
     const ast = Transpiler.parse(`let _ = ${str}`).program.body[0].declarations[0].init
     return !!(t.isArrowFunctionExpression(ast) || t.isFunctionExpression(ast));
-
 }

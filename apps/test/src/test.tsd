@@ -13,68 +13,18 @@ async function go(count: number): any {
 }
 
 
-const FuckMe = (defaultValue: number) => (_: any, setValue: any): any => {
-    let i =  defaultValue ?? 0
-    setInterval(() => {
-        setValue(++i)
-    }, 1000)
-    return {aa: defaultValue}
-}
-
-class T2 extends View {
-    @Prop
-    apples = required
-
-    Body() {
-        button("add")
-            .onclick(() => {
-                this.apples.push({a: this.apples.length + 1})
-            })
-    }
-}
-
-class T3 extends View {
-    @Prop
-    apple = required
-    @Prop deleteT
-    Body() {
-        div(this.apple.a)
-        button("+")
-            .onclick(() => {
-                this.apple.a += 1
-            })
-        button("-")
-            .onclick(this.deleteT)
-    }
-}
 export class TestTest extends View {
-    @State @StateObject
-    apples = [{a: 1}, {a: 2}, {a: 3}]
+ @State    apples = [{a: 1}, {a: 2}, {a: 3}]
 
-    @State @StateObject
-    b = {a: {b: {c:1}}}
+    @View
+    Haha({apple}) {
+        div(apple.a)
+    }
 
     Body() {
-        div(this.b.a.b.c)
-        button("fuck")
-            .onclick(() => {
-                this.b.a.b.c ++
-            })
-        T2()
-            .apples(this.apples)
         for (let [idx, apple] of this.apples.entries()) {
-            div(apple.a)
-            button("+")
-                .onclick(() => {
-                    apple.a += 1
-                })
-            button("-")
-                .onclick(() => {
-                    console.log(pure(this.apples))
-                    this.apples.splice(idx, 1)
-                    console.log(pure(this.apples))
-
-                })
+           this.Haha()
+               .apple(apple)
         }
 
     }
