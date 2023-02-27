@@ -63,7 +63,11 @@ function handleSubView(view: t.ClassMethod) {
     Transpiler.traverse(ast, {
         Identifier(path: any) {
             if (props.includes(path.node.name) &&
-                !t.isMemberExpression(path.parentPath.node)) {
+                !(t.isMemberExpression(path.parentPath.node) &&
+                    (path.parentPath.node.computed === false &&
+                    path.parentPath.node.property === path.node)
+                )
+            ){
                 path.replaceWith(t.memberExpression(
                     t.identifier(path.node.name),
                     t.identifier("value")
@@ -91,8 +95,8 @@ function handleBody(classBodyNode: t.ClassBody, depChain: string[], type: "jsx" 
     }
     const subViews = views.map(v => "this." + (v as any).key.name)
     for (let view of views) {
-        handleBodyFunc(view as any, depChain, subViews, true)
         handleSubView(view)
+        handleBodyFunc(view as any, depChain, subViews, true)
     }
     handleBodyFunc(body as any, depChain, subViews)
 

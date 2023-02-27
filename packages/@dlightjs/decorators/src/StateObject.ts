@@ -1,4 +1,5 @@
 
+// ---- 还要大改，区分array和object
 function removeEmpty(obj: any): any {
     if (typeof obj !== "object") return obj
     if (Array.isArray(obj)) {
@@ -35,6 +36,20 @@ export const StateObject = {
         if (!value || typeof value !== "object") return
 
         const stateObjectProxy: ProxyHandler<any> = {
+            get: function (target, property) {
+                switch (property) {
+                    case "push":
+                    case "pop":
+                    case "slice":
+                    case "splice":
+                        return (...arg: any) => {
+                            target[property](...arg)
+                            proxyValue = removeEmpty(JSON.parse(JSON.stringify(proxyValue)))
+                            setState(proxyValue)
+                        }
+                }
+                return target[property]
+            },
             set(target, property, value) {
                 // ---- 长度会重复设置，所以不管
                 if (Array.isArray(target) && property === "length") {
