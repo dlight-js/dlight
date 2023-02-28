@@ -230,17 +230,24 @@ export class Generator {
         }))
 
         const keyId = uid()
-        const passProps: ({ key: string, keyWithId: string })[] = []
+        const passProps: ({ key: string, keyWithId: string, depsStr: string, value: string })[] = []
         for (let {key, value} of props) {
             const keyWithId = `${key}_${keyId}`
             const depsStr = geneDepsStr(this.geneDeps(value))
             body.add(`const ${keyWithId} = {value: ${value}, deps: ${depsStr}}`)
-            body.add(`this._$addDeps(${depsStr}, {}, () => {${keyWithId}.value = ${value}})`)
-            passProps.push({key, keyWithId})
+            passProps.push({key, keyWithId, depsStr, value})
         }
         body.add(`const _$node${idx} = ${parserNode.tag}({${passProps.map(
             ({key, keyWithId}) => `${key}: ${keyWithId}`
         ).join(", ")}})`)
+        // ---- 如果subview长度 > 0 就把依赖的id放到第一个node的depIds里面，这样就可以监听删除
+        body.add(`if (_$node${idx}.length > 0) {`)
+        for (let {keyWithId, depsStr, value} of passProps) {
+            body.add("const depId = {}")
+            body.add(`this._$addDeps(${depsStr}, depId, () => {${keyWithId}.value = ${value}})`)
+            body.add(`_$node${idx}[0]._$depObjectIds.push(depId)`)
+        }
+        body.add("}")
 
         return body
     }

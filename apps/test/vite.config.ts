@@ -4,7 +4,7 @@ import dlight from "vite-plugin-dlight-transpiler"
 
 export default defineConfig({
     server: {
-        port: 6660
+        port: 26660
     },
     base: '',
     plugins: [

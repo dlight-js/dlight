@@ -12,14 +12,18 @@ async function go(count: number): any {
   return {aa: `Okkkkkkk${count}`}
 }
 
-
+class HHH extends View {
+  Body() {
+    div("fuck")
+  }
+}
 export class TestTest extends View {
  @State    apples = [{a: 1}, {a: 2}, {a: 3}]
  hh=2
 
     @View
     Haha({apple}) {
-        div(apple.a)
+      
     }
 
     Body() {
@@ -27,6 +31,25 @@ export class TestTest extends View {
            this.Haha()
                .apple(apple)
         }
+        button("+")
+          .onclick(() => {
+            this.apples.push({a: this.apples.length+1})
+            this.apples = [...this.apples]
+          })
+        button("-")
+          .onclick(() => {
+            delete this.apples[this.apples.length -1]
+            this.apples.length --
+            console.log(this.apples)
+            this.apples = [...this.apples]
+          })
+        button("tt")
+          .onclick(() => {
+            for (let apple of this.apples) {
+              apple.a ++
+            }
+            this.apples = [...this.apples]
+          })
 
     }
 }
