@@ -15,6 +15,7 @@ async function go(count: number): any {
 
 export class TestTest extends View {
  @State    apples = [{a: 1}, {a: 2}, {a: 3}]
+ hh=2
 
     @View
     Haha({apple}) {
