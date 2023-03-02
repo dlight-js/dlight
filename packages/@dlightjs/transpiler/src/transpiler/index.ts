@@ -112,8 +112,9 @@ export function parseDlightFile(sourceFileCode: string, type: "jsx" | "jsd") {
     let depChain: string[] = []
 
     Transpiler.traverse(ast, {
-        ClassDeclaration(path: any) {
+        enter(path: any) {
             const node = path.node as t.ClassDeclaration
+            if (t.isClassDeclaration(node) || t.isClassExpression(node))
             // ---- 如果是继承View的，新建_$decorators, _$propDerivedPairs
             if(t.isIdentifier(node.superClass!, {name: "View"})) {
                 classDeclarationNode = node

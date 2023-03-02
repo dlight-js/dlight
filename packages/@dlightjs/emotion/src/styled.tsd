@@ -1,0 +1,55 @@
+import { View } from "@dlightjs/dlight"
+import { css } from "@emotion/css"
+import { html, tag } from "@dlightjs/useless"
+
+export const styled: any = (innerTag: any) => <T=any>(strings: any, ...args: any) => {
+  const getStyles = (node: any, scope: any) => {
+    const keys = Object.getOwnPropertyNames(scope).filter(key => key.startsWith("_$$")).map(key=> key.slice(3))
+    node._$addProp("className", () => {
+      const thisObject: T = {} as T
+      for (let key of keys) {
+          thisObject[key] = scope[`_$$${key}`]
+      }
+      let style = ""
+      for (let i of [...Array(strings.length).keys()]) {
+        style += strings[i]
+        if (args[i]) {
+          if (typeof args[i] === 'function') {
+            style += args[i](thisObject)
+          } else {
+            style += args[i]
+          }
+        }
+      }
+      return css`${style}`
+    }, scope, keys)
+  }
+  if (typeof innerTag === "string") {
+    return class Styled extends View {
+      // @ts-expect-error
+      @Prop _$content = ""
+      _$forwardProps = true
+  
+      Afterset() {
+        (this as any)._$el =  (this as any)._$el[0]
+      }
+      Body() {
+        html(innerTag)(this._$content)
+          .forwardProps()
+          .do((node: any) => getStyles(node, this))
+      }
+    } as any
+  }
+  return class Styled extends View {
+    // @ts-expect-error
+    @Prop _$content = ""
+    _$forwardProps = true
+
+    Body() {
+      tag(innerTag)()
+        .forwardProps()
+        .do((node: any) => getStyles(node, this))
+    }
+  } as any
+} 
+

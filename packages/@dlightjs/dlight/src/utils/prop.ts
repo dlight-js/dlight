@@ -1,17 +1,43 @@
 import { CustomNode } from "../Nodes"
 import { EnvNode } from "../Nodes"
 
+
+export function forwardDLProp(dlNode: CustomNode, key: string, propFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]) {
+    // ---- 新建一个state
+    (dlNode as any)[`_$$${key}`] = listenDeps ? propFunc() : propFunc
+
+    Object.defineProperty(dlNode, key, {
+        get() {
+            return this[`_$$${key}`]
+        },
+        set(value: any) {
+            if (this[`_$$${key}`] === value) return
+            this[`_$$${key}`] = value;
+            this._$runDeps(key);
+        }
+    })
+    dlNode._$deps[key] = new Map()
+
+    if (listenDeps) addTwoWayDLProp(dlScope!, dlNode, key, propFunc, listenDeps)
+}
+
 export function addDLProp(dlNode: CustomNode, tag: string, key: string, propFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[], isTwoWayConnected?: boolean) {
+    if (dlNode?._$forwardProps) {
+        forwardDLProp(dlNode, key, propFunc, dlScope, listenDeps)
+        return
+    }
     if (!(key in dlNode)) return
     if (!listenDeps) {
         (dlNode as any)[key] = propFunc
         return
     }
+
     if ((dlNode as any)[`_$$${key}`] !== `_$${tag}` &&
         !(`_$$${key}` in dlNode)) {
         // ---- 既不是@Prop，也不是@PropState，直接不传
         return
     }
+
 
     if ((dlNode as any)[`_$$${key}`] === `_$${tag}`) {
         addOneWayDLProp(dlScope!, dlNode, key, propFunc, listenDeps)

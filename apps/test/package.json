@@ -17,10 +17,12 @@
   },
   "dependencies": {
     "@dlightjs/components": "workspace:*",
-    "@dlightjs/dlight": "workspace:*",
+    "@dlightjs/emotion": "workspace:*",
     "@dlightjs/decorators": "workspace:*",
+    "@dlightjs/dlight": "workspace:*",
     "@dlightjs/transpiler": "workspace:*",
     "@dlightjs/useless": "workspace:*",
+    "@emotion/css": "^11.10.6",
     "ts-node": "^10.9.1",
     "vite-plugin-dlight-transpiler": "workspace:*"
   }

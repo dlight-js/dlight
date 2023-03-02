@@ -96,8 +96,8 @@ export class CustomNode extends DLNode {
 
     _$children: DLNode[] = []
 
-    _$addChildren(nodeFuncs: DLNode[]) {
-        this._$children = nodeFuncs
+    _$addChildren(dlnodes: DLNode[]) {
+        this._$children = dlnodes
     }
 
     _$resetChildren() {
@@ -152,8 +152,8 @@ export class CustomNode extends DLNode {
         this._$initDecorators()
         this.Preset()
         this._$nodes = ((this as any).Body.bind(this) ?? (() => []))()
-        this.Afterset()
         this._$bindNodes()
+        this.Afterset()
     }
 
     _$addProp(key: string, propFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[], isTwoWayConnected?: boolean) {
@@ -198,7 +198,7 @@ export class CustomNode extends DLNode {
             idOrEl = document.getElementById(idOrEl)!
         }
         idOrEl.replaceWith(appNode._$el)
-        // -----
+        // ----
         loopNodes(this._$nodes, node => {
             switch (node._$nodeType) {
                 case DLNodeType.HTML:
@@ -217,5 +217,22 @@ export class CustomNode extends DLNode {
     _$detach() {
         super._$detach()
         detachNodes(this._$children)
+    }
+
+    _$forwardProps = false
+    forwardProps(dlNode: CustomNode | HtmlNode) {
+        const members = [...new Set(
+            Object.getOwnPropertyNames(this)
+                .filter(m => m.startsWith("_$$"))
+                .map(m => m.replace(/_\$\$/g, ""))
+        )]
+        for (let member of members) {
+            dlNode._$addProp(member, () => (this as any)[member], this, [member], true)
+        }
+        if (dlNode._$nodeType === DLNodeType.Custom) {
+            (dlNode as CustomNode)._$children = this._$children
+        } else {
+            (dlNode as HtmlNode)._$nodes = this._$children
+        }
     }
 }

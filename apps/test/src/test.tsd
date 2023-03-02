@@ -1,57 +1,39 @@
 import {View} from "@dlightjs/dlight";
-import {_, button, div, Prop, PropState, required, State} from "@dlightjs/useless";
+import {_, button, div, Prop, PropState, required, State, tag, html} from "@dlightjs/useless";
 import {Await, StateObject, Watch} from "@dlightjs/decorators";
-
+import {css, styled} from "@dlightjs/emotion"
 
 function timeout(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function go(count: number): any {
-  await timeout(1000);
-  return {aa: `Okkkkkkk${count}`}
-}
 
-class HHH extends View {
+class NotGood extends View {
+  @Env hh = 1
   Body() {
-    div("fuck")
+   
+    div(this.hh)
+     
   }
 }
-export class TestTest extends View {
- @State    apples = [{a: 1}, {a: 2}, {a: 3}]
- hh=2
 
-    @View
-    Haha({apple}) {
-      
-    }
+export class TestTest extends View {
+    @State apple = [0,1,2,3]
 
     Body() {
-        for (let [idx, apple] of this.apples.entries()) {
-           this.Haha()
-               .apple(apple)
+      button()
+        .onclick(() => {
+          this.apple.push(this.apple.length)
+          this.apple = [...this.apple]
+        })
+      env()
+        .hh(100)
+      {
+        for (let a of this.apple) {
+          NotGood()
         }
-        button("+")
-          .onclick(() => {
-            this.apples.push({a: this.apples.length+1})
-            this.apples = [...this.apples]
-          })
-        button("-")
-          .onclick(() => {
-            delete this.apples[this.apples.length -1]
-            this.apples.length --
-            console.log(this.apples)
-            this.apples = [...this.apples]
-          })
-        button("tt")
-          .onclick(() => {
-            for (let apple of this.apples) {
-              apple.a ++
-            }
-            this.apples = [...this.apples]
-          })
-
+      }
     }
+    
 }
 
-const pure = a => JSON.parse(JSON.stringify(a))

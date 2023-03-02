@@ -60,17 +60,17 @@ export class DLNode {
         this._$beforeInitSubNodes = function() {}
     }
 
-    _$beforeInitSubNodes() {}
-    _$addBeforeInitSubNodes(func: () => any) {
+    _$beforeInitSubNodes(_nodes: DLNode[]) {}
+    _$addBeforeInitSubNodes(func: (_nodes: DLNode[]) => any) {
         const prevBeforeInitSubNodes = this._$beforeInitSubNodes
-        this._$beforeInitSubNodes = function() {
-            prevBeforeInitSubNodes.call(this)
-            func.call(this)
+        this._$beforeInitSubNodes = function(nodes: DLNode[]) {
+            prevBeforeInitSubNodes.call(this, nodes)
+            func.call(this, nodes)
         }
     }
     _$bindNodes() {
         bindParentNode(this._$nodes, this)
-        this._$beforeInitSubNodes()
+        this._$beforeInitSubNodes(this._$nodes)
         initNodes(this._$nodes)
     }
 

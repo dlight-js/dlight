@@ -48,8 +48,8 @@ declare class DLNode {
     _$nodes: DLNode[];
     _$depObjectIds: Object[];
     _$detach(): void;
-    _$beforeInitSubNodes(): void;
-    _$addBeforeInitSubNodes(func: () => any): void;
+    _$beforeInitSubNodes(_nodes: DLNode[]): void;
+    _$addBeforeInitSubNodes(func: (_nodes: DLNode[]) => any): void;
     _$bindNodes(): void;
     constructor(nodeType: DLNodeType);
     _$init(): void;
@@ -61,7 +61,7 @@ declare class EnvNode extends DLNode {
     _$addNodes(nodes: DLNode[]): void;
     _$addProp(key: string, propOrFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]): void;
     addProps(node: CustomNode): void;
-    addPropsToNodes(node: DLNode): void;
+    addPropsToNodes(nodes: DLNode[]): void;
     _$init(): void;
 }
 
@@ -138,7 +138,7 @@ declare class CustomNode extends DLNode {
     _$addAfterset(func: () => any): void;
     _$runDeps(depName: string): void;
     _$children: DLNode[];
-    _$addChildren(nodeFuncs: DLNode[]): void;
+    _$addChildren(dlnodes: DLNode[]): void;
     _$resetChildren(): void;
     _$initDecorators(): void;
     _$addDeps(deps: string[], objectId: Object, func: (newValue?: any) => any): void;
@@ -156,6 +156,8 @@ declare class CustomNode extends DLNode {
     _$addLifeCycle(func: (_els: HTMLElement[], _node: CustomNode) => any, lifeCycleName: "willMount" | "didMount" | "willUnmount" | "didUnmount"): void;
     render(idOrEl: string | HTMLElement): void;
     _$detach(): void;
+    _$forwardProps: boolean;
+    forwardProps(dlNode: CustomNode | HtmlNode): void;
 }
 
 declare class HtmlNode extends DLNode {
@@ -260,7 +262,7 @@ declare function loopNodes(nodes: DLNode[], runFunc: (node: DLNode) => boolean):
 declare function loopEls(nodes: DLNode[], runFunc: (el: HTMLElement, node: HtmlNode) => void, deep?: boolean): void;
 declare function toEls(nodes: DLNode[]): HTMLElement[];
 
-declare const View: typeof CustomNode;
+declare const View: any;
 declare function render(idOrEl: string | HTMLElement, dl: {
     new (): CustomNode;
 }): void;

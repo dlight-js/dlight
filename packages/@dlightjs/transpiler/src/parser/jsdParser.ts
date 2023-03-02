@@ -25,6 +25,19 @@ function parseProp(key: string, propAst: any) {
     }
 }
 
+
+
+function isPureMemberExpression(node: any) {
+    // ---- 先剥掉一层
+    while (node) {
+        node = node.callee?.object
+        if (t.isCallExpression(node)) {
+            return false
+        }
+    }
+    return true
+}
+
 function parseTag(node: t.CallExpression) {
     const parserNode: any = {tag: "", attr: {props: []}, children: []}
     let n = node
@@ -33,8 +46,7 @@ function parseTag(node: t.CallExpression) {
     //      比如 div().width(100) 默认用div
     //      第三个&&是排除this.subView()
     // ---- 由于callee是从外到内，所以最后一个循环的就是tag，其余都要加到prop里面
-    while (n && (n.callee as t.MemberExpression)?.object
-            && !t.isThisExpression((n.callee as t.MemberExpression)?.object)) {
+    while (n && (n.callee as t.MemberExpression)?.object && !isPureMemberExpression(n)) {
         // ---- 取第1个参数，如果参数是空，那就默认是true
         const prop = n.arguments[0]
         const key = ((n.callee as t.MemberExpression).property as t.Identifier).name
@@ -42,6 +54,7 @@ function parseTag(node: t.CallExpression) {
         // ---- 继续迭代直到变成tag在同一行
         n = (n.callee as t.MemberExpression).object as t.CallExpression
     }
+
     if (n.arguments.length > 0) {
         parserNode.attr.props.unshift(parseProp("_$content", n.arguments[0]))
     }

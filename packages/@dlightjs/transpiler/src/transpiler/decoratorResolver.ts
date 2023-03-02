@@ -65,7 +65,7 @@ export function resolveCustom(node: t.ClassProperty, decoratorName: string, clas
 
     node.value = Transpiler.parse("" +
         `(${decoratorName}.func??(typeof ${decoratorName} === "function" ? ${decoratorName} : (_=>_)))`+
-        `(${value}, (_)=>this.${(node.key as any).name}=_)`
+        `(${value}, (_)=>this.${propertyName}=_, this.${propertyName})`
     ).program.body[0].expression
 
     return decoratorName

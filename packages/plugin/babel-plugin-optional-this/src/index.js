@@ -68,6 +68,12 @@ function isVariableDeclarator(path) {
   return t.isVariableDeclarator(parentNode) && parentNode.id === path.node
 }
 
+
+function isObjectKey(path) {
+  const parentNode = path.parentPath.node
+  return t.isObjectProperty(parentNode) && parentNode.key === path.node
+}
+
 export default function () {
   return {
     visitor: {
@@ -87,7 +93,8 @@ export default function () {
                 availPropNames.includes(idName) &&
                 !isMemberExpression(path) &&
                 !isVariableDeclarator(path) &&
-                !isAttrFromFunction(path, idName, memberOrMethod)
+                !isAttrFromFunction(path, idName, memberOrMethod) &&
+                !isObjectKey(path)
               ) {
                 path.replaceWith(
                   t.memberExpression(t.thisExpression(), t.identifier(idName))

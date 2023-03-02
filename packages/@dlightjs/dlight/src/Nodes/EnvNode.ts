@@ -25,11 +25,12 @@ export class EnvNode extends DLNode {
         }
     }
 
-    addPropsToNodes(node: DLNode) {
-        loopNodes(node._$nodes, (n: DLNode) => {
-            n._$addBeforeInitSubNodes(() => {
+    addPropsToNodes(nodes: DLNode[]) {
+        loopNodes(nodes, (n: DLNode) => {
+            console.log("called", n)
+            n._$addBeforeInitSubNodes((newNodes: any) => {
                 // ---- 这样可以监听变化
-                this.addPropsToNodes(n)
+                this.addPropsToNodes(newNodes)
             })
             if (n._$nodeType === DLNodeType.Custom) {
                 this.addProps(n as CustomNode);
@@ -39,7 +40,7 @@ export class EnvNode extends DLNode {
     }
 
     _$init() {
-        this.addPropsToNodes(this)
+        this.addPropsToNodes(this._$nodes)
         this._$bindNodes()
     }
 }
