@@ -10,29 +10,31 @@ function timeout(ms: number) {
 
 class NotGood extends View {
   @Env hh = 1
+  @Prop className
   Body() {
    
     div(this.hh)
+      .className(this.className)
      
   }
 }
+let AA = styled(NotGood)`
+  color: red;
+`
+const uid = () => Math.random().toString(32).slice(2)
 
 export class TestTest extends View {
-    @State apple = [0,1,2,3]
-
+    @State count = 0
+    els = {}
     Body() {
-      button()
+      button("+")
         .onclick(() => {
-          this.apple.push(this.apple.length)
-          this.apple = [...this.apple]
+          this.count ++
+          console.log(this.els)
         })
-      env()
-        .hh(100)
-      {
-        for (let a of this.apple) {
-          NotGood()
-        }
-      }
+  
+        div("fuck")
+          .element(this.els[`${uid()}${this.count}`])
     }
     
 }

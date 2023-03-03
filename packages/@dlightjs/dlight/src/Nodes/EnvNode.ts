@@ -27,7 +27,6 @@ export class EnvNode extends DLNode {
 
     addPropsToNodes(nodes: DLNode[]) {
         loopNodes(nodes, (n: DLNode) => {
-            console.log("called", n)
             n._$addBeforeInitSubNodes((newNodes: any) => {
                 // ---- 这样可以监听变化
                 this.addPropsToNodes(newNodes)

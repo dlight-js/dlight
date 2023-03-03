@@ -152,10 +152,6 @@ export class Generator {
         // ---- properties
         for (let {key, value, nodes} of parserNode.attr.props) {
             value = this.parsePropNodes(value, nodes)
-            if (key === "element") {
-                body.add(`${value} = ${nodeName}._$el;`)
-                continue
-            }
             if (key === "do") {
                 body.add(`(${value})(${nodeName});`)
                 continue
@@ -172,6 +168,12 @@ export class Generator {
                 key = "innerText"
             }
             const listenDeps = this.geneDeps(value as string)
+            if (key === "element") {
+                body.add(`const ${nodeName}Element = () => ${value} = ${nodeName}._$el;`)
+                body.add(`${nodeName}Element()`)
+                body.add(`this._$addDeps(${geneDepsStr(listenDeps)}, {}, ${nodeName}Element)`)
+                continue
+            }
             if (listenDeps.length > 0) {
                 body.add(`${nodeName}._$addProp("${key}", () => (${value}), this, ${geneDepsStr(listenDeps)});`)
                 continue
@@ -198,15 +200,6 @@ export class Generator {
         // ---- props
         for (let {key, value, nodes} of parserNode.attr.props) {
             value = this.parsePropNodes(value, nodes)
-            if (key === "element") {
-                const isFunction = isElementFunction(value)
-                if (isFunction) {
-                    body.add(`${nodeName}._$addAfterset(() => (${value})(${nodeName}._$el));`)
-                } else {
-                    body.add(`${nodeName}._$addAfterset(() => ${value} = ${nodeName}._$el);`)
-                }
-                continue
-            }
             if (key === "do") {
                 body.add(`(${value})(${nodeName});`)
                 continue
@@ -220,6 +213,17 @@ export class Generator {
                 continue
             }
             const listenDeps = this.geneDeps(value as string)
+            if (key === "element") {
+                const isFunction = isElementFunction(value)
+                if (isFunction) {
+                    body.add(`const ${nodeName}Element() = () => (${value})(${nodeName}._$el);`)
+                } else {
+                    body.add(`const ${nodeName}Element() = () => ${value} = ${nodeName}._$el;`)
+                }
+                body.add(`${nodeName}._$addAfterset(${nodeName}Element);`)
+                body.add(`this._$addDeps(${geneDepsStr(listenDeps)}, {}, ${nodeName}Element);`)
+                continue
+            }
             if (listenDeps.length > 0) {
                 body.add(`${nodeName}._$addProp("${key}", () => (${value}), this, ${geneDepsStr(listenDeps)}, ${geneIsTwoWayConnected(value)});`)
                 continue

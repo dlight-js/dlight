@@ -11,8 +11,9 @@ export const styled: any = (innerTag: any) => <T=any>(strings: any, ...args: any
           thisObject[key] = scope[`_$$${key}`]
       }
       let style = ""
-      for (let i of [...Array(strings.length).keys()]) {
-        style += strings[i]
+      const strLength = Math.max(strings.length, args.length)
+      for (let i of [...Array(strLength).keys()]) {
+        if (strings[i]) style += strings[i]
         if (args[i]) {
           if (typeof args[i] === 'function') {
             style += args[i](thisObject)

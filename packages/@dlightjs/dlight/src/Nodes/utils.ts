@@ -81,7 +81,7 @@ export function appendNodesWithIndex(nodes: DLNode[], index: number, parentEl: H
         const isInDOM = document.body.contains(el)
         if ([DLNodeType.HTML].includes(node._$nodeType) && !isInDOM) {
             // ---- 不在DOM上
-            node.willAppear(el, node)
+            loopLifeCycle(node, "willAppear")
         }
         if (index === length) {
             parentEl!.appendChild(el)
@@ -89,7 +89,7 @@ export function appendNodesWithIndex(nodes: DLNode[], index: number, parentEl: H
             parentEl!.insertBefore(el, parentEl.childNodes[index] as any)
         }
         if ([DLNodeType.HTML].includes(node._$nodeType) && !isInDOM) {
-            node.didAppear(el, node)
+            loopLifeCycle(node, "didAppear")
         }
         index ++
         length ++
@@ -98,6 +98,15 @@ export function appendNodesWithIndex(nodes: DLNode[], index: number, parentEl: H
     return [index, length]
 }
 
+function loopLifeCycle(node: HtmlNode, lifeCycleName: "willAppear" | "didAppear" | "willDisappear" | "didDisappear") {
+    node[lifeCycleName](node._$el, node)
+    loopEls(node._$nodes, (el, n) => {
+        if ([DLNodeType.HTML].includes(n._$nodeType)) {
+            n[lifeCycleName](el, n)
+        }
+    }, true)
+    
+}
 
 /**
  * flowCursor相关，index表明前面有n个普通HTMLElement

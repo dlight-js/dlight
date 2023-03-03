@@ -57,9 +57,9 @@ export class HtmlNode extends DLNode {
     didDisappear(_el: HTMLElement, _node: HtmlNode): any {}
     _$addLifeCycle(func: (_el: HTMLElement, _node: HtmlNode) => any, lifeCycleName: "willAppear" | "didAppear" | "willDisappear" | "didDisappear") {
         const preLifeCycle = this[lifeCycleName]
-        this[lifeCycleName] = function(_el: HTMLElement, _node: HtmlNode, ..._: any) {
+        this[lifeCycleName] = function(_el: HTMLElement, _node: HtmlNode) {
             preLifeCycle.call(this, _el, _node)
-            return func.call(this, _el, _node)
+            func.call(this, _el, _node)
         }
     }
 }

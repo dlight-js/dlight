@@ -12,35 +12,35 @@ export class StackTest extends View {
        HStack()
            .width("400px")
        {
-           div("hh")
+            Spacer()
+            div("hh")
                ._backgroundColor("red")
-           Spacer()
-           div("ok")
+            div("ok")
                ._backgroundColor("red")
        }
 
-       VStack()
-           .height("400px")
-       {
-           div("hh")
-               ._backgroundColor("blue")
-           Spacer()
-           div("ok")
-               ._backgroundColor("blue")
-       }
+    //    VStack()
+    //        .height("400px")
+    //    {
+    //        div("hh")
+    //            ._backgroundColor("blue")
+    //        Spacer()
+    //        div("ok")
+    //            ._backgroundColor("blue")
+    //    }
 
 
-       ZStack()
-       {
-           div()
-               ._backgroundColor("red")
-               ._width("100px")
-               ._height("100px")
-           div("surface")
-               ._backgroundColor("blue")
-               ._width("30px")
-               ._height("30px")
-       }
+    //    ZStack()
+    //    {
+    //        div()
+    //            ._backgroundColor("red")
+    //            ._width("100px")
+    //            ._height("100px")
+    //        div("surface")
+    //            ._backgroundColor("blue")
+    //            ._width("30px")
+    //            ._height("30px")
+    //    }
    }
 
 }
