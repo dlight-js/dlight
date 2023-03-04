@@ -26,8 +26,18 @@ export class HtmlNode extends DLNode {
         if (key[0] === "_") {
             func = (newValue: any) => this._$el.style[key.slice(1) as any] = newValue
         } else if (key === "className") {
-            const prevClassNames = this._$el.className
-            func = (newValue: any) => this._$el.className = `${prevClassNames} ${newValue}`.trim()
+            let currClassName = '\\*none\\*'
+            func = (newValue: any) => {
+                const classNames = this._$el.className
+                let newClassName = classNames
+                if (new RegExp(currClassName).test(classNames)) {
+                    newClassName = newClassName.replace(new RegExp(currClassName), newValue)
+                } else {
+                    newClassName += ` ${newValue}`
+                }
+                currClassName = newValue
+                this._$el.className = newClassName
+            }
         } else {
             func = (newValue: any) => this._$el[key] = newValue
         }
