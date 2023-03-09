@@ -28,6 +28,7 @@ A simple counter with both jsx and jsd, choose it as you like!
 
 Play around in [codesandbox](https://codesandbox.io/p/sandbox/dlight-vite-quickstart-4tgogd).
 
+🌟 Or our new DLight [playground](https://dlightplayground.iandx.site) 
 ## DLight.jsx
 
 ```jsx
