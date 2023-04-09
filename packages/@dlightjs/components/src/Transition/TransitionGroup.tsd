@@ -1,5 +1,5 @@
 import {View} from "@dlightjs/dlight"
-import {_, Prop} from "@dlightjs/useless";
+import {_, Prop} from "@dlightjs/types";
 
 type TransitionPropSub<T> = T | ((el: HTMLElement) => T)
 type Timing = "appear" | "firstAppear" | "move" | "disappear" | "lastDisappear"

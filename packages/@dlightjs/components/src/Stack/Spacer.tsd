@@ -1,8 +1,9 @@
 import {DLNode, DLNodeType, View} from "@dlightjs/dlight"
-import {div} from "@dlightjs/useless";
+import {div} from "@dlightjs/types";
 import {css} from "@emotion/css";
 
 export class Spacer extends View {
+    isSpacer = true
     Body() {
         div()
             .className(css`
@@ -13,7 +14,7 @@ export class Spacer extends View {
 
 export function isChildSpacer(child: DLNode) {
     if (![DLNodeType.HTML, DLNodeType.Text].includes(child._$nodeType)) {
-        if ((child as any)._$tag === "Spacer") {
+        if ((child as any).isSpacer) {
             return true
         }
         for (let node of child._$nodes ?? []) {

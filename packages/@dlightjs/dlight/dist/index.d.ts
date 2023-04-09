@@ -263,8 +263,6 @@ declare function loopEls(nodes: DLNode[], runFunc: (el: HTMLElement, node: HtmlN
 declare function toEls(nodes: DLNode[]): HTMLElement[];
 
 declare const View: any;
-declare function render(idOrEl: string | HTMLElement, dl: {
-    new (): CustomNode;
-}): void;
+declare function render(idOrEl: string | HTMLElement, dl: any): void;
 
 export { CustomNode, DLNode, DLNodeType, EnvNode, ExpressionNode, ForNode, HtmlNode, IfNode, TextNode, View, bindParentNode, initNodes, loopEls, loopNodes, render, toEls };

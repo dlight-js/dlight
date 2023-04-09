@@ -1,5 +1,5 @@
 import {View} from "@dlightjs/dlight"
-import {_, div, Prop} from "@dlightjs/useless"
+import {_, div, Prop} from "@dlightjs/types"
 import {VAlignment} from "./types"
 // @ts-expect-error
 import {isChildSpacer} from "./Spacer.tsd";

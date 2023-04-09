@@ -1,12 +1,12 @@
 
-export const Await = (value: any, setValue?: any, prevValue?: any): any => {
+export const Await = (value: any, dlScope?: any, propName?: any): any => {
     // ---- 一个参数认为是defaultValue，两个认为是value, setValue
-    const defaultValue = setValue ? undefined : value
-    const awaitFunc = (v: any, setV: any, prevValue: any) => {
+    const defaultValue = dlScope ? undefined : value
+    const awaitFunc = (v: any, dlScope: any, propName: any) => {
         v.then((d: any) => {
-            setV(d)
+            dlScope[propName] = d
         })
-        setV(defaultValue ?? prevValue)
+        return defaultValue
     }
-    return defaultValue ? awaitFunc : awaitFunc(value, setValue, prevValue) as any
+    return defaultValue ? awaitFunc : awaitFunc(value, dlScope, propName) as any
 }

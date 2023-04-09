@@ -1,6 +1,6 @@
 import { View } from "@dlightjs/dlight"
 import { css } from "@emotion/css"
-import { html, tag } from "@dlightjs/useless"
+import { html, tag } from "@dlightjs/types"
 
 export const styled: any = (innerTag: any) => <T=any>(strings: any, ...args: any) => {
   const getStyles = (node: any, scope: any) => {

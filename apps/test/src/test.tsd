@@ -1,5 +1,5 @@
 import {View} from "@dlightjs/dlight";
-import {_, button, div, Prop, PropState, required, State, tag, html, h3} from "@dlightjs/useless";
+import {_, button, div, Prop, PropState, required, State, tag, html, h3} from "@dlightjs/types";
 import {Await, StateObject, Watch} from "@dlightjs/decorators";
 import {css, styled} from "@dlightjs/emotion"
 import { HStack } from "@dlightjs/components";
@@ -25,7 +25,7 @@ let AA = styled(NotGood)`
 const uid = () => Math.random().toString(32).slice(2)
 
 export class TestTest extends View {
-    @State count = 0
+    @PropState count = 0
     @State bgColor = "red"
     els = {}
     Body() {
@@ -40,4 +40,5 @@ export class TestTest extends View {
     }
     
 }
+
 

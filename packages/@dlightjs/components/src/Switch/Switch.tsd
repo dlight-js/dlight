@@ -1,5 +1,5 @@
 import { View } from "@dlightjs/dlight"
-import { Prop, required } from "@dlightjs/useless";
+import { Prop, required } from "@dlightjs/types";
 
 export class Switch extends View {
     @Prop _$content = required

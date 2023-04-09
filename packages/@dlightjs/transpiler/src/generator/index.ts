@@ -216,9 +216,9 @@ export class Generator {
             if (key === "element") {
                 const isFunction = isElementFunction(value)
                 if (isFunction) {
-                    body.add(`const ${nodeName}Element() = () => (${value})(${nodeName}._$el);`)
+                    body.add(`const ${nodeName}Element = () => (${value})(${nodeName}._$el);`)
                 } else {
-                    body.add(`const ${nodeName}Element() = () => ${value} = ${nodeName}._$el;`)
+                    body.add(`const ${nodeName}Element = () => ${value} = ${nodeName}._$el;`)
                 }
                 body.add(`${nodeName}._$addAfterset(${nodeName}Element);`)
                 body.add(`this._$addDeps(${geneDepsStr(listenDeps)}, {}, ${nodeName}Element);`)

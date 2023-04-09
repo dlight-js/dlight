@@ -1,5 +1,5 @@
 import {View} from "@dlightjs/dlight";
-import {_, Prop} from "@dlightjs/useless";
+import {_, Prop} from "@dlightjs/types";
 import {css} from "@emotion/css";
 
 export class Transition extends View {

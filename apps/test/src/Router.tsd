@@ -1,6 +1,6 @@
 import {View} from "@dlightjs/dlight";
 import {Route, RouterSpace} from "../../../packages/@dlightjs/components/src/Router";
-import {button, div, Env, State} from "@dlightjs/useless";
+import {button, div, Env, State} from "@dlightjs/types";
 
 class SubComp2 extends View {
     @State toggle = true

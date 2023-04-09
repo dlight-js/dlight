@@ -119,12 +119,6 @@ export function parseDlightFile(sourceFileCode: string, type: "jsx" | "jsd") {
             if(t.isIdentifier(node.superClass!, {name: "View"})) {
                 classDeclarationNode = node
                 classBodyNode = classDeclarationNode.body
-                classBodyNode.body.unshift(
-                    t.classProperty(
-                        t.identifier("_$tag"),
-                        t.stringLiteral(classDeclarationNode.id.name)
-                    )
-                )
                 derivedNode = t.classProperty(
                     t.identifier("_$derivedPairs"),
                     t.objectExpression([])

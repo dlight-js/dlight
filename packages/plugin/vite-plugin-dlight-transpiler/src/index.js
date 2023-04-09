@@ -32,7 +32,7 @@ export default function({jsd=true, jsx=true, optionalThis=false}={}) {
         transform(code, id) {
             if (jsd) {
                 if (id.endsWith(".jsd") || id.endsWith(".tsd")
-                    || id.endsWith(".dlight.js") || id.endsWith(".dlight.ts")) {
+                    || id.endsWith(".view.js") || id.endsWith(".view.ts")) {
                     if (optionalThis) code = transformOptionThis(code)
                     return parseDlightFile(code, "jsd")
                 }

@@ -9,7 +9,7 @@ export function resolveState(node: t.ClassProperty, classBodyNode: t.ClassBody, 
     const propertyIdx = classBodyNode.body.indexOf(node)
 
     const customDecoratorsPreset = customDecoratorNames
-        .map(s => `if (${s}.preset) value = ${s}.preset(value, d=>this.${propertyName}=d)`)
+        .map(s => `if (${s}.preset) value = ${s}.preset(value, this, "${propertyName}")`)
         .join("\n")
 
     const getterFuncNode = functionBlockStatement(`
@@ -65,7 +65,7 @@ export function resolveCustom(node: t.ClassProperty, decoratorName: string, clas
 
     node.value = Transpiler.parse("" +
         `(${decoratorName}.func??(typeof ${decoratorName} === "function" ? ${decoratorName} : (_=>_)))`+
-        `(${value}, (_)=>this.${propertyName}=_, this.${propertyName})`
+        `(${value}, this, "${propertyName}")`
     ).program.body[0].expression
 
     return decoratorName

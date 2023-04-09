@@ -5,7 +5,7 @@ export * from "./utils/nodes"
 
 const View = CustomNode as any
 
-function render(idOrEl: string | HTMLElement, dl: { new (): CustomNode }) {
+function render(idOrEl: string | HTMLElement, dl: any) {
     new dl().render(idOrEl)
 }
 

@@ -4,43 +4,55 @@ import {View} from "@dlightjs/dlight";
 // import {ZStack} from "../../../packages/@dlightjs/components/src/Stack/ZStack.tsd"
 // import {Spacer} from "../../../packages/@dlightjs/components/src/Stack/Spacer.tsd"
 import {HStack, VStack, ZStack, Spacer} from "@dlightjs/components";
-import {div} from "@dlightjs/useless";
+import {button, div, h1} from "@dlightjs/types";
 
 export class StackTest extends View {
-
+   @State flag = false
    Body() {
+      if (this.flag) {
+         h1("hh")
+      }
+      button("flag")
+         .onclick(() => {
+            this.flag = !this.flag
+         })
        HStack()
            .width("400px")
        {
             Spacer()
             div("hh")
                ._backgroundColor("red")
+
             div("ok")
                ._backgroundColor("red")
+               Spacer()
+               Spacer()
+
+
        }
 
-    //    VStack()
-    //        .height("400px")
-    //    {
-    //        div("hh")
-    //            ._backgroundColor("blue")
-    //        Spacer()
-    //        div("ok")
-    //            ._backgroundColor("blue")
-    //    }
+   //     VStack()
+   //         .height("400px")
+   //     {
+   //         div("hh")
+   //             ._backgroundColor("blue")
+   //         Spacer()
+   //         div("ok")
+   //             ._backgroundColor("blue")
+   //     }
 
 
-    //    ZStack()
-    //    {
-    //        div()
-    //            ._backgroundColor("red")
-    //            ._width("100px")
-    //            ._height("100px")
-    //        div("surface")
-    //            ._backgroundColor("blue")
-    //            ._width("30px")
-    //            ._height("30px")
-    //    }
+   //     ZStack()
+   //     {
+   //         div()
+   //             ._backgroundColor("red")
+   //             ._width("100px")
+   //             ._height("100px")
+   //         div("surface")
+   //             ._backgroundColor("blue")
+   //             ._width("30px")
+   //             ._height("30px")
+   //     }
    }
 
 }

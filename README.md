@@ -5,7 +5,7 @@
 [![components](https://badgen.net/npm/v/@dlightjs/components?label=@dlightjs/components)](https://www.npmjs.com/package/@dlightjs/components)
 [![vite-plugin-dlight-transpiler](https://badgen.net/npm/v/vite-plugin-dlight-transpiler?label=vite-plugin-dlight-transpiler)](https://www.npmjs.com/package/https://badgen.net/npm/v/vite-plugin-dlight-transpiler?label=vite-plugin-dlight-transpiler)
 [![babel-plugin-optional-this](https://badgen.net/npm/v/babel-plugin-optional-this?label=babel-plugin-optional-this)](https://www.npmjs.com/package/babel-plugin-optional-this)
-[![@dlightjs/useless](https://badgen.net/npm/v/@dlightjs/useless?label=@dlightjs/useless)](https://www.npmjs.com/package/@dlightjs/useless)
+[![@dlightjs/types](https://badgen.net/npm/v/@dlightjs/types?label=@dlightjs/types)](https://www.npmjs.com/package/@dlightjs/types)
 
 EN | [中文](./docs/zh/README.md)
 

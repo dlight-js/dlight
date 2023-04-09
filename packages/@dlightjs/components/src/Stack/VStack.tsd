@@ -2,7 +2,7 @@ import {View} from "@dlightjs/dlight"
 import {HAlignment} from "./types"
 // @ts-expect-error
 import {isChildSpacer} from "./Spacer.tsd";
-import {_, div, Prop} from "@dlightjs/useless";
+import {_, div, Prop} from "@dlightjs/types";
 import {css} from "@emotion/css";
 
 

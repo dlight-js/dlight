@@ -1,6 +1,6 @@
 import {View} from "@dlightjs/dlight";
 import {HAlignment, VAlignment} from "./types"
-import {div, Prop, _} from "@dlightjs/useless";
+import {div, Prop, _} from "@dlightjs/types";
 import {css} from "@emotion/css";
 
 export class ZStack extends View {

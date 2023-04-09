@@ -6,10 +6,8 @@ type DLDecoratorObject<T> = {
 };
 type DLDecorator<T = any> = DLDecoratorFunc<T> | DLDecoratorObject<T>;
 
-declare const StateObject: any;
-
-declare const Await: (value: any, setValue?: any, prevValue?: any) => any;
+declare const Await: (value: any, dlScope?: any, propName?: any) => any;
 
 declare const Watch: (func: any) => any;
 
-export { Await, DLDecorator, StateObject, Watch };
+export { Await, DLDecorator, Watch };

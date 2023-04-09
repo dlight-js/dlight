@@ -1,6 +1,6 @@
 import {View} from "@dlightjs/dlight";
 import {TransitionGroup} from "../../../packages/@dlightjs/components/src/Transition/index";
-import {button, div, State} from "@dlightjs/useless";
+import {button, div, State} from "@dlightjs/types";
 
 
 function getData(text) {
