@@ -68,6 +68,7 @@ export class DLNode {
             func.call(this, nodes)
         }
     }
+    // 将子组件挂在该组件上，将子组件init
     _$bindNodes() {
         bindParentNode(this._$nodes, this)
         this._$beforeInitSubNodes(this._$nodes)

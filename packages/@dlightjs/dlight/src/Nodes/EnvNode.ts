@@ -15,6 +15,7 @@ export class EnvNode extends DLNode {
         this._$nodes = nodes
     }
 
+    // 将prop加进子组件
     _$addProp(key: string, propOrFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]) {
         this.addPropFuncs.push(node => addDLProp(node, "env", key, propOrFunc, dlScope, listenDeps))
     }

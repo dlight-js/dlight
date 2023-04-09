@@ -83,6 +83,7 @@ export class CustomNode extends DLNode {
         }.bind(this)
     }
 
+    // 如果该变量被其他变量derived，变量改变时应该callback相应的derived改变函数
     _$runDeps(depName: string) {
         if (this._$deps[depName] === undefined) {
             console.warn(`${depName} is not a dependency in ${this.constructor.name}`)
@@ -109,6 +110,7 @@ export class CustomNode extends DLNode {
     // ---- dep
     _$initDecorators() {
         if (this._$derivedPairs) {
+            // 遍历_$derivedPairs，将derived变量监听的变量的change函数挂载到被监听变量上
             for (let [propertyKey, listenDeps] of Object.entries(this._$derivedPairs)) {
                 const derivedFunc = (this as any)[propertyKey];
                 if (typeof derivedFunc !== "function") return
@@ -128,6 +130,7 @@ export class CustomNode extends DLNode {
         }
     }
 
+    // 将改变函数挂载在_$deps里的依赖对象上
     _$addDeps(deps: string[], objectId: Object, func: (newValue?: any) => any) {
         for (let dep of deps) {
             this._$deps[dep].set(objectId, func)

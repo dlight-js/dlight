@@ -64,6 +64,7 @@ export function addOneWayDLProp(dlScope: CustomNode, dlNode: CustomNode, key: st
 
 }
 
+// PropState: 子里面的值改变，父的值也相应改变。给子变量挂载上父变量的改变函数。
 export function addTwoWayDLProp(dlScope: CustomNode, dlNode: CustomNode, key: string, propFunc: () => any, listenDeps: string[]) {
     // ---- 如果是完整match且是state不是derived，比如 {flag: this.flag}
     //      则把子dl的flag参数当成state
