@@ -1,1 +1,1 @@
-export { styled } from "./styled.tsd";
+export { styled } from "./styled.view.ts";

@@ -3,26 +3,29 @@ import { EnvNode } from "../Nodes"
 
 
 export function forwardDLProp(dlNode: CustomNode, key: string, propFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]) {
-    // ---- 新建一个state
-    (dlNode as any)[`_$$${key}`] = listenDeps ? propFunc() : propFunc
+    if (!(dlNode as any)[`_$$${key}`]) {
+        // ---- 新建一个state
+        (dlNode as any)[`_$$${key}`] = listenDeps ? propFunc() : propFunc;
+        (dlNode as any)[`_$$$${key}`] = '_$prop'
 
-    Object.defineProperty(dlNode, key, {
-        get() {
-            return this[`_$$${key}`]
-        },
-        set(value: any) {
-            if (this[`_$$${key}`] === value) return
-            this[`_$$${key}`] = value;
-            this._$runDeps(key);
-        }
-    })
-    dlNode._$deps[key] = new Map()
+        Object.defineProperty(dlNode, key, {
+            get() {
+                return this[`_$$${key}`]
+            },
+            set(value: any) {
+                if (this[`_$$${key}`] === value) return
+                this[`_$$${key}`] = value;
+                this._$runDeps(key);
+            }
+        })
+        dlNode._$deps[key] = new Map()
+    }
 
     if (listenDeps) addTwoWayDLProp(dlScope!, dlNode, key, propFunc, listenDeps)
 }
 
-export function addDLProp(dlNode: CustomNode, tag: string, key: string, propFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[], isTwoWayConnected?: boolean) {
-    if (dlNode?._$forwardProps) {
+export function addDLProp(dlNode: CustomNode, tag: "env" | "prop", key: string, propFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[], isTwoWayConnected?: boolean) {
+    if (dlNode?._$forwardProps && tag === "prop") {
         forwardDLProp(dlNode, key, propFunc, dlScope, listenDeps)
         return
     }
@@ -32,8 +35,8 @@ export function addDLProp(dlNode: CustomNode, tag: string, key: string, propFunc
         return
     }
 
-    if ((dlNode as any)[`_$$${key}`] !== `_$${tag}` &&
-        !(`_$$${key}` in dlNode)) {
+    if (((dlNode as any)[`_$$${key}`] !== `_$${tag}`) &&
+        ((dlNode as any)[`_$$$${key}`] !== `_$${tag}`)) {
         // ---- 既不是@Prop，也不是@PropState，直接不传
         return
     }

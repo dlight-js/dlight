@@ -3,7 +3,7 @@ import {createGetterSetter, functionBlockStatement} from "./nodeHelper";
 import Transpiler from "./babelTranspiler";
 
 
-export function resolveState(node: t.ClassProperty, classBodyNode: t.ClassBody, customDecoratorNames: string[]) {
+export function resolveState(node: t.ClassProperty, classBodyNode: t.ClassBody, customDecoratorNames: string[], decoratorName: 'State' | 'PropState' | 'EnvState') {
     const propertyName = (node.key as t.Identifier).name;
     (node.key as t.Identifier).name = `_$$${propertyName}`
     const propertyIdx = classBodyNode.body.indexOf(node)
@@ -30,7 +30,16 @@ export function resolveState(node: t.ClassProperty, classBodyNode: t.ClassBody, 
         setterFuncNode
     )
 
-    classBodyNode.body.splice(propertyIdx+1, 0, getterNode, setterNode)
+    const nodesToPush: any = [getterNode, setterNode]
+    if (decoratorName !== "State") {
+        const stateStatusKey = t.classProperty(
+            t.identifier(`_$$$${propertyName}`),
+            t.stringLiteral(`_$${decoratorName.toLowerCase().replace("state", "")}`)
+        )
+        nodesToPush.unshift(stateStatusKey)
+    }
+
+    classBodyNode.body.splice(propertyIdx+1, 0, ...nodesToPush)
 }
 
 export function resolveProp(node: t.ClassProperty, classBodyNode: t.ClassBody, decoratorName: "Prop" | "Env") {

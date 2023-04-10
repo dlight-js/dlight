@@ -6,30 +6,57 @@ import {View} from "@dlightjs/dlight";
 import {HStack, VStack, ZStack, Spacer} from "@dlightjs/components";
 import {button, div, h1} from "@dlightjs/types";
 
+import { styled } from "../../../packages/@dlightjs/emotion/src/index"
+
+// @ts-expect-error
+class NTText extends View {
+    _$forwardProps = true
+
+    Body() {
+      // div(i18n`${this.text}`)
+      //   .className("")
+      Text()
+      // .color(this.color)
+        .forwardProps()
+
+    }
+}
+
+const Text = styled.div`
+  background-color: transparent;
+  color: ${({color}) => color};
+`
 export class StackTest extends View {
    @State flag = false
+   @PropState hh = 1
    Body() {
-      if (this.flag) {
-         h1("hh")
+      env() 
+         .hello("hello")
+      {
+         NTText("hh")
+         .color("red")
       }
-      button("flag")
-         .onclick(() => {
-            this.flag = !this.flag
-         })
-       HStack()
-           .width("400px")
-       {
-            Spacer()
-            div("hh")
-               ._backgroundColor("red")
+        
+      // HH()
+      //    .hh(this.flag)
+      // button("flag")
+      //    .onclick(() => {
+      //       this.flag = !this.flag
+      //    })
+      //  HStack()
+      //      .width("400px")
+      //  {
+      //       Spacer()
+      //       div("hh")
+      //          ._backgroundColor("red")
 
-            div("ok")
-               ._backgroundColor("red")
-               Spacer()
-               Spacer()
+      //       div("ok")
+      //          ._backgroundColor("red")
+      //          Spacer()
+      //          Spacer()
 
 
-       }
+      //  }
 
    //     VStack()
    //         .height("400px")

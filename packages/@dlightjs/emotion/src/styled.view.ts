@@ -4,7 +4,11 @@ import { html, tag } from "@dlightjs/types"
 
 export const styled: any = (innerTag: any) => <T=any>(strings: any, ...args: any) => {
   const getStyles = (node: any, scope: any) => {
-    const keys = Object.getOwnPropertyNames(scope).filter(key => key.startsWith("_$$")).map(key=> key.slice(3))
+    const keys = [...new Set(
+      Object.getOwnPropertyNames(scope)
+          .filter(m => scope[m] === "_$prop")
+          .map(m => m.replace(/^_\$*/, ""))
+    )]
     node._$addProp("className", () => {
       const thisObject: T = {} as T
       for (let key of keys) {
@@ -27,14 +31,13 @@ export const styled: any = (innerTag: any) => <T=any>(strings: any, ...args: any
   }
   if (typeof innerTag === "string") {
     return class Styled extends View {
-      // @ts-expect-error
-      @Prop _$content = ""
       _$forwardProps = true
   
       Afterset() {
         (this as any)._$el =  (this as any)._$el[0]
       }
       Body() {
+        // @ts-expect-error
         html(innerTag)(this._$content)
           .forwardProps()
           .do((node: any) => getStyles(node, this))
@@ -42,8 +45,6 @@ export const styled: any = (innerTag: any) => <T=any>(strings: any, ...args: any
     } as any
   }
   return class Styled extends View {
-    // @ts-expect-error
-    @Prop _$content = ""
     _$forwardProps = true
 
     Body() {

@@ -226,8 +226,8 @@ export class CustomNode extends DLNode {
     forwardProps(dlNode: CustomNode | HtmlNode) {
         const members = [...new Set(
             Object.getOwnPropertyNames(this)
-                .filter(m => m.startsWith("_$$"))
-                .map(m => m.replace(/_\$\$/g, ""))
+                .filter(m => (this as any)[m] === "_$prop")
+                .map(m => m.replace(/^_\$*/, ""))
         )]
         for (let member of members) {
             dlNode._$addProp(member, () => (this as any)[member], this, [member], true)

@@ -184,7 +184,7 @@ export function parseDlightFile(sourceFileCode: string, type: "jsx" | "jsd") {
                 if (["EnvState", "PropState", "State"].includes(decoratorName)) {
                     depChain.push((node.key as any).name)
                     pushDep((node.key as any).name, depsNode!, classBodyNode!)
-                    resolveState(node, classBodyNode!, customDecoratorNames)
+                    resolveState(node, classBodyNode!, customDecoratorNames, decoratorName as any)
                     break
                 }
                 if (["Prop", "Env"].includes(decoratorName)) {

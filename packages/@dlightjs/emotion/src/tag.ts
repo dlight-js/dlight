@@ -1,5 +1,4 @@
-// @ts-expect-error
-import { styled } from "./styled.tsd"
+import { styled } from "./styled.view"
 
 styled.a = styled("a")
 styled.abbr = styled("abbr")
@@ -115,4 +114,4 @@ styled.video = styled("video")
 styled.wbr = styled("wbr")
 
 // @ts-expect-error
-export { styled } from "./styled.tsd"
+export { styled } from "./styled.view.ts"
