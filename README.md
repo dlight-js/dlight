@@ -23,39 +23,6 @@ Your modern web framework ~
   * Every line of code in DLight is elegant and beautiful!
 
 # Preview
-
-A simple counter with both jsx and jsd, choose it as you like!
-
-Play around in [codesandbox](https://codesandbox.io/p/sandbox/dlight-vite-quickstart-4tgogd).
-
-🌟 Or our new DLight [playground](https://dlightplayground.iandx.site) 
-## DLight.jsx
-
-```jsx
-// -> ./MyComp.jsx
-import {View} from "@dlightjs/dlight"
-
-export class MyComp extends View {
-  @State count = 0  
-  countPlus1 = this.count + 1 
-  Body = (
-    <>
-      <h1>hello, dlight js, jsx</h1>
-      <div> {this.count} </div>
-      <div> {this.countPlus1} </div>
-      <button onclick={() => {this.count++}}>
-        +
-      </button>
-      <button onclick={() => {this.count--}}>
-        -
-      </button>
-    </>
-  )
-}
-```
-
-## DLight.jsd
-
 ```js
 // -> ./MyComp.jsd
 import {View} from "@dlightjs/dlight"
@@ -82,6 +49,7 @@ export class MyComp extends View {
 
 # Documentation
 
+(Upgrading dlight version..👨🏻‍💻 Better support with [chinese documentation](./docs/zh/README.md) now)
 * [README-dlight.md](./packages/@dlightjs/dlight/README.md)
 * [README-components.md](./packages/@dlightjs/components/README.md)
 * website-doc(building with DLight now👨🏻‍💻)
@@ -91,7 +59,7 @@ export class MyComp extends View {
 * TODO app
   * [jsx-codesandbox](https://codesandbox.io/p/sandbox/dlight-todoapp-jsx-42t284)
   * [jsd-codesandbox](https://codesandbox.io/p/sandbox/dlight-todoapp-jsd-i8se5e)
-
+(Upgrading dlight version..👨🏻‍💻)
 
 # Homepage
 
