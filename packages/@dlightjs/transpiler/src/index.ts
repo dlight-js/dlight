@@ -1,1 +1,1 @@
-export {parseDlightFile} from "./transpiler"
+export { parseDlightFile } from "./transpiler"

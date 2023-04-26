@@ -1,0 +1,31 @@
+{
+    "env": {
+        "browser": true,
+        "es2021": true
+    },
+    "extends": [
+        "standard-with-typescript"
+    ],
+    "overrides": [
+    ],
+    "parserOptions": {
+        "ecmaVersion": "latest",
+        "sourceType": "module",
+        "project": "./tsconfig.json"
+    },
+    "ignorePatterns": ["**/dist/*.*js", "**/dist/*.*ts"],
+    "rules": {
+        "space-before-function-paren": "off",
+        "@typescript-eslint/explicit-function-return-type": "off",
+        "@typescript-eslint/space-before-function-paren": ["error", "never"],
+        "@typescript-eslint/strict-boolean-expressions": "off",
+        "@typescript-eslint/restrict-template-expressions": "off",
+        "@typescript-eslint/no-non-null-assertion": "off",
+        "@typescript-eslint/restrict-plus-operands": "off",
+        "no-fallthrough": "off",
+        "multiline-ternary": ["error", "always-multiline"],
+        "quotes": ["error", "double"],
+        "semi": ["error", "never"]
+    },
+    "plugins": ["dlight"]
+}

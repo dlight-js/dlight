@@ -3,78 +3,59 @@ import { area, div, img } from "./htmlTag"
 
 const View = undefined as any
 
-let _ = document.getElementById("j")
+const _ = document.getElementById("j")
 
 interface SubViewProps {
-    /**
+  /**
      * @ok fuck me
      */
-    hh?: string
-    haha: number
-    fuck: string
+  hh?: string
+  haha: number
+  fuck: string
 }
 
+const a: SubViewProps = null as any
 
-let a: SubViewProps = null as any
+class MyComp extends View implements SubViewProps {
+  hh: string = "ss"
+  haha = 1
+  fuck = "k"
+  @Prop a = 1
+  @KK ta = 1
 
-class MyComp extends View implements SubViewProps{
-    hh: string = "ss"
-    haha = 1
-    fuck = "k"
-    @Prop a = 1
-    @KK ta = 1
-    
-    Body() {
-        div("jjj")
-            ._KhtmlBoxAlign()
-            .className()
-            .id()    
-            .className()
-        
-            
-            
-        img()
-            .src()
-            .alt
+  Body() {
+    div("jjj")
+      ._KhtmlBoxAlign()
+      .className()
+      .id()
+      .className()
 
+    img()
+      .src()
+      .alt
 
-            
-            
-            
-        area()
-            .coords()
-            
-            
-            
-            
-            
-        
-            
-            
-    }
+    area()
+      .coords()
+  }
 }
 
-const SubViewView =  Types<SubViewProps>(MyComp)
+const SubViewView = Types<SubViewProps>(MyComp)
 
-
-let d = SubViewView()
-.fuck('ss')
-.haha(1)
-
-
+const d = SubViewView()
+  .fuck("ss")
+  .haha(1)
 
 class FuckView extends View {
-    Body() {
-        div("jjj")
-        ._display('s')        
+  Body() {
+    div("jjj")
+      ._display("s")
+      .className("h")
+      ._counterSet()
 
-        
-    
-            // ._display("initial")
-            // .didAppear(() => {})            
+    // ._display("initial")
+    // .didAppear(() => {})
 
-        SubViewView()
-            
-    }
+    SubViewView()
+        .fuck("hh")
+  }
 }
-

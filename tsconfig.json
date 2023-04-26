@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "jsx": "react",
     "target": "ESNext",
     "useDefineForClassFields": true,
     "module": "ESNext",
@@ -11,17 +10,15 @@
     "isolatedModules": true,
     "esModuleInterop": true,
     "noEmit": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noImplicitReturns": true,
     "skipLibCheck": true,
+    "noImplicitThis": false,
     "experimentalDecorators": true
   },
   "ts-node": {
     "esm": true
   },
   "include": [
-    "apps/",
-    "packages/"
+    "apps/**/*",
+    "packages/**/*"
   ]
 }

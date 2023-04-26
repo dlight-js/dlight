@@ -11,7 +11,7 @@ type WritableKeysOf<T> = {
 }[keyof T];
 type RemoveReadOnly<T> = Pick<T, WritableKeysOf<T>>;
 type OmitFunction<T> = Omit<T, {
-    [K in keyof T]: T[K] extends Function ? K : never;
+    [K in keyof T]: T[K] extends (...args: any) => any ? K : never;
 }[keyof T]>;
 type OmitFuncAndReadOnly<T> = RemoveReadOnly<OmitFunction<T>>;
 type OmitFuncAndReadOnlyProperty<G = HTMLElement> = OmitFuncAndReadOnly<G>;
@@ -22,7 +22,7 @@ type PropertiesRequired = Required<Properties>;
 type DLightShortcutStyle<T> = {
     [K in keyof PropertiesRequired as `_${string & K}`]: (value: PropertiesRequired[K]) => T;
 };
-type DLightHTMLElement<T, G = {}> = DLightPropertyWrapper<T, G> & DLightShortcutStyle<T>;
+type DLightHTMLElement<T, G = Record<string, undefined>> = DLightPropertyWrapper<T, G> & DLightShortcutStyle<T>;
 
 interface DLightHtmlAreaSpecific extends DLightHtmlTag<DLightHtmlAreaSpecific, DLightHTMLElement<DLightHtmlAreaSpecific, HTMLAreaElement>> {
 }
@@ -54,13 +54,13 @@ interface DLightHtmlSelectSpecific extends DLightHtmlTag<DLightHtmlSelectSpecifi
 }
 
 type HtmlLifecycleFuncType<T> = (func: (el?: HTMLElement, node?: HtmlNode) => void) => T;
-type DLightHtmlHook<T> = {
+interface DLightHtmlHook<T> {
     element: (holderOrFunc: HTMLElement | ((holder: HTMLElement) => void)) => T;
     willAppear: HtmlLifecycleFuncType<T>;
     didAppear: HtmlLifecycleFuncType<T>;
     willDisappear: HtmlLifecycleFuncType<T>;
     didDisappear: HtmlLifecycleFuncType<T>;
-};
+}
 type DLightHtmlTag<T, G = DLightHTMLElement<T>> = G & DLightHtmlHook<T>;
 interface DLightHtmlTagSpecific extends DLightHtmlTag<DLightHtmlTagSpecific> {
 }
@@ -188,7 +188,7 @@ type RemoveOptionalProps<T, K extends keyof T> = HasOnlyOptionalProps<Omit<T, K>
 type DLightObject<T> = {
     [K in keyof T]: (value: T[K]) => DLightObject<RemoveOptionalProps<T, K>>;
 };
-type CustomTag<T> = (_$content?: T["_$content"]) => DLightObject<T>;
+type CustomTag<T> = "_$content" extends keyof T ? (_$content?: T["_$content"]) => DLightObject<T> : () => DLightObject<T>;
 declare function Types<T = any>(cls: any): CustomTag<T>;
 
 declare const State: any;
@@ -198,6 +198,7 @@ declare const Prop: any;
 declare const Env: any;
 declare const env: any;
 declare const tag: any;
+declare const htmlTag: any;
 declare const required: any;
 
-export { DLightHtmlTag, Env, EnvState, Prop, PropState, State, _, a, abbr, address, area, article, aside, audio, b, base, bdi, bdo, blockquote, body, br, button, canvas, caption, cite, code, col, colgroup, data, datalist, dd, Types as default, del, details, dfn, dialog, div, dl, dt, em, embed, env, fieldset, figcaption, figure, footer, form, h1, h2, h3, h4, h5, h6, head, header, hgroup, hr, html, i, iframe, img, input, ins, kbd, label, legend, li, link, main, map, mark, menu, meta, meter, nav, noscript, object, ol, optgroup, option, output, p, param, picture, pre, progress, q, required, rp, rt, ruby, s, samp, script, section, select, slot, small, source, span, strong, style, sub, summary, sup, table, tag, tbody, td, template, textarea, tfoot, th, thead, time, title, tr, track, u, ul, video, wbr };
+export { DLightHtmlTag, Env, EnvState, Prop, PropState, State, _, a, abbr, address, area, article, aside, audio, b, base, bdi, bdo, blockquote, body, br, button, canvas, caption, cite, code, col, colgroup, data, datalist, dd, Types as default, del, details, dfn, dialog, div, dl, dt, em, embed, env, fieldset, figcaption, figure, footer, form, h1, h2, h3, h4, h5, h6, head, header, hgroup, hr, html, htmlTag, i, iframe, img, input, ins, kbd, label, legend, li, link, main, map, mark, menu, meta, meter, nav, noscript, object, ol, optgroup, option, output, p, param, picture, pre, progress, q, required, rp, rt, ruby, s, samp, script, section, select, slot, small, source, span, strong, style, sub, summary, sup, table, tag, tbody, td, template, textarea, tfoot, th, thead, time, title, tr, track, u, ul, video, wbr };
