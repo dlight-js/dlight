@@ -14,7 +14,7 @@ function qe(e) {
   var t = document.createElement("style");
   return t.setAttribute("data-emotion", e.key), e.nonce !== void 0 && t.setAttribute("nonce", e.nonce), t.appendChild(document.createTextNode("")), t.setAttribute("data-s", ""), t;
 }
-var Ge = /* @__PURE__ */ function() {
+var He = /* @__PURE__ */ function() {
   function e(r) {
     var n = this;
     this._insertTag = function(s) {
@@ -48,7 +48,7 @@ var Ge = /* @__PURE__ */ function() {
       return n.parentNode && n.parentNode.removeChild(n);
     }), this.tags = [], this.ctr = 0, process.env.NODE_ENV !== "production" && (this._alreadyInsertedOrderInsensitiveRule = !1);
   }, e;
-}(), N = "-ms-", Z = "-moz-", l = "-webkit-", ce = "comm", de = "rule", pe = "decl", He = "@import", Oe = "@keyframes", ze = Math.abs, Q = String.fromCharCode, Ye = Object.assign;
+}(), N = "-ms-", Z = "-moz-", l = "-webkit-", ce = "comm", de = "rule", pe = "decl", Ge = "@import", Oe = "@keyframes", ze = Math.abs, Q = String.fromCharCode, Ye = Object.assign;
 function Ke(e, t) {
   return E(e, 0) ^ 45 ? (((t << 2 ^ E(e, 0)) << 2 ^ E(e, 1)) << 2 ^ E(e, 2)) << 2 ^ E(e, 3) : 0;
 }
@@ -73,7 +73,7 @@ function j(e, t, r) {
 function k(e) {
   return e.length;
 }
-function fe(e) {
+function ue(e) {
   return e.length;
 }
 function z(e, t) {
@@ -104,7 +104,7 @@ function M() {
 function Y() {
   return S;
 }
-function H(e, t) {
+function G(e, t) {
   return j(B, e, t);
 }
 function q(e) {
@@ -146,7 +146,7 @@ function Te(e) {
   return B = "", e;
 }
 function K(e) {
-  return Pe(H(S - 1, ae(e === 91 ? e + 2 : e === 40 ? e + 1 : e)));
+  return Pe(G(S - 1, ae(e === 91 ? e + 2 : e === 40 ? e + 1 : e)));
 }
 function et(e) {
   for (; (y = M()) && y < 33; )
@@ -156,7 +156,7 @@ function et(e) {
 function tt(e, t) {
   for (; --t && A() && !(y < 48 || y > 102 || y > 57 && y < 65 || y > 70 && y < 97); )
     ;
-  return H(e, Y() + (t < 6 && M() == 32 && A() == 32));
+  return G(e, Y() + (t < 6 && M() == 32 && A() == 32));
 }
 function ae(e) {
   for (; A(); )
@@ -180,21 +180,21 @@ function rt(e, t) {
   for (; A() && e + y !== 47 + 10; )
     if (e + y === 42 + 42 && M() === 47)
       break;
-  return "/*" + H(t, S - 1) + "*" + Q(e === 47 ? e : A());
+  return "/*" + G(t, S - 1) + "*" + Q(e === 47 ? e : A());
 }
 function nt(e) {
   for (; !q(M()); )
     A();
-  return H(e, S);
+  return G(e, S);
 }
 function st(e) {
   return Te(J("", null, null, null, [""], e = Me(e), 0, [0], e));
 }
 function J(e, t, r, n, s, i, a, c, d) {
-  for (var f = 0, p = 0, u = a, $ = 0, C = 0, _ = 0, h = 1, x = 1, v = 1, b = 0, O = "", F = s, D = i, P = n, m = O; x; )
+  for (var u = 0, p = 0, f = a, $ = 0, C = 0, _ = 0, h = 1, x = 1, v = 1, b = 0, O = "", F = s, D = i, P = n, m = O; x; )
     switch (_ = b, b = A()) {
       case 40:
-        if (_ != 108 && E(m, u - 1) == 58) {
+        if (_ != 108 && E(m, f - 1) == 58) {
           ie(m += g(K(b), "&", "&\f"), "&\f") != -1 && (v = -1);
           break;
         }
@@ -223,7 +223,7 @@ function J(e, t, r, n, s, i, a, c, d) {
         }
         break;
       case 123 * h:
-        c[f++] = k(m) * v;
+        c[u++] = k(m) * v;
       case 125 * h:
       case 59:
       case 0:
@@ -232,29 +232,29 @@ function J(e, t, r, n, s, i, a, c, d) {
           case 125:
             x = 0;
           case 59 + p:
-            C > 0 && k(m) - u && z(C > 32 ? me(m + ";", n, r, u - 1) : me(g(m, " ", "") + ";", n, r, u - 2), d);
+            C > 0 && k(m) - f && z(C > 32 ? me(m + ";", n, r, f - 1) : me(g(m, " ", "") + ";", n, r, f - 2), d);
             break;
           case 59:
             m += ";";
           default:
-            if (z(P = ge(m, t, r, f, p, s, c, O, F = [], D = [], u), i), b === 123)
+            if (z(P = ge(m, t, r, u, p, s, c, O, F = [], D = [], f), i), b === 123)
               if (p === 0)
-                J(m, t, P, P, F, i, u, c, D);
+                J(m, t, P, P, F, i, f, c, D);
               else
                 switch ($ === 99 && E(m, 3) === 110 ? 100 : $) {
                   case 100:
                   case 109:
                   case 115:
-                    J(e, P, P, n && z(ge(e, P, P, 0, 0, s, c, O, s, F = [], u), D), s, D, u, c, n ? F : D);
+                    J(e, P, P, n && z(ge(e, P, P, 0, 0, s, c, O, s, F = [], f), D), s, D, f, c, n ? F : D);
                     break;
                   default:
                     J(m, P, P, P, [""], D, 0, c, D);
                 }
         }
-        f = p = C = 0, h = v = 1, O = m = "", u = a;
+        u = p = C = 0, h = v = 1, O = m = "", f = a;
         break;
       case 58:
-        u = 1 + k(m), C = _;
+        f = 1 + k(m), C = _;
       default:
         if (h < 1) {
           if (b == 123)
@@ -267,10 +267,10 @@ function J(e, t, r, n, s, i, a, c, d) {
             v = p > 0 ? 1 : (m += "\f", -1);
             break;
           case 44:
-            c[f++] = (k(m) - 1) * v, v = 1;
+            c[u++] = (k(m) - 1) * v, v = 1;
             break;
           case 64:
-            M() === 45 && (m += K(A())), $ = M(), p = u = k(O = m += nt(Y())), b++;
+            M() === 45 && (m += K(A())), $ = M(), p = f = k(O = m += nt(Y())), b++;
             break;
           case 45:
             _ === 45 && k(m) == 2 && (h = 0);
@@ -278,11 +278,11 @@ function J(e, t, r, n, s, i, a, c, d) {
     }
   return i;
 }
-function ge(e, t, r, n, s, i, a, c, d, f, p) {
-  for (var u = s - 1, $ = s === 0 ? i : [""], C = fe($), _ = 0, h = 0, x = 0; _ < n; ++_)
-    for (var v = 0, b = j(e, u + 1, u = ze(h = a[_])), O = e; v < C; ++v)
+function ge(e, t, r, n, s, i, a, c, d, u, p) {
+  for (var f = s - 1, $ = s === 0 ? i : [""], C = ue($), _ = 0, h = 0, x = 0; _ < n; ++_)
+    for (var v = 0, b = j(e, f + 1, f = ze(h = a[_])), O = e; v < C; ++v)
       (O = Pe(h > 0 ? $[v] + " " + b : g(b, /&\f/g, $[v]))) && (d[x++] = O);
-  return te(e, t, r, s === 0 ? de : c, d, f, p);
+  return te(e, t, r, s === 0 ? de : c, d, u, p);
 }
 function it(e, t, r) {
   return te(e, t, r, ce, Q(Xe()), j(e, 2, -2), 0);
@@ -291,13 +291,13 @@ function me(e, t, r, n) {
   return te(e, t, r, pe, j(e, 0, n), j(e, n + 1, -1), n);
 }
 function U(e, t) {
-  for (var r = "", n = fe(e), s = 0; s < n; s++)
+  for (var r = "", n = ue(e), s = 0; s < n; s++)
     r += t(e[s], s, e, t) || "";
   return r;
 }
 function at(e, t, r, n) {
   switch (e.type) {
-    case He:
+    case Ge:
     case pe:
       return e.return = e.return || e.value;
     case ce:
@@ -310,7 +310,7 @@ function at(e, t, r, n) {
   return k(r = U(e.children, n)) ? e.return = e.value + "{" + r + "}" : "";
 }
 function ot(e) {
-  var t = fe(e);
+  var t = ue(e);
   return function(r, n, s, i) {
     for (var a = "", c = 0; c < t; c++)
       a += e[c](r, n, s, i) || "";
@@ -331,8 +331,8 @@ function dt(e) {
 var pt = function(t, r, n) {
   for (var s = 0, i = 0; s = i, i = M(), s === 38 && i === 12 && (r[n] = 1), !q(i); )
     A();
-  return H(t, S);
-}, ft = function(t, r) {
+  return G(t, S);
+}, ut = function(t, r) {
   var n = -1, s = 44;
   do
     switch (q(s)) {
@@ -352,8 +352,8 @@ var pt = function(t, r, n) {
     }
   while (s = A());
   return t;
-}, ut = function(t, r) {
-  return Te(ft(Me(t), r));
+}, ft = function(t, r) {
+  return Te(ut(Me(t), r));
 }, $e = /* @__PURE__ */ new WeakMap(), ht = function(t) {
   if (!(t.type !== "rule" || !t.parent || // positive .length indicates that this rule contains pseudo
   // negative .length indicates that this rule has been already prefixed
@@ -363,9 +363,9 @@ var pt = function(t, r, n) {
         return;
     if (!(t.props.length === 1 && r.charCodeAt(0) !== 58 && !$e.get(n)) && !s) {
       $e.set(t, !0);
-      for (var i = [], a = ut(r, i), c = n.props, d = 0, f = 0; d < a.length; d++)
-        for (var p = 0; p < c.length; p++, f++)
-          t.props[f] = i[d] ? a[d].replace(/&\f/g, c[p]) : c[p] + " " + a[d];
+      for (var i = [], a = ft(r, i), c = n.props, d = 0, u = 0; d < a.length; d++)
+        for (var p = 0; p < c.length; p++, u++)
+          t.props[u] = i[d] ? a[d].replace(/&\f/g, c[p]) : c[p] + " " + a[d];
     }
   }
 }, lt = function(t) {
@@ -386,11 +386,11 @@ var pt = function(t, r, n) {
           // global rule at the root level
           s
         ), d = c.length - 1; d >= 0; d--) {
-          var f = c[d];
-          if (f.line < r.line)
+          var u = c[d];
+          if (u.line < r.line)
             break;
-          if (f.column < r.column) {
-            if (mt(f))
+          if (u.column < r.column) {
+            if (mt(u))
               return;
             break;
           }
@@ -584,18 +584,18 @@ If multiple caches share the same key they might "fight" for each other's style 
       c.push(h);
     }
   );
-  var d, f = [ht, lt];
-  process.env.NODE_ENV !== "production" && f.push($t({
+  var d, u = [ht, lt];
+  process.env.NODE_ENV !== "production" && u.push($t({
     get compat() {
       return _.compat;
     }
   }), yt);
   {
-    var p, u = [at, process.env.NODE_ENV !== "production" ? function(h) {
+    var p, f = [at, process.env.NODE_ENV !== "production" ? function(h) {
       h.root || (h.return ? p.insert(h.return) : h.value && h.type !== ce && p.insert(h.value + "{}"));
     } : ct(function(h) {
       p.insert(h);
-    })], $ = ot(f.concat(s, u)), C = function(x) {
+    })], $ = ot(u.concat(s, f)), C = function(x) {
       return U(st(x), $);
     };
     d = function(x, v, b, O) {
@@ -608,7 +608,7 @@ If multiple caches share the same key they might "fight" for each other's style 
   }
   var _ = {
     key: r,
-    sheet: new Ge({
+    sheet: new He({
       key: r,
       container: a,
       nonce: t.nonce,
@@ -692,12 +692,12 @@ var xt = {
 }, ye = `You have illegal escape sequence in your template literal, most likely inside content's property value.
 Because you write your CSS inside a JavaScript string you actually have to do double escaping, so for example "content: '\\00d7';" should become "content: '\\\\00d7';".
 You can read more about this here:
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#ES2018_revision_of_illegal_escape_sequences`, Nt = "You have passed in falsy value as style object's key (can happen when in example you pass unexported component as computed key).", St = /[A-Z]|^ms/g, Le = /_EMO_([^_]+?)_([^]*?)_EMO_/g, ue = function(t) {
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#ES2018_revision_of_illegal_escape_sequences`, Nt = "You have passed in falsy value as style object's key (can happen when in example you pass unexported component as computed key).", St = /[A-Z]|^ms/g, Le = /_EMO_([^_]+?)_([^]*?)_EMO_/g, fe = function(t) {
   return t.charCodeAt(1) === 45;
 }, we = function(t) {
   return t != null && typeof t != "boolean";
 }, re = /* @__PURE__ */ dt(function(e) {
-  return ue(e) ? e : e.replace(St, "-$&").toLowerCase();
+  return fe(e) ? e : e.replace(St, "-$&").toLowerCase();
 }), X = function(t, r) {
   switch (t) {
     case "animation":
@@ -711,7 +711,7 @@ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_liter
           }, s;
         });
   }
-  return xt[t] !== 1 && !ue(t) && typeof r == "number" && r !== 0 ? r + "px" : r;
+  return xt[t] !== 1 && !fe(t) && typeof r == "number" && r !== 0 ? r + "px" : r;
 };
 if (process.env.NODE_ENV !== "production") {
   var Ct = /(var|attr|counters?|url|element|(((repeating-)?(linear|radial))|conic)-gradient)\(|(no-)?(open|close)-quote/, At = ["normal", "none", "initial", "inherit", "unset"], Rt = X, Ot = /^-ms-/, Pt = /-(.)/g, _e = {};
@@ -719,13 +719,13 @@ if (process.env.NODE_ENV !== "production") {
     if (t === "content" && (typeof r != "string" || At.indexOf(r) === -1 && !Ct.test(r) && (r.charAt(0) !== r.charAt(r.length - 1) || r.charAt(0) !== '"' && r.charAt(0) !== "'")))
       throw new Error("You seem to be using a value for 'content' without quotes, try replacing it with `content: '\"" + r + "\"'`");
     var n = Rt(t, r);
-    return n !== "" && !ue(t) && t.indexOf("-") !== -1 && _e[t] === void 0 && (_e[t] = !0, console.error("Using kebab-case for css properties in objects is not supported. Did you mean " + t.replace(Ot, "ms-").replace(Pt, function(s, i) {
+    return n !== "" && !fe(t) && t.indexOf("-") !== -1 && _e[t] === void 0 && (_e[t] = !0, console.error("Using kebab-case for css properties in objects is not supported. Did you mean " + t.replace(Ot, "ms-").replace(Pt, function(s, i) {
       return i.toUpperCase();
     }) + "?")), n;
   };
 }
 var Ue = "Component selectors can only be used in conjunction with @emotion/babel-plugin, the swc Emotion plugin, or another Emotion-aware compiler transform.";
-function G(e, t, r) {
+function H(e, t, r) {
   if (r == null)
     return "";
   if (r.__emotion_styles !== void 0) {
@@ -760,14 +760,14 @@ function G(e, t, r) {
     case "function": {
       if (e !== void 0) {
         var i = R, a = r(e);
-        return R = i, G(e, t, a);
+        return R = i, H(e, t, a);
       } else
         process.env.NODE_ENV !== "production" && console.error("Functions that are interpolated in css calls will be stringified.\nIf you want to have a css call based on props, create a function that returns a css call like this\nlet dynamicStyle = (props) => css`color: ${props.color}`\nIt can be called directly with props or interpolated in a styled call like this\nlet SomeComponent = styled('div')`${dynamicStyle}`");
       break;
     }
     case "string":
       if (process.env.NODE_ENV !== "production") {
-        var c = [], d = r.replace(Le, function(p, u, $) {
+        var c = [], d = r.replace(Le, function(p, f, $) {
           var C = "animation" + c.length;
           return c.push("const " + C + " = keyframes`" + $.replace(/^@keyframes animation-\w+/, "") + "`"), "${" + C + "}";
         });
@@ -782,14 +782,14 @@ You should wrap it with \`css\` like this:
   }
   if (t == null)
     return r;
-  var f = t[r];
-  return f !== void 0 ? f : r;
+  var u = t[r];
+  return u !== void 0 ? u : r;
 }
 function kt(e, t, r) {
   var n = "";
   if (Array.isArray(r))
     for (var s = 0; s < r.length; s++)
-      n += G(e, t, r[s]) + ";";
+      n += H(e, t, r[s]) + ";";
   else
     for (var i in r) {
       var a = r[i];
@@ -802,7 +802,7 @@ function kt(e, t, r) {
           for (var c = 0; c < a.length; c++)
             we(a[c]) && (n += re(i) + ":" + X(i, a[c]) + ";");
         else {
-          var d = G(e, t, a);
+          var d = H(e, t, a);
           switch (i) {
             case "animation":
             case "animationName": {
@@ -825,19 +825,19 @@ var R, ne = function(t, r, n) {
   var s = !0, i = "";
   R = void 0;
   var a = t[0];
-  a == null || a.raw === void 0 ? (s = !1, i += G(n, r, a)) : (process.env.NODE_ENV !== "production" && a[0] === void 0 && console.error(ye), i += a[0]);
+  a == null || a.raw === void 0 ? (s = !1, i += H(n, r, a)) : (process.env.NODE_ENV !== "production" && a[0] === void 0 && console.error(ye), i += a[0]);
   for (var c = 1; c < t.length; c++)
-    i += G(n, r, t[c]), s && (process.env.NODE_ENV !== "production" && a[c] === void 0 && console.error(ye), i += a[c]);
+    i += H(n, r, t[c]), s && (process.env.NODE_ENV !== "production" && a[c] === void 0 && console.error(ye), i += a[c]);
   var d;
   process.env.NODE_ENV !== "production" && (i = i.replace(Ve, function($) {
     return d = $, "";
   })), be.lastIndex = 0;
-  for (var f = "", p; (p = be.exec(i)) !== null; )
-    f += "-" + // $FlowFixMe we know it's not null
+  for (var u = "", p; (p = be.exec(i)) !== null; )
+    u += "-" + // $FlowFixMe we know it's not null
     p[1];
-  var u = Et(i) + f;
+  var f = Et(i) + u;
   return process.env.NODE_ENV !== "production" ? {
-    name: u,
+    name: f,
     styles: i,
     map: d,
     next: R,
@@ -845,7 +845,7 @@ var R, ne = function(t, r, n) {
       return "You have tried to stringify object returned from `css` function. It isn't supposed to be used directly (e.g. as value of the `className` prop), but rather handed to emotion so it can handle it (e.g. as value of `css` prop).";
     }
   } : {
-    name: u,
+    name: f,
     styles: i,
     next: R
   };
@@ -894,27 +894,27 @@ var It = function(t) {
     this.isSpeedy = c;
   }, r.compat = !0;
   var n = function() {
-    for (var d = arguments.length, f = new Array(d), p = 0; p < d; p++)
-      f[p] = arguments[p];
-    var u = ne(f, r.registered, void 0);
-    return Dt(r, u, !1), r.key + "-" + u.name;
+    for (var d = arguments.length, u = new Array(d), p = 0; p < d; p++)
+      u[p] = arguments[p];
+    var f = ne(u, r.registered, void 0);
+    return Dt(r, f, !1), r.key + "-" + f.name;
   }, s = function() {
-    for (var d = arguments.length, f = new Array(d), p = 0; p < d; p++)
-      f[p] = arguments[p];
-    var u = ne(f, r.registered), $ = "animation-" + u.name;
+    for (var d = arguments.length, u = new Array(d), p = 0; p < d; p++)
+      u[p] = arguments[p];
+    var f = ne(u, r.registered), $ = "animation-" + f.name;
     return Ee(r, {
-      name: u.name,
-      styles: "@keyframes " + $ + "{" + u.styles + "}"
+      name: f.name,
+      styles: "@keyframes " + $ + "{" + f.styles + "}"
     }), $;
   }, i = function() {
-    for (var d = arguments.length, f = new Array(d), p = 0; p < d; p++)
-      f[p] = arguments[p];
-    var u = ne(f, r.registered);
-    Ee(r, u);
+    for (var d = arguments.length, u = new Array(d), p = 0; p < d; p++)
+      u[p] = arguments[p];
+    var f = ne(u, r.registered);
+    Ee(r, f);
   }, a = function() {
-    for (var d = arguments.length, f = new Array(d), p = 0; p < d; p++)
-      f[p] = arguments[p];
-    return xe(r.registered, n, Lt(f));
+    for (var d = arguments.length, u = new Array(d), p = 0; p < d; p++)
+      u[p] = arguments[p];
+    return xe(r.registered, n, Lt(u));
   };
   return {
     css: n,
@@ -922,8 +922,8 @@ var It = function(t) {
     injectGlobal: i,
     keyframes: s,
     hydrate: function(d) {
-      d.forEach(function(f) {
-        r.inserted[f] = !0;
+      d.forEach(function(u) {
+        r.inserted[u] = !0;
       });
     },
     flush: function() {
@@ -985,7 +985,7 @@ function he(e) {
   }
   return !1;
 }
-class Gt extends T {
+class Ht extends T {
   constructor() {
     super(...arguments);
     o(this, "_$derivedPairs", {
@@ -1042,7 +1042,7 @@ class Gt extends T {
     })()), [r];
   }
 }
-class Ht extends T {
+class Gt extends T {
   constructor() {
     super(...arguments);
     o(this, "_$derivedPairs", {
@@ -1159,7 +1159,7 @@ function Ce(e, t) {
     e[0] !== "." && (e = "./" + e);
     const n = t === "history" ? window.location.pathname : window.location.hash.replace(/^#/, ""), s = e.split("/"), i = n.split("/").filter((c) => c);
     let a = 0;
-    for (let c of s) {
+    for (const c of s) {
       if (![".", ".."].includes(c))
         break;
       c === ".." && (i.length === 0 && console.warn(`no ../ in ${e}`), i.pop()), a++;
@@ -1194,8 +1194,9 @@ class Yt extends T {
     });
     o(this, "_$$_$content", "_$prop");
     o(this, "_$content", " none");
+    // 空格不是合法url，所以不会有问题
+    o(this, "isRoute", !0);
   }
-  // 空格不是合法url，所以不会有问题
   Body() {
     return [new w.ExpressionNode(this._$children)];
   }
@@ -1218,6 +1219,7 @@ class Kt extends T {
     o(this, "_$$mode", "_$prop");
     o(this, "mode", "history");
     o(this, "_$$navigator");
+    o(this, "_$$$navigator", "_$prop");
     o(this, "_$$currUrl", () => this.mode === "hash" ? Ne() : Se());
     o(this, "baseUrl", "");
     o(this, "prevPathCondition", "");
@@ -1225,18 +1227,17 @@ class Kt extends T {
     o(this, "showedRoute", () => function() {
       const r = this.prevPathCondition;
       this.prevPathCondition = "";
-      const n = this.currUrl.replace(new RegExp(`^${this.baseUrl}`), "");
-      let s = [];
-      for (let i of this._$children) {
-        if (i._$tag !== "Route") {
+      const n = this.currUrl.replace(new RegExp(`^${this.baseUrl}`), ""), s = [];
+      for (const i of this._$children) {
+        if (!i.isRoute) {
           s.push(i);
           continue;
         }
         let a = i._$content, c = !1;
         if (typeof i._$content == "string") {
           a = a.replace(/^(\.\/)+/, "");
-          const d = a === "." && n === "", f = (n + "/").startsWith(a + "/");
-          c = d || f || a === " none";
+          const d = a === "." && n === "", u = (n + "/").startsWith(a + "/");
+          c = d || u || a === " none";
         } else
           a instanceof RegExp && (c = a.test(n));
         if (c) {
@@ -1275,7 +1276,7 @@ class Kt extends T {
     addEventListener("load", this.historyChangeListen), addEventListener("popstate", this.historyChangeListen), L.push(this.historyChangeListen), history.pushState = new Proxy(se, {
       apply: (r, n, s) => {
         const i = r.apply(n, s);
-        for (let a of L)
+        for (const a of L)
           a();
         return i;
       }
@@ -1289,7 +1290,7 @@ class Kt extends T {
     removeEventListener("load", this.historyChangeListen), removeEventListener("popstate", this.historyChangeListen), L = L.filter((r) => r !== this.historyChangeListen), L.length > 0 ? history.pushState = new Proxy(se, {
       apply: (r, n, s) => {
         const i = r.apply(n, s);
-        for (let a of L)
+        for (const a of L)
           a();
         return i;
       }
@@ -1302,7 +1303,7 @@ class Kt extends T {
   }
   Preset() {
     const r = new Vt();
-    r.mode = this.mode, r.baseUrl = this.baseUrl, this.navigator = r;
+    r.mode = this.mode, this.navigator = r;
   }
   Body() {
     const r = new w.EnvNode();
@@ -1483,18 +1484,18 @@ function Re(e, t) {
       e.style[n] = s;
 }
 function Bt(e, t, r, n, s, i, a) {
-  let c, d, f = !1;
+  let c, d, u = !1;
   const p = `all ${t}s ${r} ${n}s`;
-  function u($) {
+  function f($) {
     c === void 0 && (c = $, e.style.transition = p + ", transform 0s");
     const C = $ - c;
     if (d !== $) {
       const _ = Math.max(C / (t * 1e3) - n, 0), h = _ * s, x = _ * i;
-      _ >= 1 ? (e.style.transform = "", f = !0) : e.style.transform = `translate(${s - h}px, ${i - x}px)`, a.rect = e.getBoundingClientRect();
+      _ >= 1 ? (e.style.transform = "", u = !0) : e.style.transform = `translate(${s - h}px, ${i - x}px)`, a.rect = e.getBoundingClientRect();
     }
-    d = $, !f && !a.stopTrigger ? requestAnimationFrame(u) : e.style.transition = p;
+    d = $, !u && !a.stopTrigger ? requestAnimationFrame(f) : e.style.transition = p;
   }
-  requestAnimationFrame(u);
+  requestAnimationFrame(f);
 }
 class Xt extends T {
   constructor() {
@@ -1509,7 +1510,7 @@ class Xt extends T {
     return [];
   }
 }
-var Ft = void 0;
+var Ft = null;
 class Qt extends T {
   constructor() {
     super(...arguments);
@@ -1543,7 +1544,7 @@ class Qt extends T {
 }
 export {
   Xt as Case,
-  Gt as HStack,
+  Ht as HStack,
   Vt as Navigator,
   Yt as Route,
   Kt as RouterSpace,
@@ -1551,6 +1552,6 @@ export {
   Qt as Switch,
   Jt as Transition,
   Zt as TransitionGroup,
-  Ht as VStack,
+  Gt as VStack,
   zt as ZStack
 };

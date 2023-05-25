@@ -8,14 +8,14 @@ type HasOnlyOptionalProps<T> = keyof T extends infer K
     : true
   : true
 
-type RemoveOptionalProps<T, K extends keyof T> =
-  HasOnlyOptionalProps<Omit<T, K>> extends true
-    ? Required<Omit<T, K>>
-    : Omit<T, K>
+type RemoveOptionalProps<T> =
+  HasOnlyOptionalProps<T> extends true
+    ? Required<T>
+    : T
 
-type DLightObject<T> = {
-  [K in keyof T]: (value: T[K]) => DLightObject<RemoveOptionalProps<T, K>>
-}
+type DLightObject<T> = RemoveOptionalProps<{
+  [K in keyof T]: (value: T[K]) => DLightObject<Omit<T, K>>
+}>
 
 // @ts-expect-error I don't know wthy
 type CustomTag<T> = "_$content" extends keyof T ? (_$content?: T["_$content"]) => DLightObject<T> : () => DLightObject<T>

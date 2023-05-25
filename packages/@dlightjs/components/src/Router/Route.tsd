@@ -1,9 +1,0 @@
-import {View} from "@dlightjs/dlight";
-import {_, Prop} from "@dlightjs/types";
-
-export class Route extends View {
-    @Prop _$content = " none" // 空格不是合法url，所以不会有问题
-    Body() {
-        _(this._$children)
-    }
-}

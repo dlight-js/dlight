@@ -4,9 +4,7 @@ import { type ObjectId } from "./types"
 export enum DLNodeType {
   HTML, Text, Custom, For, If, Env, Expression
 }
-
-export class DLNode {
-  /**
+/**
      * @member _$id
      *      - 每一个Node都有id
      * @member _$nodeType
@@ -38,6 +36,7 @@ export class DLNode {
      * 所有的nodes初始化必须在init阶段，除了customNode，因为customNode一旦call了Body，就没法进行额外操作了
      * 所有的bindNodes都必须在init中进行，保证子的init都可以访问到父parentNode
      */
+export class DLNode {
   _$nodeType: DLNodeType
   private __$el: Node | HTMLElement | any
   get _$el(): Node | HTMLElement | any {
