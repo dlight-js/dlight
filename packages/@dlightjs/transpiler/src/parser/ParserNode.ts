@@ -1,5 +1,5 @@
 export interface ParserNode {
-    tag: string
-    attr: {[key: string]: any}
-    children: ParserNode[]
+  tag: string
+  attr: Record<string, any>
+  children: ParserNode[]
 }

@@ -1,4 +1,4 @@
-import * as t from '@babel/types'
+import * as t from "@babel/types"
 
 /**
  * check if the identifier is from a function param, e.g:
@@ -38,14 +38,14 @@ function isAttrFromFunction(path, idName, stopNode) {
   while (reversePath && reversePath.node !== stopNode) {
     const node = reversePath.node
     if (t.isArrowFunctionExpression(node) || t.isFunctionDeclaration(node)) {
-      for (let param of node.params) {
+      for (const param of node.params) {
         if (checkParam(param)) return true
       }
     }
     reversePath = reversePath.parentPath
   }
   if (t.isClassMethod(stopNode)) {
-    for (let param of stopNode.params) {
+    for (const param of stopNode.params) {
       if (checkParam(param)) return true
     }
   }
@@ -68,13 +68,12 @@ function isVariableDeclarator(path) {
   return t.isVariableDeclarator(parentNode) && parentNode.id === path.node
 }
 
-
 function isObjectKey(path) {
   const parentNode = path.parentPath.node
   return t.isObjectProperty(parentNode) && parentNode.key === path.node
 }
 
-export default function () {
+export default function() {
   return {
     visitor: {
       ClassDeclaration(classPath) {
@@ -83,7 +82,7 @@ export default function () {
           (def) => def.key.name
         )
 
-        for (let memberOrMethod of classBodyNode.body) {
+        for (const memberOrMethod of classBodyNode.body) {
           classPath.scope.traverse(memberOrMethod, {
             Identifier(path) {
               const idNode = path.node
@@ -101,10 +100,10 @@ export default function () {
                 )
                 path.skip()
               }
-            },
+            }
           })
         }
-      },
-    },
+      }
+    }
   }
 }

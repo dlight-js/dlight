@@ -1,23 +1,20 @@
-import { DLightHTMLElement } from "./htmlElement";
-import { HtmlNode } from "@dlightjs/dlight";
-import * as S from "./specificElement";
-
+import { type DLightHTMLElement } from "./htmlElement"
+import { type HtmlNode } from "@dlightjs/dlight"
+import type * as S from "./specificElement"
 
 type HtmlLifecycleFuncType<T> = (func: (el?: HTMLElement, node?: HtmlNode) => void) => T
-type DLightHtmlHook<T> = {
-    element: (holderOrFunc: HTMLElement | ((holder: HTMLElement) => void)) => T
-    willAppear: HtmlLifecycleFuncType<T>
-    didAppear: HtmlLifecycleFuncType<T>
-    willDisappear: HtmlLifecycleFuncType<T>
-    didDisappear: HtmlLifecycleFuncType<T>
+export interface DLightHtmlHook<T> {
+  element: (holderOrFunc: HTMLElement | ((holder: HTMLElement) => void)) => T
+  willAppear: HtmlLifecycleFuncType<T>
+  didAppear: HtmlLifecycleFuncType<T>
+  willDisappear: HtmlLifecycleFuncType<T>
+  didDisappear: HtmlLifecycleFuncType<T>
 }
 
-export type DLightHtmlTag<T, G=DLightHTMLElement<T>> = G & DLightHtmlHook<T> 
+export type DLightHtmlTag<T, G=DLightHTMLElement<T>> = G & DLightHtmlHook<T>
 
 interface DLightHtmlTagSpecific extends DLightHtmlTag<DLightHtmlTagSpecific> {}
-type DLightHtmlTagFunc<T=DLightHtmlTagSpecific> = (innerText?: string | number) =>  T
-
-
+type DLightHtmlTagFunc<T=DLightHtmlTagSpecific> = (innerText?: string | number) => T
 
 export const a: DLightHtmlTagFunc = null as any
 export const abbr: DLightHtmlTagFunc = null as any

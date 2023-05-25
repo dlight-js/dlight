@@ -59,7 +59,7 @@ export class MyComp extends View {
 * TODO app
   * [jsx-codesandbox](https://codesandbox.io/p/sandbox/dlight-todoapp-jsx-42t284)
   * [jsd-codesandbox](https://codesandbox.io/p/sandbox/dlight-todoapp-jsd-i8se5e)
-  (Upgrading dlight version..👨🏻‍💻)
+
 
 # Homepage
 

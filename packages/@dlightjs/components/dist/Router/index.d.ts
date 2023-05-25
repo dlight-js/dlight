@@ -1,3 +1,3 @@
 export { Navigator } from "./Navigator";
-export { Route } from "./Route.tsd";
-export { RouterSpace } from "./RouterSpace.tsd";
+export { default as Route } from "./Route.view";
+export { default as RouterSpace } from "./RouterSpace.view";

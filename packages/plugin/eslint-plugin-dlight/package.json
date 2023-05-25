@@ -1,0 +1,8 @@
+{
+    "name": "eslint-plugin-dlight",
+    "private": true,
+    "version": "0.0.0",
+    "devDependencies": {
+      "eslint": "^8.38.0"
+    }
+  }

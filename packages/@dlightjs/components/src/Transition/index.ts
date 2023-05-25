@@ -1,4 +1,2 @@
-// @ts-expect-error
-export { Transition } from "./Transition.tsd"
-// @ts-expect-error
-export { TransitionGroup } from "./TransitionGroup.tsd"
+export { default as Transition } from "./Transition.view"
+export { default as TransitionGroup } from "./TransitionGroup.view"

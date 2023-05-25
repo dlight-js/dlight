@@ -1,20 +1,19 @@
 var _e = Object.defineProperty;
 var Re = (e, r, n) => r in e ? _e(e, r, { enumerable: !0, configurable: !0, writable: !0, value: n }) : e[r] = n;
 var Q = (e, r, n) => (Re(e, typeof r != "symbol" ? r + "" : r, n), n);
-import * as Ie from "@dlightjs/dlight";
 import { View as ce } from "@dlightjs/dlight";
-function Pe(e) {
+function Ie(e) {
   if (e.sheet)
     return e.sheet;
   for (var r = 0; r < document.styleSheets.length; r++)
     if (document.styleSheets[r].ownerNode === e)
       return document.styleSheets[r];
 }
-function Ve(e) {
+function Pe(e) {
   var r = document.createElement("style");
   return r.setAttribute("data-emotion", e.key), e.nonce !== void 0 && r.setAttribute("nonce", e.nonce), r.appendChild(document.createTextNode("")), r.setAttribute("data-s", ""), r;
 }
-var De = /* @__PURE__ */ function() {
+var Ve = /* @__PURE__ */ function() {
   function e(n) {
     var s = this;
     this._insertTag = function(i) {
@@ -26,7 +25,7 @@ var De = /* @__PURE__ */ function() {
   return r.hydrate = function(s) {
     s.forEach(this._insertTag);
   }, r.insert = function(s) {
-    this.ctr % (this.isSpeedy ? 65e3 : 1) === 0 && this._insertTag(Ve(this));
+    this.ctr % (this.isSpeedy ? 65e3 : 1) === 0 && this._insertTag(Pe(this));
     var i = this.tags[this.tags.length - 1];
     if (process.env.NODE_ENV !== "production") {
       var a = s.charCodeAt(0) === 64 && s.charCodeAt(1) === 105;
@@ -34,7 +33,7 @@ var De = /* @__PURE__ */ function() {
 ` + s + "\n\n`@import` rules must be before all other types of rules in a stylesheet but other rules have already been inserted. Please ensure that `@import` rules are before all other rules."), this._alreadyInsertedOrderInsensitiveRule = this._alreadyInsertedOrderInsensitiveRule || !a;
     }
     if (this.isSpeedy) {
-      var o = Pe(i);
+      var o = Ie(i);
       try {
         o.insertRule(s, o.cssRules.length);
       } catch (c) {
@@ -48,14 +47,14 @@ var De = /* @__PURE__ */ function() {
       return s.parentNode && s.parentNode.removeChild(s);
     }), this.tags = [], this.ctr = 0, process.env.NODE_ENV !== "production" && (this._alreadyInsertedOrderInsensitiveRule = !1);
   }, e;
-}(), x = "-ms-", B = "-moz-", l = "-webkit-", ne = "comm", se = "rule", ae = "decl", Te = "@import", ve = "@keyframes", Me = Math.abs, H = String.fromCharCode, je = Object.assign;
-function Le(e, r) {
+}(), x = "-ms-", B = "-moz-", l = "-webkit-", ne = "comm", se = "rule", ae = "decl", De = "@import", ve = "@keyframes", Te = Math.abs, J = String.fromCharCode, Me = Object.assign;
+function je(e, r) {
   return E(e, 0) ^ 45 ? (((r << 2 ^ E(e, 0)) << 2 ^ E(e, 1)) << 2 ^ E(e, 2)) << 2 ^ E(e, 3) : 0;
 }
 function we(e) {
   return e.trim();
 }
-function qe(e, r) {
+function Le(e, r) {
   return (e = r.exec(e)) ? e[0] : e;
 }
 function h(e, r, n) {
@@ -79,24 +78,24 @@ function ie(e) {
 function G(e, r) {
   return r.push(e), e;
 }
-function We(e, r) {
+function qe(e, r) {
   return e.map(r).join("");
 }
-var J = 1, D = 1, Ee = 0, O = 0, g = 0, T = "";
+var H = 1, D = 1, Ee = 0, O = 0, g = 0, T = "";
 function Z(e, r, n, s, i, a, o) {
-  return { value: e, root: r, parent: n, type: s, props: i, children: a, line: J, column: D, length: o, return: "" };
+  return { value: e, root: r, parent: n, type: s, props: i, children: a, line: H, column: D, length: o, return: "" };
 }
 function j(e, r) {
-  return je(Z("", null, null, "", null, null, 0), e, { length: -e.length }, r);
+  return Me(Z("", null, null, "", null, null, 0), e, { length: -e.length }, r);
 }
-function ze() {
+function We() {
   return g;
 }
-function Ge() {
-  return g = O > 0 ? E(T, --O) : 0, D--, g === 10 && (D = 1, J--), g;
+function ze() {
+  return g = O > 0 ? E(T, --O) : 0, D--, g === 10 && (D = 1, H--), g;
 }
 function k() {
-  return g = O < Ee ? E(T, O++) : 0, D++, g === 10 && (D = 1, J++), g;
+  return g = O < Ee ? E(T, O++) : 0, D++, g === 10 && (D = 1, H++), g;
 }
 function I() {
   return E(T, O);
@@ -140,7 +139,7 @@ function q(e) {
   return 0;
 }
 function xe(e) {
-  return J = D = 1, Ee = R(T = e), O = 0, [];
+  return H = D = 1, Ee = R(T = e), O = 0, [];
 }
 function Ne(e) {
   return T = "", e;
@@ -148,12 +147,12 @@ function Ne(e) {
 function U(e) {
   return we(z(O - 1, te(e === 91 ? e + 2 : e === 40 ? e + 1 : e)));
 }
-function Ye(e) {
+function Ge(e) {
   for (; (g = I()) && g < 33; )
     k();
   return q(e) > 2 || q(g) > 3 ? "" : " ";
 }
-function Ue(e, r) {
+function Ye(e, r) {
   for (; --r && k() && !(g < 48 || g > 102 || g > 57 && g < 65 || g > 70 && g < 97); )
     ;
   return z(e, Y() + (r < 6 && I() == 32 && k() == 32));
@@ -176,18 +175,18 @@ function te(e) {
     }
   return O;
 }
-function Fe(e, r) {
+function Ue(e, r) {
   for (; k() && e + g !== 47 + 10; )
     if (e + g === 42 + 42 && I() === 47)
       break;
-  return "/*" + z(r, O - 1) + "*" + H(e === 47 ? e : k());
+  return "/*" + z(r, O - 1) + "*" + J(e === 47 ? e : k());
 }
-function Be(e) {
+function Fe(e) {
   for (; !q(I()); )
     k();
   return z(e, O);
 }
-function Ke(e) {
+function Be(e) {
   return Ne(F("", null, null, null, [""], e = xe(e), 0, [0], e));
 }
 function F(e, r, n, s, i, a, o, c, u) {
@@ -207,16 +206,16 @@ function F(e, r, n, s, i, a, o, c, u) {
       case 10:
       case 13:
       case 32:
-        b += Ye(N);
+        b += Ge(N);
         break;
       case 92:
-        b += Ue(Y() - 1, 7);
+        b += Ye(Y() - 1, 7);
         continue;
       case 47:
         switch (I()) {
           case 42:
           case 47:
-            G(He(Fe(k(), Y()), r, n), u);
+            G(Ke(Ue(k(), Y()), r, n), u);
             break;
           default:
             b += "/";
@@ -259,10 +258,10 @@ function F(e, r, n, s, i, a, o, c, u) {
         if (m < 1) {
           if (w == 123)
             --m;
-          else if (w == 125 && m++ == 0 && Ge() == 125)
+          else if (w == 125 && m++ == 0 && ze() == 125)
             continue;
         }
-        switch (b += H(w), w * m) {
+        switch (b += J(w), w * m) {
           case 38:
             y = f > 0 ? 1 : (b += "\f", -1);
             break;
@@ -270,7 +269,7 @@ function F(e, r, n, s, i, a, o, c, u) {
             c[d++] = (R(b) - 1) * y, y = 1;
             break;
           case 64:
-            I() === 45 && (b += U(k())), v = I(), f = p = R(A = b += Be(Y())), w++;
+            I() === 45 && (b += U(k())), v = I(), f = p = R(A = b += Fe(Y())), w++;
             break;
           case 45:
             N === 45 && R(b) == 2 && (m = 0);
@@ -280,12 +279,12 @@ function F(e, r, n, s, i, a, o, c, u) {
 }
 function fe(e, r, n, s, i, a, o, c, u, d, f) {
   for (var p = i - 1, v = i === 0 ? a : [""], $ = ie(v), N = 0, m = 0, S = 0; N < s; ++N)
-    for (var y = 0, w = L(e, p + 1, p = Me(m = o[N])), A = e; y < $; ++y)
+    for (var y = 0, w = L(e, p + 1, p = Te(m = o[N])), A = e; y < $; ++y)
       (A = we(m > 0 ? v[y] + " " + w : h(w, /&\f/g, v[y]))) && (u[S++] = A);
   return Z(e, r, n, i === 0 ? se : c, u, d, f);
 }
-function He(e, r, n) {
-  return Z(e, r, n, ne, H(ze()), L(e, 2, -2), 0);
+function Ke(e, r, n) {
+  return Z(e, r, n, ne, J(We()), L(e, 2, -2), 0);
 }
 function ue(e, r, n, s) {
   return Z(e, r, n, ae, L(e, 0, s), L(e, s + 1, -1), s);
@@ -297,7 +296,7 @@ function V(e, r) {
 }
 function Je(e, r, n, s) {
   switch (e.type) {
-    case Te:
+    case De:
     case ae:
       return e.return = e.return || e.value;
     case ne:
@@ -309,7 +308,7 @@ function Je(e, r, n, s) {
   }
   return R(n = V(e.children, s)) ? e.return = e.value + "{" + n + "}" : "";
 }
-function Ze(e) {
+function He(e) {
   var r = ie(e);
   return function(n, s, i, a) {
     for (var o = "", c = 0; c < r; c++)
@@ -317,27 +316,27 @@ function Ze(e) {
     return o;
   };
 }
-function Qe(e) {
+function Ze(e) {
   return function(r) {
     r.root || (r = r.return) && e(r);
   };
 }
-function Xe(e) {
+function Qe(e) {
   var r = /* @__PURE__ */ Object.create(null);
   return function(n) {
     return r[n] === void 0 && (r[n] = e(n)), r[n];
   };
 }
-var er = function(r, n, s) {
+var Xe = function(r, n, s) {
   for (var i = 0, a = 0; i = a, a = I(), i === 38 && a === 12 && (n[s] = 1), !q(a); )
     k();
   return z(r, O);
-}, rr = function(r, n) {
+}, er = function(r, n) {
   var s = -1, i = 44;
   do
     switch (q(i)) {
       case 0:
-        i === 38 && I() === 12 && (n[s] = 1), r[s] += er(O - 1, n, s);
+        i === 38 && I() === 12 && (n[s] = 1), r[s] += Xe(O - 1, n, s);
         break;
       case 2:
         r[s] += U(i);
@@ -348,13 +347,13 @@ var er = function(r, n, s) {
           break;
         }
       default:
-        r[s] += H(i);
+        r[s] += J(i);
     }
   while (i = k());
   return r;
-}, tr = function(r, n) {
-  return Ne(rr(xe(r), n));
-}, de = /* @__PURE__ */ new WeakMap(), nr = function(r) {
+}, rr = function(r, n) {
+  return Ne(er(xe(r), n));
+}, de = /* @__PURE__ */ new WeakMap(), tr = function(r) {
   if (!(r.type !== "rule" || !r.parent || // positive .length indicates that this rule contains pseudo
   // negative .length indicates that this rule has been already prefixed
   r.length < 1)) {
@@ -363,21 +362,21 @@ var er = function(r, n, s) {
         return;
     if (!(r.props.length === 1 && n.charCodeAt(0) !== 58 && !de.get(s)) && !i) {
       de.set(r, !0);
-      for (var a = [], o = tr(n, a), c = s.props, u = 0, d = 0; u < o.length; u++)
+      for (var a = [], o = rr(n, a), c = s.props, u = 0, d = 0; u < o.length; u++)
         for (var f = 0; f < c.length; f++, d++)
           r.props[d] = a[u] ? o[u].replace(/&\f/g, c[f]) : c[f] + " " + o[u];
     }
   }
-}, sr = function(r) {
+}, nr = function(r) {
   if (r.type === "decl") {
     var n = r.value;
     // charcode for l
     n.charCodeAt(0) === 108 && // charcode for b
     n.charCodeAt(2) === 98 && (r.return = "", r.value = "");
   }
-}, ar = "emotion-disable-server-rendering-unsafe-selector-warning-please-do-not-use-this-the-warning-exists-for-a-reason", ir = function(r) {
-  return r.type === "comm" && r.children.indexOf(ar) > -1;
-}, or = function(r) {
+}, sr = "emotion-disable-server-rendering-unsafe-selector-warning-please-do-not-use-this-the-warning-exists-for-a-reason", ar = function(r) {
+  return r.type === "comm" && r.children.indexOf(sr) > -1;
+}, ir = function(r) {
   return function(n, s, i) {
     if (!(n.type !== "rule" || r.compat)) {
       var a = n.value.match(/(:first|:nth|:nth-last)-child/g);
@@ -390,7 +389,7 @@ var er = function(r, n, s) {
           if (d.line < n.line)
             break;
           if (d.column < n.column) {
-            if (ir(d))
+            if (ar(d))
               return;
             break;
           }
@@ -403,18 +402,18 @@ var er = function(r, n, s) {
   };
 }, Se = function(r) {
   return r.type.charCodeAt(1) === 105 && r.type.charCodeAt(0) === 64;
-}, cr = function(r, n) {
+}, or = function(r, n) {
   for (var s = r - 1; s >= 0; s--)
     if (!Se(n[s]))
       return !0;
   return !1;
 }, le = function(r) {
   r.type = "", r.value = "", r.return = "", r.children = "", r.props = "";
-}, fr = function(r, n, s) {
-  Se(r) && (r.parent ? (console.error("`@import` rules can't be nested inside other rules. Please move it to the top level and put it before regular rules. Keep in mind that they can only be used within global styles."), le(r)) : cr(n, s) && (console.error("`@import` rules can't be after other rules. Please put your `@import` rules before your other rules."), le(r)));
+}, cr = function(r, n, s) {
+  Se(r) && (r.parent ? (console.error("`@import` rules can't be nested inside other rules. Please move it to the top level and put it before regular rules. Keep in mind that they can only be used within global styles."), le(r)) : or(n, s) && (console.error("`@import` rules can't be after other rules. Please put your `@import` rules before your other rules."), le(r)));
 };
 function Oe(e, r) {
-  switch (Le(e, r)) {
+  switch (je(e, r)) {
     case 5103:
       return l + "print-" + e + e;
     case 5737:
@@ -527,7 +526,7 @@ function Oe(e, r) {
   }
   return e;
 }
-var ur = function(r, n, s, i) {
+var fr = function(r, n, s, i) {
   if (r.length > -1 && !r.return)
     switch (r.type) {
       case ae:
@@ -539,8 +538,8 @@ var ur = function(r, n, s, i) {
         })], i);
       case se:
         if (r.length)
-          return We(r.props, function(a) {
-            switch (qe(a, /(::plac\w+|:read-\w+)/)) {
+          return qe(r.props, function(a) {
+            switch (Le(a, /(::plac\w+|:read-\w+)/)) {
               case ":read-only":
               case ":read-write":
                 return V([j(r, {
@@ -558,7 +557,7 @@ var ur = function(r, n, s, i) {
             return "";
           });
     }
-}, dr = [ur], lr = function(r) {
+}, ur = [fr], dr = function(r) {
   var n = r.key;
   if (process.env.NODE_ENV !== "production" && !n)
     throw new Error(`You have to configure \`key\` for your cache. Please make sure it's unique (and not equal to 'css') as it's used for linking styles to your cache.
@@ -570,7 +569,7 @@ If multiple caches share the same key they might "fight" for each other's style 
       S.indexOf(" ") !== -1 && (document.head.appendChild(m), m.setAttribute("data-s", ""));
     });
   }
-  var i = r.stylisPlugins || dr;
+  var i = r.stylisPlugins || ur;
   if (process.env.NODE_ENV !== "production" && /[^a-z-]/.test(n))
     throw new Error('Emotion key must only contain lower case alphabetical characters and - but "' + n + '" was passed');
   var a = {}, o, c = [];
@@ -584,19 +583,19 @@ If multiple caches share the same key they might "fight" for each other's style 
       c.push(m);
     }
   );
-  var u, d = [nr, sr];
-  process.env.NODE_ENV !== "production" && d.push(or({
+  var u, d = [tr, nr];
+  process.env.NODE_ENV !== "production" && d.push(ir({
     get compat() {
       return N.compat;
     }
-  }), fr);
+  }), cr);
   {
     var f, p = [Je, process.env.NODE_ENV !== "production" ? function(m) {
       m.root || (m.return ? f.insert(m.return) : m.value && m.type !== ne && f.insert(m.value + "{}"));
-    } : Qe(function(m) {
+    } : Ze(function(m) {
       f.insert(m);
-    })], v = Ze(d.concat(i, p)), $ = function(S) {
-      return V(Ke(S), v);
+    })], v = He(d.concat(i, p)), $ = function(S) {
+      return V(Be(S), v);
     };
     u = function(S, y, w, A) {
       f = w, process.env.NODE_ENV !== "production" && y.map !== void 0 && (f = {
@@ -608,7 +607,7 @@ If multiple caches share the same key they might "fight" for each other's style 
   }
   var N = {
     key: n,
-    sheet: new De({
+    sheet: new Ve({
       key: n,
       container: o,
       nonce: r.nonce,
@@ -623,7 +622,7 @@ If multiple caches share the same key they might "fight" for each other's style 
   };
   return N.sheet.hydrate(c), N;
 };
-function hr(e) {
+function lr(e) {
   for (var r = 0, n, s = 0, i = e.length; i >= 4; ++s, i -= 4)
     n = e.charCodeAt(s) & 255 | (e.charCodeAt(++s) & 255) << 8 | (e.charCodeAt(++s) & 255) << 16 | (e.charCodeAt(++s) & 255) << 24, n = /* Math.imul(k, m): */
     (n & 65535) * 1540483477 + ((n >>> 16) * 59797 << 16), n ^= /* k >>> r: */
@@ -642,7 +641,7 @@ function hr(e) {
   return r ^= r >>> 13, r = /* Math.imul(h, m): */
   (r & 65535) * 1540483477 + ((r >>> 16) * 59797 << 16), ((r ^ r >>> 15) >>> 0).toString(36);
 }
-var pr = {
+var hr = {
   animationIterationCount: 1,
   borderImageOutset: 1,
   borderImageSlice: 1,
@@ -692,12 +691,12 @@ var pr = {
 }, he = `You have illegal escape sequence in your template literal, most likely inside content's property value.
 Because you write your CSS inside a JavaScript string you actually have to do double escaping, so for example "content: '\\00d7';" should become "content: '\\\\00d7';".
 You can read more about this here:
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#ES2018_revision_of_illegal_escape_sequences`, mr = "You have passed in falsy value as style object's key (can happen when in example you pass unexported component as computed key).", br = /[A-Z]|^ms/g, ke = /_EMO_([^_]+?)_([^]*?)_EMO_/g, oe = function(r) {
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#ES2018_revision_of_illegal_escape_sequences`, pr = "You have passed in falsy value as style object's key (can happen when in example you pass unexported component as computed key).", mr = /[A-Z]|^ms/g, ke = /_EMO_([^_]+?)_([^]*?)_EMO_/g, oe = function(r) {
   return r.charCodeAt(1) === 45;
 }, pe = function(r) {
   return r != null && typeof r != "boolean";
-}, X = /* @__PURE__ */ Xe(function(e) {
-  return oe(e) ? e : e.replace(br, "-$&").toLowerCase();
+}, X = /* @__PURE__ */ Qe(function(e) {
+  return oe(e) ? e : e.replace(mr, "-$&").toLowerCase();
 }), K = function(r, n) {
   switch (r) {
     case "animation":
@@ -711,15 +710,15 @@ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_liter
           }, i;
         });
   }
-  return pr[r] !== 1 && !oe(r) && typeof n == "number" && n !== 0 ? n + "px" : n;
+  return hr[r] !== 1 && !oe(r) && typeof n == "number" && n !== 0 ? n + "px" : n;
 };
 if (process.env.NODE_ENV !== "production") {
-  var yr = /(var|attr|counters?|url|element|(((repeating-)?(linear|radial))|conic)-gradient)\(|(no-)?(open|close)-quote/, gr = ["normal", "none", "initial", "inherit", "unset"], vr = K, wr = /^-ms-/, Er = /-(.)/g, me = {};
+  var br = /(var|attr|counters?|url|element|(((repeating-)?(linear|radial))|conic)-gradient)\(|(no-)?(open|close)-quote/, yr = ["normal", "none", "initial", "inherit", "unset"], gr = K, vr = /^-ms-/, wr = /-(.)/g, me = {};
   K = function(r, n) {
-    if (r === "content" && (typeof n != "string" || gr.indexOf(n) === -1 && !yr.test(n) && (n.charAt(0) !== n.charAt(n.length - 1) || n.charAt(0) !== '"' && n.charAt(0) !== "'")))
+    if (r === "content" && (typeof n != "string" || yr.indexOf(n) === -1 && !br.test(n) && (n.charAt(0) !== n.charAt(n.length - 1) || n.charAt(0) !== '"' && n.charAt(0) !== "'")))
       throw new Error("You seem to be using a value for 'content' without quotes, try replacing it with `content: '\"" + n + "\"'`");
-    var s = vr(r, n);
-    return s !== "" && !oe(r) && r.indexOf("-") !== -1 && me[r] === void 0 && (me[r] = !0, console.error("Using kebab-case for css properties in objects is not supported. Did you mean " + r.replace(wr, "ms-").replace(Er, function(i, a) {
+    var s = gr(r, n);
+    return s !== "" && !oe(r) && r.indexOf("-") !== -1 && me[r] === void 0 && (me[r] = !0, console.error("Using kebab-case for css properties in objects is not supported. Did you mean " + r.replace(vr, "ms-").replace(wr, function(i, a) {
       return a.toUpperCase();
     }) + "?")), s;
   };
@@ -755,7 +754,7 @@ function W(e, r, n) {
         var i = n.styles + ";";
         return process.env.NODE_ENV !== "production" && n.map !== void 0 && (i += n.map), i;
       }
-      return xr(e, r, n);
+      return Er(e, r, n);
     }
     case "function": {
       if (e !== void 0) {
@@ -785,7 +784,7 @@ You should wrap it with \`css\` like this:
   var d = r[n];
   return d !== void 0 ? d : n;
 }
-function xr(e, r, n) {
+function Er(e, r, n) {
   var s = "";
   if (Array.isArray(n))
     for (var i = 0; i < n.length; i++)
@@ -810,7 +809,7 @@ function xr(e, r, n) {
               break;
             }
             default:
-              process.env.NODE_ENV !== "production" && a === "undefined" && console.error(mr), s += a + "{" + u + "}";
+              process.env.NODE_ENV !== "production" && a === "undefined" && console.error(pr), s += a + "{" + u + "}";
           }
         }
       }
@@ -835,7 +834,7 @@ var C, ee = function(r, n, s) {
   for (var d = "", f; (f = be.exec(a)) !== null; )
     d += "-" + // $FlowFixMe we know it's not null
     f[1];
-  var p = hr(a) + d;
+  var p = lr(a) + d;
   return process.env.NODE_ENV !== "production" ? {
     name: p,
     styles: a,
@@ -849,14 +848,14 @@ var C, ee = function(r, n, s) {
     styles: a,
     next: C
   };
-}, Nr = !0;
+}, xr = !0;
 function Ae(e, r, n) {
   var s = "";
   return n.split(" ").forEach(function(i) {
     e[i] !== void 0 ? r.push(e[i] + ";") : s += i + " ";
   }), s;
 }
-var Sr = function(r, n, s) {
+var Nr = function(r, n, s) {
   var i = r.key + "-" + n.name;
   // we only need to add the styles to the registered cache if the
   // class name could be used further down
@@ -867,9 +866,9 @@ var Sr = function(r, n, s) {
   // in node since emotion-server relies on whether a style is in
   // the registered cache to know whether a style is global or not
   // also, note that this check will be dead code eliminated in the browser
-  Nr === !1) && r.registered[i] === void 0 && (r.registered[i] = n.styles);
-}, Or = function(r, n, s) {
-  Sr(r, n, s);
+  xr === !1) && r.registered[i] === void 0 && (r.registered[i] = n.styles);
+}, Sr = function(r, n, s) {
+  Nr(r, n, s);
   var i = r.key + "-" + n.name;
   if (r.inserted[n.name] === void 0) {
     var a = n;
@@ -886,8 +885,8 @@ function ge(e, r, n) {
   var s = [], i = Ae(e, s, n);
   return s.length < 2 ? n : i + r(s);
 }
-var kr = function(r) {
-  var n = lr(r);
+var Or = function(r) {
+  var n = dr(r);
   n.sheet.speedy = function(c) {
     if (process.env.NODE_ENV !== "production" && this.ctr !== 0)
       throw new Error("speedy must be changed before any rules are inserted");
@@ -897,7 +896,7 @@ var kr = function(r) {
     for (var u = arguments.length, d = new Array(u), f = 0; f < u; f++)
       d[f] = arguments[f];
     var p = ee(d, n.registered, void 0);
-    return Or(n, p, !1), n.key + "-" + p.name;
+    return Sr(n, p, !1), n.key + "-" + p.name;
   }, i = function() {
     for (var u = arguments.length, d = new Array(u), f = 0; f < u; f++)
       d[f] = arguments[f];
@@ -914,7 +913,7 @@ var kr = function(r) {
   }, o = function() {
     for (var u = arguments.length, d = new Array(u), f = 0; f < u; f++)
       d[f] = arguments[f];
-    return ge(n.registered, s, $r(d));
+    return ge(n.registered, s, kr(d));
   };
   return {
     css: s,
@@ -935,7 +934,7 @@ var kr = function(r) {
     getRegisteredStyles: Ae.bind(null, n.registered),
     merge: ge.bind(null, n.registered, s)
   };
-}, $r = function e(r) {
+}, kr = function e(r) {
   for (var n = "", s = 0; s < r.length; s++) {
     var i = r[s];
     if (i != null) {
@@ -960,21 +959,21 @@ var kr = function(r) {
     }
   }
   return n;
-}, Cr = kr({
+}, $r = Or({
   key: "css"
-}), Ar = Cr.css;
+}), Cr = $r.css, Ar = null;
 const t = (e) => (r, ...n) => {
   const s = (i, a) => {
     const o = [...new Set(Object.getOwnPropertyNames(a).filter((c) => a[c] === "_$prop").map((c) => c.replace(/^_\$*/, "")))];
     i._$addProp("className", () => {
       const c = {};
-      for (let f of o)
+      for (const f of o)
         c[f] = a[`_$$${f}`];
       let u = "";
       const d = Math.max(r.length, n.length);
-      for (let f of [...Array(d).keys()])
+      for (const f of [...Array(d).keys()])
         r[f] && (u += r[f]), n[f] && (typeof n[f] == "function" ? u += n[f](c) : u += n[f]);
-      return Ar`${u}`;
+      return Cr`${u}`;
     }, a, o);
   };
   return typeof e == "string" ? class extends ce {
@@ -986,8 +985,10 @@ const t = (e) => (r, ...n) => {
       this._$el = this._$el[0];
     }
     Body() {
-      const o = new Ie.HtmlNode(e);
-      return o._$addProp("innerText", this._$content), this.forwardProps(o), ((c) => s(c, this))(o), [o];
+      const o = new (Ar(e))();
+      return o._$addProp("_$content", this._$content), this.forwardProps(o), ((c) => {
+        s(c, this);
+      })(o), [o];
     }
   } : class extends ce {
     constructor() {
@@ -996,7 +997,9 @@ const t = (e) => (r, ...n) => {
     }
     Body() {
       const o = new e();
-      return this.forwardProps(o), ((c) => s(c, this))(o), [o];
+      return this.forwardProps(o), ((c) => {
+        s(c, this);
+      })(o), [o];
     }
   };
 };
@@ -1113,6 +1116,6 @@ t.var = t("var");
 t.video = t("video");
 t.wbr = t("wbr");
 export {
-  Ar as css,
+  Cr as css,
   t as styled
 };
