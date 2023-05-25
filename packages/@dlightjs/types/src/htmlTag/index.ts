@@ -3,7 +3,7 @@ import { type HtmlNode } from "@dlightjs/dlight"
 import type * as S from "./specificElement"
 
 type HtmlLifecycleFuncType<T> = (func: (el?: HTMLElement, node?: HtmlNode) => void) => T
-interface DLightHtmlHook<T> {
+export interface DLightHtmlHook<T> {
   element: (holderOrFunc: HTMLElement | ((holder: HTMLElement) => void)) => T
   willAppear: HtmlLifecycleFuncType<T>
   didAppear: HtmlLifecycleFuncType<T>
@@ -13,7 +13,6 @@ interface DLightHtmlHook<T> {
 
 export type DLightHtmlTag<T, G=DLightHTMLElement<T>> = G & DLightHtmlHook<T>
 
-// @ts-expect-error no error
 interface DLightHtmlTagSpecific extends DLightHtmlTag<DLightHtmlTagSpecific> {}
 type DLightHtmlTagFunc<T=DLightHtmlTagSpecific> = (innerText?: string | number) => T
 

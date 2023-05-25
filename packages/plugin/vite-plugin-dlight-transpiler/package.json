@@ -1,21 +1,29 @@
 {
   "name": "vite-plugin-dlight-transpiler",
-  "version": "0.4.4",
-  "files": ["src"],
+  "version": "0.4.7",
+  "files": [
+    "dist"
+  ],
+  "description": "",
   "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "typings": "dist/index.d.ts",
   "keywords": [
     "vite-plugin",
     "dlight.js"
   ],
-  "main": "src/index.js",
   "dependencies": {
-    "@dlightjs/transpiler": "workspace:*",
     "@babel/core": "^7.21.0",
     "@babel/plugin-syntax-decorators": "^7.21.0",
     "@babel/plugin-syntax-do-expressions": "^7.18.6",
     "@babel/plugin-syntax-jsx": "^7.18.6",
     "@babel/plugin-syntax-typescript": "^7.20.0",
+    "@dlightjs/transpiler": "workspace:*",
     "babel-plugin-optional-this": "workspace:*"
   },
-  "author": "IanDx"
+  "author": "IanDx",
+  "devDependencies": {
+    "tsup": "^6.5.0"
+  }
 }

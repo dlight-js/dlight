@@ -20,7 +20,7 @@ T,
 export type OmitFuncAndReadOnly<T> = RemoveReadOnly<OmitFunction<T>>
 
 // properties
-type OmitFuncAndReadOnlyProperty<G=HTMLElement> = OmitFuncAndReadOnly<G>
+type OmitFuncAndReadOnlyProperty<G> = OmitFuncAndReadOnly<G>
 
 type DLightPropertyWrapper<T, G> = {
   [K in keyof OmitFuncAndReadOnlyProperty<G>]:
@@ -34,6 +34,6 @@ type DLightShortcutStyle<T> = {
   [K in keyof PropertiesRequired as `_${string & K}`]: (value: PropertiesRequired[K]) => T
 }
 
-export type DLightHTMLElement<T, G=Record<string, undefined>> =
+export type DLightHTMLElement<T, G=HTMLElement> =
     DLightPropertyWrapper<T, G>
     & DLightShortcutStyle<T>

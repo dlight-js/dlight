@@ -1,4 +1,4 @@
-export { Spacer } from "./Spacer.tsd";
-export { HStack } from "./HStack.tsd";
-export { VStack } from "./VStack.tsd";
-export { ZStack } from "./ZStack.tsd";
+export { default as Spacer } from "./Spacer.view";
+export { default as HStack } from "./HStack.view";
+export { default as VStack } from "./VStack.view";
+export { default as ZStack } from "./ZStack.view";

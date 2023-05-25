@@ -14,7 +14,7 @@ type OmitFunction<T> = Omit<T, {
     [K in keyof T]: T[K] extends (...args: any) => any ? K : never;
 }[keyof T]>;
 type OmitFuncAndReadOnly<T> = RemoveReadOnly<OmitFunction<T>>;
-type OmitFuncAndReadOnlyProperty<G = HTMLElement> = OmitFuncAndReadOnly<G>;
+type OmitFuncAndReadOnlyProperty<G> = OmitFuncAndReadOnly<G>;
 type DLightPropertyWrapper<T, G> = {
     [K in keyof OmitFuncAndReadOnlyProperty<G>]: (value: OmitFuncAndReadOnlyProperty<G>[K]) => T;
 };
@@ -22,7 +22,7 @@ type PropertiesRequired = Required<Properties>;
 type DLightShortcutStyle<T> = {
     [K in keyof PropertiesRequired as `_${string & K}`]: (value: PropertiesRequired[K]) => T;
 };
-type DLightHTMLElement<T, G = Record<string, undefined>> = DLightPropertyWrapper<T, G> & DLightShortcutStyle<T>;
+type DLightHTMLElement<T, G = HTMLElement> = DLightPropertyWrapper<T, G> & DLightShortcutStyle<T>;
 
 interface DLightHtmlAreaSpecific extends DLightHtmlTag<DLightHtmlAreaSpecific, DLightHTMLElement<DLightHtmlAreaSpecific, HTMLAreaElement>> {
 }
@@ -177,10 +177,14 @@ declare const ul: DLightHtmlTagFunc;
 declare const video: DLightHtmlTagFunc;
 declare const wbr: DLightHtmlTagFunc;
 
-interface ExpressionTag extends DLightHtmlTag<ExpressionTag> {
-    onUpdateNodes: (func: (prevNodes: DLNode[], nodes: DLNode[]) => void) => ExpressionTag;
+interface ExpressionTagHook<T> extends DLightHtmlHook<T> {
+    onUpdateNodes: (func: (prevNodes: DLNode[], nodes: DLNode[]) => void) => ExpressionTagHook<T>;
 }
-declare const _: (expression: string | number | DLNode | DLNode[]) => ExpressionTag;
+type ExpressionTag<T, G = DLightHTMLElement<T>> = G & ExpressionTagHook<T>;
+interface ExpressionTagSpecific extends ExpressionTag<ExpressionTagSpecific> {
+}
+type ExpressionTagFunc = (nodes: string | number | any) => ExpressionTagSpecific;
+declare const _: ExpressionTagFunc;
 
 type IsOptionalProp<T> = undefined extends T ? true : false;
 type HasOnlyOptionalProps<T> = keyof T extends infer K ? K extends keyof T ? IsOptionalProp<T[K]> extends true ? HasOnlyOptionalProps<Omit<T, K>> : false : true : true;
@@ -201,4 +205,4 @@ declare const tag: any;
 declare const htmlTag: any;
 declare const required: any;
 
-export { DLightHtmlTag, Env, EnvState, Prop, PropState, State, _, a, abbr, address, area, article, aside, audio, b, base, bdi, bdo, blockquote, body, br, button, canvas, caption, cite, code, col, colgroup, data, datalist, dd, Types as default, del, details, dfn, dialog, div, dl, dt, em, embed, env, fieldset, figcaption, figure, footer, form, h1, h2, h3, h4, h5, h6, head, header, hgroup, hr, html, htmlTag, i, iframe, img, input, ins, kbd, label, legend, li, link, main, map, mark, menu, meta, meter, nav, noscript, object, ol, optgroup, option, output, p, param, picture, pre, progress, q, required, rp, rt, ruby, s, samp, script, section, select, slot, small, source, span, strong, style, sub, summary, sup, table, tag, tbody, td, template, textarea, tfoot, th, thead, time, title, tr, track, u, ul, video, wbr };
+export { DLightHtmlHook, DLightHtmlTag, Env, EnvState, Prop, PropState, State, _, a, abbr, address, area, article, aside, audio, b, base, bdi, bdo, blockquote, body, br, button, canvas, caption, cite, code, col, colgroup, data, datalist, dd, Types as default, del, details, dfn, dialog, div, dl, dt, em, embed, env, fieldset, figcaption, figure, footer, form, h1, h2, h3, h4, h5, h6, head, header, hgroup, hr, html, htmlTag, i, iframe, img, input, ins, kbd, label, legend, li, link, main, map, mark, menu, meta, meter, nav, noscript, object, ol, optgroup, option, output, p, param, picture, pre, progress, q, required, rp, rt, ruby, s, samp, script, section, select, slot, small, source, span, strong, style, sub, summary, sup, table, tag, tbody, td, template, textarea, tfoot, th, thead, time, title, tr, track, u, ul, video, wbr };

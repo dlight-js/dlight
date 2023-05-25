@@ -13,7 +13,7 @@
         "sourceType": "module",
         "project": "**/tsconfig.json"
     },
-    "ignorePatterns": ["**/dist/*.*js", "**/dist/*.*ts"],
+    "ignorePatterns": ["**/dist/**"],
     "rules": {
         "space-before-function-paren": "off",
         "@typescript-eslint/explicit-function-return-type": "off",
@@ -23,6 +23,7 @@
         "@typescript-eslint/no-non-null-assertion": "off",
         "@typescript-eslint/restrict-plus-operands": "off",
         "@typescript-eslint/quotes": "off",
+        "@typescript-eslint/ban-ts-comment": "off",
         "@typescript-eslint/no-confusing-void-expression": "off",
         "no-lone-blocks": "off",
         "no-fallthrough": "off",

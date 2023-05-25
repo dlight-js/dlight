@@ -1,5 +1,7 @@
 import { parseDlightFile } from "@dlightjs/transpiler"
+// @ts-expect-error
 import optionalThisPlugin from "babel-plugin-optional-this"
+// @ts-expect-error
 import { transformSync } from "@babel/core"
 
 const transformOptionThisOption = {
@@ -11,7 +13,7 @@ const transformOptionThisOption = {
     ["@babel/plugin-syntax-decorators", { legacy: true }]
   ]
 }
-function transformOptionThis(code) {
+function transformOptionThis(code: string) {
   return transformSync(code, transformOptionThisOption).code
 }
 
@@ -19,7 +21,7 @@ export default function({ jsd = true, jsx = true, optionalThis = false } = {}) {
   return {
     name: "dlight",
     enforce: "pre",
-    config(config) {
+    config(config: any) {
       return {
         ...config,
         esbuild: {
@@ -29,7 +31,7 @@ export default function({ jsd = true, jsx = true, optionalThis = false } = {}) {
         }
       }
     },
-    transform(code, id) {
+    transform(code: string, id: string) {
       if (jsd) {
         if (id.endsWith(".jsd") || id.endsWith(".tsd") ||
                     id.endsWith(".view.js") || id.endsWith(".view.ts")) {
@@ -45,5 +47,5 @@ export default function({ jsd = true, jsx = true, optionalThis = false } = {}) {
       }
       return code
     }
-  }
+  } as any
 }

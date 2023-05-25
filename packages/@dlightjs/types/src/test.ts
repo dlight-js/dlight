@@ -1,9 +1,9 @@
 import { Types } from "./customTag"
-import { area, div, img } from "./htmlTag"
+import { _ } from "./expressionTag"
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { a, area, div, img } from "./htmlTag"
 
 const View = undefined as any
-
-const _ = document.getElementById("j")
 
 interface SubViewProps {
   /**
@@ -14,15 +14,16 @@ interface SubViewProps {
   option2?: string
 }
 
+// @ts-expect-error
 class SubView extends View implements SubViewProps {
   Body() {}
 }
 const SubViewWithTypes = Types<SubViewProps>(SubView)
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 class TypeTestView extends View {
   Body() {
     SubViewWithTypes()
-      
+    _("jfa")
+  }
 }
-
-

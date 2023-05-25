@@ -1,3 +1,5 @@
+import { type DLNode } from "@dlightjs/dlight";
+export declare function isChildSpacer(child: DLNode): boolean;
 declare const _default: (_$content?: any) => {
     [x: string]: (value: any) => {
         [x: number]: (value: any) => {

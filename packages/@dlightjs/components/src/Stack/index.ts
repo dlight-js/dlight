@@ -1,9 +1,4 @@
-// @ts-expect-error
-export {Spacer} from "./Spacer.tsd"
-// @ts-expect-error
-export {HStack} from "./HStack.tsd"
-// @ts-expect-error
-export {VStack} from "./VStack.tsd"
-// @ts-expect-error
-export {ZStack} from "./ZStack.tsd"
-
+export { default as Spacer } from "./Spacer.view"
+export { default as HStack } from "./HStack.view"
+export { default as VStack } from "./VStack.view"
+export { default as ZStack } from "./ZStack.view"
