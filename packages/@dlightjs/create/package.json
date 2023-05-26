@@ -1,0 +1,24 @@
+{
+  "name": "create-dlightjs",
+  "version": "0.0.0",
+  "description": "",
+  "type": "module",
+  "files": ["dist"],
+  "bin": {
+    "create-dlightjs": "./dist/index.js"
+  },
+  "keywords": [
+    "dlight.js"
+  ],
+  "scripts": {
+    "build": "tsup"
+  },
+  "author": "IanDx",
+  "license": "ISC",
+  "dependencies": {
+    "@inquirer/prompts": "^1.2.3"
+  },
+  "devDependencies": {
+    "tsup": "^6.5.0"
+  }
+}
