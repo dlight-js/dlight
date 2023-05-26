@@ -1,16 +1,25 @@
 {
   "name": "babel-plugin-optional-this",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "files": [
-    "src"
+    "dist"
   ],
+  "description": "",
   "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "typings": "dist/index.d.ts",
   "keywords": [
     "babel-plugin"
   ],
-  "main": "src/index.js",
+  "scripts": {
+    "build": "tsup"
+  },
   "dependencies": {
     "@babel/types": "^7.20.7"
+  },
+  "devDependencies": {
+    "tsup": "^6.5.0"
   },
   "author": "IanDx"
 }

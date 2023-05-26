@@ -13,6 +13,9 @@
     "vite-plugin",
     "dlight.js"
   ],
+  "scripts": {
+    "build": "tsup"
+  },
   "dependencies": {
     "@babel/core": "^7.21.0",
     "@babel/plugin-syntax-decorators": "^7.21.0",
