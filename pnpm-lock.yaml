@@ -247,8 +247,11 @@ importers:
   packages/plugin/babel-plugin-optional-this:
     specifiers:
       '@babel/types': ^7.20.7
+      tsup: ^6.5.0
     dependencies:
       '@babel/types': 7.21.2
+    devDependencies:
+      tsup: 6.6.3
 
   packages/plugin/eslint-plugin-dlight:
     specifiers:

@@ -1,5 +1,6 @@
 import { parseDlightFile } from "@dlightjs/transpiler"
 import optionalThisPlugin from "babel-plugin-optional-this"
+// @ts-ignore
 import { transformSync } from "@babel/core"
 
 const transformOptionThisOption = {

@@ -8,10 +8,10 @@ import * as t from "@babel/types"
  *  myFunc2 = ok => ok // don't change !!!!
  * }
  */
-function isAttrFromFunction(path, idName, stopNode) {
+function isAttrFromFunction(path: any, idName: string, stopNode: any) {
   let reversePath = path.parentPath
 
-  const checkParam = (param) => {
+  function checkParam(param: any): boolean {
     // ---- 3 general types:
     //      * represent allow nesting
     // ---0 Identifier: (a)
@@ -27,7 +27,7 @@ function isAttrFromFunction(path, idName, stopNode) {
     }
     if (t.isObjectPattern(param)) {
       return param.properties
-        .map((prop) => prop.key.name)
+        .map((prop: any) => prop.key.name)
         .includes(idName)
     }
     if (t.isRestElement(param)) return checkParam(param.argument)
@@ -55,20 +55,20 @@ function isAttrFromFunction(path, idName, stopNode) {
 /**
  * check if the identifier is already like `this.a` / `xx.a` but not like `a.xx` / xx[a]
  */
-function isMemberExpression(path) {
+function isMemberExpression(path: any) {
   const parentNode = path.parentPath.node
-  return t.isMemberExpression(parentNode) && parentNode.property === path.node && parentNode.computed === false
+  return t.isMemberExpression(parentNode) && parentNode.property === path.node && !parentNode.computed
 }
 
 /**
  * check if the identifier is a variable declarator like `let a = 1` `for (let a in array)`
  */
-function isVariableDeclarator(path) {
+function isVariableDeclarator(path: any) {
   const parentNode = path.parentPath.node
   return t.isVariableDeclarator(parentNode) && parentNode.id === path.node
 }
 
-function isObjectKey(path) {
+function isObjectKey(path: any) {
   const parentNode = path.parentPath.node
   return t.isObjectProperty(parentNode) && parentNode.key === path.node
 }
@@ -76,15 +76,15 @@ function isObjectKey(path) {
 export default function() {
   return {
     visitor: {
-      ClassDeclaration(classPath) {
+      ClassDeclaration(classPath: any) {
         const classBodyNode = classPath.node.body
         const availPropNames = classBodyNode.body.map(
-          (def) => def.key.name
+          (def: any) => def.key.name
         )
 
         for (const memberOrMethod of classBodyNode.body) {
           classPath.scope.traverse(memberOrMethod, {
-            Identifier(path) {
+            Identifier(path: any) {
               const idNode = path.node
               if (idNode === memberOrMethod.key) return
               const idName = idNode.name
