@@ -8,6 +8,6 @@ if [ -z "$1" ]; then
   pnpm refresh @dlightjs/components
   pnpm refresh @dlightjs/decorators
 else
-  pnpm --prefix packages/${1} install
+  pnpm --filter "./packages/${1}" install
   pnpm build ${1}
 fi

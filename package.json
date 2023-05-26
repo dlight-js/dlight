@@ -4,9 +4,9 @@
   "version": "0.0.0",
   "scripts": {
     "prepare": "husky install",
-    "start": "pnpm --prefix apps/test dev",
+    "test": "pnpm --prefix apps/test dev",
     "build": "sh ./common/scripts/build.sh",
-    "refresh": "sh ./common/scripts/build.sh"
+    "refresh": "sh ./common/scripts/refresh.sh"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.6.3",
