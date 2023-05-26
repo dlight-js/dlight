@@ -15,6 +15,9 @@ const projectName = await input({
     if (fs.existsSync(value)) {
       return "Folder already exsits"
     }
+    if (!/^[a-z]+([-_][a-z]+)*$/.test(value)) {
+      return "Use lowercase letters, no spaces or special characters. Use hyphens or underscores to separate words."
+    }
     return true
   }
 })

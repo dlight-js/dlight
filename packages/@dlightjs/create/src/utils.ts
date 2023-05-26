@@ -18,7 +18,7 @@ export function jsonify(obj: any) {
   return JSON
     .stringify(obj)
     .replace("{", "{\n    ")
-    .replace("}", "\n    }")
+    .replace("}", "\n  }")
     .replace(/,/g, ",\n    ")
 }
 

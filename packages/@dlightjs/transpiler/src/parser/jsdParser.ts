@@ -60,7 +60,7 @@ function parseTag(node: t.CallExpression) {
   return parserNode
 }
 
-function parseText(node: t.StringLiteral | t.TemplateLiteral) {
+function parseText(node: t.StringLiteral | t.TemplateLiteral | t.DirectiveLiteral) {
   return { tag: "_$text", attr: { _$content: Transpiler.generate(node) }, children: [] }
 }
 
@@ -144,6 +144,8 @@ export function parseBlock(nodes: any): ParserNode[] {
       children.push(parseFor(node))
     } else if (t.isIfStatement(node)) {
       children.push(parseIf(node))
+    } else if (t.isDirective(node)) {
+      children.push(parseText(node.value))
     }
   }
   return children

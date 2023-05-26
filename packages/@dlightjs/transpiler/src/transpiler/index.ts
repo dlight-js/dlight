@@ -17,17 +17,18 @@ import { resolveCustom, resolveProp, resolveState } from "./decoratorResolver"
 function handleJsdBody(node: t.ClassMethod, depChain: string[], subViews: string[], isSubView = false) {
   let newBody
 
+  const nodeList = [...node.body.directives, ...node.body.body]
   if (isSubView) {
     const param = node.params[0]
     if (!param || !t.isObjectPattern(param)) {
-      newBody = resolveParserNode(parseJsdBody(node.body.body), depChain, subViews)
+      newBody = resolveParserNode(parseJsdBody(nodeList), depChain, subViews)
     } else {
       const propNames: string[] = param.properties.map((p: any) => p.key.name)
       const idDepsArr = propNames.map(propName => ({ ids: [propName], propNames: [`...${propName}.deps`] }))
-      newBody = resolveParserNode(parseJsdBody(node.body.body), depChain, subViews, idDepsArr)
+      newBody = resolveParserNode(parseJsdBody(nodeList), depChain, subViews, idDepsArr)
     }
   } else {
-    newBody = resolveParserNode(parseJsdBody(node.body.body), depChain, subViews)
+    newBody = resolveParserNode(parseJsdBody(nodeList), depChain, subViews)
   }
   node.body = functionBlockStatement(`function tmp() { ${newBody} }`)
 }

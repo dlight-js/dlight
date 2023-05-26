@@ -26,6 +26,7 @@
         "@typescript-eslint/ban-ts-comment": "off",
         "@typescript-eslint/no-confusing-void-expression": "off",
         "@typescript-eslint/prefer-ts-expect-error": "off",
+        "@typescript-eslint/no-unused-expressions": "off",
         "no-lone-blocks": "off",
         "no-fallthrough": "off",
         "multiline-ternary": ["error", "always-multiline"],
