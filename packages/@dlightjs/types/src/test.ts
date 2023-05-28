@@ -14,10 +14,33 @@ interface SubViewProps {
   option2?: string
 }
 
-// @ts-expect-error
+function Prop(target: any, key: string) {
+}
 class SubView extends View implements SubViewProps {
+  @Prop hh: string
+  @Prop option1: number
+  @Prop option2: string
+
   Body() {}
 }
+class DLight {
+  count = 1
+  okCount = this.count + 1
+  fineCount = this.okCount + 1
+  @Prop hh = {a:1}
+}
+
+type PropsKeys<T> = { 
+  [K in keyof T]: Extract<T[K], { a: 1 }> 
+};
+
+type DLightPropTypes = PropsKeys<DLight>;
+
+
+// type DLightProps = Partial<Props<DLight>>
+const g: DLightPropTypes = 1 as any
+g.
+
 const SubViewWithTypes = Types<SubViewProps>(SubView)
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

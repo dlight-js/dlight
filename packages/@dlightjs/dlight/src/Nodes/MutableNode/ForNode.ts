@@ -130,8 +130,8 @@ export class ForNode extends MutableNode {
   }
 
   /**
-     * 没有key这样是优化过的，非常快
-     */
+   * 没有key这样是优化过的，非常快
+   */
   updateWithOutKey(parentNode: HtmlNode) {
     const parentEl = parentNode._$el
     const preLength = this.array.length
@@ -165,9 +165,9 @@ export class ForNode extends MutableNode {
   }
 
   /**
-     * 有 key，三步走
-     *
-     */
+   * 有 key，三步走
+   *
+   */
   updateWithKey(parentNode: HtmlNode) {
     // ---- 如果提供了key，唯一目的就是为了保证element的reference不变，这样会变慢
     const parentEl = parentNode._$el
