@@ -10,3 +10,5 @@ function render(idOrEl: string | HTMLElement, DL: any) {
 }
 
 export { View, render }
+
+export * from "./utils"

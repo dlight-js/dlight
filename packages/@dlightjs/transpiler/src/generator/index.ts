@@ -16,6 +16,8 @@ export class Generator {
   // ---- 通过对应拿到deps，比如 监听this.apples导致的apple变化 {ids: [apple], propNames: [this.apples]}
   idDepsArr: Array<{ ids: string[], propNames: string[] }> = []
 
+  usedProperties: string[] = []
+
   constructor(depChain: string[], subViews: string[], idDepsArr: Array<{ ids: string[], propNames: string[] }> = []) {
     this.depChain = depChain
     this.subViews = subViews
@@ -28,11 +30,15 @@ export class Generator {
       body.addBody(this.resolveParserNode(child, idx))
     }
     body.add(`return ${geneChildNodesArray(parserNodes)};`)
+
+    this.usedProperties = [...new Set(this.usedProperties)]
     return body.value
   }
 
   geneDeps(valueStr: string) {
-    return [...new Set([...geneDeps(valueStr, this.depChain), ...geneIdDeps(valueStr, this.idDepsArr)])]
+    const deps = [...new Set([...geneDeps(valueStr, this.depChain), ...geneIdDeps(valueStr, this.idDepsArr)])]
+    this.usedProperties.push(...deps)
+    return deps
   }
 
   resolveParserNode(parserNode: ParserNode, idx: number) {
@@ -257,8 +263,8 @@ export class Generator {
     }
 
     body.add(`const _$node${idx} = ${parserNode.tag}({${passProps.map(
-            ({ key, keyWithId }) => `${key}: ${keyWithId}`
-        ).join(", ")}});`)
+      ({ key, keyWithId }) => `${key}: ${keyWithId}`
+    ).join(", ")}});`)
     // ---- subView一定要有返回值！dep放到返回的第一个里面，这样子删除的时候就可以一起删了，不会内存泄漏
     body.add(`_$node${idx}[0]._$depObjectIds.push(...[${Object.keys(props).map(i => `depId${idx}_${i}`).join(",")}]);`)
 
@@ -334,5 +340,9 @@ export class Generator {
 }
 
 export function resolveParserNode(parserNodes: ParserNode[], depChain: string[], subViews: string[], idDepsArr: Array<{ ids: string[], propNames: string[] }> = []) {
-  return new Generator(depChain, subViews, idDepsArr).generate(parserNodes)
+  const generator = new Generator(depChain, subViews, idDepsArr)
+  return {
+    code: generator.generate(parserNodes),
+    useProperties: generator.usedProperties
+  }
 }

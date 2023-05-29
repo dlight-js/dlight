@@ -21,17 +21,17 @@ class SubView extends View implements SubViewProps {
   @Prop option1: number
   @Prop option2: string
 
-  Body() {}
+  Body() { }
 }
 class DLight {
   count = 1
   okCount = this.count + 1
   fineCount = this.okCount + 1
-  @Prop hh = {a:1}
+  @Prop hh = { a: 1 }
 }
 
-type PropsKeys<T> = { 
-  [K in keyof T]: Extract<T[K], { a: 1 }> 
+type PropsKeys<T> = {
+  [K in keyof T]: Extract<T[K], { a: 1 }>
 };
 
 type DLightPropTypes = PropsKeys<DLight>;
@@ -39,7 +39,7 @@ type DLightPropTypes = PropsKeys<DLight>;
 
 // type DLightProps = Partial<Props<DLight>>
 const g: DLightPropTypes = 1 as any
-g.
+
 
 const SubViewWithTypes = Types<SubViewProps>(SubView)
 

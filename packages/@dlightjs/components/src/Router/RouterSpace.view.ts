@@ -1,7 +1,7 @@
-import { type CustomNode, View } from "@dlightjs/dlight"
+import { View, type DLNode, manual } from "@dlightjs/dlight"
 import { Navigator } from "./Navigator"
 import { getHashLocation, getHistoryLocation } from "./utils"
-import Types, { _, env, Prop, PropState, State } from "@dlightjs/types"
+import Types, { _, env, Prop } from "@dlightjs/types"
 
 const rawHistoryPushState = history.pushState
 let historyPushStateFuncs: Array<() => any> = []
@@ -13,13 +13,14 @@ interface RouterSpaceProps {
 
 class RouterSpace extends View implements RouterSpaceProps {
   @Prop mode: "hash" | "history" = "history"
-  @PropState navigator?: Navigator
-  @State currUrl = this.mode === "hash" ? getHashLocation() : getHistoryLocation()
+  @Prop navigator?: Navigator
+  currUrl = this.mode === "hash" ? getHashLocation() : getHistoryLocation()
   baseUrl = ""
 
   prevPathCondition = ""
-  prevRoutes = []
-  showedRoute = (function() {
+  prevRoutes: DLNode[] = []
+
+  showedRoute = manual(() => {
     const prevPathCondition = this.prevPathCondition
     this.prevPathCondition = ""
     const currUrl = this.currUrl.replace(new RegExp(`^${this.baseUrl}`), "")
@@ -57,7 +58,7 @@ class RouterSpace extends View implements RouterSpaceProps {
     }
     this.prevRoutes = targetNodes
     return targetNodes
-  }.call(this))
+  }, [this.currUrl])
 
   historyChangeListen = () => {
     this.currUrl = getHistoryLocation()
@@ -116,7 +117,7 @@ class RouterSpace extends View implements RouterSpaceProps {
   AfterConstruct() {
     let parent = this._$parentNode
     while (parent) {
-      if ((parent as CustomNode)._$tag === "Route") {
+      if (parent.isRoute) {
         this.baseUrl = parent._$content + "/" + this.baseUrl
       }
       parent = parent._$parentNode
@@ -129,12 +130,14 @@ class RouterSpace extends View implements RouterSpaceProps {
     this.navigator = newNavigator
   }
 
+  routeParam = {
+    path: this.currUrl,
+    navigator: this.navigator
+  }
+
   Body() {
     env()
-      .RouteParam(({
-        path: this.currUrl,
-        navigator: this.navigator
-      }))
+      .RouteParam(this.routeParam)
     {
       _(this.showedRoute)
     }

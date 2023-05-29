@@ -1,5 +1,5 @@
 import { View } from "@dlightjs/dlight"
-import { _, button, div, Prop, PropState, required, State, tag, html, h3 } from "@dlightjs/types"
+import { _, env, button, div, Prop, PropState, required, State, tag, html, h3 } from "@dlightjs/types"
 import { Await, StateObject, Watch } from "@dlightjs/decorators"
 import { css, styled } from "@dlightjs/emotion"
 import { HStack } from "@dlightjs/components"
@@ -14,15 +14,31 @@ async function hh() {
   return 100
 }
 
-export class TestView extends View {
-  @Await @State data = hh()
+const A = styled.div`
+  color: ${({ count }) => count > 0 ? "red" : "blue"};
+`
+class MyComp2 extends View {
+  count = 0
+  @Prop a
 
   Body() {
-    if (this.data) {
-      div(this.data)
-    } else {
-      div("股价瓶")
-        ._color("red")
-    }
+    button("+")
+      .onclick(() => {
+        this.a++
+      })
+  }
+}
+
+export class TestView extends View {
+  count = 0
+
+  Body() {
+    button("-")
+      .onclick(() => {
+        this.count--
+      })
+    div(this.count)
+    MyComp2()
+      .a(this.count)
   }
 }

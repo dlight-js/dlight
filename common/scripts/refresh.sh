@@ -7,6 +7,7 @@ if [ -z "$1" ]; then
   pnpm refresh @dlightjs/types
   pnpm refresh @dlightjs/components
   pnpm refresh @dlightjs/decorators
+  pnpm refresh @dlightjs/emotion
 else
   pnpm --filter "./packages/${1}" install
   pnpm build ${1}

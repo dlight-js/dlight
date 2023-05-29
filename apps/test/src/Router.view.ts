@@ -3,22 +3,26 @@ import { Route, RouterSpace } from "../../../packages/@dlightjs/components/src/R
 import { button, div, Env, State } from "@dlightjs/types"
 
 class SubComp2 extends View {
-  @State toggle = true
+  toggle = true
   @Env RouteParam
 
-  @State secondNav
+  secondNav
 
   Body() {
     div()
       ._display("flex")
 
-    button("hhh2h")
+    button("toggle")
+      .onclick(() => {
+        this.toggle = !this.toggle
+      })
+    button("./not")
       .onclick(() => {
         this.secondNav.to("./not")
       })
-    button("222")
+    button("./hi")
       .onclick(() => {
-        this.secondNav.to("/OKK")
+        this.secondNav.to("./hi")
       })
 
     if (this.toggle) {
@@ -57,7 +61,7 @@ class SubComp extends View {
 }
 
 export class RouteTest extends View {
-  @State navigator
+  navigator
   Body() {
     div("hh")
     button("push to /OKK")

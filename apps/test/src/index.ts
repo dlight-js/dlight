@@ -5,4 +5,4 @@ import { TransitionTest } from "./transition.tsd"
 import { MyComp } from "./tts"
 import { TestView } from "./test.view"
 
-render("app", TestView)
+render("app", RouteTest)

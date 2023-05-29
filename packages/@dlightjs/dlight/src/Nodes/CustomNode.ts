@@ -111,12 +111,11 @@ export class CustomNode extends DLNode {
   _$initDecorators() {
     if (this._$derivedPairs) {
       // 遍历_$derivedPairs，将derived变量监听的变量的change函数挂载到被监听变量上
-      for (const [propertyKey, listenDeps] of Object.entries(this._$derivedPairs)) {
-        const derivedFunc = (this as any)[propertyKey]
+      for (const [propertyKey, listenDeps] of Object.entries(this._$derivedPairs).reverse()) {
+        const derivedFunc = `_$$${propertyKey}` in this ? (this as any)[`_$$${propertyKey}`] : (this as any)[propertyKey]
         if (typeof derivedFunc !== "function") return
 
         (this as any)[propertyKey] = (this as any)[propertyKey]()
-
         let prevValue = (this as any)[propertyKey]
         // ---- 不需要push到depObjectIds，因为是自己的
         this._$addDeps(listenDeps, {}, () => {
@@ -124,10 +123,15 @@ export class CustomNode extends DLNode {
           if (newValue === prevValue) return;
           (this as any)[propertyKey] = newValue
           prevValue = newValue
-          this._$runDeps(propertyKey)
         })
       }
     }
+  }
+
+  _$updateProperty(key: string, value: any) {
+    if ((this as any)[`_$$${key}`] === value) return
+    (this as any)[`_$$${key}`] = value
+    this._$runDeps(key)
   }
 
   // 将改变函数挂载在_$deps里的依赖对象上
@@ -147,9 +151,9 @@ export class CustomNode extends DLNode {
     }
   }
 
-  AfterConstruct() {}
-  Preset() {}
-  Afterset() {}
+  AfterConstruct() { }
+  Preset() { }
+  Afterset() { }
   _$init() {
     this.AfterConstruct()
     this._$initDecorators()
@@ -164,10 +168,10 @@ export class CustomNode extends DLNode {
   }
 
   // ---- lifecycles
-  willMount(_els: HTMLElement[], _node: CustomNode) {}
-  didMount(_els: HTMLElement[], _node: CustomNode) {}
-  willUnmount(_els: HTMLElement[], _node: CustomNode) {}
-  didUnmount(_els: HTMLElement[], _node: CustomNode) {}
+  willMount(_els: HTMLElement[], _node: CustomNode) { }
+  didMount(_els: HTMLElement[], _node: CustomNode) { }
+  willUnmount(_els: HTMLElement[], _node: CustomNode) { }
+  didUnmount(_els: HTMLElement[], _node: CustomNode) { }
 
   _$addLifeCycle(func: (_els: HTMLElement[], _node: CustomNode) => any, lifeCycleName: "willMount" | "didMount" | "willUnmount" | "didUnmount") {
     const preLifeCycle = this[lifeCycleName]
@@ -224,12 +228,13 @@ export class CustomNode extends DLNode {
   forwardProps(dlNode: CustomNode | HtmlNode) {
     const members = [...new Set(
       Object.getOwnPropertyNames(this)
-        .filter(m => (this as any)[m] === "_$prop")
-        .map(m => m.replace(/^_\$*/, ""))
+        .filter(m => (this as any)[m] === "prop")
+        .map(m => m.replace(/^_\$\$\$*/, ""))
     )]
     for (const member of members) {
       dlNode._$addProp(member, () => (this as any)[member], this, [member], true)
     }
+
     if (dlNode._$nodeType === DLNodeType.Custom) {
       (dlNode as CustomNode)._$children = this._$children
     } else {
