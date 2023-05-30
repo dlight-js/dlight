@@ -1,7 +1,6 @@
-import {render} from "@dlightjs/dlight";
-// import {StackTest} from "./components/stack.tsd";
-// @ts-ignore
-import {ToDoApp} from "./ToDoApp/index.tsd";
-// import {Benchmark} from "./performance/Benchmark.tsd";
+import { render } from "@dlightjs/dlight"
+import ReactiveView from "./basic/reactive.view"
+import PropPassingView from "./basic/propPassing.view"
+import ObserveElementView from "./advanced/observeElement.view"
 
-render("app", new ToDoApp())
+render("app", PropPassingView)

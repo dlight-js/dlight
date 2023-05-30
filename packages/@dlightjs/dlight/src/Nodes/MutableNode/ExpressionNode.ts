@@ -54,8 +54,8 @@ export class ExpressionNode extends MutableNode {
           case DLNodeType.HTML:
             addHtmlNodeProp(node as HtmlNode)
             break
-            // ---- 这一些都是要bindNodes的，在bindNodes时候给里面的_$nodes进行遍历加prop
-            //      典型的如for循环，newNodes的时候也会bindNodes，也要加这些prop
+          // ---- 这一些都是要bindNodes的，在bindNodes时候给里面的_$nodes进行遍历加prop
+          //      典型的如for循环，newNodes的时候也会bindNodes，也要加这些prop
           case DLNodeType.For:
           case DLNodeType.If:
           case DLNodeType.Expression:
@@ -79,6 +79,10 @@ export class ExpressionNode extends MutableNode {
     if (!Array.isArray(nodes)) {
       nodes = [nodes]
     }
+    nodes = nodes.map((node: any) => {
+      if (typeof node === "function") return node()
+      return node
+    })
     nodes = nodes.flat(1)
     nodes = nodes.filter((node: any) => (
       node !== undefined && node !== null && typeof node !== "boolean"

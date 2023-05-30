@@ -20,42 +20,6 @@ function buildData(count: number) {
   return data
 }
 
-class Row extends View {
-  @Prop id
-  @Prop label
-  @Prop className
-  @Prop deleteRow
-  @Prop selectRow
-
-  Body() {
-    tr()
-      .className(this.className)
-    {
-      td(this.id)
-        .className("col-md-1")
-      td()
-        .className("col-md-4")
-      {
-        a(this.label)
-          .onclick(() => this.selectRow(this.id))
-      }
-      td()
-        .className("col-md-1")
-      {
-        a()
-          .onclick(() => this.deleteRow(this.id))
-        {
-          span()
-            .className("glyphicon glyphicon-remove")
-            .ariaHidden("true")
-        }
-      }
-      td()
-        .className("col-md-6")
-    }
-  }
-}
-
 export class App extends View {
   rows: any[] = []
   selectIdx = -1
@@ -95,6 +59,35 @@ export class App extends View {
       this.rows[i].label += "!!! "
     }
     this.rows = [...this.rows]
+  }
+
+  @View
+  Row({ id, label, className }: any): any {
+    tr()
+      .className(className)
+    {
+      td(id)
+        .className("col-md-1")
+      td()
+        .className("col-md-4")
+      {
+        a(label)
+          .onclick(() => this.selectRow(id))
+      }
+      td()
+        .className("col-md-1")
+      {
+        a()
+          .onclick(() => this.deleteRow(id))
+        {
+          span()
+            .className("glyphicon glyphicon-remove")
+            .ariaHidden("true")
+        }
+      }
+      td()
+        .className("col-md-6")
+    }
   }
 
   @View
@@ -172,12 +165,10 @@ export class App extends View {
           tbody()
           {
             for (const { id, label } of this.rows) {
-              Row()
+              this.Row({})
                 .id(id)
                 .label(label)
                 .className(this.selectIdx === id ? "danger" : "")
-                .selectRow(this.selectRow)
-                .deleteRow(this.deleteRow)
             }
           }
         }

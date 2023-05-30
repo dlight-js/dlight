@@ -71,7 +71,7 @@ export function parseDlightFile(sourceFileCode: string) {
             t.objectExpression([])
           )
           properties = classBodyNode.body
-            .filter(n => t.isClassProperty(n))
+            .filter(n => t.isClassProperty(n) && !t.isArrowFunctionExpression(n.value))
             .map(n => (n as any).key.name)
           escapedProperties = classBodyNode.body
             .filter(

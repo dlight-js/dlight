@@ -37,7 +37,8 @@ export class Generator {
 
   geneDeps(valueStr: string) {
     const deps = [...new Set([...geneDeps(valueStr, this.depChain), ...geneIdDeps(valueStr, this.idDepsArr)])]
-    this.usedProperties.push(...deps)
+    // deps 有可能是subview的 ...xxx.deps
+    this.usedProperties.push(...deps.filter(dep => !dep.startsWith("...")))
     return deps
   }
 
@@ -108,6 +109,7 @@ export class Generator {
       const newGenerator = new Generator(this.depChain, this.subViews,
         [...this.idDepsArr, { ids: getIdentifiers(item), propNames: listenDeps }])
       let forBody = newGenerator.generate(parserNode.children)
+      this.usedProperties.push(...newGenerator.usedProperties)
       forBody = resolveForBody(forBody, item, valueItemStr)
       body.add(forBody)
       body.add("});")
@@ -235,9 +237,14 @@ export class Generator {
 
     // ---- child
     if (parserNode.children.length > 0) {
-      body.add(`${nodeName}._$addChildren((() => {`)
-      body.add(this.generate(parserNode.children))
-      body.add("})())")
+      body.add(`${nodeName}._$addChildren([`)
+      for (const child of parserNode.children) {
+        body.add("() => {")
+        body.addBody(this.resolveParserNode(child, 0))
+        body.add("return _$node0")
+        body.add("},")
+      }
+      body.add("])")
     }
 
     return body
@@ -341,8 +348,9 @@ export class Generator {
 
 export function resolveParserNode(parserNodes: ParserNode[], depChain: string[], subViews: string[], idDepsArr: Array<{ ids: string[], propNames: string[] }> = []) {
   const generator = new Generator(depChain, subViews, idDepsArr)
+  const code = generator.generate(parserNodes)
   return {
-    code: generator.generate(parserNodes),
+    code,
     useProperties: generator.usedProperties
   }
 }

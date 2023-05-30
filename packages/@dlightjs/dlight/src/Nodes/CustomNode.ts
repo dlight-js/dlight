@@ -96,27 +96,25 @@ export class CustomNode extends DLNode {
   }
 
   _$children: DLNode[] = []
+  _$childrenFuncs: Array<() => DLNode> = []
 
-  _$addChildren(dlnodes: DLNode[]) {
-    this._$children = dlnodes
-  }
-
-  _$resetChildren() {
-    for (const child of this._$children) {
-      child._$nodes = []
-    }
+  _$addChildren(dlNodeFuncs: Array<() => DLNode>) {
+    this._$childrenFuncs = dlNodeFuncs
+    this._$children = dlNodeFuncs.map(func => func())
   }
 
   // ---- dep
   _$initDecorators() {
     if (this._$derivedPairs) {
       // 遍历_$derivedPairs，将derived变量监听的变量的change函数挂载到被监听变量上
-      for (const [propertyKey, listenDeps] of Object.entries(this._$derivedPairs).reverse()) {
+      for (let [propertyKey, listenDeps] of Object.entries(this._$derivedPairs).reverse()) {
         const derivedFunc = `_$$${propertyKey}` in this ? (this as any)[`_$$${propertyKey}`] : (this as any)[propertyKey]
         if (typeof derivedFunc !== "function") return
 
         (this as any)[propertyKey] = (this as any)[propertyKey]()
         let prevValue = (this as any)[propertyKey]
+
+        listenDeps = listenDeps.filter(dep => dep in this._$deps)
         // ---- 不需要push到depObjectIds，因为是自己的
         this._$addDeps(listenDeps, {}, () => {
           const newValue = derivedFunc()
@@ -137,7 +135,17 @@ export class CustomNode extends DLNode {
   // 将改变函数挂载在_$deps里的依赖对象上
   _$addDeps(deps: string[], objectId: ObjectId, func: (newValue?: any) => any) {
     for (const dep of deps) {
+      if (!(dep in this._$deps)) {
+        console.warn(`no dep called [${dep}]`)
+        continue
+      }
       this._$deps[dep].set(objectId, func)
+    }
+  }
+
+  _$resetDeps() {
+    for (const dep of Object.keys(this._$deps)) {
+      this._$deps[dep] = new Map()
     }
   }
 
@@ -221,6 +229,9 @@ export class CustomNode extends DLNode {
 
   _$detach() {
     super._$detach()
+    for (const depKey of Object.keys(this._$deps)) {
+      this._$deps[depKey] = new Map()
+    }
     detachNodes(this._$children)
   }
 

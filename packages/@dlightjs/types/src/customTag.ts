@@ -17,9 +17,43 @@ type DLightObject<T> = RemoveOptionalProps<{
   [K in keyof T]: (value: T[K]) => DLightObject<Omit<T, K>>
 }>
 
-// @ts-expect-error I don't know wthy
+// @ts-expect-error I don't know why
 type CustomTag<T> = "_$content" extends keyof T ? (_$content?: T["_$content"]) => DLightObject<T> : () => DLightObject<T>
 
-export function Types<T=any>(cls: any) {
-  return cls as CustomTag<T>
+// ---- auto gene type
+export type Prop<T> = T & { isProp: true }
+
+// no any
+type IsAny<T> = (
+  unknown extends T
+    ? [keyof T] extends [never] ? false : true
+    : false
+)
+type NoAny<T> = {
+  [K in keyof T]: IsAny<T[K]> extends true ? never : T[K]
+}
+
+// 抽取被Prop包裹的Key
+type ExtractPropKeys<T> = {
+  [K in keyof T]: T[K] extends { isProp: true }
+    ? (T[K] extends Prop<infer U> ? U : never)
+    : never;
+}
+
+// 过滤掉所有的 never
+type FilterNever<T> = {
+  [K in keyof T as T[K] extends never ? never : K]: T[K];
+}
+
+export function Types<T>(cls: new (...args: any[]) => T) {
+  type AllProperties = NoAny<T>
+  type RequiredAllProperties = Required<AllProperties>
+  type RequiredPropKeys = FilterNever<ExtractPropKeys<RequiredAllProperties>>
+  type AllPropKeys = FilterNever<ExtractPropKeys<AllProperties>>
+  type PropsKeys = {
+    [K in keyof AllPropKeys]: AllPropKeys[K] extends undefined
+      ? K extends keyof RequiredPropKeys ? RequiredPropKeys[K] : any
+      : AllPropKeys[K]
+  }
+  return cls as any as CustomTag<PropsKeys>
 }

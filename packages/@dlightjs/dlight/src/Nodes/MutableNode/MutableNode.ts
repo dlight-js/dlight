@@ -2,7 +2,7 @@ import { bindParentNode, initNodes } from "../../utils/nodes"
 import { DLNode } from "../DLNode"
 
 export class MutableNode extends DLNode {
-  afterUpdateNewNodes(_nodes: DLNode[]) {}
+  afterUpdateNewNodes(_nodes: DLNode[]) { }
   addAfterUpdateNewNodesFunc(func: (nodes: DLNode[]) => any) {
     const preLifeCycle = this.afterUpdateNewNodes
     this.afterUpdateNewNodes = function(nodes: DLNode[]) {
@@ -11,7 +11,7 @@ export class MutableNode extends DLNode {
     }
   }
 
-  onUpdateNodes(_prevNodes: DLNode[], _nodes: DLNode[]) {}
+  onUpdateNodes(_prevNodes: DLNode[], _nodes: DLNode[]) { }
   addOnUpdateNodesFunc(func: (prevNodes: DLNode[], nodes: DLNode[]) => any) {
     const prevOnUpdateNodes = this.onUpdateNodes
     this.onUpdateNodes = function(prevNodes: DLNode[], nodes: DLNode[]) {
