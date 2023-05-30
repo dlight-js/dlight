@@ -1,7 +1,7 @@
-import { View, type DLNode, manual } from "@dlightjs/dlight"
+import { View, type DLNode } from "@dlightjs/dlight"
 import { Navigator } from "./Navigator"
 import { getHashLocation, getHistoryLocation } from "./utils"
-import Types, { _, env, Prop } from "@dlightjs/types"
+import Types, { _, env, Prop, Static } from "@dlightjs/types"
 
 const rawHistoryPushState = history.pushState
 let historyPushStateFuncs: Array<() => any> = []
@@ -15,12 +15,12 @@ class RouterSpace extends View implements RouterSpaceProps {
   @Prop mode: "hash" | "history" = "history"
   @Prop navigator?: Navigator
   currUrl = this.mode === "hash" ? getHashLocation() : getHistoryLocation()
-  baseUrl = ""
 
-  prevPathCondition = ""
-  prevRoutes: DLNode[] = []
+  @Static baseUrl = ""
+  @Static prevPathCondition = ""
+  @Static prevRoutes: DLNode[] = []
 
-  showedRoute = manual(() => {
+  showedRoute = (function () {
     const prevPathCondition = this.prevPathCondition
     this.prevPathCondition = ""
     const currUrl = this.currUrl.replace(new RegExp(`^${this.baseUrl}`), "")
@@ -57,8 +57,9 @@ class RouterSpace extends View implements RouterSpaceProps {
       }
     }
     this.prevRoutes = targetNodes
+    console.log(targetNodes)
     return targetNodes
-  }, [this.currUrl])
+  }.call(this))
 
   historyChangeListen = () => {
     this.currUrl = getHistoryLocation()

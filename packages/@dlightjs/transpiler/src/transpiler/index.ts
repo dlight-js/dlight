@@ -22,15 +22,23 @@ export function parseDlightFile(sourceFileCode: string) {
   let propertiesContainer: Record<string, {
     node: t.Node
     derivedFrom: string[]
-    deco: "Prop" | "Env"
+    deco: "Prop" | "Env" | "Static"
   }> = {}
+  let escapedProperties: string[] = []
 
   function willHandleBodyAtLast(node: any) {
     return classBodyNode!.body.indexOf(node) === classBodyNode!.body.length - 1
   }
   function handleBodyAtLast() {
     const usedProperties = handleBody(classBodyNode!, properties)
-    for (const [key, { node, derivedFrom, deco }] of Object.entries(propertiesContainer).reverse()) {
+    for (let [key, { node, derivedFrom, deco }] of Object.entries(propertiesContainer).reverse()) {
+      if (deco === "Static") {
+        if (derivedFrom.length === 0) continue
+        pushDerived(key, derivedFrom, derivedPairNode!, classBodyNode!)
+        valueWithArrowFunc(node)
+        continue
+      }
+      derivedFrom = derivedFrom.filter(k => !escapedProperties.includes(k))
       if (derivedFrom.length > 0) {
         usedProperties.push(...derivedFrom)
         pushDerived(key, derivedFrom, derivedPairNode!, classBodyNode!)
@@ -65,6 +73,13 @@ export function parseDlightFile(sourceFileCode: string) {
           properties = classBodyNode.body
             .filter(n => t.isClassProperty(n))
             .map(n => (n as any).key.name)
+          escapedProperties = classBodyNode.body
+            .filter(
+              n => t.isClassProperty(n) &&
+                n.decorators?.map(d => (d.expression as any).name).includes("Static")
+            )
+            .map(n => (n as any).key.name)
+
           propertiesContainer = {}
         }
       }

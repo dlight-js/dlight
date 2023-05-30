@@ -1,6 +1,4 @@
-export const State = null as any
-export const PropState = null as any
-export const EnvState = null as any
+export const Static = null as any
 export const Prop = null as any
 export const Env = null as any
 export const env = null as any

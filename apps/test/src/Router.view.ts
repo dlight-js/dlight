@@ -29,7 +29,6 @@ class SubComp2 extends View {
       RouterSpace()
         .mode("hash")
         .navigator(this.secondNav)
-
       {
         Route("hi")
         {
