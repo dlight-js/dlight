@@ -21,8 +21,6 @@ type DLightObject<T> = RemoveOptionalProps<{
 type CustomTag<T> = "_$content" extends keyof T ? (_$content?: T["_$content"]) => DLightObject<T> : () => DLightObject<T>
 
 // ---- auto gene type
-export type Prop<T> = T & { isProp: true }
-
 // no any
 type IsAny<T> = (
   unknown extends T
@@ -32,6 +30,8 @@ type IsAny<T> = (
 type NoAny<T> = {
   [K in keyof T]: IsAny<T[K]> extends true ? never : T[K]
 }
+
+export type Prop<T> = IsAny<T> extends true ? Prop<unknown> : T & { isProp: true }
 
 // 抽取被Prop包裹的Key
 type ExtractPropKeys<T> = {
@@ -51,9 +51,10 @@ export function Types<T>(cls: new (...args: any[]) => T) {
   type RequiredPropKeys = FilterNever<ExtractPropKeys<RequiredAllProperties>>
   type AllPropKeys = FilterNever<ExtractPropKeys<AllProperties>>
   type PropsKeys = {
-    [K in keyof AllPropKeys]: AllPropKeys[K] extends undefined
-      ? K extends keyof RequiredPropKeys ? RequiredPropKeys[K] : any
-      : AllPropKeys[K]
+    [K in keyof AllPropKeys]: AllPropKeys[K] extends unknown ? any :
+      AllPropKeys[K] extends undefined
+        ? K extends keyof RequiredPropKeys ? RequiredPropKeys[K] : any
+        : AllPropKeys[K]
   }
   return cls as any as CustomTag<PropsKeys>
 }

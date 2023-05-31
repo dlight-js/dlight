@@ -6,10 +6,10 @@ import { a, area, div, img } from "./htmlTag"
 const View = undefined as any
 
 class MyView {
-  hh: Prop<string>
   option1: Prop<number>
   option2?: Prop<string>
   option3?: Prop<any>
+  option4: Prop<any>
   other: any
 
   tt: string
@@ -20,6 +20,20 @@ const SubViewWithTypes = Types(MyView)
 class TypeTestView extends View {
   Body() {
     SubViewWithTypes()
-      .hh("jj").option1("kkk").option2("jjj").option3('afa')
   }
 }
+
+
+type IfAny<T, Y, N> = 0 extends (1 & T) ? Y : N;
+
+type ReplaceAnyWithUnknown<T> = {
+  [K in keyof T]: IfAny<T[K], never, T[K]>;
+};
+
+type Prop<T> = {
+  value: T;
+};
+
+type A = {a: any, b: Prop<any>};
+
+type AWithUnknown = ReplaceAnyWithUnknown<A>;
