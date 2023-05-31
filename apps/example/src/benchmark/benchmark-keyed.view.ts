@@ -1,5 +1,5 @@
 import { View } from "@dlightjs/dlight"
-import Types, { Prop, SubView, required, button, div, h1, tr, a, span, table, tbody, td } from "@dlightjs/types"
+import Types, { Prop, SubView, required, button, div, h1, tr, a, span, table, tbody, td, type RequiredProp } from "@dlightjs/types"
 
 let idCounter = 1
 
@@ -21,11 +21,11 @@ function buildData(count: number) {
 }
 
 class RowClass extends View {
-  @Prop id: Prop<number> = required
-  @Prop label: Prop<string> = required
-  @Prop className: Prop<string> = required
-  @Prop deleteRow: Prop<(id: number) => void> = required
-  @Prop selectRow: Prop<(id: number) => void> = required
+  @Prop id: RequiredProp<number> = required
+  @Prop label: RequiredProp<string> = required
+  @Prop className: RequiredProp<string> = required
+  @Prop deleteRow: RequiredProp<(id: number) => void> = required
+  @Prop selectRow: RequiredProp<(id: number) => void> = required
 
   Body() {
     tr()

@@ -3,9 +3,10 @@ import Types, { div, button, Prop, type RequiredProp, required } from "@dlightjs
 
 class SubViewClass extends View {
   @Prop count: RequiredProp<number> = required
-  @Prop message: Prop<string> = "whatever" as any
+  @Prop message: Prop<string> = "defaultMessage" as any
 
   Body() {
+    div(this.message)
     div(this.count)
     button("+")
       .onclick(() => {
