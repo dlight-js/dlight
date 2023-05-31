@@ -20,7 +20,7 @@ export function handleBodyFunc(node: t.ClassMethod, depChain: string[], subViews
       usedProperties = parsedBody.useProperties
     } else {
       const propNames: string[] = param.properties.map((p: any) => p.key.name)
-      const idDepsArr = propNames.map(propName => ({ ids: [propName], propNames: [`...${propName}.deps`] }))
+      const idDepsArr = propNames.map(propName => ({ ids: [propName], propNames: [`...(${propName}?.deps ?? [])`] }))
       const parsedBody = resolveParserNode(parseJsdBody(nodeList), depChain, subViews, idDepsArr)
       newBody = parsedBody.code
       usedProperties = parsedBody.useProperties
@@ -65,10 +65,8 @@ export function handleSubView(view: t.ClassMethod) {
                 !isMemberExpressionProperty(path.parentPath.node, path.node) &&
                 !isObjectKey(path.parentPath.node, path.node)
       ) {
-        path.replaceWith(t.memberExpression(
-          t.identifier(path.node.name),
-          t.identifier("value")
-        ))
+        // t.memberExpression() optional参数失效，所以直接生成
+        path.replaceWith(Transpiler.parse(`${path.node.name}?.value`)!.program.body[0].expression)
         path.skip()
       }
     }
@@ -82,7 +80,7 @@ export function handleBody(classBodyNode: t.ClassBody, depChain: string[]) {
   const views: any[] = []
   for (const c of classBodyNode.body) {
     if ((c as any).decorators?.find((d: any) =>
-      t.isIdentifier(d.expression) && d.expression.name === "View"
+      t.isIdentifier(d.expression) && d.expression.name === "SubView"
     )) {
       (c as any).decorators = undefined
       views.push(c)

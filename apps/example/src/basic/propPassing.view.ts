@@ -1,8 +1,9 @@
 import { View } from "@dlightjs/dlight"
-import Types, { div, button, Prop, required } from "@dlightjs/types"
+import Types, { div, button, Prop, type RequiredProp, required } from "@dlightjs/types"
 
 class SubViewClass extends View {
-  @Prop count: Prop<number> = required
+  @Prop count: RequiredProp<number> = required
+  @Prop message: Prop<string> = "whatever" as any
 
   Body() {
     div(this.count)
@@ -16,12 +17,13 @@ class SubViewClass extends View {
       })
   }
 }
+
 const SubView = Types(SubViewClass)
 
 class PropPassingView extends View {
   Body() {
     SubView()
-      .count(11)
+      .count(1)
   }
 }
 

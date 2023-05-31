@@ -1,26 +1,21 @@
 import { View, type DLNode } from "@dlightjs/dlight"
 import { Navigator } from "./Navigator"
 import { getHashLocation, getHistoryLocation } from "./utils"
-import Types, { _, env, Prop, Static } from "@dlightjs/types"
+import Types, { _, env, Prop, Static, required } from "@dlightjs/types"
 
 const rawHistoryPushState = history.pushState
 let historyPushStateFuncs: Array<() => any> = []
 
-interface RouterSpaceProps {
-  mode?: "hash" | "history"
-  navigator?: Navigator
-}
-
-class RouterSpace extends View implements RouterSpaceProps {
-  @Prop mode: "hash" | "history" = "history"
-  @Prop navigator?: Navigator
+class RouterSpace extends View {
+  @Prop mode: Prop<"hash" | "history"> = "history" as any
+  @Prop navigator: Prop<Navigator> = required
   currUrl = this.mode === "hash" ? getHashLocation() : getHistoryLocation()
 
   @Static baseUrl = ""
   @Static prevPathCondition = ""
   @Static prevRoutes: DLNode[] = []
 
-  showedRoute = (function () {
+  showedRoute = (function() {
     const prevPathCondition = this.prevPathCondition
     this.prevPathCondition = ""
     const currUrl = this.currUrl.replace(new RegExp(`^${this.baseUrl}`), "")
@@ -116,7 +111,7 @@ class RouterSpace extends View implements RouterSpaceProps {
   }
 
   AfterConstruct() {
-    let parent = this._$parentNode
+    let parent: any = this._$parentNode
     while (parent) {
       if (parent.isRoute) {
         this.baseUrl = parent._$content + "/" + this.baseUrl
@@ -128,7 +123,7 @@ class RouterSpace extends View implements RouterSpaceProps {
   Preset() {
     const newNavigator = new Navigator()
     newNavigator.mode = this.mode
-    this.navigator = newNavigator
+    this.navigator = newNavigator as any
   }
 
   routeParam = {
@@ -145,4 +140,4 @@ class RouterSpace extends View implements RouterSpaceProps {
   }
 }
 
-export default Types<RouterSpaceProps>(RouterSpace)
+export default Types(RouterSpace)

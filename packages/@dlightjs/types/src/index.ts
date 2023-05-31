@@ -9,8 +9,9 @@ export const env = null as any
 export const tag = null as any
 export const htmlTag = null as any
 export const required = null as any
+export const SubView = null as any
 
 export { _ } from "./expressionTag"
 export * from "./htmlTag"
 // eslint-disable-next-line import/export
-export { Types as default } from "./customTag"
+export { Types as default, type RequiredProp } from "./customTag"

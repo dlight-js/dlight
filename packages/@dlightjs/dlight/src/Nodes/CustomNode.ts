@@ -69,8 +69,7 @@ import { type ObjectId } from "./types"
 export class CustomNode extends DLNode {
   _$deps: Record<string, Map<ObjectId, () => any>> = {}
   _$envNodes?: EnvNode[]
-  _$derivedPairs?: Record<string, string[]>
-  _$tag: string = ""
+  private readonly _$derivedPairs?: Record<string, string[]>
 
   constructor() {
     super(DLNodeType.Custom)

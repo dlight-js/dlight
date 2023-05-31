@@ -16,7 +16,6 @@
     "skipLibCheck": true,
     "noImplicitThis": false,
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
     "ignoreDeprecations": "5.0",
     "suppressExcessPropertyErrors": true
   },
