@@ -1,19 +1,39 @@
 import { View } from "@dlightjs/dlight"
-import { div, button } from "@dlightjs/types"
+import { div, input } from "@dlightjs/types"
 
 class ReactiveView extends View {
-  count = 1
+  name = ""
+  mouseX = 0
+  mouseY = 0
+  color = (function() {
+    if (this.mouseX > 250 && this.mouseY > 250) {
+      return "red"
+    } else if (this.mouseX > 250 && this.mouseY < 250) {
+      return "yellow"
+    } else if (this.mouseY < 250 && this.mouseX < 250) {
+      return "blue"
+    }
+    return "purple"
+  }.call(this))
 
   Body() {
-    div(this.count)
-    button("+")
-      .onclick(() => {
-        this.count++
+    input()
+      .type("range")
+      .oninput((value) => {
+        this.name = value.target?.value
       })
-    button("-")
-      .onclick(() => {
-        this.count--
+    div(`hi,${this.name}`)
+    div()
+      ._width("500px")
+      ._height("500px")
+      ._backgroundColor(this.color)
+      .onmousemove((event) => {
+        this.mouseX = event.clientX
+        this.mouseY = event.clientY
       })
+    {
+      div(`mouseX: ${this.mouseX}, moouseY: ${this.mouseY}`)
+    }
   }
 }
 

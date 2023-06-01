@@ -1,17 +1,9 @@
 import { View } from "@dlightjs/dlight"
 import { type HAlignment, type VAlignment } from "./types"
-import Types, { div, Prop, _ } from "@dlightjs/types"
-import { css } from "@emotion/css"
+import { type Typed, div, Prop, _ } from "@dlightjs/types"
+import { css } from "@dlightjs/emotion"
 
-interface ZStackProps {
-  spacing?: number
-  hAlignment?: HAlignment
-  vAlignment?: VAlignment
-  width?: string
-  height?: string
-}
-
-class ZStack extends View implements ZStackProps {
+class ZStack extends View {
   @Prop hAlignment: HAlignment = "center"
   @Prop vAlignment: VAlignment = "center"
   @Prop width = "max-content"
@@ -46,4 +38,4 @@ class ZStack extends View implements ZStackProps {
   }
 }
 
-export default Types<ZStackProps>(ZStack)
+export default ZStack as any as Typed<ZStack>

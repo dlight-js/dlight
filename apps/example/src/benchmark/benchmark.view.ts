@@ -1,5 +1,5 @@
 import { View } from "@dlightjs/dlight"
-import Types, { Prop, SubView, required, button, div, h1, tr, a, span, table, tbody, td, type RequiredProp } from "@dlightjs/types"
+import { Prop, SubView, required, button, div, h1, tr, a, span, table, tbody, td, type RequiredProp, type Typed } from "@dlightjs/types"
 
 let idCounter = 1
 
@@ -55,7 +55,7 @@ class RowClass extends View {
     }
   }
 }
-const Row = Types(RowClass)
+const Row = RowClass as any as Typed<RowClass>
 
 class App extends View {
   rows: any[] = []
@@ -184,4 +184,4 @@ class App extends View {
   }
 }
 
-export default Types(App)
+export default App

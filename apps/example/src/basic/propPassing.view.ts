@@ -1,7 +1,10 @@
 import { View } from "@dlightjs/dlight"
-import Types, { div, button, Prop, type RequiredProp, required } from "@dlightjs/types"
+import { type Typed, div, button, Prop, type RequiredProp, required } from "@dlightjs/types"
 
 class SubViewClass extends View {
+  /**
+   * @Prop xxx
+   */
   @Prop count: RequiredProp<number> = required
   @Prop message: Prop<string> = "defaultMessage" as any
 
@@ -19,7 +22,7 @@ class SubViewClass extends View {
   }
 }
 
-const SubView = Types(SubViewClass)
+const SubView = SubViewClass as any as Typed<SubViewClass>
 
 class PropPassingView extends View {
   Body() {

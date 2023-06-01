@@ -1,21 +1,21 @@
 import { parseDlightFile } from "@dlightjs/transpiler"
-import optionalThisPlugin from "babel-plugin-optional-this"
-// @ts-ignore
-import { transformSync } from "@babel/core"
+// import optionalThisPlugin from "babel-plugin-optional-this"
+// // @ts-ignore
+// import { transformSync } from "@babel/core"
 
-const transformOptionThisOption = {
-  plugins: [
-    optionalThisPlugin(),
-    ["@babel/plugin-syntax-typescript"],
-    "@babel/plugin-syntax-do-expressions",
-    ["@babel/plugin-syntax-decorators", { legacy: true }]
-  ]
-}
-function transformOptionThis(code: string) {
-  return transformSync(code, transformOptionThisOption).code
-}
+// const transformOptionThisOption = {
+//   plugins: [
+//     optionalThisPlugin(),
+//     ["@babel/plugin-syntax-typescript"],
+//     "@babel/plugin-syntax-do-expressions",
+//     ["@babel/plugin-syntax-decorators", { legacy: true }]
+//   ]
+// }
+// function transformOptionThis(code: string) {
+//   return transformSync(code, transformOptionThisOption).code
+// }
 
-export default function({ jsd = true, jsx = true, optionalThis = false } = {}) {
+export default function() {
   return {
     name: "dlight",
     enforce: "pre",
@@ -32,7 +32,8 @@ export default function({ jsd = true, jsx = true, optionalThis = false } = {}) {
     transform(code: string, id: string) {
       if (id.endsWith(".jsd") || id.endsWith(".tsd") ||
         id.endsWith(".view.js") || id.endsWith(".view.ts")) {
-        if (optionalThis) code = transformOptionThis(code)
+        // ---- wait till language server is ready
+        // if (optionalThis) code = transformOptionThis(code)
         return parseDlightFile(code)
       }
       return code

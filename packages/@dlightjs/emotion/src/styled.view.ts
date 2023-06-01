@@ -2,7 +2,8 @@ import { View } from "@dlightjs/dlight"
 import { css } from "@emotion/css"
 import { htmlTag, tag } from "@dlightjs/types"
 
-export const styled: any = (innerTag: any) => <T = any>(strings: any, ...args: any) => {
+// eslint-disable-next-line @typescript-eslint/ban-types
+export const styled: any = (innerTag: any) => <T={}>(strings: any, ...args: any) => {
   const getStyles = (node: any, scope: any) => {
     const keys = [...new Set(
       Object.getOwnPropertyNames(scope)

@@ -1,12 +1,8 @@
 import { View } from "@dlightjs/dlight"
-import Types, { button, div, h1, State, Prop } from "@dlightjs/types"
+import { type Typed, button, div, h1, State, Prop } from "@dlightjs/types"
 
-interface AppProps {
-    defaultCount?: number
-}
-
-class App extends View implements AppProps {
-    @Prop defaultCount = 0
+class App extends View {
+    @Prop defaultCount: Prop<number> = 0
     @State count = this.defaultCount
     derivedCount = this.count + 1
 
@@ -28,4 +24,4 @@ class App extends View implements AppProps {
     }
 }
 
-export default Types<AppProps>(App)
+export default App as any as Typed<App>

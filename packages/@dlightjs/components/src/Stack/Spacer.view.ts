@@ -1,6 +1,6 @@
 import { type DLNode, DLNodeType, View } from "@dlightjs/dlight"
-import Types, { div } from "@dlightjs/types"
-import { css } from "@emotion/css"
+import { type Typed, div } from "@dlightjs/types"
+import { css } from "@dlightjs/emotion"
 
 class Spacer extends View {
   isSpacer = true
@@ -26,4 +26,4 @@ export function isChildSpacer(child: DLNode) {
   return false
 }
 
-export default Types(Spacer)
+export default Spacer as any as Typed<Spacer>

@@ -17,7 +17,8 @@
     "noImplicitThis": false,
     "experimentalDecorators": true,
     "ignoreDeprecations": "5.0",
-    "suppressExcessPropertyErrors": true
+    "suppressExcessPropertyErrors": true,
+    "declaration": false
   },
   "ts-node": {
     "esm": true

@@ -31,6 +31,8 @@ type DLightObject<T> = RemoveOptionalProps<{
 type CustomTag<T> = "_$content" extends keyof T ? (_$content?: T["_$content"]) => DLightObject<T> : () => DLightObject<T>
 
 // ---- auto gene type
+export const Prop = null as any
+// eslint-disable-next-line @typescript-eslint/no-redeclare
 export type Prop<T> = T & { _$isProp: true }
 export type RequiredProp<T> = T & { _$isProp: true, _$required: true }
 
@@ -86,6 +88,4 @@ type PropsKeys<T> = FilterNever<{
     : Never
 }> & OptionalUseless
 
-export function Types<T>(cls: new (...args: any[]) => T) {
-  return cls as any as CustomTag<PropsKeys<T>>
-}
+export type Typed<T> = CustomTag<PropsKeys<T>> & Useless

@@ -1,10 +1,10 @@
 import { View } from "@dlightjs/dlight"
-import Types, { _, Prop } from "@dlightjs/types"
+import { type Typed, _, Prop, Static } from "@dlightjs/types"
 
 type TransitionPropSub<T> = T | ((el: HTMLElement) => T)
 type Timing = "appear" | "firstAppear" | "move" | "disappear" | "lastDisappear"
 type TransitionProp<T> = TransitionPropSub<T> | ({
-  [key in Timing]: TransitionPropSub<T>
+  [key in Timing]?: TransitionPropSub<T>
 })
 type StyleWith = string | Record<string, any>
 
@@ -15,19 +15,14 @@ interface RemoveStore {
   idx: number
 }
 
-interface TransitionGroupProps {
-  duration?: TransitionProp<number>
-  easing?: TransitionProp<string>
-  delay?: TransitionProp<number>
-}
-
-class TransitionGroup extends View implements TransitionGroupProps {
-  _$duration = 0.5
-  _$easing = "ease-in-out"
-  _$delay = 0
-  @Prop duration = this._$duration
-  @Prop easing = this._$easing
-  @Prop delay = this._$delay // 这里的delay在新建会先把下面的push下去，等delay时间到了再出现，这其实是符合预期的，因为不然你setTimeOut控制它出现
+class TransitionGroup extends View {
+  @Static _$duration = 0.5
+  @Static _$easing = "ease-in-out"
+  @Static _$delay = 0
+  @Prop duration: Prop<TransitionProp<number>> = this._$duration as any
+  @Prop easing: Prop<TransitionProp<string>> = this._$easing as any
+  // 这里的delay在新建会先把下面的push下去，等delay时间到了再出现，这其实是符合预期的，因为不然你setTimeOut控制它出现
+  @Prop delay: Prop<TransitionProp<number>> = this._$delay as any
 
   parseProp(el: HTMLElement, key: "duration" | "easing" | "delay") {
     const prop: any = {}
@@ -61,15 +56,15 @@ class TransitionGroup extends View implements TransitionGroupProps {
   _easing = (el: HTMLElement) => this.parseProp(el, "easing")
   _delay = (el: HTMLElement) => this.parseProp(el, "delay")
 
-  firstRender = true
+  @Static firstRender = true
 
   transition = (el: HTMLElement, timing: Timing) => (
         `all ${this._duration(el)[timing]}s ${this._easing(el)[timing]} ${this._delay(el)[timing]}s`
   )
 
-  @Prop appearWith: StyleWith | ((el: HTMLElement) => StyleWith) = { opacity: 0 }
-  @Prop disappearWith: StyleWith | ((el: HTMLElement) => StyleWith) = { opacity: 0 }
-  @Prop movable = true
+  @Prop appearWith: Prop<StyleWith | ((el: HTMLElement) => StyleWith)> = { opacity: 0 } as any
+  @Prop disappearWith: Prop<StyleWith | ((el: HTMLElement) => StyleWith)> = { opacity: 0 } as any
+  @Prop movable: Prop<boolean> = true as any
 
   resolveDisappear(removeStore: RemoveStore) {
     const { el, parentNode, rect, idx } = removeStore
@@ -101,10 +96,10 @@ class TransitionGroup extends View implements TransitionGroupProps {
     })
   }
 
-  prevElInfos = new Map()
-  removeStore?: RemoveStore
-  lastDisappear = false
-  removeStores?: RemoveStore[]
+  @Static prevElInfos = new Map()
+  @Static removeStore?: RemoveStore
+  @Static lastDisappear = false
+  @Static removeStores?: RemoveStore[]
 
   // ---- 最后一次消失
   willUnmount() {
@@ -275,4 +270,4 @@ function moveElement(element: HTMLElement, duration: number, easing: string, del
   requestAnimationFrame(step)
 }
 
-export default Types<TransitionGroupProps>(TransitionGroup)
+export default TransitionGroup as any as Typed<TransitionGroup>

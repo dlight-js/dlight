@@ -1,7 +1,7 @@
 import { View, type DLNode } from "@dlightjs/dlight"
 import { Navigator } from "./Navigator"
 import { getHashLocation, getHistoryLocation } from "./utils"
-import Types, { _, env, Prop, Static, required } from "@dlightjs/types"
+import { type Typed, _, env, Prop, Static, required } from "@dlightjs/types"
 
 const rawHistoryPushState = history.pushState
 let historyPushStateFuncs: Array<() => any> = []
@@ -140,4 +140,4 @@ class RouterSpace extends View {
   }
 }
 
-export default Types(RouterSpace)
+export default RouterSpace as any as Typed<RouterSpace>
