@@ -73,8 +73,8 @@ export function isAssignmentExpressionRight(innerPath: any, classDeclarationNode
 
 export function shouldBeListened(innerPath: any, classDeclarationNode?: t.Node) {
   return (!isMemberInFunction(innerPath, classDeclarationNode) &&
-            !isAssignmentExpressionLeft(innerPath) &&
-            !isAssignmentExpressionRight(innerPath, classDeclarationNode))
+    !isAssignmentExpressionLeft(innerPath) &&
+    !isAssignmentExpressionRight(innerPath, classDeclarationNode))
 }
 
 export function functionBlockStatement(code: string) {

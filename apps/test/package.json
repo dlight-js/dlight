@@ -18,7 +18,6 @@
   "dependencies": {
     "@dlightjs/components": "workspace:*",
     "@dlightjs/emotion": "workspace:*",
-    "@dlightjs/decorators": "workspace:*",
     "@dlightjs/dlight": "workspace:*",
     "@dlightjs/transpiler": "workspace:*",
     "@dlightjs/types": "workspace:*",

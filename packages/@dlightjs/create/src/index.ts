@@ -2,12 +2,15 @@
 import { input, select, checkbox } from "@inquirer/prompts"
 import { execSync } from "child_process"
 import { dependencies, devDependencies } from "./dependency"
-import { fail, info, jsonify, logo, randomId, success } from "./utils"
+import { info, jsonify, logo, success } from "./utils"
+import { fileURLToPath } from "node:url"
+import path from "path"
 import fs from "fs"
 
 // ---- Get project info
 const projectName = await input({
   message: "💻 Your project name",
+  default: "my-dlight-app",
   validate: value => {
     if (value.length === 0) {
       return "Enter a valid project name!"
@@ -15,7 +18,7 @@ const projectName = await input({
     if (fs.existsSync(value)) {
       return "Folder already exsits"
     }
-    if (!/^[a-z]+([-_][a-z]+)*$/.test(value)) {
+    if (!/^[a-z]+([-_][a-z0-9]+)*$/.test(value)) {
       return "Use lowercase letters, no spaces or special characters. Use hyphens or underscores to separate words."
     }
     return true
@@ -45,10 +48,6 @@ const selectedDependencies: string[] = await checkbox({
       value: "@dlightjs/components"
     },
     {
-      name: "@dlightjs/decorators",
-      value: "@dlightjs/decorators"
-    },
-    {
       name: "@dlightjs/emotion",
       value: "@dlightjs/emotion"
     }
@@ -68,19 +67,13 @@ const deps = selectDep(selectedDependencies, dependencies)
 const devDeps = selectDep(selectedDevDependencies, devDependencies)
 
 // --- Download templates
-try {
-  console.log("Downloading template from github...")
-  execSync(`git clone --quiet https://github.com/dlight-js/dlight-vite-template ${projectName}`, { encoding: "utf-8" })
-  success("Successfully downloaded the DLight.js template!")
-} catch {
-  fail("Fail to download template, please check your network")
-  process.exit(0)
-}
-const tempName = `${projectName}-${randomId()}`
-execSync(`mv ${projectName} ${tempName}`)
-execSync(`rm -rf ${projectName}`)
-execSync(`mv ${tempName}/dlight-vite-${language} ${projectName}`)
-execSync(`rm -rf ${tempName}`)
+const templateDir = path.resolve(
+  fileURLToPath(import.meta.url),
+  "../../templates",
+  `dlight-vite-${language}`
+)
+
+execSync(`cp -r ${templateDir} ./${projectName}`)
 
 const packagePath = `${projectName}/package.json`
 const data = fs.readFileSync(packagePath, { encoding: "utf8", flag: "r" })
@@ -119,7 +112,17 @@ const packageManager = await select({
 if (packageManager) {
   execSync(`${packageManager as string} install`, { cwd: projectName, stdio: "inherit" })
   success(`Successfully installed dependencies using ${packageManager as string}!`)
+  let cmd = ""
+  if (packageManager === "pnpm") {
+    cmd = "pnpm dev"
+  } else if (packageManager === "npm") {
+    cmd = "npm run dev"
+  } else if (packageManager === "yarn") {
+    cmd = "yarn dev"
+  }
+  info(`Run app with \`cd ${projectName} && ${cmd}\`\n`)
 }
+
 info("🎉 All done!")
 info(logo)
 info(":D Happy coding in DLight!")

@@ -1,17 +1,11 @@
 import { View } from "@dlightjs/dlight"
-import Types, { _, Prop } from "@dlightjs/types"
-import { css } from "@emotion/css"
+import { type Typed, _, Prop } from "@dlightjs/types"
+import { css } from "@dlightjs/emotion"
 
-interface TransitionProps {
-  duration?: number
-  easing?: string
-  delay?: number
-}
-
-class Transition extends View implements TransitionProps {
-  @Prop duration = 0.5
-  @Prop easing = "ease-in-out"
-  @Prop delay = 0
+class Transition extends View {
+  @Prop duration: Prop<number> = 0.5 as any
+  @Prop easing: Prop<string> = "ease-in-out" as any
+  @Prop delay: Prop<number> = 0 as any
 
   Body() {
     _(this._$children)
@@ -21,4 +15,4 @@ class Transition extends View implements TransitionProps {
   }
 }
 
-export default Types<TransitionProps>(Transition)
+export default Transition as any as Typed<Transition>

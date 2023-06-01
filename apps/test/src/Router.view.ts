@@ -3,52 +3,53 @@ import { Route, RouterSpace } from "../../../packages/@dlightjs/components/src/R
 import { button, div, Env, State } from "@dlightjs/types"
 
 class SubComp2 extends View {
-  @State toggle = true
+  toggle = false
   @Env RouteParam
 
-  @State secondNav
+  secondNav
 
   Body() {
     div()
       ._display("flex")
 
-    button("hhh2h")
+    button("toggle")
       .onclick(() => {
-        this.secondNav.to("./not")
+        this.toggle = !this.toggle
       })
-    button("222")
-      .onclick(() => {
-        this.secondNav.to("/OKK")
-      })
+    // button("./not")
+    //   .onclick(() => {
+    //     this.secondNav.to("./not")
+    //   })
+    // button("./hi")
+    //   .onclick(() => {
+    //     this.secondNav.to("./hi")
+    //   })
 
     if (this.toggle) {
-      RouterSpace()
-        .mode("hash")
-        .navigator(this.secondNav)
-
-      {
-        Route("hi")
-        {
-          div("hi niubi")
-        }
-        Route("not")
-        {
-          div("not hihi")
-        }
-        Route()
-        {
-          div("nono")
-        }
-      }
+      div("hi niubi")
+      // RouterSpace()
+      //   .mode("hash")
+      //   .navigator(this.secondNav)
+      // {
+      //   Route("hi")
+      //   {
+      //     div("hi niubi")
+      //   }
+      //   Route("not")
+      //   {
+      //     div("not hihi")
+      //   }
+      //   Route()
+      //   {
+      //     div("nono")
+      //   }
+      // }
     }
   }
 }
 
 class SubComp extends View {
   @Env RouteParam
-  didMount(_els: HTMLElement[], _node: CustomNode) {
-    console.log("hello")
-  }
 
   Body() {
     div(this.RouteParam.path)
@@ -57,7 +58,7 @@ class SubComp extends View {
 }
 
 export class RouteTest extends View {
-  @State navigator
+  navigator
   Body() {
     div("hh")
     button("push to /OKK")

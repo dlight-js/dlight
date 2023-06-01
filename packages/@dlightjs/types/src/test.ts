@@ -1,29 +1,28 @@
-import { Types } from "./customTag"
+import { b } from "../dist"
+import { Typed, type Prop } from "./index"
 import { _ } from "./expressionTag"
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { a, area, div, img } from "./htmlTag"
 
-const View = undefined as any
+const View: new () => {} = class { t: Prop<string> }
 
-interface SubViewProps {
-  /**
-     * @ok this will show
-     */
-  hh: string
-  option1?: number
-  option2?: string
+type GG<T> = (T | string)
+
+class MyView {
+  option1: Prop<GG<number>> = 1 as any
+  hh2: Prop<string> = "" as any
+  hh3: Prop<string> = "" as any
 }
 
-// @ts-expect-error
-class SubView extends View implements SubViewProps {
-  Body() {}
-}
-const SubViewWithTypes = Types<SubViewProps>(SubView)
+const SubViewWithTypes = MyView as any as Typed<MyView>
+
+type JJ = Typed<MyView>
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-class TypeTestView extends View {
+class TypeTestView  {
   Body() {
-    SubViewWithTypes()
-    _("jfa")
+    SubViewWithTypes().
   }
 }
+
+

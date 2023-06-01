@@ -1,17 +1,10 @@
 import { View } from "@dlightjs/dlight"
 import { type HAlignment } from "./types"
 import { isChildSpacer } from "./Spacer.view"
-import Types, { _, div, Prop } from "@dlightjs/types"
-import { css } from "@emotion/css"
+import { type Typed, _, div, Prop } from "@dlightjs/types"
+import { css } from "@dlightjs/emotion"
 
-interface VStackProps {
-  spacing?: number
-  alignment?: HAlignment
-  width?: string
-  height?: string
-}
-
-class VStack extends View implements VStackProps {
+class VStack extends View {
   @Prop spacing = 10
   @Prop alignment: HAlignment = "leading"
   @Prop width = "max-content"
@@ -54,4 +47,4 @@ class VStack extends View implements VStackProps {
   }
 }
 
-export default Types<VStackProps>(VStack)
+export default VStack as any as Typed<VStack>

@@ -1,34 +1,30 @@
-import { type CustomNode, View } from "@dlightjs/dlight"
+import { View, type DLNode } from "@dlightjs/dlight"
 import { Navigator } from "./Navigator"
 import { getHashLocation, getHistoryLocation } from "./utils"
-import Types, { _, env, Prop, PropState, State } from "@dlightjs/types"
+import { type Typed, _, env, Prop, Static, required } from "@dlightjs/types"
 
 const rawHistoryPushState = history.pushState
 let historyPushStateFuncs: Array<() => any> = []
 
-interface RouterSpaceProps {
-  mode?: "hash" | "history"
-  navigator?: Navigator
-}
+class RouterSpace extends View {
+  @Prop mode: Prop<"hash" | "history"> = "history" as any
+  @Prop navigator: Prop<Navigator> = required
+  currUrl = this.mode === "hash" ? getHashLocation() : getHistoryLocation()
 
-class RouterSpace extends View implements RouterSpaceProps {
-  @Prop mode: "hash" | "history" = "history"
-  @PropState navigator?: Navigator
-  @State currUrl = this.mode === "hash" ? getHashLocation() : getHistoryLocation()
-  baseUrl = ""
+  @Static baseUrl = ""
+  @Static prevPathCondition = ""
+  @Static prevRoutes: DLNode[] = []
 
-  prevPathCondition = ""
-  prevRoutes = []
   showedRoute = (function() {
     const prevPathCondition = this.prevPathCondition
     this.prevPathCondition = ""
     const currUrl = this.currUrl.replace(new RegExp(`^${this.baseUrl}`), "")
     const targetNodes: any[] = []
 
-    for (const child of this._$children) {
+    for (const [idx, child] of this._$children.entries()) {
       if (!child.isRoute) {
         // ---- 如果不是Route直接加，虽然没有意义也不建议这么写
-        targetNodes.push(child)
+        targetNodes.push(this._$childrenFuncs[idx]())
         continue
       }
       let targetUrl = child._$content
@@ -50,6 +46,7 @@ class RouterSpace extends View implements RouterSpaceProps {
           this.prevPathCondition = prevPathCondition
           return this.prevRoutes
         }
+        // targetNodes.push(this._$childrenFuncs[idx]())
         targetNodes.push(child)
         this.prevPathCondition = targetUrl
         break
@@ -114,9 +111,9 @@ class RouterSpace extends View implements RouterSpaceProps {
   }
 
   AfterConstruct() {
-    let parent = this._$parentNode
+    let parent: any = this._$parentNode
     while (parent) {
-      if ((parent as CustomNode)._$tag === "Route") {
+      if (parent.isRoute) {
         this.baseUrl = parent._$content + "/" + this.baseUrl
       }
       parent = parent._$parentNode
@@ -126,19 +123,21 @@ class RouterSpace extends View implements RouterSpaceProps {
   Preset() {
     const newNavigator = new Navigator()
     newNavigator.mode = this.mode
-    this.navigator = newNavigator
+    this.navigator = newNavigator as any
+  }
+
+  routeParam = {
+    path: this.currUrl,
+    navigator: this.navigator
   }
 
   Body() {
     env()
-      .RouteParam(({
-        path: this.currUrl,
-        navigator: this.navigator
-      }))
+      .RouteParam(this.routeParam)
     {
       _(this.showedRoute)
     }
   }
 }
 
-export default Types<RouterSpaceProps>(RouterSpace)
+export default RouterSpace as any as Typed<RouterSpace>

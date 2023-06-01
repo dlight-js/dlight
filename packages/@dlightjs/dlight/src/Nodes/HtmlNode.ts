@@ -36,7 +36,7 @@ export class HtmlNode extends DLNode {
           newClassName += ` ${newValue}`
         }
         currClassName = newValue
-        this._$el.className = newClassName
+        this._$el.className = newClassName.trim()
       }
     } else {
       func = (newValue: any) => { this._$el[key] = newValue }
@@ -61,10 +61,10 @@ export class HtmlNode extends DLNode {
   }
 
   // ---- lifecycles
-  willAppear(_el: HTMLElement, _node: HtmlNode): any {}
-  didAppear(_el: HTMLElement, _node: HtmlNode): any {}
-  willDisappear(_el: HTMLElement, _node: HtmlNode): any {}
-  didDisappear(_el: HTMLElement, _node: HtmlNode): any {}
+  willAppear(_el: HTMLElement, _node: HtmlNode): any { }
+  didAppear(_el: HTMLElement, _node: HtmlNode): any { }
+  willDisappear(_el: HTMLElement, _node: HtmlNode): any { }
+  didDisappear(_el: HTMLElement, _node: HtmlNode): any { }
   _$addLifeCycle(func: (_el: HTMLElement, _node: HtmlNode) => any, lifeCycleName: "willAppear" | "didAppear" | "willDisappear" | "didDisappear") {
     const preLifeCycle = this[lifeCycleName]
     this[lifeCycleName] = function(_el: HTMLElement, _node: HtmlNode) {
@@ -73,6 +73,3 @@ export class HtmlNode extends DLNode {
     }
   }
 }
-
-
-

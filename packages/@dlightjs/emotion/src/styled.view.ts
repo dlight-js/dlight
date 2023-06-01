@@ -2,13 +2,15 @@ import { View } from "@dlightjs/dlight"
 import { css } from "@emotion/css"
 import { htmlTag, tag } from "@dlightjs/types"
 
-export const styled: any = (innerTag: any) => <T=any>(strings: any, ...args: any) => {
+// eslint-disable-next-line @typescript-eslint/ban-types
+export const styled: any = (innerTag: any) => <T={}>(strings: any, ...args: any) => {
   const getStyles = (node: any, scope: any) => {
     const keys = [...new Set(
       Object.getOwnPropertyNames(scope)
-        .filter(m => scope[m] === "_$prop")
-        .map(m => m.replace(/^_\$*/, ""))
+        .filter(m => scope[m] === "prop")
+        .map(m => m.replace(/^_\$\$\$/, ""))
     )]
+
     node._$addProp("className", () => {
       const thisObject: T = {} as any
       for (const key of keys) {
@@ -32,6 +34,8 @@ export const styled: any = (innerTag: any) => <T=any>(strings: any, ...args: any
   if (typeof innerTag === "string") {
     return class Styled extends View {
       _$forwardProps = true
+      // @ts-ignore
+      @Prop _$content
 
       Afterset() {
         (this as any)._$el = (this as any)._$el[0]

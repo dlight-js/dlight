@@ -1,6 +1,0 @@
-import {required, View} from "@dlightjs/dlight";
-
-export class Case extends View {
-    @Prop _$content = required
-
-}

@@ -2,10 +2,11 @@ import { defineConfig } from "vite"
 import dlight from "vite-plugin-dlight-transpiler"
 import { resolve } from "path"
 import dts from "vite-plugin-dts"
+import { dependencies } from "./package.json"
 
 export default defineConfig({
   plugins: [
-    dts({ include: "./src" }),
+    dts(),
     dlight()
   ],
   build: {
@@ -15,7 +16,7 @@ export default defineConfig({
       fileName: "index"
     },
     rollupOptions: {
-      external: ["@dlightjs/dlight"]
+      external: [...Object.keys(dependencies)]
     }
   }
 })

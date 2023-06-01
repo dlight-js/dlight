@@ -1,5 +1,5 @@
 import { View } from "@dlightjs/dlight"
-import Types, { _, Prop } from "@dlightjs/types"
+import { type Typed, _, Prop } from "@dlightjs/types"
 
 class Route extends View {
   @Prop _$content = " none" // 空格不是合法url，所以不会有问题
@@ -10,4 +10,4 @@ class Route extends View {
   }
 }
 
-export default Types(Route)
+export default Route as any as Typed<Route>
