@@ -94,12 +94,15 @@ export class CustomNode extends DLNode {
     }
   }
 
-  _$children: DLNode[] = []
+  _$$children: DLNode[] = []
+  get _$children(): DLNode[] {
+    return this._$childrenFuncs.map(func => func())
+  }
+
   _$childrenFuncs: Array<() => DLNode> = []
 
   _$addChildren(dlNodeFuncs: Array<() => DLNode>) {
     this._$childrenFuncs = dlNodeFuncs
-    this._$children = dlNodeFuncs.map(func => func())
   }
 
   // ---- dep
@@ -246,7 +249,7 @@ export class CustomNode extends DLNode {
     }
 
     if (dlNode._$nodeType === DLNodeType.Custom) {
-      (dlNode as CustomNode)._$children = this._$children
+      (dlNode as CustomNode)._$childrenFuncs = this._$childrenFuncs
     } else {
       (dlNode as HtmlNode)._$nodes = this._$children
     }
