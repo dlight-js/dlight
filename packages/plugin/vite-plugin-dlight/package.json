@@ -1,0 +1,26 @@
+{
+  "name": "vite-plugin-dlight",
+  "version": "0.0.1",
+  "files": [
+    "dist"
+  ],
+  "description": "",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "keywords": [
+    "vite-plugin",
+    "dlight.js"
+  ],
+  "scripts": {
+    "build": "tsup"
+  },
+  "dependencies": {
+    "@dlightjs/transpiler": "workspace:*"
+  },
+  "author": "IanDx",
+  "devDependencies": {
+    "tsup": "^6.5.0"
+  }
+}

@@ -1,41 +1,39 @@
 import {
-  functionBlockStatement,
   isMemberExpressionProperty,
   isObjectKey
 } from "./nodeHelper"
 import * as t from "@babel/types"
-import { resolveParserNode } from "../generator"
-import Transpiler from "./babelTranspiler"
-import parseJsdBody from "../parser/jsdParser"
+import parseBody from "./parser"
+import { resolveParserNode } from "./bodyGenerator"
 
-export function handleBodyFunc(node: t.ClassMethod, depChain: string[], subViews: string[], isSubView = false) {
+export function handleBodyFunc(node: t.ClassMethod, depChain: string[], subViews: t.MemberExpression[], path: any, isSubView = false) {
   let newBody, usedProperties
 
   const nodeList = [...node.body.directives, ...node.body.body]
   if (isSubView) {
     const param = node.params[0]
     if (!param || !t.isObjectPattern(param)) {
-      const parsedBody = resolveParserNode(parseJsdBody(nodeList), depChain, subViews)
+      const parsedBody = resolveParserNode(path, parseBody(nodeList, path), depChain, subViews)
       newBody = parsedBody.code
       usedProperties = parsedBody.useProperties
     } else {
       const propNames: string[] = param.properties.map((p: any) => p.key.name)
       const idDepsArr = propNames.map(propName => ({ ids: [propName], propNames: [`...(${propName}?.deps ?? [])`] }))
-      const parsedBody = resolveParserNode(parseJsdBody(nodeList), depChain, subViews, idDepsArr)
+      const parsedBody = resolveParserNode(path, parseBody(nodeList, path), depChain, subViews, idDepsArr)
       newBody = parsedBody.code
       usedProperties = parsedBody.useProperties
     }
   } else {
-    const parsedBody = resolveParserNode(parseJsdBody(nodeList), depChain, subViews)
+    const parsedBody = resolveParserNode(path, parseBody(nodeList, path), depChain, subViews)
     newBody = parsedBody.code
     usedProperties = parsedBody.useProperties
   }
-  node.body = functionBlockStatement(`function tmp() { ${newBody} }`)
+  node.body = newBody
 
   return usedProperties
 }
 
-export function handleSubView(view: t.ClassMethod) {
+export function handleSubView(view: t.ClassMethod, path: any) {
   const param = view.params[0]
   if (!param || !t.isObjectPattern(param)) return
   const props: string[] = []
@@ -57,24 +55,32 @@ export function handleSubView(view: t.ClassMethod) {
     }
   }
   // ---- 遍历拿到所有item里面的标识符，下面要把标识符转换成带.value的
-  //      注意这里转换，view.body是blockStatement，自带括号
-  const ast = Transpiler.parse(`function tmp() ${Transpiler.generate(view.body)}`)!
-  Transpiler.traverse(ast, {
+  //      因为没有办法直接遍历BlockStatement，又不能遍历带有参数的，所以只能用function包一层
+  path.scope.traverse(t.functionDeclaration(null, [], view.body), {
     Identifier(path: any) {
       if (props.includes(path.node.name) &&
-                !isMemberExpressionProperty(path.parentPath.node, path.node) &&
-                !isObjectKey(path.parentPath.node, path.node)
+                  !isMemberExpressionProperty(path.parentPath.node, path.node) &&
+                  !isObjectKey(path.parentPath.node, path.node)
       ) {
         // t.memberExpression() optional参数失效，所以直接生成
-        path.replaceWith(Transpiler.parse(`${path.node.name}?.value`)!.program.body[0].expression)
+        /**
+         * ${path.node.name}?.value
+         */
+        path.replaceWith(
+          t.optionalMemberExpression(
+            t.identifier(path.node.name),
+            t.identifier("value"),
+            false,
+            true
+          )
+        )
         path.skip()
       }
     }
   })
-  view.body = ast.program.body[0].body
 }
 
-export function handleBody(classBodyNode: t.ClassBody, depChain: string[]) {
+export function handleBody(classBodyNode: t.ClassBody, depChain: string[], path: any) {
   const usedProperties: string[] = []
   let body: undefined | t.Node
   const views: any[] = []
@@ -82,18 +88,18 @@ export function handleBody(classBodyNode: t.ClassBody, depChain: string[]) {
     if ((c as any).decorators?.find((d: any) =>
       t.isIdentifier(d.expression) && d.expression.name === "SubView"
     )) {
-      (c as any).decorators = undefined
+      (c as any).decorators = null
       views.push(c)
     } else if ((c as any).key.name === "Body") {
       body = c
     }
   }
-  const subViews = views.map(v => "this." + (v).key.name)
+  const subViews = views.map(v => t.memberExpression(t.thisExpression(), v.key.name))
   for (const view of views) {
-    handleSubView(view)
-    usedProperties.push(...handleBodyFunc(view, depChain, subViews, true))
+    handleSubView(view, path)
+    usedProperties.push(...handleBodyFunc(view, depChain, subViews, path, true))
   }
-  usedProperties.push(...handleBodyFunc(body as any, depChain, subViews))
+  usedProperties.push(...handleBodyFunc(body as any, depChain, subViews, path))
 
   return usedProperties
 }

@@ -1,26 +1,31 @@
-import Transpiler from "../transpiler/babelTranspiler"
 import * as t from "@babel/types"
-import { type ParserNode } from "./ParserNode"
 
 function uid() {
   return Math.random().toString(32).slice(2)
 }
 
-function parseProp(key: string, propAst: any) {
+export interface ParserNode {
+  tag: t.Node | string
+  attr: Record<string, any>
+  children: ParserNode[]
+}
+
+function parseProp(key: string, propAst: any, path: any) {
   if (!propAst) return { key, value: true, nodes: {} }
-  const ast = Transpiler.parse(`let _ = ${Transpiler.generate(propAst)}`)!
+
   const nodes: Record<string, ParserNode[]> = {}
-  Transpiler.traverse(ast, {
+  path.scope.traverse(propAst, {
     DoExpression(path: any) {
       const node = path.node
       const id = uid()
-      nodes[id] = parseBody(node.body.body)
+      nodes[id] = parseBody(node.body.body, path)
       path.replaceWith(t.stringLiteral(id))
+      path.skip()
     }
   })
   return {
     key,
-    value: Transpiler.generate(ast.program.body[0].declarations[0].init),
+    value: propAst,
     nodes
   }
 }
@@ -36,7 +41,7 @@ function isPureMemberExpression(node: any) {
   return true
 }
 
-function parseTag(node: t.CallExpression) {
+function parseTag(node: t.CallExpression, path: any) {
   const parserNode: any = { tag: "", attr: { props: [] }, children: [] }
   let n = node
 
@@ -48,48 +53,48 @@ function parseTag(node: t.CallExpression) {
     // ---- 取第1个参数，如果参数是空，那就默认是true
     const prop = n.arguments[0]
     const key = ((n.callee as t.MemberExpression).property as t.Identifier).name
-    parserNode.attr.props.unshift(parseProp(key, prop))
+    parserNode.attr.props.unshift(parseProp(key, prop, path))
     // ---- 继续迭代直到变成tag在同一行
     n = (n.callee as t.MemberExpression).object as t.CallExpression
   }
 
   if (n.arguments.length > 0) {
-    parserNode.attr.props.unshift(parseProp("_$content", n.arguments[0]))
+    parserNode.attr.props.unshift(parseProp("_$content", n.arguments[0], path))
   }
-  parserNode.tag = Transpiler.generate(n.callee)
+  parserNode.tag = n.callee
   return parserNode
 }
 
 function parseText(node: t.StringLiteral | t.TemplateLiteral | t.DirectiveLiteral) {
-  return { tag: "_$text", attr: { _$content: Transpiler.generate(node) }, children: [] }
+  return { tag: "_$text", attr: { _$content: node }, children: [] }
 }
 
-function parseTaggedTemplate(node: t.TaggedTemplateExpression) {
-  let taggedParserNodes = parseNode(node.tag)
+function parseTaggedTemplate(node: t.TaggedTemplateExpression, path: any) {
+  let taggedParserNodes = parseNode(node.tag, path)
   if (!Array.isArray(taggedParserNodes)) taggedParserNodes = [taggedParserNodes]
   const templateParserNode = {
     tag: "_$text",
-    attr: { _$content: Transpiler.generate(node.quasi) },
+    attr: { _$content: node.quasi },
     children: []
   }
 
   return [...taggedParserNodes, templateParserNode]
 }
 
-function parseNode(node: any): ParserNode | ParserNode[] {
-  if (t.isCallExpression(node)) return parseTag(node)
+function parseNode(node: any, path: any): ParserNode | ParserNode[] {
+  if (t.isCallExpression(node)) return parseTag(node, path)
   if (t.isStringLiteral(node) || t.isTemplateLiteral(node)) {
     return parseText(node)
   }
 
-  if (t.isTaggedTemplateExpression(node)) return parseTaggedTemplate(node)
+  if (t.isTaggedTemplateExpression(node)) return parseTaggedTemplate(node, path)
 
   return {} as any
 }
 
-function parseFor(node: t.ForOfStatement): ParserNode {
-  const item = Transpiler.generate((node.left as any).declarations[0])
-  const array = Transpiler.generate(node.right)
+function parseFor(node: t.ForOfStatement, path: any): ParserNode {
+  const item = (node.left as any).declarations[0]
+  const array = node.right
   const parserNode: ParserNode = {
     tag: "for",
     attr: { item, array },
@@ -97,16 +102,16 @@ function parseFor(node: t.ForOfStatement): ParserNode {
   }
   let childrenNodes = (node.body as any).body
   if (t.isArrayExpression(childrenNodes[0].expression)) {
-    parserNode.attr.key = Transpiler.generate(childrenNodes[0].expression.elements[0])
+    parserNode.attr.key = childrenNodes[0].expression.elements[0]
     childrenNodes = childrenNodes.slice(1)
   }
-  parserNode.children = parseBlock(childrenNodes)
+  parserNode.children = parseBlock(childrenNodes, path)
 
   return parserNode
 }
 
-function parseIf(node: any): ParserNode {
-  const conditions = parseIfConditions(node)
+function parseIf(node: any, path: any): ParserNode {
+  const conditions = parseIfConditions(node, path)
   return {
     tag: "if",
     attr: { conditions },
@@ -114,36 +119,36 @@ function parseIf(node: any): ParserNode {
   }
 }
 
-function parseIfConditions(node: any) {
+function parseIfConditions(node: any, path: any) {
   const conditions: Array<{ condition: any, parserNodes: ParserNode[] }> = []
-  const condition = Transpiler.generate(node.test)
-  const parserNodes = parseBlock(node.consequent.body)
+  const condition = node.test
+  const parserNodes = parseBlock(node.consequent.body, path)
   conditions.push({ condition, parserNodes })
   if (t.isIfStatement(node.alternate)) {
-    conditions.push(...parseIfConditions(node.alternate))
+    conditions.push(...parseIfConditions(node.alternate, path))
   } else if (node.alternate) {
     conditions.push({
       condition: true,
-      parserNodes: parseBlock(node.alternate.body)
+      parserNodes: parseBlock(node.alternate.body, path)
     })
   }
 
   return conditions
 }
 
-export function parseBlock(nodes: any): ParserNode[] {
+export function parseBlock(nodes: any, path: any): ParserNode[] {
   const children = []
   for (const node of nodes) {
     if (t.isExpressionStatement(node)) {
-      let parserNodes: any = parseNode(node.expression)
+      let parserNodes: any = parseNode(node.expression, path)
       if (!Array.isArray(parserNodes)) parserNodes = [parserNodes]
       children.push(...parserNodes)
     } else if (t.isBlockStatement(node)) {
-      children[children.length - 1].children = parseBlock(node.body)
+      children[children.length - 1].children = parseBlock(node.body, path)
     } else if (t.isForOfStatement(node)) {
-      children.push(parseFor(node))
+      children.push(parseFor(node, path))
     } else if (t.isIfStatement(node)) {
-      children.push(parseIf(node))
+      children.push(parseIf(node, path))
     } else if (t.isDirective(node)) {
       children.push(parseText(node.value))
     }
@@ -151,8 +156,8 @@ export function parseBlock(nodes: any): ParserNode[] {
   return children
 }
 
-function parseBody(nodes: any) {
-  return parseBlock(nodes)
+function parseBody(nodes: any, path: any) {
+  return parseBlock(nodes, path)
 }
 
 export default parseBody

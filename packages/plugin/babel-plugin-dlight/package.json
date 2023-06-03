@@ -1,0 +1,24 @@
+{
+  "name": "babel-plugin-dlight",
+  "version": "0.0.0",
+  "files": [
+    "dist"
+  ],
+  "description": "",
+  "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "keywords": [
+    "babel-plugin",
+    "dlight.js"
+  ],
+  "scripts": {
+    "build": "sh ./build.sh"
+  },
+  "author": "IanDx",
+  "devDependencies": {
+    "tsup": "^6.5.0",
+    "@babel/types": "^7.20.7"
+  }
+}

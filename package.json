@@ -6,6 +6,7 @@
     "prepare": "husky install",
     "test": "pnpm --prefix apps/test dev",
     "build": "sh ./common/scripts/build.sh",
+    "build:transpiler": "sh ./common/scripts/buildTranspiler.sh",
     "refresh": "sh ./common/scripts/refresh.sh"
   },
   "devDependencies": {
