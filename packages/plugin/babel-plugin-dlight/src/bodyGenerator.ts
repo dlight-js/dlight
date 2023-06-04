@@ -326,7 +326,7 @@ export class Generator {
                       "const", [
                         t.variableDeclarator(
                           t.identifier("keys"),
-                          t.objectExpression([])
+                          t.arrayExpression()
                         )
                       ]
                     ),
@@ -348,7 +348,7 @@ export class Generator {
                             t.memberExpression(
                               t.identifier("keys"),
                               t.identifier("push")
-                            ), [t.identifier(key)]
+                            ), [key]
                           )
                         )
                       ])
