@@ -4,11 +4,10 @@ import { _ } from "./expressionTag"
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { a, area, div, img } from "./htmlTag"
 
-const View: new () => {} = class { t: Prop<string> }
+const View: any = class { t: Prop<string> }
 
 type GG<T> = (T | string)
-
-class MyView {
+class MyView extends View {
   option1: Prop<GG<number>> = 1 as any
   hh2: Prop<string> = "" as any
   hh3: Prop<string> = "" as any

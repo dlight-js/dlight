@@ -93,7 +93,7 @@ function parseNode(node: any, path: any): ParserNode | ParserNode[] {
 }
 
 function parseFor(node: t.ForOfStatement, path: any): ParserNode {
-  const item = (node.left as any).declarations[0]
+  const item = (node.left as any).declarations[0].id
   const array = node.right
   const parserNode: ParserNode = {
     tag: "for",

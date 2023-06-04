@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-dlight",
-  "version": "0.0.1",
+  "version": "0.7.0-alpha",
   "files": [
     "dist"
   ],

@@ -10,9 +10,9 @@ import dlight from "babel-plugin-dlight"
 export default function() {
   return {
     plugins: [
-      syntaxTypescript.default,
-      syntaxDoExpressions.default,
-      [syntaxDecorators.default, { legacy: true }],
+      syntaxTypescript.default ?? syntaxTypescript,
+      syntaxDoExpressions.default ?? syntaxDoExpressions,
+      [syntaxDecorators.default ?? syntaxDecorators, { legacy: true }],
       dlight
     ]
   }

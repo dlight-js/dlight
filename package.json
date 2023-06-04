@@ -7,6 +7,8 @@
     "test": "pnpm --prefix apps/test dev",
     "build": "sh ./common/scripts/build.sh",
     "build:transpiler": "sh ./common/scripts/buildTranspiler.sh",
+    "pub": "sh ./common/scripts/publish.sh",
+    "pub:transpiler": "sh ./common/scripts/publishTranspiler.sh",
     "refresh": "sh ./common/scripts/refresh.sh"
   },
   "devDependencies": {

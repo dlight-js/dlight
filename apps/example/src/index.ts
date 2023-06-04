@@ -15,25 +15,40 @@ const code = `
 import { View } from "@dlightjs/dlight"
 import { button, div, SubView } from "@dlightjs/types"
 
-class TestView extends View {
-  @Prop count = 1
-
-  Body() {
-    div(this.count)
-    button("+")
-      .onclick(() => {
-        this.count++
-      })
+function getData() {
+  return {
+    id: Math.random()
   }
 }
 
-class JJ extends View {
-   count = 1
-  
-    Body() {
-      
+class shitView extends View {
+  toggle = true
+
+  @SubView
+  nono({ a }) {
+    if (this.toggle) {
+      div(a)
     }
+    button("+")
+      .onclick(() => {
+        this.toggle = !this.toggle
+      })
   }
+
+  Body() {
+    this.nono()
+      .a("shit")
+  }
+}
+
+class TestView extends View {
+  toggle = true
+
+  Body() {
+    shitView()
+  }
+}
+
 `
 
 console.log(transformDLight(code))

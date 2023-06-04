@@ -1,4 +1,5 @@
 import * as t from "@babel/types"
+import { type IdDepsArr } from "./bodyGenerator"
 import { shouldBeListened, isMemberInFunction, isMemberExpressionProperty, isObjectKey } from "./nodeHelper"
 import { type ParserNode } from "./parser"
 
@@ -18,6 +19,13 @@ export function isHTMLTag(parserNode: ParserNode) {
   return false
 }
 
+export function isSubViewTag(subViews: string[], parserNode: ParserNode) {
+  const tag = parserNode.tag as t.Node
+  if (!t.isMemberExpression(tag) || !t.isThisExpression(tag.object)) return false
+  if (subViews.includes((tag.property as any).name)) return true
+  return false
+}
+
 export function parseCustomTag(parserNode: ParserNode) {
   const tag = parserNode.tag
   if (typeof tag === "string") return false
@@ -32,10 +40,13 @@ export function uid() {
   return Math.random().toString(20).slice(2, 8)
 }
 
+function valueWrapper(value: t.Node) {
+  return t.variableDeclaration("const", [t.variableDeclarator(t.identifier("_"), value as any)])
+}
+
 export function geneDeps(path: any, value: t.Node, depChain: string[], otherDeps: t.StringLiteral[] = []) {
   let deps: t.StringLiteral[] = []
-  path.scope.traverse(
-    t.variableDeclaration("const", [t.variableDeclarator(t.identifier("_"), value as any)]),
+  path.scope.traverse(valueWrapper(value),
     {
       Identifier(innerPath: any) {
         if (
@@ -54,15 +65,15 @@ export function geneDeps(path: any, value: t.Node, depChain: string[], otherDeps
 }
 
 // ---- 只给for的解构用
-export function geneIdDeps(path: any, value: t.Node, arr: Array<{ ids: string[], propNames: string[] }>, otherDeps: t.StringLiteral[] = []) {
-  let deps: t.StringLiteral[] = []
-  path.scope.traverse(value, {
+export function geneIdDeps(path: any, value: t.Node, arr: IdDepsArr, otherDeps: t.StringLiteral[] = []) {
+  let deps: t.Node[] = []
+  path.scope.traverse(valueWrapper(value), {
     Identifier(innerPath: any) {
       for (const { ids, propNames } of arr) {
         if (ids.includes(innerPath.node.name)) {
           // ---- 这里不会遇到赋值的情况，所以只要判断在不在function里面就行
           if (!isMemberInFunction(innerPath)) {
-            deps.push(...propNames.map(name => t.stringLiteral(name)))
+            deps.push(...propNames)
           }
         }
       }
@@ -73,8 +84,15 @@ export function geneIdDeps(path: any, value: t.Node, arr: Array<{ ids: string[],
   return deps
 }
 
-export function getIdentifiers(valueStr: string) {
-  return valueStr.match(/[_$a-zA-Z][_$a-zA-Z0-9]*/g) ?? []
+export function getIdentifiers(value: t.Node, path: any) {
+  const identifiers: string[] = []
+  path.scope.traverse(value, {
+    Identifier(innerPath: any) {
+      if (innerPath.node.name === "_") return
+      identifiers.push(innerPath.node.name)
+    }
+  })
+  return [...new Set(identifiers)]
 }
 
 export function resolveForBody(path: any, body: t.BlockStatement, item: t.Node, valueItemStr: string) {
@@ -102,17 +120,6 @@ export function resolveForBody(path: any, body: t.BlockStatement, item: t.Node, 
       }
     }
   })
-}
-
-export function getForIdArr(item: t.Node, path: any) {
-  const idArr: string[] = []
-  path.scope.traverse(item, {
-    Identifier(innerPath: any) {
-      idArr.push(innerPath.node.name)
-    }
-  })
-
-  return idArr
 }
 
 export function isElementFunction(value: t.Node) {

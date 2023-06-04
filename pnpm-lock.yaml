@@ -30,8 +30,6 @@ importers:
 
   apps/example:
     specifiers:
-      '@babel/plugin-syntax-unicode-sets-regex': ^7.18.6
-      '@babel/standalone': ^7.22.4
       '@dlightjs/components': workspace:*
       '@dlightjs/dlight': workspace:*
       '@dlightjs/emotion': workspace:*
@@ -39,7 +37,6 @@ importers:
       '@dlightjs/types': workspace:*
       '@emotion/css': ^11.10.6
       '@types/node': ^18.11.17
-      babel-preset-dlight: workspace:*
       tailwindcss: ^3.2.7
       ts-node: ^10.9.1
       tslib: ^2.4.1
@@ -47,15 +44,12 @@ importers:
       vite: ^4.0.0
       vite-plugin-dlight: workspace:*
     dependencies:
-      '@babel/plugin-syntax-unicode-sets-regex': 7.18.6
-      '@babel/standalone': 7.22.4
       '@dlightjs/components': link:../../packages/@dlightjs/components
       '@dlightjs/dlight': link:../../packages/@dlightjs/dlight
       '@dlightjs/emotion': link:../../packages/@dlightjs/emotion
       '@dlightjs/transpiler-standalone': link:../../packages/@dlightjs/transpiler-standalone
       '@dlightjs/types': link:../../packages/@dlightjs/types
       '@emotion/css': 11.10.6
-      babel-preset-dlight: link:../../packages/plugin/babel-preset-dlight
       ts-node: 10.9.1_ellgaeuoqnti3hful2ny2iugba
     devDependencies:
       '@types/node': 18.14.2
@@ -109,8 +103,8 @@ importers:
     dependencies:
       '@dlightjs/dlight': link:../dlight
       '@dlightjs/emotion': link:../emotion
-      '@dlightjs/types': link:../types
     devDependencies:
+      '@dlightjs/types': link:../types
       path: 0.12.7
       typescript: 4.9.5
       vite: 4.1.4
@@ -220,11 +214,12 @@ importers:
       '@babel/plugin-syntax-typescript': ^7.20.0
       babel-plugin-dlight: workspace:*
       tsup: ^6.5.0
-    devDependencies:
+    dependencies:
       '@babel/plugin-syntax-decorators': 7.21.0
       '@babel/plugin-syntax-do-expressions': 7.18.6
       '@babel/plugin-syntax-typescript': 7.21.4
       babel-plugin-dlight: link:../babel-plugin-dlight
+    devDependencies:
       tsup: 6.6.3
 
   packages/plugin/eslint-plugin-dlight:
@@ -381,6 +376,7 @@ packages:
   /@babel/helper-plugin-utils/7.21.5:
     resolution: {integrity: sha512-0WDaIlXKOX/3KfBK/dwP1oQGiPh6rjMkT7HIRv7i5RR2VUMwrx5ZL0dwBkKx7+SW1zwNdgjHd34IMk5ZjTeHVg==}
     engines: {node: '>=6.9.0'}
+    dev: false
 
   /@babel/helper-simple-access/7.20.2:
     resolution: {integrity: sha512-+0woI/WPq59IrqDYbVGfshjT5Dmk/nnbdpcF8SnMhhXObpTq2KNBdLFRFrkVdbDOyUmHBCxzm5FHV1rACIkIbA==}
@@ -456,7 +452,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/helper-plugin-utils': 7.21.5
-    dev: true
+    dev: false
 
   /@babel/plugin-syntax-do-expressions/7.18.6:
     resolution: {integrity: sha512-kTogvOsjBTVOSZtkkziiXB5hwGXqwhq2gBXDaiWVruRLDT7C2GqfbsMnicHJ7ePq2GE8UJeWS34YbNP6yDhwUA==}
@@ -465,7 +461,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/helper-plugin-utils': 7.21.5
-    dev: true
+    dev: false
 
   /@babel/plugin-syntax-typescript/7.21.4:
     resolution: {integrity: sha512-xz0D39NvhQn4t4RNsHmDnnsaQizIlUkdtYvLs8La1BlfjQ6JEwxkJGeqJMW2tAXx+q6H+WFuUTXNdYVpEya0YA==}
@@ -474,7 +470,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/helper-plugin-utils': 7.21.5
-    dev: true
+    dev: false
 
   /@babel/plugin-syntax-unicode-sets-regex/7.18.6:
     resolution: {integrity: sha512-727YkEAPwSIQTv5im8QHz3upqp92JTWhidIC81Tdx4VJYIte/VndKf1qKrfnnhPLiPghStWfvC/iFaMCQu7Nqg==}

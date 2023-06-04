@@ -4,9 +4,9 @@ import {
 } from "./nodeHelper"
 import * as t from "@babel/types"
 import parseBody from "./parser"
-import { resolveParserNode } from "./bodyGenerator"
+import { type IdDepsArr, resolveParserNode } from "./bodyGenerator"
 
-export function handleBodyFunc(node: t.ClassMethod, depChain: string[], subViews: t.MemberExpression[], path: any, isSubView = false) {
+export function handleBodyFunc(node: t.ClassMethod, depChain: string[], subViews: string[], path: any, isSubView = false) {
   let newBody, usedProperties
 
   const nodeList = [...node.body.directives, ...node.body.body]
@@ -18,7 +18,28 @@ export function handleBodyFunc(node: t.ClassMethod, depChain: string[], subViews
       usedProperties = parsedBody.useProperties
     } else {
       const propNames: string[] = param.properties.map((p: any) => p.key.name)
-      const idDepsArr = propNames.map(propName => ({ ids: [propName], propNames: [`...(${propName}?.deps ?? [])`] }))
+      /**
+       * `...(${propName}?.deps ?? [])
+       */
+      const idDepsArr: IdDepsArr = propNames.map(propName => ({
+        ids: [propName],
+        propNames: ([
+          t.arrayExpression([
+            t.spreadElement(
+              t.logicalExpression(
+                "??",
+                t.optionalMemberExpression(
+                  t.identifier(propName),
+                  t.identifier("deps"),
+                  false,
+                  true
+                ),
+                t.arrayExpression()
+              )
+            )
+          ]).elements[0]
+        ]) as any
+      }))
       const parsedBody = resolveParserNode(path, parseBody(nodeList, path), depChain, subViews, idDepsArr)
       newBody = parsedBody.code
       usedProperties = parsedBody.useProperties
@@ -59,10 +80,9 @@ export function handleSubView(view: t.ClassMethod, path: any) {
   path.scope.traverse(t.functionDeclaration(null, [], view.body), {
     Identifier(path: any) {
       if (props.includes(path.node.name) &&
-                  !isMemberExpressionProperty(path.parentPath.node, path.node) &&
-                  !isObjectKey(path.parentPath.node, path.node)
+          !isMemberExpressionProperty(path.parentPath.node, path.node) &&
+          !isObjectKey(path.parentPath.node, path.node)
       ) {
-        // t.memberExpression() optional参数失效，所以直接生成
         /**
          * ${path.node.name}?.value
          */
@@ -94,7 +114,7 @@ export function handleBody(classBodyNode: t.ClassBody, depChain: string[], path:
       body = c
     }
   }
-  const subViews = views.map(v => t.memberExpression(t.thisExpression(), v.key.name))
+  const subViews: string[] = views.map(v => v.key.name)
   for (const view of views) {
     handleSubView(view, path)
     usedProperties.push(...handleBodyFunc(view, depChain, subViews, path, true))

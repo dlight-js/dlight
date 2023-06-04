@@ -1,6 +1,6 @@
 {
   "name": "@dlightjs/transpiler-standalone",
-  "version": "0.0.0",
+  "version": "0.7.0-alpha",
   "description": "",
   "files": [
     "dist"

@@ -1,5 +1,5 @@
 import { type ParserNode } from "./parser"
-import { geneDeps, geneIdDeps, uid, getIdentifiers, resolveForBody, isElementFunction, isHTMLTag, parseCustomTag, isTwoWayConnected, getForIdArr } from "./generatorHelper"
+import { geneDeps, geneIdDeps, uid, getIdentifiers, resolveForBody, isElementFunction, isHTMLTag, parseCustomTag, isTwoWayConnected, isSubViewTag } from "./generatorHelper"
 import * as t from "@babel/types"
 
 function nodeGeneration(nodeName: string, nodeType: t.Expression, args: Array<t.ArgumentPlaceholder | t.SpreadElement | t.Expression>) {
@@ -18,17 +18,18 @@ function nodeGeneration(nodeName: string, nodeType: t.Expression, args: Array<t.
   )
 }
 
+export type IdDepsArr = Array<{ ids: string[], propNames: t.Node[] }>
 export class Generator {
   depChain: string[]
-  subViews: t.MemberExpression[]
+  subViews: string[]
   // ---- 通过对应拿到deps，比如 监听this.apples导致的apple变化 {ids: [apple], propNames: [this.apples]}
-  idDepsArr: Array<{ ids: string[], propNames: string[] }> = []
+  idDepsArr: IdDepsArr = []
 
   usedProperties: string[] = []
 
   path: any
 
-  constructor(path: any, depChain: string[], subViews: t.MemberExpression[], idDepsArr: Array<{ ids: string[], propNames: string[] }> = []) {
+  constructor(path: any, depChain: string[], subViews: string[], idDepsArr: IdDepsArr = []) {
     this.path = path
     this.depChain = depChain
     this.subViews = subViews
@@ -58,14 +59,14 @@ export class Generator {
   }
 
   geneDeps(value: t.Node) {
-    const deps: t.StringLiteral[] = [...new Set([...geneDeps(this.path, value, this.depChain), ...geneIdDeps(this.path, value, this.idDepsArr)])]
+    const deps: t.Node[] = [...new Set([...geneDeps(this.path, value, this.depChain), ...geneIdDeps(this.path, value, this.idDepsArr)])]
     // deps 有可能是subview的 ...xxx.deps
-    this.usedProperties.push(...deps.map(node => node.value))
-    return deps
+    this.usedProperties.push(...deps.filter(node => t.isStringLiteral(node)).map(node => (node as any).value))
+    return deps as any
   }
 
   resolveParserNode(parserNode: ParserNode, idx: number) {
-    if (this.subViews.includes(parserNode.tag as any)) return this.resolveSubView(parserNode, idx)
+    if (isSubViewTag(this.subViews, parserNode)) return this.resolveSubView(parserNode, idx)
     if (parserNode.tag === "env") return this.resolveEnv(parserNode, idx)
     if (parserNode.tag === "_") return this.resolveExpression(parserNode, idx)
     if (parserNode.tag === "if") return this.resolveIf(parserNode, idx)
@@ -109,7 +110,7 @@ export class Generator {
                   [], this.generate(condition.parserNodes)
                 ),
                 t.thisExpression(),
-                t.arrayExpression(listenDeps as any)
+                t.arrayExpression(listenDeps)
               ]
             )
           )
@@ -161,12 +162,12 @@ export class Generator {
     const listenDeps = this.geneDeps(array)
     if (listenDeps.length > 0) {
       // ---- 如果有dependencies
-      const idArr = getForIdArr(item, this.path)
+      const idArr = getIdentifiers(item, this.path)
       const valueId = uid()
       const valueItemStr = `_$valuedItem${valueId}`
       // ---- 子body
       const newGenerator = new Generator(this.path, this.depChain, this.subViews,
-        [...this.idDepsArr, { ids: getIdentifiers(item), propNames: listenDeps.map(dep => dep.value) }])
+        [...this.idDepsArr, { ids: idArr, propNames: listenDeps }])
       const forBody = newGenerator.generate(parserNode.children)
       this.usedProperties.push(...newGenerator.usedProperties)
       resolveForBody(this.path, forBody, item, valueItemStr)
@@ -181,7 +182,7 @@ export class Generator {
           t.callExpression(
             t.memberExpression(
               t.identifier(nodeName),
-              t.identifier("_$addAfterset")
+              t.identifier("_$addNodeFunc")
             ), [
               t.arrowFunctionExpression([
                 t.identifier("_$key"),
@@ -194,7 +195,7 @@ export class Generator {
                 t.variableDeclaration(
                   "const", [
                     t.variableDeclarator(
-                      t.identifier(item),
+                      item,
                       t.callExpression(
                         t.memberExpression(
                           t.identifier("node_for"),
@@ -258,24 +259,27 @@ export class Generator {
                           ]
                         )
                       ),
-                      t.arrayExpression(listenDeps as any),
+                      t.arrayExpression(listenDeps),
                       t.arrowFunctionExpression([
                         t.identifier("_$item")
                       ],
                       t.blockStatement([
-                        /** const ${item} = _$item;
-                         *  for (const i of idArr) {
-                         *    ${valueItemStr}.${i} = ${i};
-                         *  }
+                        /**
+                         * const ${item} = _$item;
                          */
                         t.variableDeclaration(
                           "const", [
                             t.variableDeclarator(
-                              t.identifier(item),
+                              item,
                               t.identifier("_$item")
                             )
                           ]
                         ),
+                        /**
+                          *  for (const i of idArr) {
+                          *    ${valueItemStr}.${i} = ${i};
+                          *  }
+                          */
                         ...idArr.map((idItem: string) => (
                           t.expressionStatement(
                             t.assignmentExpression(
@@ -431,7 +435,7 @@ export class Generator {
         nodeGeneration(nodeName, t.identifier("TextNode"), [
           t.arrowFunctionExpression([], value),
           t.thisExpression(),
-          t.arrayExpression(listenDeps as any)
+          t.arrayExpression(listenDeps)
         ])
       )
     } else {
@@ -556,7 +560,7 @@ export class Generator {
                 t.thisExpression(),
                 t.identifier("_$addDeps")
               ), [
-                t.arrayExpression(listenDeps as any),
+                t.arrayExpression(listenDeps),
                 t.objectExpression([]),
                 t.identifier(`${nodeName}Element`)
               ]
@@ -579,7 +583,7 @@ export class Generator {
                 t.stringLiteral(key),
                 t.arrowFunctionExpression([], value),
                 t.thisExpression(),
-                t.arrayExpression(listenDeps as any)
+                t.arrayExpression(listenDeps)
               ]
             )
           )
@@ -642,7 +646,14 @@ export class Generator {
      * const ${nodeName} = new (${parserNode.tag})();
      */
     statements.push(
-      nodeGeneration(nodeName, parserNode.tag as any, [])
+      t.variableDeclaration(
+        "const", [
+          t.variableDeclarator(
+            t.identifier(nodeName),
+            t.newExpression(parserNode.tag as any, [])
+          )
+        ]
+      )
     )
 
     // ---- props
@@ -773,7 +784,7 @@ export class Generator {
                 t.thisExpression(),
                 t.identifier("_$addDeps")
               ), [
-                t.arrayExpression(listenDeps as any),
+                t.arrayExpression(listenDeps),
                 t.objectExpression([]),
                 t.identifier(`${nodeName}Element`)
               ]
@@ -796,7 +807,7 @@ export class Generator {
                 t.stringLiteral(key),
                 t.arrowFunctionExpression([], value),
                 t.thisExpression(),
-                t.arrayExpression(listenDeps as any),
+                t.arrayExpression(listenDeps),
                 t.booleanLiteral(isTwoWayConnected(value))
               ]
             )
@@ -882,7 +893,7 @@ export class Generator {
                 ),
                 t.objectProperty(
                   t.identifier("deps"),
-                  t.arrayExpression(listenDeps as any)
+                  t.arrayExpression(listenDeps)
                 )
               ])
             )
@@ -913,7 +924,7 @@ export class Generator {
               t.thisExpression(),
               t.identifier("_$addDeps")
             ), [
-              t.arrayExpression(listenDeps as any),
+              t.arrayExpression(listenDeps),
               t.identifier(`depId${idx}_${i}`),
               t.arrowFunctionExpression(
                 [],
@@ -942,10 +953,7 @@ export class Generator {
           t.variableDeclarator(
             t.identifier(nodeName),
             t.callExpression(
-              t.memberExpression(
-                t.thisExpression(),
-                parserNode.tag as any
-              ), [
+              parserNode.tag as t.MemberExpression, [
                 t.objectExpression(passProps.map(({ key, keyWithId }) => (
                   t.objectProperty(
                     t.identifier(key),
@@ -969,7 +977,8 @@ export class Generator {
             t.memberExpression(
               t.memberExpression(
                 t.identifier(nodeName),
-                t.numericLiteral(0)
+                t.numericLiteral(0),
+                true
               ),
               t.identifier("_$depObjectIds")
             ),
@@ -1045,7 +1054,7 @@ export class Generator {
                 t.stringLiteral(key),
                 t.arrowFunctionExpression([], value),
                 t.thisExpression(),
-                t.arrayExpression(listenDeps as any),
+                t.arrayExpression(listenDeps),
                 t.booleanLiteral(isTwoWayConnected(value))
               ]
             )
@@ -1089,7 +1098,7 @@ export class Generator {
             nodeGeneration(nodeName, t.identifier("ExpressionNode"), [
               t.arrowFunctionExpression([], value),
               t.thisExpression(),
-              t.arrayExpression(listenDeps as any)
+              t.arrayExpression(listenDeps)
             ])
           )
         } else {
@@ -1134,7 +1143,7 @@ export class Generator {
                 t.stringLiteral(key),
                 t.arrowFunctionExpression([], value),
                 t.thisExpression(),
-                t.arrayExpression(listenDeps as any),
+                t.arrayExpression(listenDeps),
                 t.booleanLiteral(isTwoWayConnected(value))
               ]
             )
@@ -1181,7 +1190,7 @@ export class Generator {
   }
 }
 
-export function resolveParserNode(path: any, parserNodes: ParserNode[], depChain: string[], subViews: t.MemberExpression[], idDepsArr: Array<{ ids: string[], propNames: string[] }> = []) {
+export function resolveParserNode(path: any, parserNodes: ParserNode[], depChain: string[], subViews: string[], idDepsArr: IdDepsArr = []) {
   const generator = new Generator(path, depChain, subViews, idDepsArr)
   const code = generator.generate(parserNodes)
   return {
