@@ -1,4 +1,5 @@
-import { View } from "@dlightjs/dlight"
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import DLight, { View } from "@dlightjs/dlight"
 import { type HAlignment } from "./types"
 import { isChildSpacer } from "./Spacer.view"
 import { type Typed, _, div, Prop } from "@dlightjs/types"

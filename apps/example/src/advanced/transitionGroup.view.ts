@@ -1,4 +1,5 @@
-import { View } from "@dlightjs/dlight"
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import DLight, { View } from "@dlightjs/dlight"
 import { TransitionGroup } from "@dlightjs/components"
 import { button, div } from "@dlightjs/types"
 

@@ -1,4 +1,5 @@
-import { View, manual } from "@dlightjs/dlight"
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import DLight, { View, manual } from "@dlightjs/dlight"
 import { button, h4, h3 } from "@dlightjs/types"
 
 function fetchData(loading = "isLoading", data = "myData") {

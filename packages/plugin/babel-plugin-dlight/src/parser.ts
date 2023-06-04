@@ -101,11 +101,15 @@ function parseFor(node: t.ForOfStatement, path: any): ParserNode {
     children: []
   }
   let childrenNodes = (node.body as any).body
-  if (t.isArrayExpression(childrenNodes[0].expression)) {
-    parserNode.attr.key = childrenNodes[0].expression.elements[0]
-    childrenNodes = childrenNodes.slice(1)
+  if (childrenNodes.length === 0) {
+    parserNode.children = []
+  } else {
+    if (t.isArrayExpression(childrenNodes[0].expression)) {
+      parserNode.attr.key = childrenNodes[0].expression.elements[0]
+      childrenNodes = childrenNodes.slice(1)
+    }
+    parserNode.children = parseBlock(childrenNodes, path)
   }
-  parserNode.children = parseBlock(childrenNodes, path)
 
   return parserNode
 }
@@ -128,7 +132,7 @@ function parseIfConditions(node: any, path: any) {
     conditions.push(...parseIfConditions(node.alternate, path))
   } else if (node.alternate) {
     conditions.push({
-      condition: true,
+      condition: t.booleanLiteral(true),
       parserNodes: parseBlock(node.alternate.body, path)
     })
   }

@@ -1,4 +1,5 @@
-import { View } from "@dlightjs/dlight"
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import DLight, { View } from "@dlightjs/dlight"
 import { type HAlignment, type VAlignment } from "./types"
 import { type Typed, div, Prop, _ } from "@dlightjs/types"
 import { css } from "@dlightjs/emotion"

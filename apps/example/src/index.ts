@@ -21,34 +21,11 @@ function getData() {
   }
 }
 
-class shitView extends View {
-  toggle = true
-
-  @SubView
-  nono({ a }) {
-    if (this.toggle) {
-      div(a)
-    }
-    button("+")
-      .onclick(() => {
-        this.toggle = !this.toggle
-      })
-  }
-
-  Body() {
-    this.nono()
-      .a("shit")
-  }
-}
-
 class TestView extends View {
-  toggle = true
-
   Body() {
-    shitView()
+    _("d")
   }
 }
-
 `
 
 console.log(transformDLight(code))

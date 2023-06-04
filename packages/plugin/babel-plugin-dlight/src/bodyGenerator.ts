@@ -67,8 +67,8 @@ export class Generator {
 
   resolveParserNode(parserNode: ParserNode, idx: number) {
     if (isSubViewTag(this.subViews, parserNode)) return this.resolveSubView(parserNode, idx)
+    if (t.isIdentifier(parserNode.tag as any) && (parserNode.tag as any).name === "_") return this.resolveExpression(parserNode, idx)
     if (parserNode.tag === "env") return this.resolveEnv(parserNode, idx)
-    if (parserNode.tag === "_") return this.resolveExpression(parserNode, idx)
     if (parserNode.tag === "if") return this.resolveIf(parserNode, idx)
     if (parserNode.tag === "for") return this.resolveFor(parserNode, idx)
     if (parserNode.tag === "_$text") return this.resolveText(parserNode, idx)
@@ -847,7 +847,7 @@ export class Generator {
             t.memberExpression(
               t.identifier(nodeName),
               t.identifier("_$addChildren")
-            ), parserNode.children.map(child => (
+            ), [t.arrayExpression(parserNode.children.map(child => (
               t.arrowFunctionExpression(
                 [],
                 t.blockStatement([
@@ -855,7 +855,7 @@ export class Generator {
                   t.returnStatement(t.identifier("_$node0"))
                 ])
               )
-            ))
+            )))]
           )
         )
       )
