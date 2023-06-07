@@ -1,5 +1,4 @@
 import * as t from "@babel/types"
-import Transpiler from "./babelTranspiler"
 
 export function pushDerived(name: string, deps: string[], propDerivedNode: t.ClassProperty, classBodyNode: t.ClassBody) {
   if (!classBodyNode.body.includes(propDerivedNode)) {
@@ -62,7 +61,7 @@ export function isAssignmentExpressionRight(innerPath: any, classDeclarationNode
     if (t.isAssignmentExpression(reversePath.node)) {
       const leftNode = reversePath.node.left
       const typeEqual = currNode.type === leftNode.type
-      const identifierEqual = currNode.property.name === leftNode.property.name
+      const identifierEqual = currNode.name === leftNode.property.name
       isRightExp = typeEqual && identifierEqual
     }
     reversePath = reversePath.parentPath
@@ -77,21 +76,6 @@ export function shouldBeListened(innerPath: any, classDeclarationNode?: t.Node) 
     !isAssignmentExpressionRight(innerPath, classDeclarationNode))
 }
 
-export function functionBlockStatement(code: string) {
-  return (Transpiler.parse(code)!.program.body[0] as t.FunctionDeclaration).body
-}
-
-export function createGetterSetter(
-  name: string,
-  getterBody: t.BlockStatement,
-  setterBody: t.BlockStatement
-) {
-  return [
-    t.classMethod("get", t.identifier(name), [], getterBody),
-    t.classMethod("set", t.identifier(name), [t.identifier("value")], setterBody)
-  ]
-}
-
 export function valueWithArrowFunc(node: any) {
   const originValue = node.value
   node.value = {
@@ -99,14 +83,6 @@ export function valueWithArrowFunc(node: any) {
     params: [],
     body: originValue
   } as any
-}
-
-export function getDecoName(decorator: t.Decorator) {
-  return Transpiler.generate(decorator.expression)
-}
-
-export function getDecoNode(decoratorName: string) {
-  return Transpiler.parse(decoratorName)!.program.body[0].expression
 }
 
 export function isMemberExpressionProperty(parentNode: t.Node, currentNode: t.Node) {

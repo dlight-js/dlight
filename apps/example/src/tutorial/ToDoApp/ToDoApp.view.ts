@@ -1,4 +1,5 @@
-import { View } from "@dlightjs/dlight"
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import DLight, { View } from "@dlightjs/dlight"
 import TaskCard from "./TaskCard.view"
 import TaskAdder from "./TaskAdder.view"
 import { type Task } from "./Task"

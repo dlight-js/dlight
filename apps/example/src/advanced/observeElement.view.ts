@@ -1,4 +1,5 @@
-import { View } from "@dlightjs/dlight"
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import DLight, { View } from "@dlightjs/dlight"
 import { div, button, span } from "@dlightjs/types"
 
 function observe(elKey = "el", styleKeyMap: Record<string, string>) {

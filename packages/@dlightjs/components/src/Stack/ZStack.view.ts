@@ -1,13 +1,14 @@
-import { View } from "@dlightjs/dlight"
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import DLight, { View } from "@dlightjs/dlight"
 import { type HAlignment, type VAlignment } from "./types"
 import { type Typed, div, Prop, _ } from "@dlightjs/types"
 import { css } from "@dlightjs/emotion"
 
 class ZStack extends View {
-  @Prop hAlignment: HAlignment = "center"
-  @Prop vAlignment: VAlignment = "center"
-  @Prop width = "max-content"
-  @Prop height = "max-content"
+  @Prop hAlignment: Prop<HAlignment> = "center" as any
+  @Prop vAlignment: Prop<VAlignment> = "center" as any
+  @Prop width: Prop<string> = "max-content" as any
+  @Prop height: Prop<string> = "max-content" as any
 
   Body() {
     div()

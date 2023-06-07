@@ -1,0 +1,29 @@
+{
+  "name": "@dlightjs/transpiler-standalone",
+  "version": "0.7.5",
+  "description": "",
+  "files": [
+    "dist"
+  ],
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsup"
+  },
+  "devDependencies": {
+    "tsup": "^6.5.0",
+    "typescript": "^4.9.3"
+  },
+  "dependencies": {
+    "@babel/plugin-syntax-unicode-sets-regex": "^7.18.6",
+    "@babel/standalone": "^7.22.4",
+    "babel-preset-dlight": "workspace:*"
+  },
+  "keywords": [
+    "dlight.js"
+  ],
+  "author": "IanDx",
+  "license": "ISC"
+}

@@ -1,14 +1,15 @@
-import { View } from "@dlightjs/dlight"
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import DLight, { View } from "@dlightjs/dlight"
 import { css } from "@dlightjs/emotion"
 import { type Typed, _, div, Prop } from "@dlightjs/types"
 import { type VAlignment } from "./types"
 import { isChildSpacer } from "./Spacer.view"
 
 export class HStack extends View {
-  @Prop spacing = 10
-  @Prop alignment: VAlignment = "top"
-  @Prop width = "100%"
-  @Prop height = "max-content"
+  @Prop spacing: Prop<number> = 10 as any
+  @Prop alignment: Prop<VAlignment> = "top" as any
+  @Prop width: Prop<string> = "100%" as any
+  @Prop height: Prop<string> = "max-content" as any
   margin = (function() {
     switch (this.alignment) {
       case "top":

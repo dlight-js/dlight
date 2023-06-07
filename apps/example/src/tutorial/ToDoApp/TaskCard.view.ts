@@ -1,4 +1,5 @@
-import { View } from "@dlightjs/dlight"
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import DLight, { View } from "@dlightjs/dlight"
 import { type Typed, Prop, div, input, span, button, required, type RequiredProp } from "@dlightjs/types"
 import { type Task } from "./Task"
 

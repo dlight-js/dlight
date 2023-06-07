@@ -1,4 +1,4 @@
-import { View } from "@dlightjs/dlight"
+import DLight, { View } from "@dlightjs/dlight"
 import { css } from "@emotion/css"
 import { htmlTag, tag } from "@dlightjs/types"
 

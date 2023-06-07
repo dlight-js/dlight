@@ -1,4 +1,4 @@
-import { View } from "@dlightjs/dlight"
+import DLight, { View } from "@dlightjs/dlight"
 import { type Typed, button, div, h1, State, Prop } from "@dlightjs/types"
 
 class App extends View {

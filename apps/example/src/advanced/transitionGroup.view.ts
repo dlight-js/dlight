@@ -1,4 +1,5 @@
-import { View } from "@dlightjs/dlight"
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import DLight, { View } from "@dlightjs/dlight"
 import { TransitionGroup } from "@dlightjs/components"
 import { button, div } from "@dlightjs/types"
 
@@ -8,7 +9,7 @@ function getData(text: string) {
     text
   }
 }
-export class TransitionTest extends View {
+export default class TransitionTest extends View {
   list = [
     getData("First one"),
     getData("II 222"),

@@ -53,7 +53,7 @@ const selectedDependencies: string[] = await checkbox({
     }
   ]
 })
-const selectedDevDependencies = ["vite", "vite-plugin-dlight-transpiler"]
+const selectedDevDependencies = ["vite", "vite-plugin-dlight"]
 selectedDependencies.push("@dlightjs/dlight")
 if (language === "ts") {
   selectedDependencies.push("@dlightjs/types")
