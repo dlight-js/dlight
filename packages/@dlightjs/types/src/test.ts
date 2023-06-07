@@ -20,7 +20,9 @@ type JJ = Typed<MyView>
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 class TypeTestView  {
   Body() {
-    SubViewWithTypes().
+    SubViewWithTypes()
+    div()
+    .className()
   }
 }
 

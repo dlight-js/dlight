@@ -1,77 +1,77 @@
 import { type DLightHtmlTag } from "."
-import { type DLightHTMLElement } from "./htmlElement"
+import { type DLightHTMLElement, type HTMLElementWrapper } from "./htmlElement"
 
 export interface DLightHtmlASpecific extends DLightHtmlTag<
 DLightHtmlAreaSpecific,
-DLightHTMLElement<DLightHtmlAreaSpecific, HTMLLinkElement>
+DLightHTMLElement<DLightHtmlAreaSpecific, HTMLElementWrapper<HTMLLinkElement>>
 > {}
 
 export interface DLightHtmlAreaSpecific extends DLightHtmlTag<
 DLightHtmlAreaSpecific,
-DLightHTMLElement<DLightHtmlAreaSpecific, HTMLAreaElement>
+DLightHTMLElement<DLightHtmlAreaSpecific, HTMLElementWrapper<HTMLAreaElement>>
 > {}
 
 export interface DLightHtmlAudioSpecific extends DLightHtmlTag<
 DLightHtmlAudioSpecific,
-DLightHTMLElement<DLightHtmlAudioSpecific, HTMLAudioElement>
+DLightHTMLElement<DLightHtmlAudioSpecific, HTMLElementWrapper<HTMLAudioElement>>
 > {}
 
 export interface DLightHtmlDivSpecific extends DLightHtmlTag<
 DLightHtmlDivSpecific,
-DLightHTMLElement<DLightHtmlDivSpecific, HTMLDivElement>
+DLightHTMLElement<DLightHtmlDivSpecific, HTMLElementWrapper<HTMLDivElement>>
 > {}
 
 export interface DLightHtmlImageSpecific extends DLightHtmlTag<
 DLightHtmlImageSpecific,
-DLightHTMLElement<DLightHtmlImageSpecific, HTMLImageElement>
+DLightHTMLElement<DLightHtmlImageSpecific, HTMLElementWrapper<HTMLImageElement>>
 > {}
 
 export interface DLightHtmlBaseSpecific extends DLightHtmlTag<
 DLightHtmlBaseSpecific,
-DLightHTMLElement<DLightHtmlBaseSpecific, HTMLBaseElement>
+DLightHTMLElement<DLightHtmlBaseSpecific, HTMLElementWrapper<HTMLBaseElement>>
 > {}
 
 export interface DLightHtmlBodySpecific extends DLightHtmlTag<
 DLightHtmlBodySpecific,
-DLightHTMLElement<DLightHtmlBodySpecific, HTMLBodyElement>
+DLightHTMLElement<DLightHtmlBodySpecific, HTMLElementWrapper<HTMLBodyElement>>
 > {}
 
 export interface DLightHtmlBRSpecific extends DLightHtmlTag<
 DLightHtmlBRSpecific,
-DLightHTMLElement<DLightHtmlBRSpecific, HTMLBRElement>
+DLightHTMLElement<DLightHtmlBRSpecific, HTMLElementWrapper<HTMLBRElement>>
 > {}
 
 export interface DLightHtmlButtonSpecific extends DLightHtmlTag<
 DLightHtmlButtonSpecific,
-DLightHTMLElement<DLightHtmlButtonSpecific, HTMLButtonElement>
+DLightHTMLElement<DLightHtmlButtonSpecific, HTMLElementWrapper<HTMLButtonElement>>
 > {}
 
 export interface DLightHtmlCanvasSpecific extends DLightHtmlTag<
 DLightHtmlCanvasSpecific,
-DLightHTMLElement<DLightHtmlCanvasSpecific, HTMLCanvasElement>
+DLightHTMLElement<DLightHtmlCanvasSpecific, HTMLElementWrapper<HTMLCanvasElement>>
 > {}
 
 export interface DLightHtmlInputSpecific extends DLightHtmlTag<
 DLightHtmlInputSpecific,
-DLightHTMLElement<DLightHtmlInputSpecific, HTMLInputElement>
+DLightHTMLElement<DLightHtmlInputSpecific, HTMLElementWrapper<HTMLInputElement>>
 > {}
 
 export interface DLightHtmlSpanSpecific extends DLightHtmlTag<
 DLightHtmlSpanSpecific,
-DLightHTMLElement<DLightHtmlSpanSpecific, HTMLSpanElement>
+DLightHTMLElement<DLightHtmlSpanSpecific, HTMLElementWrapper<HTMLSpanElement>>
 > {}
 
 export interface DLightHtmlTableSpecific extends DLightHtmlTag<
 DLightHtmlTableSpecific,
-DLightHTMLElement<DLightHtmlTableSpecific, HTMLTableElement>
+DLightHTMLElement<DLightHtmlTableSpecific, HTMLElementWrapper<HTMLTableElement>>
 > {}
 
 export interface DLightHtmlTextAreaSpecific extends DLightHtmlTag<
 DLightHtmlTextAreaSpecific,
-DLightHTMLElement<DLightHtmlTextAreaSpecific, HTMLTextAreaElement>
+DLightHTMLElement<DLightHtmlTextAreaSpecific, HTMLElementWrapper<HTMLTextAreaElement>>
 > {}
 
 export interface DLightHtmlSelectSpecific extends DLightHtmlTag<
 DLightHtmlSelectSpecific,
-DLightHTMLElement<DLightHtmlSelectSpecific, HTMLSelectElement>
+DLightHTMLElement<DLightHtmlSelectSpecific, HTMLElementWrapper<HTMLSelectElement>>
 > {}
