@@ -6,9 +6,9 @@ import { appendEls } from "./utils"
 export class HtmlNode extends DLNode {
   _$envNodes?: EnvNode[] = []
 
-  constructor(tag: string) {
+  constructor(tagOrEl: string | HTMLElement) {
     super(DLNodeType.HTML)
-    this._$el = document.createElement(tag)
+    this._$el = typeof tagOrEl === "string" ? document.createElement(tagOrEl) : tagOrEl
   }
 
   _$init(): void {
@@ -27,16 +27,24 @@ export class HtmlNode extends DLNode {
       func = (newValue: any) => { this._$el.style[key.slice(1) as any] = newValue }
     } else if (key === "className") {
       let currClassName = "\\*none\\*"
-      func = (newValue: any) => {
+      func = (newValue: string[] | string | undefined | null) => {
+        if (Array.isArray(newValue)) newValue = newValue.join(" ")
+        newValue = newValue ?? ""
+        console.log(newValue)
         const classNames = this._$el.className
         let newClassName = classNames
-        if (new RegExp(currClassName).test(classNames)) {
+        if (currClassName !== "" && new RegExp(currClassName).test(classNames)) {
           newClassName = newClassName.replace(new RegExp(currClassName), newValue)
         } else {
           newClassName += ` ${newValue}`
         }
         currClassName = newValue
-        this._$el.className = newClassName.trim()
+        const className = newClassName.trim()
+        if (className === "") {
+          this._$el.removeAttribute("class")
+        } else {
+          this._$el.className = className
+        }
       }
     } else {
       func = (newValue: any) => { this._$el[key] = newValue }

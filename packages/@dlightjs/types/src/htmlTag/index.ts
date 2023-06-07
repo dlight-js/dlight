@@ -4,6 +4,7 @@ import type * as S from "./specificElement"
 
 type HtmlLifecycleFuncType<T> = (func: (el?: HTMLElement, node?: HtmlNode) => void) => T
 export interface DLightHtmlHook<T> {
+  className: (value: string | string[] | undefined | undefined[]) => T
   element: (holderOrFunc: HTMLElement | ((holder: HTMLElement) => void) | undefined) => T
   willAppear: HtmlLifecycleFuncType<T>
   didAppear: HtmlLifecycleFuncType<T>

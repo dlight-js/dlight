@@ -192,10 +192,12 @@ export class CustomNode extends DLNode {
   }
 
   render(idOrEl: string | HTMLElement) {
-    const appNode = new HtmlNode("div")
+    // ----
+    if (typeof idOrEl === "string") {
+      idOrEl = document.getElementById(idOrEl)!
+    }
+    const appNode = new HtmlNode(idOrEl)
     appNode._$addNodes([this])
-    appNode._$addProp("id", typeof idOrEl === "string" ? idOrEl : idOrEl.id)
-    appNode._$init()
     this.willMount(this._$el, this)
     loopNodes(this._$nodes, node => {
       switch (node._$nodeType) {
@@ -208,12 +210,7 @@ export class CustomNode extends DLNode {
       }
       return true
     })
-
-    // ----
-    if (typeof idOrEl === "string") {
-      idOrEl = document.getElementById(idOrEl)!
-    }
-    idOrEl.innerHTML = appNode._$el.innerHTML
+    appNode._$init()
     // ----
     loopNodes(this._$nodes, node => {
       switch (node._$nodeType) {

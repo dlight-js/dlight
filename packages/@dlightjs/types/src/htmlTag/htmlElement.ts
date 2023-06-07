@@ -34,6 +34,8 @@ type DLightShortcutStyle<T> = {
   [K in keyof PropertiesRequired as `_${string & K}`]: (value: PropertiesRequired[K]) => T
 }
 
-export type DLightHTMLElement<T, G=HTMLElement> =
+export type HTMLElementWrapper<T> = Omit<T, "className">
+
+export type DLightHTMLElement<T, G=HTMLElementWrapper<HTMLElement>> =
     DLightPropertyWrapper<T, G>
     & DLightShortcutStyle<T>

@@ -65,6 +65,7 @@ type GetOptionalKeys<T> = {
 // 过滤掉所有的 never
 type FilterNever<T> = Omit<
 T,
+// @ts-ignore
 { [K in keyof T]: T[K] extends (Never | undefined) ? K : never }[keyof T]
 >
 
@@ -81,6 +82,7 @@ type AllProperties<T> = NoAny<Together<T>>
 type RequiredProperties<T> = FilterNever<ExtractPropKeys<Required<AllProperties<T>>>>
 type OptionalKeys<T> = GetOptionalKeys<AllProperties<T>>
 type PropsKeys<T> = FilterNever<{
+  // @ts-ignore
   [K in keyof AllProperties<T>]: K extends keyof RequiredProperties<T> ?
     K extends OptionalKeys<T>
       ? Exclude<AllProperties<T>[K], undefined> extends Prop<infer U> ? U : Never
@@ -89,3 +91,15 @@ type PropsKeys<T> = FilterNever<{
 }> & OptionalUseless
 
 export type Typed<T> = CustomTag<PropsKeys<T>> & Useless
+
+export type UnTyped<T> = T extends Typed<infer U> ? U : never
+
+export type PropWrapper<T> = {
+  [key in keyof T]-?: undefined extends T[key] ? Prop<T[key]> : RequiredProp<T[key]>;
+}
+
+export type UnPropWrapper<T> = {
+  [key in keyof T]: T[key] extends RequiredProp<infer U> ? U :
+    T[key] extends Prop<infer U> ? U | undefined :
+      never;
+}

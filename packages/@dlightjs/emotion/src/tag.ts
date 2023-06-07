@@ -113,5 +113,4 @@ styled.var = styled("var")
 styled.video = styled("video")
 styled.wbr = styled("wbr")
 
-// @ts-expect-error
-export { styled } from "./styled.view.ts"
+export { styled } from "./styled.view"
