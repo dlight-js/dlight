@@ -61,7 +61,7 @@ export function isAssignmentExpressionRight(innerPath: any, classDeclarationNode
     if (t.isAssignmentExpression(reversePath.node)) {
       const leftNode = reversePath.node.left
       const typeEqual = currNode.type === leftNode.type
-      const identifierEqual = currNode.property.name === leftNode.property.name
+      const identifierEqual = currNode.name === leftNode.property.name
       isRightExp = typeEqual && identifierEqual
     }
     reversePath = reversePath.parentPath

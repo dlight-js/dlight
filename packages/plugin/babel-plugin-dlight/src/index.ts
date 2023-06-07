@@ -15,14 +15,14 @@ export default function() {
     derivedFrom: string[]
     deco: "Prop" | "Env" | "Static"
   }> = {}
-  let escapedProperties: string[] = []
+  let staticProperties: string[] = []
   let rootPath: any
 
   function willHandleBodyAtLast(node: any) {
     return classBodyNode!.body.indexOf(node) === classBodyNode!.body.length - 1
   }
   function handleBodyAtLast() {
-    const usedProperties = handleBody(classBodyNode!, properties, rootPath)
+    const usedProperties = handleBody(classBodyNode!, properties.filter(p => !staticProperties.includes(p)), rootPath)
     for (let [key, { node, derivedFrom, deco }] of Object.entries(propertiesContainer).reverse()) {
       if (deco === "Static") {
         if (derivedFrom.length === 0) continue
@@ -30,7 +30,7 @@ export default function() {
         valueWithArrowFunc(node)
         continue
       }
-      derivedFrom = derivedFrom.filter(k => !escapedProperties.includes(k))
+      derivedFrom = derivedFrom.filter(k => !staticProperties.includes(k))
       if (derivedFrom.length > 0) {
         usedProperties.push(...derivedFrom)
         pushDerived(key, derivedFrom, derivedPairNode!, classBodyNode!)
@@ -62,7 +62,7 @@ export default function() {
     properties = classBodyNode.body
       .filter(n => t.isClassProperty(n) && !t.isArrowFunctionExpression(n.value))
       .map(n => (n as any).key.name)
-    escapedProperties = classBodyNode.body
+    staticProperties = classBodyNode.body
       .filter(
         n => t.isClassProperty(n) &&
           n.decorators?.map(d => (d.expression as any).name).includes("Static")
@@ -77,7 +77,7 @@ export default function() {
     derivedPairNode = null
     depsNode = null
     properties = []
-    escapedProperties = []
+    staticProperties = []
     propertiesContainer = {}
   }
 

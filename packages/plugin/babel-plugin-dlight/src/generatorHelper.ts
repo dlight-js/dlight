@@ -51,9 +51,9 @@ export function geneDeps(path: any, value: t.Node, depChain: string[], otherDeps
       Identifier(innerPath: any) {
         if (
           depChain.includes(innerPath.node.name) &&
-        t.isMemberExpression(innerPath.parentPath.node) &&
-        t.isThisExpression(innerPath.parentPath.node.object) &&
-        shouldBeListened(innerPath)
+          t.isMemberExpression(innerPath.parentPath.node) &&
+          t.isThisExpression(innerPath.parentPath.node.object) &&
+          shouldBeListened(innerPath)
         ) {
           deps.push(t.stringLiteral(innerPath.node.name))
         }
@@ -122,10 +122,18 @@ export function resolveForBody(path: any, body: t.BlockStatement, item: t.Node, 
   })
 }
 
-export function isElementFunction(value: t.Node) {
-  return !!(t.isArrowFunctionExpression(value) || t.isFunctionExpression(value))
+export function isTwoWayConnected(value: t.Node) {
+  return t.isMemberExpression(value) && t.isThisExpression(value.object) && t.isIdentifier(value.property)
 }
 
-export function isTwoWayConnected(value: t.Node) {
-  return t.isMemberExpression(value)
+export function isOnlyMemberExpression(value: t.MemberExpression) {
+  if (!t.isMemberExpression(value)) return false
+  while (value.property) {
+    if (!t.isMemberExpression(value.property) &&
+      !t.isIdentifier(value.property)) {
+      return false
+    }
+    value = value.property as any
+  }
+  return true
 }

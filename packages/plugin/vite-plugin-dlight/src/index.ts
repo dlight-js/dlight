@@ -1,5 +1,14 @@
-import transpiler from "@dlightjs/transpiler"
-const transformDLight = (transpiler as any).default
+// @ts-ignore
+import { transform } from "@babel/core"
+import dlight from "babel-preset-dlight"
+
+function transformDLight(code: string, id: string) {
+  return transform(code, {
+    presets: [dlight],
+    sourceMaps: true,
+    filename: id
+  })
+}
 
 interface DLightPluginOption {
   appendix?: string | string[]
@@ -16,10 +25,12 @@ export default function(options?: DLightPluginOption) {
     name: "dlight",
     enforce: "pre",
     transform(code: string, id: string) {
-      if (!appendix) return transformDLight(code)
+      if (!appendix) {
+        return transformDLight(code, id)
+      }
       for (const append of appendix) {
         if (id.endsWith(append)) {
-          return transformDLight(code)
+          return transformDLight(code, id)
         }
       }
     }

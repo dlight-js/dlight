@@ -16,7 +16,7 @@ export type DLightHtmlTag<T, G=DLightHTMLElement<T>> = G & DLightHtmlHook<T>
 interface DLightHtmlTagSpecific extends DLightHtmlTag<DLightHtmlTagSpecific> {}
 type DLightHtmlTagFunc<T=DLightHtmlTagSpecific> = (innerText?: string | number) => T
 
-export const a: DLightHtmlTagFunc = null as any
+export const a: DLightHtmlTagFunc<S.DLightHtmlASpecific> = null as any
 export const abbr: DLightHtmlTagFunc = null as any
 export const address: DLightHtmlTagFunc = null as any
 export const area: DLightHtmlTagFunc<S.DLightHtmlAreaSpecific> = null as any

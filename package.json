@@ -1,5 +1,5 @@
 {
-  "name": "@dlightjs/root",
+  "name": "@dlightjs/monorepo",
   "private": true,
   "version": "0.0.0",
   "scripts": {
@@ -7,8 +7,10 @@
     "test": "pnpm --prefix apps/test dev",
     "build": "sh ./common/scripts/build.sh",
     "build:transpiler": "sh ./common/scripts/buildTranspiler.sh",
+    "build:main": "sh ./common/scripts/buildMain.sh",
     "pub": "sh ./common/scripts/publish.sh",
     "pub:transpiler": "sh ./common/scripts/publishTranspiler.sh",
+    "pub:main": "sh ./common/scripts/publishMain.sh",
     "refresh": "sh ./common/scripts/refresh.sh"
   },
   "devDependencies": {

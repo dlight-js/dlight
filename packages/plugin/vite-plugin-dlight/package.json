@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-dlight",
-  "version": "0.7.0-alpha-1",
+  "version": "0.7.5",
   "files": [
     "dist"
   ],
@@ -17,7 +17,8 @@
     "build": "tsup"
   },
   "dependencies": {
-    "@dlightjs/transpiler": "workspace:*"
+    "@babel/core": "^7.20.12",
+    "babel-preset-dlight": "workspace:*"
   },
   "author": "IanDx",
   "devDependencies": {

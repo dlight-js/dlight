@@ -1,6 +1,11 @@
 import { type DLightHtmlTag } from "."
 import { type DLightHTMLElement } from "./htmlElement"
 
+export interface DLightHtmlASpecific extends DLightHtmlTag<
+DLightHtmlAreaSpecific,
+DLightHTMLElement<DLightHtmlAreaSpecific, HTMLLinkElement>
+> {}
+
 export interface DLightHtmlAreaSpecific extends DLightHtmlTag<
 DLightHtmlAreaSpecific,
 DLightHTMLElement<DLightHtmlAreaSpecific, HTMLAreaElement>

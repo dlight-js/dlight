@@ -1,5 +1,5 @@
 import { type ParserNode } from "./parser"
-import { geneDeps, geneIdDeps, uid, getIdentifiers, resolveForBody, isElementFunction, isHTMLTag, parseCustomTag, isTwoWayConnected, isSubViewTag } from "./generatorHelper"
+import { geneDeps, geneIdDeps, uid, getIdentifiers, resolveForBody, isHTMLTag, parseCustomTag, isTwoWayConnected, isSubViewTag, isOnlyMemberExpression } from "./generatorHelper"
 import * as t from "@babel/types"
 
 function nodeGeneration(nodeName: string, nodeType: t.Expression, args: Array<t.ArgumentPlaceholder | t.SpreadElement | t.Expression>) {
@@ -516,29 +516,70 @@ export class Generator {
       }
       const listenDeps = this.geneDeps(value)
       if (key === "element") {
-        /**
-         * const ${nodeName}Element = () => ${value} = ${nodeName}._$el;
-         */
-        statements.push(
-          t.variableDeclaration(
-            "const", [
-              t.variableDeclarator(
-                t.identifier(`${nodeName}Element`),
-                t.arrowFunctionExpression(
-                  [],
-                  t.assignmentExpression(
-                    "=",
-                    value,
-                    t.memberExpression(
-                      t.identifier(nodeName),
-                      t.identifier("_$el")
+        if (isOnlyMemberExpression(value)) {
+          /**
+           * const ${nodeName}Element = () => typeof ${value} === "function" ? (${value})(${nodeName}._$el) : ${value} = ${nodeName}._$el;
+           */
+          statements.push(
+            t.variableDeclaration(
+              "const", [
+                t.variableDeclarator(
+                  t.identifier(`${nodeName}Element`),
+                  t.arrowFunctionExpression(
+                    [],
+                    t.conditionalExpression(
+                      t.binaryExpression(
+                        "===",
+                        t.unaryExpression("typeof", value),
+                        t.stringLiteral("function")
+                      ),
+                      t.callExpression(
+                        value, [
+                          t.memberExpression(
+                            t.identifier(nodeName),
+                            t.identifier("_$el")
+                          )
+                        ]
+                      ),
+                      t.assignmentExpression(
+                        "=",
+                        value,
+                        t.memberExpression(
+                          t.identifier(nodeName),
+                          t.identifier("_$el")
+                        )
+                      )
                     )
                   )
                 )
-              )
-            ]
+              ]
+            )
           )
-        )
+        } else {
+          /**
+           * const ${nodeName}Element = (${value})(${nodeName}._$el)
+           */
+          statements.push(
+            t.variableDeclaration(
+              "const", [
+                t.variableDeclarator(
+                  t.identifier(`${nodeName}Element`),
+                  t.arrowFunctionExpression(
+                    [],
+                    t.callExpression(
+                      value, [
+                        t.memberExpression(
+                          t.identifier(nodeName),
+                          t.identifier("_$el")
+                        )
+                      ]
+                    )
+                  )
+                )
+              ]
+            )
+          )
+        }
         /**
          * ${nodeName}Element()
          */
@@ -709,10 +750,48 @@ export class Generator {
       }
       const listenDeps = this.geneDeps(value)
       if (key === "element") {
-        const isFunction = isElementFunction(value)
-        if (isFunction) {
+        if (isOnlyMemberExpression(value)) {
           /**
-           * const ${nodeName}Element = () => (${value})(${nodeName}._$el);
+           * const ${nodeName}Element = () => typeof ${value} === "function" ? (${value})(${nodeName}._$el) : ${value} = ${nodeName}._$el;
+           */
+          statements.push(
+            t.variableDeclaration(
+              "const", [
+                t.variableDeclarator(
+                  t.identifier(`${nodeName}Element`),
+                  t.arrowFunctionExpression(
+                    [],
+                    t.conditionalExpression(
+                      t.binaryExpression(
+                        "===",
+                        t.unaryExpression("typeof", value),
+                        t.stringLiteral("function")
+                      ),
+                      t.callExpression(
+                        value, [
+                          t.memberExpression(
+                            t.identifier(nodeName),
+                            t.identifier("_$el")
+                          )
+                        ]
+                      ),
+                      t.assignmentExpression(
+                        "=",
+                        value,
+                        t.memberExpression(
+                          t.identifier(nodeName),
+                          t.identifier("_$el")
+                        )
+                      )
+                    )
+                  )
+                )
+              ]
+            )
+          )
+        } else {
+          /**
+           * const ${nodeName}Element = (${value})(${nodeName}._$el)
            */
           statements.push(
             t.variableDeclaration(
@@ -728,30 +807,6 @@ export class Generator {
                           t.identifier("_$el")
                         )
                       ]
-                    )
-                  )
-                )
-              ]
-            )
-          )
-        } else {
-          /**
-           * const ${nodeName}Element = () => ${value} = ${nodeName}._$el;
-           */
-          statements.push(
-            t.variableDeclaration(
-              "const", [
-                t.variableDeclarator(
-                  t.identifier(`${nodeName}Element`),
-                  t.arrowFunctionExpression(
-                    [],
-                    t.assignmentExpression(
-                      "=",
-                      value,
-                      t.memberExpression(
-                        t.identifier(nodeName),
-                        t.identifier("_$el")
-                      )
                     )
                   )
                 )
@@ -802,7 +857,7 @@ export class Generator {
             t.callExpression(
               t.memberExpression(
                 t.identifier(nodeName),
-                t.identifier("_$addDeps")
+                t.identifier("_$addProp")
               ), [
                 t.stringLiteral(key),
                 t.arrowFunctionExpression([], value),

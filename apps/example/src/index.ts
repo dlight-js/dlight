@@ -15,19 +15,18 @@ const code = `
 import { View } from "@dlightjs/dlight"
 import { button, div, SubView } from "@dlightjs/types"
 
-function getData() {
-  return {
-    id: Math.random()
-  }
-}
 
 class TestView extends View {
+  tabKey = 1
+  b = function() {
+    console.log(this.tabKey)
+  } 
   Body() {
-    _("d")
+    _(this.b)
   }
 }
 `
 
 console.log(transformDLight(code))
 
-render("app", TransitionGroupView)
+render("app", TestView)

@@ -3,22 +3,11 @@ import DLight, { View } from "@dlightjs/dlight"
 import { button, div, SubView } from "@dlightjs/types"
 import { HStack } from "@dlightjs/components"
 
-function getData() {
-  return {
-    id: Math.random(),
-    tt: Math.random()
-  }
-}
 class TestView extends View {
+  aa
+
   Body() {
-    HStack()
-    {
-      div("hhh")
-      div("haha")
-      div("haha")
-      div("haha")
-      div("haha")
-    }
+    div()
   }
 }
 
