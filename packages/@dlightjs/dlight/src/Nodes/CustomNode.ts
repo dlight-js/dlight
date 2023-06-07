@@ -213,7 +213,7 @@ export class CustomNode extends DLNode {
     if (typeof idOrEl === "string") {
       idOrEl = document.getElementById(idOrEl)!
     }
-    idOrEl.replaceWith(appNode._$el)
+    idOrEl.innerHTML = appNode._$el.innerHTML
     // ----
     loopNodes(this._$nodes, node => {
       switch (node._$nodeType) {
