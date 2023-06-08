@@ -66,6 +66,9 @@ function parseTag(node: t.CallExpression, path: any) {
 }
 
 function parseText(node: t.StringLiteral | t.TemplateLiteral | t.DirectiveLiteral) {
+  if (t.isDirectiveLiteral(node)) {
+    node = t.stringLiteral(node.value)
+  }
   return { tag: "_$text", attr: { _$content: node }, children: [] }
 }
 

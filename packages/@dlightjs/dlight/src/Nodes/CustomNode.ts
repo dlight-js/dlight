@@ -69,7 +69,7 @@ import { type ObjectId } from "./types"
 export class CustomNode extends DLNode {
   _$deps: Record<string, Map<ObjectId, () => any>> = {}
   _$envNodes?: EnvNode[]
-  private readonly _$derivedPairs?: Record<string, string[]>
+  _$derivedPairs?: Record<string, string[]>
 
   constructor() {
     super(DLNodeType.Custom)
@@ -109,17 +109,21 @@ export class CustomNode extends DLNode {
   _$initDecorators() {
     if (this._$derivedPairs) {
       // 遍历_$derivedPairs，将derived变量监听的变量的change函数挂载到被监听变量上
-      for (let [propertyKey, listenDeps] of Object.entries(this._$derivedPairs).reverse()) {
-        const derivedFunc = `_$$${propertyKey}` in this ? (this as any)[`_$$${propertyKey}`] : (this as any)[propertyKey]
-        if (typeof derivedFunc !== "function") return
+      for (let [propertyKey, listenDeps] of Object.entries(this._$derivedPairs)) {
+        const key = `_$$${propertyKey}` in this ? `_$$${propertyKey}` : propertyKey
+        const func = (this as any)[key]
+        if (typeof func !== "function") {
+          (this as any)[key] = func
+          continue
+        }
+        (this as any)[key] = func()
 
-        (this as any)[propertyKey] = (this as any)[propertyKey]()
+        if (listenDeps.length === 0) continue
         let prevValue = (this as any)[propertyKey]
-
         listenDeps = listenDeps.filter(dep => dep in this._$deps)
         // ---- 不需要push到depObjectIds，因为是自己的
         this._$addDeps(listenDeps, {}, () => {
-          const newValue = derivedFunc()
+          const newValue = func()
           if (newValue === prevValue) return;
           (this as any)[propertyKey] = newValue
           prevValue = newValue
@@ -196,6 +200,7 @@ export class CustomNode extends DLNode {
     if (typeof idOrEl === "string") {
       idOrEl = document.getElementById(idOrEl)!
     }
+    idOrEl.innerHTML = ""
     const appNode = new HtmlNode(idOrEl)
     appNode._$addNodes([this])
     this.willMount(this._$el, this)

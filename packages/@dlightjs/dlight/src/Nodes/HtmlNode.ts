@@ -30,7 +30,6 @@ export class HtmlNode extends DLNode {
       func = (newValue: string[] | string | undefined | null) => {
         if (Array.isArray(newValue)) newValue = newValue.join(" ")
         newValue = newValue ?? ""
-        console.log(newValue)
         const classNames = this._$el.className
         let newClassName = classNames
         if (currClassName !== "" && new RegExp(currClassName).test(classNames)) {

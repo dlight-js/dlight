@@ -10,37 +10,10 @@ function addToDepChain(dlNode: CustomNode, key: string, defaultValue: any) {
       this._$updateProperty(key, value)
     }
   })
+  if (!dlNode._$deps) dlNode._$deps = {}
   dlNode._$deps[key] = new Map()
-}
-
-function addProp(dlNode: CustomNode, key: string, defaultValue: any) {
-  (dlNode as any)[`_$$${key}`] = defaultValue
-  Object.defineProperty(dlNode, key, {
-    value: defaultValue,
-    writable: true
-  })
-  dlNode._$deps[key] = new Map()
-}
-
-export function forwardDLProp(dlNode: CustomNode, key: string, propFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[], isTwoWayConnected?: boolean) {
-  if (!(`_$$${key}` in dlNode)) {
-    // ---- 新建一个state
-    (dlNode as any)[`_$$$${key}`] = "prop"
-    if (listenDeps) {
-      addToDepChain(dlNode, key, propFunc())
-    } else {
-      addProp(dlNode, key, propFunc)
-    }
-  }
-  if (!listenDeps) {
-    (dlNode as any)[key] = propFunc
-    return
-  }
-  if (listenDeps?.length === 1 && isTwoWayConnected) {
-    addTwoWayDLProp(dlScope!, dlNode, key, listenDeps[0])
-    return
-  }
-  addOneWayDLProp(dlScope!, dlNode, key, propFunc, listenDeps)
+  if (!dlNode._$derivedPairs) dlNode._$derivedPairs = {}
+  dlNode._$derivedPairs[key] = []
 }
 
 export function addDLProp(dlNode: CustomNode, tag: "env" | "prop", key: string, propFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[], isTwoWayConnected?: boolean) {
@@ -68,6 +41,20 @@ export function addDLProp(dlNode: CustomNode, tag: "env" | "prop", key: string, 
   addOneWayDLProp(dlScope!, dlNode, key, propFunc, listenDeps)
 }
 
+export function forwardDLProp(dlNode: CustomNode, key: string, propFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[], isTwoWayConnected?: boolean) {
+  (dlNode as any)[`_$$$${key}`] = "prop"
+  addToDepChain(dlNode, key, propFunc())
+  if (!listenDeps) {
+    (dlNode as any)[`_$$${key}`] = propFunc()
+    return
+  }
+  if (listenDeps?.length === 1 && isTwoWayConnected) {
+    addTwoWayDLProp(dlScope!, dlNode, key, listenDeps[0])
+    return
+  }
+  addOneWayDLProp(dlScope!, dlNode, key, propFunc, listenDeps)
+}
+
 // 子里面的值改变，父的值也相应改变。给子变量挂载上父变量的改变函数。
 export function addTwoWayDLProp(dlScope: CustomNode, dlNode: CustomNode, key: string, depKey: string) {
   // ---- 如果是完整match且是state不是derived，比如 {flag: this.flag}
@@ -84,7 +71,7 @@ export function addTwoWayDLProp(dlScope: CustomNode, dlNode: CustomNode, key: st
     (dlScope as any)[depKey] = (dlNode as any)[key]
   }
   dlNode._$addDeps([key], objectId, depFunc);
-  (dlNode as any)[key] = (dlScope as any)[depKey]
+  (dlNode as any)[`_$$${key}`] = (dlScope as any)[depKey]
   dlScope._$addDeps([depKey], objectId, () => {
     // ---- 先取消回调自己的dep，等改完值了再加上，不然会无限回调
     dlNode._$deleteDep(key, objectId);

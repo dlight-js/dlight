@@ -1,5 +1,5 @@
 import { b } from "../dist"
-import { Typed, type Prop } from "./index"
+import { Typed, type Prop, S } from "./index"
 import { _ } from "./expressionTag"
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { a, area, div, img } from "./htmlTag"
@@ -12,7 +12,9 @@ class MyView extends View {
   hh2: Prop<string> = "" as any
   hh3: Prop<string> = "" as any
 }
-
+type a = S.DLightHtmlAreaSpecific
+let TT: a
+TT
 const SubViewWithTypes = MyView as any as Typed<MyView>
 
 type JJ = Typed<MyView>

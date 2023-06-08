@@ -11,9 +11,10 @@ export default function() {
   let derivedPairNode: t.ClassProperty | null = null
   let properties: string[] = []
   let propertiesContainer: Record<string, {
-    node: t.Node
+    node: t.ClassProperty
     derivedFrom: string[]
-    deco: "Prop" | "Env" | "Static"
+    isStatic: boolean
+    propOrEnv: "Prop" | "Env" | undefined
   }> = {}
   let staticProperties: string[] = []
   let rootPath: any
@@ -23,25 +24,19 @@ export default function() {
   }
   function handleBodyAtLast() {
     const usedProperties = handleBody(classBodyNode!, properties.filter(p => !staticProperties.includes(p)), rootPath)
-    for (let [key, { node, derivedFrom, deco }] of Object.entries(propertiesContainer).reverse()) {
-      if (deco === "Static") {
-        if (derivedFrom.length === 0) continue
-        pushDerived(key, derivedFrom, derivedPairNode!, classBodyNode!)
-        valueWithArrowFunc(node)
-        continue
-      }
-      derivedFrom = derivedFrom.filter(k => !staticProperties.includes(k))
-      if (derivedFrom.length > 0) {
+    for (let [key, { node, derivedFrom, isStatic, propOrEnv }] of Object.entries(propertiesContainer).reverse()) {
+      if (!node.value) node.value = t.identifier("undefined")
+      if (derivedFrom.length !== 0) {
+        derivedFrom = derivedFrom.filter(k => !staticProperties.includes(k))
         usedProperties.push(...derivedFrom)
         pushDerived(key, derivedFrom, derivedPairNode!, classBodyNode!)
         valueWithArrowFunc(node)
       }
+      if (propOrEnv) resolveProp(node as any, classBodyNode!, propOrEnv, key)
+      if (isStatic) continue
       if (usedProperties.includes(key)) {
         pushDep(key, depsNode!, classBodyNode!)
         resolveState(node as any, classBodyNode!)
-      }
-      if (deco) {
-        resolveProp(node as any, classBodyNode!, deco, key)
       }
     }
     clearNode()
@@ -115,12 +110,19 @@ export default function() {
           }
         })
 
+        const decoNames = node.decorators?.filter(deco => (
+          t.isIdentifier(deco.expression) && ["Static", "Prop", "Env"].includes(deco.expression.name)
+        )).map(deco => (deco.expression as any).name) ?? []
+
         propertiesContainer[key] = {
           node,
-          deco: node.decorators?.map(deco => (deco.expression as any).name)[0],
+          isStatic: decoNames.includes("Static"),
+          propOrEnv: decoNames.filter(name => name !== "Static")[0],
           derivedFrom: [...new Set(deps)]
         }
-        node.decorators = null
+        node.decorators = node.decorators?.filter(deco => !(
+          t.isIdentifier(deco.expression) && ["Static", "Prop", "Env"].includes(deco.expression.name)
+        ))
         // ---- 最后处理body
         if (willHandleBody) handleBodyAtLast()
       }
