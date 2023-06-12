@@ -60,11 +60,31 @@ if (language === "ts") {
   selectedDevDependencies.push("typescript")
 }
 
-const selectDep = (selectFields: string[], fullDic: Record<string, string>) => (
-  Object.fromEntries(Object.entries(fullDic).filter(([key]) => selectFields.includes(key)))
-)
-const deps = selectDep(selectedDependencies, dependencies)
-const devDeps = selectDep(selectedDevDependencies, devDependencies)
+const getLatestVersion = async(packageName: string) => {
+  const response = await fetch(`https://registry.npmjs.org/${packageName}/latest`)
+  const json = await response.json()
+  return json.version
+}
+
+const selectDep = async(selectFields: string[], fullDic: Record<string, string>) => {
+  const selectDep: Record<string, string> = {}
+  selectFields.forEach((field) => {
+    if (fullDic[field]) {
+      selectDep[field] = fullDic[field]
+    }
+  })
+
+  const promises = Object.entries(selectDep).map(async([key, value]) =>
+    await getLatestVersion(key).then((version) => (selectDep[key] = `^${version}`))
+  )
+  await Promise.all(promises)
+
+  return selectDep
+}
+
+const depsPromise = selectDep(selectedDependencies, dependencies)
+const devDepsPromise = selectDep(selectedDevDependencies, devDependencies)
+const [deps, devDeps] = await Promise.all([depsPromise, devDepsPromise])
 
 // --- Download templates
 const templateDir = path.resolve(

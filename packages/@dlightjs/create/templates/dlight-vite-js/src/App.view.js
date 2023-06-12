@@ -1,24 +1,49 @@
-import { View } from "@dlightjs/dlight"
+import DLight, { View } from "@dlightjs/dlight"
+import { wrap, slogan2, countWrap, countBtn, btnWrap, countText } from "./style.module.css"
+import Button from "./Button.view"
+import Header from "./Header.view"
 
 export default class App extends View {
-    @Prop defaultCount = 0
-    @State count = this.defaultCount
-    derivedCount = this.count + 1
+  count = 0
 
-    Body() {
-        div()
+  Body() {
+    div()
+      .className(wrap)
+    {
+      Header()
+      div()
+        .className(slogan2)
+      {
+        p()
         {
-            h1("DLight.js")
-            div(this.count)
-            div(this.derivedCount)
+          span("D")
+            ._color("rgb(194, 225, 154)")
+          span("Light")
+            ._color("rgb(241,192,149)")
         }
-        button("+")
+        p("Your Modern")
+          ._margin("0px")
+        p("Web Framework")
+      }
+      div()
+        .className(countWrap)
+      {
+        p(this.count)
+          .className(countBtn)
+          .className(countText)
+        div()
+          .className(btnWrap)
+        {
+          Button("count ++")
             .onclick(() => {
-                this.count ++
+              this.count++
             })
-        button("-")
+          Button("count --")
             .onclick(() => {
-                this.count --
+              this.count--
             })
+        }
+      }
     }
+  }
 }

@@ -1,12 +1,12 @@
 import { defineConfig } from 'vite'
-import dlight from "vite-plugin-dlight-transpiler"
+import dlight from "vite-plugin-dlight"
 
 export default defineConfig({
     server: {
-        port: 6660
+        port: 5780
     },
     base: '',
     plugins: [
-        dlight(),
+        dlight({ appendix: [".view.js"] }),
     ]
 });

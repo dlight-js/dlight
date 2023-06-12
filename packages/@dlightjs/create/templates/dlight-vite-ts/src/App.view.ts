@@ -1,27 +1,70 @@
 import DLight, { View } from "@dlightjs/dlight"
-import { type Typed, button, div, h1, State, Prop } from "@dlightjs/types"
+import { type Typed, div, p, button, span, SubView } from "@dlightjs/types"
+import Header from "./Header.view"
+import { wrap, slogan2, countWrap, countBtn, btnHover, btnWrap, countText } from "./style.module.css"
 
 class App extends View {
-    @Prop defaultCount: Prop<number> = 0
-    @State count = this.defaultCount
-    derivedCount = this.count + 1
+  count = 0
+  btnStatus = [0, 0]  // hover = 1
+  @SubView
+  Btn({ _$content, onclick, index }: any): any {
+    button(_$content)
+      .className(countBtn)
+      .className(this.btnStatus[index] === 1 ? btnHover : null)
+      .onclick(onclick)
+      .onmouseover(() => {
+        this.btnStatus[index] = 1
+        this.btnStatus = [...this.btnStatus]
+      })
+      .onmouseleave(() => {
+        this.btnStatus[index] = 0
+        this.btnStatus = [...this.btnStatus]
+      })
+  }
 
-    Body() {
-        div()
+
+  Body() {
+    div()
+      .className(wrap)
+    {
+      Header()
+      div()
+        .className(slogan2)
+      {
+        p()
         {
-            h1("DLight.js")
-            div(this.count)
-            div(this.derivedCount)
+          span("D")
+            ._color("rgb(194, 225, 154)")
+          span("Light")
+            ._color("rgb(241,192,149)")
         }
-        button("+")
+        p("Your Modern")
+          ._margin("0px")
+        p("Web Framework")
+      }
+      div()
+        .className(countWrap)
+      {
+        p(this.count)
+          .className(countBtn)
+          .className(countText)
+        div()
+          .className(btnWrap)
+        {
+          this.Btn("count ++")
+            .index(0)
             .onclick(() => {
-                this.count ++
+              this.count++
             })
-        button("-")
+          this.Btn("count --")
+            .index(1)
             .onclick(() => {
-                this.count --
+              this.count--
             })
+        }
+      }
     }
+  }
 }
 
 export default App as any as Typed<App>
