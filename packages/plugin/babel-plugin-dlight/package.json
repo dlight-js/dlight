@@ -1,6 +1,6 @@
 {
   "name": "babel-plugin-dlight",
-  "version": "0.7.17-1",
+  "version": "0.8.1",
   "files": [
     "dist"
   ],

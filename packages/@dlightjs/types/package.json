@@ -1,6 +1,6 @@
 {
   "name": "@dlightjs/types",
-  "version": "0.7.16",
+  "version": "0.8.3",
   "files": [
     "dist"
   ],

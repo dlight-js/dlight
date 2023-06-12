@@ -219,21 +219,22 @@ export class ForNode extends MutableNode {
 
     newFlowIndex = flowIndex
 
-    // ---3 再替换
+    const bufferNodes: Record<number, DLNode[]> = {}
+    // ---3 再替换  -- Fisher-Yates 洗牌算法 优化
     for (const [idx, key] of this.keys.entries()) {
       const prevIdx = prevKeys.indexOf(key)
-      if (prevIdx === idx) {
+      if (bufferNodes[idx]) {
+        const bufferedNode = bufferNodes[idx]
+        ;[newFlowIndex, length] = appendNodesWithIndex(bufferedNode, newFlowIndex + getFlowIndexFromNodes(bufferedNode), parentEl, length)
+        delete bufferNodes[idx]
+      } else if (prevIdx === idx) {
         newFlowIndex += getFlowIndexFromNodes(newDlNodes[idx])
-        continue
+      } else {
+        bufferNodes[this.keys.indexOf(prevKeys[idx])] = newDlNodes[idx]
+        ;[newFlowIndex, length] = appendNodesWithIndex(newDlNodes[prevIdx], newFlowIndex, parentEl, length)
       }
-
-      const nodes = newDlNodes[prevIdx]
-      const newPrevKey = prevKeys[prevIdx];
-      [newFlowIndex, length] = appendNodesWithIndex(nodes, newFlowIndex, parentEl, length)
-      newDlNodes.splice(prevIdx, 1)
-      prevKeys.splice(prevIdx, 1)
-      newDlNodes.splice(idx + 1, 0, nodes)
-      prevKeys.splice(idx + 1, 0, newPrevKey)
+      ;[newDlNodes[idx], newDlNodes[prevIdx]] = [newDlNodes[prevIdx], newDlNodes[idx]]
+      ;[prevKeys[idx], prevKeys[prevIdx]] = [prevKeys[prevIdx], prevKeys[idx]]
     }
 
     this._$nodess = newDlNodes

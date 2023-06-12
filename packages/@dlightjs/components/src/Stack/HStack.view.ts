@@ -6,7 +6,7 @@ import { type VAlignment } from "./types"
 import { isChildSpacer } from "./Spacer.view"
 
 export class HStack extends View {
-  @Prop spacing: Prop<number> = 10 as any
+  @Prop spacing: Prop<number> = 0 as any
   @Prop alignment: Prop<VAlignment> = "top" as any
   @Prop width: Prop<string> = "100%" as any
   @Prop height: Prop<string> = "max-content" as any

@@ -177,8 +177,8 @@ export class CustomNode extends DLNode {
     this.Afterset()
   }
 
-  _$addProp(key: string, propFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[], isTwoWayConnected?: boolean) {
-    addDLProp(this, "prop", key, propFunc, dlScope, listenDeps, isTwoWayConnected)
+  _$addProp(key: string, propFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]) {
+    addDLProp(this, "prop", key, propFunc, dlScope, listenDeps)
   }
 
   // ---- lifecycles
@@ -247,7 +247,7 @@ export class CustomNode extends DLNode {
         .map(m => m.replace(/^_\$\$\$*/, ""))
     )]
     for (const member of members) {
-      dlNode._$addProp(member, () => (this as any)[member], this, [member], true)
+      dlNode._$addProp(member, () => (this as any)[member], this, [member])
     }
 
     if (dlNode._$nodeType === DLNodeType.Custom) {

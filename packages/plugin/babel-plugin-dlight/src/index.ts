@@ -55,7 +55,7 @@ export default function() {
       t.objectExpression([])
     )
     properties = classBodyNode.body
-      .filter(n => t.isClassProperty(n) && !t.isArrowFunctionExpression(n.value))
+      .filter(n => t.isClassProperty(n))
       .map(n => (n as any).key.name)
     staticProperties = classBodyNode.body
       .filter(
@@ -97,22 +97,24 @@ export default function() {
         // ---- 要提前判断是不是最后一个，因为后面会赠加
         const willHandleBody = willHandleBodyAtLast(node)
 
-        // ---- 看是不是有属性是 prop derived，有就加一个()=>
-        //      同时在propDerived中记录，这会在constructor的调用一遍
-        const deps: string[] = []
-        path.scope.traverse(node, {
-          MemberExpression(innerPath: any) {
-            if (properties.includes(innerPath.node.property.name)) {
-              if (shouldBeListened(innerPath, classDeclarationNode!)) {
-                deps.push(innerPath.node.property.name)
-              }
-            }
-          }
-        })
-
         const decoNames = node.decorators?.filter(deco => (
           t.isIdentifier(deco.expression) && ["Static", "Prop", "Env"].includes(deco.expression.name)
         )).map(deco => (deco.expression as any).name) ?? []
+        // ---- 看是不是有属性是 prop derived，有就加一个()=>
+        //      同时在propDerived中记录，这会在constructor的调用一遍
+        //      不管@prop和@env
+        const deps: string[] = []
+        if (!(decoNames.includes("Prop") || decoNames.includes("Env"))) {
+          path.scope.traverse(node, {
+            MemberExpression(innerPath: any) {
+              if (properties.includes(innerPath.node.property.name)) {
+                if (shouldBeListened(innerPath, classDeclarationNode!)) {
+                  deps.push(innerPath.node.property.name)
+                }
+              }
+            }
+          })
+        }
 
         propertiesContainer[key] = {
           node,

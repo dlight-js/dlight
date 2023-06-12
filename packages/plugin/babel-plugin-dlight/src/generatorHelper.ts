@@ -36,6 +36,10 @@ export function parseCustomTag(parserNode: ParserNode) {
   }
 }
 
+export function isTagName(parserNode: ParserNode, name: string) {
+  return t.isIdentifier(parserNode.tag as any) && (parserNode.tag as any).name === name
+}
+
 export function uid() {
   return Math.random().toString(20).slice(2, 8)
 }
