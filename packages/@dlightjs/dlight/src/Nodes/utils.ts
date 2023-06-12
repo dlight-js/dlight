@@ -25,7 +25,6 @@ export function appendEls(htmlNode: HtmlNode, nodes: DLNode[]) {
 export function removeNodes(nodes: DLNode[]) {
   willUnmountDlightNodes(nodes)
   loopEls(nodes, (el: HTMLElement, node: HtmlNode) => {
-    // ---- delay disappear 为了各种动画提供
     const isInDOM = document.body.contains(el)
     if (!isInDOM) return
     if (node._$nodeType === DLNodeType.HTML) {

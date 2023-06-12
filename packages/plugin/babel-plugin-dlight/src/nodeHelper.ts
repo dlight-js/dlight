@@ -4,7 +4,7 @@ export function pushDerived(name: string, deps: string[], propDerivedNode: t.Cla
   if (!classBodyNode.body.includes(propDerivedNode)) {
     classBodyNode.body.unshift(propDerivedNode)
   }
-  (propDerivedNode as any).value.properties.push(
+  (propDerivedNode as any).value.properties.unshift(
     t.objectProperty(
       t.identifier(name),
       t.arrayExpression(deps.map(dep => t.stringLiteral(dep)))
@@ -17,7 +17,7 @@ export function pushDep(name: string, depsNode: t.ClassProperty, classBodyNode: 
     classBodyNode.body.unshift(depsNode)
   }
   if ((depsNode as any).value.properties.map((p: any) => p.key.name).includes(name)) return
-  (depsNode as any).value.properties.push(
+  (depsNode as any).value.properties.unshift(
     t.objectProperty(
       t.identifier(name),
       t.newExpression(t.identifier("Map"), [])
@@ -25,17 +25,32 @@ export function pushDep(name: string, depsNode: t.ClassProperty, classBodyNode: 
   )
 }
 
-export function isMemberInFunction(innerPath: any, classDeclarationNode?: t.Node) {
-  // ---- 一直找到classDeclaration，
-  //      如果这个 this.xxx前面有function或者arrowFunction包裹，直接不管
-  // ---- 对于上面的描述，改一下，如果有arrowFunction就不考虑，如果是function
-  //      默认为这种情况：
-  //      a = function() {/* do something */} ()
-  //      因为如果普通function，你改写成method而非member
+export const escapeArray = ["escape", "$"]
+
+export function isMemberInEscapeFunction(innerPath: any, classDeclarationNode?: t.Node) {
   let isInFunction = false
   let reversePath = innerPath.parentPath
   while (reversePath && reversePath.node !== classDeclarationNode) {
-    if (t.isArrowFunctionExpression(reversePath.node)) {
+    const node = reversePath.node
+    if (t.isCallExpression(node) && t.isIdentifier(node.callee) && escapeArray.includes(node.callee.name)) {
+      isInFunction = true
+      break
+    }
+    reversePath = reversePath.parentPath
+  }
+
+  return isInFunction
+}
+
+export function isMemberInManualFunction(innerPath: any, classDeclarationNode?: t.Node) {
+  let isInFunction = false
+  let reversePath = innerPath.parentPath
+  while (reversePath && reversePath.node !== classDeclarationNode) {
+    const node = reversePath.node
+    const parentNode = reversePath.parentPath?.node
+    if ((t.isArrowFunctionExpression(node) || t.isFunctionExpression(node)) &&
+      t.isCallExpression(parentNode) && t.isIdentifier(parentNode.callee) && parentNode.callee.name === "manual"
+    ) {
       isInFunction = true
       break
     }
@@ -71,18 +86,15 @@ export function isAssignmentExpressionRight(innerPath: any, classDeclarationNode
 }
 
 export function shouldBeListened(innerPath: any, classDeclarationNode?: t.Node) {
-  return (!isMemberInFunction(innerPath, classDeclarationNode) &&
+  return (
+    !isMemberInManualFunction(innerPath, classDeclarationNode) &&
+    !isMemberInEscapeFunction(innerPath, classDeclarationNode) &&
     !isAssignmentExpressionLeft(innerPath) &&
     !isAssignmentExpressionRight(innerPath, classDeclarationNode))
 }
 
 export function valueWithArrowFunc(node: any) {
-  const originValue = node.value
-  node.value = {
-    type: "ArrowFunctionExpression",
-    params: [],
-    body: originValue
-  } as any
+  node.value = t.arrowFunctionExpression([], node.value)
 }
 
 export function isMemberExpressionProperty(parentNode: t.Node, currentNode: t.Node) {

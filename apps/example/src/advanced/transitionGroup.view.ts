@@ -3,9 +3,10 @@ import DLight, { View } from "@dlightjs/dlight"
 import { TransitionGroup } from "@dlightjs/components"
 import { button, div } from "@dlightjs/types"
 
+let i = 0
 function getData(text: string) {
   return {
-    id: Math.random().toString(20),
+    id: Math.random() + i++,
     text
   }
 }
@@ -36,6 +37,7 @@ export default class TransitionTest extends View {
         .sort((a, b) => a.sort - b.sort)
         .map(({ value }) => value)
     }
+    console.log(this.list.map(i => i.text), newList.map(i => i.text))
     this.list = [...newList]
   }
 

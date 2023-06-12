@@ -1,6 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import DLight, { View } from "@dlightjs/dlight"
-import { Prop, SubView, required, button, div, h1, tr, a, span, table, tbody, td, type RequiredProp, type Typed } from "@dlightjs/types"
+import { SubView, button, div, h1, tr, a, span, table, tbody, td } from "@dlightjs/types"
 
 let idCounter = 1
 
@@ -20,43 +20,6 @@ function buildData(count: number) {
   }
   return data
 }
-
-class RowClass extends View {
-  @Prop id: RequiredProp<number> = required
-  @Prop label: RequiredProp<string> = required
-  @Prop className: RequiredProp<string> = required
-  @Prop deleteRow: RequiredProp<(id: number) => void> = required
-  @Prop selectRow: RequiredProp<(id: number) => void> = required
-
-  Body() {
-    tr()
-      .className(this.className)
-    {
-      td(this.id)
-        .className("col-md-1")
-      td()
-        .className("col-md-4")
-      {
-        a(this.label)
-          .onclick(() => this.selectRow(this.id))
-      }
-      td()
-        .className("col-md-1")
-      {
-        a()
-          .onclick(() => this.deleteRow(this.id))
-        {
-          span()
-            .className("glyphicon glyphicon-remove")
-            .ariaHidden("true")
-        }
-      }
-      td()
-        .className("col-md-6")
-    }
-  }
-}
-const Row = RowClass as any as Typed<RowClass>
 
 class App extends View {
   rows: any[] = []
@@ -97,6 +60,35 @@ class App extends View {
       this.rows[i].label += " !!!"
     }
     this.rows = [...this.rows]
+  }
+
+  @SubView
+  Row({ id, className, label }: any): any {
+    tr()
+      .className(className)
+    {
+      td(id)
+        .className("col-md-1")
+      td()
+        .className("col-md-4")
+      {
+        a(label)
+          .onclick(() => this.selectRow(id))
+      }
+      td()
+        .className("col-md-1")
+      {
+        a()
+          .onclick(() => this.deleteRow(id))
+        {
+          span()
+            .className("glyphicon glyphicon-remove")
+            .ariaHidden("true")
+        }
+      }
+      td()
+        .className("col-md-6")
+    }
   }
 
   @SubView
@@ -169,7 +161,7 @@ class App extends View {
           {
             for (const { id, label } of this.rows) {
               [id]
-              Row()
+              this.Row({})
                 .id(id)
                 .label(label)
                 .className(this.selectIdx === id ? "danger" : "")

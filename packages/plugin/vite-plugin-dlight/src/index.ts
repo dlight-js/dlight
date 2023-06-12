@@ -17,8 +17,8 @@ interface DLightPluginOption {
 export default function(options?: DLightPluginOption) {
   let appendix: any
   if (options) {
-    appendix = options.appendix
-    if (appendix && !Array.isArray(appendix)) appendix = [appendix]
+    appendix = options.appendix ?? [".js", ".ts"]
+    if (!Array.isArray(appendix)) appendix = [appendix]
   }
 
   return {

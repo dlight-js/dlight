@@ -1,5 +1,5 @@
 import { type ParserNode } from "./parser"
-import { geneDeps, geneIdDeps, uid, getIdentifiers, resolveForBody, isHTMLTag, parseCustomTag, isTwoWayConnected, isSubViewTag, isOnlyMemberExpression } from "./generatorHelper"
+import { geneDeps, geneIdDeps, uid, getIdentifiers, resolveForBody, isHTMLTag, parseCustomTag, isSubViewTag, isOnlyMemberExpression, isTagName } from "./generatorHelper"
 import * as t from "@babel/types"
 
 function nodeGeneration(nodeName: string, nodeType: t.Expression, args: Array<t.ArgumentPlaceholder | t.SpreadElement | t.Expression>) {
@@ -67,8 +67,8 @@ export class Generator {
 
   resolveParserNode(parserNode: ParserNode, idx: number) {
     if (isSubViewTag(this.subViews, parserNode)) return this.resolveSubView(parserNode, idx)
-    if (t.isIdentifier(parserNode.tag as any) && (parserNode.tag as any).name === "_") return this.resolveExpression(parserNode, idx)
-    if (parserNode.tag === "env") return this.resolveEnv(parserNode, idx)
+    if (isTagName(parserNode, "_")) return this.resolveExpression(parserNode, idx)
+    if (isTagName(parserNode, "env")) return this.resolveEnv(parserNode, idx)
     if (parserNode.tag === "if") return this.resolveIf(parserNode, idx)
     if (parserNode.tag === "for") return this.resolveFor(parserNode, idx)
     if (parserNode.tag === "_$text") return this.resolveText(parserNode, idx)
@@ -850,7 +850,7 @@ export class Generator {
       }
       if (listenDeps.length > 0) {
         /**
-         * ${nodeName}._$addProp("${key}", () => (${value}), this, ${geneDepsStr(listenDeps)}, ${geneIsTwoWayConnected(value)})
+         * ${nodeName}._$addProp("${key}", () => (${value}), this, ${geneDepsStr(listenDeps)})
          */
         statements.push(
           t.expressionStatement(
@@ -862,8 +862,7 @@ export class Generator {
                 t.stringLiteral(key),
                 t.arrowFunctionExpression([], value),
                 t.thisExpression(),
-                t.arrayExpression(listenDeps),
-                t.booleanLiteral(isTwoWayConnected(value))
+                t.arrayExpression(listenDeps)
               ]
             )
           )
@@ -1097,7 +1096,7 @@ export class Generator {
       const listenDeps = this.geneDeps(value)
       if (listenDeps.length > 0) {
         /**
-         * ${nodeName}._$addProp("${key}", () => (${value}), this, ${geneDepsStr(listenDeps)}, ${geneIsTwoWayConnected(value)});
+         * ${nodeName}._$addProp("${key}", () => (${value}), this, ${geneDepsStr(listenDeps)}});
          */
         statements.push(
           t.expressionStatement(
@@ -1109,8 +1108,7 @@ export class Generator {
                 t.stringLiteral(key),
                 t.arrowFunctionExpression([], value),
                 t.thisExpression(),
-                t.arrayExpression(listenDeps),
-                t.booleanLiteral(isTwoWayConnected(value))
+                t.arrayExpression(listenDeps)
               ]
             )
           )
@@ -1186,7 +1184,7 @@ export class Generator {
       const listenDeps = this.geneDeps(value)
       if (listenDeps.length > 0) {
         /**
-         * ${nodeName}._$addProp("${key}", () => (${value}), this, ${geneDepsStr(listenDeps)}, ${geneIsTwoWayConnected(value)});
+         * ${nodeName}._$addProp("${key}", () => (${value}), this, ${geneDepsStr(listenDeps)});
          */
         statements.push(
           t.expressionStatement(
@@ -1198,8 +1196,7 @@ export class Generator {
                 t.stringLiteral(key),
                 t.arrowFunctionExpression([], value),
                 t.thisExpression(),
-                t.arrayExpression(listenDeps),
-                t.booleanLiteral(isTwoWayConnected(value))
+                t.arrayExpression(listenDeps)
               ]
             )
           )
