@@ -4,15 +4,17 @@
 // 因为不想在外暴露详细类型，所以 type A<T> = B<xxx<T>> & Useless
 // 但是如果type Useless = { useless: never }会导致这个类型多一个属性 userless
 // 所以直接不添加key！
-// @ts-ignore
 type Useless = { [key in ""]: never }
 
 type DLightObject<T> = {
   [K in keyof T]: (value: T[K]) => DLightObject<Omit<T, K>>
 }
 
-// @ts-expect-error I don't know why
-type CustomTag<T> = "_$content" extends keyof T ? (_$content?: T["_$content"]) => DLightObject<T> : () => DLightObject<T>
+type CustomTag<P extends { _$content?: any }, T> = P["_$content"] extends RequiredProp<infer U>
+  ? (_$content: U) => Omit<DLightObject<T>, "_$content">
+  : P["_$content"] extends Prop<infer U>
+    ? (_$content?: U) => Omit<DLightObject<T>, "_$content">
+    : () => DLightObject<T>
 
 // ---- auto gene type
 export const Prop = null as any
@@ -34,7 +36,8 @@ type SelectProps<T> = FilterNever<{
       : never
 }>
 
-export type Typed<T> = CustomTag<SelectProps<T>> & Useless
+// @ts-ignore
+export type Typed<T> = CustomTag<T, SelectProps<T>> & Useless
 
 export type UnTyped<T> = T extends Typed<infer U> ? U : never
 
