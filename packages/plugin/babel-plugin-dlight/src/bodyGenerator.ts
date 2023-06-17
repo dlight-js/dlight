@@ -890,10 +890,9 @@ export class Generator {
     // ---- child
     if (parserNode.children.length > 0) {
       /**
-       * ${nodeName}._$addchildren([() => {
-       *  this.resolveParserNode(child, 0)
-       *  return _$node0
-       * }])
+       * ${nodeName}._$addchildren(() => {
+       *  children
+       * })
        */
       statements.push(
         t.expressionStatement(
@@ -901,15 +900,12 @@ export class Generator {
             t.memberExpression(
               t.identifier(nodeName),
               t.identifier("_$addChildren")
-            ), [t.arrayExpression(parserNode.children.map(child => (
+            ), [
               t.arrowFunctionExpression(
                 [],
-                t.blockStatement([
-                  ...this.resolveParserNode(child, 0),
-                  t.returnStatement(t.identifier("_$node0"))
-                ])
+                this.generate(parserNode.children)
               )
-            )))]
+            ]
           )
         )
       )
@@ -1024,31 +1020,33 @@ export class Generator {
     /**
      * _$node${idx}[0]._$depObjectIds.push(...[${Object.keys(props).map(i => `depId${idx}_${i}`).join(",")}]);
      */
-    statements.push(
-      t.expressionStatement(
-        t.callExpression(
-          t.memberExpression(
+    if (props.length > 0) {
+      statements.push(
+        t.expressionStatement(
+          t.callExpression(
             t.memberExpression(
               t.memberExpression(
-                t.identifier(nodeName),
-                t.numericLiteral(0),
-                true
+                t.memberExpression(
+                  t.identifier(nodeName),
+                  t.numericLiteral(0),
+                  true
+                ),
+                t.identifier("_$depObjectIds")
               ),
-              t.identifier("_$depObjectIds")
-            ),
-            t.identifier("push")
-          ), [
-            t.spreadElement(
-              t.arrayExpression(
-                Object.keys(props).map(i => (
-                  t.identifier(`depId${idx}_${i}`)
-                ))
+              t.identifier("push")
+            ), [
+              t.spreadElement(
+                t.arrayExpression(
+                  Object.keys(props).map(i => (
+                    t.identifier(`depId${idx}_${i}`)
+                  ))
+                )
               )
-            )
-          ]
+            ]
+          )
         )
       )
-    )
+    }
 
     return statements
   }

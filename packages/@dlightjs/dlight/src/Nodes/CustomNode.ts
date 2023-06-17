@@ -96,12 +96,12 @@ export class CustomNode extends DLNode {
 
   _$$children: DLNode[] = []
   get _$children(): DLNode[] {
-    return this._$childrenFuncs.map(func => func())
+    return this._$childrenFuncs()
   }
 
-  _$childrenFuncs: Array<() => DLNode> = []
+  _$childrenFuncs: () => DLNode[] = () => []
 
-  _$addChildren(dlNodeFuncs: Array<() => DLNode>) {
+  _$addChildren(dlNodeFuncs: () => DLNode[]) {
     this._$childrenFuncs = dlNodeFuncs
   }
 

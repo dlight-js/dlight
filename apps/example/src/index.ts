@@ -10,6 +10,7 @@ import FetchDataView from "./basic/fetchData.view"
 import DerivedValueView from "./basic/derivedValue.view"
 import StyledView from "./advanced/styledView.view"
 import transformDLight from "@dlightjs/transpiler-standalone"
+import { RouteTest } from "./components/Router.view"
 
 // const code = `
 // import { View } from "@dlightjs/dlight"
@@ -28,4 +29,4 @@ import transformDLight from "@dlightjs/transpiler-standalone"
 
 // console.log(transformDLight(code))
 
-render("app", TransitionGroupView)
+render("app", RouteTest)

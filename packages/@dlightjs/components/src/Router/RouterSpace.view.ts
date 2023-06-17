@@ -1,20 +1,21 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import DLight, { type DLNode, View } from "@dlightjs/dlight"
+import DLight, { type DLNode, View, CustomNode } from "@dlightjs/dlight"
 import { Navigator } from "./Navigator"
 import { getHashLocation, getHistoryLocation } from "./utils"
-import { type Typed, _, env, Prop, Static, required } from "@dlightjs/types"
+import { type Typed, _, env, Prop, Static } from "@dlightjs/types"
 
 const rawHistoryPushState = history.pushState
 let historyPushStateFuncs: Array<() => any> = []
 
 class RouterSpace extends View {
   @Prop mode: Prop<"hash" | "history"> = "history" as any
-  @Prop navigator: Prop<Navigator> = required
+  @Prop getNavigator: Prop<(nav: Navigator) => void> = (() => {}) as any
   currUrl = this.mode === "hash" ? getHashLocation() : getHistoryLocation()
 
   @Static baseUrl = ""
   @Static prevPathCondition = ""
   @Static prevRoutes: DLNode[] = []
+  navigator?: Navigator
 
   showedRoute = (function() {
     const prevPathCondition = this.prevPathCondition
@@ -66,6 +67,8 @@ class RouterSpace extends View {
   }
 
   didMount() {
+    this.getNavigator(this.navigator!)
+
     if (this.mode === "hash") {
       addEventListener("load", this.hashChangeListen)
       addEventListener("hashchange", this.hashChangeListen)
@@ -124,7 +127,7 @@ class RouterSpace extends View {
   Preset() {
     const newNavigator = new Navigator()
     newNavigator.mode = this.mode
-    this.navigator = newNavigator as any
+    this.navigator = newNavigator
   }
 
   routeParam = {

@@ -1,5 +1,5 @@
 import { RouterSpace, Route } from "@dlightjs/components"
-import { View } from "@dlightjs/dlight"
+import DLight, { View } from "@dlightjs/dlight"
 import { button, div, Env, State } from "@dlightjs/types"
 
 class SubComp2 extends View {
@@ -57,6 +57,15 @@ class SubComp extends View {
   }
 }
 
+class OK extends View {
+  @Env RouteParam
+  navigator = this.RouteParam.navigator
+
+  Body() {
+
+  }
+}
+
 export class RouteTest extends View {
   navigator
   Body() {
@@ -74,7 +83,7 @@ export class RouteTest extends View {
         this.navigator.to("..")
       })
     RouterSpace()
-      .navigator(this.navigator)
+      .getNavigator(nav => { console.log(nav); this.navigator = nav })
       .mode("hash")
     {
       Route("OKK")
