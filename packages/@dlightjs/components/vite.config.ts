@@ -1,5 +1,5 @@
 import { defineConfig } from "vite"
-import dlight from "vite-plugin-dlight/dist"
+import dlight from "vite-plugin-dlight"
 import { resolve } from "path"
 import dts from "vite-plugin-dts"
 import { dependencies } from "./package.json"
@@ -7,7 +7,7 @@ import { dependencies } from "./package.json"
 export default defineConfig({
   plugins: [
     dts(),
-    dlight()
+    dlight({ appendix: ["view.ts"] })
   ],
   build: {
     lib: {
