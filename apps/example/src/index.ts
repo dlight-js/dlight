@@ -28,4 +28,4 @@ import transformDLight from "@dlightjs/transpiler-standalone"
 
 // console.log(transformDLight(code))
 
-render("app", TestView)
+render("app", TransitionGroupView)

@@ -1182,7 +1182,7 @@ export class Generator {
       }
 
       const listenDeps = this.geneDeps(value)
-      if (listenDeps.length > 0) {
+      if (listenDeps.length > 0 && !["willAppear", "didAppear", "willDisappear", "didDisappear"].includes(key)) {
         /**
          * ${nodeName}._$addProp("${key}", () => (${value}), this, ${geneDepsStr(listenDeps)});
          */

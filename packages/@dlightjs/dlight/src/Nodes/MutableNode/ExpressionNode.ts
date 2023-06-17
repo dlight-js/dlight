@@ -39,7 +39,7 @@ export class ExpressionNode extends MutableNode {
     // TODO 太复杂，要简化
     const addHtmlNodeProp = (node: HtmlNode) => {
       if (["willAppear", "didAppear", "willDisappear", "didDisappear"].includes(key)) {
-        (node)._$addLifeCycle(valueOrFunc, key as any)
+        node._$addLifeCycle(valueOrFunc, key as any)
         return
       }
       // ---- 不覆盖style
