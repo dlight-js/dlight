@@ -1,0 +1,15 @@
+import DLight, { View } from "@dlightjs/dlight"
+import { type Typed } from "@dlightjs/types"
+import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
+
+class WebAssetFilled extends View {
+  _$forwardProps = true
+  Body() {
+    DLightIcon()
+      .forwardProps(true)
+      .content("<path d=\"M19 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6a2 2 0 0 0-2-2zm0 14H5V8h14v10z\"/>")
+      .name("WebAssetFilled")
+  }
+}
+
+export default WebAssetFilled as any as Typed<DLightIconType>

@@ -33,6 +33,7 @@ importers:
       '@dlightjs/components': workspace:*
       '@dlightjs/dlight': workspace:*
       '@dlightjs/emotion': workspace:*
+      '@dlightjs/material-icons': workspace:*
       '@dlightjs/transpiler-standalone': workspace:*
       '@dlightjs/types': workspace:*
       '@emotion/css': ^11.10.6
@@ -46,6 +47,7 @@ importers:
       '@dlightjs/components': link:../../packages/@dlightjs/components
       '@dlightjs/dlight': link:../../packages/@dlightjs/dlight
       '@dlightjs/emotion': link:../../packages/@dlightjs/emotion
+      '@dlightjs/material-icons': link:../../packages/@dlightjs/material-icons
       '@dlightjs/transpiler-standalone': link:../../packages/@dlightjs/transpiler-standalone
       '@dlightjs/types': link:../../packages/@dlightjs/types
       '@emotion/css': 11.10.6
@@ -140,6 +142,25 @@ importers:
       '@dlightjs/dlight': link:../dlight
       '@dlightjs/types': link:../types
       '@emotion/css': 11.10.6
+    devDependencies:
+      path: 0.12.7
+      typescript: 4.9.5
+      vite: 4.1.4
+      vite-plugin-dlight: link:../../plugin/vite-plugin-dlight
+      vite-plugin-dts: 1.7.3_vite@4.1.4
+
+  packages/@dlightjs/material-icons:
+    specifiers:
+      '@dlightjs/dlight': workspace:*
+      '@dlightjs/types': workspace:*
+      path: ^0.12.7
+      typescript: ^4.9.3
+      vite: ^4.0.0
+      vite-plugin-dlight: workspace:*
+      vite-plugin-dts: ^1.7.1
+    dependencies:
+      '@dlightjs/dlight': link:../dlight
+      '@dlightjs/types': link:../types
     devDependencies:
       path: 0.12.7
       typescript: 4.9.5
