@@ -29,4 +29,4 @@ import { RouteTest } from "./components/Router.view"
 
 // console.log(transformDLight(code))
 
-render("app", RouteTest)
+render("app", TestView)

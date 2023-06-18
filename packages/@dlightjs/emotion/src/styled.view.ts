@@ -1,17 +1,10 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import DLight, { View } from "@dlightjs/dlight"
+import { htmlTag, tag } from "@dlightjs/types"
 import { css } from "@emotion/css"
-import { htmlTag, tag, type Typed, type Prop, type RequiredProp, type UnTyped, type UnPropWrapper } from "@dlightjs/types"
+import { type Styled } from "./types"
 
-type PropWrapper<T> = {
-  [key in keyof T]-?: undefined extends T[key] ? Prop<T[key]> : RequiredProp<T[key]>;
-}
-
-type Styled<T, G> = Typed<PropWrapper<T & UnPropWrapper<UnTyped<G>>>>
-
-// eslint-disable-next-line @typescript-eslint/ban-types
-export const styled = <G>(innerTag: G) =>
-  function<T=any>(strings: any, ...args: Array<(props: T) => string>): Styled<T, G> {
+export const styled: Styled = (<G>(innerTag: G) =>
+  function<T={}>(strings: any, ...args: Array<(props: T) => string>) {
     const getStyles = (node: any, scope: any) => {
       const keys = [...new Set(
         Object.getOwnPropertyNames(scope)
@@ -42,27 +35,29 @@ export const styled = <G>(innerTag: G) =>
     if (typeof innerTag === "string") {
       return class Styled extends View {
         _$forwardProps = true
-        // @ts-ignore
-        @Prop _$content
 
-        Afterset() {
+        didMount() {
           (this as any)._$el = (this as any)._$el[0]
         }
 
         Body() {
-          htmlTag(innerTag)(this._$content)
-            .forwardProps()
-            .do((node: any) => { getStyles(node, this) })
+          htmlTag(innerTag)()
+            .forwardProps(true)
+            .do(node => { getStyles(node, this) })
         }
       } as any
     }
     return class Styled extends View {
+      // @ts-ignore
       _$forwardProps = true
 
       Body() {
         tag(innerTag)()
-          .forwardProps()
-          .do((node: any) => { getStyles(node, this) })
+          .forwardProps(true)
+          .element(el => {
+            (this as any)._$el = el
+          })
+          .do(node => { getStyles(node, this) })
       }
     } as any
-  }
+  }) as any

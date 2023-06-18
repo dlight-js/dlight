@@ -1,3 +1,5 @@
+import { type CustomNode } from "@dlightjs/dlight"
+
 // 非常神奇的一个解法
 // vscode解析ts的提示时，如果是 type A<T> = B<xxx<T>> 的形式，会显示详细的类型，
 // 但如果 type A<T> = B<xxx<T>> & xxx，只会显示alias（这里是A）
@@ -11,9 +13,9 @@ type DLightObject<T> = {
 }
 
 type CustomTag<P extends { _$content?: any }, T> = P["_$content"] extends RequiredProp<infer U>
-  ? (_$content: U) => Omit<DLightObject<T>, "_$content">
+  ? (_$content: U) => DLightObject<Omit<T, "_$content">>
   : P["_$content"] extends Prop<infer U>
-    ? (_$content?: U) => Omit<DLightObject<T>, "_$content">
+    ? (_$content?: U) => DLightObject<Omit<T, "_$content">>
     : () => DLightObject<T>
 
 // ---- auto gene type
@@ -36,8 +38,19 @@ type SelectProps<T> = FilterNever<{
       : never
 }>
 
+type CustomLifecycleFuncType = ((els?: HTMLElement[], node?: CustomNode) => void) | undefined
+interface CustomNodeProps {
+  do: (node: CustomNode) => void
+  forwardProps: true
+  element: HTMLElement[] | ((holder: HTMLElement[]) => void) | undefined
+  willMount: CustomLifecycleFuncType
+  didMount: CustomLifecycleFuncType
+  willUnmount: CustomLifecycleFuncType
+  didUnmount: CustomLifecycleFuncType
+}
+
 // @ts-ignore
-export type Typed<T> = CustomTag<T, SelectProps<T>> & Useless
+export type Typed<T> = CustomTag<T, SelectProps<T> & CustomNodeProps> & Useless
 
 export type UnTyped<T> = T extends Typed<infer U> ? U : never
 

@@ -11,6 +11,11 @@ function transformDLight(code: string, id: string) {
 }
 
 interface DLightPluginOption {
+  /**
+   * DLight will only parse file that ends with specific appendix
+   * @default [".js", ".ts"]
+   * @suggested [".view.ts"]
+   */
   appendix?: string | string[]
 }
 

@@ -17,25 +17,20 @@ T,
 { [K in keyof T]: T[K] extends (...args: any) => any ? K : never }[keyof T]
 >
 
-export type OmitFuncAndReadOnly<T> = RemoveReadOnly<OmitFunction<T>>
+type OmitFuncAndReadOnly<T> = RemoveReadOnly<OmitFunction<T>>
 
 // properties
 type OmitFuncAndReadOnlyProperty<G> = OmitFuncAndReadOnly<G>
 
-type DLightPropertyWrapper<T, G> = {
-  [K in keyof OmitFuncAndReadOnlyProperty<G>]:
-  (value: OmitFuncAndReadOnlyProperty<G>[K]) => T
-}
-
 // shortcut inline style
 type PropertiesRequired = Required<Properties>
 
-type DLightShortcutStyle<T> = {
-  [K in keyof PropertiesRequired as `_${string & K}`]: (value: PropertiesRequired[K]) => T
+type ShortcutStyle = {
+  [K in keyof PropertiesRequired as `_${string & K}`]: PropertiesRequired[K]
 }
 
 export type HTMLElementWrapper<T> = Omit<T, "className">
 
-export type DLightHTMLElement<T, G=HTMLElementWrapper<HTMLElement>> =
-    DLightPropertyWrapper<T, G>
-    & DLightShortcutStyle<T>
+export type HTMLAttributes<T> =
+OmitFuncAndReadOnlyProperty<HTMLElementWrapper<T>>
+& ShortcutStyle

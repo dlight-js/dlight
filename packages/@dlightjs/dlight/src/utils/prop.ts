@@ -12,8 +12,6 @@ function addToDepChain(dlNode: CustomNode, key: string, defaultValue: any) {
   })
   if (!dlNode._$deps) dlNode._$deps = {}
   dlNode._$deps[key] = new Map()
-  if (!dlNode._$derivedPairs) dlNode._$derivedPairs = {}
-  dlNode._$derivedPairs[key] = []
 }
 
 export function addDLProp(dlNode: CustomNode, tag: "env" | "prop", key: string, propFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]) {
@@ -35,14 +33,12 @@ export function addDLProp(dlNode: CustomNode, tag: "env" | "prop", key: string, 
   addOneWayDLProp(dlScope!, dlNode, key, propFunc, listenDeps)
 }
 
-export function forwardDLProp(dlNode: CustomNode, key: string, propFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[], isTwoWayConnected?: boolean) {
+export function forwardDLProp(dlNode: CustomNode, key: string, propFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]) {
   (dlNode as any)[`_$$$${key}`] = "prop"
-  addToDepChain(dlNode, key, typeof propFunc === "function" ? propFunc() : propFunc)
-  if (!listenDeps) {
-    (dlNode as any)[`_$$${key}`] = propFunc
-    return
+  addToDepChain(dlNode, key, listenDeps ? propFunc() : propFunc)
+  if (listenDeps) {
+    addOneWayDLProp(dlScope!, dlNode, key, propFunc, listenDeps)
   }
-  addOneWayDLProp(dlScope!, dlNode, key, propFunc, listenDeps)
 }
 
 export function addOneWayDLProp(dlScope: CustomNode, dlNode: CustomNode | EnvNode, key: string, propFunc: () => any, listenDeps: string[]) {

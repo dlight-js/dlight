@@ -1,14 +1,13 @@
 import * as t from "@babel/types"
 import { type IdDepsArr } from "./bodyGenerator"
+import { isAHtmlTag } from "./htmlTags"
 import { shouldBeListened, isMemberExpressionProperty, isObjectKey } from "./nodeHelper"
 import { type ParserNode } from "./parser"
-
-const htmlTags = ["a", "abbr", "address", "area", "article", "aside", "audio", "b", "base", "bdi", "bdo", "blockquote", "body", "br", "button", "canvas", "caption", "cite", "code", "col", "colgroup", "data", "datalist", "dd", "del", "details", "dfn", "dialog", "div", "dl", "dt", "em", "embed", "fieldset", "figcaption", "figure", "footer", "form", "h1", "h2", "h3", "h4", "h5", "h6", "head", "header", "hgroup", "hr", "html", "i", "iframe", "img", "input", "ins", "kbd", "label", "legend", "li", "link", "main", "map", "mark", "menu", "meta", "meter", "nav", "noscript", "object", "ol", "optgroup", "option", "output", "p", "param", "picture", "pre", "progress", "q", "rp", "rt", "ruby", "s", "samp", "script", "section", "select", "slot", "small", "source", "span", "strong", "style", "sub", "summary", "sup", "table", "tbody", "td", "template", "textarea", "tfoot", "th", "thead", "time", "title", "tr", "track", "u", "ul", "var", "video", "wbr"]
 
 export function isHTMLTag(parserNode: ParserNode) {
   const tag = parserNode.tag
   if (typeof tag === "string") return false
-  if (t.isIdentifier(tag) && htmlTags.includes(tag.name)) {
+  if (t.isIdentifier(tag) && isAHtmlTag(tag.name)) {
     parserNode.tag = t.stringLiteral(tag.name)
     return true
   }
@@ -52,14 +51,13 @@ export function geneDeps(path: any, value: t.Node, depChain: string[], otherDeps
   let deps: t.StringLiteral[] = []
   path.scope.traverse(valueWrapper(value),
     {
-      Identifier(innerPath: any) {
+      MemberExpression(innerPath: any) {
         if (
-          depChain.includes(innerPath.node.name) &&
-          t.isMemberExpression(innerPath.parentPath.node) &&
-          t.isThisExpression(innerPath.parentPath.node.object) &&
+          depChain.includes(innerPath.node.property.name) &&
+          t.isThisExpression(innerPath.node.object) &&
           shouldBeListened(innerPath)
         ) {
-          deps.push(t.stringLiteral(innerPath.node.name))
+          deps.push(t.stringLiteral(innerPath.node.property.name))
         }
       }
     })

@@ -4,46 +4,43 @@ import { button, div, Env, State } from "@dlightjs/types"
 
 class SubComp2 extends View {
   toggle = false
-  @Env RouteParam
-
   secondNav
 
   Body() {
     div()
-      ._display("flex")
 
     button("toggle")
       .onclick(() => {
         this.toggle = !this.toggle
       })
-    // button("./not")
-    //   .onclick(() => {
-    //     this.secondNav.to("./not")
-    //   })
-    // button("./hi")
-    //   .onclick(() => {
-    //     this.secondNav.to("./hi")
-    //   })
+    button("./not")
+      .onclick(() => {
+        this.secondNav.to("./not")
+      })
+    button("./hi")
+      .onclick(() => {
+        this.secondNav.to("./hi")
+      })
 
     if (this.toggle) {
       div("hi niubi")
-      // RouterSpace()
-      //   .mode("hash")
-      //   .navigator(this.secondNav)
-      // {
-      //   Route("hi")
-      //   {
-      //     div("hi niubi")
-      //   }
-      //   Route("not")
-      //   {
-      //     div("not hihi")
-      //   }
-      //   Route()
-      //   {
-      //     div("nono")
-      //   }
-      // }
+      RouterSpace()
+        .mode("hash")
+        .getNavigator(nav => { this.secondNav = nav })
+      {
+        Route("hi")
+        {
+          div("hi niubi")
+        }
+        Route("not")
+        {
+          div("not hihi")
+        }
+        Route()
+        {
+          div("nono")
+        }
+      }
     }
   }
 }
@@ -78,7 +75,7 @@ export class RouteTest extends View {
       .onclick(() => {
         this.navigator.to("/fuck")
       })
-    button("push to /fuck")
+    button("back")
       .onclick(() => {
         this.navigator.to("..")
       })

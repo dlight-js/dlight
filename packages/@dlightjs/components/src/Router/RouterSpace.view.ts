@@ -15,7 +15,7 @@ class RouterSpace extends View {
   @Static baseUrl = ""
   @Static prevPathCondition = ""
   @Static prevRoutes: DLNode[] = []
-  navigator?: Navigator
+  navigator = new Navigator()
 
   showedRoute = (function() {
     const prevPathCondition = this.prevPathCondition
@@ -66,9 +66,20 @@ class RouterSpace extends View {
     this.currUrl = getHashLocation()
   }
 
-  didMount() {
-    this.getNavigator(this.navigator!)
+  willMount() {
+    this.navigator.mode = this.mode
+    this.getNavigator(this.navigator)
+    let parent: any = this._$parentNode
+    while (parent) {
+      if (parent.isRoute) {
+        this.baseUrl = parent._$content + "/" + this.baseUrl
+      }
+      parent = parent._$parentNode
+    }
+    console.log(this.baseUrl, "jj")
+  }
 
+  didMount() {
     if (this.mode === "hash") {
       addEventListener("load", this.hashChangeListen)
       addEventListener("hashchange", this.hashChangeListen)
@@ -114,30 +125,9 @@ class RouterSpace extends View {
     }
   }
 
-  AfterConstruct() {
-    let parent: any = this._$parentNode
-    while (parent) {
-      if (parent.isRoute) {
-        this.baseUrl = parent._$content + "/" + this.baseUrl
-      }
-      parent = parent._$parentNode
-    }
-  }
-
-  Preset() {
-    const newNavigator = new Navigator()
-    newNavigator.mode = this.mode
-    this.navigator = newNavigator
-  }
-
-  routeParam = {
-    path: this.currUrl,
-    navigator: this.navigator
-  }
-
   Body() {
     env()
-      .RouteParam(this.routeParam)
+      .navigator(this.navigator)
     {
       _(this.showedRoute)
     }

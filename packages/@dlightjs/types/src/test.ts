@@ -1,5 +1,4 @@
-import { b } from "../dist"
-import { type Typed, type Prop, S, type RequiredProp } from "./index"
+import { type Typed, type Prop, S, type RequiredProp, div, svg } from "./index"
 import { _ } from "./expressionTag"
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 // import { a, area, div, img } from "./htmlTag"
@@ -70,7 +69,7 @@ type JJA = NNN<MyView>
 
 const SubViewWithTypes = MyView as any as Typed<MyView>
 
-SubViewWithTypes()
+SubViewWithTypes().didMount(undefined).hh1().hh11
 
 
 /**
@@ -89,7 +88,8 @@ type jj<T> = T
 /** @inheritdoc */
 const b = add as any as jj<typeof add>
 
-b()
+svg()
+
 
 
 /**

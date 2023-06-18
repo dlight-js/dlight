@@ -8,7 +8,9 @@ export function appendEls(htmlNode: HtmlNode, nodes: DLNode[]) {
     switch (node._$nodeType) {
       case DLNodeType.Text:
       case DLNodeType.HTML:
+        (node as HtmlNode).willAppear(node._$el, node as HtmlNode)
         htmlNode._$el.appendChild(node._$el)
+        ;(node as HtmlNode).didAppear(node._$el, node as HtmlNode)
         break
       default:
         appendEls(htmlNode, node._$nodes)
@@ -72,8 +74,6 @@ export function deleteNodesDeps(nodes: DLNode[], dlScope: CustomNode) {
  */
 export function appendNodesWithIndex(nodes: DLNode[], index: number, parentEl: HTMLElement, lengthIn?: number): [number, number] {
   let length = lengthIn ?? parentEl.childNodes.length
-  willMountDlightNodes(nodes)
-
   loopEls(nodes, (el: HTMLElement, node: HtmlNode) => {
     const isInDOM = document.body.contains(el)
     if ([DLNodeType.HTML].includes(node._$nodeType) && !isInDOM) {
@@ -91,7 +91,6 @@ export function appendNodesWithIndex(nodes: DLNode[], index: number, parentEl: H
     index++
     length++
   }, false)
-  didMountDlightNodes(nodes)
   return [index, length]
 }
 
@@ -149,18 +148,18 @@ function runDlightNodesLifecycle(nodes: DLNode[], lifecysle: "willMount" | "didM
   })
 }
 
-function willMountDlightNodes(nodes: DLNode[]) {
+export function willMountDlightNodes(nodes: DLNode[]) {
   runDlightNodesLifecycle(nodes, "willMount")
 }
 
-function didMountDlightNodes(nodes: DLNode[]) {
+export function didMountDlightNodes(nodes: DLNode[]) {
   runDlightNodesLifecycle(nodes, "didMount")
 }
 
-function willUnmountDlightNodes(nodes: DLNode[]) {
+export function willUnmountDlightNodes(nodes: DLNode[]) {
   runDlightNodesLifecycle(nodes, "willUnmount")
 }
 
-function didUnmountDlightNodes(nodes: DLNode[]) {
+export function didUnmountDlightNodes(nodes: DLNode[]) {
   runDlightNodesLifecycle(nodes, "didUnmount")
 }

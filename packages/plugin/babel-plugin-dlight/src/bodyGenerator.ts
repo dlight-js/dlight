@@ -1,6 +1,7 @@
 import { type ParserNode } from "./parser"
 import { geneDeps, geneIdDeps, uid, getIdentifiers, resolveForBody, isHTMLTag, parseCustomTag, isSubViewTag, isOnlyMemberExpression, isTagName } from "./generatorHelper"
 import * as t from "@babel/types"
+import { isEvent } from "./eventExcluder"
 
 function nodeGeneration(nodeName: string, nodeType: t.Expression, args: Array<t.ArgumentPlaceholder | t.SpreadElement | t.Expression>) {
   return t.variableDeclaration(
@@ -58,7 +59,8 @@ export class Generator {
     return t.blockStatement(bodyStatements)
   }
 
-  geneDeps(value: t.Node) {
+  geneDeps(value: t.Node, key = "") {
+    if (isEvent(key)) return []
     const deps: t.Node[] = [...new Set([...geneDeps(this.path, value, this.depChain), ...geneIdDeps(this.path, value, this.idDepsArr)])]
     // deps 有可能是subview的 ...xxx.deps
     this.usedProperties.push(...deps.filter(node => t.isStringLiteral(node)).map(node => (node as any).value))
@@ -514,8 +516,14 @@ export class Generator {
       if (key === "_$content") {
         key = "innerText"
       }
-      const listenDeps = this.geneDeps(value)
+      let listenDeps = this.geneDeps(value, key)
       if (key === "element") {
+        if (t.isMemberExpression(value) && t.isThisExpression(value.object) && t.isIdentifier(value.property)) {
+          listenDeps = listenDeps.filter((node: any) => (
+            !t.isStringLiteral(node) ||
+            (t.isStringLiteral(node) && node.value !== (value.property as t.Identifier).name)
+          ))
+        }
         if (isOnlyMemberExpression(value)) {
           /**
            * const ${nodeName}Element = () => typeof ${value} === "function" ? (${value})(${nodeName}._$el) : ${value} = ${nodeName}._$el;
@@ -557,7 +565,7 @@ export class Generator {
           )
         } else {
           /**
-           * const ${nodeName}Element = (${value})(${nodeName}._$el)
+           * const ${nodeName}Element = () => (${value})(${nodeName}._$el)
            */
           statements.push(
             t.variableDeclaration(
@@ -591,23 +599,26 @@ export class Generator {
             )
           )
         )
-        /**
+
+        if (listenDeps.length > 0) {
+          /**
          * this._$addDeps(${geneDepsStr(listenDeps)}, {}, ${nodeName}Element)
          */
-        statements.push(
-          t.expressionStatement(
-            t.callExpression(
-              t.memberExpression(
-                t.thisExpression(),
-                t.identifier("_$addDeps")
-              ), [
-                t.arrayExpression(listenDeps),
-                t.objectExpression([]),
-                t.identifier(`${nodeName}Element`)
-              ]
+          statements.push(
+            t.expressionStatement(
+              t.callExpression(
+                t.memberExpression(
+                  t.thisExpression(),
+                  t.identifier("_$addDeps")
+                ), [
+                  t.arrayExpression(listenDeps),
+                  t.objectExpression([]),
+                  t.identifier(`${nodeName}Element`)
+                ]
+              )
             )
           )
-        )
+        }
         continue
       }
       if (listenDeps.length > 0) {
@@ -748,8 +759,15 @@ export class Generator {
         )
         continue
       }
-      const listenDeps = this.geneDeps(value)
+      let listenDeps = this.geneDeps(value)
       if (key === "element") {
+        // ---- 过滤掉绑定的this.xxEl
+        if (t.isMemberExpression(value) && t.isThisExpression(value.object) && t.isIdentifier(value.property)) {
+          listenDeps = listenDeps.filter((node: any) => (
+            !t.isStringLiteral(node) ||
+          (t.isStringLiteral(node) && node.value !== (value.property as t.Identifier).name)
+          ))
+        }
         if (isOnlyMemberExpression(value)) {
           /**
            * const ${nodeName}Element = () => typeof ${value} === "function" ? (${value})(${nodeName}._$el) : ${value} = ${nodeName}._$el;
@@ -791,7 +809,7 @@ export class Generator {
           )
         } else {
           /**
-           * const ${nodeName}Element = (${value})(${nodeName}._$el)
+           * const ${nodeName}Element = () => (${value})(${nodeName}._$el)
            */
           statements.push(
             t.variableDeclaration(
@@ -815,37 +833,40 @@ export class Generator {
           )
         }
         /**
-         * ${nodeName}._$addAfterset(${nodeName}Element);
+         * ${nodeName}._$addLifeCycle(${nodeName}Element);
          */
         statements.push(
           t.expressionStatement(
             t.callExpression(
               t.memberExpression(
                 t.identifier(nodeName),
-                t.identifier("_$addAfterset")
+                t.identifier("_$addLifeCycle")
               ), [
-                t.identifier(`${nodeName}Element`)
+                t.identifier(`${nodeName}Element`),
+                t.stringLiteral("didMount")
               ]
             )
           )
         )
-        /**
+        if (listenDeps.length > 0) {
+          /**
          * this._$addDeps(${geneDepsStr(listenDeps)}, {}, ${nodeName}Element);
          */
-        statements.push(
-          t.expressionStatement(
-            t.callExpression(
-              t.memberExpression(
-                t.thisExpression(),
-                t.identifier("_$addDeps")
-              ), [
-                t.arrayExpression(listenDeps),
-                t.objectExpression([]),
-                t.identifier(`${nodeName}Element`)
-              ]
+          statements.push(
+            t.expressionStatement(
+              t.callExpression(
+                t.memberExpression(
+                  t.thisExpression(),
+                  t.identifier("_$addDeps")
+                ), [
+                  t.arrayExpression(listenDeps),
+                  t.objectExpression([]),
+                  t.identifier(`${nodeName}Element`)
+                ]
+              )
             )
           )
-        )
+        }
         continue
       }
       if (listenDeps.length > 0) {

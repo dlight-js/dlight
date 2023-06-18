@@ -107,7 +107,7 @@ export default function() {
         if (!(decoNames.includes("Prop") || decoNames.includes("Env"))) {
           path.scope.traverse(node, {
             MemberExpression(innerPath: any) {
-              if (properties.includes(innerPath.node.property.name)) {
+              if (properties.includes(innerPath.node.property.name) && t.isThisExpression(innerPath.node.object)) {
                 if (shouldBeListened(innerPath, classDeclarationNode!)) {
                   deps.push(innerPath.node.property.name)
                 }
