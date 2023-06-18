@@ -1,0 +1,15 @@
+import DLight, { View } from "@dlightjs/dlight"
+import { type Typed } from "@dlightjs/types"
+import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
+
+class FolderZipSharp extends View {
+  _$forwardProps = true
+  Body() {
+    DLightIcon()
+      .forwardProps(true)
+      .content("<path d=\"m12 6-2-2H2v16h20V6H12zm6 6h-2v2h2v2h-2v2h-2v-2h2v-2h-2v-2h2v-2h-2V8h2v2h2v2z\"/>")
+      .name("FolderZipSharp")
+  }
+}
+
+export default FolderZipSharp as any as Typed<DLightIconType>

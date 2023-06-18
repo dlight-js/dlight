@@ -34,7 +34,7 @@ function parseName(string, type) {
   return name
 }
 
-const type = "outlined"
+const type = "twoTone"
 
 const dirPath = `./assets/${type}`
 const targetDirPath = `./src/${type}`
