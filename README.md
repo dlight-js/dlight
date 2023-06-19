@@ -52,7 +52,7 @@ export class MyComp extends View {
 }
 ```
 # Documentation
-[README-dlight.md](./packages/%40dlightjs/dlight/README.md)
+[README-dlight.md](./packages/%40dlightjs/dlight/README.md) (WIP)
 # Homepage
 
 Building with DLight now👨🏻‍💻
