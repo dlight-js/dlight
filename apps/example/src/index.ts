@@ -1,4 +1,4 @@
-import { render } from "@dlightjs/dlight"
+import { render, renderToText } from "@dlightjs/dlight"
 import TestView from "./test.view"
 import ReactiveView from "./basic/reactive.view"
 import PropPassingView from "./basic/propPassing.view"
@@ -29,4 +29,5 @@ import { RouteTest } from "./components/Router.view"
 
 // console.log(transformDLight(code))
 
+console.log(renderToText(BenchmarkView))
 render("app", TestView)
