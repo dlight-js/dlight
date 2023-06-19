@@ -1,70 +1,57 @@
 <img src="./docs/imgs/logo_title.png" style="display:block; margin: auto; width: 50%;"/>
 
+> Core Packages\
 [![dlight](https://badgen.net/npm/v/@dlightjs/dlight?label=@dlightjs/dlight)](https://www.npmjs.com/package/@dlightjs/dlight)
-[![transpiler](https://badgen.net/npm/v/@dlightjs/transpiler?label=@dlightjs/transpiler)](https://www.npmjs.com/package/@dlightjs/transpiler)
-[![components](https://badgen.net/npm/v/@dlightjs/components?label=@dlightjs/components)](https://www.npmjs.com/package/@dlightjs/components)
-[![vite-plugin-dlight-transpiler](https://badgen.net/npm/v/vite-plugin-dlight-transpiler?label=vite-plugin-dlight-transpiler)](https://www.npmjs.com/package/https://badgen.net/npm/v/vite-plugin-dlight-transpiler?label=vite-plugin-dlight-transpiler)
-[![babel-plugin-optional-this](https://badgen.net/npm/v/babel-plugin-optional-this?label=babel-plugin-optional-this)](https://www.npmjs.com/package/babel-plugin-optional-this)
+[![babel-plugin-dlight](https://badgen.net/npm/v/babel-plugin-dlight?label=babel-plugin-dlight)](https://www.npmjs.com/package/https://badgen.net/npm/v/babel-plugin-dlight?label=babel-plugin-dlight)
+[![babel-preset-dlight](https://badgen.net/npm/v/babel-preset-dlight?label=babel-preset-dlight)](https://www.npmjs.com/package/https://badgen.net/npm/v/babel-preset-dlight?label=babel-preset-dlight)
+[![vite-plugin-dlight](https://badgen.net/npm/v/vite-plugin-dlight?label=vite-plugin-dlight)](https://www.npmjs.com/package/https://badgen.net/npm/v/vite-plugin-dlight?label=vite-plugin-dlight)
 [![@dlightjs/types](https://badgen.net/npm/v/@dlightjs/types?label=@dlightjs/types)](https://www.npmjs.com/package/@dlightjs/types)
+[![create-dlightjs](https://badgen.net/npm/v/create-dlightjs?label=create-dlightjs)](https://www.npmjs.com/package/https://badgen.net/npm/v/create-dlightjs?label=create-dlightjs)
 
-EN | [中文](./docs/zh/README.md)
+> Ecosystem\
+[![transpiler](https://badgen.net/npm/v/@dlightjs/transpiler?label=@dlightjs/transpiler)](https://www.npmjs.com/package/@dlightjs/transpiler)
+[![transpiler-standalone](https://badgen.net/npm/v/@dlightjs/transpiler-standalone?label=@dlightjs/transpiler-standalone)](https://www.npmjs.com/package/@dlightjs/transpiler-standalone)
+[![components](https://badgen.net/npm/v/@dlightjs/components?label=@dlightjs/components)](https://www.npmjs.com/package/@dlightjs/components)
+[![material-icons](https://badgen.net/npm/v/@dlightjs/material-icons?label=@dlightjs/material-icons)](https://www.npmjs.com/package/@dlightjs/material-icons)
+[![emotion](https://badgen.net/npm/v/@dlightjs/emotion?label=@dlightjs/emotion)](https://www.npmjs.com/package/@dlightjs/emotion)
 
-Your modern web framework ~
 
-* ⚡️ Performant
-  * Dlight enhances code performance at compile time and directly manipulates the DOM, which makes the execution speed of the code as close to vanilla JavaScript as possible, even with limited optimization knowledge.
-* 🚲 Simple
-  * No more complex hooks towards reactivity. Just use @State, and dep-chain will help you do the rest.
-  * Dlight provides context managing power by default.
-  * Website development has never been so easy.
-* 🍼 Friendly
-  * Support jsx and jsd(our new domain syntax) to help you write everything in js.
-* 🦋 Beautiful
-  * Every line of code in DLight is elegant and beautiful!
+Your modern UI rendering library ~
+
+* 🥳 Delightful
+  * With an API designed to be intuitive and user-friendly, web development becomes effortless with Dlight, whether you're building a simple website or a complex web application.Dlight enhances code performance at compile time and directly manipulates the DOM, which makes the execution speed of the code as close to vanilla JavaScript as possible, even with limited optimization knowledge.
+* 🚀 Performant
+  * With a minuscule file size of just 4KB, Dlight is lightning-fast and ultra-lightweight, delivering optimal performance without the need for manual optimization.
+* ✨ Modern
+  * Dlight uses the syntax of function calls and dot notation to make development more enjoyable, without the need to write outdated and hard-to-read XML code.
+* 🪶 Intuitively Simple
+  * Dlight is born reactive and is designed to be intuitively simple, with a minimalistic API that requires no memorization of complex functions or libraries.
 
 # Preview
+
 ```js
-// -> ./MyComp.jsd
-import {View} from "@dlightjs/dlight"
+import { View } from "@dlightjs/dlight"
 
 export class MyComp extends View {
-  @State count = 0  
-  countPlus1 = this.count + 1  
+  count = 0  
+  toggle = true
 
   Body() {
-    h1("hello, dlight js, jsd")
-    div(this.count)
-    div(this.countPlus1)
-    button("+")
+    h1("hello, dlight js")
+    button("toggle")
       .onclick(() => {
-        this.count ++
+        this.toggle = !this.toggle
       })
-    button("-")
-      .onclick(() => {
-        this.count --
-      })
+    if (this.count) {
+      "simple text"
+    } else {
+      div("div with color")
+        ._color("red")
+    }
   }
 }
 ```
 
-# Documentation
-
-(Upgrading dlight version..👨🏻‍💻 Better support with [chinese documentation](./docs/zh/README.md) now)
-* [README-dlight.md](./packages/@dlightjs/dlight/README.md)
-* [README-components.md](./packages/@dlightjs/components/README.md)
-* website-doc(building with DLight now👨🏻‍💻)
-
-# Tutorial
-
-* TODO app
-  * [jsx-codesandbox](https://codesandbox.io/p/sandbox/dlight-todoapp-jsx-42t284)
-  * [jsd-codesandbox](https://codesandbox.io/p/sandbox/dlight-todoapp-jsd-i8se5e)
-
-
 # Homepage
 
 Building with DLight now👨🏻‍💻
-
-# TODO
-
-[TODO.md](./docs/TODO.md)./docs/TODO.md)
