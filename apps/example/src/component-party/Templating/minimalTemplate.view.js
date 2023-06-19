@@ -6,3 +6,5 @@ class HelloWorld extends View {
     h1("hello world")
   }
 }
+
+export default HelloWorld

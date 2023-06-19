@@ -14,3 +14,5 @@ class IsAvailable extends View {
       .htmlFor("is-available")
   }
 }
+
+export default IsAvailable

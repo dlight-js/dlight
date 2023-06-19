@@ -1,7 +1,5 @@
 # DLight
 
-EN | [中文](../../../docs/zh/README-dlight.md)
-
 # Introduction
 ## Overview
 Welcome to the official documentation for dlight.js, a modern and lightweight library for rendering web front-end UI elements. Developed with simplicity and performance in mind, dlight.js allows developers to quickly create high-quality user interfaces with minimal overhead.
@@ -88,6 +86,8 @@ class Name extends View {
     h1(this.name)
   }
 }
+
+export default Name
 ```
 ### Update state
 ```js
@@ -106,6 +106,7 @@ class Name extends View {
   }
 }
 
+export default Name
 ```
 ### Computed state
 ```js
@@ -117,9 +118,11 @@ class DoubleCount extends View {
   doubleCount = this.count * 2
 
   Body() {
-    div(this.name)
+    div(this.doubleCount)
   }
 }
+
+export default DoubleCount
 ```
 
 ## Templating
@@ -133,6 +136,8 @@ class HelloWorld extends View {
     h1("hello world")
   }
 }
+
+export default HelloWorld
 ```
 ### Styling
 ```js
@@ -148,6 +153,8 @@ class CssStyle extends View {
       ._fontSize("10rem")
   }
 }
+
+export default CssStyle
 ```
 ```css
 /** ~> style.css */
@@ -172,6 +179,8 @@ class Colors extends View {
     }
   }
 }
+
+export default Colors
 ```
 ### Event click
 ```js
@@ -189,6 +198,8 @@ class Counter extends View {
       })
   }
 }
+
+export default Counter
 ```
 ### Dom ref
 ```js
@@ -208,6 +219,8 @@ class InputFocused extends View {
       .element(this.inputElement)
   }
 }
+
+export default InputFocused
 ```
 ### Conditional
 ```js
@@ -240,11 +253,13 @@ class TrafficLight extends View {
       } else if (this.light === "orange") {
         span("SLOW DOWN")
       } else if (this.light === "green") {
-        span("go")
+        span("GO")
       }
     }
   }
 }
+
+export default TrafficLight
 ```
 ## Lifecycle
 ### On mount
@@ -263,6 +278,8 @@ class PageTitle extends View {
     p(`Page title is ${this.pageTitle}`)
   }
 }
+
+export default PageTitle
 ```
 ### On unmount
 ```js
@@ -284,14 +301,18 @@ class Time extends View {
   }
 
   Body() {
-    p(`Current time: ${this.pageTitle}`)
+    p(`Current time: ${this.time}`)
   }
 }
+
+export default Time
 ```
 ## Component composition
+### Props
 ```js
 // ~> App.view.js
 import DLight, { View } from "@dlightjs/dlight"
+import UserProfile from "./UserProfile"
 
 class App extends View {
   Body() {
@@ -302,8 +323,10 @@ class App extends View {
       .isAvailable(true)
   }
 }
+
+export default App
 ```
-```js
+```ts
 // ~> UserProfile.view.js
 class UserProfile extends View {
   @Prop name = ""
@@ -318,12 +341,14 @@ class UserProfile extends View {
     p(`I am ${this.isAvailable ? "available" : "not available"}`)
   }
 }
+
+export default UserProfile
 ```
 ### Emit to parent
 ```js
 // ~> App.view.js
 import DLight, { View } from "@dlightjs/dlight"
-
+import AnswerButton from "./AnswerButton.view"
 class App extends View {
   canCome = true
 
@@ -344,6 +369,8 @@ class App extends View {
       ._fontSize("50px")
   }
 }
+
+export default App
 ```
 ```js
 // ~> AnswerButton.view.js
@@ -358,11 +385,14 @@ class AnswerButton extends View {
       .onclick(this.onNo)
   }
 }
+
+export default AnswerButton
 ```
 ### Slot
 ```js
 // ~> App.view.js
 import DLight, { View } from "@dlightjs/dlight"
+import FunnyButton from "./FunnyButton.view"
 
 class App extends View {
   Body() {
@@ -372,6 +402,8 @@ class App extends View {
     }
   }
 }
+
+export default App
 ```
 ```js
 // ~> FunnyButton.view.js
@@ -396,11 +428,13 @@ class FunnyButton extends View {
   }
 }
 
+export default FunnyButton
 ```
 ### Slot fallback
 ```js
 // ~> App.view.js
 import DLight, { View } from "@dlightjs/dlight"
+import FunnyButton from "./FunnyButton"
 
 class App extends View {
   Body() {
@@ -411,6 +445,8 @@ class App extends View {
     FunnyButton()
   }
 }
+
+export default App
 ```
 ```js
 // ~> FunnyButton.view.js
@@ -438,11 +474,14 @@ class FunnyButton extends View {
     }
   }
 }
+
+export default FunnyButton
 ```
 ### Context
 ```js
 // ~> App.view.js
 import DLight, { View } from "@dlightjs/dlight"
+import UserProfile from 'UserProfile.view'
 
 class App extends View {
   user = {
@@ -460,14 +499,15 @@ class App extends View {
     env()
       .user(this.user)
       .updateUsername(this.updateUsername.bind(this))
-    FunnyButton()
     {
-      "Click me!"
+      UserProfile()
     }
   }
 }
+
+export default App
 ```
-```js
+```ts
 // ~> UserProfile.view.js
 class UserProfile extends View {
   @Env user
@@ -484,6 +524,8 @@ class UserProfile extends View {
     }
   }
 }
+
+export default UserProfile
 ```
 ## Form Input
 ### Input text
@@ -503,6 +545,8 @@ class InputHello extends View {
       })
   }
 }
+
+export default InputHello
 ```
 ### Checkbox
 ```js
@@ -522,6 +566,8 @@ class IsAvailable extends View {
       .htmlFor("is-available")
   }
 }
+
+export default IsAvailable
 ```
 ### Radio
 ```js
@@ -553,6 +599,8 @@ class PickPill extends View {
       .htmlFor("red-pill")
   }
 }
+
+export default PickPill
 ```
 ### Select
 ```js
@@ -582,5 +630,229 @@ class ColorSelect extends View {
     }
   }
 }
+
+export default ColorSelect
+```
+## Webapp features
+### Render app
+```html
+// ~> index.html
+<!DOCTYPE html>
+<html>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>
+```
+```js
+// ~> App.view.js
+import DLight, { View } from "@dlightjs/dlight"
+
+class App extends View {
+  Body() {
+    h1("Hello world")
+  }
+}
+
+export default App
+```
+```js
+import { render } from "@dlightjs/dlight"
+import App from "./App.view"
+
+render("app", App)
+```
+### Fetch data
+```js
+// ~> App.view.js
+import DLight, { View } from "@dlightjs/dlight"
+import fetchUser from "./fetchUser"
+
+class App extends View {
+  isLoading
+  error
+  users
+
+  willMount() {
+    fetchUser("users")
+  }
+
+  Body() {
+    if (this.isLoading) {
+      p("Fetching users...")
+    } else if (this.error) {
+      p("An error occured while fetching users")
+    } else if (this.users) {
+      ul()
+      {
+        for (const { name, picture } of this.users) {
+          li()
+          {
+            img()
+              .src(picture.thumbnail)
+              .alt("user")
+            p(`${name.first} ${name.last}`)
+          }
+        }
+      }
+    }
+  }
+}
+
+export default App
+```
+```js
+// ~> fetchUsers.js
+export default async function fetchUsers(dataKey = "data", errorKey = "error", isLoadingKey = "isLoading") {
+  this[isLoadingKey] = true
+  try {
+    const response = await fetch("https://randomuser.me/api/?results=3")
+    const { results: users } = await response.json()
+    this[dataKey] = users
+    this[errorKey] = null
+  } catch (err) {
+    this[dataKey] = null
+    this[errorKey] = err
+  }
+  this[isLoadingKey] = false
+}
+```
+### Router link
+```ts
+// ~> Router.view.js
+import DLight, { View } from "@dlightjs/dlight"
+
+class Router extends View {
+  @Env navigator
+
+  Body() {
+    ul()
+    {
+      li()
+      {
+        a("Home")
+          .onclick(() => {
+            this.navigator.to("/")
+          })
+      }
+      li()
+      {
+        a("About us")
+          .onclick(() => {
+            this.navigator.to("/about")
+          })
+      }
+    }
+  }
+}
+
+export default Router
+
+```
+### Routing
+```js
+// ~> Routing.view.js
+import DLight, { View } from "@dlightjs/dlight"
+import { RouterSpace, Route } from "@dlightjs/components"
+
+class Routing extends View {
+  Body() {
+    RouterSpace()
+    {
+      Route("/")
+      {
+        HomeView()
+      }
+      Route("/about")
+      {
+        AboutUsView()
+      }
+    }
+  }
+}
+
+export default Routing
 ```
 
+# Why DLight.js?
+DLight.js is a modern, lightweight, and efficient UI rendering library that offers several benefits to developers. Here are some of the key reasons why you may want to choose DLight.js for your next UI project.
+
+## Coding style
+DLight.js offers several unique features to make development easier and more efficient. Here are two main code styling differences between DLight.js and other popular UI rendering libraries:
+
+### Class Components Instead of Functional Components or Templates
+DLight.js uses class components instead of functional components or templates. This is because DLight.js is fully based on the Model-View-ViewModel (MVVM) architecture, which separates the view and the logic of an application. In the MVVM pattern, the view is responsible for rendering the user interface, while the ViewModel is responsible for handling the application logic.
+
+With class components in DLight.js, you declare a class member, and the framework handles the rest for you. This approach offers several advantages, including:
+
+* Flexibility: Class components are more flexible than templates because they allow you to use any JavaScript expression in your code. This makes it easier to create complex UIs that are dynamic and responsive.
+
+* Reusability: Class components can be easily reused across different parts of your application, making it easier to maintain and update your code.
+
+* Separation of Concerns: Using class components in DLight.js makes it easier to separate the concerns of the view and the logic. By separating the view and the logic, it is easier to maintain and update your code. You can focus on building high-quality user interfaces without having to worry about the underlying implementation details.
+
+
+### JSD (JavaScript-based DSL)
+DLight.js also offers a new domain-specific language (DSL) called JSD (JavaScript-based DSL). JSD is a lightweight and intuitive language that allows you to express your UI components in a more declarative and concise way.
+
+With JSD, you can define your UI components using simple JavaScript objects instead of writing complex XML scripts(like html or jsx). This makes it easier to create and maintain your UI components, and it also makes your code more readable and easier to understand.
+
+Some of the benefits of using JSD include:
+* Simplicity: JSD is a simple and intuitive language that is easy to learn and use, even for developers who are new to DLight.js.
+* Declarative Syntax: JSD uses a declarative syntax that makes it easier to understand how your UI components are structured and how they interact with each other.
+
+JSD is similar to other front-end(other and web) frameworks like [SwiftUI](https://developer.apple.com/xcode/swiftui/) or [Jetpack Compose](https://developer.android.com/jetpack/compose) or [QT quick](https://doc.qt.io/qt-6/qtquick-index.html) in that it offers a declarative approach to building UI components. In fact, many platforms are moving away from using XML to build user interface(even though they're based on XML like QT and Jetpack) because XML is designed primarily for machine readability, rather than human readability.
+
+Here's a quick example of what jsd supports:
+```js
+...
+Body() {
+  // text node
+  "plain text node"
+  `this is text node too, ${this.anyMessage}`
+  // html node
+  div("this will auto set this div's inner text")
+  div()
+  {
+    button("first child")
+      .onclick(() => {
+        console.log("write dot prop")
+      })
+      ._color("red") // shorthand inline style
+    div()
+      .id("second-child-div")
+      .innerText("you can also set prop like this")
+  }
+  // custom node
+  MyCustomComponent()
+      .firstProp("pass prop like this")
+  MyComponentWithSlot()
+  {
+    ChildComponent()
+  }
+  // conditional
+  if (this.toggle) {
+    div("hello")
+  } else if (this.ok) {
+    span("ok")
+  } else {
+    "all wrong"
+  }
+  // loop
+  for (const apple of this.apples) {
+    div(apple)
+  }
+  for (const { apple, id } of this.apples) {
+    div(apple)
+      .id(`apple-${id}`)
+  }
+  // expression
+  _("this is expression")
+  _(this._$children) // _ accepts (string | number | DLNode | DLNode[]), here `this._$children` is of type DLNode[]
+}
+...
+```
+## Reactivity
+
+In Dlight, reactivity is **simple and efficient**!

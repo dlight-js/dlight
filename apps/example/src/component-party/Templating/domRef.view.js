@@ -14,3 +14,5 @@ class InputFocused extends View {
       .element(this.inputElement)
   }
 }
+
+export default InputFocused

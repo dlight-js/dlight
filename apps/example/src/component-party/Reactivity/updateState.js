@@ -12,3 +12,5 @@ class Name extends View {
     h1(this.name)
   }
 }
+
+export default Name

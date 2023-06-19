@@ -49,14 +49,33 @@ class Logo extends View {
 }
 
 class TestView extends View {
+  a = [
+    {
+      name: {
+        first: "yihan",
+        last: "duan"
+      }
+    }
+  ]
+
   /** @view */
   Body() {
     // HelpOutlineOutlined()
     //   .width(800)
     //   .height(800)
-    Logo()
-      .width(300)
-      .height(300)
+    for (const { name: { first, last } } of this.a) {
+      div(`${first} ${last}`)
+    }
+    button()
+      .onclick(() => {
+        this.a.push({
+          name: {
+            first: "orange",
+            last: "chen"
+          }
+        })
+        this.a = [...this.a]
+      })
   }
 }
 

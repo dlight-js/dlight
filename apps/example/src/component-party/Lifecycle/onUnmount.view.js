@@ -16,6 +16,8 @@ class Time extends View {
   }
 
   Body() {
-    p(`Current time: ${this.pageTitle}`)
+    p(`Current time: ${this.time}`)
   }
 }
+
+export default Time

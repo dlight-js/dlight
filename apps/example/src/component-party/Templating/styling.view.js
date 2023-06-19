@@ -11,8 +11,9 @@ class CssStyle extends View {
   }
 }
 
+export default CssStyle
 
 // ~> style.css
-.title {
-  color: red;
-}
+// .title {
+//   color: red;
+// }

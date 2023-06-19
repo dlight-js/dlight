@@ -12,3 +12,5 @@ class Counter extends View {
       })
   }
 }
+
+export default Counter

@@ -4,7 +4,7 @@ import { button, div, Env, State } from "@dlightjs/types"
 
 class SubComp2 extends View {
   toggle = false
-  secondNav
+  navigator
 
   Body() {
     div()
@@ -15,18 +15,17 @@ class SubComp2 extends View {
       })
     button("./not")
       .onclick(() => {
-        this.secondNav.to("./not")
+        this.navigator.to("./not")
       })
     button("./hi")
       .onclick(() => {
-        this.secondNav.to("./hi")
+        this.navigator.to("./hi")
       })
 
     if (this.toggle) {
       div("hi niubi")
       RouterSpace()
-        .mode("hash")
-        .getNavigator(nav => { this.secondNav = nav })
+        .getNavigator(nav => { this.navigator = nav })
       {
         Route("hi")
         {
@@ -45,32 +44,16 @@ class SubComp2 extends View {
   }
 }
 
-class SubComp extends View {
-  @Env RouteParam
-
-  Body() {
-    div(this.RouteParam.path)
-    div("hhhh")
-  }
-}
-
-class OK extends View {
-  @Env RouteParam
-  navigator = this.RouteParam.navigator
-
-  Body() {
-
-  }
-}
-
 export class RouteTest extends View {
   navigator
   Body() {
     div("hh")
-    button("push to /OKK")
-      .onclick(() => {
-        this.navigator.to("/OKK")
-      })
+    a("push to /OKK")
+      .href("/OKK")
+    // button("push to /OKK")
+    //   .onclick(() => {
+    //     this.navigator.to("/OKK")
+    //   })
     button("push to /fuck")
       .onclick(() => {
         this.navigator.to("/fuck")
@@ -81,7 +64,6 @@ export class RouteTest extends View {
       })
     RouterSpace()
       .getNavigator(nav => { console.log(nav); this.navigator = nav })
-      .mode("hash")
     {
       Route("OKK")
       {

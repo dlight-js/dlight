@@ -12,3 +12,5 @@ class PageTitle extends View {
     p(`Page title is ${this.pageTitle}`)
   }
 }
+
+export default PageTitle

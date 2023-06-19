@@ -1,5 +1,6 @@
 // ~> App.view.js
 import DLight, { View } from "@dlightjs/dlight"
+import FunnyButton from "./FunnyButton.view"
 
 class App extends View {
   Body() {
@@ -9,6 +10,8 @@ class App extends View {
     }
   }
 }
+
+export default App
 
 // ~> FunnyButton.view.js
 class FunnyButton extends View {
@@ -31,3 +34,5 @@ class FunnyButton extends View {
     }
   }
 }
+
+export default FunnyButton

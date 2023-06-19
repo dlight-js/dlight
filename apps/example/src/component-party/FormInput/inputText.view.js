@@ -13,3 +13,5 @@ class InputHello extends View {
       })
   }
 }
+
+export default InputHello

@@ -29,5 +29,5 @@ import { RouteTest } from "./components/Router.view"
 
 // console.log(transformDLight(code))
 
-console.log(renderToText(BenchmarkView))
-render("app", TestView)
+// console.log(renderToText(BenchmarkView))
+render("app", RouteTest)

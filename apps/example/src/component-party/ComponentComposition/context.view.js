@@ -1,5 +1,6 @@
 // ~> App.view.js
 import DLight, { View } from "@dlightjs/dlight"
+import UserProfile from 'UserProfile.view'
 
 class App extends View {
   user = {
@@ -17,12 +18,13 @@ class App extends View {
     env()
       .user(this.user)
       .updateUsername(this.updateUsername.bind(this))
-    FunnyButton()
     {
-      "Click me!"
+      UserProfile()
     }
   }
 }
+
+export default App
 
 // ~> UserProfile.view.js
 class UserProfile extends View {
@@ -40,3 +42,5 @@ class UserProfile extends View {
     }
   }
 }
+
+export default UserProfile

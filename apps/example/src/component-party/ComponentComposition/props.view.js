@@ -1,5 +1,6 @@
 // ~> App.view.js
 import DLight, { View } from "@dlightjs/dlight"
+import UserProfile from "./UserProfile"
 
 class App extends View {
   Body() {
@@ -10,6 +11,8 @@ class App extends View {
       .isAvailable(true)
   }
 }
+
+export default App
 
 // ~> UserProfile.view.js
 class UserProfile extends View {
@@ -25,3 +28,5 @@ class UserProfile extends View {
     p(`I am ${this.isAvailable ? "available" : "not available"}`)
   }
 }
+
+export default UserProfile

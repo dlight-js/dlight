@@ -6,6 +6,8 @@ class DoubleCount extends View {
   doubleCount = this.count * 2
 
   Body() {
-    div(this.name)
+    div(this.doubleCount)
   }
 }
+
+export default DoubleCount

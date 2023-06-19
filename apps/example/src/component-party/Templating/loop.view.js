@@ -13,3 +13,5 @@ class Colors extends View {
     }
   }
 }
+
+export default Colors

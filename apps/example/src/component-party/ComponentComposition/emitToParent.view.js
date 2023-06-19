@@ -1,6 +1,6 @@
 // ~> App.view.js
 import DLight, { View } from "@dlightjs/dlight"
-
+import AnswerButton from "./AnswerButton.view"
 class App extends View {
   canCome = true
 
@@ -22,6 +22,8 @@ class App extends View {
   }
 }
 
+export default App
+
 // ~> AnswerButton.view.js
 class AnswerButton extends View {
   @Prop onYes
@@ -34,3 +36,5 @@ class AnswerButton extends View {
       .onclick(this.onNo)
   }
 }
+
+export default AnswerButton

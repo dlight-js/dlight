@@ -24,3 +24,5 @@ class ColorSelect extends View {
     }
   }
 }
+
+export default ColorSelect

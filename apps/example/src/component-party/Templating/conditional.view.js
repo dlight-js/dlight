@@ -27,8 +27,10 @@ class TrafficLight extends View {
       } else if (this.light === "orange") {
         span("SLOW DOWN")
       } else if (this.light === "green") {
-        span("go")
+        span("GO")
       }
     }
   }
 }
+
+export default TrafficLight

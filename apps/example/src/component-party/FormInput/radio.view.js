@@ -26,3 +26,5 @@ class PickPill extends View {
       .htmlFor("red-pill")
   }
 }
+
+export default PickPill
