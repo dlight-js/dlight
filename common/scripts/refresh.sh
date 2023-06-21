@@ -6,6 +6,7 @@ if [ -z "$1" ]; then
   pnpm refresh @dlightjs/emotion
   pnpm refresh @dlightjs/components
   pnpm refresh @dlightjs/material-icons
+  pnpm refresh @dlightjs/create-dlightjs
 
   # transpiler
   pnpm refresh plugin/babel-plugin-dlight

@@ -7,6 +7,7 @@ if [ -z "$1" ]; then
     pnpm uv @dlightjs/emotion
     pnpm uv @dlightjs/components
     pnpm uv @dlightjs/material-icons
+    pnpm uv @dlightjs/create-dlightjs
 
     # transpiler
     pnpm uv plugin/babel-plugin-dlight
