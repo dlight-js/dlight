@@ -6,7 +6,7 @@ class ReactiveView extends View {
   name = ""
   mouseX = 0
   mouseY = 0
-  color = (function() {
+  color = (function () {
     if (this.mouseX > 250 && this.mouseY > 250) {
       return "red"
     } else if (this.mouseX > 250 && this.mouseY < 250) {
@@ -25,9 +25,11 @@ class ReactiveView extends View {
       })
     div(`hi,${this.name}`)
     div()
-      ._width("500px")
-      ._height("500px")
-      ._backgroundColor(this.color)
+      .style({
+        width: "500px",
+        height: "500px",
+        backgroundColor: this.color
+      })
       .onmousemove((event) => {
         this.mouseX = event.clientX
         this.mouseY = event.clientY

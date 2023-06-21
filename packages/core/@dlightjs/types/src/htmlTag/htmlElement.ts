@@ -20,7 +20,7 @@ T,
 type OmitFuncAndReadOnly<T> = RemoveReadOnly<OmitFunction<T>>
 
 // properties
-type OmitFuncAndReadOnlyProperty<G> = Omit<OmitFuncAndReadOnly<G>, "style">
+type OmitFuncAndReadOnlyProperty<G> = OmitFuncAndReadOnly<G>
 
 // shortcut inline style
 // type PropertiesRequired = Required<Properties>
