@@ -1,1 +1,1 @@
-pnpm  --filter "./packages/${1}" publish --no-git-checks --access=public
+pnpm --filter ${1} publish --no-git-checks --access=public

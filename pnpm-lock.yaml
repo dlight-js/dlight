@@ -44,12 +44,12 @@ importers:
       vite: ^4.0.0
       vite-plugin-dlight: workspace:*
     dependencies:
-      '@dlightjs/components': link:../../packages/@dlightjs/components
-      '@dlightjs/dlight': link:../../packages/@dlightjs/dlight
-      '@dlightjs/emotion': link:../../packages/@dlightjs/emotion
-      '@dlightjs/material-icons': link:../../packages/@dlightjs/material-icons
-      '@dlightjs/transpiler-standalone': link:../../packages/@dlightjs/transpiler-standalone
-      '@dlightjs/types': link:../../packages/@dlightjs/types
+      '@dlightjs/components': link:../../packages/ecosystem/@dlightjs/components
+      '@dlightjs/dlight': link:../../packages/core/@dlightjs/dlight
+      '@dlightjs/emotion': link:../../packages/ecosystem/@dlightjs/emotion
+      '@dlightjs/material-icons': link:../../packages/ecosystem/@dlightjs/material-icons
+      '@dlightjs/transpiler-standalone': link:../../packages/ecosystem/@dlightjs/transpiler-standalone
+      '@dlightjs/types': link:../../packages/core/@dlightjs/types
       '@emotion/css': 11.10.6
       ts-node: 10.9.1_ellgaeuoqnti3hful2ny2iugba
     devDependencies:
@@ -75,11 +75,11 @@ importers:
       vite: ^4.0.0
       vite-plugin-dlight: workspace:*
     dependencies:
-      '@dlightjs/components': link:../../packages/@dlightjs/components
-      '@dlightjs/dlight': link:../../packages/@dlightjs/dlight
-      '@dlightjs/emotion': link:../../packages/@dlightjs/emotion
-      '@dlightjs/transpiler': link:../../packages/@dlightjs/transpiler
-      '@dlightjs/types': link:../../packages/@dlightjs/types
+      '@dlightjs/components': link:../../packages/ecosystem/@dlightjs/components
+      '@dlightjs/dlight': link:../../packages/core/@dlightjs/dlight
+      '@dlightjs/emotion': link:../../packages/ecosystem/@dlightjs/emotion
+      '@dlightjs/transpiler': link:../../packages/ecosystem/@dlightjs/transpiler
+      '@dlightjs/types': link:../../packages/core/@dlightjs/types
       '@emotion/css': 11.10.6
       ts-node: 10.9.1_ellgaeuoqnti3hful2ny2iugba
       vite-plugin-dlight: link:../../packages/plugin/vite-plugin-dlight
@@ -90,7 +90,37 @@ importers:
       typescript: 4.9.5
       vite: 4.1.4_@types+node@18.14.2
 
-  packages/@dlightjs/components:
+  packages/core/@dlightjs/dlight:
+    specifiers:
+      tsup: ^6.5.0
+      typescript: ^4.5.2
+    devDependencies:
+      tsup: 6.6.3_typescript@4.9.5
+      typescript: 4.9.5
+
+  packages/core/@dlightjs/types:
+    specifiers:
+      '@dlightjs/dlight': workspace:*
+      csstype: ^3.1.1
+      tsup: ^6.5.0
+      typescript: ^4.5.2
+    dependencies:
+      '@dlightjs/dlight': link:../dlight
+      csstype: 3.1.1
+    devDependencies:
+      tsup: 6.6.3_typescript@4.9.5
+      typescript: 4.9.5
+
+  packages/core/create-dlightjs:
+    specifiers:
+      '@inquirer/prompts': ^1.2.3
+      tsup: ^6.5.0
+    dependencies:
+      '@inquirer/prompts': 1.2.3
+    devDependencies:
+      tsup: 6.6.3
+
+  packages/ecosystem/@dlightjs/components:
     specifiers:
       '@dlightjs/dlight': workspace:*
       '@dlightjs/emotion': workspace:*
@@ -101,34 +131,17 @@ importers:
       vite-plugin-dlight: workspace:*
       vite-plugin-dts: ^1.7.1
     dependencies:
-      '@dlightjs/dlight': link:../dlight
+      '@dlightjs/dlight': link:../../../core/@dlightjs/dlight
       '@dlightjs/emotion': link:../emotion
     devDependencies:
-      '@dlightjs/types': link:../types
+      '@dlightjs/types': link:../../../core/@dlightjs/types
       path: 0.12.7
       typescript: 4.9.5
       vite: 4.1.4
-      vite-plugin-dlight: link:../../plugin/vite-plugin-dlight
+      vite-plugin-dlight: link:../../../plugin/vite-plugin-dlight
       vite-plugin-dts: 1.7.3_vite@4.1.4
 
-  packages/@dlightjs/create:
-    specifiers:
-      '@inquirer/prompts': ^1.2.3
-      tsup: ^6.5.0
-    dependencies:
-      '@inquirer/prompts': 1.2.3
-    devDependencies:
-      tsup: 6.6.3
-
-  packages/@dlightjs/dlight:
-    specifiers:
-      tsup: ^6.5.0
-      typescript: ^4.5.2
-    devDependencies:
-      tsup: 6.6.3_typescript@4.9.5
-      typescript: 4.9.5
-
-  packages/@dlightjs/emotion:
+  packages/ecosystem/@dlightjs/emotion:
     specifiers:
       '@dlightjs/dlight': workspace:*
       '@dlightjs/types': workspace:*
@@ -139,17 +152,17 @@ importers:
       vite-plugin-dlight: workspace:*
       vite-plugin-dts: ^1.7.1
     dependencies:
-      '@dlightjs/dlight': link:../dlight
-      '@dlightjs/types': link:../types
+      '@dlightjs/dlight': link:../../../core/@dlightjs/dlight
+      '@dlightjs/types': link:../../../core/@dlightjs/types
       '@emotion/css': 11.10.6
     devDependencies:
       path: 0.12.7
       typescript: 4.9.5
       vite: 4.1.4
-      vite-plugin-dlight: link:../../plugin/vite-plugin-dlight
+      vite-plugin-dlight: link:../../../plugin/vite-plugin-dlight
       vite-plugin-dts: 1.7.3_vite@4.1.4
 
-  packages/@dlightjs/material-icons:
+  packages/ecosystem/@dlightjs/material-icons:
     specifiers:
       '@dlightjs/dlight': workspace:*
       '@dlightjs/types': workspace:*
@@ -159,16 +172,16 @@ importers:
       vite-plugin-dlight: workspace:*
       vite-plugin-dts: ^1.7.1
     dependencies:
-      '@dlightjs/dlight': link:../dlight
-      '@dlightjs/types': link:../types
+      '@dlightjs/dlight': link:../../../core/@dlightjs/dlight
+      '@dlightjs/types': link:../../../core/@dlightjs/types
     devDependencies:
       path: 0.12.7
       typescript: 4.9.5
       vite: 4.1.4
-      vite-plugin-dlight: link:../../plugin/vite-plugin-dlight
+      vite-plugin-dlight: link:../../../plugin/vite-plugin-dlight
       vite-plugin-dts: 1.7.3_vite@4.1.4
 
-  packages/@dlightjs/transpiler:
+  packages/ecosystem/@dlightjs/transpiler:
     specifiers:
       '@babel/core': ^7.20.12
       babel-preset-dlight: workspace:*
@@ -176,12 +189,12 @@ importers:
       typescript: ^4.9.3
     dependencies:
       '@babel/core': 7.21.0
-      babel-preset-dlight: link:../../plugin/babel-preset-dlight
+      babel-preset-dlight: link:../../../plugin/babel-preset-dlight
     devDependencies:
       tsup: 6.6.3_typescript@4.9.5
       typescript: 4.9.5
 
-  packages/@dlightjs/transpiler-standalone:
+  packages/ecosystem/@dlightjs/transpiler-standalone:
     specifiers:
       '@babel/plugin-syntax-unicode-sets-regex': ^7.18.6
       '@babel/standalone': ^7.22.4
@@ -191,20 +204,7 @@ importers:
     dependencies:
       '@babel/plugin-syntax-unicode-sets-regex': 7.18.6
       '@babel/standalone': 7.22.4
-      babel-preset-dlight: link:../../plugin/babel-preset-dlight
-    devDependencies:
-      tsup: 6.6.3_typescript@4.9.5
-      typescript: 4.9.5
-
-  packages/@dlightjs/types:
-    specifiers:
-      '@dlightjs/dlight': workspace:*
-      csstype: ^3.1.1
-      tsup: ^6.5.0
-      typescript: ^4.5.2
-    dependencies:
-      '@dlightjs/dlight': link:../dlight
-      csstype: 3.1.1
+      babel-preset-dlight: link:../../../plugin/babel-preset-dlight
     devDependencies:
       tsup: 6.6.3_typescript@4.9.5
       typescript: 4.9.5
@@ -1470,7 +1470,7 @@ packages:
       '@rushstack/ts-command-line': 4.13.2
       colors: 1.2.5
       lodash: 4.17.21
-      resolve: 1.22.1
+      resolve: 1.22.2
       semver: 7.3.8
       source-map: 0.6.1
       typescript: 4.8.4
@@ -1538,7 +1538,7 @@ packages:
       fs-extra: 7.0.1
       import-lazy: 4.0.0
       jju: 1.4.0
-      resolve: 1.22.1
+      resolve: 1.22.2
       semver: 7.3.8
       z-schema: 5.0.5
     dev: true
@@ -1546,7 +1546,7 @@ packages:
   /@rushstack/rig-package/0.3.18:
     resolution: {integrity: sha512-SGEwNTwNq9bI3pkdd01yCaH+gAsHqs0uxfGvtw9b0LJXH52qooWXnrFTRRLG1aL9pf+M2CARdrA9HLHJys3jiQ==}
     dependencies:
-      resolve: 1.22.1
+      resolve: 1.22.2
       strip-json-comments: 3.1.1
     dev: true
 
@@ -2931,7 +2931,7 @@ packages:
     resolution: {integrity: sha512-oRXApq54ETRj4eMiFzGnHWGy+zo5raudjuxN0b8H7s/RU2oW0Wvsx9O0ACRN/kRq9E8Vu/ReskGB5o3ji+FzHQ==}
     engines: {node: '>=12'}
     dependencies:
-      graceful-fs: 4.2.10
+      graceful-fs: 4.2.11
       jsonfile: 6.1.0
       universalify: 2.0.0
     dev: true
@@ -2949,7 +2949,7 @@ packages:
     resolution: {integrity: sha512-YJDaCJZEnBmcbw13fvdAM9AwNOJwOzrE4pqMqBq5nFiEqXUqHwlK4B+3pUw6JNvfSPtX05xFHtYy/1ni01eGCw==}
     engines: {node: '>=6 <7 || >=8'}
     dependencies:
-      graceful-fs: 4.2.10
+      graceful-fs: 4.2.11
       jsonfile: 4.0.0
       universalify: 0.1.2
     dev: true
@@ -3105,10 +3105,6 @@ packages:
     resolution: {integrity: sha512-d65bNlIadxvpb/A2abVdlqKqV563juRnZ1Wtk6s1sIR8uNsXR70xqIzVqxVf1eTqDunwT2MkczEeaezCKTZhwA==}
     dependencies:
       get-intrinsic: 1.2.1
-    dev: true
-
-  /graceful-fs/4.2.10:
-    resolution: {integrity: sha512-9ByhssR2fPVsNZj478qUUbKfmL0+t5BDVyjShtyZZLiK7ZDAArFFfopyOTj0M05wE2tJPisA4iTnnXl2YoPvOA==}
     dev: true
 
   /graceful-fs/4.2.11:
@@ -4183,7 +4179,7 @@ packages:
   /resolve/1.19.0:
     resolution: {integrity: sha512-rArEXAgsBG4UgRGcynxWIWKFvh/XZCcS8UJdHhwy91zwAvCZIbcs+vAbflgBnNjYMs/i/i+/Ux6IZhML1yPvxg==}
     dependencies:
-      is-core-module: 2.11.0
+      is-core-module: 2.12.1
       path-parse: 1.0.7
     dev: true
 

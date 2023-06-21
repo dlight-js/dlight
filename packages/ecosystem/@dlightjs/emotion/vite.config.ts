@@ -1,5 +1,5 @@
 import { defineConfig } from "vite"
-import dlight from "../../plugin/vite-plugin-dlight/dist"
+import dlight from "vite-plugin-dlight"
 import { resolve } from "path"
 import dts from "vite-plugin-dts"
 import { dependencies } from "./package.json"

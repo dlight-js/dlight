@@ -1,21 +1,9 @@
 if [ -z "$1" ]; then
   # dependencies in order
-  # main
-  pnpm refresh @dlightjs/dlight
-  pnpm refresh @dlightjs/types
-  pnpm refresh @dlightjs/emotion
-  pnpm refresh @dlightjs/components
-  pnpm refresh @dlightjs/material-icons
-  pnpm refresh @dlightjs/create-dlightjs
-
-  # transpiler
-  pnpm refresh plugin/babel-plugin-dlight
-  pnpm refresh plugin/babel-preset-dlight
-  pnpm refresh @dlightjs/transpiler
-  pnpm refresh @dlightjs/transpiler-standalone
-  pnpm refresh plugin/vite-plugin-dlight
-
+  pnpm pipeline refresh core
+  pnpm pipeline refresh plugin
+  pnpm pipeline refresh ecosystem
 else
-  pnpm --filter "./packages/${1}" install
-  pnpm build ${1}
+  pnpm --filter ${1} install
+  sh ./common/scripts/build.sh ${1}
 fi

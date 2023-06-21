@@ -4,16 +4,11 @@
   "files": ["./README.md"],
   "scripts": {
     "prepare": "husky install",
-    "example": "pnpm --prefix apps/example dev",
-    "test": "pnpm --prefix apps/test dev",
-    "build": "sh ./common/scripts/build.sh",
-    "build:transpiler": "sh ./common/scripts/buildTranspiler.sh",
-    "build:main": "sh ./common/scripts/buildMain.sh",
-    "pub": "sh ./common/scripts/publish.sh",
-    "pub:transpiler": "sh ./common/scripts/publishTranspiler.sh",
-    "pub:main": "sh ./common/scripts/publishMain.sh",
     "refresh": "sh ./common/scripts/refresh.sh",
-    "uv": "sh ./common/scripts/version.sh"
+    "pipeline": "sh ./common/scripts/pipeline.sh",
+    "build": "pnpm pipeline build",
+    "pub": "pnpm pipeline publish",
+    "upgrade": "pnpm pipeline upgrade"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.6.3",
@@ -27,5 +22,24 @@
     "eslint-plugin-promise": "^6.1.1",
     "husky": "^8.0.3",
     "typescript": "^4.9.5"
+  },
+  "packages": {
+    "core": [
+      "@dlightjs/dlight",
+      "@dlightjs/types",
+      "create-dlightjs"
+    ],
+    "ecosystem": [
+      "@dlightjs/components",
+      "@dlightjs/emotion",
+      "@dlightjs/material-icons",
+      "@dlightjs/transpiler",
+      "@dlightjs/transpiler-standalone"
+    ],
+    "plugin": [
+      "babel-plugin-dlight",
+      "babel-preset-dlight",
+      "vite-plugin-dlight"
+    ]
   }
 }
