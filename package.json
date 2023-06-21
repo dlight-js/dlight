@@ -1,7 +1,7 @@
 {
   "name": "@dlightjs/monorepo",
-  "private": true,
-  "version": "0.0.0",
+  "version": "0.8.13",
+  "files": ["./README.md"],
   "scripts": {
     "prepare": "husky install",
     "example": "pnpm --prefix apps/example dev",
@@ -12,7 +12,8 @@
     "pub": "sh ./common/scripts/publish.sh",
     "pub:transpiler": "sh ./common/scripts/publishTranspiler.sh",
     "pub:main": "sh ./common/scripts/publishMain.sh",
-    "refresh": "sh ./common/scripts/refresh.sh"
+    "refresh": "sh ./common/scripts/refresh.sh",
+    "uv": "sh ./common/scripts/version.sh"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.6.3",
