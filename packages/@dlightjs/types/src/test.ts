@@ -5,6 +5,7 @@ import { _ } from "./expressionTag"
 
 const View = class { }
 
+
 type GG<T> = (T | string)
 
 /**
@@ -72,6 +73,7 @@ const SubViewWithTypes = MyView as any as Typed<MyView>
 SubViewWithTypes().didMount(undefined).hh1().hh11
 
 
+
 /**
  * A simple function that adds two numbers.
  * @param {number} a - The first number to add.
@@ -100,3 +102,4 @@ class LL {
 }
 
 const JJ = LL
+

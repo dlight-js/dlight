@@ -86,13 +86,9 @@ export class CustomNode extends DLNode {
     }
   }
 
-  _$deleteDep(depName: string, objectId: ObjectId) {
-    this._$deps[depName].delete(objectId)
-  }
-
   _$deleteDeps(objectId: ObjectId) {
     for (const depName in this._$deps) {
-      this._$deleteDep(depName, objectId)
+      this._$deps[depName].delete(objectId)
     }
   }
 

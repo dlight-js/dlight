@@ -1,6 +1,6 @@
 {
   "name": "babel-preset-dlight",
-  "version": "0.8.5",
+  "version": "0.8.12",
   "files": [
     "dist"
   ],

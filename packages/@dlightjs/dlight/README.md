@@ -802,7 +802,7 @@ Some of the benefits of using JSD include:
 * Simplicity: JSD is a simple and intuitive language that is easy to learn and use, even for developers who are new to DLight.js.
 * Declarative Syntax: JSD uses a declarative syntax that makes it easier to understand how your UI components are structured and how they interact with each other.
 
-JSD is similar to other front-end(other and web) frameworks like [SwiftUI](https://developer.apple.com/xcode/swiftui/) or [Jetpack Compose](https://developer.android.com/jetpack/compose) or [QT quick](https://doc.qt.io/qt-6/qtquick-index.html) in that it offers a declarative approach to building UI components. In fact, many platforms are moving away from using XML to build user interface(even though they're based on XML like QT and Jetpack) because XML is designed primarily for machine readability, rather than human readability.
+JSD is similar to other front-end(other than web) frameworks like [SwiftUI](https://developer.apple.com/xcode/swiftui/) or [Jetpack Compose](https://developer.android.com/jetpack/compose) or [QT quick](https://doc.qt.io/qt-6/qtquick-index.html) in that it offers a declarative approach to building UI components. In fact, many platforms are moving away from using XML to build user interface(even though they're based on XML like QT and Jetpack) because XML is designed primarily for machine readability, rather than human readability.
 
 Here's a quick example of what jsd supports:
 ```js

@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "scripts": {
     "prepare": "husky install",
+    "example": "pnpm --prefix apps/example dev",
     "test": "pnpm --prefix apps/test dev",
     "build": "sh ./common/scripts/build.sh",
     "build:transpiler": "sh ./common/scripts/buildTranspiler.sh",

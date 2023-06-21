@@ -1,4 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import DLight, { View } from "@dlightjs/dlight"
 import { SubView, button, div, h1, tr, a, span, table, tbody, td } from "@dlightjs/types"
 
@@ -24,38 +23,40 @@ function buildData(count: number) {
 class App extends View {
   rows: any[] = []
   selectIdx = -1
-  addRows = () => {
+  addRows() {
     this.rows = buildData(1000)
   }
 
-  swapRows = () => {
+  swapRows() {
     if (this.rows.length > 999) {
       this.rows = [this.rows[0], this.rows[998], ...this.rows.slice(2, 998), this.rows[1], this.rows[999]]
     }
   }
 
-  clearRows = () => {
+  clearRows() {
     this.rows = []
   }
 
-  selectRow = (idx: number) => {
-    this.selectIdx = idx
+  selectRow(idx: number) {
+    return () => { this.selectIdx = idx }
   }
 
-  deleteRow = (id: number) => {
-    const idx = this.rows.findIndex(row => row.id === id)
-    this.rows = [...this.rows.slice(0, idx), ...this.rows.slice(idx + 1)]
+  deleteRow(id: number) {
+    return () => {
+      const idx = this.rows.findIndex(row => row.id === id)
+      this.rows = [...this.rows.slice(0, idx), ...this.rows.slice(idx + 1)]
+    }
   }
 
-  addBig = () => {
+  addBig() {
     this.rows = buildData(10000)
   }
 
-  append = () => {
+  append() {
     this.rows = [...this.rows, ...buildData(1000)]
   }
 
-  update = () => {
+  update() {
     for (let i = 0; i < this.rows.length; i += 10) {
       this.rows[i].label += " !!!"
     }
@@ -73,13 +74,13 @@ class App extends View {
         .className("col-md-4")
       {
         a(label)
-          .onclick(() => this.selectRow(id))
+          .onclick(this.selectRow(id))
       }
       td()
         .className("col-md-1")
       {
         a()
-          .onclick(() => this.deleteRow(id))
+          .onclick(this.deleteRow(id))
         {
           span()
             .className("glyphicon glyphicon-remove")
@@ -114,7 +115,7 @@ class App extends View {
         div()
           .className("col-sm-6")
         {
-          h1("dlight js keyed")
+          h1("DLight.js-SubView (keyed)")
         }
         div()
           .className("col-md-6")
@@ -123,23 +124,22 @@ class App extends View {
             .className("row")
           {
             this.Button("Create 1,000 rows")
-              .onclick(this.addRows)
+              .onclick(this.addRows.bind(this))
               .id("run")
             this.Button("Create 10,000 rows")
-              .onclick(this.addBig)
+              .onclick(this.addBig.bind(this))
               .id("runlots")
             this.Button("Append 1,000 rows")
-              .onclick(this.append)
+              .onclick(this.append.bind(this))
               .id("add")
             this.Button("Update every 10th rows")
-              .onclick(this.update)
+              .onclick(this.update.bind(this))
               .id("update")
             this.Button("Clear")
-              .onclick(this.clearRows)
+              .onclick(this.clearRows.bind(this))
               .id("clear")
-              .className("col-sm-6 smallpad")
             this.Button("Swap Rows")
-              .onclick(this.swapRows)
+              .onclick(this.swapRows.bind(this))
               .id("swaprows")
           }
         }

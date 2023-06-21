@@ -20,17 +20,15 @@ T,
 type OmitFuncAndReadOnly<T> = RemoveReadOnly<OmitFunction<T>>
 
 // properties
-type OmitFuncAndReadOnlyProperty<G> = OmitFuncAndReadOnly<G>
+type OmitFuncAndReadOnlyProperty<G> = Omit<OmitFuncAndReadOnly<G>, "style">
 
 // shortcut inline style
-type PropertiesRequired = Required<Properties>
+// type PropertiesRequired = Required<Properties>
 
-type ShortcutStyle = {
-  [K in keyof PropertiesRequired as `_${string & K}`]: PropertiesRequired[K]
-}
-
-export type HTMLElementWrapper<T> = Omit<T, "className">
+// type ShortcutStyle = {
+//   [K in keyof PropertiesRequired as `_${string & K}`]: PropertiesRequired[K]
+// }
 
 export type HTMLAttributes<T> =
-OmitFuncAndReadOnlyProperty<HTMLElementWrapper<T>>
-& ShortcutStyle
+OmitFuncAndReadOnlyProperty<T>
+& { style: Properties }

@@ -21,33 +21,7 @@ export class HtmlNode extends DLNode {
   }
 
   _$addProp(key: string, valueOrFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]) {
-    let func: (newValue: any) => any
-
-    if (key[0] === "_") {
-      func = (newValue: any) => { this._$el.style[key.slice(1) as any] = newValue }
-    } else if (key === "className") {
-      let currClassName = "\\*none\\*"
-      func = (newValue: string[] | string | undefined | null) => {
-        if (Array.isArray(newValue)) newValue = newValue.join(" ")
-        newValue = newValue ?? ""
-        const classNames = this._$el.className
-        let newClassName = classNames
-        if (currClassName !== "" && new RegExp(currClassName).test(classNames)) {
-          newClassName = newClassName.replace(new RegExp(currClassName), newValue)
-        } else {
-          newClassName += ` ${newValue}`
-        }
-        currClassName = newValue
-        const className = newClassName.trim()
-        if (className === "") {
-          this._$el.removeAttribute("class")
-        } else {
-          this._$el.className = className
-        }
-      }
-    } else {
-      func = (newValue: any) => { this._$el[key] = newValue }
-    }
+    const func: (newValue: any) => any = (newValue: any) => { this._$el[key] = newValue }
 
     if (!listenDeps) {
       func(valueOrFunc)

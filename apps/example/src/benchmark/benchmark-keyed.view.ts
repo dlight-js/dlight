@@ -1,6 +1,5 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import DLight, { View } from "@dlightjs/dlight"
-import { Prop, SubView, required, button, div, h1, tr, a, span, table, tbody, td, type RequiredProp, type Typed } from "@dlightjs/types"
+import { SubView, button, div, h1, tr, a, span, table, tbody, td, Prop, required, type Typed } from "@dlightjs/types"
 
 let idCounter = 1
 
@@ -22,11 +21,11 @@ function buildData(count: number) {
 }
 
 class RowClass extends View {
-  @Prop id: RequiredProp<number> = required
-  @Prop label: RequiredProp<string> = required
-  @Prop className: RequiredProp<string> = required
-  @Prop deleteRow: RequiredProp<(id: number) => void> = required
-  @Prop selectRow: RequiredProp<(id: number) => void> = required
+  @Prop id: Prop<number> = required
+  @Prop className: Prop<string> = required
+  @Prop label: Prop<string> = required
+  @Prop selectRow: Prop<() => void> = required
+  @Prop deleteRow: Prop<() => void> = required
 
   Body() {
     tr()
@@ -38,13 +37,13 @@ class RowClass extends View {
         .className("col-md-4")
       {
         a(this.label)
-          .onclick(() => this.selectRow(this.id))
+          .onclick(this.selectRow)
       }
       td()
         .className("col-md-1")
       {
         a()
-          .onclick(() => this.deleteRow(this.id))
+          .onclick(this.deleteRow)
         {
           span()
             .className("glyphicon glyphicon-remove")
@@ -56,59 +55,69 @@ class RowClass extends View {
     }
   }
 }
+
 const Row = RowClass as any as Typed<RowClass>
+
+class ButtonClass extends View {
+  @Prop _$content: Prop<string> = required
+  @Prop id: Prop<string> = required
+  @Prop onclick: Prop<() => void> = required
+
+  Body() {
+    div()
+      .className("col-sm-6 smallpad")
+    {
+      button(this._$content)
+        .onclick(this.onclick)
+        .id(this.id)
+        .className("btn btn-primary btn-block")
+    }
+  }
+}
+
+const Button = ButtonClass as any as Typed<ButtonClass>
 
 class App extends View {
   rows: any[] = []
   selectIdx = -1
-  addRows = () => {
+  addRows() {
     this.rows = buildData(1000)
   }
 
-  swapRows = () => {
+  swapRows() {
     if (this.rows.length > 999) {
       this.rows = [this.rows[0], this.rows[998], ...this.rows.slice(2, 998), this.rows[1], this.rows[999]]
     }
   }
 
-  clearRows = () => {
+  clearRows() {
     this.rows = []
   }
 
-  selectRow = (idx: number) => {
-    this.selectIdx = idx
+  selectRow(idx: number) {
+    return () => { this.selectIdx = idx }
   }
 
-  deleteRow = (id: number) => {
-    const idx = this.rows.findIndex(row => row.id === id)
-    this.rows = [...this.rows.slice(0, idx), ...this.rows.slice(idx + 1)]
+  deleteRow(id: number) {
+    return () => {
+      const idx = this.rows.findIndex(row => row.id === id)
+      this.rows = [...this.rows.slice(0, idx), ...this.rows.slice(idx + 1)]
+    }
   }
 
-  addBig = () => {
+  addBig() {
     this.rows = buildData(10000)
   }
 
-  append = () => {
+  append() {
     this.rows = [...this.rows, ...buildData(1000)]
   }
 
-  update = () => {
+  update() {
     for (let i = 0; i < this.rows.length; i += 10) {
       this.rows[i].label += " !!!"
     }
     this.rows = [...this.rows]
-  }
-
-  @SubView
-  Button({ _$content, text, id, onclick }: any): any {
-    div()
-      .className("col-sm-6 smallpad")
-    {
-      button(_$content ?? text)
-        .onclick(onclick)
-        .id(id)
-        .className("btn btn-primary btn-block")
-    }
   }
 
   @SubView
@@ -122,7 +131,7 @@ class App extends View {
         div()
           .className("col-sm-6")
         {
-          h1("dlight js keyed")
+          h1("DLight.js (keyed)")
         }
         div()
           .className("col-md-6")
@@ -130,24 +139,23 @@ class App extends View {
           div()
             .className("row")
           {
-            this.Button("Create 1,000 rows")
-              .onclick(this.addRows)
+            Button("Create 1,000 rows")
+              .onclick(this.addRows.bind(this))
               .id("run")
-            this.Button("Create 10,000 rows")
-              .onclick(this.addBig)
+            Button("Create 10,000 rows")
+              .onclick(this.addBig.bind(this))
               .id("runlots")
-            this.Button("Append 1,000 rows")
-              .onclick(this.append)
+            Button("Append 1,000 rows")
+              .onclick(this.append.bind(this))
               .id("add")
-            this.Button("Update every 10th rows")
-              .onclick(this.update)
+            Button("Update every 10th rows")
+              .onclick(this.update.bind(this))
               .id("update")
-            this.Button("Clear")
-              .onclick(this.clearRows)
+            Button("Clear")
+              .onclick(this.clearRows.bind(this))
               .id("clear")
-              .className("col-sm-6 smallpad")
-            this.Button("Swap Rows")
-              .onclick(this.swapRows)
+            Button("Swap Rows")
+              .onclick(this.swapRows.bind(this))
               .id("swaprows")
           }
         }
@@ -168,13 +176,12 @@ class App extends View {
           tbody()
           {
             for (const { id, label } of this.rows) {
-              [id]
               Row()
                 .id(id)
                 .label(label)
                 .className(this.selectIdx === id ? "danger" : "")
-                .selectRow(this.selectRow)
-                .deleteRow(this.deleteRow)
+                .selectRow(this.selectRow(id))
+                .deleteRow(this.deleteRow(id))
             }
           }
         }

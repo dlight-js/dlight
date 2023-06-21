@@ -11,7 +11,7 @@ export interface ParserNode {
 }
 
 function parseProp(key: string, propAst: any, path: any) {
-  if (!propAst) return { key, value: true, nodes: {} }
+  if (!propAst) return { key, value: t.booleanLiteral(true), nodes: {} }
 
   const nodes: Record<string, ParserNode[]> = {}
   path.scope.traverse(propAst, {
@@ -108,8 +108,19 @@ function parseFor(node: t.ForOfStatement, path: any): ParserNode {
     parserNode.children = []
   } else {
     if (t.isArrayExpression(childrenNodes[0].expression)) {
-      parserNode.attr.key = childrenNodes[0].expression.elements[0]
+      const key = childrenNodes[0].expression.elements[0]
+      if (!(t.isNullLiteral(key) || (t.isIdentifier(key) && key.name === "undefined"))) {
+        parserNode.attr.key = key
+      }
       childrenNodes = childrenNodes.slice(1)
+    } else {
+      if (t.isObjectPattern(item)) {
+        parserNode.attr.key = t.objectExpression(item.properties as any)
+      } else if (t.isArrayPattern(item)) {
+        parserNode.attr.key = t.arrayExpression(item.elements as any)
+      } else {
+        parserNode.attr.key = item
+      }
     }
     parserNode.children = parseBlock(childrenNodes, path)
   }

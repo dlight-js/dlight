@@ -1,7 +1,6 @@
 import { type ParserNode } from "./parser"
 import { geneDeps, geneIdDeps, uid, getIdentifiers, resolveForBody, isHTMLTag, parseCustomTag, isSubViewTag, isOnlyMemberExpression, isTagName } from "./generatorHelper"
 import * as t from "@babel/types"
-import { isEvent } from "./eventExcluder"
 
 function nodeGeneration(nodeName: string, nodeType: t.Expression, args: Array<t.ArgumentPlaceholder | t.SpreadElement | t.Expression>) {
   return t.variableDeclaration(
@@ -59,8 +58,7 @@ export class Generator {
     return t.blockStatement(bodyStatements)
   }
 
-  geneDeps(value: t.Node, key = "") {
-    if (isEvent(key)) return []
+  geneDeps(value: t.Node) {
     const deps: t.Node[] = [...new Set([...geneDeps(this.path, value, this.depChain), ...geneIdDeps(this.path, value, this.idDepsArr)])]
     // deps 有可能是subview的 ...xxx.deps
     this.usedProperties.push(...deps.filter(node => t.isStringLiteral(node)).map(node => (node as any).value))
@@ -516,7 +514,7 @@ export class Generator {
       if (key === "_$content") {
         key = "innerText"
       }
-      let listenDeps = this.geneDeps(value, key)
+      let listenDeps = this.geneDeps(value)
       if (key === "element") {
         if (t.isMemberExpression(value) && t.isThisExpression(value.object) && t.isIdentifier(value.property)) {
           listenDeps = listenDeps.filter((node: any) => (

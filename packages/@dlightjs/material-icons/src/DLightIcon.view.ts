@@ -18,12 +18,11 @@ class DLightIcon extends View {
    * font-size
    */
   @Prop fontSize: Prop<string> = undefined as any
-  @Prop viewBox: Prop<string> = "0 0 24 24" as any
 
   Body() {
     span()
       .className(`MUI-Icon-${this.name}`)
-      .innerHTML(`<svg xmlns="http://www.w3.org/2000/svg" width="${this.width}" height="${this.height}" viewBox="${this.viewBox}"${this.color ? ` fill="${this.color}"` : ""}${this.opacity ? ` opacity="${this.opacity}"` : ""}${this.fontSize ? ` font-size="${this.fontSize}"` : ""}>${this.content}</svg>`)
+      .innerHTML(`<svg xmlns="http://www.w3.org/2000/svg" width="${this.width}" height="${this.height}" viewBox="0 0 24 24"${this.color ? ` fill="${this.color}"` : ""}${this.opacity ? ` opacity="${this.opacity}"` : ""}${this.fontSize ? ` font-size="${this.fontSize}"` : ""}>${this.content}</svg>`)
   }
 }
 
