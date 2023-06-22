@@ -13,20 +13,32 @@
 - [x] shortcut for style (e.g. div("hello")._height)
 - [x] element map out
 - [x] support text node
-- [x] support jsx
 - [x] jsx control flow
 - [x] lifecycle as prop
 - [x] support environment/context
 - [x] support prop expression nesting
-- [ ] ❗️error hints
+- [x] error hints
 - [x] deps optimization
 - [x] PropState/EnvState
 - [x] add lifecycle to htmlNode
 - [ ] concurrent mode
-- [ ] CLI
+- [x] CLI
 - [x] dependencies optimization
   - [x] drop dependencies when set state
   - [x] drop dependencies if it's parent node is set state and left is the same identifier
+
+## SSR
+
+
+## Integration
+
+* [x] emotion
+
+* [x] materail icons
+
+* [x] tailwind
+
+* [ ] wasm
 
 ## Component
 
@@ -45,11 +57,12 @@
 
 - [x] vite transpiler plugin
 
-- [ ] ❗️babel class.this elimination plugin
+- [x] babel plugin and preset
 
-- [ ] node transplier without vite support
+- [x] babel class.this elimination plugin
 
-- [ ] ❗️vscode language server for auto completion
+- [x] node transplier without vite support
+
 
 ## Doc
 

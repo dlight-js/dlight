@@ -1,6 +1,6 @@
 {
   "name": "@dlightjs/monorepo",
-  "version": "0.8.19",
+  "version": "0.8.20",
   "files": ["./README.md"],
   "scripts": {
     "prepare": "husky install",

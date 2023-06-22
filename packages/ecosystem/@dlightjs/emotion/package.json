@@ -1,6 +1,6 @@
 {
   "name": "@dlightjs/emotion",
-  "version": "0.8.19",
+  "version": "0.8.20",
   "type": "module",
   "files": [
     "dist"
