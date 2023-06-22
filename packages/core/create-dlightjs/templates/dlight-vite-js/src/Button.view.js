@@ -8,8 +8,7 @@ export default class Button extends View {
 
   Body() {
     button(this._$content)
-      .className(countBtn)
-      .className(this.btnStatus === 1 ? btnHover : null)
+      .className(this.btnStatus[index] === 1 ? `${countBtn} ${btnHover}` : countBtn)
       .onclick(this.onclick)
       .onmouseover(() => {
         this.btnStatus = 1

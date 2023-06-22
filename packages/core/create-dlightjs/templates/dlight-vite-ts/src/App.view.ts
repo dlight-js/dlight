@@ -1,7 +1,7 @@
 import DLight, { View } from "@dlightjs/dlight"
 import { type Typed, div, p, button, span, SubView } from "@dlightjs/types"
 import Header from "./Header.view"
-import { wrap, slogan2, countWrap, countBtn, btnHover, btnWrap, countText } from "./style.module.css"
+import { wrap, slogan2, countWrap, countBtn, btnHover, btnWrap, countText, colorD, colorL, m0 } from "./style.module.css"
 
 class App extends View {
   count = 0
@@ -9,8 +9,7 @@ class App extends View {
   @SubView
   Btn({ _$content, onclick, index }: any): any {
     button(_$content)
-      .className(countBtn)
-      .className(this.btnStatus[index] === 1 ? btnHover : null)
+      .className(this.btnStatus[index] === 1 ? `${countBtn} ${btnHover}` : countBtn)
       .onclick(onclick)
       .onmouseover(() => {
         this.btnStatus[index] = 1
@@ -34,20 +33,19 @@ class App extends View {
         p()
         {
           span("D")
-            ._color("rgb(194, 225, 154)")
+            .className(colorD)
           span("Light")
-            ._color("rgb(241,192,149)")
+            .className(colorL)
         }
         p("Your Modern")
-          ._margin("0px")
+          .className(m0)
         p("Web Framework")
       }
       div()
         .className(countWrap)
       {
         p(this.count)
-          .className(countBtn)
-          .className(countText)
+          .className(`${countBtn} ${countText}`)
         div()
           .className(btnWrap)
         {

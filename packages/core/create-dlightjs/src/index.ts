@@ -39,6 +39,20 @@ const language = await select({
   ]
 })
 
+const isBlank = await select({
+  message: "🈳️ blank template",
+  choices: [
+    {
+      name: "yes",
+      value: true
+    },
+    {
+      name: "no",
+      value: false
+    }
+  ]
+})
+
 // Resolve Deps
 const selectedDependencies: string[] = await checkbox({
   message: "📦 Packages to be installed",
@@ -60,13 +74,16 @@ if (language === "ts") {
   selectedDevDependencies.push("typescript")
 }
 
-const getLatestVersion = async(packageName: string) => {
-  const response = await fetch(`https://registry.npmjs.org/${packageName}/latest`)
-  const json = await response.json()
-  return json.version
+let version = ""
+
+const getCreateVersion = () => {
+  const packagePath = "./package.json"
+  const str = fs.readFileSync(packagePath, { encoding: "utf8", flag: "r" })
+  const data = JSON.parse(str)
+  version = data.version
 }
 
-const selectDep = async(selectFields: string[], fullDic: Record<string, string>) => {
+const selectDep = async(selectFields: string[], fullDic: Record<string, string>, type: string) => {
   const selectDep: Record<string, string> = {}
   selectFields.forEach((field) => {
     if (fullDic[field]) {
@@ -74,23 +91,25 @@ const selectDep = async(selectFields: string[], fullDic: Record<string, string>)
     }
   })
 
-  const promises = Object.entries(selectDep).map(async([key, value]) =>
-    await getLatestVersion(key).then((version) => (selectDep[key] = `^${version}`))
-  )
-  await Promise.all(promises)
+  getCreateVersion()
 
+  if (type === "dep") {
+    Object.entries(selectDep).forEach(([key]) => { selectDep[key] = `^${version}` })
+  } else if (type === "dev") {
+    selectDep["vite-plugin-dlight"] = `^${version}`
+  }
   return selectDep
 }
 
-const depsPromise = selectDep(selectedDependencies, dependencies)
-const devDepsPromise = selectDep(selectedDevDependencies, devDependencies)
+const depsPromise = selectDep(selectedDependencies, dependencies, "dep")
+const devDepsPromise = selectDep(selectedDevDependencies, devDependencies, "dev")
 const [deps, devDeps] = await Promise.all([depsPromise, devDepsPromise])
 
 // --- Download templates
 const templateDir = path.resolve(
   fileURLToPath(import.meta.url),
   "../../templates",
-  `dlight-vite-${language}`
+  `dlight-vite-${isBlank ? "min-" : ""}${language}`
 )
 
 execSync(`cp -r ${templateDir} ./${projectName}`)

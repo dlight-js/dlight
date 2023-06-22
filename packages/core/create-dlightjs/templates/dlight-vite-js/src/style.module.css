@@ -1,39 +1,39 @@
 .wrap {
-    background-color: white;
-    width: 100%;
-    height: 100vh;
+  background-color: white;
+  width: 100%;
+  height: 100vh;
 }
 
 .headerWrap {
-    padding: 40px 60px;
-    display: flex;
-    justify-content: space-between;
+  padding: 40px 60px;
+  display: flex;
+  justify-content: space-between;
 }
 
 .headerLogo {
-    width: 146px;
-    height: 46px;
+  width: 146px;
+  height: 46px;
 }
 
 .navBtn {
-    padding: 0 10px;
-    text-decoration: none;
-    color: #333333;
-    font-family: "Gill Sans", sans-serif;
+  padding: 0 10px;
+  text-decoration: none;
+  color: #333333;
+  font-family: "Gill Sans", sans-serif;
 }
 
 .slogan {
-    font-size: 45px;
-    font-weight: 600;
-    background-image: -webkit-linear-gradient(left top, rgb(241,192,149), rgb(194, 225, 154));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin: auto;
-    margin-top: 100px;
-    width: 50%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  font-size: 45px;
+  font-weight: 600;
+  background-image: -webkit-linear-gradient(left top, rgb(241, 192, 149), rgb(194, 225, 154));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: auto;
+  margin-top: 100px;
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .slogan2 {
@@ -76,10 +76,10 @@
 
 
 .countWrap {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 30px;
 }
 
 .countBtn {
@@ -132,4 +132,16 @@
 .countText {
   width: 50px;
   text-align: center;
+}
+
+.colorD {
+  color: rgb(194, 225, 154);
+}
+
+.colorL {
+  color: rgb(241, 192, 149);
+}
+
+.m0 {
+  margin: 0px;
 }

@@ -1,5 +1,5 @@
 import DLight, { View } from "@dlightjs/dlight"
-import { wrap, slogan2, countWrap, countBtn, btnWrap, countText } from "./style.module.css"
+import { wrap, slogan2, countWrap, countBtn, btnWrap, countText, colorD, colorL, m0 } from "./style.module.css"
 import Button from "./Button.view"
 import Header from "./Header.view"
 
@@ -17,20 +17,19 @@ export default class App extends View {
         p()
         {
           span("D")
-            ._color("rgb(194, 225, 154)")
+            .className(colorD)
           span("Light")
-            ._color("rgb(241,192,149)")
+            .className(colorL)
         }
         p("Your Modern")
-          ._margin("0px")
+          .className(m0)
         p("Web Framework")
       }
       div()
         .className(countWrap)
       {
         p(this.count)
-          .className(countBtn)
-          .className(countText)
+          .className(`${countBtn} ${countText}`)
         div()
           .className(btnWrap)
         {
