@@ -42,11 +42,8 @@ export class ExpressionNode extends MutableNode {
         node._$addLifeCycle(valueOrFunc, key as any)
         return
       }
-      // ---- 不覆盖style
-      if (key[0] === "_" && (node._$el.style[key.slice(1)] ?? "").trim() !== "") return
       // ---- 不覆盖其他，排除className
-      if (!["className"].includes(key) && key[0] !== "_" && node._$el[key] !== undefined) return
-      (node)._$addProp(key, valueOrFunc, dlScope, listenDeps)
+      if (key === "className") (node)._$addClassName(valueOrFunc, dlScope, listenDeps)
     }
     this.propFuncs.push(() => {
       for (const node of this._$nodes) {

@@ -5,16 +5,16 @@ import * as t from "@babel/types"
 function nodeGeneration(nodeName: string, nodeType: t.Expression, args: Array<t.ArgumentPlaceholder | t.SpreadElement | t.Expression>) {
   return t.variableDeclaration(
     "const", [
-    t.variableDeclarator(
-      t.identifier(nodeName),
-      t.newExpression(
-        t.memberExpression(
-          t.identifier("DLight"),
-          nodeType
-        ), args
+      t.variableDeclarator(
+        t.identifier(nodeName),
+        t.newExpression(
+          t.memberExpression(
+            t.identifier("DLight"),
+            nodeType
+          ), args
+        )
       )
-    )
-  ]
+    ]
   )
 }
 
@@ -103,15 +103,15 @@ export class Generator {
                 t.identifier(nodeName),
                 t.identifier("_$addCond")
               ), [
-              t.arrowFunctionExpression(
-                [], condition.condition
-              ),
-              t.arrowFunctionExpression(
-                [], this.generate(condition.parserNodes)
-              ),
-              t.thisExpression(),
-              t.arrayExpression(listenDeps)
-            ]
+                t.arrowFunctionExpression(
+                  [], condition.condition
+                ),
+                t.arrowFunctionExpression(
+                  [], this.generate(condition.parserNodes)
+                ),
+                t.thisExpression(),
+                t.arrayExpression(listenDeps)
+              ]
             )
           )
         )
@@ -129,13 +129,13 @@ export class Generator {
               t.identifier(nodeName),
               t.identifier("_$addCond")
             ), [
-            t.arrowFunctionExpression(
-              [], condition.condition
-            ),
-            t.arrowFunctionExpression(
-              [], this.generate(condition.parserNodes)
-            )
-          ]
+              t.arrowFunctionExpression(
+                [], condition.condition
+              ),
+              t.arrowFunctionExpression(
+                [], this.generate(condition.parserNodes)
+              )
+            ]
           )
         )
       )
@@ -184,122 +184,122 @@ export class Generator {
               t.identifier(nodeName),
               t.identifier("_$addNodeFunc")
             ), [
-            t.arrowFunctionExpression([
-              t.identifier("_$key"),
-              t.identifier("_$idx"),
-              t.identifier("node_for")
-            ], t.blockStatement([
+              t.arrowFunctionExpression([
+                t.identifier("_$key"),
+                t.identifier("_$idx"),
+                t.identifier("node_for")
+              ], t.blockStatement([
               /**
                * const ${item} = node_for._$getItem(_$key, _$idx);
                */
-              t.variableDeclaration(
-                "const", [
-                t.variableDeclarator(
-                  item,
-                  t.callExpression(
-                    t.memberExpression(
-                      t.identifier("node_for"),
-                      t.identifier("_$getItem")
-                    ), [
-                    t.identifier("_$key"),
-                    t.identifier("_$idx")
+                t.variableDeclaration(
+                  "const", [
+                    t.variableDeclarator(
+                      item,
+                      t.callExpression(
+                        t.memberExpression(
+                          t.identifier("node_for"),
+                          t.identifier("_$getItem")
+                        ), [
+                          t.identifier("_$key"),
+                          t.identifier("_$idx")
+                        ]
+                      )
+                    )
                   ]
-                  )
-                )
-              ]
-              ),
-              /**
+                ),
+                /**
                * const ${valueItemStr} = {};
                */
-              t.variableDeclaration(
-                "const", [
-                t.variableDeclarator(
-                  t.identifier(valueItemStr),
-                  t.objectExpression([])
-                )
-              ]
-              ),
-              /**
+                t.variableDeclaration(
+                  "const", [
+                    t.variableDeclarator(
+                      t.identifier(valueItemStr),
+                      t.objectExpression([])
+                    )
+                  ]
+                ),
+                /**
                * for (const i of idArr) {
                *    ${valueItemStr}.${i} = ${i};
                *  }
                */
-              ...idArr.map((idItem: string) => (
-                t.expressionStatement(
-                  t.assignmentExpression(
-                    "=",
-                    t.memberExpression(
-                      t.identifier(valueItemStr),
+                ...idArr.map((idItem: string) => (
+                  t.expressionStatement(
+                    t.assignmentExpression(
+                      "=",
+                      t.memberExpression(
+                        t.identifier(valueItemStr),
+                        t.identifier(idItem)
+                      ),
                       t.identifier(idItem)
-                    ),
-                    t.identifier(idItem)
+                    )
                   )
-                )
-              )),
-              /**
+                )),
+                /**
                * node_for._$listen(this, ()=>node_for._$getItem(_$key, _$idx), ${geneDepsStr(listenDeps)}, (_$item) => {`
                *  });
                */
-              t.expressionStatement(
-                t.callExpression(
-                  t.memberExpression(
-                    t.identifier("node_for"),
-                    t.identifier("_$listen")
-                  ), [
-                  t.thisExpression(),
-                  t.arrowFunctionExpression(
-                    [],
-                    t.callExpression(
-                      t.memberExpression(
-                        t.identifier("node_for"),
-                        t.identifier("_$getItem")
-                      ), [
-                      t.identifier("_$key"),
-                      t.identifier("_$idx")
-                    ]
-                    )
-                  ),
-                  t.arrayExpression(listenDeps),
-                  t.arrowFunctionExpression([
-                    t.identifier("_$item")
-                  ],
-                    t.blockStatement([
+                t.expressionStatement(
+                  t.callExpression(
+                    t.memberExpression(
+                      t.identifier("node_for"),
+                      t.identifier("_$listen")
+                    ), [
+                      t.thisExpression(),
+                      t.arrowFunctionExpression(
+                        [],
+                        t.callExpression(
+                          t.memberExpression(
+                            t.identifier("node_for"),
+                            t.identifier("_$getItem")
+                          ), [
+                            t.identifier("_$key"),
+                            t.identifier("_$idx")
+                          ]
+                        )
+                      ),
+                      t.arrayExpression(listenDeps),
+                      t.arrowFunctionExpression([
+                        t.identifier("_$item")
+                      ],
+                      t.blockStatement([
                       /**
                        * const ${item} = _$item;
                        */
-                      t.variableDeclaration(
-                        "const", [
-                        t.variableDeclarator(
-                          item,
-                          t.identifier("_$item")
-                        )
-                      ]
-                      ),
-                      /**
+                        t.variableDeclaration(
+                          "const", [
+                            t.variableDeclarator(
+                              item,
+                              t.identifier("_$item")
+                            )
+                          ]
+                        ),
+                        /**
                         *  for (const i of idArr) {
                         *    ${valueItemStr}.${i} = ${i};
                         *  }
                         */
-                      ...idArr.map((idItem: string) => (
-                        t.expressionStatement(
-                          t.assignmentExpression(
-                            "=",
-                            t.memberExpression(
-                              t.identifier(valueItemStr),
+                        ...idArr.map((idItem: string) => (
+                          t.expressionStatement(
+                            t.assignmentExpression(
+                              "=",
+                              t.memberExpression(
+                                t.identifier(valueItemStr),
+                                t.identifier(idItem)
+                              ),
                               t.identifier(idItem)
-                            ),
-                            t.identifier(idItem)
+                            )
                           )
-                        )
-                      ))
-                    ])
+                        ))
+                      ])
+                      )
+                    ]
                   )
-                ]
-                )
-              ),
-              forBody
-            ]))
-          ]
+                ),
+                forBody
+              ]))
+            ]
           )
         )
       )
@@ -316,50 +316,50 @@ export class Generator {
                 t.identifier(nodeName),
                 t.identifier("_$addKeyFunc")
               ), [
-              t.arrowFunctionExpression(
-                [],
-                t.blockStatement([
+                t.arrowFunctionExpression(
+                  [],
+                  t.blockStatement([
                   /**
                    * const keys = []
                    */
-                  t.variableDeclaration(
-                    "const", [
-                    t.variableDeclarator(
-                      t.identifier("keys"),
-                      t.arrayExpression()
-                    )
-                  ]
-                  ),
-                  /**
+                    t.variableDeclaration(
+                      "const", [
+                        t.variableDeclarator(
+                          t.identifier("keys"),
+                          t.arrayExpression()
+                        )
+                      ]
+                    ),
+                    /**
                    * for (let ${item} of ${array}) {
                    *   keys.push(${key});
                    * }
                    */
-                  t.forOfStatement(
-                    t.variableDeclaration(
-                      "const", [
-                      t.variableDeclarator(item)
-                    ]
-                    ),
-                    array,
-                    t.blockStatement([
-                      t.expressionStatement(
-                        t.callExpression(
-                          t.memberExpression(
-                            t.identifier("keys"),
-                            t.identifier("push")
-                          ), [key]
+                    t.forOfStatement(
+                      t.variableDeclaration(
+                        "const", [
+                          t.variableDeclarator(item)
+                        ]
+                      ),
+                      array,
+                      t.blockStatement([
+                        t.expressionStatement(
+                          t.callExpression(
+                            t.memberExpression(
+                              t.identifier("keys"),
+                              t.identifier("push")
+                            ), [key]
+                          )
                         )
-                      )
-                    ])
-                  ),
-                  /**
+                      ])
+                    ),
+                    /**
                    * return keys
                    */
-                  t.returnStatement(t.identifier("keys"))
-                ])
-              )
-            ]
+                    t.returnStatement(t.identifier("keys"))
+                  ])
+                )
+              ]
             )
           )
         )
@@ -374,10 +374,10 @@ export class Generator {
               t.identifier(nodeName),
               t.identifier("_$addArrayFunc")
             ), [
-            t.thisExpression(),
-            t.arrowFunctionExpression([], array),
-            t.arrayExpression(listenDeps)
-          ]
+              t.thisExpression(),
+              t.arrowFunctionExpression([], array),
+              t.arrayExpression(listenDeps)
+            ]
           )
         )
       )
@@ -394,26 +394,26 @@ export class Generator {
               t.identifier(nodeName),
               t.identifier("_$addNodess")
             ), [
-            t.arrowFunctionExpression(
-              [],
-              t.callExpression(
-                t.memberExpression(
-                  t.callExpression(
-                    t.memberExpression(
-                      t.identifier("Array"),
-                      t.identifier("from")
-                    ), [array]
-                  ),
-                  t.identifier("map")
-                ), [
-                t.arrowFunctionExpression(
-                  [item],
-                  this.generate(parserNode.children)
+              t.arrowFunctionExpression(
+                [],
+                t.callExpression(
+                  t.memberExpression(
+                    t.callExpression(
+                      t.memberExpression(
+                        t.identifier("Array"),
+                        t.identifier("from")
+                      ), [array]
+                    ),
+                    t.identifier("map")
+                  ), [
+                    t.arrowFunctionExpression(
+                      [item],
+                      this.generate(parserNode.children)
+                    )
+                  ]
                 )
-              ]
               )
-            )
-          ]
+            ]
           )
         )
       )
@@ -503,9 +503,9 @@ export class Generator {
                 t.identifier(nodeName),
                 t.identifier("_$addLifeCycle")
               ), [
-              value,
-              t.stringLiteral(key)
-            ]
+                value,
+                t.stringLiteral(key)
+              ]
             )
           )
         )
@@ -529,36 +529,36 @@ export class Generator {
           statements.push(
             t.variableDeclaration(
               "const", [
-              t.variableDeclarator(
-                t.identifier(`${nodeName}Element`),
-                t.arrowFunctionExpression(
-                  [],
-                  t.conditionalExpression(
-                    t.binaryExpression(
-                      "===",
-                      t.unaryExpression("typeof", value),
-                      t.stringLiteral("function")
-                    ),
-                    t.callExpression(
-                      value, [
-                      t.memberExpression(
-                        t.identifier(nodeName),
-                        t.identifier("_$el")
-                      )
-                    ]
-                    ),
-                    t.assignmentExpression(
-                      "=",
-                      value,
-                      t.memberExpression(
-                        t.identifier(nodeName),
-                        t.identifier("_$el")
+                t.variableDeclarator(
+                  t.identifier(`${nodeName}Element`),
+                  t.arrowFunctionExpression(
+                    [],
+                    t.conditionalExpression(
+                      t.binaryExpression(
+                        "===",
+                        t.unaryExpression("typeof", value),
+                        t.stringLiteral("function")
+                      ),
+                      t.callExpression(
+                        value, [
+                          t.memberExpression(
+                            t.identifier(nodeName),
+                            t.identifier("_$el")
+                          )
+                        ]
+                      ),
+                      t.assignmentExpression(
+                        "=",
+                        value,
+                        t.memberExpression(
+                          t.identifier(nodeName),
+                          t.identifier("_$el")
+                        )
                       )
                     )
                   )
                 )
-              )
-            ]
+              ]
             )
           )
         } else {
@@ -568,21 +568,21 @@ export class Generator {
           statements.push(
             t.variableDeclaration(
               "const", [
-              t.variableDeclarator(
-                t.identifier(`${nodeName}Element`),
-                t.arrowFunctionExpression(
-                  [],
-                  t.callExpression(
-                    value, [
-                    t.memberExpression(
-                      t.identifier(nodeName),
-                      t.identifier("_$el")
+                t.variableDeclarator(
+                  t.identifier(`${nodeName}Element`),
+                  t.arrowFunctionExpression(
+                    [],
+                    t.callExpression(
+                      value, [
+                        t.memberExpression(
+                          t.identifier(nodeName),
+                          t.identifier("_$el")
+                        )
+                      ]
                     )
-                  ]
                   )
                 )
-              )
-            ]
+              ]
             )
           )
         }
@@ -609,10 +609,10 @@ export class Generator {
                   t.thisExpression(),
                   t.identifier("_$addDeps")
                 ), [
-                t.arrayExpression(listenDeps),
-                t.objectExpression([]),
-                t.identifier(`${nodeName}Element`)
-              ]
+                  t.arrayExpression(listenDeps),
+                  t.objectExpression([]),
+                  t.identifier(`${nodeName}Element`)
+                ]
               )
             )
           )
@@ -622,7 +622,7 @@ export class Generator {
       if (key === "style") {
         if (listenDeps.length > 0) {
           /**
-           * ${nodeName}._$addStyle("${key}", () => (${value}), this, ${geneDepsStr(listenDeps)});
+           * ${nodeName}._$addStyle(() => (${value}), this, ${geneDepsStr(listenDeps)});
            */
           statements.push(
             t.expressionStatement(
@@ -631,7 +631,6 @@ export class Generator {
                   t.identifier(nodeName),
                   t.identifier("_$addStyle")
                 ), [
-                  t.stringLiteral(key),
                   t.arrowFunctionExpression([], value),
                   t.thisExpression(),
                   t.arrayExpression(listenDeps)
@@ -642,7 +641,7 @@ export class Generator {
           continue
         }
         /**
-         * ${nodeName}._$addProp("${key}", ${value});
+         * ${nodeName}._$addProp(${value});
          */
         statements.push(
           t.expressionStatement(
@@ -651,7 +650,44 @@ export class Generator {
                 t.identifier(nodeName),
                 t.identifier("_$addStyle")
               ), [
-                t.stringLiteral(key),
+                value
+              ]
+            )
+          )
+        )
+        continue
+      }
+      if (key === "className") {
+        if (listenDeps.length > 0) {
+          /**
+           * ${nodeName}._$addClassName(() => (${value}), this, ${geneDepsStr(listenDeps)});
+           */
+          statements.push(
+            t.expressionStatement(
+              t.callExpression(
+                t.memberExpression(
+                  t.identifier(nodeName),
+                  t.identifier("_$addClassName")
+                ), [
+                  t.arrowFunctionExpression([], value),
+                  t.thisExpression(),
+                  t.arrayExpression(listenDeps)
+                ]
+              )
+            )
+          )
+          continue
+        }
+        /**
+         * ${nodeName}._$addClassName(${value});
+         */
+        statements.push(
+          t.expressionStatement(
+            t.callExpression(
+              t.memberExpression(
+                t.identifier(nodeName),
+                t.identifier("_$addClassName")
+              ), [
                 value
               ]
             )
@@ -712,14 +748,14 @@ export class Generator {
               t.identifier(nodeName),
               t.identifier("_$addNodes")
             ), [
-            t.callExpression(
-              t.arrowFunctionExpression(
-                [],
-                this.generate(parserNode.children)
-              ),
-              []
-            )
-          ]
+              t.callExpression(
+                t.arrowFunctionExpression(
+                  [],
+                  this.generate(parserNode.children)
+                ),
+                []
+              )
+            ]
           )
         )
       )
@@ -738,11 +774,11 @@ export class Generator {
     statements.push(
       t.variableDeclaration(
         "const", [
-        t.variableDeclarator(
-          t.identifier(nodeName),
-          t.newExpression(parserNode.tag as any, [])
-        )
-      ]
+          t.variableDeclarator(
+            t.identifier(nodeName),
+            t.newExpression(parserNode.tag as any, [])
+          )
+        ]
       )
     )
 
@@ -789,9 +825,9 @@ export class Generator {
                 t.identifier(nodeName),
                 t.identifier("_$addLifeCycle")
               ), [
-              value,
-              t.stringLiteral(key)
-            ]
+                value,
+                t.stringLiteral(key)
+              ]
             )
           )
         )
@@ -813,36 +849,36 @@ export class Generator {
           statements.push(
             t.variableDeclaration(
               "const", [
-              t.variableDeclarator(
-                t.identifier(`${nodeName}Element`),
-                t.arrowFunctionExpression(
-                  [],
-                  t.conditionalExpression(
-                    t.binaryExpression(
-                      "===",
-                      t.unaryExpression("typeof", value),
-                      t.stringLiteral("function")
-                    ),
-                    t.callExpression(
-                      value, [
-                      t.memberExpression(
-                        t.identifier(nodeName),
-                        t.identifier("_$el")
-                      )
-                    ]
-                    ),
-                    t.assignmentExpression(
-                      "=",
-                      value,
-                      t.memberExpression(
-                        t.identifier(nodeName),
-                        t.identifier("_$el")
+                t.variableDeclarator(
+                  t.identifier(`${nodeName}Element`),
+                  t.arrowFunctionExpression(
+                    [],
+                    t.conditionalExpression(
+                      t.binaryExpression(
+                        "===",
+                        t.unaryExpression("typeof", value),
+                        t.stringLiteral("function")
+                      ),
+                      t.callExpression(
+                        value, [
+                          t.memberExpression(
+                            t.identifier(nodeName),
+                            t.identifier("_$el")
+                          )
+                        ]
+                      ),
+                      t.assignmentExpression(
+                        "=",
+                        value,
+                        t.memberExpression(
+                          t.identifier(nodeName),
+                          t.identifier("_$el")
+                        )
                       )
                     )
                   )
                 )
-              )
-            ]
+              ]
             )
           )
         } else {
@@ -852,21 +888,21 @@ export class Generator {
           statements.push(
             t.variableDeclaration(
               "const", [
-              t.variableDeclarator(
-                t.identifier(`${nodeName}Element`),
-                t.arrowFunctionExpression(
-                  [],
-                  t.callExpression(
-                    value, [
-                    t.memberExpression(
-                      t.identifier(nodeName),
-                      t.identifier("_$el")
+                t.variableDeclarator(
+                  t.identifier(`${nodeName}Element`),
+                  t.arrowFunctionExpression(
+                    [],
+                    t.callExpression(
+                      value, [
+                        t.memberExpression(
+                          t.identifier(nodeName),
+                          t.identifier("_$el")
+                        )
+                      ]
                     )
-                  ]
                   )
                 )
-              )
-            ]
+              ]
             )
           )
         }
@@ -880,9 +916,9 @@ export class Generator {
                 t.identifier(nodeName),
                 t.identifier("_$addLifeCycle")
               ), [
-              t.identifier(`${nodeName}Element`),
-              t.stringLiteral("didMount")
-            ]
+                t.identifier(`${nodeName}Element`),
+                t.stringLiteral("didMount")
+              ]
             )
           )
         )
@@ -897,10 +933,10 @@ export class Generator {
                   t.thisExpression(),
                   t.identifier("_$addDeps")
                 ), [
-                t.arrayExpression(listenDeps),
-                t.objectExpression([]),
-                t.identifier(`${nodeName}Element`)
-              ]
+                  t.arrayExpression(listenDeps),
+                  t.objectExpression([]),
+                  t.identifier(`${nodeName}Element`)
+                ]
               )
             )
           )
@@ -918,11 +954,11 @@ export class Generator {
                 t.identifier(nodeName),
                 t.identifier("_$addProp")
               ), [
-              t.stringLiteral(key),
-              t.arrowFunctionExpression([], value),
-              t.thisExpression(),
-              t.arrayExpression(listenDeps)
-            ]
+                t.stringLiteral(key),
+                t.arrowFunctionExpression([], value),
+                t.thisExpression(),
+                t.arrayExpression(listenDeps)
+              ]
             )
           )
         )
@@ -938,9 +974,9 @@ export class Generator {
               t.identifier(nodeName),
               t.identifier("_$addProp")
             ), [
-            t.stringLiteral(key),
-            value
-          ]
+              t.stringLiteral(key),
+              value
+            ]
           )
         )
       )
@@ -960,11 +996,11 @@ export class Generator {
               t.identifier(nodeName),
               t.identifier("_$addChildren")
             ), [
-            t.arrowFunctionExpression(
-              [],
-              this.generate(parserNode.children)
-            )
-          ]
+              t.arrowFunctionExpression(
+                [],
+                this.generate(parserNode.children)
+              )
+            ]
           )
         )
       )
@@ -993,20 +1029,20 @@ export class Generator {
       statements.push(
         t.variableDeclaration(
           "const", [
-          t.variableDeclarator(
-            t.identifier(keyWithId),
-            t.objectExpression([
-              t.objectProperty(
-                t.identifier("value"),
-                value
-              ),
-              t.objectProperty(
-                t.identifier("deps"),
-                t.arrayExpression(listenDeps)
-              )
-            ])
-          )
-        ]
+            t.variableDeclarator(
+              t.identifier(keyWithId),
+              t.objectExpression([
+                t.objectProperty(
+                  t.identifier("value"),
+                  value
+                ),
+                t.objectProperty(
+                  t.identifier("deps"),
+                  t.arrayExpression(listenDeps)
+                )
+              ])
+            )
+          ]
         )
       )
       passProps.push({ key, keyWithId })
@@ -1016,11 +1052,11 @@ export class Generator {
       statements.push(
         t.variableDeclaration(
           "const", [
-          t.variableDeclarator(
-            t.identifier(`depId${idx}_${i}`),
-            t.objectExpression([])
-          )
-        ]
+            t.variableDeclarator(
+              t.identifier(`depId${idx}_${i}`),
+              t.objectExpression([])
+            )
+          ]
         )
       )
       /**
@@ -1033,20 +1069,20 @@ export class Generator {
               t.thisExpression(),
               t.identifier("_$addDeps")
             ), [
-            t.arrayExpression(listenDeps),
-            t.identifier(`depId${idx}_${i}`),
-            t.arrowFunctionExpression(
-              [],
-              t.assignmentExpression(
-                "=",
-                t.memberExpression(
-                  t.identifier(keyWithId),
-                  t.identifier("value")
-                ),
-                value
+              t.arrayExpression(listenDeps),
+              t.identifier(`depId${idx}_${i}`),
+              t.arrowFunctionExpression(
+                [],
+                t.assignmentExpression(
+                  "=",
+                  t.memberExpression(
+                    t.identifier(keyWithId),
+                    t.identifier("value")
+                  ),
+                  value
+                )
               )
-            )
-          ]
+            ]
           )
         )
       )
@@ -1059,20 +1095,20 @@ export class Generator {
     statements.push(
       t.variableDeclaration(
         "const", [
-        t.variableDeclarator(
-          t.identifier(nodeName),
-          t.callExpression(
-            parserNode.tag as t.MemberExpression, [
-            t.objectExpression(passProps.map(({ key, keyWithId }) => (
-              t.objectProperty(
-                t.identifier(key),
-                t.identifier(keyWithId)
-              )
-            )))
-          ]
+          t.variableDeclarator(
+            t.identifier(nodeName),
+            t.callExpression(
+              parserNode.tag as t.MemberExpression, [
+                t.objectExpression(passProps.map(({ key, keyWithId }) => (
+                  t.objectProperty(
+                    t.identifier(key),
+                    t.identifier(keyWithId)
+                  )
+                )))
+              ]
+            )
           )
-        )
-      ]
+        ]
       )
     )
     // ---- subView一定要有返回值！dep放到返回的第一个里面，这样子删除的时候就可以一起删了，不会内存泄漏
@@ -1094,14 +1130,14 @@ export class Generator {
               ),
               t.identifier("push")
             ), [
-            t.spreadElement(
-              t.arrayExpression(
-                Object.keys(props).map(i => (
-                  t.identifier(`depId${idx}_${i}`)
-                ))
+              t.spreadElement(
+                t.arrayExpression(
+                  Object.keys(props).map(i => (
+                    t.identifier(`depId${idx}_${i}`)
+                  ))
+                )
               )
-            )
-          ]
+            ]
           )
         )
       )
@@ -1134,14 +1170,14 @@ export class Generator {
               t.identifier(nodeName),
               t.identifier("_$addNodes")
             ), [
-            t.callExpression(
-              t.arrowFunctionExpression(
-                [],
-                this.generate(parserNode.children)
-              ),
-              []
-            )
-          ]
+              t.callExpression(
+                t.arrowFunctionExpression(
+                  [],
+                  this.generate(parserNode.children)
+                ),
+                []
+              )
+            ]
           )
         )
       )
@@ -1162,11 +1198,11 @@ export class Generator {
                 t.identifier(nodeName),
                 t.identifier("_$addProp")
               ), [
-              t.stringLiteral(key),
-              t.arrowFunctionExpression([], value),
-              t.thisExpression(),
-              t.arrayExpression(listenDeps)
-            ]
+                t.stringLiteral(key),
+                t.arrowFunctionExpression([], value),
+                t.thisExpression(),
+                t.arrayExpression(listenDeps)
+              ]
             )
           )
         )
@@ -1182,9 +1218,9 @@ export class Generator {
               t.identifier(nodeName),
               t.identifier("_$addProp")
             ), [
-            t.stringLiteral(key),
-            value
-          ]
+              t.stringLiteral(key),
+              value
+            ]
           )
         )
       )
@@ -1250,11 +1286,11 @@ export class Generator {
                 t.identifier(nodeName),
                 t.identifier("_$addProp")
               ), [
-              t.stringLiteral(key),
-              t.arrowFunctionExpression([], value),
-              t.thisExpression(),
-              t.arrayExpression(listenDeps)
-            ]
+                t.stringLiteral(key),
+                t.arrowFunctionExpression([], value),
+                t.thisExpression(),
+                t.arrayExpression(listenDeps)
+              ]
             )
           )
         )
@@ -1270,9 +1306,9 @@ export class Generator {
               t.identifier(nodeName),
               t.identifier("_$addProp")
             ), [
-            t.stringLiteral(key),
-            value
-          ]
+              t.stringLiteral(key),
+              value
+            ]
           )
         )
       )

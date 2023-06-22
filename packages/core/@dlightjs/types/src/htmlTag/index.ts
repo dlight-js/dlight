@@ -5,6 +5,7 @@ type HtmlLifecycleFuncType = ((el?: HTMLElement, node?: HtmlNode) => void) | und
 interface DLightHtmlProps {
   do: (node: HtmlNode) => void
   forwardProps: true
+  className: string | string[] | undefined | undefined[]
   element: HTMLElement | ((holder: HTMLElement) => void) | undefined
   willAppear: HtmlLifecycleFuncType
   didAppear: HtmlLifecycleFuncType
@@ -15,7 +16,11 @@ interface DLightHtmlProps {
 type DLightHTMLAttributes<T, G> = DLightHtmlProps & HTMLAttributes<T> & G
 
 export type DLightHTMLAttributesFunc<T, G> = {
-  [K in keyof DLightHTMLAttributes<T, G>]: (value: DLightHTMLAttributes<T, G>[K] | undefined) => Omit<DLightHTMLAttributesFunc<T, G>, K>
+  [K in keyof DLightHTMLAttributes<T, G>]: (value: DLightHTMLAttributes<T, G>[K] | undefined) => (
+    K extends "className"
+      ? DLightHTMLAttributesFunc<T, G>
+      : Omit<DLightHTMLAttributesFunc<T, G>, K>
+  )
 }
 
 export type DLightHtmlTagFunc<T=HTMLElement, G={}> = (innerText?: string | number) => DLightHTMLAttributesFunc<T, G>

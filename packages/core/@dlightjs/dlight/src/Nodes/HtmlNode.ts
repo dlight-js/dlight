@@ -20,7 +20,7 @@ export class HtmlNode extends DLNode {
     this._$nodes = nodes
   }
 
-  _$addPropSub(newValueFunc: (newValue: any) => any, key: string, valueOrFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]) {
+  _$addPropSub(newValueFunc: (newValue: any) => any, valueOrFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]) {
     const func = newValueFunc
 
     if (!listenDeps) {
@@ -44,18 +44,43 @@ export class HtmlNode extends DLNode {
   _$addProp(key: string, valueOrFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]) {
     this._$addPropSub(
       (newValue: any) => { this._$el[key] = newValue },
-      key, valueOrFunc, dlScope, listenDeps
+      valueOrFunc, dlScope, listenDeps
     )
   }
 
-  _$addStyle(key: string, valueOrFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]) {
+  _$addClassName(valueOrFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]) {
+    let currClassName = "\\*none\\*"
+    this._$addPropSub(
+      (newValue: string[] | string | undefined | null) => {
+        if (Array.isArray(newValue)) newValue = newValue.join(" ")
+        newValue = newValue ?? ""
+        const classNames = this._$el.className
+        let newClassName = classNames
+        if (currClassName !== "" && new RegExp(currClassName).test(classNames)) {
+          newClassName = newClassName.replace(new RegExp(currClassName), newValue)
+        } else {
+          newClassName += ` ${newValue}`
+        }
+        currClassName = newValue
+        const className = newClassName.trim()
+        if (className === "") {
+          this._$el.removeAttribute("class")
+        } else {
+          this._$el.className = className
+        }
+      },
+      valueOrFunc, dlScope, listenDeps
+    )
+  }
+
+  _$addStyle(valueOrFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]) {
     this._$addPropSub(
       (newValue: any) => {
         for (const [k, v] of Object.entries(newValue)) {
           this._$el.style[k] = v
         }
       },
-      key, valueOrFunc, dlScope, listenDeps
+      valueOrFunc, dlScope, listenDeps
     )
   }
 
@@ -66,7 +91,7 @@ export class HtmlNode extends DLNode {
   didDisappear(_el: HTMLElement, _node: HtmlNode): any { }
   _$addLifeCycle(func: (_el: HTMLElement, _node: HtmlNode) => any, lifeCycleName: "willAppear" | "didAppear" | "willDisappear" | "didDisappear") {
     const preLifeCycle = this[lifeCycleName]
-    this[lifeCycleName] = function (_el: HTMLElement, _node: HtmlNode) {
+    this[lifeCycleName] = function(_el: HTMLElement, _node: HtmlNode) {
       preLifeCycle.call(this, _el, _node)
       func.call(this, _el, _node)
     }

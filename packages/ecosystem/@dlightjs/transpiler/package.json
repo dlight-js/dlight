@@ -1,6 +1,6 @@
 {
   "name": "@dlightjs/transpiler",
-  "version": "0.8.13",
+  "version": "0.8.19",
   "description": "",
   "files": [
     "dist"
