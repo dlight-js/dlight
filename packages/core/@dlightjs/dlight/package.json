@@ -1,6 +1,6 @@
 {
   "name": "@dlightjs/dlight",
-  "version": "0.8.22",
+  "version": "0.8.26",
   "files": ["dist"],
   "description": "",
   "type": "module",

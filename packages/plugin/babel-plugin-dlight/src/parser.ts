@@ -10,6 +10,10 @@ export interface ParserNode {
   children: ParserNode[]
 }
 
+function declaratorWrapper(value: t.Node) {
+  return t.variableDeclaration("const", [t.variableDeclarator(value as any, t.nullLiteral())])
+}
+
 function parseProp(key: string, propAst: any, path: any) {
   if (!propAst) return { key, value: t.booleanLiteral(true), nodes: {} }
 
@@ -114,13 +118,16 @@ function parseFor(node: t.ForOfStatement, path: any): ParserNode {
       }
       childrenNodes = childrenNodes.slice(1)
     } else {
-      if (t.isObjectPattern(item)) {
-        parserNode.attr.key = t.objectExpression(item.properties as any)
-      } else if (t.isArrayPattern(item)) {
-        parserNode.attr.key = t.arrayExpression(item.elements as any)
-      } else {
-        parserNode.attr.key = item
-      }
+      const itemKey = JSON.parse(JSON.stringify(item))
+      path.scope.traverse(declaratorWrapper(itemKey), {
+        ObjectPattern(innerPath: any) {
+          innerPath.node.type = "ObjectExpression"
+        },
+        ArrayPattern(innerPath: any) {
+          innerPath.node.type = "ArrayExpression"
+        }
+      })
+      parserNode.attr.key = itemKey
     }
     parserNode.children = parseBlock(childrenNodes, path)
   }

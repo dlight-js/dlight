@@ -94,14 +94,23 @@ export function getIdentifiers(value: t.Node, path: any) {
   return [...new Set(identifiers)]
 }
 
-export function resolveForBody(path: any, body: t.BlockStatement, item: t.Node, valueItemStr: string) {
+export function getForBodyIdentifiers(path: any, item: t.Node) {
   const identifierKeys: string[] = []
-  // ---- 遍历拿到所有item里面的标识符，下面要把标识符转换成带.value的
   path.scope.traverse(item, {
     Identifier(innerPath: any) {
+      if (t.isObjectProperty(innerPath.parentPath.node)) return
       identifierKeys.push(innerPath.node.name)
+    },
+    ObjectProperty(innerPath: any) {
+      identifierKeys.push(innerPath.node.value.name)
     }
   })
+  return [...new Set(identifierKeys)]
+}
+
+export function resolveForBody(path: any, body: t.BlockStatement, item: t.Node, valueItemStr: string) {
+  const identifierKeys = getForBodyIdentifiers(path, item)
+  // ---- 遍历拿到所有item里面的标识符，下面要把标识符转换成带.value的
   path.scope.traverse(t.functionDeclaration(null, [], body), {
     Identifier(innerPath: any) {
       // ---- 必须key相等，但是不能是 xxx.keyname，也就是不是memberExpression

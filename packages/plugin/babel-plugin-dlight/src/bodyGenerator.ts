@@ -1,5 +1,5 @@
 import { type ParserNode } from "./parser"
-import { geneDeps, geneIdDeps, uid, getIdentifiers, resolveForBody, isHTMLTag, parseCustomTag, isSubViewTag, isOnlyMemberExpression, isTagName } from "./generatorHelper"
+import { geneDeps, geneIdDeps, uid, resolveForBody, isHTMLTag, parseCustomTag, isSubViewTag, isOnlyMemberExpression, isTagName, getForBodyIdentifiers } from "./generatorHelper"
 import * as t from "@babel/types"
 
 function nodeGeneration(nodeName: string, nodeType: t.Expression, args: Array<t.ArgumentPlaceholder | t.SpreadElement | t.Expression>) {
@@ -162,7 +162,7 @@ export class Generator {
     const listenDeps = this.geneDeps(array)
     if (listenDeps.length > 0) {
       // ---- 如果有dependencies
-      const idArr = getIdentifiers(item, this.path)
+      const idArr = getForBodyIdentifiers(this.path, item)
       const valueId = uid()
       const valueItemStr = `_$valuedItem${valueId}`
       // ---- 子body
