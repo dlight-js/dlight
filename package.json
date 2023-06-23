@@ -35,8 +35,8 @@
       "vite-plugin-dlight"
     ],
     "ecosystem": [
-      "@dlightjs/components",
       "@dlightjs/emotion",
+      "@dlightjs/components",
       "@dlightjs/material-icons",
       "@dlightjs/transpiler",
       "@dlightjs/transpiler-standalone"
