@@ -77,13 +77,16 @@ if (language === "ts") {
 let version = ""
 
 const getCreateVersion = () => {
-  const packagePath = "./package.json"
+  const packagePath = path.resolve(
+    fileURLToPath(import.meta.url),
+    "../../package.json"
+  )
   const str = fs.readFileSync(packagePath, { encoding: "utf8", flag: "r" })
   const data = JSON.parse(str)
   version = data.version
 }
 
-const selectDep = async(selectFields: string[], fullDic: Record<string, string>, type: string) => {
+const selectDep = (selectFields: string[], fullDic: Record<string, string>, type: string) => {
   const selectDep: Record<string, string> = {}
   selectFields.forEach((field) => {
     if (fullDic[field]) {
@@ -101,9 +104,8 @@ const selectDep = async(selectFields: string[], fullDic: Record<string, string>,
   return selectDep
 }
 
-const depsPromise = selectDep(selectedDependencies, dependencies, "dep")
-const devDepsPromise = selectDep(selectedDevDependencies, devDependencies, "dev")
-const [deps, devDeps] = await Promise.all([depsPromise, devDepsPromise])
+const deps = selectDep(selectedDependencies, dependencies, "dep")
+const devDeps = selectDep(selectedDevDependencies, devDependencies, "dev")
 
 // --- Download templates
 const templateDir = path.resolve(
