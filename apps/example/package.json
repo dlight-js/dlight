@@ -19,6 +19,7 @@
     "@dlightjs/components": "workspace:*",
     "@dlightjs/dlight": "workspace:*",
     "@dlightjs/emotion": "workspace:*",
+    "@dlightjs/markit": "workspace:*",
     "@dlightjs/transpiler-standalone": "workspace:*",
     "@dlightjs/material-icons": "workspace:*",
     "@dlightjs/types": "workspace:*",
