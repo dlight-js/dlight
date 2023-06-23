@@ -1,5 +1,5 @@
 import DLight, { View } from "@dlightjs/dlight"
-import { Prop, required, span, type Typed } from "@dlightjs/types"
+import { Prop, type PartialPropWrapper, required, span, type Typed, type DLightHTMLAttributes } from "@dlightjs/types"
 
 class DLightIcon extends View {
   @Prop content: Prop<string> = required
@@ -19,13 +19,16 @@ class DLightIcon extends View {
    */
   @Prop fontSize: Prop<string> = undefined as any
 
+  _$forwardProps = true
+
   Body() {
     span()
       .className(`MUI-Icon-${this.name}`)
       .innerHTML(`<svg xmlns="http://www.w3.org/2000/svg" width="${this.width}" height="${this.height}" viewBox="0 0 24 24"${this.color ? ` fill="${this.color}"` : ""}${this.opacity ? ` opacity="${this.opacity}"` : ""}${this.fontSize ? ` font-size="${this.fontSize}"` : ""}>${this.content}</svg>`)
+      .forwardProps()
   }
 }
 
-export type DLightIconType = Omit<DLightIcon, "content" | "name">
+export type DLightIconType = PartialPropWrapper<DLightHTMLAttributes<HTMLSpanElement, {}>>
 
 export default DLightIcon as any as Typed<DLightIcon>

@@ -6,18 +6,34 @@ import { div, Prop, type Typed, _, button, SubView } from "@dlightjs/types"
 import { transformWithEsbuild } from "vite"
 import { DLightIcon, DLightIconType, HelpOutlineOutlined } from "@dlightjs/material-icons"
 
-class TestView extends View {
-  canvasEl?: HTMLCanvasElement
-
-  didMount() {
-    const ctx = this.canvasEl!.getContext("2d")!
-    ctx.fillStyle = "green"
-    ctx.fillRect(10, 10, 150, 100)
-  }
-
+class GG extends View {
+  _$forwardProps = true
   Body() {
-    canvas()
-      .element(this.canvasEl)
+    div("okkkk")
+      .forwardProps()
+  }
+}
+
+class HH extends View {
+  _$forwardProps = true
+  Body() {
+    GG()
+      .forwardProps()
+  }
+}
+
+class TestView extends View {
+  hh = [{ item: [1, 2, 3] }, { item: [1, 2, 3] }]
+  Body() {
+    for (const [idx, { item }] of this.hh.entries()) {
+      for (const ite of item) {
+        div(`${ite} + ${idx}`)
+      }
+    }
+    // HelpOutlineOutlined()
+    //   .style({
+    //     backgroundColor: "red"
+    //   })
   }
 }
 

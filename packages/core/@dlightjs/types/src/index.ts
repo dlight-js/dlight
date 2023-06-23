@@ -11,4 +11,4 @@ export const SubView = null as any
 
 export { _ } from "./expressionTag"
 export * from "./htmlTag"
-export { type Typed, type RequiredProp, Prop, type UnPropWrapper, type UnTyped, type PropWrapper } from "./customTag"
+export * from "./customTag"

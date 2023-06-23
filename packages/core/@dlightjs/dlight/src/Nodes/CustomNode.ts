@@ -165,6 +165,14 @@ export class CustomNode extends DLNode {
           dlNode._$addProp("innerText", () => (this as any)._$content, this, ["_$content"])
           continue
         }
+        if (member === "style") {
+          (dlNode as HtmlNode)._$addStyle(() => (this as any)[member], this, [member])
+          continue
+        }
+        if (member === "className") {
+          (dlNode as HtmlNode)._$addClassName(() => (this as any)[member], this, [member])
+          continue
+        }
       }
       dlNode._$addProp(member, () => (this as any)[member], this, [member])
     }

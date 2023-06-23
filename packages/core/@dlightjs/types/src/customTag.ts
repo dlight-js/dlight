@@ -9,7 +9,10 @@ import { type CustomNode } from "@dlightjs/dlight"
 type Useless = { [key in ""]: never }
 
 type DLightObject<T> = {
-  [K in keyof T]: (value: T[K]) => DLightObject<Omit<T, K>>
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  [K in keyof T]: T[K] extends undefined | infer _
+    ? (value?: T[K]) => DLightObject<Omit<T, K>>
+    : (value: T[K]) => DLightObject<Omit<T, K>>
 }
 
 type CustomTag<P extends { _$content?: any }, T> = P["_$content"] extends RequiredProp<infer U>
@@ -56,6 +59,14 @@ export type UnTyped<T> = T extends Typed<infer U> ? U : never
 
 export type PropWrapper<T> = {
   [key in keyof T]-?: undefined extends T[key] ? Prop<T[key]> : RequiredProp<T[key]>;
+}
+
+export type PartialPropWrapper<T> = {
+  [key in keyof T]: Prop<T[key]>;
+}
+
+export type RequiredPropWrapper<T> = {
+  [key in keyof T]: RequiredProp<T[key]>;
 }
 
 export type UnPropWrapper<T> = {
