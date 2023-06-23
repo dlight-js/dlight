@@ -13,10 +13,10 @@ interface DLightHtmlProps {
   didDisappear: HtmlLifecycleFuncType
 }
 
-type DLightHTMLAttributes<T, G> = DLightHtmlProps & HTMLAttributes<T> & G
+export type DLightHTMLAttributes<T, G> = DLightHtmlProps & HTMLAttributes<Required<T>> & G
 
 export type DLightHTMLAttributesFunc<T, G> = {
-  [K in keyof DLightHTMLAttributes<T, G>]: (value: DLightHTMLAttributes<T, G>[K] | undefined) => (
+  [K in keyof DLightHTMLAttributes<T, G>]: (value?: DLightHTMLAttributes<T, G>[K]) => (
     K extends "className"
       ? DLightHTMLAttributesFunc<T, G>
       : Omit<DLightHTMLAttributesFunc<T, G>, K>

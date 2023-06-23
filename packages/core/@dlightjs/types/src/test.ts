@@ -1,4 +1,4 @@
-import { type Typed, type Prop, S, type RequiredProp, div, svg } from "./index"
+import { type Typed, type Prop, S, type RequiredProp, div, svg, DLightHTMLAttributes, PropWrapper, PartialPropWrapper } from "./index"
 import { _ } from "./expressionTag"
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 // import { a, area, div, img } from "./htmlTag"
@@ -70,7 +70,7 @@ type JJA = NNN<MyView>
 
 const SubViewWithTypes = MyView as any as Typed<MyView>
 
-SubViewWithTypes().didMount(undefined).hh1().hh11
+SubViewWithTypes().forwardProps()
 
 
 
@@ -103,3 +103,20 @@ class LL {
 
 const JJ = LL
 
+
+type a = undefined | ""
+
+type b = a extends undefined | infer _ ? "hh" : "ahha"
+type TTT = PartialPropWrapper<DLightHTMLAttributes<HTMLSpanElement, {}>>
+
+const j: Typed<TTT>
+const mmm: TTT
+
+j().
+
+const pic: DLightHTMLAttributes<Required<HTMLSpanElement>, {}>
+
+pic.ariaAutoComplete
+
+const jic: DLightHTMLAttributes<HTMLSpanElement, {}>
+jic.ariaAutoComplete

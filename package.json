@@ -1,6 +1,6 @@
 {
   "name": "@dlightjs/monorepo",
-  "version": "0.8.20",
+  "version": "0.8.22",
   "files": ["./README.md"],
   "scripts": {
     "prepare": "husky install",
@@ -37,7 +37,6 @@
     "ecosystem": [
       "@dlightjs/components",
       "@dlightjs/emotion",
-      "@dlightjs/material-icons",
       "@dlightjs/transpiler",
       "@dlightjs/transpiler-standalone"
     ]
