@@ -96,4 +96,23 @@ export class HtmlNode extends DLNode {
       func.call(this, _el, _node)
     }
   }
+
+  _$addAnyProp(key: string, valueOrFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]) {
+    if (["willAppear", "didAppear", "willDisappear", "didDisappear"].includes(key)) {
+      this._$addLifeCycle(valueOrFunc, key as any)
+      return
+    }
+    if (key === "style") {
+      this._$addStyle(valueOrFunc, dlScope, listenDeps)
+      return
+    }
+    if (key === "className") {
+      this._$addClassName(valueOrFunc, dlScope, listenDeps)
+    }
+    if (key === "_$content") {
+      this._$addProp("innerText", valueOrFunc, dlScope, listenDeps)
+      return
+    }
+    this._$addProp(key, valueOrFunc, dlScope, listenDeps)
+  }
 }

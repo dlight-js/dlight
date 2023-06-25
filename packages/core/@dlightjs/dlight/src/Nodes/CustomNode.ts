@@ -157,22 +157,7 @@ export class CustomNode extends DLNode {
     )]
     for (const member of members) {
       if (dlNode._$nodeType === DLNodeType.HTML) {
-        if (["willAppear", "didAppear", "willDisappear", "didDisappear"].includes(member)) {
-          (dlNode as HtmlNode)._$addLifeCycle((this as any)[member], member as any)
-          continue
-        }
-        if (member === "_$content") {
-          dlNode._$addProp("innerText", () => (this as any)._$content, this, ["_$content"])
-          continue
-        }
-        if (member === "style") {
-          (dlNode as HtmlNode)._$addStyle(() => (this as any)[member], this, [member])
-          continue
-        }
-        if (member === "className") {
-          (dlNode as HtmlNode)._$addClassName(() => (this as any)[member], this, [member])
-          continue
-        }
+        (dlNode as HtmlNode)._$addAnyProp(member, () => (this as any)[member], this, [member])
       }
       dlNode._$addProp(member, () => (this as any)[member], this, [member])
     }

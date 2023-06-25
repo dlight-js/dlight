@@ -7,6 +7,8 @@ export function appendEls(htmlNode: HtmlNode, nodes: DLNode[]) {
   loopNodes(nodes, node => {
     switch (node._$nodeType) {
       case DLNodeType.Text:
+        htmlNode._$el.appendChild(node._$el)
+        break
       case DLNodeType.HTML:
         (node as HtmlNode).willAppear(node._$el, node as HtmlNode)
         htmlNode._$el.appendChild(node._$el)

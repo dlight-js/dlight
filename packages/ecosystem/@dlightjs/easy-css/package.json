@@ -1,0 +1,26 @@
+{
+  "name": "@dlightjs/easy-css",
+  "version": "0.8.26",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build"
+  },
+  "devDependencies": {
+    "path": "^0.12.7",
+    "typescript": "^4.9.3",
+    "vite": "^4.0.0",
+    "vite-plugin-dlight": "workspace:*",
+    "vite-plugin-dts": "^1.7.1",
+    "@dlightjs/types": "workspace:*"
+  },
+  "dependencies": {
+    "@dlightjs/dlight": "workspace:*",
+    "@iandx/easy-css-atomic": "0.6.0"
+  }
+}

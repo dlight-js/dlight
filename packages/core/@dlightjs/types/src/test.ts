@@ -68,9 +68,9 @@ type NNN<T> = T["_$content"] extends RequiredProp<infer U>
 
 type JJA = NNN<MyView>
 
-const SubViewWithTypes = MyView as any as Typed<MyView>
+const SubViewWithTypes = MyView as any as Typed<MyView, t>
 
-SubViewWithTypes().forwardProps()
+SubViewWithTypes().ok
 
 
 

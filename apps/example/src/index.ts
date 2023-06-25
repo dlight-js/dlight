@@ -32,4 +32,6 @@ import { RouteTest } from "./components/Router.view"
 
 // console.log(renderToText(BenchmarkView))
 // render("app", BenchmarkView)
+console.time("0")
 render("app", TestView)
+console.timeEnd("0")

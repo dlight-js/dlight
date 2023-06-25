@@ -53,7 +53,7 @@ interface CustomNodeProps {
 }
 
 // @ts-ignore
-export type Typed<T> = CustomTag<T, SelectProps<T> & CustomNodeProps> & Useless
+export type Typed<T, G={}> = CustomTag<T, SelectProps<T> & CustomNodeProps & G> & Useless
 
 export type UnTyped<T> = T extends Typed<infer U> ? U : never
 
