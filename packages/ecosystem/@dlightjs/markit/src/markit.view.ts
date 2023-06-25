@@ -1,11 +1,11 @@
 import DLight, { type CustomNode, View } from "@dlightjs/dlight"
-import { Prop, required, type Typed } from "@dlightjs/types"
+import { Prop, required, type Typed, type RequiredProp, button } from "@dlightjs/types"
 import BlockRenderer from "./BlockView"
 import { parse } from "@iandx/markit"
 
 class MarkitView extends View {
   /** @prop */
-  @Prop mdString = required
+  @Prop _$content: RequiredProp<string> = required
 
   /** @reactive */
   markitAst: any[] = []
@@ -16,7 +16,7 @@ class MarkitView extends View {
 
   /** @lifecycle */
   didMount(_els: HTMLElement[], _node: CustomNode): void {
-    this.markitAst = parse(this.mdString)
+    this.markitAst = parse(this._$content)
     console.log(this.markitAst)
   }
 

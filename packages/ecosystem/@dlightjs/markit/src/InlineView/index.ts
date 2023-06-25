@@ -8,6 +8,7 @@ import Strike from "./Strike.view"
 import Subscript from "./Subscript.view"
 import Superscript from "./Superscript.view"
 import Underline from "./Underline.view"
+import Text from "./Text.view"
 
 const InlineRenderer: Record<string, Typed<PropWrapper<{ props: Object, _$content: string }>>> = {
   Text,
