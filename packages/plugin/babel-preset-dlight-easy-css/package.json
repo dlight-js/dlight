@@ -1,0 +1,26 @@
+{
+  "name": "babel-preset-dlight-easy-css",
+  "version": "0.0.0",
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup"
+  },
+  "author": "IanDx",
+  "devDependencies": {
+    "tsup": "^6.5.0"
+  },
+  "dependencies": {
+    "@babel/plugin-syntax-decorators": "^7.21.0",
+    "@babel/plugin-syntax-do-expressions": "^7.22.5",
+    "@babel/plugin-syntax-jsx": "^7.22.5",
+    "@babel/plugin-syntax-typescript": "^7.20.0",
+    "babel-plugin-easy-css": "0.7.2",
+    "babel-plugin-dlight-easy-css": "workspace:*"
+  }
+}

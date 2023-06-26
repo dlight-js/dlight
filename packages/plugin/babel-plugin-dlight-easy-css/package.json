@@ -1,0 +1,25 @@
+{
+    "name": "babel-plugin-dlight-easy-css",
+    "version": "0.0.0",
+    "files": [
+      "dist"
+    ],
+    "description": "",
+    "type": "module",
+    "main": "dist/index.cjs",
+    "module": "dist/index.js",
+    "typings": "dist/index.d.ts",
+    "scripts": {
+      "build": "tsup"
+    },
+    "dependencies": {
+      "@babel/types": "^7.20.7",
+      "@iandx/easy-css": "workspace:*"
+    },
+    "devDependencies": {
+      "@types/node": "^18.11.17",
+      "tsup": "^6.5.0"
+    },
+    "author": "IanDx"
+  }
+  
