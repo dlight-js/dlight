@@ -20,7 +20,9 @@
     "@babel/plugin-syntax-do-expressions": "^7.22.5",
     "@babel/plugin-syntax-jsx": "^7.22.5",
     "@babel/plugin-syntax-typescript": "^7.20.0",
-    "babel-plugin-easy-css": "0.7.2",
-    "babel-plugin-dlight-easy-css": "workspace:*"
+    "@babel/types": "^7.20.7",
+    "@iandx/easy-css-atomic": "^0.7.5",
+    "@iandx/easy-css-utility": "^0.7.5",
+    "babel-plugin-easy-css": "0.7.7"
   }
 }

@@ -205,6 +205,6 @@ let ok = []
 for (const tag in htmlElementMap) {
   // if (ok.includes(htmlElementMap[tag])) continue
   // ok.push(htmlElementMap[tag])
-  console.log(`export const ${tag[0].toUpperCase() + tag.slice(1)}: Typed<T.ContentProp, T.EasyCss${htmlElementMap[tag]}> = geneEasyCssTag("${tag}")`)
+  console.log(`export const ${tag}: T.DLightHtmlTagFunc<T.EasyCss${htmlElementMap[tag]}> = null as any`)
   // console.log(`export interface EasyCss${htmlElementMap[tag]} extends EasyCss, DLightHTMLAttributes<${htmlElementMap[tag]}, {}> {}`)
 }

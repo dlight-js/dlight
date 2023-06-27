@@ -1,0 +1,27 @@
+{
+  "name": "vite-plugin-dlight-easy-css",
+  "version": "0.0.0",
+  "files": [
+    "dist"
+  ],
+  "description": "",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "keywords": [
+    "vite-plugin",
+    "dlight.js"
+  ],
+  "scripts": {
+    "build": "tsup"
+  },
+  "dependencies": {
+    "@babel/core": "^7.20.12",
+    "babel-preset-dlight-easy-css": "workspace:*"
+  },
+  "author": "IanDx",
+  "devDependencies": {
+    "tsup": "^6.5.0"
+  }
+}

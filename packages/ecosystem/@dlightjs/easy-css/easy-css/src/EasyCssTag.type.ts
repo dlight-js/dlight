@@ -1,13 +1,29 @@
 // @ts-nocheck
-import { type DLightHTMLAttributes, type Prop } from "@dlightjs/types"
-import { type Atomic } from "@iandx/easy-css-atomic"
+import { type DLightHTMLAttributes } from "@dlightjs/types"
+import type * as atomic from "@iandx/easy-css-atomic"
+import type * as utility from "@iandx/easy-css-utility"
+
+type Atomic = typeof atomic
+type Utility = typeof utility
 
 type TrimFunction<T extends Record<string, (value: any) => any>> = {
-  [K in keyof T]: T[K] extends (value: infer U) => any ? U : boolean
+  -readonly[K in keyof T]: T[K] extends (value: infer U) => any ? U : boolean
 }
-type EasyCss = TrimFunction<Atomic>
+type EasyCss = TrimFunction<Atomic & Utility>
 
-export interface ContentProp { _$content: Prop<string> }
+type DLightHTMLAttributesFunc<T> = {
+  [K in keyof T]: (value?: T[K]) => (
+    K extends "className"
+      ? DLightHTMLAttributesFunc<T>
+      : Omit<DLightHTMLAttributesFunc<T>, K>
+  )
+}
+
+export type DLightHtmlTagFunc<T> = (innerText?: string | number) => DLightHTMLAttributesFunc<T>
+
+// won't work, maybe EasyCss is too large?
+// type EasyCssHTMLElement = EasyCss & DLightHTMLAttributes<HTMLElement, {}>
+
 export interface EasyCssHTMLAnchorElement extends EasyCss, DLightHTMLAttributes<HTMLAnchorElement, {}> {}
 export interface EasyCssHTMLElement extends EasyCss, DLightHTMLAttributes<HTMLElement, {}> {}
 export interface EasyCssHTMLAreaElement extends EasyCss, DLightHTMLAttributes<HTMLAreaElement, {}> {}

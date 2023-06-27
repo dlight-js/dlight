@@ -1,10 +1,14 @@
 import { defineConfig } from "vite"
 import dlight from "vite-plugin-dlight"
-import easyCSS from "vite-plugin-easy-css"
+import dlightEasyCSS from "vite-plugin-dlight-easy-css"
+
 export default defineConfig({
   server: {
     port: 26660
   },
   sourceMap: true,
-  plugins: [easyCSS(), dlight({ appendix: [".view.js", ".view.ts"] })]
+  plugins: [
+    dlightEasyCSS(),
+    dlight({ appendix: [".view.js", ".view.ts"] })
+  ]
 })
