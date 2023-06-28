@@ -154,9 +154,9 @@ importers:
       '@babel/plugin-syntax-jsx': ^7.22.5
       '@babel/plugin-syntax-typescript': ^7.20.0
       '@babel/types': ^7.20.7
-      '@iandx/easy-css-atomic': ^0.7.5
-      '@iandx/easy-css-utility': ^0.7.5
-      babel-plugin-easy-css: 0.7.7
+      '@iandx/easy-css-atomic': ^0.8.1
+      '@iandx/easy-css-utility': ^0.8.1
+      babel-plugin-easy-css: 0.8.1
       tsup: ^6.5.0
     dependencies:
       '@babel/plugin-syntax-decorators': 7.21.0
@@ -164,27 +164,27 @@ importers:
       '@babel/plugin-syntax-jsx': 7.22.5
       '@babel/plugin-syntax-typescript': 7.20.0
       '@babel/types': 7.22.5
-      '@iandx/easy-css-atomic': 0.7.5
-      '@iandx/easy-css-utility': 0.7.5
-      babel-plugin-easy-css: 0.7.7
+      '@iandx/easy-css-atomic': 0.8.1
+      '@iandx/easy-css-utility': 0.8.1
+      babel-plugin-easy-css: 0.8.1
     devDependencies:
       tsup: 6.6.3
 
   packages/ecosystem/@dlightjs/easy-css/easy-css:
     specifiers:
       '@dlightjs/types': workspace:*
-      '@iandx/easy-css': 0.7.5
-      '@iandx/easy-css-atomic': 0.7.5
-      '@iandx/easy-css-utility': 0.7.5
+      '@iandx/easy-css': 0.8.1
+      '@iandx/easy-css-atomic': 0.8.1
+      '@iandx/easy-css-utility': 0.8.1
       path: ^0.12.7
       typescript: ^4.9.3
       vite: ^4.0.0
       vite-plugin-dlight: workspace:*
       vite-plugin-dts: ^1.7.1
     dependencies:
-      '@iandx/easy-css': 0.7.5
-      '@iandx/easy-css-atomic': 0.7.5
-      '@iandx/easy-css-utility': 0.7.5
+      '@iandx/easy-css': 0.8.1
+      '@iandx/easy-css-atomic': 0.8.1
+      '@iandx/easy-css-utility': 0.8.1
     devDependencies:
       '@dlightjs/types': link:../../../../core/@dlightjs/types
       path: 0.12.7
@@ -1365,24 +1365,24 @@ packages:
     resolution: {integrity: sha512-ZnQMnLV4e7hDlUvw8H+U8ASL02SS2Gn6+9Ac3wGGLIe7+je2AeAOxPY+izIPJDfFDb7eDjev0Us8MO1iFRN8hA==}
     dev: true
 
-  /@iandx/easy-css-atomic/0.7.5:
-    resolution: {integrity: sha512-rFa1ChSIAAmQYbtsv1H/WIvYJ9WaxW58hMeyJcN3/MdpgxNGYkQ+CFDuv4JpYWbsZOgpPihiR1wnHF9oqhyE3g==}
+  /@iandx/easy-css-atomic/0.8.1:
+    resolution: {integrity: sha512-mSRVXTrzltShowsjjH+3WJ6IQRZQLj1cFbC5sQi64bSGGq4wBFzgrDatsU+Bwb/7ElWxhQWe78mzc8qKBWiMuw==}
     dependencies:
-      '@iandx/easy-css': 0.7.5
+      '@iandx/easy-css': 0.8.1
     transitivePeerDependencies:
       - postcss
     dev: false
 
-  /@iandx/easy-css-utility/0.7.5:
-    resolution: {integrity: sha512-wCIpUc3mq5/HklGQ+/kXHGzAuNMMhrGs7QyaF+k2lC5Fn1dHpk91IAsiFabI0riaPeXgD43Vs4WRNVnEAiLWCA==}
+  /@iandx/easy-css-utility/0.8.1:
+    resolution: {integrity: sha512-8fLoH3p7YuD+gPjWKWvLCuSzYTM+zal+atE0KK+DkK1C9w6qvZCMOgnMVGMNCBdD2uY1cAFHxLHH7H1O+Pwy3g==}
     dependencies:
-      '@iandx/easy-css': 0.7.5
+      '@iandx/easy-css': 0.8.1
     transitivePeerDependencies:
       - postcss
     dev: false
 
-  /@iandx/easy-css/0.7.5:
-    resolution: {integrity: sha512-8sIGV1E5tsPsK1+iRu3Q8CEpgErnNGQrs39htbaV5iS3EtnIlYF6qE7EJTSK13tlqdtQ+sMiS1LoH3z0pL1zKA==}
+  /@iandx/easy-css/0.8.1:
+    resolution: {integrity: sha512-wV6AcDPRqEiSzruVEGxubkhEZ+H8oQPWgO4rsmQVJIyTIw4meLEhvBlJbTbdFH4RVc2Oz1npVFJ9dWvLzlpDhg==}
     dependencies:
       autoprefixer: 10.4.14
     transitivePeerDependencies:
@@ -2065,11 +2065,11 @@ packages:
     engines: {node: '>= 0.4'}
     dev: true
 
-  /babel-plugin-easy-css/0.7.7:
-    resolution: {integrity: sha512-54LlUaV7LKisoEvWGTLohwotysvYZ361unLQ3WloAobzCdBlOs0L47clqsYd1NWzGV9TY69adqgQp5dS5PYrsQ==}
+  /babel-plugin-easy-css/0.8.1:
+    resolution: {integrity: sha512-+bQIA2zGEr+K2XL40oDaFH3/BSQWbpmkuEAo0rQhkjjmagQ/+/Qgvglsl2Z56mxtR59O+UXPvlAl7d/YGL3fzg==}
     dependencies:
       '@babel/types': 7.22.5
-      '@iandx/easy-css': 0.7.5
+      '@iandx/easy-css': 0.8.1
     transitivePeerDependencies:
       - postcss
     dev: false

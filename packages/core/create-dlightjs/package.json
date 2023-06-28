@@ -1,6 +1,6 @@
 {
   "name": "create-dlightjs",
-  "version": "0.8.26",
+  "version": "0.8.27",
   "description": "",
   "type": "module",
   "files": ["dist", "templates"],

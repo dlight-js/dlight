@@ -5,24 +5,15 @@ import { DLightIcon, DLightIconType, HelpOutlineOutlined } from "@dlightjs/mater
 import DLight, { View, $, type CustomNode } from "@dlightjs/dlight"
 import { span, div, css } from "@dlightjs/easy-css"
 
-const fuck = css`
-color: red;
-`
-
 class TestView extends View {
   margin = "20px"
   Body() {
-    div()
+    div("shit")
       .margin(this.margin)
       .flex_()
 
     {
-      div("shit")
-        .className(fuck)
-        .margin(this.margin)
-        .alignBaseline()
-        .text2xl()
-      div("i")
+      "hh"
     }
   }
 }
