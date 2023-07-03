@@ -4,8 +4,8 @@
   "files": ["./README.md"],
   "scripts": {
     "prepare": "husky install",
-    "refresh": "sh ./common/scripts/refresh.sh",
-    "pipeline": "sh ./common/scripts/pipeline.sh",
+    "refresh": "node ./common/scripts/refresh.js",
+    "pipeline": "node ./common/scripts/pipeline.js",
     "build": "pnpm pipeline build",
     "pub": "pnpm pipeline publish",
     "newVersion": "pnpm pipeline newVersion"
@@ -25,21 +25,20 @@
   },
   "packages": {
     "core": [
-      "@dlightjs/dlight",
-      "@dlightjs/types",
-      "create-dlightjs"
+      "core/@dlightjs/dlight",
+      "core/@dlightjs/types",
+      "core/create-dlightjs"
     ],
     "plugin": [
-      "babel-plugin-dlight",
-      "babel-preset-dlight",
-      "vite-plugin-dlight"
+      "plugin/babel-plugin-dlight",
+      "plugin/babel-preset-dlight",
+      "plugin/vite-plugin-dlight"
     ],
     "ecosystem": [
-      "@dlightjs/emotion",
-      "@dlightjs/components",
-      "@dlightjs/material-icons",
-      "@dlightjs/transpiler",
-      "@dlightjs/transpiler-standalone"
+      "ecosystem/@dlightjs/emotion",
+      "ecosystem/@dlightjs/components",
+      "ecosystem/@dlightjs/transpiler",
+      "ecosystem/@dlightjs/transpiler-standalone"
     ]
   }
 }

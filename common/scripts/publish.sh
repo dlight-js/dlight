@@ -1,1 +1,0 @@
-pnpm --filter ${1} publish --no-git-checks --access=public
