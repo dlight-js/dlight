@@ -38,7 +38,10 @@
       "ecosystem/@dlightjs/emotion",
       "ecosystem/@dlightjs/components",
       "ecosystem/@dlightjs/transpiler",
-      "ecosystem/@dlightjs/transpiler-standalone"
+      "ecosystem/@dlightjs/transpiler-standalone",
+      "ecosystem/@dlightjs/easy-css/babel-preset-dlight-easy-css",
+      "ecosystem/@dlightjs/easy-css/vite-plugin-dlight-easy-css",
+      "ecosystem/@dlightjs/easy-css/easy-css"
     ]
   }
 }
