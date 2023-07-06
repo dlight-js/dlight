@@ -165,3 +165,18 @@ export function willUnmountDlightNodes(nodes: DLNode[]) {
 export function didUnmountDlightNodes(nodes: DLNode[]) {
   runDlightNodesLifecycle(nodes, "didUnmount")
 }
+
+export function arraysEqual(a: any[], b: any[]) {
+  if (a === b) {
+    return true
+  }
+  if (a == null || b == null || a.length !== b.length) {
+    return false
+  }
+  for (let i = 0; i < a.length; ++i) {
+    if (a[i] !== b[i]) {
+      return false
+    }
+  }
+  return true
+}

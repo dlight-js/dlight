@@ -5,7 +5,8 @@ import {
   removeNodes,
   getFlowIndexFromNodes,
   getFlowIndexFromParentNode,
-  detachNodes
+  detachNodes,
+  arraysEqual
 } from "../utils"
 import { type CustomNode } from "../CustomNode"
 import { type HtmlNode } from "../HtmlNode"
@@ -180,6 +181,8 @@ export class ForNode extends MutableNode {
     this.setArray()
     this.setKeys()
     if (this.duplicatedOrNoKey) prevKeys = [...Array(prevArray.length).keys()]
+
+    if (arraysEqual(prevKeys, this.keys)) return
 
     const newPrevKeys = []
     const newDlNodes = []
