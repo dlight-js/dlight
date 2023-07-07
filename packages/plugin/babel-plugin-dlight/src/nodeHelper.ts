@@ -20,7 +20,7 @@ export function pushDep(name: string, depsNode: t.ClassProperty, classBodyNode: 
   (depsNode as any).value.properties.unshift(
     t.objectProperty(
       t.identifier(name),
-      t.newExpression(t.identifier("Map"), [])
+      t.newExpression(t.identifier("Set"), [])
     )
   )
 }

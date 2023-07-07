@@ -108,16 +108,12 @@ export class ExpressionNode extends MutableNode {
     if (!parentNode) return
 
     // ---- 加deps
-    const objectId = {}
-    this._$depObjectIds.push(objectId)
-    this.dlScope!._$addDeps(this.listenDeps, objectId, () => { this.update(parentNode! as HtmlNode) })
+    this.dlScope!._$addDeps(this.listenDeps, () => { this.update(parentNode! as HtmlNode) }, this)
 
     this._$bindNodes()
     for (const func of this.propFuncs) {
       func()
-      const objectId = {}
-      this._$depObjectIds.push(objectId)
-      this.dlScope!._$addDeps(this.listenDeps, objectId, func)
+      this.dlScope!._$addDeps(this.listenDeps, func, this)
     }
   }
 

@@ -11,7 +11,7 @@ function addToDepChain(dlNode: CustomNode, key: string, defaultValue: any) {
     }
   })
   if (!dlNode._$deps) dlNode._$deps = {}
-  dlNode._$deps[key] = new Map()
+  dlNode._$deps[key] = new Set()
 }
 
 export function addDLProp(dlNode: CustomNode, tag: "env" | "prop", key: string, propFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]) {
@@ -42,11 +42,8 @@ export function forwardDLProp(dlNode: CustomNode, key: string, propFunc: any | (
 }
 
 export function addOneWayDLProp(dlScope: CustomNode, dlNode: CustomNode | EnvNode, key: string, propFunc: () => any, listenDeps: string[]) {
-  const objectId = {}
-  dlNode._$depObjectIds.push(objectId);
-
-  (dlNode as any)[key] = propFunc()
-  dlScope._$addDeps(listenDeps, objectId, () => {
+  ;(dlNode as any)[key] = propFunc()
+  dlScope._$addDeps(listenDeps, () => {
     (dlNode as any)[key] = propFunc()
-  })
+  }, dlNode)
 }

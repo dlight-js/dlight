@@ -1,5 +1,4 @@
 import { bindParentNode, initNodes, toEls } from "../utils/nodes"
-import { type ObjectId } from "./types"
 
 export enum DLNodeType {
   HTML, Text, Custom, For, If, Env, Expression
@@ -17,12 +16,11 @@ export class DLNode {
 
   _$parentNode?: DLNode
   _$nodes: DLNode[] = []
-  _$depObjectIds: ObjectId[] = []
+  _$cleanUps: Array<() => void> = []
 
   _$detach() {
     this._$parentNode = undefined
     this._$nodes = []
-    this._$depObjectIds = []
     if (![DLNodeType.Text, DLNodeType.HTML].includes(this._$nodeType)) {
       this.__$el = undefined
     }

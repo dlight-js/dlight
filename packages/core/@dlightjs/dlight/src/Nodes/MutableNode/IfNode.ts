@@ -4,6 +4,7 @@ import { type HtmlNode } from "../HtmlNode"
 import { type DLNode, DLNodeType } from "../DLNode"
 import { appendNodesWithIndex, deleteNodesDeps, detachNodes, getFlowIndexFromParentNode, removeNodes } from "../utils"
 import { MutableNode } from "./MutableNode"
+import { DLightStore } from "../../store"
 
 interface ConditionPair {
   condition: () => boolean
@@ -49,9 +50,7 @@ export class IfNode extends MutableNode {
     }
 
     if (parentNode) {
-      const objectId = {}
-      this._$depObjectIds.push(objectId)
-      this.dlScope?._$addDeps(this.listenDeps, objectId, () => { this.update(parentNode as HtmlNode) })
+      this.dlScope?._$addDeps(this.listenDeps, () => { this.update(parentNode as HtmlNode) }, this)
     }
 
     this._$bindNodes()

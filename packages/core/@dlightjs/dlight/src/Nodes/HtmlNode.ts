@@ -1,10 +1,11 @@
+import { DLightStore } from "../store"
 import { type CustomNode } from "./CustomNode"
 import { DLNode, DLNodeType } from "./DLNode"
 import { type EnvNode } from "./EnvNode"
 import { appendEls } from "./utils"
 
 export class HtmlNode extends DLNode {
-  _$envNodes?: EnvNode[] = []
+  _$envNodes: EnvNode[] = []
 
   constructor(tagOrEl: string | HTMLElement) {
     super(DLNodeType.HTML)
@@ -36,9 +37,7 @@ export class HtmlNode extends DLNode {
         prevValue = newValue
       }
     }
-    const objectId = {}
-    this._$depObjectIds.push(objectId)
-    dlScope!._$addDeps(listenDeps, objectId, depFunc)
+    dlScope!._$addDeps(listenDeps, depFunc, this)
   }
 
   _$addProp(key: string, valueOrFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]) {
@@ -85,13 +84,9 @@ export class HtmlNode extends DLNode {
   }
 
   // ---- lifecycles
-  willAppear(_el: HTMLElement, _node: HtmlNode): any { }
-  didAppear(_el: HTMLElement, _node: HtmlNode): any { }
-  willDisappear(_el: HTMLElement, _node: HtmlNode): any { }
-  didDisappear(_el: HTMLElement, _node: HtmlNode): any { }
   _$addLifeCycle(func: (_el: HTMLElement, _node: HtmlNode) => any, lifeCycleName: "willAppear" | "didAppear" | "willDisappear" | "didDisappear") {
-    const preLifeCycle = this[lifeCycleName]
-    this[lifeCycleName] = function(_el: HTMLElement, _node: HtmlNode) {
+    const preLifeCycle = (this as any)[lifeCycleName] ?? (() => {})
+    ;(this as any)[lifeCycleName] = function(_el: HTMLElement, _node: HtmlNode) {
       preLifeCycle.call(this, _el, _node)
       func.call(this, _el, _node)
     }

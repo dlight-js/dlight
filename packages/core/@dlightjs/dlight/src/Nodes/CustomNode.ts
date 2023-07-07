@@ -3,10 +3,9 @@ import { DLNode, DLNodeType } from "./DLNode"
 import { addDLProp } from "../utils/prop"
 import { HtmlNode } from "../Nodes"
 import { detachNodes } from "./utils"
-import { type ObjectId } from "./types"
 
 export class CustomNode extends DLNode {
-  _$deps: Record<string, Map<ObjectId, () => any>> = {}
+  _$deps: Record<string, Set<() => any>> = {}
   _$envNodes?: EnvNode[]
   _$derivedPairs?: Record<string, string[]>
 
@@ -16,11 +15,7 @@ export class CustomNode extends DLNode {
 
   // 如果该变量被其他变量derived，变量改变时应该callback相应的derived改变函数
   _$runDeps(depName: string) {
-    if (this._$deps[depName] === undefined) {
-      console.warn(`${depName} is not a dependency in ${this.constructor.name}`)
-      return
-    }
-    for (const func of this._$deps[depName].values()) {
+    for (const func of this._$deps[depName]) {
       func.call(this)
     }
   }
@@ -52,8 +47,7 @@ export class CustomNode extends DLNode {
         if (listenDeps.length === 0) continue
         let prevValue = (this as any)[propertyKey]
         listenDeps = listenDeps.filter(dep => dep in this._$deps)
-        // ---- 不需要push到depObjectIds，因为是自己的
-        this._$addDeps(listenDeps, {}, () => {
+        this._$addDeps(listenDeps, () => {
           const newValue = func()
           if (newValue === prevValue) return;
           (this as any)[propertyKey] = newValue
@@ -69,26 +63,24 @@ export class CustomNode extends DLNode {
     this._$runDeps(key)
   }
 
-  // 将改变函数挂载在_$deps里的依赖对象上
-  _$addDeps(deps: string[], objectId: ObjectId, func: (newValue?: any) => any) {
+  _$addDeps(deps: string[], func: (newValue?: any) => any, dlNode?: DLNode) {
     for (const dep of deps) {
-      if (!(dep in this._$deps)) {
-        console.warn(`no dep called [${dep}]`)
-        continue
-      }
-      this._$deps[dep].set(objectId, func)
+      this._$deps[dep].add(func)
+    }
+    if (dlNode) this._$deleteDeps(deps, func, dlNode)
+  }
+
+  _$deleteDeps(deps: string[], func: (newValue?: any) => any, dlNode: DLNode) {
+    for (const dep of deps) {
+      dlNode._$cleanUps.push(() => {
+        this._$deps[dep].delete(func)
+      })
     }
   }
 
   _$resetDeps() {
-    for (const dep of Object.keys(this._$deps)) {
-      this._$deps[dep] = new Map()
-    }
-  }
-
-  _$deleteDeps(objectId: ObjectId) {
-    for (const depName in this._$deps) {
-      this._$deps[depName].delete(objectId)
+    for (const dep in this._$deps) {
+      this._$deps[dep] = new Set()
     }
   }
 
@@ -142,9 +134,7 @@ export class CustomNode extends DLNode {
 
   _$detach() {
     super._$detach()
-    for (const depKey of Object.keys(this._$deps)) {
-      this._$deps[depKey] = new Map()
-    }
+    this._$resetDeps()
     detachNodes(this._$children)
   }
 
