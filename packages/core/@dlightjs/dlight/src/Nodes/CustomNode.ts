@@ -77,9 +77,7 @@ export class CustomNode extends DLNode {
     }
   }
 
-  beforeInit() { }
   _$init() {
-    this.beforeInit()
     this._$initDecorators()
     this.willMount(this._$el, this)
     this._$nodes = ((this as any).Body.bind(this) ?? (() => []))()

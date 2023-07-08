@@ -1,5 +1,4 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import DLight, { type DLNode, View, CustomNode } from "@dlightjs/dlight"
+import DLight, { type DLNode, View } from "@dlightjs/dlight"
 import { Navigator } from "./Navigator"
 import { getHashLocation, getHistoryLocation } from "./utils"
 import { type Typed, _, env, Prop, Static } from "@dlightjs/types"
