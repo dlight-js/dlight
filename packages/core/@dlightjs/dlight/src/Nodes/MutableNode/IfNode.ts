@@ -2,9 +2,8 @@ import { type CustomNode } from "../CustomNode"
 import { type EnvNode } from "../EnvNode"
 import { type HtmlNode } from "../HtmlNode"
 import { type DLNode, DLNodeType } from "../DLNode"
-import { appendNodesWithIndex, deleteNodesDeps, detachNodes, getFlowIndexFromParentNode, removeNodes } from "../utils"
+import { appendNodesWithIndex, deleteNodesDeps, getFlowIndexFromParentNode, removeNodes } from "../utils"
 import { MutableNode } from "./MutableNode"
-import { DLightStore } from "../../store"
 
 interface ConditionPair {
   condition: () => boolean
@@ -65,7 +64,7 @@ export class IfNode extends MutableNode {
         if (this.condition !== conditionPair.condition.toString()) {
           // ---- 改变状态了，清除对应deps
           deleteNodesDeps(prevNodes, this.dlScope!)
-          removeNodes(prevNodes)
+          removeNodes(parentNode._$el, prevNodes)
 
           this.condition = conditionPair.condition.toString()
           // ---- 新的
@@ -84,7 +83,7 @@ export class IfNode extends MutableNode {
       this.condition = "[none]"
       // ---- 改变状态了，清除对应deps
       deleteNodesDeps(prevNodes, this.dlScope!)
-      removeNodes(prevNodes)
+      removeNodes(parentNode._$el, prevNodes)
     }
     if (condition === this.condition) return
 
@@ -93,8 +92,6 @@ export class IfNode extends MutableNode {
     const parentEl = parentNode._$el
     appendNodesWithIndex(this._$nodes, flowIndex, parentEl, parentEl.childNodes.length)
 
-    // ---- 以前的detach掉
-    detachNodes(prevNodes)
     this.onUpdateNodes(prevNodes, this._$nodes)
   }
 }

@@ -1,5 +1,5 @@
 import DLight, { View } from "@dlightjs/dlight"
-import { SubView, button, div, h1, tr, a, span, table, tbody, td } from "@dlightjs/types"
+import { SubView, button, div, h1, tr, a, span, table, tbody, td, Prop, required, type Typed } from "@dlightjs/types"
 
 let idCounter = 1
 
@@ -20,12 +20,68 @@ function buildData(count: number) {
   return data
 }
 
+class RowClass extends View {
+  @Prop id: Prop<number> = required
+  @Prop className: Prop<string> = required
+  @Prop label: Prop<string> = required
+  @Prop selectRow: Prop<() => void> = required
+  @Prop deleteRow: Prop<() => void> = required
+
+  Body() {
+    tr()
+      .className(this.className)
+    {
+      td(this.id)
+        .className("col-md-1")
+      td()
+        .className("col-md-4")
+      {
+        a(this.label)
+          .onclick(this.selectRow)
+      }
+      td()
+        .className("col-md-1")
+      {
+        a()
+          .onclick(this.deleteRow)
+        {
+          span()
+            .className("glyphicon glyphicon-remove")
+            .ariaHidden("true")
+        }
+      }
+      td()
+        .className("col-md-6")
+    }
+  }
+}
+
+const Row = RowClass as any as Typed<RowClass>
+
+class ButtonClass extends View {
+  @Prop _$content: Prop<string> = required
+  @Prop id: Prop<string> = required
+  @Prop onclick: Prop<() => void> = required
+
+  Body() {
+    div()
+      .className("col-sm-6 smallpad")
+    {
+      button(this._$content)
+        .onclick(this.onclick)
+        .id(this.id)
+        .className("btn btn-primary btn-block")
+    }
+  }
+}
+
+const Button = ButtonClass as any as Typed<ButtonClass>
+
 class App extends View {
   rows: any[] = []
   selectIdx = -1
   addRows() {
     this.rows = buildData(1000)
-    console.log(this._$deps)
   }
 
   swapRows() {
@@ -36,7 +92,6 @@ class App extends View {
 
   clearRows() {
     this.rows = []
-    console.log(this._$deps)
   }
 
   selectRow(idx: number) {
@@ -66,47 +121,6 @@ class App extends View {
   }
 
   @SubView
-  Row({ id, className, label }: any): any {
-    tr()
-      .className(className)
-    {
-      td(id)
-        .className("col-md-1")
-      td()
-        .className("col-md-4")
-      {
-        a(label)
-          .onclick(this.selectRow(id))
-      }
-      td()
-        .className("col-md-1")
-      {
-        a()
-          .onclick(this.deleteRow(id))
-        {
-          span()
-            .className("glyphicon glyphicon-remove")
-            .ariaHidden("true")
-        }
-      }
-      td()
-        .className("col-md-6")
-    }
-  }
-
-  @SubView
-  Button({ _$content, text, id, onclick }: any): any {
-    div()
-      .className("col-sm-6 smallpad")
-    {
-      button(_$content ?? text)
-        .onclick(onclick)
-        .id(id)
-        .className("btn btn-primary btn-block")
-    }
-  }
-
-  @SubView
   Jumbotron(): any {
     div()
       .className("jumbotron")
@@ -117,7 +131,7 @@ class App extends View {
         div()
           .className("col-sm-6")
         {
-          h1("DLight.js-SubView (keyed)")
+          h1("DLight.js (keyed)")
         }
         div()
           .className("col-md-6")
@@ -125,22 +139,22 @@ class App extends View {
           div()
             .className("row")
           {
-            this.Button("Create 1,000 rows")
+            Button("Create 1,000 rows")
               .onclick(this.addRows.bind(this))
               .id("run")
-            this.Button("Create 10,000 rows")
+            Button("Create 10,000 rows")
               .onclick(this.addBig.bind(this))
               .id("runlots")
-            this.Button("Append 1,000 rows")
+            Button("Append 1,000 rows")
               .onclick(this.append.bind(this))
               .id("add")
-            this.Button("Update every 10th rows")
+            Button("Update every 10th rows")
               .onclick(this.update.bind(this))
               .id("update")
-            this.Button("Clear")
+            Button("Clear")
               .onclick(this.clearRows.bind(this))
               .id("clear")
-            this.Button("Swap Rows")
+            Button("Swap Rows")
               .onclick(this.swapRows.bind(this))
               .id("swaprows")
           }
@@ -161,15 +175,14 @@ class App extends View {
         {
           tbody()
           {
-            for (const row of this.rows) {
-              [row.id]
-              // @ts-ignore
-              this.Row()
-                .id(row.id)
-                .label(row.label)
-                .className(this.selectIdx === row.id ? "danger" : "")
-                .selectRow(this.selectRow(row.id))
-                .deleteRow(this.deleteRow(row.id))
+            for (const { id, label } of this.rows) {
+              [id]
+              Row()
+                .id(id)
+                .label(label)
+                .className(this.selectIdx === id ? "danger" : "")
+                .selectRow(this.selectRow(id))
+                .deleteRow(this.deleteRow(id))
             }
           }
         }

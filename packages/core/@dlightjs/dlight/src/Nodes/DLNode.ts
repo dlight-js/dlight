@@ -16,17 +16,6 @@ export class DLNode {
 
   _$parentNode?: DLNode
   _$nodes: DLNode[] = []
-  _$cleanUps: Array<() => void> = []
-
-  _$detach() {
-    this._$parentNode = undefined
-    this._$nodes = []
-    if (![DLNodeType.Text, DLNodeType.HTML].includes(this._$nodeType)) {
-      this.__$el = undefined
-    }
-    // ---- 在env内会嵌套调用，所以detach后要置空
-    this._$beforeInitSubNodes = function() {}
-  }
 
   _$beforeInitSubNodes(_nodes: DLNode[]) {}
   _$addBeforeInitSubNodes(func: (_nodes: DLNode[]) => any) {

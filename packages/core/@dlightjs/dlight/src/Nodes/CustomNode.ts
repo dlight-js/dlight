@@ -2,10 +2,8 @@ import { type EnvNode } from "./EnvNode"
 import { DLNode, DLNodeType } from "./DLNode"
 import { addDLProp } from "../utils/prop"
 import { HtmlNode } from "../Nodes"
-import { detachNodes } from "./utils"
 
 export class CustomNode extends DLNode {
-  _$deps: Record<string, Set<() => any>> = {}
   _$envNodes?: EnvNode[]
   _$derivedPairs?: Record<string, string[]>
 
@@ -13,14 +11,6 @@ export class CustomNode extends DLNode {
     super(DLNodeType.Custom)
   }
 
-  // 如果该变量被其他变量derived，变量改变时应该callback相应的derived改变函数
-  _$runDeps(depName: string) {
-    for (const func of this._$deps[depName]) {
-      func.call(this)
-    }
-  }
-
-  _$$children: DLNode[] = []
   get _$children(): DLNode[] {
     return this._$childrenFuncs()
   }
@@ -35,7 +25,7 @@ export class CustomNode extends DLNode {
   _$initDecorators() {
     if (this._$derivedPairs) {
       // 遍历_$derivedPairs，将derived变量监听的变量的change函数挂载到被监听变量上
-      for (let [propertyKey, listenDeps] of Object.entries(this._$derivedPairs)) {
+      for (const [propertyKey, listenDeps] of Object.entries(this._$derivedPairs)) {
         const key = `_$$${propertyKey}` in this ? `_$$${propertyKey}` : propertyKey
         const func = (this as any)[key]
         if (typeof func !== "function") {
@@ -46,7 +36,6 @@ export class CustomNode extends DLNode {
 
         if (listenDeps.length === 0) continue
         let prevValue = (this as any)[propertyKey]
-        listenDeps = listenDeps.filter(dep => dep in this._$deps)
         this._$addDeps(listenDeps, () => {
           const newValue = func()
           if (newValue === prevValue) return;
@@ -60,27 +49,31 @@ export class CustomNode extends DLNode {
   _$updateProperty(key: string, value: any) {
     if ((this as any)[`_$$${key}`] === value) return
     (this as any)[`_$$${key}`] = value
-    this._$runDeps(key)
+    for (const func of (this as any)[`_$$${key}Deps`]) {
+      func()
+    }
   }
 
   _$addDeps(deps: string[], func: (newValue?: any) => any, dlNode?: DLNode) {
     for (const dep of deps) {
-      this._$deps[dep].add(func)
+      (this as any)[`_$$${dep}Deps`].add(func)
     }
     if (dlNode) this._$deleteDeps(deps, func, dlNode)
   }
 
-  _$deleteDeps(deps: string[], func: (newValue?: any) => any, dlNode: DLNode) {
-    for (const dep of deps) {
-      dlNode._$cleanUps.push(() => {
-        this._$deps[dep].delete(func)
-      })
-    }
+  _$deleteDeps(deps: string[], func: (newValue?: any) => any, dlNode: any) {
+    if (!dlNode._$cleanUps) dlNode._$cleanUps = []
+    dlNode._$cleanUps.push(() => {
+      for (const dep of deps) {
+        (this as any)[`_$$${dep}Deps`].delete(func)
+      }
+    })
   }
 
   _$resetDeps() {
-    for (const dep in this._$deps) {
-      this._$deps[dep] = new Set()
+    for (const key of Object.getOwnPropertyNames(this)) {
+      if (!(key.startsWith("_$$") && key.endsWith("Deps"))) continue
+      ;(this as any)[key] = new Set()
     }
   }
 
@@ -130,12 +123,6 @@ export class CustomNode extends DLNode {
     const appNode = new HtmlNode(idOrEl)
     appNode._$addNodes([this])
     appNode._$init()
-  }
-
-  _$detach() {
-    super._$detach()
-    this._$resetDeps()
-    detachNodes(this._$children)
   }
 
   _$forwardProps = false

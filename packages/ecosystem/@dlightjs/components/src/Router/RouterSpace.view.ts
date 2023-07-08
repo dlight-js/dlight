@@ -23,12 +23,8 @@ class RouterSpace extends View {
     const currUrl = this.currUrl.replace(new RegExp(`^${this.baseUrl}`), "")
     const targetNodes: any[] = []
 
-    for (const [idx, child] of this._$children.entries()) {
-      if (!child.isRoute) {
-        // ---- 如果不是Route直接加，虽然没有意义也不建议这么写
-        targetNodes.push(this._$childrenFuncs[idx]())
-        continue
-      }
+    for (const child of this._$children) {
+      if (!child.isRoute) continue
       let targetUrl = child._$content
       let isMatch = false
       if (typeof child._$content === "string") {
@@ -48,7 +44,6 @@ class RouterSpace extends View {
           this.prevPathCondition = prevPathCondition
           return this.prevRoutes
         }
-        // targetNodes.push(this._$childrenFuncs[idx]())
         targetNodes.push(child)
         this.prevPathCondition = targetUrl
         break
@@ -76,7 +71,6 @@ class RouterSpace extends View {
       }
       parent = parent._$parentNode
     }
-    console.log(this.baseUrl, "jj")
   }
 
   didMount() {

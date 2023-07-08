@@ -32,6 +32,23 @@ import JJ from "./aa.view"
 
 // console.log(renderToText(BenchmarkView))
 // render("app", BenchmarkView)
-console.time("0")
-render("app", JJ)
-console.timeEnd("0")
+render("app", RouteTest)
+
+// console.time("0")
+// const a = () => {
+//   for (const i of [...Array(10000).keys()]) {
+//     const j = 1
+//   }
+// }
+// a()
+// console.timeEnd("0")
+
+// const b = []
+// console.time("0")
+// for (const i of [...Array(10000).keys()]) {
+//   b.push(() => {
+//     const j = 1
+//   })
+// }
+// b.forEach(n => n())
+// console.timeEnd("0")

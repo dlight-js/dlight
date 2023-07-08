@@ -1,13 +1,12 @@
 import * as t from "@babel/types"
 import { handleBody } from "./bodyHandler"
 import { resolveState, resolveProp } from "./decoratorResolver"
-import { pushDep, pushDerived, shouldBeListened, valueWithArrowFunc } from "./nodeHelper"
+import { pushDerived, shouldBeListened, valueWithArrowFunc } from "./nodeHelper"
 
 export default function() {
   let classDeclarationNode: t.ClassDeclaration | null = null
   let classBodyNode: t.ClassBody | null = null
   // ---- 在这里新建node很省时间
-  let depsNode: t.ClassProperty | null = null
   let derivedPairNode: t.ClassProperty | null = null
   let properties: string[] = []
   let propertiesContainer: Record<string, {
@@ -35,7 +34,6 @@ export default function() {
       if (propOrEnv) resolveProp(node as any, classBodyNode!, propOrEnv, key)
       if (isStatic) continue
       if (usedProperties.includes(key)) {
-        pushDep(key, depsNode!, classBodyNode!)
         resolveState(node as any, classBodyNode!)
       }
     }
@@ -48,10 +46,6 @@ export default function() {
     classBodyNode = node.body
     derivedPairNode = t.classProperty(
       t.identifier("_$derivedPairs"),
-      t.objectExpression([])
-    )
-    depsNode = t.classProperty(
-      t.identifier("_$deps"),
       t.objectExpression([])
     )
     properties = classBodyNode.body
@@ -70,7 +64,6 @@ export default function() {
     classDeclarationNode = null
     classBodyNode = null
     derivedPairNode = null
-    depsNode = null
     properties = []
     staticProperties = []
     propertiesContainer = {}

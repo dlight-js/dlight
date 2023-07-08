@@ -26,27 +26,20 @@ export function appendEls(htmlNode: HtmlNode, nodes: DLNode[]) {
  * 把nodes对应的elements从dom上移除
  * @param nodes
  */
-export function removeNodes(nodes: DLNode[]) {
+export function removeNodes(parentEl: HTMLElement, nodes: DLNode[]) {
   willUnmountDlightNodes(nodes)
   loopEls(nodes, (el: HTMLElement, node: HtmlNode) => {
-    const isInDOM = document.body.contains(el)
-    if (!isInDOM) return
     if (node._$nodeType === DLNodeType.HTML && (node as any).willDisappear) {
       (node as any).willDisappear(el, node)
     }
-    el.remove()
+    parentEl.removeChild(el)
     if (node._$nodeType === DLNodeType.HTML && (node as any).didDisappear) {
       (node as any).didDisappear(el, node)
     }
-  })
+  }, false)
   didUnmountDlightNodes(nodes)
 }
 
-export function detachNodes(nodes: DLNode[]) {
-  for (const node of nodes) {
-    node._$detach()
-  }
-}
 /**
  * 删掉所有有关node的deps
  * @param nodes
@@ -54,8 +47,10 @@ export function detachNodes(nodes: DLNode[]) {
  */
 export function deleteNodesDeps(nodes: DLNode[], dlScope: CustomNode) {
   loopNodes(nodes, (node: DLNode) => {
-    for (const cleanUp of node._$cleanUps) {
-      cleanUp()
+    if ((node as any)._$cleanUps) {
+      for (const cleanUp of (node as any)._$cleanUps) {
+        cleanUp()
+      }
     }
     if (node._$nodeType === DLNodeType.Custom) {
       deleteNodesDeps((node as CustomNode)._$children, dlScope)
@@ -169,4 +164,8 @@ export function arraysEqual(a: any[], b: any[]) {
     }
   }
   return true
+}
+
+export function classNameJoin(classNames: string | string[]) {
+  return Array.isArray(classNames) ? classNames.join(" ") : classNames
 }

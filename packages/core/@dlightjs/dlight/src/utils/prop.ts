@@ -10,8 +10,7 @@ function addToDepChain(dlNode: CustomNode, key: string, defaultValue: any) {
       this._$updateProperty(key, value)
     }
   })
-  if (!dlNode._$deps) dlNode._$deps = {}
-  dlNode._$deps[key] = new Set()
+  ;(dlNode as any)[`_$$${key}Deps`] = new Set()
 }
 
 export function addDLProp(dlNode: CustomNode, tag: "env" | "prop", key: string, propFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]) {

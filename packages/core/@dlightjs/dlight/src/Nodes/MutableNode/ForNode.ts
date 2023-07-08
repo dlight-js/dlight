@@ -5,7 +5,6 @@ import {
   removeNodes,
   getFlowIndexFromNodes,
   getFlowIndexFromParentNode,
-  detachNodes,
   arraysEqual
 } from "../utils"
 import { type CustomNode } from "../CustomNode"
@@ -156,8 +155,7 @@ export class ForNode extends MutableNode {
 
     for (let idx = currLength; idx < preLength; idx++) {
       deleteNodesDeps(this._$nodess[idx], this.dlScope!)
-      removeNodes(this._$nodess[idx])
-      detachNodes(this._$nodess[idx])
+      removeNodes(parentNode._$el, this._$nodess[idx])
     }
     this._$nodess = this._$nodess.slice(0, currLength)
     this._$nodes = this._$nodess.flat(1)
@@ -165,12 +163,9 @@ export class ForNode extends MutableNode {
 
   /**
    * 有 key，三步走
-   *
    */
   updateWithKey(parentNode: HtmlNode) {
     // ---- 如果提供了key，唯一目的就是为了保证element的reference不变，这样会变慢
-    // t.v = 0
-    // console.time("0")
     const parentEl = parentNode._$el
     const flowIndex = getFlowIndexFromParentNode(parentNode, this)
     let prevKeys = this.keys
@@ -196,9 +191,8 @@ export class ForNode extends MutableNode {
         continue
       }
       deleteNodesDeps(prevAllNodes[prevIdx], this.dlScope!)
-      removeNodes(prevAllNodes[prevIdx])
-      // ---- 以前的detach掉
-      detachNodes(prevAllNodes[prevIdx])
+      removeNodes(parentNode._$el, prevAllNodes[prevIdx])
+
       // ---- 删了原来的key那个位置也要删除
       deletedIdx.push(prevIdx)
     }
@@ -244,13 +238,5 @@ export class ForNode extends MutableNode {
     this._$nodes = this._$nodess.flat(1)
 
     this.onUpdateNodes(prevNodes, this._$nodes)
-
-    // console.timeEnd("0")
-    // console.log(t.v)
-  }
-
-  _$detach() {
-    super._$detach()
-    this._$nodess = []
   }
 }

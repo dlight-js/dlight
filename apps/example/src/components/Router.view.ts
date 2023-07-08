@@ -6,6 +6,10 @@ class SubComp2 extends View {
   toggle = false
   navigator
 
+  didMount() {
+    console.log("fuck")
+  }
+
   Body() {
     div()
 
