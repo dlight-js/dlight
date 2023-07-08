@@ -170,9 +170,163 @@ export class Generator {
         [...this.idDepsArr, { ids: idArr, propNames: listenDeps }])
       const forBody = newGenerator.generate(parserNode.children)
       this.usedProperties.push(...newGenerator.usedProperties)
-      resolveForBody(this.path, forBody, item, valueItemStr)
-      // ---- 前面的listen函数很复杂，主旨就是把 let {idx, item} of array
-      //      变成 let {idx.value, item.value} of array
+
+      let redeclareBody: any[]
+      let updateFuncBody: any
+      if (t.isIdentifier(item)) {
+        redeclareBody = [
+          /**
+           * let ${item} = node_for._$getItem(_$key, _$idx);
+           */
+          t.variableDeclaration(
+            "let", [
+              t.variableDeclarator(
+                item,
+                t.callExpression(
+                  t.memberExpression(
+                    t.identifier("node_for"),
+                    t.identifier("_$getItem")
+                  ), [
+                    t.identifier("_$key"),
+                    t.identifier("_$idx")
+                  ]
+                )
+              )
+            ]
+          )
+        ]
+        updateFuncBody = (
+          /**
+           * const updateFunc = () => (
+           *  ${item} = node_for._$getItem(_$key, _$idx)
+           * )
+           */
+          t.variableDeclaration(
+            "const", [
+              t.variableDeclarator(
+                t.identifier("updateFunc"),
+                t.arrowFunctionExpression(
+                  [],
+                  t.assignmentExpression(
+                    "=",
+                    item,
+                    t.callExpression(
+                      t.memberExpression(
+                        t.identifier("node_for"),
+                        t.identifier("_$getItem")
+                      ), [
+                        t.identifier("_$key"),
+                        t.identifier("_$idx")
+                      ]
+                    )
+                  )
+                )
+              )
+            ]
+          )
+        )
+      } else {
+        resolveForBody(this.path, forBody, item, valueItemStr)
+        // ---- 前面的listen函数很复杂，主旨就是把 let {idx, item} of array
+        //      变成 let {idx.value, item.value} of array
+        redeclareBody = [
+          /**
+           * const ${item} = node_for._$getItem(_$key, _$idx);
+           */
+          t.variableDeclaration(
+            "const", [
+              t.variableDeclarator(
+                item,
+                t.callExpression(
+                  t.memberExpression(
+                    t.identifier("node_for"),
+                    t.identifier("_$getItem")
+                  ), [
+                    t.identifier("_$key"),
+                    t.identifier("_$idx")
+                  ]
+                )
+              )
+            ]
+          ),
+          /**
+           * const ${valueItemStr} = {i, item, xxx};
+           */
+          t.variableDeclaration(
+            "const", [
+              t.variableDeclarator(
+                t.identifier(valueItemStr),
+                t.objectExpression(
+                  idArr.map((idItem: string) => (
+                    t.objectProperty(
+                      t.identifier(idItem),
+                      t.identifier(idItem),
+                      undefined,
+                      true
+                    )
+                  ))
+                )
+              )
+            ]
+          )
+        ]
+        updateFuncBody = (
+          /**
+           * const updateFunc = () => {
+           *  ...
+           * }
+           */
+          t.variableDeclaration(
+            "const", [
+              t.variableDeclarator(
+                t.identifier("updateFunc"),
+                t.arrowFunctionExpression(
+                  [],
+                  t.blockStatement([
+                    /**
+                     * const ${item} = node_for._$getItem(_$key, _$idx
+                     */
+                    t.variableDeclaration(
+                      "const", [
+                        t.variableDeclarator(
+                          item,
+                          t.callExpression(
+                            t.memberExpression(
+                              t.identifier("node_for"),
+                              t.identifier("_$getItem")
+                            ), [
+                              t.identifier("_$key"),
+                              t.identifier("_$idx")
+                            ]
+                          )
+                        )
+                      ]
+                    ),
+                    /**
+                      *  for (const i of idArr) {
+                      *    ${valueItemStr}.${i} = ${i};
+                      *  }
+                      */
+                    ...idArr.map((idItem: string) => (
+                      t.expressionStatement(
+                        t.assignmentExpression(
+                          "=",
+                          t.memberExpression(
+                            t.identifier(valueItemStr),
+                            t.identifier(idItem)
+                          ),
+                          t.identifier(idItem)
+                        )
+                      )
+                    ))
+                  ])
+                )
+              )
+            ]
+          )
+        )
+      }
+
       /**
        * ${nodeName}._$addNodeFunc((_$key, _$idx, node_for) => {
        * })
@@ -189,115 +343,51 @@ export class Generator {
                 t.identifier("_$idx"),
                 t.identifier("node_for")
               ], t.blockStatement([
-              /**
-               * const ${item} = node_for._$getItem(_$key, _$idx);
-               */
-                t.variableDeclaration(
-                  "const", [
-                    t.variableDeclarator(
-                      item,
-                      t.callExpression(
-                        t.memberExpression(
-                          t.identifier("node_for"),
-                          t.identifier("_$getItem")
-                        ), [
-                          t.identifier("_$key"),
-                          t.identifier("_$idx")
-                        ]
-                      )
-                    )
-                  ]
-                ),
+                ...redeclareBody,
+                updateFuncBody,
                 /**
-               * const ${valueItemStr} = {};
-               */
-                t.variableDeclaration(
-                  "const", [
-                    t.variableDeclarator(
-                      t.identifier(valueItemStr),
-                      t.objectExpression([])
-                    )
-                  ]
-                ),
-                /**
-               * for (const i of idArr) {
-               *    ${valueItemStr}.${i} = ${i};
-               *  }
-               */
-                ...idArr.map((idItem: string) => (
-                  t.expressionStatement(
-                    t.assignmentExpression(
-                      "=",
-                      t.memberExpression(
-                        t.identifier(valueItemStr),
-                        t.identifier(idItem)
-                      ),
-                      t.identifier(idItem)
-                    )
-                  )
-                )),
-                /**
-               * node_for._$listen(this, ()=>node_for._$getItem(_$key, _$idx), ${geneDepsStr(listenDeps)}, (_$item) => {`
-               *  });
-               */
+                 * this._$addDeps(${depStr}, updateFunc)
+                 */
                 t.expressionStatement(
                   t.callExpression(
                     t.memberExpression(
-                      t.identifier("node_for"),
-                      t.identifier("_$listen")
-                    ), [
                       t.thisExpression(),
-                      t.arrowFunctionExpression(
-                        [],
-                        t.callExpression(
-                          t.memberExpression(
-                            t.identifier("node_for"),
-                            t.identifier("_$getItem")
-                          ), [
-                            t.identifier("_$key"),
-                            t.identifier("_$idx")
-                          ]
-                        )
-                      ),
+                      t.identifier("_$addDeps")
+                    ), [
                       t.arrayExpression(listenDeps),
-                      t.arrowFunctionExpression([
-                        t.identifier("_$item")
-                      ],
-                      t.blockStatement([
-                      /**
-                       * const ${item} = _$item;
-                       */
-                        t.variableDeclaration(
-                          "const", [
-                            t.variableDeclarator(
-                              item,
-                              t.identifier("_$item")
-                            )
+                      t.identifier("updateFunc")
+                    ]
+                  )
+                ),
+                ...forBody.body.slice(0, -1),
+                /**
+                 * this._$deleteDeps(depsStr, ${key}UpdateFunc, Array.isArray(_$node0) ? _$node0[0] : _$node0);
+                 **/
+                t.expressionStatement(
+                  t.callExpression(
+                    t.memberExpression(
+                      t.thisExpression(),
+                      t.identifier("_$deleteDeps")
+                    ), [
+                      t.arrayExpression(listenDeps),
+                      t.identifier("updateFunc"),
+                      t.conditionalExpression(
+                        t.callExpression(
+                          t.memberExpression(t.identifier("Array"), t.identifier("isArray")), [
+                            t.identifier("_$node0")
                           ]
                         ),
-                        /**
-                        *  for (const i of idArr) {
-                        *    ${valueItemStr}.${i} = ${i};
-                        *  }
-                        */
-                        ...idArr.map((idItem: string) => (
-                          t.expressionStatement(
-                            t.assignmentExpression(
-                              "=",
-                              t.memberExpression(
-                                t.identifier(valueItemStr),
-                                t.identifier(idItem)
-                              ),
-                              t.identifier(idItem)
-                            )
-                          )
-                        ))
-                      ])
+                        t.memberExpression(
+                          t.identifier("_$node0"),
+                          t.numericLiteral(0),
+                          true
+                        ),
+                        t.identifier("_$node0")
                       )
                     ]
                   )
                 ),
-                forBody
+                forBody.body[forBody.body.length - 1]
               ]))
             ]
           )
@@ -600,7 +690,7 @@ export class Generator {
 
         if (listenDeps.length > 0) {
           /**
-         * this._$addDeps(${geneDepsStr(listenDeps)}, {}, ${nodeName}Element)
+         * this._$addDeps(${geneDepsStr(listenDeps)}, ${nodeName}Element, ${nodename})
          */
           statements.push(
             t.expressionStatement(
@@ -610,8 +700,8 @@ export class Generator {
                   t.identifier("_$addDeps")
                 ), [
                   t.arrayExpression(listenDeps),
-                  t.objectExpression([]),
-                  t.identifier(`${nodeName}Element`)
+                  t.identifier(`${nodeName}Element`),
+                  t.identifier(nodeName)
                 ]
               )
             )
@@ -924,7 +1014,7 @@ export class Generator {
         )
         if (listenDeps.length > 0) {
           /**
-         * this._$addDeps(${geneDepsStr(listenDeps)}, {}, ${nodeName}Element);
+         * this._$addDeps(${geneDepsStr(listenDeps)}, ${nodeName}Element, ${nodeName});
          */
           statements.push(
             t.expressionStatement(
@@ -934,8 +1024,8 @@ export class Generator {
                   t.identifier("_$addDeps")
                 ), [
                   t.arrayExpression(listenDeps),
-                  t.objectExpression([]),
-                  t.identifier(`${nodeName}Element`)
+                  t.identifier(`${nodeName}Element`),
+                  t.identifier(nodeName)
                 ]
               )
             )
@@ -1019,8 +1109,8 @@ export class Generator {
     })
 
     const keyId = uid()
-    const passProps: Array<{ key: string, keyWithId: string }> = []
-    for (const [i, { key, value }] of props.entries()) {
+    const passProps: any[] = []
+    for (const { key, value } of props) {
       const keyWithId = `${key}_${keyId}`
       const listenDeps = this.geneDeps(value)
       /**
@@ -1045,47 +1135,48 @@ export class Generator {
           ]
         )
       )
-      passProps.push({ key, keyWithId })
-      /**
-       * const depId${idx}_${i} = {};
-       */
-      statements.push(
-        t.variableDeclaration(
-          "const", [
-            t.variableDeclarator(
-              t.identifier(`depId${idx}_${i}`),
-              t.objectExpression([])
-            )
-          ]
-        )
-      )
-      /**
-       * this._$addDeps(${depsStr}, depId${idx}_${i}, () => {${keyWithId}.value = ${value}});
-       */
-      statements.push(
-        t.expressionStatement(
-          t.callExpression(
-            t.memberExpression(
-              t.thisExpression(),
-              t.identifier("_$addDeps")
-            ), [
-              t.arrayExpression(listenDeps),
-              t.identifier(`depId${idx}_${i}`),
-              t.arrowFunctionExpression(
-                [],
-                t.assignmentExpression(
-                  "=",
-                  t.memberExpression(
-                    t.identifier(keyWithId),
-                    t.identifier("value")
-                  ),
-                  value
+      if (listenDeps.length > 0) {
+        /**
+         * const ${key}UpdateFunc = () => ${keyWithId}.xx = xx
+         **/
+        statements.push(
+          t.variableDeclaration(
+            "const", [
+              t.variableDeclarator(
+                t.identifier(`${key}UpdateFunc`),
+                t.arrowFunctionExpression(
+                  [],
+                  t.assignmentExpression(
+                    "=",
+                    t.memberExpression(
+                      t.identifier(keyWithId),
+                      t.identifier("value")
+                    ),
+                    value
+                  )
                 )
               )
             ]
           )
         )
-      )
+        /**
+         * this._$addDeps(depsStr, ${key}UpdateFunc);
+         **/
+        statements.push(
+          t.expressionStatement(
+            t.callExpression(
+              t.memberExpression(
+                t.thisExpression(),
+                t.identifier("_$addDeps")
+              ), [
+                t.arrayExpression(listenDeps),
+                t.identifier(`${key}UpdateFunc`)
+              ]
+            )
+          )
+        )
+      }
+      passProps.push({ key, keyWithId, listenDeps })
     }
     /**
      * const nodeName = ${parserNode.tag}({${passProps.map(
@@ -1111,36 +1202,31 @@ export class Generator {
         ]
       )
     )
-    // ---- subView一定要有返回值！dep放到返回的第一个里面，这样子删除的时候就可以一起删了，不会内存泄漏
-    /**
-     * _$node${idx}[0]._$depObjectIds.push(...[${Object.keys(props).map(i => `depId${idx}_${i}`).join(",")}]);
-     */
-    if (props.length > 0) {
-      statements.push(
-        t.expressionStatement(
-          t.callExpression(
-            t.memberExpression(
+
+    for (const { key, listenDeps } of passProps) {
+      if (listenDeps.length > 0) {
+        /**
+         * this._$deleteDeps(depsStr, ${key}UpdateFunc, ${nodeName}[0]);
+         **/
+        statements.push(
+          t.expressionStatement(
+            t.callExpression(
               t.memberExpression(
+                t.thisExpression(),
+                t.identifier("_$deleteDeps")
+              ), [
+                t.arrayExpression(listenDeps),
+                t.identifier(`${key}UpdateFunc`),
                 t.memberExpression(
                   t.identifier(nodeName),
                   t.numericLiteral(0),
                   true
-                ),
-                t.identifier("_$depObjectIds")
-              ),
-              t.identifier("push")
-            ), [
-              t.spreadElement(
-                t.arrayExpression(
-                  Object.keys(props).map(i => (
-                    t.identifier(`depId${idx}_${i}`)
-                  ))
                 )
-              )
-            ]
+              ]
+            )
           )
         )
-      )
+      }
     }
 
     return statements

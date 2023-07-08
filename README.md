@@ -33,8 +33,8 @@ Your modern UI rendering library ~
 import { View } from "@dlightjs/dlight"
 
 export class MyComp extends View {
-  count = 0  
   toggle = true
+  fruits = ["🍎", "🍊", "🥑"]
 
   Body() {
     h1("hello, dlight js")
@@ -42,17 +42,21 @@ export class MyComp extends View {
       .onclick(() => {
         this.toggle = !this.toggle
       })
-    if (this.count) {
+    if (this.toggle) {
       "simple text"
     } else {
-      div("div with color")
-        ._color("red")
+      div()
+      {
+        for (const fruit of this.fruits) {
+          span(fruit)
+        }
+      }
     }
   }
 }
 ```
 # Documentation
-[README-dlight.md](./packages/%40dlightjs/dlight/README.md) (WIP)
+[README-dlight.md](./packages/core/%40dlightjs/dlight/README.md) (WIP)
 # Homepage
 
 Building with DLight now👨🏻‍💻

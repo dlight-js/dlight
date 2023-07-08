@@ -16,3 +16,4 @@ export function renderToText(DL: any) {
 }
 
 export * from "./utils"
+export { DLightStore } from "./store"

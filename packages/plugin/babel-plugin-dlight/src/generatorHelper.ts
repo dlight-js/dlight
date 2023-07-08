@@ -95,6 +95,7 @@ export function getIdentifiers(value: t.Node, path: any) {
 }
 
 export function getForBodyIdentifiers(path: any, item: t.Node) {
+  if (t.isIdentifier(item)) return [item.name]
   const identifierKeys: string[] = []
   path.scope.traverse(item, {
     Identifier(innerPath: any) {
@@ -144,4 +145,15 @@ export function isOnlyMemberExpression(value: t.MemberExpression) {
     value = value.property as any
   }
   return true
+}
+
+export function isAddDepsFunction(n: t.Node) {
+  return (
+    t.isExpressionStatement(n) &&
+    t.isCallExpression(n.expression) &&
+    t.isMemberExpression(n.expression.callee) &&
+    t.isThisExpression(n.expression.callee.object) &&
+    t.isIdentifier(n.expression.callee.property) &&
+    n.expression.callee.property.name === "_$addDeps"
+  )
 }

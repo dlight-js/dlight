@@ -26,11 +26,4 @@ export class MutableNode extends DLNode {
     initNodes(nodes)
     this.afterUpdateNewNodes(nodes)
   }
-
-  _$detach() {
-    super._$detach()
-    // TODO 这里没有嵌套调用，应该不用像DLNOde里面一样重置？
-    // this.afterUpdateNewNodes = function() {}
-    // this.onUpdateNodes = function() {}
-  }
 }

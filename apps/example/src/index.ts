@@ -12,7 +12,7 @@ import DerivedValueView from "./basic/derivedValue.view"
 import StyledView from "./advanced/styledView.view"
 import transformDLight from "@dlightjs/transpiler-standalone"
 import { RouteTest } from "./components/Router.view"
-
+import JJ from "./aa.view"
 // const code = `
 // import { View } from "@dlightjs/dlight"
 // import { button, div, SubView } from "@dlightjs/types"
@@ -32,6 +32,23 @@ import { RouteTest } from "./components/Router.view"
 
 // console.log(renderToText(BenchmarkView))
 // render("app", BenchmarkView)
-console.time("0")
-render("app", TestView)
-console.timeEnd("0")
+render("app", RouteTest)
+
+// console.time("0")
+// const a = () => {
+//   for (const i of [...Array(10000).keys()]) {
+//     const j = 1
+//   }
+// }
+// a()
+// console.timeEnd("0")
+
+// const b = []
+// console.time("0")
+// for (const i of [...Array(10000).keys()]) {
+//   b.push(() => {
+//     const j = 1
+//   })
+// }
+// b.forEach(n => n())
+// console.timeEnd("0")

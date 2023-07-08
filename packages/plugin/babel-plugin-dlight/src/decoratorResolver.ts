@@ -6,7 +6,15 @@ export function resolveState(node: t.ClassProperty, classBodyNode: t.ClassBody) 
   const propertyIdx = classBodyNode.body.indexOf(node)
 
   /**
-   * function ${propertyName}() {
+   * _$${propertyName}Deps = new Set()
+   */
+  const depsNode = t.classProperty(
+    t.identifier(`_$$${propertyName}Deps`),
+    t.newExpression(t.identifier("Set"), [])
+  )
+
+  /**
+   * get ${propertyName}() {
    *    return this._$$${propertyName}
    * }
    */
@@ -21,7 +29,7 @@ export function resolveState(node: t.ClassProperty, classBodyNode: t.ClassBody) 
     ])
   )
   /**
-   * function ${propertyName}(value) {
+   * set ${propertyName}(value) {
    *   this._$updateProperty("${propertyName}", value)
    * }
    */
@@ -43,8 +51,7 @@ export function resolveState(node: t.ClassProperty, classBodyNode: t.ClassBody) 
   ])
   )
 
-  const nodesToPush: any = [getterNode, setterNode]
-  classBodyNode.body.splice(propertyIdx + 1, 0, ...nodesToPush)
+  classBodyNode.body.splice(propertyIdx + 1, 0, depsNode, getterNode, setterNode)
 }
 
 export function resolveProp(node: t.ClassProperty, classBodyNode: t.ClassBody, decoratorName: "Prop" | "Env", propertyName: string) {

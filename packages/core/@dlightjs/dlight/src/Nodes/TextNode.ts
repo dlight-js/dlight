@@ -1,3 +1,4 @@
+import { DLightStore } from "../store"
 import { type CustomNode } from "./CustomNode"
 import { DLNode, DLNodeType } from "./DLNode"
 
@@ -18,8 +19,6 @@ export class TextNode extends DLNode {
       this._$el.nodeValue = newValue
       prevValue = newValue
     }
-    const objectId = {}
-    this._$depObjectIds.push(objectId)
-    dlScope!._$addDeps(listenDeps, objectId, depFunc)
+    dlScope!._$addDeps(listenDeps, depFunc, this)
   }
 }

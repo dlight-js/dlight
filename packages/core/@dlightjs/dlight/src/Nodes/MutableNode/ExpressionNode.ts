@@ -3,7 +3,7 @@ import { type CustomNode } from "../CustomNode"
 import { type DLNode, DLNodeType } from "../DLNode"
 import { type HtmlNode } from "../HtmlNode"
 import { TextNode } from "../TextNode"
-import { appendNodesWithIndex, deleteNodesDeps, detachNodes, getFlowIndexFromParentNode, removeNodes } from "../utils"
+import { appendNodesWithIndex, deleteNodesDeps, getFlowIndexFromParentNode, removeNodes } from "../utils"
 import { MutableNode } from "./MutableNode"
 
 type ExpressionNodeType = DLNode | DLNode[]
@@ -108,16 +108,12 @@ export class ExpressionNode extends MutableNode {
     if (!parentNode) return
 
     // ---- 加deps
-    const objectId = {}
-    this._$depObjectIds.push(objectId)
-    this.dlScope!._$addDeps(this.listenDeps, objectId, () => { this.update(parentNode! as HtmlNode) })
+    this.dlScope!._$addDeps(this.listenDeps, () => { this.update(parentNode! as HtmlNode) }, this)
 
     this._$bindNodes()
     for (const func of this.propFuncs) {
       func()
-      const objectId = {}
-      this._$depObjectIds.push(objectId)
-      this.dlScope!._$addDeps(this.listenDeps, objectId, func)
+      this.dlScope!._$addDeps(this.listenDeps, func, this)
     }
   }
 
@@ -125,7 +121,7 @@ export class ExpressionNode extends MutableNode {
     const prevNodes = this._$nodes
     // ---- 把以前的删除了
     deleteNodesDeps(this._$nodes, this.dlScope!)
-    removeNodes(this._$nodes)
+    removeNodes(parentNode._$el, this._$nodes)
 
     // ---- 创建新的
     this._$nodes = this.formatNodes(this.nodeOrFunc!())
@@ -136,8 +132,6 @@ export class ExpressionNode extends MutableNode {
     const flowIndex = getFlowIndexFromParentNode(parentNode, this)
     appendNodesWithIndex(this._$nodes, flowIndex, parentEl, parentEl.childNodes.length)
 
-    // ---- 以前的detach掉
-    detachNodes(prevNodes)
     this.onUpdateNodes(prevNodes, this._$nodes)
   }
 }

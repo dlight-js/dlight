@@ -6,16 +6,17 @@ import DLight, { View, $, type CustomNode } from "@dlightjs/dlight"
 import { span, div, css } from "@dlightjs/easy-css"
 
 class TestView extends View {
-  margin = "20px"
+  count = 1
   Body() {
-    div("shit")
-      .margin(this.margin)
-      .flex_()
-
-    {
-      "hh"
-    }
+    div(this.count)
+    button("+")
+      .onclick(() => {
+        this.count++
+      })
   }
 }
 
 export default TestView
+
+
+

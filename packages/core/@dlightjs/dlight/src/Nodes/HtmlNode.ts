@@ -1,10 +1,11 @@
+import { DLightStore } from "../store"
 import { type CustomNode } from "./CustomNode"
 import { DLNode, DLNodeType } from "./DLNode"
 import { type EnvNode } from "./EnvNode"
-import { appendEls } from "./utils"
+import { appendEls, classNameJoin } from "./utils"
 
 export class HtmlNode extends DLNode {
-  _$envNodes?: EnvNode[] = []
+  _$envNodes: EnvNode[] = []
 
   constructor(tagOrEl: string | HTMLElement) {
     super(DLNodeType.HTML)
@@ -20,78 +21,79 @@ export class HtmlNode extends DLNode {
     this._$nodes = nodes
   }
 
-  _$addPropSub(newValueFunc: (newValue: any) => any, valueOrFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]) {
-    const func = newValueFunc
-
+  _$addProp(key: string, valueOrFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]) {
     if (!listenDeps) {
-      func(valueOrFunc)
+      this._$el[key] = valueOrFunc
       return
     }
     let prevValue: any = valueOrFunc()
-    func(prevValue)
-    const depFunc = () => {
+    this._$el[key] = prevValue
+    dlScope!._$addDeps(listenDeps, () => {
       const newValue = valueOrFunc()
       if (prevValue !== newValue) {
-        func(newValue)
+        this._$el[key] = newValue
         prevValue = newValue
       }
-    }
-    const objectId = {}
-    this._$depObjectIds.push(objectId)
-    dlScope!._$addDeps(listenDeps, objectId, depFunc)
-  }
-
-  _$addProp(key: string, valueOrFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]) {
-    this._$addPropSub(
-      (newValue: any) => { this._$el[key] = newValue },
-      valueOrFunc, dlScope, listenDeps
-    )
+    }, this)
   }
 
   _$addClassName(valueOrFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]) {
-    let currClassName = "\\*none\\*"
-    this._$addPropSub(
-      (newValue: string[] | string | undefined | null) => {
-        if (Array.isArray(newValue)) newValue = newValue.join(" ")
-        newValue = newValue ?? ""
+    if (!listenDeps) {
+      const classNames = this._$el.className
+      this._$el.className = `${classNames} ${classNameJoin(valueOrFunc)}`
+      return
+    }
+    let prevValue: any = classNameJoin(valueOrFunc())
+    const classNames = this._$el.className
+    this._$el.className = `${classNames} ${prevValue}`
+
+    dlScope!._$addDeps(listenDeps, () => {
+      const newValue = valueOrFunc()
+      if (prevValue !== newValue) {
         const classNames = this._$el.className
         let newClassName = classNames
-        if (currClassName !== "" && new RegExp(currClassName).test(classNames)) {
-          newClassName = newClassName.replace(new RegExp(currClassName), newValue)
+        if (prevValue !== "" && classNames.includes(prevValue)) {
+          newClassName = newClassName.replace(prevValue, newValue)
         } else {
           newClassName += ` ${newValue}`
         }
-        currClassName = newValue
         const className = newClassName.trim()
         if (className === "") {
           this._$el.removeAttribute("class")
         } else {
           this._$el.className = className
         }
-      },
-      valueOrFunc, dlScope, listenDeps
-    )
+        prevValue = newValue
+      }
+    }, this)
   }
 
   _$addStyle(valueOrFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]) {
-    this._$addPropSub(
-      (newValue: any) => {
+    if (!listenDeps) {
+      for (const [k, v] of Object.entries(valueOrFunc)) {
+        this._$el.style[k] = v
+      }
+      return
+    }
+    let prevValue: any = valueOrFunc()
+    for (const [k, v] of Object.entries(prevValue)) {
+      this._$el.style[k] = v
+    }
+    dlScope!._$addDeps(listenDeps, () => {
+      const newValue = valueOrFunc()
+      if (prevValue !== newValue) {
         for (const [k, v] of Object.entries(newValue)) {
           this._$el.style[k] = v
         }
-      },
-      valueOrFunc, dlScope, listenDeps
-    )
+        prevValue = newValue
+      }
+    }, this)
   }
 
   // ---- lifecycles
-  willAppear(_el: HTMLElement, _node: HtmlNode): any { }
-  didAppear(_el: HTMLElement, _node: HtmlNode): any { }
-  willDisappear(_el: HTMLElement, _node: HtmlNode): any { }
-  didDisappear(_el: HTMLElement, _node: HtmlNode): any { }
   _$addLifeCycle(func: (_el: HTMLElement, _node: HtmlNode) => any, lifeCycleName: "willAppear" | "didAppear" | "willDisappear" | "didDisappear") {
-    const preLifeCycle = this[lifeCycleName]
-    this[lifeCycleName] = function(_el: HTMLElement, _node: HtmlNode) {
+    const preLifeCycle = (this as any)[lifeCycleName] ?? (() => {})
+    ;(this as any)[lifeCycleName] = function(_el: HTMLElement, _node: HtmlNode) {
       preLifeCycle.call(this, _el, _node)
       func.call(this, _el, _node)
     }

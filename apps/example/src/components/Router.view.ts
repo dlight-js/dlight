@@ -6,6 +6,10 @@ class SubComp2 extends View {
   toggle = false
   navigator
 
+  didMount() {
+    console.log("fuck")
+  }
+
   Body() {
     div()
 
@@ -44,6 +48,16 @@ class SubComp2 extends View {
   }
 }
 
+class JJ extends View {
+  didMount() {
+    console.log("shit")
+  }
+
+  Body() {
+    "hh"
+  }
+}
+
 export class RouteTest extends View {
   navigator
   Body() {
@@ -67,7 +81,7 @@ export class RouteTest extends View {
     {
       Route("OKK")
       {
-        div("okk")
+        JJ()
       }
       Route("fuck")
       {

@@ -10,9 +10,9 @@ export function appendEls(htmlNode: HtmlNode, nodes: DLNode[]) {
         htmlNode._$el.appendChild(node._$el)
         break
       case DLNodeType.HTML:
-        (node as HtmlNode).willAppear(node._$el, node as HtmlNode)
+        (node as any).willAppear && (node as any).willAppear(node._$el, node as HtmlNode)
         htmlNode._$el.appendChild(node._$el)
-        ;(node as HtmlNode).didAppear(node._$el, node as HtmlNode)
+        ;(node as any).didAppear && (node as any).didAppear(node._$el, node as HtmlNode)
         break
       default:
         appendEls(htmlNode, node._$nodes)
@@ -26,27 +26,20 @@ export function appendEls(htmlNode: HtmlNode, nodes: DLNode[]) {
  * 把nodes对应的elements从dom上移除
  * @param nodes
  */
-export function removeNodes(nodes: DLNode[]) {
+export function removeNodes(parentEl: HTMLElement, nodes: DLNode[]) {
   willUnmountDlightNodes(nodes)
   loopEls(nodes, (el: HTMLElement, node: HtmlNode) => {
-    const isInDOM = document.body.contains(el)
-    if (!isInDOM) return
-    if (node._$nodeType === DLNodeType.HTML) {
-      node.willDisappear(el, node)
+    if (node._$nodeType === DLNodeType.HTML && (node as any).willDisappear) {
+      (node as any).willDisappear(el, node)
     }
-    el.remove()
-    if (node._$nodeType === DLNodeType.HTML) {
-      node.didDisappear(el, node)
+    parentEl.removeChild(el)
+    if (node._$nodeType === DLNodeType.HTML && (node as any).didDisappear) {
+      (node as any).didDisappear(el, node)
     }
-  })
+  }, false)
   didUnmountDlightNodes(nodes)
 }
 
-export function detachNodes(nodes: DLNode[]) {
-  for (const node of nodes) {
-    node._$detach()
-  }
-}
 /**
  * 删掉所有有关node的deps
  * @param nodes
@@ -54,8 +47,10 @@ export function detachNodes(nodes: DLNode[]) {
  */
 export function deleteNodesDeps(nodes: DLNode[], dlScope: CustomNode) {
   loopNodes(nodes, (node: DLNode) => {
-    for (const i of node._$depObjectIds) {
-      dlScope._$deleteDeps(i)
+    if ((node as any)._$cleanUps) {
+      for (const cleanUp of (node as any)._$cleanUps) {
+        cleanUp()
+      }
     }
     if (node._$nodeType === DLNodeType.Custom) {
       deleteNodesDeps((node as CustomNode)._$children, dlScope)
@@ -74,35 +69,25 @@ export function deleteNodesDeps(nodes: DLNode[], dlScope: CustomNode) {
  * @param lengthIn - 调用parentEl.childNodes.length会浪费时间，从外面传入会省很多时间
  * @returns
  */
-export function appendNodesWithIndex(nodes: DLNode[], index: number, parentEl: HTMLElement, lengthIn?: number): [number, number] {
+export function appendNodesWithIndex(nodes: DLNode[], index: number, parentEl: HTMLElement, lengthIn?: number, alreadyInDOM?: boolean): [number, number] {
   let length = lengthIn ?? parentEl.childNodes.length
   loopEls(nodes, (el: HTMLElement, node: HtmlNode) => {
-    const isInDOM = document.body.contains(el)
-    if ([DLNodeType.HTML].includes(node._$nodeType) && !isInDOM) {
+    if (DLNodeType.HTML === node._$nodeType && !alreadyInDOM && (node as any).willAppear) {
       // ---- 不在DOM上
-      loopLifeCycle(node, "willAppear")
+      (node as any).willAppear(node._$el, node)
     }
     if (index === length) {
       parentEl.appendChild(el)
     } else {
       parentEl.insertBefore(el, parentEl.childNodes[index] as any)
     }
-    if ([DLNodeType.HTML].includes(node._$nodeType) && !isInDOM) {
-      loopLifeCycle(node, "didAppear")
+    if (DLNodeType.HTML === node._$nodeType && !alreadyInDOM && (node as any).didAppear) {
+      (node as any).didAppear(node._$el, node)
     }
     index++
     length++
   }, false)
   return [index, length]
-}
-
-function loopLifeCycle(node: HtmlNode, lifeCycleName: "willAppear" | "didAppear" | "willDisappear" | "didDisappear") {
-  node[lifeCycleName](node._$el, node)
-  loopEls(node._$nodes, (el, n) => {
-    if ([DLNodeType.HTML].includes(n._$nodeType)) {
-      n[lifeCycleName](el, n)
-    }
-  }, true)
 }
 
 /**
@@ -179,4 +164,8 @@ export function arraysEqual(a: any[], b: any[]) {
     }
   }
   return true
+}
+
+export function classNameJoin(classNames: string | string[]) {
+  return Array.isArray(classNames) ? classNames.join(" ") : classNames
 }

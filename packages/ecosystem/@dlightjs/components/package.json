@@ -1,6 +1,6 @@
 {
   "name": "@dlightjs/components",
-  "version": "0.8.27",
+  "version": "0.9.0-pre",
   "type": "module",
   "files": [
     "dist"

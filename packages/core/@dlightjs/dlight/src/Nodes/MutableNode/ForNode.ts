@@ -5,7 +5,6 @@ import {
   removeNodes,
   getFlowIndexFromNodes,
   getFlowIndexFromParentNode,
-  detachNodes,
   arraysEqual
 } from "../utils"
 import { type CustomNode } from "../CustomNode"
@@ -81,7 +80,7 @@ export class ForNode extends MutableNode {
     this.keys = [...Array(this.array.length).keys()]
 
     // TODO 报错重复key
-    console.warn("重复key了")
+    console.warn("Duplicated Key")
     this.duplicatedOrNoKey = true
   }
 
@@ -105,9 +104,7 @@ export class ForNode extends MutableNode {
       : () => { this.updateWithOutKey(parentNode as HtmlNode) }
 
     // ---- 加deps
-    const objectId = {}
-    this._$depObjectIds.push(objectId)
-    this.dlScope!._$addDeps(this.listenDeps, objectId, update)
+    this.dlScope!._$addDeps(this.listenDeps, update, this)
 
     this.setArray()
     this.setKeys()
@@ -158,8 +155,7 @@ export class ForNode extends MutableNode {
 
     for (let idx = currLength; idx < preLength; idx++) {
       deleteNodesDeps(this._$nodess[idx], this.dlScope!)
-      removeNodes(this._$nodess[idx])
-      detachNodes(this._$nodess[idx])
+      removeNodes(parentNode._$el, this._$nodess[idx])
     }
     this._$nodess = this._$nodess.slice(0, currLength)
     this._$nodes = this._$nodess.flat(1)
@@ -167,7 +163,6 @@ export class ForNode extends MutableNode {
 
   /**
    * 有 key，三步走
-   *
    */
   updateWithKey(parentNode: HtmlNode) {
     // ---- 如果提供了key，唯一目的就是为了保证element的reference不变，这样会变慢
@@ -196,9 +191,8 @@ export class ForNode extends MutableNode {
         continue
       }
       deleteNodesDeps(prevAllNodes[prevIdx], this.dlScope!)
-      removeNodes(prevAllNodes[prevIdx])
-      // ---- 以前的detach掉
-      detachNodes(prevAllNodes[prevIdx])
+      removeNodes(parentNode._$el, prevAllNodes[prevIdx])
+
       // ---- 删了原来的key那个位置也要删除
       deletedIdx.push(prevIdx)
     }
@@ -234,7 +228,7 @@ export class ForNode extends MutableNode {
         newFlowIndex += getFlowIndexFromNodes(newDlNodes[idx])
       } else {
         bufferNodes[this.keys.indexOf(prevKeys[idx])] = newDlNodes[idx]
-        ;[newFlowIndex, length] = appendNodesWithIndex(newDlNodes[prevIdx], newFlowIndex, parentEl, length)
+        ;[newFlowIndex, length] = appendNodesWithIndex(newDlNodes[prevIdx], newFlowIndex, parentEl, length, true)
       }
       ;[newDlNodes[idx], newDlNodes[prevIdx]] = [newDlNodes[prevIdx], newDlNodes[idx]]
       ;[prevKeys[idx], prevKeys[prevIdx]] = [prevKeys[prevIdx], prevKeys[idx]]
@@ -244,26 +238,5 @@ export class ForNode extends MutableNode {
     this._$nodes = this._$nodess.flat(1)
 
     this.onUpdateNodes(prevNodes, this._$nodes)
-  }
-
-  // ---- 识别特殊for
-  _$listen(dlScope: CustomNode, itemFunc: () => any, listenDeps: string[], updateFunc: any) {
-    // ---* 必须把id放进去，不然删除不掉
-    const objectId = {}
-    dlScope._$depObjectIds.push(objectId)
-    dlScope._$addDeps(listenDeps, objectId, () => {
-      const item = itemFunc()
-      // ---- 空了直接删除
-      if (item === undefined) {
-        dlScope._$deleteDeps(objectId)
-        return
-      }
-      updateFunc(item)
-    })
-  }
-
-  _$detach() {
-    super._$detach()
-    this._$nodess = []
   }
 }

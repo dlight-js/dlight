@@ -2,7 +2,7 @@ const fs = require("fs")
 
 // 指定要设置的新版本号
 const packagePath = `${process.argv[2]}/package.json`
-const currentPackageVersion = fs.readFileSync(packagePath, "utf8").match(/"version": "([\d.]+)"/)[1]
+const currentPackageVersion = fs.readFileSync(packagePath, "utf8").match(/"version": "(.+?)"/)[1]
 
 // 获取当前版本号
 const newVersion = JSON.parse(fs.readFileSync("./package.json", "utf8")).version
