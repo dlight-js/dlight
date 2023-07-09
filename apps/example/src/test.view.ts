@@ -1,4 +1,4 @@
-import { HStack } from "@dlightjs/components"
+import DLight, { View } from "@dlightjs/dlight"
 // import { css } from "@dlightjs/emotion"
 import { transformWithEsbuild } from "vite"
 import { DLightIcon, DLightIconType, HelpOutlineOutlined } from "@dlightjs/material-icons"
@@ -21,6 +21,8 @@ class HH extends View {
 }
 
 const testMDString = `
+Here's a simple footnote,[^1] and here's a longer one.[^bignote]
+
 hhh
 **b*o*ld**
 
@@ -46,9 +48,35 @@ hhh
     * gug
 * pear
 
+1. shdjsf
+2. second
+
+
 
 - [x] checklist
 - [x] done
+
+| Syntax      | Description |
+| ----------- | :-----------: |
+| Header      | Title       |
+| Paragraph   | Text        |
+
+> https://www.baidu.com\\
+> dsdfs
+
+![The San Juan Mountains are beautiful!](http://static.runoob.com/images/demo/demo1.jpg "San Juan Mountains" 50% left)
+
+[^1]: This is the first footnote.
+
+[^bignote]: Here's one with multiple paragraphs and code.
+
+\`\`\`
+
+function() {
+  console.log('hhhh');
+}
+
+\`\`\`
 
 `
 

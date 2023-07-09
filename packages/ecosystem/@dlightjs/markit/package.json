@@ -5,7 +5,7 @@
   "files": [
     "dist"
   ],
-  "main": "dist/index.js",
+  "main": "src/index.ts",
   "typings": "dist/index.d.ts",
   "scripts": {
     "dev": "vite",
@@ -17,14 +17,15 @@
     "vite": "^4.0.0",
     "vite-plugin-dlight": "workspace:*",
     "vite-plugin-dts": "^1.7.1",
-    "vite-plugin-easy-css": "^0.4.0"
+    "vite-plugin-easy-css": "^0.8.0"
   },
   "dependencies": {
     "@dlightjs/components": "workspace:*",
     "@dlightjs/dlight": "workspace:*",
     "@dlightjs/emotion": "workspace:*",
     "@dlightjs/types": "workspace:*",
-    "@iandx/easy-css": "^0.4.0",
+    "@dlightjs/easy-css": "workspace:*",
+    "@iandx/easy-css": "^0.8.0",
     "@iandx/markit": "^0.1.3"
   }
 }

@@ -9,6 +9,7 @@ import Subscript from "./Subscript.view"
 import Superscript from "./Superscript.view"
 import Underline from "./Underline.view"
 import Text from "./Text.view"
+import FootnoteSup from "./FootnoteSup.view"
 
 const InlineRenderer: Record<string, Typed<PropWrapper<{ props: Object, _$content: string }>>> = {
   Text,
@@ -20,7 +21,8 @@ const InlineRenderer: Record<string, Typed<PropWrapper<{ props: Object, _$conten
   Underline,
   Highlight,
   Superscript,
-  Subscript
+  Subscript,
+  FootnoteSup
 } as any
 
 export default InlineRenderer

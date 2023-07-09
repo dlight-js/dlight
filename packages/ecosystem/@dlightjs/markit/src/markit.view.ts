@@ -1,7 +1,8 @@
 import DLight, { type CustomNode, View } from "@dlightjs/dlight"
-import { Prop, required, type Typed, type RequiredProp, button } from "@dlightjs/types"
+import { Prop, required, type Typed, type RequiredProp, button, div, h1 } from "@dlightjs/types"
 import BlockRenderer from "./BlockView"
 import { parse } from "@iandx/markit"
+import { css } from "@iandx/easy-css"
 
 class MarkitView extends View {
   /** @prop */
@@ -15,16 +16,17 @@ class MarkitView extends View {
   /** @function */
 
   /** @lifecycle */
-  didMount(_els: HTMLElement[], _node: CustomNode): void {
-    this.markitAst = parse(this._$content)
-    console.log(this.markitAst)
-  }
 
   /** @view */
   Body() {
-    for (const ast of this.markitAst) {
-      BlockRenderer[ast.type](ast.content)
-        .props(ast.props)
+    h1("fashengleshenm")
+    div()
+    {
+      for (const ast of this.markitAst) {
+        BlockRenderer[ast.type](ast.content)
+        
+          .props(ast.props)
+      }
     }
   }
 }

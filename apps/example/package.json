@@ -26,6 +26,8 @@
     "@dlightjs/transpiler-standalone": "workspace:*",
     "@dlightjs/types": "workspace:*",
     "@emotion/css": "^11.10.6",
-    "ts-node": "^10.9.1"
+    "@iandx/easy-css": "^0.8.0",
+    "ts-node": "^10.9.1",
+    "vite-plugin-easy-css": "^0.8.0"
   }
 }

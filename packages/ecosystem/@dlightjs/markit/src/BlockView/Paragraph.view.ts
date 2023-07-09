@@ -1,5 +1,6 @@
 import DLight, { View } from "@dlightjs/dlight"
 import { div, Prop, required, type Typed } from "@dlightjs/types"
+import { css } from "@iandx/easy-css"
 import InlineRenderer from "../InlineView"
 
 class Paragraph extends View {
@@ -7,6 +8,7 @@ class Paragraph extends View {
 
   Body() {
     div()
+      .className(this.dlightMarkitParagraph)
     {
       for (const content of this._$content) {
         InlineRenderer[content.type](content.content)
@@ -14,6 +16,8 @@ class Paragraph extends View {
       }
     }
   }
+
+  dlightMarkitParagraph = css``
 }
 
 export default Paragraph as any as Typed<Paragraph>
