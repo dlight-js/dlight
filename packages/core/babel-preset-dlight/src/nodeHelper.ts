@@ -104,3 +104,36 @@ export function isMemberExpressionProperty(parentNode: t.Node, currentNode: t.No
 export function isObjectKey(parentNode: t.Node, currentNode: t.Node) {
   return t.isObjectProperty(parentNode) && parentNode.key === currentNode
 }
+
+export function bindMethods(classBodyNode: t.ClassBody, methodsToBind: string[]) {
+  if (methodsToBind.length === 0) return
+  classBodyNode.body.unshift(t.classMethod(
+    "constructor",
+    t.identifier("constructor"),
+    [],
+    t.blockStatement([
+      t.expressionStatement(t.callExpression(t.super(), [])),
+      ...methodsToBind.map(methodName => (
+        t.expressionStatement(
+          t.assignmentExpression(
+            "=",
+            t.memberExpression(
+              t.thisExpression(),
+              t.identifier(methodName)
+            ),
+            t.callExpression(
+              t.memberExpression(
+                t.memberExpression(
+                  t.thisExpression(),
+                  t.identifier(methodName)
+                ),
+                t.identifier("bind")
+              ),
+              [t.thisExpression()]
+            )
+          )
+        )
+      ))
+    ])
+  ))
+}

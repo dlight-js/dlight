@@ -1,7 +1,7 @@
 import * as t from "@babel/types"
 import { handleBody } from "./bodyHandler"
 import { resolveState, resolveProp } from "./decoratorResolver"
-import { pushDerived, shouldBeListened, valueWithArrowFunc } from "./nodeHelper"
+import { bindMethods, pushDerived, shouldBeListened, valueWithArrowFunc } from "./nodeHelper"
 import { minimatch } from "minimatch"
 
 export interface DLightOption {
@@ -37,11 +37,9 @@ export default function(api: any, options: DLightOption) {
     propOrEnv: "Prop" | "Env" | undefined
   }> = {}
   let staticProperties: string[] = []
+  let methodsToBind: string[] = []
   let rootPath: any
 
-  function willHandleBodyAtLast(node: any) {
-    return classBodyNode!.body.indexOf(node) === classBodyNode!.body.length - 1
-  }
   function handleBodyAtLast() {
     const usedProperties = handleBody(classBodyNode!, properties.filter(p => !staticProperties.includes(p)), rootPath)
     for (let [key, { node, derivedFrom, isStatic, propOrEnv }] of Object.entries(propertiesContainer).reverse()) {
@@ -58,6 +56,7 @@ export default function(api: any, options: DLightOption) {
         resolveState(node as any, classBodyNode!)
       }
     }
+    bindMethods(classBodyNode!, methodsToBind)
     clearNode()
   }
   function initNode(path: any) {
@@ -89,6 +88,7 @@ export default function(api: any, options: DLightOption) {
     derivedPairNode = null
     properties = []
     staticProperties = []
+    methodsToBind = []
     propertiesContainer = {}
   }
 
@@ -121,29 +121,41 @@ export default function(api: any, options: DLightOption) {
           this.didAddDLightImport = true
         }
       },
-      ClassDeclaration(path: any) {
-        if (!this.enter) return
-        initNode.call(this, path)
+      ClassDeclaration: {
+        enter(path: any) {
+          if (!this.enter) return
+          initNode.call(this, path)
+        },
+        exit(path: any) {
+          if (!this.enter) return
+          handleBodyAtLast()
+        }
       },
-      ClassExpression(path: any) {
-        if (!this.enter) return
-        initNode.call(this, path)
+      ClassExpression: {
+        enter(path: any) {
+          if (!this.enter) return
+          initNode.call(this, path)
+        },
+        exit(path: any) {
+          if (!this.enter) return
+          handleBodyAtLast()
+        }
       },
       ClassMethod(path: any) {
         if (!this.enter) return
         if (!classDeclarationNode) return
-        if (willHandleBodyAtLast(path.node)) {
-          handleBodyAtLast()
-        }
+        if (!t.isIdentifier(path.node.key)) return
+        const name = path.node.key.name
+        if (name === "Body") return
+        const isSubView = path.node.decorators?.find((d: t.Decorator) => t.isIdentifier(d.expression) && d.expression.name === "SubView")
+        if (isSubView) return
+        methodsToBind.push(name)
       },
       ClassProperty(path: any) {
         if (!this.enter) return
         if (!classDeclarationNode) return
         const node = path.node as t.ClassProperty
         const key = (node.key as any).name
-        // ---- 要提前判断是不是最后一个，因为后面会赠加
-        const willHandleBody = willHandleBodyAtLast(node)
-
         const decoNames = node.decorators?.filter(deco => (
           t.isIdentifier(deco.expression) && ["Static", "Prop", "Env"].includes(deco.expression.name)
         )).map(deco => (deco.expression as any).name) ?? []
@@ -172,8 +184,6 @@ export default function(api: any, options: DLightOption) {
         node.decorators = node.decorators?.filter(deco => !(
           t.isIdentifier(deco.expression) && ["Static", "Prop", "Env"].includes(deco.expression.name)
         ))
-        // ---- 最后处理body
-        if (willHandleBody) handleBodyAtLast()
       }
     }
   }

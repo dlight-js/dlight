@@ -162,7 +162,7 @@ function parseIfConditions(node: any, path: any) {
 }
 
 export function parseBlock(nodes: any, path: any): ParserNode[] {
-  const children = []
+  const children: any[] = []
   for (const node of nodes) {
     if (t.isExpressionStatement(node)) {
       let parserNodes: any = parseNode(node.expression, path)
