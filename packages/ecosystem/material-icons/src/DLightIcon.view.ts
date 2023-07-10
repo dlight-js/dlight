@@ -29,6 +29,6 @@ class DLightIcon extends View {
   }
 }
 
-export type DLightIconType = PartialPropWrapper<DLightHTMLAttributes<HTMLSpanElement, {}>>
+export type DLightIconType = PartialPropWrapper<DLightHTMLAttributes<HTMLSpanElement, {}>> & Omit<DLightIcon, "content" | "name">
 
 export default DLightIcon as any as Typed<DLightIcon>
