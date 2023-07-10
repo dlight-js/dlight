@@ -149,42 +149,34 @@ importers:
 
   packages/ecosystem/@dlightjs/easy-css/babel-preset-dlight-easy-css:
     specifiers:
-      '@babel/plugin-syntax-decorators': ^7.21.0
-      '@babel/plugin-syntax-do-expressions': ^7.22.5
-      '@babel/plugin-syntax-jsx': ^7.22.5
-      '@babel/plugin-syntax-typescript': ^7.20.0
       '@babel/types': ^7.20.7
-      '@iandx/easy-css-atomic': ^0.8.1
-      '@iandx/easy-css-utility': ^0.8.1
-      babel-plugin-easy-css: 0.8.1
+      '@iandx/easy-css-atomic': 0.10.0
+      '@iandx/easy-css-utility': 0.10.0
+      babel-preset-easy-css: 0.10.0
       tsup: ^6.5.0
     dependencies:
-      '@babel/plugin-syntax-decorators': 7.21.0
-      '@babel/plugin-syntax-do-expressions': 7.22.5
-      '@babel/plugin-syntax-jsx': 7.22.5
-      '@babel/plugin-syntax-typescript': 7.20.0
       '@babel/types': 7.22.5
-      '@iandx/easy-css-atomic': 0.8.1
-      '@iandx/easy-css-utility': 0.8.1
-      babel-plugin-easy-css: 0.8.1
+      '@iandx/easy-css-atomic': 0.10.0
+      '@iandx/easy-css-utility': 0.10.0
+      babel-preset-easy-css: 0.10.0
     devDependencies:
       tsup: 6.6.3
 
   packages/ecosystem/@dlightjs/easy-css/easy-css:
     specifiers:
       '@dlightjs/types': workspace:*
-      '@iandx/easy-css': 0.8.1
-      '@iandx/easy-css-atomic': 0.8.1
-      '@iandx/easy-css-utility': 0.8.1
+      '@iandx/easy-css': 0.10.0
+      '@iandx/easy-css-atomic': 0.10.0
+      '@iandx/easy-css-utility': 0.10.0
       path: ^0.12.7
       typescript: ^4.9.3
       vite: ^4.0.0
       vite-plugin-dlight: workspace:*
       vite-plugin-dts: ^1.7.1
     dependencies:
-      '@iandx/easy-css': 0.8.1
-      '@iandx/easy-css-atomic': 0.8.1
-      '@iandx/easy-css-utility': 0.8.1
+      '@iandx/easy-css': 0.10.0
+      '@iandx/easy-css-atomic': 0.10.0
+      '@iandx/easy-css-utility': 0.10.0
     devDependencies:
       '@dlightjs/types': link:../../../../core/@dlightjs/types
       path: 0.12.7
@@ -304,9 +296,12 @@ importers:
   packages/plugin/babel-plugin-dlight:
     specifiers:
       '@babel/types': ^7.20.7
+      minimatch: ^9.0.3
       tsup: ^6.5.0
+    dependencies:
+      minimatch: 9.0.3
     devDependencies:
-      '@babel/types': 7.21.2
+      '@babel/types': 7.22.5
       tsup: 6.6.3
 
   packages/plugin/babel-plugin-optional-this:
@@ -323,14 +318,16 @@ importers:
       '@babel/plugin-syntax-decorators': ^7.21.0
       '@babel/plugin-syntax-do-expressions': ^7.18.6
       '@babel/plugin-syntax-typescript': ^7.20.0
-      babel-plugin-dlight: workspace:*
+      '@babel/types': ^7.20.7
+      minimatch: ^9.0.3
       tsup: ^6.5.0
     dependencies:
       '@babel/plugin-syntax-decorators': 7.21.0
       '@babel/plugin-syntax-do-expressions': 7.18.6
       '@babel/plugin-syntax-typescript': 7.20.0
-      babel-plugin-dlight: link:../babel-plugin-dlight
+      minimatch: 9.0.3
     devDependencies:
+      '@babel/types': 7.22.5
       tsup: 6.6.3
 
   packages/plugin/eslint-plugin-dlight:
@@ -506,11 +503,11 @@ packages:
   /@babel/helper-string-parser/7.19.4:
     resolution: {integrity: sha512-nHtDoQcuqFmwYNYPz3Rah5ph2p8PFeFCsZk9A/48dPc/rGocJ5J3hAAZ7pb76VWX3fZKu+uEr/FhH5jLx7umrw==}
     engines: {node: '>=6.9.0'}
+    dev: false
 
   /@babel/helper-string-parser/7.22.5:
     resolution: {integrity: sha512-mM4COjgZox8U+JcXQwPijIZLElkgEpO5rsERVDJTc2qfCDfERyob6k5WegS14SX18IIjv+XD+GrqNumY5JRCDw==}
     engines: {node: '>=6.9.0'}
-    dev: false
 
   /@babel/helper-validator-identifier/7.19.1:
     resolution: {integrity: sha512-awrNfaMtnHUr653GgGEs++LlAvW6w+DcPrOliSMXWCKo597CwL5Acf/wWdNkf/tfEQE3mjkeD1YOVZOUV/od1w==}
@@ -519,7 +516,6 @@ packages:
   /@babel/helper-validator-identifier/7.22.5:
     resolution: {integrity: sha512-aJXu+6lErq8ltp+JhkJUfk1MTGyuA4v7f3pA+BJ5HLfNC6nAQ0Cpi9uOquUj8Hehg0aUiHzWQbOVJGao6ztBAQ==}
     engines: {node: '>=6.9.0'}
-    dev: false
 
   /@babel/helper-validator-option/7.21.0:
     resolution: {integrity: sha512-rmL/B8/f0mKS2baE9ZpyTcTavvEuWhTTW8amjzXNvYG4AwBsqTLikfXsEofsJEfKHf+HQVQbFOHy6o+4cnC/fQ==}
@@ -658,6 +654,7 @@ packages:
       '@babel/helper-string-parser': 7.19.4
       '@babel/helper-validator-identifier': 7.19.1
       to-fast-properties: 2.0.0
+    dev: false
 
   /@babel/types/7.22.5:
     resolution: {integrity: sha512-zo3MIHGOkPOfoRXitsgHLjEXmlDaD/5KU1Uzuc9GNiZPhSqVxVRtxuPaSBZDsYZ9qV88AjtMtWW7ww98loJ9KA==}
@@ -666,7 +663,6 @@ packages:
       '@babel/helper-string-parser': 7.22.5
       '@babel/helper-validator-identifier': 7.22.5
       to-fast-properties: 2.0.0
-    dev: false
 
   /@commitlint/cli/17.6.5:
     resolution: {integrity: sha512-3PQrWr/uo6lzF5k7n5QuosCYnzaxP9qGBp3jhWP0Vmsa7XA6wrl9ccPqfQyXpSbQE3zBROVO3TDqgPKe4tfmLQ==}
@@ -1365,24 +1361,24 @@ packages:
     resolution: {integrity: sha512-ZnQMnLV4e7hDlUvw8H+U8ASL02SS2Gn6+9Ac3wGGLIe7+je2AeAOxPY+izIPJDfFDb7eDjev0Us8MO1iFRN8hA==}
     dev: true
 
-  /@iandx/easy-css-atomic/0.8.1:
-    resolution: {integrity: sha512-mSRVXTrzltShowsjjH+3WJ6IQRZQLj1cFbC5sQi64bSGGq4wBFzgrDatsU+Bwb/7ElWxhQWe78mzc8qKBWiMuw==}
+  /@iandx/easy-css-atomic/0.10.0:
+    resolution: {integrity: sha512-eR4tzMfefWwXHfa60Fk9REIZE97RxihfSD0q1jV8UtE6nXtg+vBP3g2kzAqEJrdrcWSzPW16ni0T0QyTESBqUQ==}
     dependencies:
-      '@iandx/easy-css': 0.8.1
+      '@iandx/easy-css': 0.10.0
     transitivePeerDependencies:
       - postcss
     dev: false
 
-  /@iandx/easy-css-utility/0.8.1:
-    resolution: {integrity: sha512-8fLoH3p7YuD+gPjWKWvLCuSzYTM+zal+atE0KK+DkK1C9w6qvZCMOgnMVGMNCBdD2uY1cAFHxLHH7H1O+Pwy3g==}
+  /@iandx/easy-css-utility/0.10.0:
+    resolution: {integrity: sha512-fnKuhPBGajGqwO9mVZA9XS7vkfYGWGtad/5/M5AzZ5xiLfrUmZAiwPj3v55POq+1dJ8KQN6D1z/381qiGUqhVQ==}
     dependencies:
-      '@iandx/easy-css': 0.8.1
+      '@iandx/easy-css': 0.10.0
     transitivePeerDependencies:
       - postcss
     dev: false
 
-  /@iandx/easy-css/0.8.1:
-    resolution: {integrity: sha512-wV6AcDPRqEiSzruVEGxubkhEZ+H8oQPWgO4rsmQVJIyTIw4meLEhvBlJbTbdFH4RVc2Oz1npVFJ9dWvLzlpDhg==}
+  /@iandx/easy-css/0.10.0:
+    resolution: {integrity: sha512-6M1MpSurEHbYJYSXFfytkUjdoIBUFBme0wa1PDhFdUWOKRAtW561lr+U7mqH8iRWLKFSLyXMJE/LPHkbzOmgCg==}
     dependencies:
       autoprefixer: 10.4.14
     transitivePeerDependencies:
@@ -2065,15 +2061,6 @@ packages:
     engines: {node: '>= 0.4'}
     dev: true
 
-  /babel-plugin-easy-css/0.8.1:
-    resolution: {integrity: sha512-+bQIA2zGEr+K2XL40oDaFH3/BSQWbpmkuEAo0rQhkjjmagQ/+/Qgvglsl2Z56mxtR59O+UXPvlAl7d/YGL3fzg==}
-    dependencies:
-      '@babel/types': 7.22.5
-      '@iandx/easy-css': 0.8.1
-    transitivePeerDependencies:
-      - postcss
-    dev: false
-
   /babel-plugin-macros/3.1.0:
     resolution: {integrity: sha512-Cg7TFGpIr01vOQNODXOOaGz2NpCU5gl8x1qJFbb6hbZxR7XrcE2vtbAsTAbJ7/xwJtUuJEw8K8Zr/AE0LHlesg==}
     engines: {node: '>=10', npm: '>=6'}
@@ -2083,9 +2070,23 @@ packages:
       resolve: 1.22.1
     dev: false
 
+  /babel-preset-easy-css/0.10.0:
+    resolution: {integrity: sha512-l4ObYqt+KIZoFJO5XA+eMzYOU/tb1DLz6P2ssGTen+ejL1DMXizsxHNtnFFcTdT0dG6VBGJP6CdL6PWIo17HTg==}
+    dependencies:
+      '@babel/plugin-syntax-decorators': 7.21.0
+      '@babel/plugin-syntax-do-expressions': 7.22.5
+      '@babel/plugin-syntax-jsx': 7.22.5
+      '@babel/plugin-syntax-typescript': 7.20.0
+      '@babel/types': 7.22.5
+      '@iandx/easy-css': 0.10.0
+      minimatch: 9.0.3
+    transitivePeerDependencies:
+      - '@babel/core'
+      - postcss
+    dev: false
+
   /balanced-match/1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
-    dev: true
 
   /binary-extensions/2.2.0:
     resolution: {integrity: sha512-jDctJ/IVQbZoJykoeHbhXpOlNBqGNcwXJKJog42E5HDPUwQTSdjCHdihjj0DlnheQ7blbT6dHOafNAiS8ooQKA==}
@@ -2103,7 +2104,6 @@ packages:
     resolution: {integrity: sha512-XnAIvQ8eM+kC6aULx6wuQiwVsnzsi9d3WxzV3FpWTGA19F621kwdbsAcFKXgKUHZWsy+mY6iL1sHTxWEFCytDA==}
     dependencies:
       balanced-match: 1.0.2
-    dev: true
 
   /braces/3.0.2:
     resolution: {integrity: sha512-b8um+L1RzM3WDSzvhm6gIz1yfTbBt6YTlcEKAvsmqCZZFw46z626lVj9j1yEPW33H5H+lBQpZMP1k8l+78Ha0A==}
@@ -3747,6 +3747,13 @@ packages:
     dependencies:
       brace-expansion: 2.0.1
     dev: true
+
+  /minimatch/9.0.3:
+    resolution: {integrity: sha512-RHiac9mvaRw0x3AYRgDC1CxAP7HTcNrrECeA8YYJeWnpo+2Q5CegtZjaotWTWxDG3UeGA1coE05iH1mPjT/2mg==}
+    engines: {node: '>=16 || 14 >=14.17'}
+    dependencies:
+      brace-expansion: 2.0.1
+    dev: false
 
   /minimist-options/4.1.0:
     resolution: {integrity: sha512-Q4r8ghd80yhO/0j1O3B2BjweX3fiHg9cdOwjJd2J76Q135c+NDxGCqdYKQ1SKBuFfgWbAUzBfvYjPUEeNgqN1A==}

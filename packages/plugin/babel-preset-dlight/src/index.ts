@@ -4,16 +4,16 @@ import syntaxTypescript from "@babel/plugin-syntax-typescript"
 import syntaxDoExpressions from "@babel/plugin-syntax-do-expressions"
 // @ts-ignore
 import syntaxDecorators from "@babel/plugin-syntax-decorators"
-// @ts-ignore
-import dlight from "babel-plugin-dlight"
+import dlight, { type DLightOption } from "./plugin"
 
-export default function() {
+export { type DLightOption }
+export default function(api: any, options: DLightOption) {
   return {
     plugins: [
       syntaxTypescript.default ?? syntaxTypescript,
       syntaxDoExpressions.default ?? syntaxDoExpressions,
       [syntaxDecorators.default ?? syntaxDecorators, { legacy: true }],
-      dlight
+      [dlight, options]
     ]
   }
 }

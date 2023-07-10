@@ -1,6 +1,6 @@
 {
   "name": "babel-preset-dlight-easy-css",
-  "version": "0.9.0-pre",
+  "version": "0.9.0",
   "files": [
     "dist"
   ],
@@ -16,13 +16,9 @@
     "tsup": "^6.5.0"
   },
   "dependencies": {
-    "@babel/plugin-syntax-decorators": "^7.21.0",
-    "@babel/plugin-syntax-do-expressions": "^7.22.5",
-    "@babel/plugin-syntax-jsx": "^7.22.5",
-    "@babel/plugin-syntax-typescript": "^7.20.0",
     "@babel/types": "^7.20.7",
-    "@iandx/easy-css-atomic": "^0.8.1",
-    "@iandx/easy-css-utility": "^0.8.1",
-    "babel-plugin-easy-css": "0.8.1"
+    "@iandx/easy-css-atomic": "0.10.0",
+    "@iandx/easy-css-utility": "0.10.0",
+    "babel-preset-easy-css": "0.10.0"
   }
 }

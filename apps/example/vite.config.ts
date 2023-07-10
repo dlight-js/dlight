@@ -9,6 +9,6 @@ export default defineConfig({
   sourceMap: true,
   plugins: [
     dlightEasyCSS(),
-    dlight({ appendix: [".view.js", ".view.ts"] })
+    dlight()
   ]
 })

@@ -2,8 +2,29 @@ import * as t from "@babel/types"
 import { handleBody } from "./bodyHandler"
 import { resolveState, resolveProp } from "./decoratorResolver"
 import { pushDerived, shouldBeListened, valueWithArrowFunc } from "./nodeHelper"
+import { minimatch } from "minimatch"
 
-export default function() {
+export interface DLightOption {
+  /**
+   * Files that will be included
+   * @default ** /*.{js,jsx,ts,tsx}
+   */
+  files?: string | string[]
+  /**
+   * Files that will be excludes
+   * @default ** /{dist,node_modules,lib}/*.{js,ts}
+   */
+  excludeFiles?: string | string[]
+}
+
+export default function(api: any, options: DLightOption) {
+  const {
+    files: preFiles = "**/*.{js,jsx,ts,tsx}",
+    excludeFiles: preExcludeFiles = "**/{dist,node_modules,lib}/*.{js,ts}"
+  } = options
+  const files = Array.isArray(preFiles) ? preFiles : [preFiles]
+  const excludeFiles = Array.isArray(preExcludeFiles) ? preExcludeFiles : [preExcludeFiles]
+
   let classDeclarationNode: t.ClassDeclaration | null = null
   let classBodyNode: t.ClassBody | null = null
   // ---- 在这里新建node很省时间
@@ -59,6 +80,8 @@ export default function() {
       .map(n => (n as any).key.name)
     propertiesContainer = {}
     rootPath = path
+
+    this.addDLightImport()
   }
   function clearNode() {
     classDeclarationNode = null
@@ -71,19 +94,55 @@ export default function() {
 
   return {
     visitor: {
+      Program(path: any, state: any) {
+        for (const allowedPath of files) {
+          if (minimatch(state.filename, allowedPath)) {
+            this.enter = true
+            break
+          }
+        }
+        for (const notAllowedPath of excludeFiles) {
+          if (minimatch(state.filename, notAllowedPath)) {
+            this.enter = false
+            break
+          }
+        }
+        this.didAddDLightImport = false
+        const allImports: t.ImportDeclaration[] = path.node.body.filter(t.isImportDeclaration)
+        const dlightImport = allImports.find(n => n.source.value === "@dlightjs/dlight")
+        this.addDLightImport = () => {
+          if (this.didAddDLightImport) return
+          if (dlightImport) {
+            dlightImport.specifiers.unshift(
+              t.importDefaultSpecifier(t.identifier("DLight"))
+            )
+          } else {
+            path.node.body.unshift(
+              t.importDeclaration([
+                t.importDefaultSpecifier(t.identifier("DLight"))
+              ], t.stringLiteral("@dlightjs/dlight"))
+            )
+          }
+          this.didAddDLightImport = true
+        }
+      },
       ClassDeclaration(path: any) {
-        initNode(path)
+        if (!this.enter) return
+        initNode.call(this, path)
       },
       ClassExpression(path: any) {
-        initNode(path)
+        if (!this.enter) return
+        initNode.call(this, path)
       },
       ClassMethod(path: any) {
+        if (!this.enter) return
         if (!classDeclarationNode) return
         if (willHandleBodyAtLast(path.node)) {
           handleBodyAtLast()
         }
       },
       ClassProperty(path: any) {
+        if (!this.enter) return
         if (!classDeclarationNode) return
         const node = path.node as t.ClassProperty
         const key = (node.key as any).name

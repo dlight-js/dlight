@@ -1,43 +1,17 @@
 // @ts-ignore
 import { transform } from "@babel/core"
-import dlight from "babel-preset-dlight"
+import dlight, { type DLightOption } from "babel-preset-dlight"
 
-function transformDLight(code: string, id: string) {
-  return transform(code, {
-    presets: [dlight],
-    sourceMaps: true,
-    filename: id
-  })
-}
-
-interface DLightPluginOption {
-  /**
-   * DLight will only parse file that ends with specific appendix
-   * @default [".js", ".ts"]
-   * @suggested [".view.ts"]
-   */
-  appendix?: string | string[]
-}
-
-export default function(options?: DLightPluginOption) {
-  let appendix: any
-  if (options) {
-    appendix = options.appendix ?? [".js", ".ts"]
-    if (!Array.isArray(appendix)) appendix = [appendix]
-  }
-
+export default function(options: DLightOption) {
   return {
     name: "dlight",
     enforce: "pre",
     transform(code: string, id: string) {
-      if (!appendix) {
-        return transformDLight(code, id)
-      }
-      for (const append of appendix) {
-        if (id.endsWith(append)) {
-          return transformDLight(code, id)
-        }
-      }
+      return transform(code, {
+        presets: [[dlight, options]],
+        sourceMaps: true,
+        filename: id
+      })
     }
   } as any
 }

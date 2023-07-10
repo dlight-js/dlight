@@ -1,6 +1,6 @@
 {
   "name": "@dlightjs/easy-css",
-  "version": "0.9.0-pre",
+  "version": "0.9.0",
   "type": "module",
   "files": [
     "dist"
@@ -20,8 +20,8 @@
     "@dlightjs/types": "workspace:*"
   },
   "dependencies": {
-    "@iandx/easy-css-atomic": "0.8.1",
-    "@iandx/easy-css-utility": "0.8.1",
-    "@iandx/easy-css": "0.8.1"
+    "@iandx/easy-css-atomic": "0.10.0",
+    "@iandx/easy-css-utility": "0.10.0",
+    "@iandx/easy-css": "0.10.0"
   }
 }

@@ -32,7 +32,7 @@ import JJ from "./aa.view"
 
 // console.log(renderToText(BenchmarkView))
 // render("app", BenchmarkView)
-render("app", RouteTest)
+render("app", TestView)
 
 // console.time("0")
 // const a = () => {
