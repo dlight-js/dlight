@@ -3,6 +3,7 @@
   "version": "0.9.0",
   "files": ["./README.md"],
   "scripts": {
+    "example": "pnpm --filter ./apps/example dev",
     "prepare": "husky install",
     "refresh": "node ./common/scripts/refresh.js",
     "pipeline": "node ./common/scripts/pipeline.js",
@@ -25,23 +26,22 @@
   },
   "packages": {
     "core": [
-      "core/@dlightjs/dlight",
-      "core/@dlightjs/types",
+      "core/dlight",
+      "core/babel-preset-dlight",
+      "core/types",
       "core/create-dlightjs"
     ],
-    "plugin": [
-      "plugin/babel-plugin-dlight",
-      "plugin/babel-preset-dlight",
-      "plugin/vite-plugin-dlight"
-    ],
     "ecosystem": [
-      "ecosystem/@dlightjs/emotion",
-      "ecosystem/@dlightjs/components",
-      "ecosystem/@dlightjs/transpiler",
-      "ecosystem/@dlightjs/transpiler-standalone",
-      "ecosystem/@dlightjs/easy-css/babel-preset-dlight-easy-css",
-      "ecosystem/@dlightjs/easy-css/vite-plugin-dlight-easy-css",
-      "ecosystem/@dlightjs/easy-css/easy-css"
+      "ecosystem/vite-plugin-dlight",
+      "ecosystem/emotion",
+      "ecosystem/components",
+      "ecosystem/transpiler",
+      "ecosystem/transpiler-standalone"
+    ],
+    "easy-css": [
+      "ecosystem/easy-css/babel-preset-dlight-easy-css",
+      "ecosystem/easy-css/vite-plugin-dlight-easy-css",
+      "ecosystem/easy-css/easy-css"
     ]
   }
 }
