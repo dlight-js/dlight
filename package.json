@@ -1,14 +1,7 @@
 {
   "name": "@dlightjs/monorepo",
-<<<<<<< HEAD
   "version": "0.9.0",
   "files": ["./README.md"],
-=======
-  "version": "0.9.0-pre",
-  "files": [
-    "./README.md"
-  ],
->>>>>>> origin/main
   "scripts": {
     "prepare": "husky install",
     "refresh": "node ./common/scripts/refresh.js",
