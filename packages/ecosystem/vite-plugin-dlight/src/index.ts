@@ -2,7 +2,7 @@
 import { transform } from "@babel/core"
 import dlight, { type DLightOption } from "babel-preset-dlight"
 
-export default function(options: DLightOption) {
+export default function(options: DLightOption = {}) {
   return {
     name: "dlight",
     enforce: "pre",

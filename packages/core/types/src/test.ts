@@ -112,7 +112,7 @@ type TTT = PartialPropWrapper<DLightHTMLAttributes<HTMLSpanElement, {}>>
 const j: Typed<TTT>
 const mmm: TTT
 
-j().
+j()
 
 const pic: DLightHTMLAttributes<Required<HTMLSpanElement>, {}>
 

@@ -9,7 +9,7 @@ export default defineConfig({
   plugins: [
     easyCss(),
     dts(),
-    dlight({ appendix: ".view.ts" })
+    dlight()
   ],
   build: {
     lib: {

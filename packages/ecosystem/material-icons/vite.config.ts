@@ -7,7 +7,7 @@ import { dependencies } from "./package.json"
 export default defineConfig({
   plugins: [
     dts(),
-    dlight({ appendix: ".view.ts" })
+    dlight()
   ],
   build: {
     lib: {

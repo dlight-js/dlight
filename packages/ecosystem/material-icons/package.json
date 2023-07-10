@@ -1,6 +1,6 @@
 {
   "name": "@dlightjs/material-icons",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "type": "module",
   "files": [
     "dist"
