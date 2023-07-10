@@ -33,14 +33,7 @@
         "no-fallthrough": "off",
         "multiline-ternary": ["error", "always-multiline"],
         "quotes": ["error", "double"],
-        "semi": ["error", "never"],
-        "@typescript-eslint/no-unused-vars":  [
-            "error",
-            {
-                "varsIgnorePattern": "DLight",
-                "argsIgnorePattern": "^_"
-            }
-        ]
+        "semi": ["error", "never"]
     },
     "plugins": ["dlight"]
 }
