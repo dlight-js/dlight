@@ -4,7 +4,10 @@
     "target": "ESNext",
     "useDefineForClassFields": true,
     "module": "ESNext",
-    "lib": ["ESNext", "DOM"],
+    "lib": [
+      "ESNext",
+      "DOM"
+    ],
     "moduleResolution": "Node",
     "strict": true,
     "resolveJsonModule": true,
@@ -20,6 +23,8 @@
     "esm": true
   },
   "include": [
-    "src"
-, "src/InlineView/Strike.view.ts"  ]
+    "src",
+    "src/InlineView/Strike.view.ts",
+    "src/index.ts"
+  ]
 }

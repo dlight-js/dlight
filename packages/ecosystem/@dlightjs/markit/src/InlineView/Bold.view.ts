@@ -1,13 +1,12 @@
 import DLight, { View } from "@dlightjs/dlight"
-import { Prop, required, span, type Typed } from "@dlightjs/types"
+import { Prop, required, strong, type Typed } from "@dlightjs/types"
 import InlineRenderer from "."
 
 class Bold extends View {
   @Prop _$content = required
 
   Body() {
-    span()
-      .className("font-bold")
+    strong()
     {
       for (const content of this._$content) {
         InlineRenderer[content.type](content.content)

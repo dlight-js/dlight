@@ -4,6 +4,7 @@ import InlineRenderer from "../InlineView"
 
 class Paragraph extends View {
   @Prop _$content = required
+
   Body() {
     div()
     {
