@@ -24,7 +24,7 @@
   },
   "include": [
     "src",
-    "src/InlineView/Strike.view.ts",
+    "src/inlineView/Strike.view.ts",
     "src/index.ts"
   ]
 }

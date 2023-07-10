@@ -2,7 +2,7 @@ import DLight, { View } from "@dlightjs/dlight"
 import { div, input, Prop, required, type Typed } from "@dlightjs/types"
 import { css } from "@iandx/easy-css"
 import BlockRenderer from "."
-import InlineRenderer from "../InlineView"
+import InlineRenderer from "../inlineView"
 
 class CheckList extends View {
   @Prop _$content = required

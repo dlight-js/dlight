@@ -1,6 +1,6 @@
 import DLight, { View } from "@dlightjs/dlight"
-import { div, htmlTag, Prop, required, type Typed } from "@dlightjs/types"
-import InlineRenderer from "../InlineView"
+import { div, Prop, required, type Typed } from "@dlightjs/types"
+import InlineRenderer from "../inlineView"
 
 class CodeBlock extends View {
   @Prop _$content = required
@@ -8,6 +8,10 @@ class CodeBlock extends View {
   language = this.props.language
 
   Body() {
+    div()
+    {
+      InlineRenderer.Text(this._$content)
+    }
   }
 }
 

@@ -1,7 +1,7 @@
 import DLight, { View } from "@dlightjs/dlight"
 import { Prop, required, table, th, tr, td, type Typed } from "@dlightjs/types"
 import { css } from "@iandx/easy-css"
-import InlineRenderer from "../InlineView"
+import InlineRenderer from "../inlineView"
 
 class Table extends View {
   @Prop _$content = required

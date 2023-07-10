@@ -2,7 +2,53 @@ import DLight, { View } from "@dlightjs/dlight"
 // import { css } from "@dlightjs/emotion"
 import { transformWithEsbuild } from "vite"
 import { DLightIcon, DLightIconType, HelpOutlineOutlined } from "@dlightjs/material-icons"
-import MarkitView from "@dlightjs/markit"
+import MarkitView, { addBlockRule, addInlineRule, InlineRenderer } from "@dlightjs/markit"
+import { div, h1, Prop, required, type RequiredProp } from "@dlightjs/types"
+
+class HHHHView extends View {
+  @Prop _$content: RequiredProp<string> = required
+
+  didMount() {
+    console.log(this._$content)
+  }
+
+  Body() {
+    div("hh")
+  }
+}
+
+class OrangeView extends View {
+  @Prop _$content = required
+
+  didMount() {
+    console.log(this._$content)
+  }
+
+  Body() {
+    h1()
+    {
+      for (const content of this._$content) {
+        InlineRenderer[content.type](content.content)
+      }
+    }
+  }
+}
+
+addInlineRule({
+  name: "Inlinehhhh",
+  rule: {
+    tag: /🍊(.+?)🍊/
+  },
+  view: OrangeView
+})
+
+addBlockRule({
+  name: "HHHH",
+  rule: {
+    tag: /🥰(.+?)🥰/
+  },
+  view: HHHHView
+})
 
 class GG extends View {
   _$forwardProps = true
@@ -51,7 +97,9 @@ hhh
 1. shdjsf
 2. second
 
-
+\`\`\`js
+console.log('hello');
+\`\`\`
 
 - [x] checklist
 - [x] done
@@ -70,13 +118,9 @@ hhh
 
 [^bignote]: Here's one with multiple paragraphs and code.
 
-\`\`\`
+🍊HHHH🍊
 
-function() {
-  console.log('hhhh');
-}
-
-\`\`\`
+🥰xixixixii🥰
 
 `
 
@@ -92,6 +136,3 @@ class TestView extends View {
 }
 
 export default TestView
-
-
-
