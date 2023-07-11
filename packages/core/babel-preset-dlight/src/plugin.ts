@@ -109,12 +109,19 @@ export default function(api: any, options: DLightOption) {
         }
         this.didAddDLightImport = false
         const allImports: t.ImportDeclaration[] = path.node.body.filter(t.isImportDeclaration)
-        const dlightImport = allImports.find(n => n.source.value === "@dlightjs/dlight")
-        if (!dlightImport) this.enter = false
+        const dlightImports = allImports.filter(n => n.source.value === "@dlightjs/dlight")
+        if (dlightImports.length === 0) this.enter = false
         this.addDLightImport = () => {
-          if (this.didAddDLightImport || !dlightImport) return
-          if (!dlightImport.specifiers.find(n => t.isImportDefaultSpecifier(n))) {
-            dlightImport.specifiers.unshift(
+          if (this.didAddDLightImport || dlightImports.length === 0) return
+          let alreadyDeclared = false
+          for (const dlightImport of dlightImports) {
+            if (dlightImport.specifiers.find(n => t.isImportDefaultSpecifier(n))) {
+              alreadyDeclared = true
+              break
+            }
+          }
+          if (!alreadyDeclared) {
+            dlightImports[0].specifiers.unshift(
               t.importDefaultSpecifier(t.identifier("DLight"))
             )
           }

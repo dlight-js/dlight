@@ -1,4 +1,4 @@
-import DLight, { type DLNode, View } from "@dlightjs/dlight"
+import { type DLNode, View } from "@dlightjs/dlight"
 import { Navigator } from "./Navigator"
 import { getHashLocation, getHistoryLocation } from "./utils"
 import { type Typed, _, env, Prop, Static } from "@dlightjs/types"

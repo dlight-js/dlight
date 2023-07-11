@@ -1,8 +1,7 @@
-import { HStack } from "@dlightjs/components"
-import { DLightIcon, DLightIconType, HelpOutlineOutlined } from "@dlightjs/material-icons"
-import { View, $, type CustomNode } from "@dlightjs/dlight"
+import DLight, { View, $, type CustomNode } from "@dlightjs/dlight"
 import { span, div, css } from "@dlightjs/easy-css"
 import { button, SubView } from "@dlightjs/types"
+import { HStack } from "@dlightjs/components"
 
 class TestView extends View {
   onclick() {
@@ -16,11 +15,13 @@ class TestView extends View {
   }
 
   Body() {
-    div(this.count)
-      .borderERose100()
-    button("+")
-      .onclick(this.onclick)
-    this.jj()
+    HStack()
+    {
+      div(this.count)
+      button("+")
+        .onclick(this.onclick)
+      this.jj()
+    }
   }
 }
 

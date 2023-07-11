@@ -1,26 +1,25 @@
 {
   "name": "@dlightjs/types",
   "version": "0.9.3",
-  "files": [
-    "dist"
-  ],
-  "description": "",
+  "description": "DLight types helper",
+  "author": {
+    "name": "IanDx",
+    "email": "iandxssxx@gmail.com"
+  },
+  "keywords": ["dlight.js", "typescript"],
+  "license": "MIT",
+  "files": ["dist"],
   "type": "module",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
   "typings": "dist/index.d.ts",
   "scripts": {
-    "build": "tsup"
+    "build": "tsup --sourcemap"
   },
   "devDependencies": {
     "tsup": "^6.5.0",
     "typescript": "^4.5.2"
   },
-  "keywords": [
-    "dlight.js"
-  ],
-  "author": "IanDx",
-  "license": "ISC",
   "dependencies": {
     "csstype": "^3.1.1",
     "@dlightjs/dlight": "workspace:*"
