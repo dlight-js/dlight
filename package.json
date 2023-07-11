@@ -1,9 +1,14 @@
 {
   "name": "@dlightjs/monorepo",
-  "version": "0.9.3",
-  "files": [
-    "./README.md"
-  ],
+  "version": "0.9.4",
+  "description": "DLight monorepo",
+  "author": {
+    "name": "IanDx",
+    "email": "iandxssxx@gmail.com"
+  },
+  "keywords": ["dlight.js"],
+  "license": "MIT",
+  "files": ["README.md"],
   "type": "module",
   "scripts": {
     "example": "pnpm --filter ./apps/example dev",
@@ -17,8 +22,6 @@
   "devDependencies": {
     "@commitlint/cli": "^17.6.3",
     "@commitlint/config-conventional": "^17.6.3",
-    "@parcel/packager-ts": "2.9.3",
-    "@parcel/transformer-typescript-types": "2.9.3",
     "@types/node": "^18.11.17",
     "@typescript-eslint/eslint-plugin": "^5.59.7",
     "eslint": "^8.41.0",
@@ -27,8 +30,7 @@
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-n": "^15.7.0",
     "eslint-plugin-promise": "^6.1.1",
-    "husky": "^8.0.3",
-    "typescript": "^5.1.6"
+    "husky": "^8.0.3"
   },
   "packages": {
     "core": [
