@@ -1,4 +1,4 @@
-const { execSync } = require("child_process")
+import { execSync } from "child_process"
 
 if (!process.argv[2]) {
   // dependencies in order

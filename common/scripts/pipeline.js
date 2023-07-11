@@ -1,8 +1,9 @@
+import { execSync } from "child_process"
+import { readFileSync } from "fs"
+
 const action = process.argv[2]
 if (!action) process.exit()
-const { execSync } = require("child_process")
-const fs = require("fs")
-const packageJson = fs.readFileSync("./package.json")
+const packageJson = readFileSync("./package.json")
 let { packages } = JSON.parse(packageJson)
 const packageType = process.argv[3]
 

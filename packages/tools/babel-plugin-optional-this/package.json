@@ -1,12 +1,12 @@
 {
-  "name": "babel-preset-dlight-easy-css",
-  "version": "0.9.3",
-  "description": "DLight's babel preset for easy-css",
+  "name": "babel-plugin-optional-this",
+  "version": "0.0.6",
+  "description": "Optional this in class",
   "author": {
     "name": "IanDx",
     "email": "iandxssxx@gmail.com"
   },
-  "keywords": ["dlight.js", "babel-preset", "easy-css"],
+  "keywords": ["babel-plugin"],
   "license": "MIT",
   "files": ["dist"],
   "type": "module",
@@ -20,9 +20,6 @@
     "tsup": "^6.5.0"
   },
   "dependencies": {
-    "@babel/types": "^7.20.7",
-    "@iandx/easy-css-atomic": "0.10.1",
-    "@iandx/easy-css-utility": "0.10.1",
-    "babel-preset-easy-css": "0.10.1"
+    "@babel/types": "^7.20.7"
   }
 }

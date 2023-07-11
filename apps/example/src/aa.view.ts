@@ -1,4 +1,4 @@
-import DLight, { View } from "@dlightjs/dlight"
+import { View } from "@dlightjs/dlight"
 import { SubView, button, div, h1, tr, a, span, table, tbody, td, Prop, required, type Typed } from "@dlightjs/types"
 
 let idCounter = 1

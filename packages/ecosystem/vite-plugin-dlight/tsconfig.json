@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "target": "ESNext",
+    "useDefineForClassFields": true,
     "module": "ESNext",
     "lib": ["ESNext", "DOM"],
     "moduleResolution": "Node",
@@ -11,15 +12,10 @@
     "noEmit": true,
     "skipLibCheck": true,
     "noImplicitThis": false,
-    "experimentalDecorators": true,
-    "declaration": false,
-    "useDefineForClassFields": true
+    "noImplicitAny": false,
+    "experimentalDecorators": true
   },
   "ts-node": {
     "esm": true
-  },
-  "include": [
-    "apps/**/*",
-    "packages/**/*"
-  ]
+  }
 }

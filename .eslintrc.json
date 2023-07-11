@@ -11,9 +11,9 @@
     "parserOptions": {
         "ecmaVersion": "latest",
         "sourceType": "module",
-        "project": "**/tsconfig.json"
+        "project": "./tsconfig.json"
     },
-    "ignorePatterns": ["**/dist/**"],
+    "ignorePatterns": ["**/dist/**", "**/lib/**"],
     "rules": {
         "space-before-function-paren": "off",
         "@typescript-eslint/explicit-function-return-type": "off",
@@ -33,14 +33,7 @@
         "no-fallthrough": "off",
         "multiline-ternary": ["error", "always-multiline"],
         "quotes": ["error", "double"],
-        "semi": ["error", "never"],
-        "@typescript-eslint/no-unused-vars":  [
-            "error",
-            {
-                "varsIgnorePattern": "DLight",
-                "argsIgnorePattern": "^_"
-            }
-        ]
+        "semi": ["error", "never"]
     },
     "plugins": ["dlight"]
 }
