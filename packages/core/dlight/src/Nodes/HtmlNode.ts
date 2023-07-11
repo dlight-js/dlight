@@ -39,12 +39,13 @@ export class HtmlNode extends DLNode {
   _$addClassName(valueOrFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]) {
     if (!listenDeps) {
       const classNames = this._$el.className
-      this._$el.className = `${classNames} ${classNameJoin(valueOrFunc)}`
+      const newClassNames = classNameJoin(valueOrFunc)
+      this._$el.className = classNames.length === 0 ? newClassNames : `${classNames} ${newClassNames}`
       return
     }
     let prevValue: any = classNameJoin(valueOrFunc())
     const classNames = this._$el.className
-    this._$el.className = `${classNames} ${prevValue}`
+    this._$el.className = classNames.length === 0 ? prevValue : `${classNames} ${prevValue}`
 
     dlScope!._$addDeps(listenDeps, () => {
       const newValue = valueOrFunc()

@@ -18,6 +18,8 @@ class TestView extends View {
     HStack()
     {
       div(this.count)
+        .textRed500()
+        .text7xl()
       button("+")
         .onclick(this.onclick)
       this.jj()
