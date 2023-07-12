@@ -1,30 +1,25 @@
-import DLight, { View, $, type CustomNode } from "@dlightjs/dlight"
-import { span, div, css } from "@dlightjs/easy-css"
-import { button, SubView } from "@dlightjs/types"
+import { View, renderToString } from "@dlightjs/dlight"
+import { div } from "@dlightjs/easy-css"
+import { button, htmlTag } from "@dlightjs/types"
 import { HStack } from "@dlightjs/components"
 
 class TestView extends View {
   onclick() {
-    this.count++
+    this.count--
+    console.log(this.count)
   }
 
-  count = 1
-  @SubView
-  jj() {
-    div("hh")
-  }
+  count = 5
 
   Body() {
-    HStack()
-    {
-      div(this.count)
-        .textRed500()
-        .text7xl()
-      button("+")
-        .onclick(this.onclick)
-      this.jj()
-    }
+    button("+") 
+      .onclick(this.onclick)
+    _(do {
+      htmlTag(`h${this.count}`)("hhh")
+    })
   }
 }
+
+console.log(renderToString(TestView))
 
 export default TestView
