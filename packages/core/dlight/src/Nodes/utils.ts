@@ -167,5 +167,5 @@ export function arraysEqual(a: any[], b: any[]) {
 }
 
 export function classNameJoin(classNames: string | string[]) {
-  return Array.isArray(classNames) ? classNames.join(" ") : classNames
+  return Array.isArray(classNames) ? classNames.filter(Boolean).join(" ") : classNames || ""
 }

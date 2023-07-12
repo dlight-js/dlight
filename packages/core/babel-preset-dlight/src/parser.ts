@@ -1,4 +1,5 @@
 import * as t from "@babel/types"
+import { valueWrapper } from "./generatorHelper"
 
 function uid() {
   return Math.random().toString(32).slice(2)
@@ -18,15 +19,20 @@ function parseProp(key: string, propAst: any, path: any) {
   if (!propAst) return { key, value: t.booleanLiteral(true), nodes: {} }
 
   const nodes: Record<string, ParserNode[]> = {}
-  path.scope.traverse(propAst, {
+  path.scope.traverse(valueWrapper(propAst), {
     DoExpression(path: any) {
       const node = path.node
       const id = uid()
       nodes[id] = parseBody(node.body.body, path)
-      path.replaceWith(t.stringLiteral(id))
+      const newNode = t.stringLiteral(id)
+      if (node === propAst) {
+        propAst = newNode
+      }
+      path.replaceWith(newNode)
       path.skip()
     }
   })
+
   return {
     key,
     value: propAst,
@@ -54,10 +60,8 @@ function parseTag(node: t.CallExpression, path: any) {
   //      第三个&&是排除this.subView()
   // ---- 由于callee是从外到内，所以最后一个循环的就是tag，其余都要加到prop里面
   while (n && (n.callee as t.MemberExpression)?.object && !isPureMemberExpression(n)) {
-    // ---- 取第1个参数，如果参数是空，那就默认是true
-    const prop = n.arguments[0]
     const key = ((n.callee as t.MemberExpression).property as t.Identifier).name
-    parserNode.attr.props.unshift(parseProp(key, prop, path))
+    parserNode.attr.props.unshift(parseProp(key, n.arguments[0], path))
     // ---- 继续迭代直到变成tag在同一行
     n = (n.callee as t.MemberExpression).object as t.CallExpression
   }

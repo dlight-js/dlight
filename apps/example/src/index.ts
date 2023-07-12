@@ -1,5 +1,6 @@
 import { render, renderToText } from "@dlightjs/dlight"
 import TestView from "./test.view"
+import { TodoApp } from "./TodoMVC"
 import ReactiveView from "./basic/reactive.view"
 import PropPassingView from "./basic/propPassing.view"
 import ObserveElementView from "./advanced/observeElement.view"
