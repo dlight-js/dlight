@@ -143,7 +143,7 @@ export class TodoApp extends View {
                     .className("edit")
                     .value(title)
                     .onfocusout(() => this.save(id))
-                    .onkeyup(() => this.doneEditing(id))
+                    .onkeyup(e => this.doneEditing(id, e))
                     .element(el => {
                       setTimeout(() => el.focus())
                     })

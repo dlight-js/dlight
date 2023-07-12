@@ -4,12 +4,12 @@ import { button, htmlTag } from "@dlightjs/types"
 import { HStack } from "@dlightjs/components"
 
 class TestView extends View {
+  count = 5
+
   onclick() {
     this.count--
     console.log(this.count)
   }
-
-  count = 5
 
   Body() {
     button("+") 
