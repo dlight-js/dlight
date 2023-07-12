@@ -43,7 +43,7 @@ export function uid() {
   return Math.random().toString(20).slice(2, 8)
 }
 
-function valueWrapper(value: t.Node) {
+export function valueWrapper(value: t.Node) {
   return t.variableDeclaration("const", [t.variableDeclarator(t.identifier("_"), value as any)])
 }
 

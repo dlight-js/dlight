@@ -1,5 +1,5 @@
 import { type ParserNode } from "./parser"
-import { geneDeps, geneIdDeps, uid, resolveForBody, isHTMLTag, parseCustomTag, isSubViewTag, isOnlyMemberExpression, isTagName, getForBodyIdentifiers } from "./generatorHelper"
+import { geneDeps, geneIdDeps, uid, resolveForBody, isHTMLTag, parseCustomTag, isSubViewTag, isOnlyMemberExpression, isTagName, getForBodyIdentifiers, valueWrapper } from "./generatorHelper"
 import * as t from "@babel/types"
 
 function nodeGeneration(nodeName: string, nodeType: t.Expression, args: Array<t.ArgumentPlaceholder | t.SpreadElement | t.Expression>) {
@@ -873,8 +873,8 @@ export class Generator {
     )
 
     // ---- props
-    for (const { key, value, nodes } of parserNode.attr.props) {
-      this.parsePropNodes(value, nodes)
+    for (let { key, value, nodes } of parserNode.attr.props) {
+      value = this.parsePropNodes(value, nodes)
       if (key === "do") {
         /**
          * (${value})(${nodeName});
@@ -1104,7 +1104,7 @@ export class Generator {
     const nodeName = `_$node${idx}`
     const statements: t.Statement[] = []
     const props = parserNode.attr.props.map(({ key, value, nodes }: any) => {
-      this.parsePropNodes(value, nodes)
+      value = this.parsePropNodes(value, nodes)
       return { key, value }
     })
 
@@ -1270,8 +1270,8 @@ export class Generator {
     }
 
     // ---- props
-    for (const { key, value, nodes } of parserNode.attr.props) {
-      this.parsePropNodes(value, nodes)
+    for (let { key, value, nodes } of parserNode.attr.props) {
+      value = this.parsePropNodes(value, nodes)
       const listenDeps = this.geneDeps(value)
       if (listenDeps.length > 0) {
         /**
@@ -1318,8 +1318,8 @@ export class Generator {
     const statements: t.Statement[] = []
     const nodeName = `_$node${idx}`
     // ---- forward props
-    for (const { key, value, nodes } of parserNode.attr.props) {
-      this.parsePropNodes(value, nodes)
+    for (let { key, value, nodes } of parserNode.attr.props) {
+      value = this.parsePropNodes(value, nodes)
       if (key === "_$content") {
         const listenDeps = this.geneDeps(value)
         if (listenDeps.length > 0) {
@@ -1404,20 +1404,26 @@ export class Generator {
   }
 
   parsePropNodes(value: t.Node, nodes: Record<string, ParserNode[]>) {
-    this.path.scope.traverse(value, {
+    let newValue = value
+    const generate = this.generate.bind(this)
+
+    this.path.scope.traverse(valueWrapper(value), {
       StringLiteral(innerPath: any) {
         const id = innerPath.node.value
         const parserNodes = nodes[id]
         if (!parserNodes) return
-        innerPath.replaceWith(
+        const newNode = (
           t.callExpression(
-            t.arrowFunctionExpression([], this.generate(parserNodes)),
+            t.arrowFunctionExpression([], generate(parserNodes)),
             []
           )
         )
+        if (value === innerPath.node) newValue = newNode
+        innerPath.replaceWith(newNode)
         innerPath.skip()
       }
     })
+    return newValue
   }
 }
 

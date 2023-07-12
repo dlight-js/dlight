@@ -11,11 +11,11 @@ export const $ = escape
 
 export const View = CustomNode
 
-export function render(idOrEl: string | HTMLElement, DL: any) {
+export function render(idOrEl: string | HTMLElement, DL: typeof View) {
   new DL().render(idOrEl)
 }
 
-export function renderToText(DL: any) {
+export function renderToString(DL: typeof View) {
   const newEl = document.createElement("div")
   new DL().render(newEl)
   return newEl.innerHTML
