@@ -32,7 +32,7 @@ Your modern UI rendering library ~
 ```js
 import { View } from "@dlightjs/dlight"
 
-export class MyComp extends View {
+class MyComp extends View {
   toggle = true
   fruits = ["🍎", "🍊", "🥑"]
 
@@ -55,6 +55,8 @@ export class MyComp extends View {
   }
 }
 ```
+Try it [online](https://stackblitz.com/edit/vite-pzk7ok?file=main.js)
+
 # Documentation
 [README-dlight.md](./packages/core/dlight/README.md) (WIP)
 # Homepage
