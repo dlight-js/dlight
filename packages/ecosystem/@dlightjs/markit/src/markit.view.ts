@@ -21,7 +21,6 @@ class MarkitView extends View {
 
   /** @view */
   Body() {
-    h1("fashengleshenm")
     div()
     {
       for (const ast of this.markitAst) {
