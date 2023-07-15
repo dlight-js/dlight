@@ -1,5 +1,4 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import DLight, { View } from "@dlightjs/dlight"
+import { View } from "@dlightjs/dlight"
 import { type Typed, _, Prop } from "@dlightjs/types"
 
 class Route extends View {
