@@ -1,7 +1,7 @@
 import * as t from "@babel/types"
 import { handleBody } from "./bodyHandler"
 import { resolveState, resolveProp } from "./decoratorResolver"
-import { bindMethods, pushDerived, shouldBeListened, valueWithArrowFunc } from "./nodeHelper"
+import { bindMethods, isDLightView, pushDerived, shouldBeListened, valueWithArrowFunc } from "./nodeHelper"
 import { minimatch } from "minimatch"
 
 export interface DLightOption {
@@ -61,7 +61,6 @@ export default function(api: any, options: DLightOption) {
   }
   function initNode(path: any) {
     const node: t.ClassDeclaration | t.ClassDeclaration = path.node
-    if (!t.isIdentifier(node.superClass, { name: "View" })) return
     classDeclarationNode = node
     classBodyNode = node.body
     derivedPairNode = t.classProperty(
@@ -131,20 +130,24 @@ export default function(api: any, options: DLightOption) {
       ClassDeclaration: {
         enter(path: any) {
           if (!this.enter) return
+          if (!isDLightView(path)) return
           initNode.call(this, path)
         },
         exit(path: any) {
           if (!this.enter) return
+          if (!isDLightView(path)) return
           handleBodyAtLast()
         }
       },
       ClassExpression: {
         enter(path: any) {
           if (!this.enter) return
+          if (!isDLightView(path)) return
           initNode.call(this, path)
         },
         exit(path: any) {
           if (!this.enter) return
+          if (!isDLightView(path)) return
           handleBodyAtLast()
         }
       },

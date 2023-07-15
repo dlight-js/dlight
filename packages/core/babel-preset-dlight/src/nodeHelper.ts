@@ -137,3 +137,7 @@ export function bindMethods(classBodyNode: t.ClassBody, methodsToBind: string[])
     ])
   ))
 }
+
+export function isDLightView(path: any) {
+  return t.isIdentifier(path.node.superClass, { name: "View" })
+}
