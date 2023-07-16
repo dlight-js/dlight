@@ -39,24 +39,20 @@ class MyComp extends View {
   Body() {
     h1("hello, dlight js")
     button("toggle")
+      .className("toggle")
       .onclick(() => {
         this.toggle = !this.toggle
       })
-
     if (this.toggle) {
       "simple text"
-    } else {
-      div()
-      {
-        for (const fruit of this.fruits) {
-          span(fruit)
-        }
-      }
+    }
+    for (const fruit of this.fruits) {
+      div(fruit)
     }
   }
 }
 ```
-Try it [online](https://stackblitz.com/edit/vite-pzk7ok?file=main.js)
+Try it [online](https://stackblitz.com/edit/dlight-preview)
 
 # Documentation
 [README-dlight.md](./packages/core/dlight/README.md) 
