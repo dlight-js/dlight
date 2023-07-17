@@ -19,7 +19,7 @@ The target audience for dlight.js includes developers who value performance and 
 
 # Getting Started
 ## Installation
-To create a new dlight.js project, you can use the create-dlightjs CLI package, which provides a quick and easy way to set up a new project with all the necessary files and dependencies. The latest version of dlight.js is installed by default using Vite. If you prefer to use a different project tooling, such as Parcel or any other tool that supports Babel, you can use the `babel-plugin-dlight` plugin or `babel-preset-dlight` preset to build a dlight.js project. To create a new dlightjs project, simply run the following command in your terminal:
+To create a new dlight.js project, you can use the create-dlightjs CLI package, which provides a quick and easy way to set up a new project with all the necessary files and dependencies. The latest version of dlight.js is installed by default using Vite. If you prefer to use a different project tooling, such as Parcel or any other tool that supports Babel, you can use the `babel-preset-dlight` preset to build a dlight.js project. To create a new dlightjs project, simply run the following command in your terminal:
 ```shell
 npm create dlightjs@latest
 ```
@@ -76,8 +76,8 @@ Writing components in Dlight is simple and straightforward. Small focused compon
 ## Reactivity
 ### Declare state
 ```js
-// ~> Name.view.js
-import DLight, { View } from "@dlightjs/dlight"
+// ~> Name.js
+import { View } from "@dlightjs/dlight"
 
 class Name extends View {
   name = "John"
@@ -91,13 +91,13 @@ export default Name
 ```
 ### Update state
 ```js
-// ~> Name.view.js
-import DLight, { View } from "@dlightjs/dlight"
+// ~> Name.js
+import { View } from "@dlightjs/dlight"
 
 class Name extends View {
   name = "John"
 
-  beforeInit() {
+  willMount() {
     this.name = "Jane"
   }
 
@@ -110,8 +110,8 @@ export default Name
 ```
 ### Computed state
 ```js
-// ~> DoubleCount.view.js
-import DLight, { View } from "@dlightjs/dlight"
+// ~> DoubleCount.js
+import { View } from "@dlightjs/dlight"
 
 class DoubleCount extends View {
   count = 10
@@ -128,8 +128,8 @@ export default DoubleCount
 ## Templating
 ### Minimal template
 ```js
-// ~> HelloWorld.view.js
-import DLight, { View } from "@dlightjs/dlight"
+// ~> HelloWorld.js
+import { View } from "@dlightjs/dlight"
 
 class HelloWorld extends View {
   Body() {
@@ -141,8 +141,8 @@ export default HelloWorld
 ```
 ### Styling
 ```js
-// ~> CssStyle.view.js
-import DLight, { View } from "@dlightjs/dlight"
+// ~> CssStyle.js
+import { View } from "@dlightjs/dlight"
 import "./style.css"
 
 class CssStyle extends View {
@@ -150,7 +150,9 @@ class CssStyle extends View {
     h1("I am red")
       .className("title")
     button("I am a button")
-      ._fontSize("10rem")
+      .style({
+        fontSize: "10rem"
+      })
   }
 }
 
@@ -164,8 +166,8 @@ export default CssStyle
 ```
 ### Loop
 ```js
-// ~> Colors.view.js
-import DLight, { View } from "@dlightjs/dlight"
+// ~> Colors.js
+import { View } from "@dlightjs/dlight"
 
 class Colors extends View {
   colors = ["red", "green", "blue"]
@@ -184,8 +186,8 @@ export default Colors
 ```
 ### Event click
 ```js
-// ~> Counter.view.js
-import DLight, { View } from "@dlightjs/dlight"
+// ~> Counter.js
+import { View } from "@dlightjs/dlight"
 
 class Counter extends View {
   count = 0
@@ -203,8 +205,8 @@ export default Counter
 ```
 ### Dom ref
 ```js
-// ~> InputFocused.view.js
-import DLight, { View } from "@dlightjs/dlight"
+// ~> InputFocused.js
+import { View } from "@dlightjs/dlight"
 
 class InputFocused extends View {
   inputElement
@@ -224,8 +226,8 @@ export default InputFocused
 ```
 ### Conditional
 ```js
-// ~> TrafficLight.view.js
-import DLight, { View } from "@dlightjs/dlight"
+// ~> TrafficLight.js
+import { View } from "@dlightjs/dlight"
 
 const TRAFFIC_LIGHTS = ["red", "orange", "green"]
 
@@ -243,7 +245,7 @@ class TrafficLight extends View {
 
   Body() {
     button("Next light")
-      .onclick(this.nextLight.bind(this))
+      .onclick(this.nextLight(this))
     p(`Light is: ${this.light}`)
     p()
     {
@@ -264,8 +266,8 @@ export default TrafficLight
 ## Lifecycle
 ### On mount
 ```js
-// ~> PageTitle.view.js
-import DLight, { View } from "@dlightjs/dlight"
+// ~> PageTitle.js
+import { View } from "@dlightjs/dlight"
 
 class PageTitle extends View {
   pageTitle = ""
@@ -283,8 +285,8 @@ export default PageTitle
 ```
 ### On unmount
 ```js
-// ~> Time.view.js
-import DLight, { View } from "@dlightjs/dlight"
+// ~> Time.js
+import { View } from "@dlightjs/dlight"
 
 class Time extends View {
   time = new Date().toLocaleTimeString()
@@ -310,8 +312,8 @@ export default Time
 ## Component composition
 ### Props
 ```js
-// ~> App.view.js
-import DLight, { View } from "@dlightjs/dlight"
+// ~> App.js
+import { View } from "@dlightjs/dlight"
 import UserProfile from "./UserProfile"
 
 class App extends View {
@@ -327,7 +329,7 @@ class App extends View {
 export default App
 ```
 ```ts
-// ~> UserProfile.view.js
+// ~> UserProfile.js
 class UserProfile extends View {
   @Prop name = ""
   @Prop age = null
@@ -346,8 +348,8 @@ export default UserProfile
 ```
 ### Emit to parent
 ```js
-// ~> App.view.js
-import DLight, { View } from "@dlightjs/dlight"
+// ~> App.js
+import { View } from "@dlightjs/dlight"
 import AnswerButton from "./AnswerButton.view"
 class App extends View {
   canCome = true
@@ -363,8 +365,8 @@ class App extends View {
   Body() {
     p("Are you happy?")
     AnswerButton()
-      .onYes(this.onAnswerYes.bind(this))
-      .onNo(this.onAnswerNo.bind(this))
+      .onYes(this.onAnswerYes(this))
+      .onNo(this.onAnswerNo(this))
     p(`${this.canCome ? "😀" : "😥"}`)
       ._fontSize("50px")
   }
@@ -373,7 +375,7 @@ class App extends View {
 export default App
 ```
 ```js
-// ~> AnswerButton.view.js
+// ~> AnswerButton.js
 class AnswerButton extends View {
   @Prop onYes
   @Prop onNo
@@ -390,8 +392,8 @@ export default AnswerButton
 ```
 ### Slot
 ```js
-// ~> App.view.js
-import DLight, { View } from "@dlightjs/dlight"
+// ~> App.js
+import { View } from "@dlightjs/dlight"
 import FunnyButton from "./FunnyButton.view"
 
 class App extends View {
@@ -406,7 +408,7 @@ class App extends View {
 export default App
 ```
 ```js
-// ~> FunnyButton.view.js
+// ~> FunnyButton.js
 class FunnyButton extends View {
   Body() {
     button()
@@ -432,8 +434,8 @@ export default FunnyButton
 ```
 ### Slot fallback
 ```js
-// ~> App.view.js
-import DLight, { View } from "@dlightjs/dlight"
+// ~> App.js
+import { View } from "@dlightjs/dlight"
 import FunnyButton from "./FunnyButton"
 
 class App extends View {
@@ -449,7 +451,7 @@ class App extends View {
 export default App
 ```
 ```js
-// ~> FunnyButton.view.js
+// ~> FunnyButton.js
 class FunnyButton extends View {
   Body() {
     button()
@@ -479,8 +481,8 @@ export default FunnyButton
 ```
 ### Context
 ```js
-// ~> App.view.js
-import DLight, { View } from "@dlightjs/dlight"
+// ~> App.js
+import { View } from "@dlightjs/dlight"
 import UserProfile from 'UserProfile.view'
 
 class App extends View {
@@ -498,7 +500,7 @@ class App extends View {
     h1(`Welcome back, ${this.user.userName}`)
     env()
       .user(this.user)
-      .updateUsername(this.updateUsername.bind(this))
+      .updateUsername(this.updateUsername(this))
     {
       UserProfile()
     }
@@ -508,7 +510,7 @@ class App extends View {
 export default App
 ```
 ```ts
-// ~> UserProfile.view.js
+// ~> UserProfile.js
 class UserProfile extends View {
   @Env user
   @Env updateUsername
@@ -530,8 +532,8 @@ export default UserProfile
 ## Form Input
 ### Input text
 ```js
-// ~> InputHello.view.js
-import DLight, { View } from "@dlightjs/dlight"
+// ~> InputHello.js
+import { View } from "@dlightjs/dlight"
 
 class InputHello extends View {
   text = "Hello world"
@@ -550,8 +552,8 @@ export default InputHello
 ```
 ### Checkbox
 ```js
-// ~> IsAvailable.view.js
-import DLight, { View } from "@dlightjs/dlight"
+// ~> IsAvailable.js
+import { View } from "@dlightjs/dlight"
 
 class IsAvailable extends View {
   isAvailable = false
@@ -571,8 +573,8 @@ export default IsAvailable
 ```
 ### Radio
 ```js
-// ~> PickPill.view.js
-import DLight, { View } from "@dlightjs/dlight"
+// ~> PickPill.js
+import { View } from "@dlightjs/dlight"
 
 class PickPill extends View {
   picked = "red"
@@ -587,14 +589,14 @@ class PickPill extends View {
       .id("blue-pill")
       .type("radio")
       .checked(this.picked === "blue")
-      .onchange(this.handleChange.bind(this))
+      .onchange(this.handleChange(this))
     label("Blue pill")
       .htmlFor("blue-pill")
     input(this.text)
       .id("red-pill")
       .type("radio")
       .checked(this.picked === "red")
-      .onchange(this.handleChange.bind(this))
+      .onchange(this.handleChange(this))
     label("Red pill")
       .htmlFor("red-pill")
   }
@@ -604,8 +606,8 @@ export default PickPill
 ```
 ### Select
 ```js
-// ~> ColorSelect.view.js
-import DLight, { View } from "@dlightjs/dlight"
+// ~> ColorSelect.js
+import { View } from "@dlightjs/dlight"
 
 const colors = [
   { id: 1, text: "red" },
@@ -646,8 +648,8 @@ export default ColorSelect
 </html>
 ```
 ```js
-// ~> App.view.js
-import DLight, { View } from "@dlightjs/dlight"
+// ~> App.js
+import { View } from "@dlightjs/dlight"
 
 class App extends View {
   Body() {
@@ -665,8 +667,8 @@ render("app", App)
 ```
 ### Fetch data
 ```js
-// ~> App.view.js
-import DLight, { View } from "@dlightjs/dlight"
+// ~> App.js
+import { View } from "@dlightjs/dlight"
 import fetchUser from "./fetchUser"
 
 class App extends View {
@@ -720,8 +722,8 @@ export default async function fetchUsers(dataKey = "data", errorKey = "error", i
 ```
 ### Router link
 ```ts
-// ~> Router.view.js
-import DLight, { View } from "@dlightjs/dlight"
+// ~> Router.js
+import { View } from "@dlightjs/dlight"
 
 class Router extends View {
   @Env navigator
@@ -752,8 +754,8 @@ export default Router
 ```
 ### Routing
 ```js
-// ~> Routing.view.js
-import DLight, { View } from "@dlightjs/dlight"
+// ~> Routing.js
+import { View } from "@dlightjs/dlight"
 import { RouterSpace, Route } from "@dlightjs/components"
 
 class Routing extends View {
@@ -819,7 +821,6 @@ Body() {
       .onclick(() => {
         console.log("write dot prop")
       })
-      ._color("red") // shorthand inline style
     div()
       .id("second-child-div")
       .innerText("you can also set prop like this")
