@@ -245,7 +245,7 @@ class TrafficLight extends View {
 
   Body() {
     button("Next light")
-      .onclick(this.nextLight(this))
+      .onclick(this.nextLight)
     p(`Light is: ${this.light}`)
     p()
     {
@@ -365,8 +365,8 @@ class App extends View {
   Body() {
     p("Are you happy?")
     AnswerButton()
-      .onYes(this.onAnswerYes(this))
-      .onNo(this.onAnswerNo(this))
+      .onYes(this.onAnswerYes)
+      .onNo(this.onAnswerNo)
     p(`${this.canCome ? "😀" : "😥"}`)
       ._fontSize("50px")
   }
@@ -500,7 +500,7 @@ class App extends View {
     h1(`Welcome back, ${this.user.userName}`)
     env()
       .user(this.user)
-      .updateUsername(this.updateUsername(this))
+      .updateUsername(this.updateUsername)
     {
       UserProfile()
     }
@@ -589,14 +589,14 @@ class PickPill extends View {
       .id("blue-pill")
       .type("radio")
       .checked(this.picked === "blue")
-      .onchange(this.handleChange(this))
+      .onchange(this.handleChange)
     label("Blue pill")
       .htmlFor("blue-pill")
     input(this.text)
       .id("red-pill")
       .type("radio")
       .checked(this.picked === "red")
-      .onchange(this.handleChange(this))
+      .onchange(this.handleChange)
     label("Red pill")
       .htmlFor("red-pill")
   }
