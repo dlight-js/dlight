@@ -1,0 +1,38 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "commitType": "docs",
+  "commitConvention": "angular",
+  "contributors": [
+    {
+      "login": "IanDxSSXX",
+      "name": "Duan Yihan",
+      "avatar_url": "https://avatars.githubusercontent.com/u/69476139?v=4",
+      "profile": "https://github.com/IanDxSSXX",
+      "contributions": [
+        "infra",
+        "test",
+        "code"
+      ]
+    },
+    {
+      "login": "orange04",
+      "name": "orange04",
+      "avatar_url": "https://avatars.githubusercontent.com/u/47129477?v=4",
+      "profile": "https://github.com/orange04",
+      "contributions": [
+        "code",
+        "design"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "skipCi": true,
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "projectName": "dlight",
+  "projectOwner": "dlight-js"
+}
