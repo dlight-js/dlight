@@ -7,6 +7,7 @@ export default function(options: DLightOption = {}) {
     name: "dlight",
     enforce: "pre",
     transform(code: string, id: string) {
+      if (!(id.endsWith(".js") || id.endsWith(".ts"))) return code
       return transform(code, {
         presets: [[dlight, options]],
         sourceMaps: true,
