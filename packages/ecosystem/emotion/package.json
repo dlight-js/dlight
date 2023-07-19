@@ -1,6 +1,6 @@
 {
   "name": "@dlightjs/emotion",
-  "version": "0.9.6",
+  "version": "0.9.16",
   "description": "DLight styled component for emotion.js",
   "author": {
     "name": "IanDx",

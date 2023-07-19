@@ -1,5 +1,4 @@
-// @ts-ignore
-import syntaxTypescript from "@babel/plugin-syntax-typescript"
+import syntaxTypescript from "./babel-plugins/plugin-syntax-typescript"
 // @ts-ignore
 import syntaxDoExpressions from "@babel/plugin-syntax-do-expressions"
 // @ts-ignore
@@ -10,7 +9,7 @@ export { type DLightOption }
 export default function(api: any, options: DLightOption) {
   return {
     plugins: [
-      syntaxTypescript.default ?? syntaxTypescript,
+      syntaxTypescript,
       syntaxDoExpressions.default ?? syntaxDoExpressions,
       [syntaxDecorators.default ?? syntaxDecorators, { legacy: true }],
       [dlight, options]

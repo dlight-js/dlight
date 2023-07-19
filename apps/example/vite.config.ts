@@ -7,7 +7,7 @@ export default defineConfig({
     port: 26660
   },
   plugins: [
-    dlightEasyCSS(),
-    dlight()
+    dlightEasyCSS({ files: "**/*.view.ts" }),
+    dlight({ files: "**/*.view.ts" })
   ]
 })

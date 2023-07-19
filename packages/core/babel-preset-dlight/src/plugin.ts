@@ -94,17 +94,21 @@ export default function(api: any, options: DLightOption) {
   return {
     visitor: {
       Program(path: any, state: any) {
-        for (const allowedPath of files) {
-          if (minimatch(state.filename, allowedPath)) {
-            this.enter = true
-            break
+        if (state.filename) {
+          for (const allowedPath of files) {
+            if (minimatch(state.filename, allowedPath)) {
+              this.enter = true
+              break
+            }
           }
-        }
-        for (const notAllowedPath of excludeFiles) {
-          if (minimatch(state.filename, notAllowedPath)) {
-            this.enter = false
-            break
+          for (const notAllowedPath of excludeFiles) {
+            if (minimatch(state.filename, notAllowedPath)) {
+              this.enter = false
+              break
+            }
           }
+        } else {
+          this.enter = true
         }
         this.didAddDLightImport = false
         const allImports: t.ImportDeclaration[] = path.node.body.filter(t.isImportDeclaration)
