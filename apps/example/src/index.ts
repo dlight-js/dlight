@@ -14,6 +14,7 @@ import StyledView from "./advanced/styledView.view"
 import transformDLight from "@dlightjs/transpiler-standalone"
 import { RouteTest } from "./components/Router.view"
 import JJ from "./aa.view"
+import App from "./App.view"
 // const code = `
 // import { View } from "@dlightjs/dlight"
 // import { button, div, SubView } from "@dlightjs/types"
@@ -33,7 +34,7 @@ import JJ from "./aa.view"
 
 // console.log(renderToText(BenchmarkView))
 // render("app", BenchmarkView)
-render("app", TestView)
+render("app", App)
 
 // console.time("0")
 // const a = () => {
