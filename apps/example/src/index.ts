@@ -1,5 +1,7 @@
 import { render, renderToText } from "@dlightjs/dlight"
 import TestView from "./test.view"
+import transformDlight from "@dlightjs/transpiler-standalone"
+
 import { TodoApp } from "./TodoMVC"
 import ReactiveView from "./basic/reactive.view"
 import PropPassingView from "./basic/propPassing.view"
@@ -19,18 +21,18 @@ import App from "./App.view"
 // import { View } from "@dlightjs/dlight"
 // import { button, div, SubView } from "@dlightjs/types"
 
-// class TestView extends View {
-//   tabKey = 1
-//   b = function() {
-//     console.log(this.tabKey)
-//   }
-//   Body() {
-//     _(this.b)
-//   }
-// }
-// `
+class TestView extends View {
+  tabKey = 1
+  b = function() {
+    console.log(this.tabKey)
+  }
+  Body() {
+    _(this.b)
+  }
+}
+`
 
-// console.log(transformDLight(code))
+console.log(transformDLight(code))
 
 // console.log(renderToText(BenchmarkView))
 // render("app", BenchmarkView)

@@ -1,14 +1,20 @@
 {
   "name": "babel-preset-dlight-easy-css",
-  "version": "0.9.6",
+  "version": "0.9.16",
   "description": "DLight's babel preset for easy-css",
   "author": {
     "name": "IanDx",
     "email": "iandxssxx@gmail.com"
   },
-  "keywords": ["dlight.js", "babel-preset", "easy-css"],
+  "keywords": [
+    "dlight.js",
+    "babel-preset",
+    "easy-css"
+  ],
   "license": "MIT",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "type": "module",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
@@ -17,12 +23,14 @@
     "build": "tsup --sourcemap"
   },
   "devDependencies": {
-    "tsup": "^6.5.0"
+    "tsup": "^6.5.0",
+    "typescript": "^5.1.6"
   },
   "dependencies": {
     "@babel/types": "^7.20.7",
-    "@iandx/easy-css-atomic": "0.10.1",
-    "@iandx/easy-css-utility": "0.10.1",
-    "babel-preset-easy-css": "0.10.1"
+    "@iandx/easy-css-atomic": "0.10.2",
+    "@iandx/easy-css-utility": "0.10.2",
+    "babel-preset-easy-css": "0.10.2",
+    "minimatch": "^9.0.3"
   }
 }

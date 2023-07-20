@@ -1,29 +1,41 @@
 // @ts-ignore
 import { transform } from "@babel/core"
-import easyCss from "babel-preset-dlight-easy-css"
+import easyCss, { type DLightOption } from "babel-preset-dlight-easy-css"
+import { minimatch } from "minimatch"
 
-interface EasyCssOption {
-  /**
-   * @default [".js", ".ts", ".jsx", ".tsx"]
-   */
-  appendix?: string[]
-}
+export default function(options: DLightOption = {}) {
+  const {
+    files: preFiles = "**/*.{js,jsx,ts,tsx}",
+    excludeFiles: preExcludeFiles = "**/{dist,node_modules,lib}/*.{js,ts}"
+  } = options
+  const files = Array.isArray(preFiles) ? preFiles : [preFiles]
+  const excludeFiles = Array.isArray(preExcludeFiles) ? preExcludeFiles : [preExcludeFiles]
 
-export default function(options: EasyCssOption = {}) {
-  const { appendix = [".js", ".ts", ".jsx", ".tsx"] } = options
   return {
     name: "DlightEasyCss",
     enforce: "pre",
     transform(code: string, id: string) {
-      for (const append of appendix) {
-        if (id.endsWith(append)) {
-          return transform(code, {
-            presets: [[easyCss, options]],
-            sourceMaps: true,
-            filename: id
-          })
+      let enter = false
+      for (const allowedPath of files) {
+        if (minimatch(id, allowedPath)) {
+          enter = true
+          break
         }
       }
+      for (const notAllowedPath of excludeFiles) {
+        if (minimatch(id, notAllowedPath)) {
+          enter = false
+          break
+        }
+      }
+      if (!enter) return
+      return transform(code, {
+        babelrc: false,
+        configFile: false,
+        presets: [[easyCss, options]],
+        sourceMaps: true,
+        filename: id
+      })
     }
   } as any
 }

@@ -1,6 +1,6 @@
 import { View, renderToString } from "@dlightjs/dlight"
 import { div } from "@dlightjs/easy-css"
-import { button, htmlTag } from "@dlightjs/types"
+import { button, htmlTag, SubView } from "@dlightjs/types"
 import { HStack } from "@dlightjs/components"
 
 function deepCopyOnChange(target: any, key: string) {
@@ -58,6 +58,12 @@ class TestView extends View {
   list = (() => {
     return [1, 2, 3]
   })()
+
+  @SubView
+  JJ() {
+    div("jhh")
+      .color("blue")
+  }
 
   Body() {
     for (const a of this.list) {

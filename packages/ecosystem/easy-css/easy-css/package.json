@@ -1,6 +1,6 @@
 {
   "name": "@dlightjs/easy-css",
-  "version": "0.9.6",
+  "version": "0.9.16",
   "description": "DLight's typescript and easy-css helper",
   "author": {
     "name": "IanDx",
@@ -22,8 +22,8 @@
     "typescript": "^4.9.3"
   },
   "dependencies": {
-    "@iandx/easy-css": "0.10.1",
-    "@iandx/easy-css-atomic": "0.10.1",
-    "@iandx/easy-css-utility": "0.10.1"
+    "@iandx/easy-css": "0.10.2",
+    "@iandx/easy-css-atomic": "0.10.2",
+    "@iandx/easy-css-utility": "0.10.2"
   }
 }

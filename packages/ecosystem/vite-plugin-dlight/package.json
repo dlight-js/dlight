@@ -1,14 +1,19 @@
 {
   "name": "vite-plugin-dlight",
-  "version": "0.9.6",
+  "version": "0.9.16",
   "description": "DLight transpiler as vite plugin",
   "author": {
     "name": "IanDx",
     "email": "iandxssxx@gmail.com"
   },
-  "keywords": ["dlight.js", "vite-plugin"],
+  "keywords": [
+    "dlight.js",
+    "vite-plugin"
+  ],
   "license": "MIT",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.js",
@@ -21,6 +26,7 @@
   },
   "dependencies": {
     "@babel/core": "^7.20.12",
-    "babel-preset-dlight": "workspace:*"
+    "babel-preset-dlight": "workspace:*",
+    "minimatch": "^9.0.3"
   }
 }

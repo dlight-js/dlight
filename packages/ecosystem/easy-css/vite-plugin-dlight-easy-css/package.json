@@ -1,14 +1,20 @@
 {
   "name": "vite-plugin-dlight-easy-css",
-  "version": "0.9.6",
+  "version": "0.9.16",
   "description": "DLight transpiler for babel",
   "author": {
     "name": "IanDx",
     "email": "iandxssxx@gmail.com"
   },
-  "keywords": ["dlight.js", "vite-plugin", "easy-css"],
+  "keywords": [
+    "dlight.js",
+    "vite-plugin",
+    "easy-css"
+  ],
   "license": "MIT",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.js",
@@ -18,7 +24,8 @@
   },
   "dependencies": {
     "@babel/core": "^7.20.12",
-    "babel-preset-dlight-easy-css": "workspace:*"
+    "babel-preset-dlight-easy-css": "workspace:*",
+    "minimatch": "^9.0.3"
   },
   "devDependencies": {
     "tsup": "^6.5.0"
