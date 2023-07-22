@@ -11,6 +11,8 @@ interface DLightHtmlProps {
   didAppear: HtmlLifecycleFuncType
   willDisappear: HtmlLifecycleFuncType
   didDisappear: HtmlLifecycleFuncType
+  addEvents: Record<string, () => void>
+  setAttributes: Record<string, any>
 }
 
 export type DLightHTMLAttributes<T, G> = DLightHtmlProps & HTMLAttributes<Required<T>> & G

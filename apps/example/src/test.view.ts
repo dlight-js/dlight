@@ -25,7 +25,13 @@ class TestView extends View {
 
   Body() {
     button("+")
-      .onclick(this.onclick)
+      .addEvents({
+        click: this.onclick
+      })
+      .setAttributes({
+        shit: `${this.count}`
+      })
+      // .onclick(this.onclick)
     div("okk")
       .height("100px")
       .color("red")

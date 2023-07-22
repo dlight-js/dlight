@@ -68,6 +68,38 @@ export class HtmlNode extends DLNode {
     }, this)
   }
 
+  _$addAttributes(attributeMap: Record<string, any> | (() => Record<string, any>), dlScope?: CustomNode, listenDeps?: string[]) {
+    if (!listenDeps) {
+      for (const [attr, func] of Object.entries(attributeMap)) {
+        this._$el.setAttribute(attr, func)
+      }
+      return
+    }
+    let prevValue = (attributeMap as any)()
+    for (const [attr, func] of Object.entries(prevValue)) {
+      this._$el.setAttribute(attr, func)
+    }
+    dlScope!._$addDeps(listenDeps, () => {
+      const newValue = (attributeMap as any)()
+      if (prevValue !== newValue) {
+        for (const [attr, func] of Object.entries(newValue)) {
+          this._$el.setAttribute(attr, func)
+        }
+        prevValue = newValue
+      }
+    }, this)
+  }
+
+  _$addEvent(eventName: string, func: () => void) {
+    this._$el.addEventListener(eventName, func)
+  }
+
+  _$addEvents(eventMap: Record<string, () => void>) {
+    for (const [eventName, func] of Object.entries(eventMap)) {
+      this._$addEvent(eventName, func)
+    }
+  }
+
   _$addStyle(valueOrFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]) {
     if (!listenDeps) {
       for (const [k, v] of Object.entries(valueOrFunc)) {
@@ -110,9 +142,22 @@ export class HtmlNode extends DLNode {
     }
     if (key === "className") {
       this._$addClassName(valueOrFunc, dlScope, listenDeps)
+      return
     }
     if (key === "_$content") {
       this._$addProp("innerText", valueOrFunc, dlScope, listenDeps)
+      return
+    }
+    if (key === "addEvents") {
+      this._$addEvents(valueOrFunc)
+      return
+    }
+    if (key === "setAttributes") {
+      this._$addAttributes(valueOrFunc, dlScope, listenDeps)
+      return
+    }
+    if (key.startsWith("on")) {
+      this._$addEvent(key.slice(2), valueOrFunc)
       return
     }
     this._$addProp(key, valueOrFunc, dlScope, listenDeps)
