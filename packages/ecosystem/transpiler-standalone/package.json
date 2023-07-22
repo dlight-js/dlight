@@ -1,6 +1,6 @@
 {
   "name": "@dlightjs/transpiler-standalone",
-  "version": "0.9.16",
+  "version": "0.9.17",
   "description": "DLight transpiler as function for browser",
   "author": {
     "name": "IanDx",
