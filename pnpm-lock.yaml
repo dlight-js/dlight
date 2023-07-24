@@ -65,6 +65,45 @@ importers:
       vite-plugin-dlight: link:../../packages/ecosystem/vite-plugin-dlight
       vite-plugin-dlight-easy-css: link:../../packages/ecosystem/easy-css/vite-plugin-dlight-easy-css
 
+  apps/ssr-test:
+    specifiers:
+      '@dlightjs/components': workspace:*
+      '@dlightjs/dlight': workspace:*
+      '@dlightjs/dlight-client': workspace:*
+      '@dlightjs/easy-css': workspace:*
+      '@dlightjs/emotion': workspace:*
+      '@dlightjs/markit': workspace:*
+      '@dlightjs/material-icons': workspace:*
+      '@dlightjs/transpiler-standalone': workspace:*
+      '@dlightjs/types': workspace:*
+      '@emotion/css': ^11.10.6
+      '@types/node': ^18.11.17
+      ts-node: ^10.9.1
+      tslib: ^2.4.1
+      typescript: ^4.9.3
+      vite: ^4.0.0
+      vite-plugin-dlight: workspace:*
+      vite-plugin-dlight-easy-css: workspace:*
+    dependencies:
+      '@dlightjs/components': link:../../packages/ecosystem/components
+      '@dlightjs/dlight': link:../../packages/core/dlight
+      '@dlightjs/dlight-client': link:../../packages/core/ssr/client/dlight
+      '@dlightjs/easy-css': link:../../packages/ecosystem/easy-css/easy-css
+      '@dlightjs/emotion': link:../../packages/ecosystem/emotion
+      '@dlightjs/markit': link:../../packages/ecosystem/markit
+      '@dlightjs/material-icons': link:../../packages/ecosystem/material-icons
+      '@dlightjs/transpiler-standalone': link:../../packages/ecosystem/transpiler-standalone
+      '@dlightjs/types': link:../../packages/core/types
+      '@emotion/css': 11.11.2
+      ts-node: 10.9.1_ec5exq2m2hy7dsnbgq2maqibji
+    devDependencies:
+      '@types/node': 18.16.19
+      tslib: 2.6.0
+      typescript: 4.9.5
+      vite: 4.4.2_@types+node@18.16.19
+      vite-plugin-dlight: link:../../packages/ecosystem/vite-plugin-dlight
+      vite-plugin-dlight-easy-css: link:../../packages/ecosystem/easy-css/vite-plugin-dlight-easy-css
+
   apps/test:
     specifiers:
       '@dlightjs/components': workspace:*
@@ -125,6 +164,14 @@ importers:
       tsup: 6.7.0
 
   packages/core/dlight:
+    specifiers:
+      tsup: ^6.5.0
+      typescript: ^4.5.2
+    devDependencies:
+      tsup: 6.7.0_typescript@4.9.5
+      typescript: 4.9.5
+
+  packages/core/ssr/client/dlight:
     specifiers:
       tsup: ^6.5.0
       typescript: ^4.5.2

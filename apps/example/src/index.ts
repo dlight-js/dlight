@@ -14,45 +14,33 @@ import FetchDataView from "./basic/fetchData.view"
 import DerivedValueView from "./basic/derivedValue.view"
 import StyledView from "./advanced/styledView.view"
 import transformDLight from "@dlightjs/transpiler-standalone"
-import { RouteTest } from "./components/Router.view"
-import JJ from "./aa.view"
-import App from "./App.view"
+// import { RouteTest } from "./components/Router.view"
+// import JJ from "./aa.view"
 // const code = `
 // import { View } from "@dlightjs/dlight"
 // import { button, div, SubView } from "@dlightjs/types"
 
-class TestView extends View {
-  tabKey = 1
-  b = function() {
-    console.log(this.tabKey)
-  }
-  Body() {
-    _(this.b)
-  }
-}
-`
+// class TestView extends View {
+//   tabKey = 1
+//   b = function() {
+//     console.log(this.tabKey)
+//   }
+//   Body() {
+//     _(this.b)
+//   }
+// }
+// `
 
-console.log(transformDLight(code))
+// console.log(transformDLight(code))
 
 // console.log(renderToText(BenchmarkView))
 // render("app", BenchmarkView)
-render("app", App)
+console.time("0")
+render("app", TestView)
+console.timeEnd("0")
 
-// console.time("0")
-// const a = () => {
-//   for (const i of [...Array(10000).keys()]) {
-//     const j = 1
-//   }
-// }
-// a()
-// console.timeEnd("0")
+console.time("0")
+const a = document.querySelectorAll("[fuck-id=\"shit\"]")
 
-// const b = []
-// console.time("0")
-// for (const i of [...Array(10000).keys()]) {
-//   b.push(() => {
-//     const j = 1
-//   })
-// }
-// b.forEach(n => n())
-// console.timeEnd("0")
+console.timeEnd("0")
+console.log(a)
