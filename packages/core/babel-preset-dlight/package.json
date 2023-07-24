@@ -1,6 +1,6 @@
 {
   "name": "babel-preset-dlight",
-  "version": "0.9.19",
+  "version": "0.9.20",
   "description": "DLight transpiler for babel",
   "author": {
     "name": "IanDx",

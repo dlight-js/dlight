@@ -27,6 +27,7 @@ export class EnvNode extends DLNode {
 
   addPropsToNodes(nodes: DLNode[]) {
     loopNodes(nodes, (n: DLNode) => {
+      if (n._$nodeType === DLNodeType.Env) return false
       n._$addBeforeInitSubNodes((newNodes: any) => {
         // ---- 这样可以监听变化
         this.addPropsToNodes(newNodes)
