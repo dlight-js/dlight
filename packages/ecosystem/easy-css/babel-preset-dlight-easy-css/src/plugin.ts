@@ -59,11 +59,14 @@ export default function(api: any, options: EasyCssOption) {
                 // ---- 去除闭包中的情况
                 let tempPath = path.parentPath
                 while (tempPath && tempPath !== bodyPath) {
-                  // 遍历上去只能是 member: xx.margin / call: xx.margin() / block: {xx.margin()}
+                  // 遍历上去只能是 member: xx.margin / call: xx.margin() / block: {xx.margin()} / for / if
                   if (!(
                     t.isMemberExpression(tempPath.node) ||
                     t.isCallExpression(tempPath.node) ||
-                    t.isBlockStatement(tempPath.node)
+                    t.isBlockStatement(tempPath.node) ||
+                    t.isForOfStatement(tempPath.node) ||
+                    t.isIfStatement(tempPath.node) ||
+                    t.isDoExpression(tempPath.node)
                   )) return
                   tempPath = tempPath.parentPath
                 }

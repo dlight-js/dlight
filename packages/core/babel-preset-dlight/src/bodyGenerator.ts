@@ -601,6 +601,42 @@ export class Generator {
         )
         continue
       }
+      if (key.startsWith("on")) {
+        // event
+        const eventName = key.slice(2)
+        /**
+         * ${nodeName}._$addEvent(${eventName}, value);
+         */
+        statements.push(
+          t.expressionStatement(
+            t.callExpression(
+              t.memberExpression(
+                t.identifier(nodeName),
+                t.identifier("_$addEvent")
+              ), [
+                t.stringLiteral(eventName),
+                value
+              ]
+            )
+          )
+        )
+        continue
+      }
+      if (key === "addEvents") {
+        statements.push(
+          t.expressionStatement(
+            t.callExpression(
+              t.memberExpression(
+                t.identifier(nodeName),
+                t.identifier("_$addEvents")
+              ), [
+                value
+              ]
+            )
+          )
+        )
+        continue
+      }
       if (key === "_$content") {
         key = "innerText"
       }
@@ -709,6 +745,44 @@ export class Generator {
         }
         continue
       }
+      if (key === "setAttributes") {
+        if (listenDeps.length > 0) {
+          /**
+           * ${nodeName}._$addAttributes(() => (${value}), this, ${geneDepsStr(listenDeps)});
+           */
+          statements.push(
+            t.expressionStatement(
+              t.callExpression(
+                t.memberExpression(
+                  t.identifier(nodeName),
+                  t.identifier("_$addAttributes")
+                ), [
+                  t.arrowFunctionExpression([], value),
+                  t.thisExpression(),
+                  t.arrayExpression(listenDeps)
+                ]
+              )
+            )
+          )
+          continue
+        }
+        /**
+         * ${nodeName}._$addAttributes(${value});
+         */
+        statements.push(
+          t.expressionStatement(
+            t.callExpression(
+              t.memberExpression(
+                t.identifier(nodeName),
+                t.identifier("_$addAttributes")
+              ), [
+                value
+              ]
+            )
+          )
+        )
+        continue
+      }
       if (key === "style") {
         if (listenDeps.length > 0) {
           /**
@@ -731,7 +805,7 @@ export class Generator {
           continue
         }
         /**
-         * ${nodeName}._$addProp(${value});
+         * ${nodeName}._$addStyle(${value});
          */
         statements.push(
           t.expressionStatement(
