@@ -3,12 +3,12 @@ import { div } from "@dlightjs/easy-css"
 import { button, htmlTag, SubView } from "@dlightjs/types"
 import { HStack } from "@dlightjs/components"
 
-class JJ extends View {
+class HH extends View {
+  @Env hh = "shit"
   Body() {
-    div("tt")
+    div(this.hh)
   }
 }
-
 class TestView extends View {
   count = 5
 
@@ -28,14 +28,22 @@ class TestView extends View {
       .addEvents({
         click: this.onclick
       })
-      .setAttributes({
-        shit: `${this.count}`
-      })
+      // .setAttributes({
+      //   shit: `${this.count}`
+      // })
       // .onclick(this.onclick)
-    div("okk")
-      .height("100px")
-      .color("red")
-    this.JJ()
+    // div("okk")
+    //   .height("100px")
+    //   .color("red")
+    env()
+      .hh(this.count)
+    {
+      env()
+        .hh("nono")
+      {
+        HH()
+      }
+    }
   }
 }
 

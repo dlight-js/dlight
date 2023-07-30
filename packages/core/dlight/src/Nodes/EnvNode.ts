@@ -4,7 +4,7 @@ import { addDLProp } from "../utils/prop"
 import { loopNodes } from "../utils/nodes"
 
 export class EnvNode extends DLNode {
-  addPropFuncs: Array<(node: CustomNode) => any> = []
+  addPropFuncs: Record<string, (node: CustomNode) => any> = {}
 
   constructor() {
     super(DLNodeType.Env)
@@ -16,24 +16,32 @@ export class EnvNode extends DLNode {
 
   // 将prop加进子组件
   _$addProp(key: string, propOrFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]) {
-    this.addPropFuncs.push(node => { addDLProp(node, "env", key, propOrFunc, dlScope, listenDeps) })
+    this.addPropFuncs[key] = node => { addDLProp(node, "env", key, propOrFunc, dlScope, listenDeps) }
   }
 
-  addProps(node: CustomNode) {
-    for (const addPropFunc of this.addPropFuncs) {
+  addProps(node: CustomNode, avoidKeys: string[] = []) {
+    const addPropFuncs = Object.entries(this.addPropFuncs)
+      .filter(([key]) => !avoidKeys.includes(key))
+      .map(([, value]) => value)
+    for (const addPropFunc of addPropFuncs) {
       addPropFunc(node)
     }
   }
 
-  addPropsToNodes(nodes: DLNode[]) {
+  addPropsToNodes(nodes: DLNode[], avoidKeys: string[] = []) {
     loopNodes(nodes, (n: DLNode) => {
-      if (n._$nodeType === DLNodeType.Env) return false
-      n._$addBeforeInitSubNodes((newNodes: any) => {
-        // ---- 这样可以监听变化
-        this.addPropsToNodes(newNodes)
-      })
+      console.log(this, n, "hh", this.addPropFuncs)
+      if (n._$nodeType === DLNodeType.Env) {
+        n._$addBeforeInitSubNodes((newNodes: any) => {
+          this.addPropsToNodes(newNodes, Object.keys((n as any).addPropFuncs))
+        })
+      } else {
+        n._$addBeforeInitSubNodes((newNodes: any) => {
+          this.addPropsToNodes(newNodes)
+        })
+      }
       if (n._$nodeType === DLNodeType.Custom) {
-        this.addProps(n as CustomNode)
+        this.addProps(n as CustomNode, avoidKeys)
       }
       return false
     })
