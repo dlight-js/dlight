@@ -31,7 +31,6 @@ export class ExpressionNode extends MutableNode {
     loopNodes(this._$nodes, node => {
       if (![DLNodeType.If, DLNodeType.For, DLNodeType.Expression].includes(node._$nodeType)) return true;
       (node as MutableNode).addOnUpdateNodesFunc(func)
-      return true
     })
   }
 
