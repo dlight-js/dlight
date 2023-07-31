@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-dlight",
-  "version": "0.9.22",
+  "version": "0.9.23",
   "description": "DLight transpiler as vite plugin",
   "author": {
     "name": "IanDx",

@@ -4,7 +4,7 @@ import { type HtmlNode } from "./HtmlNode"
 import { loopEls, loopNodes } from "../utils/nodes"
 
 export function appendEls(htmlNode: HtmlNode, nodes: DLNode[]) {
-  loopNodes(nodes, node => {
+  for (const node of nodes) {
     switch (node._$nodeType) {
       case DLNodeType.Text:
         htmlNode._$el.appendChild(node._$el)
@@ -18,8 +18,7 @@ export function appendEls(htmlNode: HtmlNode, nodes: DLNode[]) {
         appendEls(htmlNode, node._$nodes)
         break
     }
-    return false
-  })
+  }
 }
 
 /**
@@ -55,7 +54,6 @@ export function deleteNodesDeps(nodes: DLNode[], dlScope: CustomNode) {
     if (node._$nodeType === DLNodeType.Custom) {
       deleteNodesDeps((node as CustomNode)._$children, dlScope)
     }
-    return true
   })
 }
 
@@ -131,7 +129,6 @@ function runDlightNodesLifecycle(nodes: DLNode[], lifecysle: "willMount" | "didM
     if ([DLNodeType.Custom].includes(node._$nodeType)) {
       (node as any)[lifecysle](node)
     }
-    return true
   })
 }
 

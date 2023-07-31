@@ -19,9 +19,10 @@ export function bindParentNode(nodes: DLNode[] | DLNode[][], parentNode: DLNode)
   }
 }
 
-export function loopNodes(nodes: DLNode[], runFunc: (node: DLNode) => boolean) {
+// eslint-disable-next-line @typescript-eslint/no-invalid-void-type
+export function loopNodes(nodes: DLNode[], runFunc: (node: DLNode) => (boolean | void)) {
   for (const node of nodes) {
-    const continueLoop = runFunc(node)
+    const continueLoop = runFunc(node) ?? true
     if (continueLoop) loopNodes(node._$nodes, runFunc)
   }
 }

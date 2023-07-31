@@ -1,7 +1,6 @@
 import { type CustomNode } from "./CustomNode"
 import { DLNode, DLNodeType } from "./DLNode"
 import { addDLProp } from "../utils/prop"
-import { loopNodes } from "../utils/nodes"
 
 export class EnvNode extends DLNode {
   addPropFuncs: Record<string, (node: CustomNode) => any> = {}
@@ -29,22 +28,20 @@ export class EnvNode extends DLNode {
   }
 
   addPropsToNodes(nodes: DLNode[], avoidKeys: string[] = []) {
-    loopNodes(nodes, (n: DLNode) => {
-      console.log(this, n, "hh", this.addPropFuncs)
-      if (n._$nodeType === DLNodeType.Env) {
-        n._$addBeforeInitSubNodes((newNodes: any) => {
-          this.addPropsToNodes(newNodes, Object.keys((n as any).addPropFuncs))
+    for (const node of nodes) {
+      if (node._$nodeType === DLNodeType.Env) {
+        node._$addBeforeInitSubNodes((newNodes: any) => {
+          this.addPropsToNodes(newNodes, [...avoidKeys, ...Object.keys((node as any).addPropFuncs)])
         })
       } else {
-        n._$addBeforeInitSubNodes((newNodes: any) => {
-          this.addPropsToNodes(newNodes)
+        node._$addBeforeInitSubNodes((newNodes: any) => {
+          this.addPropsToNodes(newNodes, avoidKeys)
         })
       }
-      if (n._$nodeType === DLNodeType.Custom) {
-        this.addProps(n as CustomNode, avoidKeys)
+      if (node._$nodeType === DLNodeType.Custom) {
+        this.addProps(node as CustomNode, avoidKeys)
       }
-      return false
-    })
+    }
   }
 
   _$init() {

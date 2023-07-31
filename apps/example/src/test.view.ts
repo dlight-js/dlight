@@ -1,9 +1,15 @@
 import { View, renderToString } from "@dlightjs/dlight"
 import { div } from "@dlightjs/easy-css"
 import { button, htmlTag, SubView } from "@dlightjs/types"
-import { HStack } from "@dlightjs/components"
+import { HStack, Route, RouterSpace, VStack } from "@dlightjs/components"
 
-class HH extends View {
+class NNN extends View {
+  Body() {
+    _(this._$children)
+  }
+}
+
+class JJ extends View {
   @Env hh = "shit"
   Body() {
     div(this.hh)
@@ -36,12 +42,20 @@ class TestView extends View {
     //   .height("100px")
     //   .color("red")
     env()
-      .hh(this.count)
+      .hh("nono")
     {
       env()
-        .hh("nono")
+        .hh("jj")
       {
-        HH()
+        env()
+          .hh("lit")
+        {
+          JJ()
+          NNN()
+          {
+            JJ()
+          }
+        }
       }
     }
   }
