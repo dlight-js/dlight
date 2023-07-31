@@ -1,7 +1,6 @@
 import { defineConfig } from "vite"
-import dlight from "vite-plugin-dlight-client"
+import dlight from "vite-plugin-dlight-server"
 
-console.log(dlight)
 export default defineConfig({
   server: {
     port: 26660

@@ -1,8 +1,4 @@
-import DLight, { View, initHydration } from "@dlightjs/dlight-client"
-
-const { hydrate, hydrationMap } = initHydration()
-
-export { hydrationMap }
+import DLight, { View, hydrateElement, hydrateComponent } from "@dlightjs/dlight-client"
 
 class App extends View {
   _$$count = 0
@@ -16,19 +12,27 @@ class App extends View {
   }
 
   Body() {
-    hydrate(element => {
-      const _$node0 = new DLight.HtmlNode(element)
-      _$node0._$addEvent("click", () => {
+    hydrateElement(dlNode => {
+      dlNode._$addEvent("click", () => {
         this.count++
       })
-      _$node0._$addEvent("mouseover", () => {
+      dlNode._$addEvent("mouseover", () => {
         console.log("over")
       })
-    }, this)
-    hydrate(element => {
-      const _$node1 = new DLight.HtmlNode(element)
-      _$node1._$addProp("innerText", () => this.count, this, ["count"])
+    }, this, {
+      hasEvent: true
+    })
+    hydrateComponent(dlNode => {
+      dlNode._$addProp("count", () => this.count, this, ["count"])
     }, this, ["count"])
+    hydrateComponent(dlNode => {
+      dlNode._$addProp("count", () => 1000 + this.count, this, ["count"])
+    }, this, ["count"])
+    hydrateElement(dlNode => {
+      dlNode._$addProp("innerText", () => this.count, this, ["count"])
+    }, this, {
+      deps: ["count"]
+    })
   }
 }
 

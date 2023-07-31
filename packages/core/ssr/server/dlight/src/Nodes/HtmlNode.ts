@@ -13,6 +13,12 @@ export class HtmlNode extends DLNode {
 
   _$init(): void {
     this._$bindNodes()
+    this._$el.setAttribute("dynamic-id", this._$id)
+    appendEls(this, this._$nodes)
+  }
+
+  _$addNodes(nodes: DLNode[]) {
+    this._$nodes = nodes
   }
 
   _$addProp(key: string, valueOrFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]) {
@@ -20,7 +26,7 @@ export class HtmlNode extends DLNode {
       this._$el[key] = valueOrFunc
       return
     }
-    let prevValue: any
+    let prevValue: any = valueOrFunc()
     this._$el[key] = prevValue
     dlScope!._$addDeps(listenDeps, () => {
       const newValue = valueOrFunc()
@@ -38,9 +44,9 @@ export class HtmlNode extends DLNode {
       this._$el.className = classNames.length === 0 ? newClassNames : `${classNames} ${newClassNames}`
       return
     }
-    let prevValue: any
-    // const classNames = this._$el.className
-    // this._$el.className = classNames.length === 0 ? prevValue : `${classNames} ${prevValue}`
+    let prevValue: any = classNameJoin(valueOrFunc())
+    const classNames = this._$el.className
+    this._$el.className = classNames.length === 0 ? prevValue : `${classNames} ${prevValue}`
 
     dlScope!._$addDeps(listenDeps, () => {
       const newValue = valueOrFunc()
@@ -85,13 +91,13 @@ export class HtmlNode extends DLNode {
     }, this)
   }
 
-  _$addEvent(eventName: string, func: () => void) {
-    this._$el.addEventListener(eventName, func)
+  _$addEvent(eventName: string) {
+    this._$el.setAttribute(`will-${eventName}`, "")
   }
 
   _$addEvents(eventMap: Record<string, () => void>) {
-    for (const [eventName, func] of Object.entries(eventMap)) {
-      this._$addEvent(eventName, func)
+    for (const [eventName] of Object.entries(eventMap)) {
+      this._$addEvent(eventName)
     }
   }
 
@@ -152,7 +158,7 @@ export class HtmlNode extends DLNode {
       return
     }
     if (key.startsWith("on")) {
-      this._$addEvent(key.slice(2), valueOrFunc)
+      this._$addEvent(key.slice(2))
       return
     }
     this._$addProp(key, valueOrFunc, dlScope, listenDeps)

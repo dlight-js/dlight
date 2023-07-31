@@ -65,44 +65,55 @@ importers:
       vite-plugin-dlight: link:../../packages/ecosystem/vite-plugin-dlight
       vite-plugin-dlight-easy-css: link:../../packages/ecosystem/easy-css/vite-plugin-dlight-easy-css
 
-  apps/ssr-test:
+  apps/ssr-server:
     specifiers:
       '@dlightjs/components': workspace:*
       '@dlightjs/dlight': workspace:*
-      '@dlightjs/dlight-client': workspace:*
-      '@dlightjs/easy-css': workspace:*
-      '@dlightjs/emotion': workspace:*
-      '@dlightjs/markit': workspace:*
-      '@dlightjs/material-icons': workspace:*
-      '@dlightjs/transpiler-standalone': workspace:*
+      '@dlightjs/dlight-server': workspace:*
       '@dlightjs/types': workspace:*
-      '@emotion/css': ^11.10.6
       '@types/node': ^18.11.17
       ts-node: ^10.9.1
       tslib: ^2.4.1
       typescript: ^4.9.3
       vite: ^4.0.0
-      vite-plugin-dlight: workspace:*
-      vite-plugin-dlight-easy-css: workspace:*
+      vite-plugin-dlight-server: workspace:*
+    dependencies:
+      '@dlightjs/components': link:../../packages/ecosystem/components
+      '@dlightjs/dlight-server': link:../../packages/core/ssr/server/dlight
+      '@dlightjs/types': link:../../packages/core/types
+      ts-node: 10.9.1_ec5exq2m2hy7dsnbgq2maqibji
+    devDependencies:
+      '@dlightjs/dlight': link:../../packages/core/dlight
+      '@types/node': 18.16.19
+      tslib: 2.6.0
+      typescript: 4.9.5
+      vite: 4.4.2_@types+node@18.16.19
+      vite-plugin-dlight-server: link:../../packages/core/ssr/server/vite-plugin-dlight-client
+
+  apps/ssr-test:
+    specifiers:
+      '@dlightjs/components': workspace:*
+      '@dlightjs/dlight': workspace:*
+      '@dlightjs/dlight-client': workspace:*
+      '@dlightjs/types': workspace:*
+      '@types/node': ^18.11.17
+      ts-node: ^10.9.1
+      tslib: ^2.4.1
+      typescript: ^4.9.3
+      vite: ^4.0.0
+      vite-plugin-dlight-client: workspace:*
     dependencies:
       '@dlightjs/components': link:../../packages/ecosystem/components
       '@dlightjs/dlight': link:../../packages/core/dlight
       '@dlightjs/dlight-client': link:../../packages/core/ssr/client/dlight
-      '@dlightjs/easy-css': link:../../packages/ecosystem/easy-css/easy-css
-      '@dlightjs/emotion': link:../../packages/ecosystem/emotion
-      '@dlightjs/markit': link:../../packages/ecosystem/markit
-      '@dlightjs/material-icons': link:../../packages/ecosystem/material-icons
-      '@dlightjs/transpiler-standalone': link:../../packages/ecosystem/transpiler-standalone
       '@dlightjs/types': link:../../packages/core/types
-      '@emotion/css': 11.11.2
       ts-node: 10.9.1_ec5exq2m2hy7dsnbgq2maqibji
     devDependencies:
       '@types/node': 18.16.19
       tslib: 2.6.0
       typescript: 4.9.5
       vite: 4.4.2_@types+node@18.16.19
-      vite-plugin-dlight: link:../../packages/ecosystem/vite-plugin-dlight
-      vite-plugin-dlight-easy-css: link:../../packages/ecosystem/easy-css/vite-plugin-dlight-easy-css
+      vite-plugin-dlight-client: link:../../packages/core/ssr/client/vite-plugin-dlight-client
 
   apps/test:
     specifiers:
@@ -171,6 +182,36 @@ importers:
       tsup: 6.7.0_typescript@4.9.5
       typescript: 4.9.5
 
+  packages/core/parser:
+    specifiers:
+      '@babel/types': ^7.20.7
+      tsup: ^6.5.0
+      typescript: ^5.1.6
+    dependencies:
+      '@babel/types': 7.22.5
+    devDependencies:
+      tsup: 6.7.0_typescript@5.1.6
+      typescript: 5.1.6
+
+  packages/core/ssr/client/babel-preset-dlight-client:
+    specifiers:
+      '@babel/helper-plugin-utils': ^7.22.5
+      '@babel/plugin-syntax-decorators': ^7.21.0
+      '@babel/plugin-syntax-do-expressions': ^7.18.6
+      '@babel/types': ^7.20.7
+      minimatch: ^9.0.3
+      tsup: ^6.5.0
+      typescript: ^5.1.6
+    dependencies:
+      '@babel/helper-plugin-utils': 7.22.5
+      '@babel/plugin-syntax-decorators': 7.22.5
+      '@babel/plugin-syntax-do-expressions': 7.22.5
+      minimatch: 9.0.3
+    devDependencies:
+      '@babel/types': 7.22.5
+      tsup: 6.7.0_typescript@5.1.6
+      typescript: 5.1.6
+
   packages/core/ssr/client/dlight:
     specifiers:
       tsup: ^6.5.0
@@ -178,6 +219,61 @@ importers:
     devDependencies:
       tsup: 6.7.0_typescript@4.9.5
       typescript: 4.9.5
+
+  packages/core/ssr/client/vite-plugin-dlight-client:
+    specifiers:
+      '@babel/core': ^7.20.12
+      babel-preset-dlight-client: workspace:*
+      minimatch: ^9.0.3
+      tsup: ^6.5.0
+    dependencies:
+      '@babel/core': 7.22.8
+      babel-preset-dlight-client: link:../babel-preset-dlight-client
+      minimatch: 9.0.3
+    devDependencies:
+      tsup: 6.7.0
+
+  packages/core/ssr/server/babel-preset-dlight-server:
+    specifiers:
+      '@babel/plugin-syntax-decorators': ^7.21.0
+      '@babel/plugin-syntax-do-expressions': ^7.18.6
+      '@babel/types': ^7.20.7
+      '@dlightjs/view-parser': workspace:*
+      babel-plugin-syntax-typescript-new: workspace:*
+      minimatch: ^9.0.3
+      tsup: ^6.5.0
+      typescript: ^5.1.6
+    dependencies:
+      '@babel/plugin-syntax-decorators': 7.22.5
+      '@babel/plugin-syntax-do-expressions': 7.22.5
+      '@dlightjs/view-parser': link:../../../parser
+      babel-plugin-syntax-typescript-new: link:../../../../tools/babel-plugin-syntax-typescript-new
+      minimatch: 9.0.3
+    devDependencies:
+      '@babel/types': 7.22.5
+      tsup: 6.7.0_typescript@5.1.6
+      typescript: 5.1.6
+
+  packages/core/ssr/server/dlight:
+    specifiers:
+      tsup: ^6.5.0
+      typescript: ^4.5.2
+    devDependencies:
+      tsup: 6.7.0_typescript@4.9.5
+      typescript: 4.9.5
+
+  packages/core/ssr/server/vite-plugin-dlight-client:
+    specifiers:
+      '@babel/core': ^7.20.12
+      babel-preset-dlight-server: workspace:*
+      minimatch: ^9.0.3
+      tsup: ^6.5.0
+    dependencies:
+      '@babel/core': 7.22.8
+      babel-preset-dlight-server: link:../babel-preset-dlight-server
+      minimatch: 9.0.3
+    devDependencies:
+      tsup: 6.7.0
 
   packages/core/types:
     specifiers:
@@ -376,6 +472,17 @@ importers:
       '@babel/types': 7.22.5
     devDependencies:
       tsup: 6.7.0
+
+  packages/tools/babel-plugin-syntax-typescript-new:
+    specifiers:
+      '@babel/helper-plugin-utils': ^7.22.5
+      tsup: ^6.5.0
+      typescript: ^4.5.2
+    dependencies:
+      '@babel/helper-plugin-utils': 7.22.5
+    devDependencies:
+      tsup: 6.7.0_typescript@4.9.5
+      typescript: 4.9.5
 
 packages:
 

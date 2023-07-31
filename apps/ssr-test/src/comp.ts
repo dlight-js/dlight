@@ -32,6 +32,15 @@ class App extends View {
       })
     }, this)
     hydrate(element => {
+      const _$node0 = new DLight.HtmlNode(element)
+      _$node0._$addEvent("click", () => {
+        this.count++
+      })
+      _$node0._$addEvent("mouseover", () => {
+        console.log("over")
+      })
+    }, this)
+    hydrate(element => {
       const _$node1 = new DLight.HtmlNode(element)
       _$node1._$addProp("innerText", () => `shit ${this.count}`, this, ["count"])
     }, this, ["count"])

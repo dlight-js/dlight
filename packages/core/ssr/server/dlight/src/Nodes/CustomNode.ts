@@ -1,19 +1,14 @@
 import { type EnvNode } from "./EnvNode"
 import { DLNode, DLNodeType } from "./DLNode"
 import { addDLProp } from "../utils/prop"
-import { type HtmlNode } from "../Nodes"
+import { HtmlNode } from "../Nodes"
 
 export class CustomNode extends DLNode {
   _$envNodes?: EnvNode[]
   _$derivedPairs?: Record<string, string[]>
 
-  _$idx = 0
-  _$id
-  _$parentInited = false
-
-  constructor(id: string) {
+  constructor() {
     super(DLNodeType.Custom)
-    this._$id = id
   }
 
   get _$children(): DLNode[] {
@@ -84,10 +79,10 @@ export class CustomNode extends DLNode {
 
   _$init() {
     this._$initDecorators()
-    // this.willMount(this._$el, this)
-    ;((this as any).Body.bind(this) ?? (() => []))()
-    // this._$bindNodes()
-    // this.didMount(this._$el, this)
+    this.willMount(this._$el, this)
+    this._$nodes = ((this as any).Body.bind(this) ?? (() => []))()
+    this._$bindNodes()
+    this.didMount(this._$el, this)
   }
 
   _$addProp(key: string, propFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]) {
@@ -115,6 +110,18 @@ export class CustomNode extends DLNode {
         func.call(this, this._$el, this)
       }
     }
+  }
+
+  render(idOrEl: string | HTMLElement) {
+    // ----
+    if (typeof idOrEl === "string") {
+      idOrEl = document.getElementById(idOrEl)!
+    }
+    idOrEl.innerHTML = ""
+    const appNode = new HtmlNode(idOrEl)
+    appNode._$id = ""
+    appNode._$addNodes([this])
+    appNode._$init()
   }
 
   _$forwardProps = false
