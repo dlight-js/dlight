@@ -117,18 +117,9 @@ c=a+b
 
 ----[dashed]
   `
-  cata = []
-  didMount() {
-    console.log(this.cata)
-  }
-
-  getCatalogue = (cata: any) => {
-    this.cata = cata
-  }
 
   Body() {
     MarkitView(this.testMDString)
-      .getCatalogue(this.getCatalogue)
   }
 }
 

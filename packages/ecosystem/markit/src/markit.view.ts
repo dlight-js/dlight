@@ -6,7 +6,7 @@ import { parse } from "@iandx/markit"
 class MarkitView extends View {
   /** @prop */
   @Prop _$content: RequiredProp<string> = required
-  @Prop getAst: RequiredProp<(any) => void> = required
+  @Prop getAst: (data: any) => void = () => null
 
   /** @reactive */
   markitAst: any = parse(this._$content)
@@ -16,8 +16,10 @@ class MarkitView extends View {
   /** @function */
 
   /** @lifecycle */
-  didMount() {
-    this.getAst(this.markitAst)
+  willMount() {
+    if (this.getAst) {
+      this.getAst(this.markitAst)
+    }
   }
 
   /** @view */
