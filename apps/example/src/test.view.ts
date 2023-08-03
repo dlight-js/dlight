@@ -1,14 +1,20 @@
 import { View, renderToString } from "@dlightjs/dlight"
 import { div } from "@dlightjs/easy-css"
 import { button, htmlTag, SubView } from "@dlightjs/types"
-import { HStack } from "@dlightjs/components"
+import { HStack, Route, RouterSpace, VStack } from "@dlightjs/components"
 
-class JJ extends View {
+class NNN extends View {
   Body() {
-    div("tt")
+    _(this._$children)
   }
 }
 
+class JJ extends View {
+  @Env hh = "shit"
+  Body() {
+    div(this.hh)
+  }
+}
 class TestView extends View {
   count = 5
 
@@ -28,14 +34,30 @@ class TestView extends View {
       .addEvents({
         click: this.onclick
       })
-      .setAttributes({
-        shit: `${this.count}`
-      })
+      // .setAttributes({
+      //   shit: `${this.count}`
+      // })
       // .onclick(this.onclick)
-    div("okk")
-      .height("100px")
-      .color("red")
-    this.JJ()
+    // div("okk")
+    //   .height("100px")
+    //   .color("red")
+    env()
+      .hh("nono")
+    {
+      env()
+        .hh("jj")
+      {
+        env()
+          .hh("lit")
+        {
+          JJ()
+          NNN()
+          {
+            JJ()
+          }
+        }
+      }
+    }
   }
 }
 
