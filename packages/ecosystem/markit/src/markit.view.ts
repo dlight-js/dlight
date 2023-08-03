@@ -1,4 +1,4 @@
-import DLight, { View } from "@dlightjs/dlight"
+import { View } from "@dlightjs/dlight"
 import { Prop, required, type Typed, type RequiredProp, div } from "@dlightjs/types"
 import BlockRenderer from "./blockView"
 import { parse } from "@iandx/markit"
@@ -6,14 +6,10 @@ import { parse } from "@iandx/markit"
 class MarkitView extends View {
   /** @prop */
   @Prop _$content: RequiredProp<string> = required
-  @Prop getAst: (data: any) => void = () => null
+  @Prop getAst: Prop<(data: any) => void> = (() => undefined) as any
 
   /** @reactive */
   markitAst: any = parse(this._$content)
-
-  /** @member */
-
-  /** @function */
 
   /** @lifecycle */
   willMount() {
