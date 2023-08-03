@@ -18,7 +18,8 @@
     "vite-plugin-dlight": "workspace:*",
     "@dlightjs/types": "workspace:*",
     "vite-plugin-dts": "^1.7.1",
-    "vite-plugin-easy-css": "^0.9.0"
+    "vite-plugin-easy-css": "^0.9.0",
+    "vite-plugin-dlight-easy-css": "workspace:*"
   },
   "dependencies": {
     "@dlightjs/dlight": "workspace:*",

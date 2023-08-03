@@ -1,24 +1,13 @@
 import { defineConfig } from "vite"
 import dlight from "vite-plugin-dlight"
-import { resolve } from "path"
-import dts from "vite-plugin-dts"
-import { dependencies } from "./package.json"
-import easyCss from "vite-plugin-easy-css"
+import dlightEasyCSS from "vite-plugin-dlight-easy-css"
 
 export default defineConfig({
+  server: {
+    port: 26660
+  },
   plugins: [
-    easyCss(),
-    dts(),
-    dlight({ appendix: ".view.ts" })
-  ],
-  build: {
-    lib: {
-      entry: resolve(__dirname, "./src/index.ts"),
-      name: "markit",
-      fileName: "index"
-    },
-    rollupOptions: {
-      external: [...Object.keys(dependencies)]
-    }
-  }
+    dlightEasyCSS({ files: "**/*.view.ts" }),
+    dlight({ files: "**/*.view.ts" })
+  ]
 })

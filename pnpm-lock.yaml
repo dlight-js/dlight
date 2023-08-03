@@ -157,7 +157,7 @@ importers:
         version: 7.22.5
       tsup:
         specifier: ^6.5.0
-        version: 6.7.0(postcss@8.4.25)(ts-node@10.9.1)(typescript@5.1.6)
+        version: 6.7.0(postcss@8.4.25)(ts-node@10.9.1)(typescript@4.9.5)
       typescript:
         specifier: ^5.1.6
         version: 5.1.6
@@ -170,13 +170,13 @@ importers:
     devDependencies:
       tsup:
         specifier: ^6.5.0
-        version: 6.7.0(postcss@8.4.25)(ts-node@10.9.1)(typescript@5.1.6)
+        version: 6.7.0(postcss@8.4.25)(ts-node@10.9.1)(typescript@4.9.5)
 
   packages/core/dlight:
     devDependencies:
       tsup:
         specifier: ^6.5.0
-        version: 6.7.0(postcss@8.4.25)(ts-node@10.9.1)(typescript@5.1.6)
+        version: 6.7.0(postcss@8.4.25)(ts-node@10.9.1)(typescript@4.9.5)
       typescript:
         specifier: ^4.5.2
         version: 4.9.5
@@ -192,7 +192,7 @@ importers:
     devDependencies:
       tsup:
         specifier: ^6.5.0
-        version: 6.7.0(postcss@8.4.25)(ts-node@10.9.1)(typescript@5.1.6)
+        version: 6.7.0(postcss@8.4.25)(ts-node@10.9.1)(typescript@4.9.5)
       typescript:
         specifier: ^4.5.2
         version: 4.9.5
@@ -220,7 +220,7 @@ importers:
         version: link:../../core/babel-preset-dlight
       tsup:
         specifier: ^6.5.0
-        version: 6.7.0(postcss@8.4.25)(ts-node@10.9.1)(typescript@5.1.6)
+        version: 6.7.0(postcss@8.4.25)(ts-node@10.9.1)(typescript@4.9.5)
       typescript:
         specifier: ^4.9.3
         version: 4.9.5
@@ -286,7 +286,7 @@ importers:
     devDependencies:
       tsup:
         specifier: ^6.5.0
-        version: 6.7.0(postcss@8.4.25)(ts-node@10.9.1)(typescript@5.1.6)
+        version: 6.7.0(postcss@8.4.25)(ts-node@10.9.1)(typescript@4.9.5)
 
   packages/ecosystem/emotion:
     dependencies:
@@ -311,7 +311,7 @@ importers:
         version: link:../../core/babel-preset-dlight
       tsup:
         specifier: ^6.5.0
-        version: 6.7.0(postcss@8.4.25)(ts-node@10.9.1)(typescript@5.1.6)
+        version: 6.7.0(postcss@8.4.25)(ts-node@10.9.1)(typescript@4.9.5)
 
   packages/ecosystem/eslint-plugin-dlight:
     devDependencies:
@@ -346,6 +346,9 @@ importers:
       vite-plugin-dlight:
         specifier: workspace:*
         version: link:../vite-plugin-dlight
+      vite-plugin-dlight-easy-css:
+        specifier: workspace:*
+        version: link:../easy-css/vite-plugin-dlight-easy-css
       vite-plugin-dts:
         specifier: ^1.7.1
         version: 1.7.3(@types/node@18.16.19)(vite@4.4.2)
@@ -373,7 +376,7 @@ importers:
         version: link:../../core/babel-preset-dlight
       tsup:
         specifier: ^6.5.0
-        version: 6.7.0(postcss@8.4.25)(ts-node@10.9.1)(typescript@5.1.6)
+        version: 6.7.0(postcss@8.4.25)(ts-node@10.9.1)(typescript@4.9.5)
 
   packages/ecosystem/transpiler:
     dependencies:
@@ -386,7 +389,7 @@ importers:
     devDependencies:
       tsup:
         specifier: ^6.5.0
-        version: 6.7.0(postcss@8.4.25)(ts-node@10.9.1)(typescript@5.1.6)
+        version: 6.7.0(postcss@8.4.25)(ts-node@10.9.1)(typescript@4.9.5)
 
   packages/ecosystem/transpiler-standalone:
     dependencies:
@@ -399,7 +402,7 @@ importers:
     devDependencies:
       tsup:
         specifier: ^6.5.0
-        version: 6.7.0(postcss@8.4.25)(ts-node@10.9.1)(typescript@5.1.6)
+        version: 6.7.0(postcss@8.4.25)(ts-node@10.9.1)(typescript@4.9.5)
 
   packages/ecosystem/vite-plugin-dlight:
     dependencies:
@@ -415,7 +418,7 @@ importers:
     devDependencies:
       tsup:
         specifier: ^6.5.0
-        version: 6.7.0(postcss@8.4.25)(ts-node@10.9.1)(typescript@5.1.6)
+        version: 6.7.0(postcss@8.4.25)(ts-node@10.9.1)(typescript@4.9.5)
 
   packages/tools/babel-plugin-optional-this:
     dependencies:
@@ -425,7 +428,7 @@ importers:
     devDependencies:
       tsup:
         specifier: ^6.5.0
-        version: 6.7.0(postcss@8.4.25)(ts-node@10.9.1)(typescript@5.1.6)
+        version: 6.7.0(postcss@8.4.25)(ts-node@10.9.1)(typescript@4.9.5)
 
 packages:
 
