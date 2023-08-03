@@ -6,7 +6,7 @@ import { parse } from "@iandx/markit"
 class MarkitView extends View {
   /** @prop */
   @Prop _$content: RequiredProp<string> = required
-  @Prop getAst: Prop<(data: any) => void> = (() => undefined) as any
+  @Prop getAst: Prop<(data: any) => void> = undefined as any
 
   /** @reactive */
   markitAst: any = parse(this._$content)

@@ -1,4 +1,4 @@
-import DLight, { View } from "@dlightjs/dlight"
+import { View } from "@dlightjs/dlight"
 import { a, Prop, required, type Typed } from "@dlightjs/types"
 import InlineRenderer from "."
 

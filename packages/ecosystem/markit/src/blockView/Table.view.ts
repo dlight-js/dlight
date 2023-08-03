@@ -1,4 +1,4 @@
-import DLight, { View } from "@dlightjs/dlight"
+import { View } from "@dlightjs/dlight"
 import { Prop, required, table, th, tr, td, type Typed } from "@dlightjs/types"
 import { css } from "@iandx/easy-css"
 import InlineRenderer from "../inlineView"
