@@ -6,6 +6,7 @@ import { parse } from "@iandx/markit"
 class MarkitView extends View {
   /** @prop */
   @Prop _$content: RequiredProp<string> = required
+  @Prop getCatalogue: RequiredProp<any> = required
 
   /** @reactive */
   markitAst: any = parse(this._$content)
@@ -17,6 +18,7 @@ class MarkitView extends View {
   /** @lifecycle */
   didMount(_els: HTMLElement[], _node: CustomNode): void {
     console.log(this.markitAst)
+    this.getCatalogue(this.markitAst.filter(paragraph => paragraph.type === "Heading"))
   }
 
   /** @view */
