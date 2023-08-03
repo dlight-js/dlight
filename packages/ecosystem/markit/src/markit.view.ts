@@ -1,12 +1,12 @@
-import DLight, { type CustomNode, View } from "@dlightjs/dlight"
-import { Prop, required, type Typed, type RequiredProp, div, h1 } from "@dlightjs/types"
+import DLight, { View } from "@dlightjs/dlight"
+import { Prop, required, type Typed, type RequiredProp, div } from "@dlightjs/types"
 import BlockRenderer from "./blockView"
 import { parse } from "@iandx/markit"
 
 class MarkitView extends View {
   /** @prop */
   @Prop _$content: RequiredProp<string> = required
-  @Prop getCatalogue: RequiredProp<any> = required
+  @Prop getAst: RequiredProp<(any) => void> = required
 
   /** @reactive */
   markitAst: any = parse(this._$content)
@@ -16,9 +16,8 @@ class MarkitView extends View {
   /** @function */
 
   /** @lifecycle */
-  didMount(_els: HTMLElement[], _node: CustomNode): void {
-    console.log(this.markitAst)
-    this.getCatalogue(this.markitAst.filter(paragraph => paragraph.type === "Heading"))
+  didMount() {
+    this.getAst(this.markitAst)
   }
 
   /** @view */

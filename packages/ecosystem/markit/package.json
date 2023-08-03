@@ -1,6 +1,6 @@
 {
   "name": "@dlightjs/markit",
-  "version": "0.0.8",
+  "version": "0.1.1",
   "type": "module",
   "files": [
     "dist"
