@@ -1,6 +1,6 @@
 import { View } from "@dlightjs/dlight"
 import { div, Prop, required, type Typed } from "@dlightjs/types"
-import { css } from "@iandx/easy-css"
+import { css } from "@dlightjs/easy-css"
 
 class Divider extends View {
   @Prop _$content = required

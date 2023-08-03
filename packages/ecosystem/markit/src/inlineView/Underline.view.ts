@@ -1,7 +1,7 @@
 import { View } from "@dlightjs/dlight"
 import { Prop, required, span, type Typed } from "@dlightjs/types"
 import InlineRenderer from "."
-import { css } from "@iandx/easy-css"
+import { css } from "@dlightjs/easy-css"
 
 class Underline extends View {
   @Prop _$content = required

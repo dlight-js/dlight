@@ -1,6 +1,6 @@
 {
   "name": "@dlightjs/monorepo",
-  "version": "0.9.23",
+  "version": "0.9.24",
   "description": "DLight monorepo",
   "author": {
     "name": "IanDx",
@@ -45,7 +45,8 @@
       "ecosystem/components",
       "ecosystem/transpiler",
       "ecosystem/transpiler-standalone",
-      "ecosystem/material-icons"
+      "ecosystem/material-icons",
+      "ecosystem/markit"
     ],
     "easy-css": [
       "ecosystem/easy-css/babel-preset-dlight-easy-css",

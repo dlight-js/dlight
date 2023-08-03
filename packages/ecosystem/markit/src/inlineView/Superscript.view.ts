@@ -1,6 +1,6 @@
 import { View } from "@dlightjs/dlight"
 import { Prop, required, sup, type Typed } from "@dlightjs/types"
-import { css } from "@iandx/easy-css"
+import { css } from "@dlightjs/easy-css"
 import InlineRenderer from "."
 
 class Superscript extends View {
