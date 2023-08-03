@@ -1,8 +1,8 @@
 import { View, renderToString } from "@dlightjs/dlight"
-import { div } from "@dlightjs/easy-css"
-import { button, htmlTag, SubView } from "@dlightjs/types"
+import { css, div } from "@dlightjs/easy-css"
+import { button, htmlTag, Prop, required, SubView } from "@dlightjs/types"
 import { HStack, Route, RouterSpace, VStack } from "@dlightjs/components"
-import { MarkitView } from "@dlightjs/markit"
+import { MarkitView, addBlockRule } from "@dlightjs/markit"
 
 class NNN extends View {
   Body() {
@@ -16,6 +16,22 @@ class JJ extends View {
     div(this.hh)
   }
 }
+
+class AdvantageBlock extends View {
+  @Prop _$content = required
+  @Prop props = required
+  language = this.props.language
+  title = this.props.title
+  Body() {
+    div(this._$content)
+      .className(this.testCss)
+  }
+
+  testCss = css`
+   background-color: red;
+  `
+}
+
 class TestView extends View {
   count = 5
 
@@ -61,6 +77,20 @@ class TestView extends View {
     }
   }
 }
+addBlockRule({
+  name: "CodeBlock",
+  rule: {
+    getProps: raw => {
+      const text = raw.replace(/ *```|```$/g, "")
+      let [language, title] = (text.match(/^.+?\n/g) ?? ["text"])[0].replace("```", "").trim().split("[")
+      if (title) {
+        title = title.replace("]", "")
+      }
+      return { language, title }
+    }
+  },
+  view: AdvantageBlock
+})
 
 export class TestMarkit extends View {
   testMDString = `

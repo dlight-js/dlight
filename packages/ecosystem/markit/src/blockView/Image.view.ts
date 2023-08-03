@@ -43,7 +43,7 @@ class Image extends View {
     }
   }
 
-  dlightMarkitImageDiv = (marginType: string) => css`
+  dlightMarkitImageDiv = (marginType: "left" | "center" | "right") => css`
     margin: ${this.margins[marginType]};
     width: ${this.zoomSize};
     height: ${this.zoomSize};
