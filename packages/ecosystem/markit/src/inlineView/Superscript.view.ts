@@ -8,7 +8,7 @@ class Superscript extends View {
 
   Body() {
     sup()
-      .className(this.dlightMarkitSupscript)
+      .className(this.dlightMarkitSupscript$)
     {
       for (const content of this._$content) {
         InlineRenderer[content.type](content.content)
@@ -16,7 +16,7 @@ class Superscript extends View {
     }
   }
 
-  dlightMarkitSupscript = css``
+  dlightMarkitSupscript$ = css``
 }
 
 export default Superscript as any as Typed<Superscript>

@@ -8,7 +8,7 @@ class Subscript extends View {
 
   Body() {
     sub()
-      .className(this.dlightMarkitSubscript)
+      .className(this.dlightMarkitSubscript$)
     {
       for (const content of this._$content) {
         InlineRenderer[content.type](content.content)
@@ -16,7 +16,7 @@ class Subscript extends View {
     }
   }
 
-  dlightMarkitSubscript = css``
+  dlightMarkitSubscript$ = css``
 }
 
 export default Subscript as any as Typed<Subscript>

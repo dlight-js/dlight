@@ -8,7 +8,7 @@ class Underline extends View {
 
   Body() {
     span()
-      .className(this.dlightMarkitUnderline)
+      .className(this.dlightMarkitUnderline$)
     {
       for (const content of this._$content) {
         InlineRenderer[content.type](content.content)
@@ -16,7 +16,7 @@ class Underline extends View {
     }
   }
 
-  dlightMarkitUnderline = css`
+  dlightMarkitUnderline$ = css`
     text-decoration: underline;
   `
 }

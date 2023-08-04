@@ -9,11 +9,11 @@ class Divider extends View {
 
   Body() {
     div()
-      .className(this.dlightMarkitDivider)
-      .className(this.dlightMarkitDivider_(this.dividerType))
+      .className(this.dlightMarkitDivider$)
+      .className(this.dlightMarkitDivider$_(this.dividerType))
   }
 
-  dlightMarkitDivider = css`
+  dlightMarkitDivider$ = css`
     border-top-width: 1px;
     border-bottom-width: 1px;
     border-color: gray;
@@ -21,7 +21,7 @@ class Divider extends View {
     height: 0px;
     width: auto;
   `
-  dlightMarkitDivider_ = (borderType: string) => css`
+  dlightMarkitDivider$_ = (borderType: string) => css`
     border-style: ${borderType};
   `
 }

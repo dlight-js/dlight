@@ -6,10 +6,10 @@ class Text extends View {
   @Prop _$content = required
   Body() {
     span(this._$content)
-      .className(this.dlightMarkitText)
+      .className(this.dlightMarkitText$)
   }
 
-  dlightMarkitText = css``
+  dlightMarkitText$ = css``
 }
 
 export default Text as any as Typed<Text>

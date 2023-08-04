@@ -11,12 +11,12 @@ class UnorderedList extends View {
 
   Body() {
     ul()
-      .className(this.dlightMarkitUnorderedListUl)
+      .className(this.dlightMarkitUnorderedListUl$)
     {
       for (const { content, item: itemList } of this._$content) {
         for (const item of itemList) {
           li()
-            .className(this.dlightMarkitUnorderedListLi)
+            .className(this.dlightMarkitUnorderedListLi$)
           {
             InlineRenderer[item.type](item.content)
               .props(item.props)
@@ -30,9 +30,9 @@ class UnorderedList extends View {
     }
   }
 
-  dlightMarkitUnorderedListUl = css``
+  dlightMarkitUnorderedListUl$ = css``
 
-  dlightMarkitUnorderedListLi = css``
+  dlightMarkitUnorderedListLi$ = css``
 }
 
 export default UnorderedList as any as Typed<UnorderedList>

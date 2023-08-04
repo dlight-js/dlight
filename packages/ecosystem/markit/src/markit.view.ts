@@ -2,6 +2,7 @@ import { View } from "@dlightjs/dlight"
 import { Prop, required, type Typed, type RequiredProp, div } from "@dlightjs/types"
 import BlockRenderer from "./blockView"
 import { parse } from "@iandx/markit"
+import { css } from "@dlightjs/easy-css"
 
 class MarkitView extends View {
   /** @prop */

@@ -27,7 +27,7 @@ class AdvantageBlock extends View {
       .className(this.testCss)
   }
 
-  testCss = css`
+  testCss$ = css`
    background-color: red;
   `
 }

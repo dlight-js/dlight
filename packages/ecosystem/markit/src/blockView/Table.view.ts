@@ -11,15 +11,15 @@ class Table extends View {
 
   Body() {
     table()
-      .className(this.dlightMarkitTableStyle)
+      .className(this.dlightMarkitTableStyle$)
     {
       tr()
-        .className(this.dlightMarkitTableTrStyle)
+        .className(this.dlightMarkitTableTrStyle$)
       {
         for (const [index, headerColumn] of this._$content[0].entries()) {
           for (const { type, content, props } of headerColumn) {
             th()
-              .className(this.dlightMarkitTableThStyle(this.headerAligns[index]))
+              .className(this.dlightMarkitTableThStyle$(this.headerAligns[index]))
             {
               InlineRenderer[type](content)
                 .props(props)
@@ -29,12 +29,12 @@ class Table extends View {
       }
       for (const cellRow of this._$content.slice(1)) {
         tr()
-          .className(this.dlightMarkitTableTrStyle)
+          .className(this.dlightMarkitTableTrStyle$)
         {
           for (const [index, cellColumn] of cellRow.entries()) {
             for (const { type, content, props } of cellColumn) {
               td()
-                .className(this.dlightMarkitTableTdStyle(this.rowAligns[index]))
+                .className(this.dlightMarkitTableTdStyle$(this.rowAligns[index]))
               {
                 if (type) {
                   InlineRenderer[type](content)
@@ -48,19 +48,19 @@ class Table extends View {
     }
   }
 
-  dlightMarkitTableStyle = css`
+  dlightMarkitTableStyle$ = css`
     border-collapse: collapse;
   `
 
-  dlightMarkitTableTrStyle = css``
+  dlightMarkitTableTrStyle$ = css``
 
-  dlightMarkitTableThStyle = (align: string) => css`
+  dlightMarkitTableThStyle$ = (align: string) => css`
     border: solid 1px gray;
     padding: 5px;
     text-align: ${align};
   `
 
-  dlightMarkitTableTdStyle = (align: string) => css`
+  dlightMarkitTableTdStyle$ = (align: string) => css`
     border: solid 1px gray;
     padding: 5px;
     text-align: ${align};

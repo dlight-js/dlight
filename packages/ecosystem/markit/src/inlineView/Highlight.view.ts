@@ -8,7 +8,7 @@ class Highlight extends View {
 
   Body() {
     span()
-      .className(this.dlightMarkitHighlight)
+      .className(this.dlightMarkitHighlight$)
     {
       for (const content of this._$content) {
         InlineRenderer[content.type](content.content)
@@ -16,7 +16,7 @@ class Highlight extends View {
     }
   }
 
-  dlightMarkitHighlight = css`
+  dlightMarkitHighlight$ = css`
     background-color: yellow;
   `
 }

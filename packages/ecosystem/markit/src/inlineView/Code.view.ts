@@ -7,11 +7,10 @@ class Code extends View {
 
   Body() {
     span(this._$content)
-      .className(this.dlightMarkitCode)
-      .style({ fontSize: "95%" })
+      .className(this.dlightMarkitCode$)
   }
 
-  dlightMarkitCode = css`
+  dlightMarkitCode$ = css`
     border-radius: 4px;
     background-color: Gainsboro;
     color: DarkOrange;

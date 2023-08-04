@@ -8,7 +8,7 @@ class Bold extends View {
 
   Body() {
     strong()
-      .className(this.dlightMarkitBold)
+      .className(this.dlightMarkitBold$)
     {
       for (const content of this._$content) {
         InlineRenderer[content.type](content.content)
@@ -16,7 +16,7 @@ class Bold extends View {
     }
   }
 
-  dlightMarkitBold = css``
+  dlightMarkitBold$ = css``
 }
 
 export default Bold as any as Typed<Bold>

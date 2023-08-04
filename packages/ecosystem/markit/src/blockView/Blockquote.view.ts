@@ -8,7 +8,7 @@ class Blockquote extends View {
 
   Body() {
     blockquote()
-      .className(this.dlightMarkitBlockquoteStyle)
+      .className(this.dlightMarkitBlockquoteStyle$)
     {
       for (const content of this._$content) {
         BlockRenderer[content.type](content.content)
@@ -17,7 +17,7 @@ class Blockquote extends View {
     }
   }
 
-  dlightMarkitBlockquoteStyle = css`
+  dlightMarkitBlockquoteStyle$ = css`
     padding: 4px 0 4px 18px;
     border-left: solid 3px gray;
     margin: 4px 0;

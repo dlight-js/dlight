@@ -8,7 +8,7 @@ class Strike extends View {
 
   Body() {
     span()
-      .className(this.dlightMarkitStrike)
+      .className(this.dlightMarkitStrike$)
     {
       for (const content of this._$content) {
         InlineRenderer[content.type](content.content)
@@ -16,7 +16,7 @@ class Strike extends View {
     }
   }
 
-  dlightMarkitStrike = css`
+  dlightMarkitStrike$ = css`
     text-decoration: line-through;
   `
 }

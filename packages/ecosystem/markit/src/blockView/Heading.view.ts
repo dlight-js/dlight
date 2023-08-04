@@ -10,7 +10,7 @@ class Heading extends View {
 
   Body() {
     htmlTag(this.headdingName)()
-      .className(this.dlightMarkitHeading)
+      .className(this.dlightMarkitHeading$)
     {
       for (const content of this._$content) {
         InlineRenderer[content.type](content.content)
@@ -19,7 +19,7 @@ class Heading extends View {
     }
   }
 
-  dlightMarkitHeading = css``
+  dlightMarkitHeading$ = css``
 }
 
 export default Heading as any as Typed<Heading>

@@ -10,7 +10,7 @@ class FootnoteSup extends View {
   Body() {
     a()
       .href(`#Markit-Footnote-${this._$content}-0`)
-      .className(this.dlightMarkitFootnoteSup)
+      .className(this.dlightMarkitFootnoteSup$)
     {
       sup(this._$content)
         .id(`Markit-FootnoteSup-${this._$content}-${this.footnoteSupId}`)
@@ -18,12 +18,12 @@ class FootnoteSup extends View {
     }
   }
 
-  dlightMarkitFootnoteSup = css`
+  dlightMarkitFootnoteSup$ = css`
     color: gray;
     text-decoration: none;
   `
 
-  dlightMarkitFootnoteSupSup = css``
+  dlightMarkitFootnoteSupSup$ = css``
 }
 
 export default FootnoteSup as any as Typed<FootnoteSup>

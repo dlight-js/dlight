@@ -12,12 +12,12 @@ class OrderedList extends View {
   Body() {
     ol()
       .start(this.start)
-      .className(this.dlightMarkitOrderedListOl)
+      .className(this.dlightMarkitOrderedListOl$)
     {
       for (const { content, item: itemList } of this._$content) {
         for (const item of itemList) {
           li()
-            .className(this.dlightMarkitOrderedListLi)
+            .className(this.dlightMarkitOrderedListLi$)
           {
             InlineRenderer[item.type](item.content)
               .props(item.props)
@@ -31,9 +31,9 @@ class OrderedList extends View {
     }
   }
 
-  dlightMarkitOrderedListOl = css``
+  dlightMarkitOrderedListOl$ = css``
 
-  dlightMarkitOrderedListLi = css``
+  dlightMarkitOrderedListLi$ = css``
 }
 
 export default OrderedList as any as Typed<OrderedList>

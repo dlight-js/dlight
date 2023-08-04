@@ -8,7 +8,7 @@ class Paragraph extends View {
 
   Body() {
     div()
-      .className(this.dlightMarkitParagraph)
+      .className(this.dlightMarkitParagraph$)
     {
       for (const content of this._$content) {
         InlineRenderer[content.type](content.content)
@@ -17,7 +17,7 @@ class Paragraph extends View {
     }
   }
 
-  dlightMarkitParagraph = css``
+  dlightMarkitParagraph$ = css``
 }
 
 export default Paragraph as any as Typed<Paragraph>

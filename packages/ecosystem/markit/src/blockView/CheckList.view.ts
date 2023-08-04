@@ -11,17 +11,17 @@ class CheckList extends View {
 
   Body() {
     div()
-      .className(this.dlightMarkitCheckList)
+      .className(this.dlightMarkitCheckList$)
     {
       for (const { item: itemList, content: contentList } of this._$content) {
         div()
-          .className(this.dlightMarkitCheckboxWrap)
+          .className(this.dlightMarkitCheckboxWrap$)
         {
           input()
             .type("checkbox")
             .checked(this.isChecked)
             .disabled(true)
-            .className(this.dlightMarkitCheckbox)
+            .className(this.dlightMarkitCheckbox$)
           for (const item of itemList) {
             InlineRenderer[item.type](item.content)
               .props(item.props)
@@ -36,13 +36,13 @@ class CheckList extends View {
   }
 
   /** @style */
-  dlightMarkitCheckList = css``
-  dlightMarkitCheckboxWrap = css`
+  dlightMarkitCheckList$ = css``
+  dlightMarkitCheckboxWrap$ = css`
     display: flex;
     flex-direction: row;
     align-items: center;
   `
-  dlightMarkitCheckbox = css`
+  dlightMarkitCheckbox$ = css`
     margin-right: 5px;
   `
 }

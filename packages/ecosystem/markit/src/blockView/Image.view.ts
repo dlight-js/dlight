@@ -20,40 +20,40 @@ class Image extends View {
 
   Body() {
     div()
-      .className(this.dlightMarkitImageDiv(this.alignment))
+      .className(this.dlightMarkitImageDiv$(this.alignment))
     {
       if (this.linkUrl) {
         a()
           .href(this.linkUrl)
-          .className(this.dlightMarkitImageA)
+          .className(this.dlightMarkitImageA$)
         {
           img()
             .src(this.imageUrl)
             .alt(this.alt)
             .title(this.title)
-            .className(this.dlightMarkitImage)
+            .className(this.dlightMarkitImage$)
         }
       } else {
         img()
           .src(this.imageUrl)
           .alt(this.alt)
           .title(this.title)
-          .className(this.dlightMarkitImage)
+          .className(this.dlightMarkitImage$)
       }
     }
   }
 
-  dlightMarkitImageDiv = (marginType: "left" | "center" | "right") => css`
+  dlightMarkitImageDiv$ = (marginType: "left" | "center" | "right") => css`
     margin: ${this.margins[marginType]};
     width: ${this.zoomSize};
     height: ${this.zoomSize};
   `
 
-  dlightMarkitImage = css`
+  dlightMarkitImage$ = css`
     width: 100%;
   `
 
-  dlightMarkitImageA = css``
+  dlightMarkitImageA$ = css``
 }
 
 export default Image as any as Typed<Image>

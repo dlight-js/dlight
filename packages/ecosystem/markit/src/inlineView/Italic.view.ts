@@ -8,7 +8,7 @@ class Italic extends View {
 
   Body() {
     em()
-      .className(this.dlightMarkitItalic)
+      .className(this.dlightMarkitItalic$)
     {
       for (const content of this._$content) {
         InlineRenderer[content.type](content.content)
@@ -16,7 +16,7 @@ class Italic extends View {
     }
   }
 
-  dlightMarkitItalic = css``
+  dlightMarkitItalic$ = css``
 }
 
 export default Italic as any as Typed<Italic>
