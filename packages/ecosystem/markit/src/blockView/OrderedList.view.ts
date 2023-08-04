@@ -15,10 +15,10 @@ class OrderedList extends View {
       .className(this.dlightMarkitOrderedListOl$)
     {
       for (const { content, item: itemList } of this._$content) {
-        for (const item of itemList) {
-          li()
-            .className(this.dlightMarkitOrderedListLi$)
-          {
+        li()
+          .className(this.dlightMarkitOrderedListLi$)
+        {
+          for (const item of itemList) {
             InlineRenderer[item.type](item.content)
               .props(item.props)
           }
