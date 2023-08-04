@@ -1,8 +1,6 @@
 {
   "compilerOptions": {
-    "jsx": "react",
     "target": "ESNext",
-    "useDefineForClassFields": true,
     "module": "ESNext",
     "lib": [
       "ESNext",
@@ -16,15 +14,11 @@
     "noEmit": true,
     "skipLibCheck": true,
     "noImplicitThis": false,
-    "noImplicitAny": false,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "declaration": false,
+    "useDefineForClassFields": true
   },
   "ts-node": {
     "esm": true
-  },
-  "include": [
-    "src",
-    "src/InlineView/Strike.view.ts",
-    "src/index.ts"
-  ]
+  }
 }

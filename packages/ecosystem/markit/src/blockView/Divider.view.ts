@@ -1,6 +1,6 @@
-import DLight, { View } from "@dlightjs/dlight"
+import { View } from "@dlightjs/dlight"
 import { div, Prop, required, type Typed } from "@dlightjs/types"
-import css from "@iandx/easy-css"
+import { css } from "@dlightjs/easy-css"
 
 class Divider extends View {
   @Prop _$content = required
@@ -9,11 +9,11 @@ class Divider extends View {
 
   Body() {
     div()
-      .className(this.divider)
-      .className(this.divider_(this.dividerType))
+      .className(this.dlightMarkitDivider$)
+      .className(this.dlightMarkitDivider$_(this.dividerType))
   }
 
-  divider = css`
+  dlightMarkitDivider$ = css`
     border-top-width: 1px;
     border-bottom-width: 1px;
     border-color: gray;
@@ -21,7 +21,7 @@ class Divider extends View {
     height: 0px;
     width: auto;
   `
-  divider_ = (borderType: string) => css`
+  dlightMarkitDivider$_ = (borderType: string) => css`
     border-style: ${borderType};
   `
 }

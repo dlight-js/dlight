@@ -1,6 +1,7 @@
-import DLight, { View } from "@dlightjs/dlight"
+import { View } from "@dlightjs/dlight"
 import { htmlTag, Prop, required, type Typed } from "@dlightjs/types"
-import InlineRenderer from "../InlineView"
+import { css } from "@dlightjs/easy-css"
+import InlineRenderer from "../inlineView"
 
 class Heading extends View {
   @Prop _$content = required
@@ -9,6 +10,7 @@ class Heading extends View {
 
   Body() {
     htmlTag(this.headdingName)()
+      .className(this.dlightMarkitHeading$)
     {
       for (const content of this._$content) {
         InlineRenderer[content.type](content.content)
@@ -16,6 +18,8 @@ class Heading extends View {
       }
     }
   }
+
+  dlightMarkitHeading$ = css``
 }
 
 export default Heading as any as Typed<Heading>

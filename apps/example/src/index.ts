@@ -1,5 +1,5 @@
 import { render, renderToText } from "@dlightjs/dlight"
-import TestView from "./test.view"
+import TestView, { TestMarkit } from "./test.view"
 import transformDlight from "@dlightjs/transpiler-standalone"
 
 import { TodoApp } from "./TodoMVC"
@@ -35,4 +35,4 @@ console.log(transformDLight(code))
 
 // console.log(renderToText(BenchmarkView))
 // render("app", BenchmarkView)
-render("app", TestView)
+render("app", TestMarkit)

@@ -23,12 +23,12 @@ class MyComp extends View  {
 ```typescript
 import {css} from "@dlightjs/emotion"
 
-const MyCompBoxCss = css`
+const MyCompBoxCss$ = css`
   width: 100px;
   height: 100px;
 `
 
-const MyCompColorCss = css`
+const MyCompColorCss$ = css`
    background-color: yellow;
    color: red;
 `
