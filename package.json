@@ -1,14 +1,18 @@
 {
   "name": "@dlightjs/monorepo",
-  "version": "0.9.23",
+  "version": "0.9.25",
   "description": "DLight monorepo",
   "author": {
     "name": "IanDx",
     "email": "iandxssxx@gmail.com"
   },
-  "keywords": ["dlight.js"],
+  "keywords": [
+    "dlight.js"
+  ],
   "license": "MIT",
-  "files": ["README.md"],
+  "files": [
+    "README.md"
+  ],
   "type": "module",
   "scripts": {
     "example": "pnpm --filter ./apps/example dev",
@@ -20,6 +24,7 @@
     "newVersion": "pnpm pipeline newVersion"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.26.2",
     "@commitlint/cli": "^17.6.3",
     "@commitlint/config-conventional": "^17.6.3",
     "@types/node": "^18.11.17",
@@ -45,7 +50,8 @@
       "ecosystem/components",
       "ecosystem/transpiler",
       "ecosystem/transpiler-standalone",
-      "ecosystem/material-icons"
+      "ecosystem/material-icons",
+      "ecosystem/markit"
     ],
     "easy-css": [
       "ecosystem/easy-css/babel-preset-dlight-easy-css",

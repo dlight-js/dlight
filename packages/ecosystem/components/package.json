@@ -1,14 +1,18 @@
 {
   "name": "@dlightjs/components",
-  "version": "0.9.23",
+  "version": "0.9.26",
   "description": "DLight components library",
   "author": {
     "name": "IanDx",
     "email": "iandxssxx@gmail.com"
   },
-  "keywords": ["dlight.js"],
+  "keywords": [
+    "dlight.js"
+  ],
   "license": "MIT",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "type": "module",
   "main": "dist/index.cjs",
   "module": "dist/index.js",

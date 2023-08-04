@@ -1,14 +1,19 @@
 {
   "name": "@dlightjs/types",
-  "version": "0.9.23",
+  "version": "0.9.26",
   "description": "DLight types helper",
   "author": {
     "name": "IanDx",
     "email": "iandxssxx@gmail.com"
   },
-  "keywords": ["dlight.js", "typescript"],
+  "keywords": [
+    "dlight.js",
+    "typescript"
+  ],
   "license": "MIT",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "type": "module",
   "main": "dist/index.cjs",
   "module": "dist/index.js",

@@ -1,14 +1,19 @@
 {
   "name": "@dlightjs/dlight",
-  "version": "0.9.23",
+  "version": "0.9.26",
   "description": "DX-first UI rendering library",
   "author": {
     "name": "IanDx",
     "email": "iandxssxx@gmail.com"
   },
-  "keywords": ["dlight.js"],
+  "keywords": [
+    "dlight.js"
+  ],
   "license": "MIT",
-  "files": ["dist", "README.md"],
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "type": "module",
   "main": "dist/index.cjs",
   "module": "dist/index.js",

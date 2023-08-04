@@ -1,12 +1,14 @@
-import DLight, { View } from "@dlightjs/dlight"
+import { View } from "@dlightjs/dlight"
 import { div, Prop, required, type Typed } from "@dlightjs/types"
-import InlineRenderer from "../InlineView"
+import { css } from "@dlightjs/easy-css"
+import InlineRenderer from "../inlineView"
 
 class Paragraph extends View {
   @Prop _$content = required
 
   Body() {
     div()
+      .className(this.dlightMarkitParagraph$)
     {
       for (const content of this._$content) {
         InlineRenderer[content.type](content.content)
@@ -14,6 +16,8 @@ class Paragraph extends View {
       }
     }
   }
+
+  dlightMarkitParagraph$ = css``
 }
 
 export default Paragraph as any as Typed<Paragraph>
