@@ -1,7 +1,14 @@
 import { View } from "@dlightjs/dlight"
 import { tag } from "@dlightjs/types"
 
-export function lazy(importFunc: () => Promise<any>, fallback?: any) {
+/**
+ * @example
+ * ```js
+ * import { lazy } from "@dlightjs/components"
+ * const MyComp = lazy(() => import("./MyComp.view"))
+ * ```
+ */
+export function lazy<T>(importFunc: () => Promise<{ default: T }>, fallback?: any) {
   return class extends View {
     v?: any
     _$forwardProps = true
@@ -21,5 +28,5 @@ export function lazy(importFunc: () => Promise<any>, fallback?: any) {
         tag(fallback)()
       }
     }
-  } as any
+  } as any as T
 }
