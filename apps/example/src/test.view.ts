@@ -17,21 +17,6 @@ class JJ extends View {
   }
 }
 
-class AdvantageBlock extends View {
-  @Prop _$content = required
-  @Prop props = required
-  language = this.props.language
-  title = this.props.title
-  Body() {
-    div(this._$content)
-      .className(this.testCss)
-  }
-
-  testCss$ = css`
-   background-color: red;
-  `
-}
-
 class TestView extends View {
   count = 5
 
@@ -77,79 +62,35 @@ class TestView extends View {
     }
   }
 }
-addBlockRule({
-  name: "CodeBlock",
-  rule: {
-    getProps: raw => {
-      const text = raw.replace(/ *```|```$/g, "")
-      let [language, title] = (text.match(/^.+?\n/g) ?? ["text"])[0].replace("```", "").trim().split("[")
-      if (title) {
-        title = title.replace("]", "")
-      }
-      return { language, title }
-    }
-  },
-  view: AdvantageBlock
-})
 
 export class TestMarkit extends View {
   testMDString = `
-Here's a simple footnote,[^1] and here's a longer one.[^bignote]
+Search 🌟 in doc for important concepts and performance results.
 
-hhh
-**b*o*ld**
+# Quick start
 
-***hhh*hh**
+DLight uses [vite](https://vitejs.dev/) to construct its apps. We mainly use [this vite plugin](https://www.npmjs.com/package/vite-plugin-dlight-transpiler) to transpile jsx/jsd file into pure js code.
 
-*italic*~~ddd~~test \`function test { console.log('hello')}\`
+Three ways to try DLight.js out.
 
-## 标题2
+* Use CLI to build a dlight app. (**This feature is still in development.**)
 
-[haha](https://www.baidu.com)
-
-\`\`\`js [config.js]
-console.log('hello sd dyh');
-function test () {
-  const hh = 1
-}
-Body() {
-  div()
-    .className(this.dlightMarkitCodeBlock)
-  {
-    div(this.title)
-      .className(this.dlightMarkitCodeBlockHeader)
-    div()
-      .className(this.dlightMarkitCode)
-    {
-      pre()
-      {
-        code()
-          .innerHTML(this.highlightedCode)
-      }
-      div("copy")
-    }
-  }
-}
+\`\`\`shell
+npm install -g @dlightjs/cli
+create-dlight-app my-first-dlight-app
 \`\`\`
 
-\`\`\`python
-print("hhh")
-a=12
-b=15
-c=a+b
-\`\`\`
-
-# heading1
-
-## heading2
-
-### heading3
-
-----[dashed]
+* Clone this repo https://github.com/dlight-js/dlight-vite-template for a quick start.
+* 🌟 Play around in [codesandbox](https://codesandbox.io/p/sandbox/dlight-vite-quickstart-4tgogd)
   `
+
+  getAst = (ast: any) => {
+    console.log(ast)
+  }
 
   Body() {
     MarkitView(this.testMDString)
+      .getAst(this.getAst)
   }
 }
 

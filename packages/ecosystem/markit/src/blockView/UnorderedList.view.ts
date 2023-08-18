@@ -14,10 +14,10 @@ class UnorderedList extends View {
       .className(this.dlightMarkitUnorderedListUl$)
     {
       for (const { content, item: itemList } of this._$content) {
-        for (const item of itemList) {
-          li()
-            .className(this.dlightMarkitUnorderedListLi$)
-          {
+        li()
+          .className(this.dlightMarkitUnorderedListLi$)
+        {
+          for (const item of itemList) {
             InlineRenderer[item.type](item.content)
               .props(item.props)
           }
