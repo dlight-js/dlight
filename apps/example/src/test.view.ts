@@ -10,13 +10,6 @@ class NNN extends View {
   }
 }
 
-class JJ extends View {
-  @Env hh = "shit"
-  Body() {
-    div(this.hh)
-  }
-}
-
 class TestView extends View {
   count = 5
 
@@ -31,34 +24,19 @@ class TestView extends View {
       .color("blue")
   }
 
+  jj = { no: "44" }
+
   Body() {
-    button("+")
-      .addEvents({
-        click: this.onclick
+    button("-")
+      .onclick(() => {
+        this.jj = undefined
       })
-    // .setAttributes({
-    //   shit: `${this.count}`
-    // })
-    // .onclick(this.onclick)
-    // div("okk")
-    //   .height("100px")
-    //   .color("red")
-    env()
-      .hh("nono")
-    {
-      env()
-        .hh("jj")
-      {
-        env()
-          .hh("lit")
-        {
-          JJ()
-          NNN()
-          {
-            JJ()
-          }
-        }
-      }
+    button("+")
+      .onclick(() => {
+        this.jj = { no: "55" }
+      })
+    if (this.jj) {
+      div(this.jj.no)
     }
   }
 }
