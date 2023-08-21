@@ -1,5 +1,6 @@
 import { type CustomNode } from "./CustomNode"
 import { DLNode, DLNodeType } from "./DLNode"
+import { document } from "../utils/dom"
 
 export class TextNode extends DLNode {
   constructor(textOrFunc: string | (() => string), dlScope?: CustomNode, listenDeps?: string[]) {

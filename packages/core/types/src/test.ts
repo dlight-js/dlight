@@ -1,10 +1,11 @@
-import { type Typed, type Prop, S, type RequiredProp, div, svg, DLightHTMLAttributes, PropWrapper, PartialPropWrapper } from "./index"
+import { type Typed, type Prop, S, type RequiredProp, div, svg, type DLightHTMLAttributes, PropWrapper, type PartialPropWrapper, button } from "./index"
 import { _ } from "./expressionTag"
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 // import { a, area, div, img } from "./htmlTag"
 
-const View = class { }
+button()
 
+const View = class { }
 
 type GG<T> = (T | string)
 
@@ -50,9 +51,9 @@ interface AA {
   ok: string
 }
 
-type t = {
+interface t {
   /**
-   * typeof 
+   * typeof
    */
   ok: AA["ok"]
 }
@@ -72,8 +73,6 @@ const SubViewWithTypes = MyView as any as Typed<MyView, t>
 
 SubViewWithTypes().ok
 
-
-
 /**
  * A simple function that adds two numbers.
  * @param {number} a - The first number to add.
@@ -92,8 +91,6 @@ const b = add as any as jj<typeof add>
 
 svg()
 
-
-
 /**
  * hhfaef
  */
@@ -102,7 +99,6 @@ class LL {
 }
 
 const JJ = LL
-
 
 type a = undefined | ""
 

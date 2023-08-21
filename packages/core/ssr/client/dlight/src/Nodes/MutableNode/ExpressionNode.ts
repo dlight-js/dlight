@@ -15,8 +15,8 @@ export class ExpressionNode extends MutableNode {
 
   propFuncs: Array<() => any> = []
 
-  constructor(nodeOrFunc: ExpressionNodeType | (() => ExpressionNodeType), dlScope?: CustomNode, listenDeps?: string[]) {
-    super(DLNodeType.Expression)
+  constructor(id: string, nodeOrFunc: ExpressionNodeType | (() => ExpressionNodeType), dlScope?: CustomNode, listenDeps?: string[]) {
+    super(DLNodeType.Expression, id)
     if (!listenDeps) {
       this._$nodes = this.formatNodes(nodeOrFunc)
       return
@@ -86,7 +86,7 @@ export class ExpressionNode extends MutableNode {
     )).map((node: any) => {
       if (node._$nodeType !== undefined) return node
       // TODO 其他 Array 什么的不处理？默认传成text？
-      return new TextNode(node)
+      return new TextNode(this._$id, node)
     })
     return nodes
   }

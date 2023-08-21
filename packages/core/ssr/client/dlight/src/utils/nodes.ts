@@ -9,15 +9,6 @@ export function initNodes(nodes: DLNode[] | DLNode[][]) {
     node._$init()
   }
 }
-export function bindParentNode(nodes: DLNode[] | DLNode[][], parentNode: DLNode) {
-  for (const node of nodes) {
-    if (Array.isArray(node)) {
-      bindParentNode(node, parentNode)
-      continue
-    }
-    node._$parentNode = parentNode
-  }
-}
 
 export function loopNodes(nodes: DLNode[], runFunc: (node: DLNode) => boolean) {
   for (const node of nodes) {

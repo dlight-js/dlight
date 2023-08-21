@@ -26,8 +26,8 @@ export class ForNode extends MutableNode {
   // ---- 没有依赖
   nodesFunc?: () => DLNode[][]
 
-  constructor() {
-    super(DLNodeType.For)
+  constructor(id: string) {
+    super(DLNodeType.For, id)
   }
 
   duplicatedOrNoKey = false

@@ -66,6 +66,37 @@ export function geneDeps(path: any, value: t.Node, depChain: string[], otherDeps
   return deps
 }
 
+export function geneTriggersDeps(path: any, value: t.Node, depChain: string[], otherDeps: t.StringLiteral[] = []) {
+  let deps: t.StringLiteral[] = []
+  path.scope.traverse(valueWrapper(value),
+    {
+      MemberExpression(innerPath: any) {
+        if (
+          depChain.includes(innerPath.node.property.name) &&
+          t.isThisExpression(innerPath.node.object)
+        ) {
+          deps.push(t.stringLiteral(innerPath.node.property.name))
+        }
+      }
+    })
+  deps = [...new Set([...deps, ...otherDeps])]
+
+  return deps
+}
+
+export function deduplicateDeps(deps: t.Node[]) {
+  const depStringNames: string[] = []
+  const newDeps = []
+  for (const dep of deps) {
+    if (t.isStringLiteral(dep) && !depStringNames.includes(dep.value)) {
+      depStringNames.push(dep.value)
+      newDeps.push(dep)
+    } else {
+      newDeps.push(dep)
+    }
+  }
+  return newDeps
+}
 // ---- 只给for的解构用
 export function geneIdDeps(path: any, value: t.Node, arr: IdDepsArr, otherDeps: t.StringLiteral[] = []) {
   let deps: t.Node[] = []

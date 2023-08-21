@@ -1,4 +1,4 @@
-import { bindParentNode, initNodes, toEls } from "../utils/nodes"
+import { initNodes, toEls } from "../utils/nodes"
 
 export enum DLNodeType {
   HTML, Text, Custom, For, If, Env, Expression
@@ -28,13 +28,16 @@ export class DLNode {
 
   // 将子组件挂在该组件上，将子组件init
   _$bindNodes() {
-    bindParentNode(this._$nodes, this)
     this._$beforeInitSubNodes(this._$nodes)
     initNodes(this._$nodes)
   }
 
-  constructor(nodeType: DLNodeType) {
+  _$idx = 0
+  _$id
+
+  constructor(nodeType: DLNodeType, id: string) {
     this._$nodeType = nodeType
+    this._$id = id
   }
 
   _$init() {}

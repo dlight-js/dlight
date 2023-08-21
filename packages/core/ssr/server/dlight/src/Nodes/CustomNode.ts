@@ -2,6 +2,7 @@ import { type EnvNode } from "./EnvNode"
 import { DLNode, DLNodeType } from "./DLNode"
 import { addDLProp } from "../utils/prop"
 import { HtmlNode } from "../Nodes"
+import { addToClassPathMap, document } from "../utils/dom"
 
 export class CustomNode extends DLNode {
   _$envNodes?: EnvNode[]
@@ -78,6 +79,7 @@ export class CustomNode extends DLNode {
   }
 
   _$init() {
+    addToClassPathMap.call(this)
     this._$initDecorators()
     this.willMount(this._$el, this)
     this._$nodes = ((this as any).Body.bind(this) ?? (() => []))()
@@ -117,7 +119,7 @@ export class CustomNode extends DLNode {
     if (typeof idOrEl === "string") {
       idOrEl = document.getElementById(idOrEl)!
     }
-    idOrEl.innerHTML = ""
+    (idOrEl as any).innerHTML = ""
     const appNode = new HtmlNode(idOrEl)
     appNode._$id = ""
     appNode._$addNodes([this])

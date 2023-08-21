@@ -2,16 +2,19 @@ import { type CustomNode } from "./CustomNode"
 import { DLNode, DLNodeType } from "./DLNode"
 
 export class TextNode extends DLNode {
-  constructor(textOrFunc: string | (() => string), dlScope?: CustomNode, listenDeps?: string[]) {
-    super(DLNodeType.Text)
+  constructor(id: string, el: Node) {
+    super(DLNodeType.Text, id)
+    this._$el = el
+  }
+
+  _$addText(textOrFunc: string | (() => string), dlScope?: CustomNode, listenDeps?: string[]) {
     if (!listenDeps) {
-      this._$el = document.createTextNode(textOrFunc as string)
+      this._$el.nodeVlaue = textOrFunc
       return
     }
 
     textOrFunc = textOrFunc as (() => string)
-    let prevValue: any = textOrFunc()
-    this._$el = document.createTextNode(prevValue)
+    let prevValue: any
     const depFunc = () => {
       const newValue = (textOrFunc as (() => string))()
       if (prevValue === newValue) return

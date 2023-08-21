@@ -1,4 +1,4 @@
-import { bindParentNode, initNodes } from "../../utils/nodes"
+import { initNodes } from "../../utils/nodes"
 import { DLNode } from "../DLNode"
 
 export class MutableNode extends DLNode {
@@ -21,7 +21,6 @@ export class MutableNode extends DLNode {
   }
 
   _$bindNewNodes(nodes: DLNode[]) {
-    bindParentNode(nodes, this)
     this._$beforeInitSubNodes(nodes)
     initNodes(nodes)
     this.afterUpdateNewNodes(nodes)

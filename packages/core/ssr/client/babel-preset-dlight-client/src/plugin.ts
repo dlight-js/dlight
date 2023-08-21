@@ -59,6 +59,7 @@ export default function(api: any, options: DLightOption) {
     bindMethods(classBodyNode!, methodsToBind)
     clearNode()
   }
+
   function initNode(path: any) {
     const node: t.ClassDeclaration | t.ClassDeclaration = path.node
     classDeclarationNode = node
@@ -78,7 +79,6 @@ export default function(api: any, options: DLightOption) {
       .map(n => (n as any).key.name)
     propertiesContainer = {}
     rootPath = path
-
     this.addDLightImport()
   }
   function clearNode() {
@@ -117,6 +117,9 @@ export default function(api: any, options: DLightOption) {
         this.addDLightImport = () => {
           if (this.didAddDLightImport || dlightImports.length === 0) return
           let alreadyDeclared = false
+          for (const dlightImport of dlightImports) {
+            dlightImport.source = t.stringLiteral("@dlightjs/dlight-client")
+          }
           for (const dlightImport of dlightImports) {
             if (dlightImport.specifiers.find(n => t.isImportDefaultSpecifier(n))) {
               alreadyDeclared = true

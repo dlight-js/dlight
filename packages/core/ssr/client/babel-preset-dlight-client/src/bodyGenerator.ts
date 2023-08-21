@@ -1,5 +1,5 @@
 import { type ParserNode } from "./parser"
-import { geneDeps, geneIdDeps, uid, resolveForBody, isHTMLTag, parseCustomTag, isSubViewTag, isOnlyMemberExpression, isTagName, getForBodyIdentifiers, valueWrapper } from "./generatorHelper"
+import { geneDeps, geneIdDeps, uid, resolveForBody, isHTMLTag, parseCustomTag, isSubViewTag, isOnlyMemberExpression, isTagName, getForBodyIdentifiers, valueWrapper, geneTriggersDeps, deduplicateDeps } from "./generatorHelper"
 import * as t from "@babel/types"
 
 function nodeGeneration(nodeName: string, nodeType: t.Expression, args: Array<t.ArgumentPlaceholder | t.SpreadElement | t.Expression>) {
@@ -29,6 +29,8 @@ export class Generator {
 
   path: any
 
+  allDeps: any[] = []
+
   constructor(path: any, depChain: string[], subViews: string[], idDepsArr: IdDepsArr = []) {
     this.path = path
     this.depChain = depChain
@@ -36,24 +38,11 @@ export class Generator {
     this.idDepsArr = idDepsArr
   }
 
-  generate(parserNodes: ParserNode[]) {
+  generate(parserNodes: ParserNode[], parenNodeName?: string) {
     const bodyStatements: t.Statement[] = []
-    for (const [idx, child] of parserNodes.entries()) {
-      bodyStatements.push(...this.resolveParserNode(child, idx))
+    for (const child of parserNodes) {
+      bodyStatements.push(...this.resolveParserNode(child, parenNodeName))
     }
-    /**
-     * body.add(`return ${geneChildNodesArray(parserNodes)};`)
-     */
-    bodyStatements.push(
-      t.returnStatement(
-        t.arrayExpression(
-          parserNodes.map((parserNode, idx) => {
-            if (parserNode.attr.isSubView) return t.spreadElement(t.identifier(`_$node${idx}`))
-            return t.identifier(`_$node${idx}`)
-          })
-        )
-      )
-    )
     this.usedProperties = [...new Set(this.usedProperties)]
     return t.blockStatement(bodyStatements)
   }
@@ -65,16 +54,24 @@ export class Generator {
     return deps as any
   }
 
-  resolveParserNode(parserNode: ParserNode, idx: number) {
-    if (isSubViewTag(this.subViews, parserNode)) return this.resolveSubView(parserNode, idx)
-    if (isTagName(parserNode, "_")) return this.resolveExpression(parserNode, idx)
-    if (isTagName(parserNode, "env")) return this.resolveEnv(parserNode, idx)
-    if (parserNode.tag === "if") return this.resolveIf(parserNode, idx)
-    if (parserNode.tag === "for") return this.resolveFor(parserNode, idx)
-    if (parserNode.tag === "_$text") return this.resolveText(parserNode, idx)
-    if (isHTMLTag(parserNode)) return this.resolveHTML(parserNode, idx)
+  geneTriggersDeps(value: t.Node) {
+    const deps: t.Node[] = [...new Set([...geneTriggersDeps(this.path, value, this.depChain), ...geneIdDeps(this.path, value, this.idDepsArr)])]
+    // deps 有可能是subview的 ...xxx.deps
+    this.usedProperties.push(...deps.filter(node => t.isStringLiteral(node)).map(node => (node as any).value))
+    this.allDeps = deduplicateDeps([...this.allDeps, ...deps])
+    return deps as any
+  }
+
+  resolveParserNode(parserNode: ParserNode, parenNodeName?: string) {
+    if (isSubViewTag(this.subViews, parserNode)) return this.resolveSubView(parserNode, 0)
+    if (isTagName(parserNode, "_")) return this.resolveExpression(parserNode, 0)
+    if (isTagName(parserNode, "env")) return this.resolveEnv(parserNode, 0)
+    if (parserNode.tag === "if") return this.resolveIf(parserNode, 0)
+    if (parserNode.tag === "for") return this.resolveFor(parserNode, 0)
+    if (parserNode.tag === "_$text") return this.resolveText(parserNode, parenNodeName)
+    if (isHTMLTag(parserNode)) return this.resolveHTML(parserNode, parenNodeName)
     parseCustomTag(parserNode)
-    return this.resolveCustom(parserNode, idx)
+    return this.resolveCustom(parserNode, parenNodeName)
   }
 
   resolveIf(parserNode: ParserNode, idx: number) {
@@ -511,48 +508,74 @@ export class Generator {
     return statements
   }
 
-  resolveText(parserNode: ParserNode, idx: number) {
+  resolveText(parserNode: ParserNode, parenNodeName?: string) {
     const value = parserNode.attr._$content
     const listenDeps = this.geneDeps(value)
-    const nodeName = `_$node${idx}`
+    const nodeName = `dlNode_${uid()}`
     const statements: t.Statement[] = []
 
     if (listenDeps.length > 0) {
+      this.allDeps = deduplicateDeps([...this.allDeps, ...listenDeps])
+
       /**
-       * const ${nodeName} = new DLight.TextNode(() => ${value}, this, ${geneDepsStr(listenDeps)});
-       */
+         * ${nodeName}._$addProp(() => (${value}), this, ${geneDepsStr(listenDeps)});
+         */
       statements.push(
-        nodeGeneration(nodeName, t.identifier("TextNode"), [
-          t.arrowFunctionExpression([], value),
-          t.thisExpression(),
-          t.arrayExpression(listenDeps)
-        ])
+        t.expressionStatement(
+          t.callExpression(
+            t.memberExpression(
+              t.identifier(nodeName),
+              t.identifier("_$addText")
+            ), [
+              t.arrowFunctionExpression([], value),
+              t.thisExpression(),
+              t.arrayExpression(listenDeps)
+            ]
+          )
+        )
       )
     } else {
       /**
-       * const ${nodeName} = new DLight.TextNode(${value})
+       * ${nodeName}._$addText(${value});
        */
       statements.push(
-        nodeGeneration(nodeName, t.identifier("TextNode"), [value])
+        t.expressionStatement(
+          t.callExpression(
+            t.memberExpression(
+              t.identifier(nodeName),
+              t.identifier("_$addText")
+            ), [
+              value
+            ]
+          )
+        )
       )
     }
 
-    return statements
+    return [t.expressionStatement(
+      t.callExpression(
+        t.memberExpression(t.identifier("DLight"), t.identifier("hydrateText")),
+        [
+          t.arrowFunctionExpression([t.identifier(nodeName)], t.blockStatement(statements)),
+          parenNodeName ? t.identifier(parenNodeName) : t.thisExpression(),
+          t.thisExpression(),
+          t.arrayExpression(listenDeps)
+        ]
+      )
+    )]
   }
 
-  resolveHTML(parserNode: ParserNode, idx: number) {
+  resolveHTML(parserNode: ParserNode, parenNodeName?: string) {
     const statements: t.Statement[] = []
-    const nodeName = `_$node${idx}`
-    /**
-     * const ${nodeName} = new DLight.HtmlNode(${parserNode.tag})
-     */
-    statements.push(
-      nodeGeneration(nodeName, t.identifier("HtmlNode"), [parserNode.tag as any])
-    )
+    const hydationStatements: t.Statement[] = []
+    const nodeName = `dlNode_${uid()}`
+    let triggersDeps: any[] = []
+    let hasEvent = false
 
     // ---- properties
     for (let { key, value, nodes } of parserNode.attr.props) {
       this.parsePropNodes(value, nodes)
+      triggersDeps = deduplicateDeps([...triggersDeps, ...this.geneTriggersDeps(value)])
       if (key === "do") {
         /**
          * (${value})(${nodeName});
@@ -602,6 +625,7 @@ export class Generator {
         continue
       }
       if (key.startsWith("on")) {
+        hasEvent = true
         // event
         const eventName = key.slice(2)
         /**
@@ -900,51 +924,50 @@ export class Generator {
 
     // ---- children
     if (parserNode.children.length > 0) {
-      /**
-       * ${nodeName}._$addNodes((() => {
-       *  ${children}
-       * })())
-       */
-      statements.push(
-        t.expressionStatement(
-          t.callExpression(
-            t.memberExpression(
-              t.identifier(nodeName),
-              t.identifier("_$addNodes")
-            ), [
-              t.callExpression(
-                t.arrowFunctionExpression(
-                  [],
-                  this.generate(parserNode.children)
-                ),
-                []
-              )
-            ]
-          )
+      const newGenerator = new Generator(this.path, this.depChain, this.subViews, this.idDepsArr)
+      const subChildren = newGenerator.generate(parserNode.children, nodeName)
+      this.usedProperties.push(...newGenerator.usedProperties)
+      triggersDeps = deduplicateDeps([...triggersDeps, ...newGenerator.allDeps])
+      this.allDeps = deduplicateDeps([...this.allDeps, ...newGenerator.allDeps])
+      hydationStatements.push(...subChildren.body)
+    }
+
+    const hydrationOptions: t.ObjectProperty[] = []
+    if (hasEvent) {
+      hydrationOptions.push(
+        t.objectProperty(
+          t.identifier("hasEvent"),
+          t.booleanLiteral(true)
+        )
+      )
+    }
+    if (triggersDeps.length > 0) {
+      hydrationOptions.push(
+        t.objectProperty(
+          t.identifier("triggersDeps"),
+          t.arrayExpression(triggersDeps)
         )
       )
     }
 
-    return statements
-  }
-
-  resolveCustom(parserNode: ParserNode, idx: number) {
-    const statements: t.Statement[] = []
-    const nodeName = `_$node${idx}`
-
-    /**
-     * const ${nodeName} = new (${parserNode.tag})();
-     */
-    statements.push(
-      t.variableDeclaration(
-        "const", [
-          t.variableDeclarator(
-            t.identifier(nodeName),
-            t.newExpression(parserNode.tag as any, [])
-          )
+    return [t.expressionStatement(
+      t.callExpression(
+        t.memberExpression(t.identifier("DLight"), t.identifier("hydrateElement")),
+        [
+          t.arrowFunctionExpression([t.identifier(nodeName)], t.blockStatement(statements)),
+          parenNodeName ? t.identifier(parenNodeName) : t.thisExpression(),
+          t.thisExpression(),
+          t.objectExpression(hydrationOptions),
+          t.arrowFunctionExpression([t.identifier(nodeName)], t.blockStatement(hydationStatements))
         ]
       )
-    )
+    )]
+  }
+
+  resolveCustom(parserNode: ParserNode, parenNodeName?: string) {
+    const statements: t.Statement[] = []
+    const nodeName = `dlNode_${uid()}`
+    const deps: any[] = []
 
     // ---- props
     for (let { key, value, nodes } of parserNode.attr.props) {
@@ -998,6 +1021,7 @@ export class Generator {
         continue
       }
       let listenDeps = this.geneDeps(value)
+      deps.push(...listenDeps)
       if (key === "element") {
         // ---- 过滤掉绑定的this.xxEl
         if (t.isMemberExpression(value) && t.isThisExpression(value.object) && t.isIdentifier(value.property)) {
@@ -1162,7 +1186,7 @@ export class Generator {
             ), [
               t.arrowFunctionExpression(
                 [],
-                this.generate(parserNode.children)
+                this.generate(parserNode.children, nodeName)
               )
             ]
           )
@@ -1170,7 +1194,17 @@ export class Generator {
       )
     }
 
-    return statements
+    return [t.expressionStatement(
+      t.callExpression(
+        t.memberExpression(t.identifier("DLight"), t.identifier("hydrateComponent")),
+        [
+          t.arrowFunctionExpression([t.identifier(nodeName)], t.blockStatement(statements)),
+          parenNodeName ? t.identifier(parenNodeName) : t.thisExpression(),
+          t.thisExpression(),
+          t.arrayExpression(deps)
+        ]
+      )
+    )]
   }
 
   resolveSubView(parserNode: ParserNode, idx: number) {

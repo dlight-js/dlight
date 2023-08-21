@@ -3,6 +3,7 @@ import { handleBody } from "./bodyHandler"
 import { resolveState, resolveProp } from "./decoratorResolver"
 import { bindMethods, isDLightView, pushDerived, shouldBeListened, valueWithArrowFunc } from "./nodeHelper"
 import { minimatch } from "minimatch"
+import { getRelativePath } from "./utils"
 
 export interface DLightOption {
   /**
@@ -59,7 +60,8 @@ export default function(api: any, options: DLightOption) {
     bindMethods(classBodyNode!, methodsToBind)
     clearNode()
   }
-  function initNode(path: any) {
+
+  function initNode(path: any, filename: string) {
     const node: t.ClassDeclaration | t.ClassDeclaration = path.node
     classDeclarationNode = node
     classBodyNode = node.body
@@ -78,6 +80,12 @@ export default function(api: any, options: DLightOption) {
       .map(n => (n as any).key.name)
     propertiesContainer = {}
     rootPath = path
+    classBodyNode.body.push(
+      t.classProperty(
+        t.identifier("_$filepath"),
+        t.stringLiteral(getRelativePath(filename))
+      )
+    )
 
     this.addDLightImport()
   }
@@ -135,10 +143,10 @@ export default function(api: any, options: DLightOption) {
         }
       },
       ClassDeclaration: {
-        enter(path: any) {
+        enter(path: any, state: any) {
           if (!this.enter) return
           if (!isDLightView(path)) return
-          initNode.call(this, path)
+          initNode.call(this, path, state.filename)
         },
         exit(path: any) {
           if (!this.enter) return
@@ -147,10 +155,10 @@ export default function(api: any, options: DLightOption) {
         }
       },
       ClassExpression: {
-        enter(path: any) {
+        enter(path: any, state: any) {
           if (!this.enter) return
           if (!isDLightView(path)) return
-          initNode.call(this, path)
+          initNode.call(this, path, state.filename)
         },
         exit(path: any) {
           if (!this.enter) return

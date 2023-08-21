@@ -7,12 +7,10 @@ export class CustomNode extends DLNode {
   _$envNodes?: EnvNode[]
   _$derivedPairs?: Record<string, string[]>
 
-  _$idx = 0
-  _$id
   _$parentInited = false
 
   constructor(id: string) {
-    super(DLNodeType.Custom)
+    super(DLNodeType.Custom, id)
     this._$id = id
   }
 
@@ -54,6 +52,7 @@ export class CustomNode extends DLNode {
   _$updateProperty(key: string, value: any) {
     if ((this as any)[`_$$${key}`] === value) return
     (this as any)[`_$$${key}`] = value
+
     for (const func of (this as any)[`_$$${key}Deps`]) {
       func()
     }
@@ -91,6 +90,8 @@ export class CustomNode extends DLNode {
   }
 
   _$addProp(key: string, propFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]) {
+    if (dlScope) console.log(propFunc())
+    console.log("called")
     addDLProp(this, "prop", key, propFunc, dlScope, listenDeps)
   }
 

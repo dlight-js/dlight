@@ -6,8 +6,8 @@ import { loopNodes } from "../utils/nodes"
 export class EnvNode extends DLNode {
   addPropFuncs: Array<(node: CustomNode) => any> = []
 
-  constructor() {
-    super(DLNodeType.Env)
+  constructor(id: string) {
+    super(DLNodeType.Env, id)
   }
 
   _$addNodes(nodes: DLNode[]) {

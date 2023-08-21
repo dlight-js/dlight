@@ -17,8 +17,8 @@ export class IfNode extends MutableNode {
   dlScope?: CustomNode
   _$envNodes?: EnvNode[] = []
 
-  constructor() {
-    super(DLNodeType.If)
+  constructor(id: string) {
+    super(DLNodeType.If, id)
   }
 
   _$addCond(condition: () => boolean, node: () => DLNode[], dlScope?: CustomNode, listenDeps?: string[]) {

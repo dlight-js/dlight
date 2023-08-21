@@ -69,6 +69,12 @@ export default class TransitionTest extends View {
       .onclick(() => {
         this.length -= 50
       })
+    div("hello")
+      .style({
+        backgroundColor: "black",
+        width: "100px",
+        height: "100px"
+      })
     if (this.toggle) {
       TransitionGroup()
         .duration(1)
@@ -94,11 +100,19 @@ export default class TransitionTest extends View {
             .willAppear((el) => {
               if (el) el.dataset.index = idx
             })
-            ._width(`${this.length}px`)
-            ._marginTop("10px")
-            ._backgroundColor(this.toggle ? "blue" : "red")
+            .style({
+              width: `${this.length}px`,
+              marginTop: "10px",
+              backgroundColor: this.toggle ? "blue" : "red"
+            })
         }
       }
+      div("hello")
+        .style({
+          backgroundColor: "black",
+          width: "100px",
+          height: "100px"
+        })
     }
   }
 }

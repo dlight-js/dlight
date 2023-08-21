@@ -637,7 +637,7 @@ export class Generator {
         continue
       }
       if (key === "_$content") {
-        key = "innerText"
+        key = "textContent"
       }
       let listenDeps = this.geneDeps(value)
       if (key === "element") {

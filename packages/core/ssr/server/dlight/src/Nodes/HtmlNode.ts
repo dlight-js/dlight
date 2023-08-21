@@ -2,6 +2,7 @@ import { type CustomNode } from "./CustomNode"
 import { DLNode, DLNodeType } from "./DLNode"
 import { type EnvNode } from "./EnvNode"
 import { appendEls, classNameJoin } from "./utils"
+import { document, onEvents } from "../utils/dom"
 
 export class HtmlNode extends DLNode {
   _$envNodes: EnvNode[] = []
@@ -92,6 +93,7 @@ export class HtmlNode extends DLNode {
   }
 
   _$addEvent(eventName: string) {
+    if (!onEvents.includes(eventName)) onEvents.push(eventName)
     this._$el.setAttribute(`will-${eventName}`, "")
   }
 

@@ -16,7 +16,20 @@ export function bindParentNode(nodes: DLNode[] | DLNode[][], parentNode: DLNode,
       continue
     }
     node._$parentNode = parentNode
-    node._$id = `${parentNode._$id}:${idx}`
+
+    if (node._$nodeType !== DLNodeType.Custom) {
+      node._$id = `${parentNode._$id}-${idx}`
+    } else {
+      node._$id = `${parentNode._$id}:${idx}`
+    }
+
+    if (node._$nodeType === DLNodeType.Text) {
+      let p: any = parentNode
+      while (p._$nodeType !== DLNodeType.HTML) {
+        p = p._$parentNode
+      }
+      p._$el.setAttribute(`text${node._$id}`, "")
+    }
     idx++
   }
 }

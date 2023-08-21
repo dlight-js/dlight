@@ -1,18 +1,21 @@
 import { type CustomNode } from "./CustomNode"
 import { DLNode, DLNodeType } from "./DLNode"
 import { type EnvNode } from "./EnvNode"
-import { appendEls, classNameJoin } from "./utils"
+import { classNameJoin } from "./utils"
 
 export class HtmlNode extends DLNode {
   _$envNodes: EnvNode[] = []
 
-  constructor(tagOrEl: string | HTMLElement) {
-    super(DLNodeType.HTML)
-    this._$el = typeof tagOrEl === "string" ? document.createElement(tagOrEl) : tagOrEl
+  constructor(id: string) {
+    super(DLNodeType.HTML, id)
   }
 
   _$init(): void {
     this._$bindNodes()
+  }
+
+  _$addElement(element: HTMLElement) {
+    this._$el = element
   }
 
   _$addProp(key: string, valueOrFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]) {

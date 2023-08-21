@@ -36,7 +36,7 @@ import transformDLight from "@dlightjs/transpiler-standalone"
 // console.log(renderToText(BenchmarkView))
 // render("app", BenchmarkView)
 console.time("0")
-render("app", TestView)
+render("app", TransitionGroupView)
 console.timeEnd("0")
 
 console.time("0")
