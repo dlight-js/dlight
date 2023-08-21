@@ -121,6 +121,7 @@ class RouterSpace extends View {
   Body() {
     env()
       .navigator(this.navigator)
+      .path(this.currUrl)
     {
       _(this.showedRoute)
     }
