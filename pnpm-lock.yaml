@@ -234,14 +234,14 @@ importers:
         specifier: ^7.20.7
         version: 7.22.5
       '@iandx/easy-css-atomic':
-        specifier: 0.10.11
-        version: 0.10.11(postcss@8.4.25)
+        specifier: 0.10.13
+        version: 0.10.13(postcss@8.4.25)
       '@iandx/easy-css-utility':
-        specifier: 0.10.11
-        version: 0.10.11(postcss@8.4.25)
+        specifier: 0.10.13
+        version: 0.10.13(postcss@8.4.25)
       babel-preset-easy-css:
-        specifier: 0.10.11
-        version: 0.10.11(@babel/core@7.22.8)(postcss@8.4.25)
+        specifier: 0.10.13
+        version: 0.10.13(@babel/core@7.22.8)(postcss@8.4.25)
       minimatch:
         specifier: ^9.0.3
         version: 9.0.3
@@ -256,14 +256,14 @@ importers:
   packages/ecosystem/easy-css/easy-css:
     dependencies:
       '@iandx/easy-css':
-        specifier: 0.10.11
-        version: 0.10.11(postcss@8.4.25)
+        specifier: 0.10.13
+        version: 0.10.13(postcss@8.4.25)
       '@iandx/easy-css-atomic':
-        specifier: 0.10.11
-        version: 0.10.11(postcss@8.4.25)
+        specifier: 0.10.13
+        version: 0.10.13(postcss@8.4.25)
       '@iandx/easy-css-utility':
-        specifier: 0.10.11
-        version: 0.10.11(postcss@8.4.25)
+        specifier: 0.10.13
+        version: 0.10.13(postcss@8.4.25)
     devDependencies:
       '@dlightjs/types':
         specifier: workspace:*
@@ -1563,24 +1563,24 @@ packages:
     resolution: {integrity: sha512-ZnQMnLV4e7hDlUvw8H+U8ASL02SS2Gn6+9Ac3wGGLIe7+je2AeAOxPY+izIPJDfFDb7eDjev0Us8MO1iFRN8hA==}
     dev: true
 
-  /@iandx/easy-css-atomic@0.10.11(postcss@8.4.25):
-    resolution: {integrity: sha512-RcL5o7hBcA1vN8zkrPTAQJKO76/a+U6AD0UH/el0maUqYZVh+ox8u8YtENGBrbNlOaERezQ0dED+h2MUHwEWyw==}
+  /@iandx/easy-css-atomic@0.10.13(postcss@8.4.25):
+    resolution: {integrity: sha512-ifzOSF0CJzTjQjGREBf5IetMV6SN5/1xCG2owReZ2/TUFGB6lEvfEXQOZkpAkimZ8rLxuvcr7mTp618D+WPnuw==}
     dependencies:
-      '@iandx/easy-css': 0.10.11(postcss@8.4.25)
+      '@iandx/easy-css': 0.10.13(postcss@8.4.25)
     transitivePeerDependencies:
       - postcss
     dev: false
 
-  /@iandx/easy-css-utility@0.10.11(postcss@8.4.25):
-    resolution: {integrity: sha512-jOnj3CM8gTuvjKCw+Rre1O5pFpU7/fxPaZZ0FwTyfYYuKdNY9N2ZjKnpST3U+TGd+kCZWRzabFQ0Ync/jvMEEA==}
+  /@iandx/easy-css-utility@0.10.13(postcss@8.4.25):
+    resolution: {integrity: sha512-A3jfau6RP6VCbvz2WqFYJ0fb0ech8T1muqFVjAkFge5Rm91Z7qLLSLXrE+LXERv3ctq1Du2QT9nSnLk3CNsjgg==}
     dependencies:
-      '@iandx/easy-css': 0.10.11(postcss@8.4.25)
+      '@iandx/easy-css': 0.10.13(postcss@8.4.25)
     transitivePeerDependencies:
       - postcss
     dev: false
 
-  /@iandx/easy-css@0.10.11(postcss@8.4.25):
-    resolution: {integrity: sha512-qphPrfR+KTXuY4g/+//dRJmSiM5lAXM+WBBzJAGljBNV/9p+V01y/gNIWo1xzn6a9ZuQmmtL57UQwFU9npmmKA==}
+  /@iandx/easy-css@0.10.13(postcss@8.4.25):
+    resolution: {integrity: sha512-ZPi8oiyTlI5LfSOtBmFw7oUBe9iGdkwjB1AlrREWn3Y3OrlGidg/6WDXjylumc4CRND0H1SYj9CWrx3wkYjWhw==}
     dependencies:
       autoprefixer: 10.4.14(postcss@8.4.25)
     transitivePeerDependencies:
@@ -2173,14 +2173,14 @@ packages:
       resolve: 1.22.2
     dev: false
 
-  /babel-preset-easy-css@0.10.11(@babel/core@7.22.8)(postcss@8.4.25):
-    resolution: {integrity: sha512-gL9+2Ep2+/up1/zwvQ8kTiIv0XUrAWVwXR7DTzJ73pe/jDkL5qtvOhboeaZd4k8vJctugN5XQedu/3ThFdc7ug==}
+  /babel-preset-easy-css@0.10.13(@babel/core@7.22.8)(postcss@8.4.25):
+    resolution: {integrity: sha512-OJbK2CX+tOtTxNffCee+PMG6xChCfPBc9xlQ73WlGgeygv8W3mf6A4NFfqWrnoOG9SmbJeuWlcuQckZgupR4Lg==}
     dependencies:
       '@babel/helper-plugin-utils': 7.22.5
       '@babel/plugin-syntax-decorators': 7.22.5(@babel/core@7.22.8)
       '@babel/plugin-syntax-do-expressions': 7.22.5(@babel/core@7.22.8)
       '@babel/types': 7.22.5
-      '@iandx/easy-css': 0.10.11(postcss@8.4.25)
+      '@iandx/easy-css': 0.10.13(postcss@8.4.25)
       minimatch: 9.0.3
     transitivePeerDependencies:
       - '@babel/core'

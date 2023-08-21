@@ -1,6 +1,6 @@
 {
   "name": "babel-preset-dlight-easy-css",
-  "version": "0.9.25",
+  "version": "0.9.26",
   "description": "DLight's babel preset for easy-css",
   "author": {
     "name": "IanDx",
@@ -28,9 +28,9 @@
   },
   "dependencies": {
     "@babel/types": "^7.20.7",
-    "@iandx/easy-css-atomic": "0.10.11",
-    "@iandx/easy-css-utility": "0.10.11",
-    "babel-preset-easy-css": "0.10.11",
+    "@iandx/easy-css-atomic": "0.10.13",
+    "@iandx/easy-css-utility": "0.10.13",
+    "babel-preset-easy-css": "0.10.13",
     "minimatch": "^9.0.3"
   }
 }

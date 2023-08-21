@@ -1,12 +1,24 @@
 # @dlightjs/markit
 
+## 0.9.32
+
+### Patch Changes
+
+- updated iandx/easy-css version
+
+## 0.9.31
+
+### Patch Changes
+
+- Updated dependencies
+  - @dlightjs/easy-css@0.9.27
+
 ## 0.9.30
 
 ### Patch Changes
 
 - Updated dependencies
-  - @dlightjs/dlight@0.9.27
-  - @dlightjs/easy-css@0.9.25
+  - @dlightjs/easy-css@0.9.26
 
 ## 0.9.29
 

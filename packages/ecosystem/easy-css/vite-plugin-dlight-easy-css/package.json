@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-dlight-easy-css",
-  "version": "0.9.25",
+  "version": "0.9.27",
   "description": "DLight transpiler for babel",
   "author": {
     "name": "IanDx",
