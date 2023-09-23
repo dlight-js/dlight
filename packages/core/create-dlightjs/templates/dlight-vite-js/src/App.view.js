@@ -1,4 +1,4 @@
-import DLight, { View } from "@dlightjs/dlight"
+import { View } from "@dlightjs/dlight"
 import { wrap, slogan2, countWrap, countBtn, btnWrap, countText, colorD, colorL, m0 } from "./style.module.css"
 import Button from "./Button.view"
 import Header from "./Header.view"

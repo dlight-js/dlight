@@ -1,12 +1,12 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed, div, p, button, span, SubView } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, div, p, button, span, type Pretty } from "@dlightjs/types"
 import Header from "./Header.view"
 import { wrap, slogan2, countWrap, countBtn, btnHover, btnWrap, countText, colorD, colorL, m0 } from "./style.module.css"
 
 class App extends View {
   count = 0
-  btnStatus = [0, 0]  // hover = 1
-  @SubView
+  btnStatus = [0, 0]
+  @View
   Btn({ _$content, onclick, index }: any): any {
     button(_$content)
       .className(this.btnStatus[index] === 1 ? `${countBtn} ${btnHover}` : countBtn)
@@ -65,4 +65,4 @@ class App extends View {
   }
 }
 
-export default App as any as Typed<App>
+export default App as Pretty as Typed

@@ -1,4 +1,4 @@
-import DLight, { View } from "@dlightjs/dlight"
+import { View } from "@dlightjs/dlight"
 import { countBtn, btnHover } from "./style.module.css"
 
 export default class Button extends View {

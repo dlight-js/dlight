@@ -1,6 +1,6 @@
-import DLight, { View } from "@dlightjs/dlight"
+import { View } from "@dlightjs/dlight"
 import { headerWrap, navBtn, headerLogo } from "./style.module.css"
-import { type Typed, div, img, SubView, a } from "@dlightjs/types"
+import { type Typed, div, img, a type Pretty } from "@dlightjs/types"
 
 class Header extends View {
   navList = [
@@ -18,7 +18,7 @@ class Header extends View {
     }
   ]
 
-  @SubView
+  @View
   Nav({ url, navName }: any): any {
     a(navName)
       .className(navBtn)
@@ -44,4 +44,4 @@ class Header extends View {
   }
 }
 
-export default Header as any as Typed<Header>
+export default Header as Pretty as Typed
