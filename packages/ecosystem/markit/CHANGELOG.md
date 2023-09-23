@@ -1,5 +1,17 @@
 # @dlightjs/markit
 
+## 0.9.35
+
+### Patch Changes
+
+- fix: markit types
+
+## 0.9.34
+
+### Patch Changes
+
+- fix: types
+
 ## 0.9.33
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 import { View } from "@dlightjs/dlight"
 import { Prop, required, sup, a, type Typed, type Pretty } from "@dlightjs/types"
-import { css } from "@dlightjs/easy-css"
+import { css } from "@iandx/easy-css"
 
 interface FootnoteSupProps {
   _$content: any

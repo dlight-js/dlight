@@ -35,7 +35,6 @@ importers:
       '@dlightjs/components': workspace:*
       '@dlightjs/dlight': workspace:*
       '@dlightjs/easy-css': workspace:*
-      '@dlightjs/emotion': workspace:*
       '@dlightjs/markit': workspace:*
       '@dlightjs/material-icons': workspace:*
       '@dlightjs/transpiler-standalone': workspace:*
@@ -52,7 +51,6 @@ importers:
       '@dlightjs/components': link:../../packages/ecosystem/components
       '@dlightjs/dlight': link:../../packages/core/dlight
       '@dlightjs/easy-css': link:../../packages/ecosystem/easy-css/easy-css
-      '@dlightjs/emotion': link:../../packages/ecosystem/emotion
       '@dlightjs/markit': link:../../packages/ecosystem/markit
       '@dlightjs/material-icons': link:../../packages/ecosystem/material-icons
       '@dlightjs/transpiler-standalone': link:../../packages/ecosystem/transpiler-standalone
@@ -71,7 +69,6 @@ importers:
     specifiers:
       '@dlightjs/components': workspace:*
       '@dlightjs/dlight': workspace:*
-      '@dlightjs/emotion': workspace:*
       '@dlightjs/transpiler': workspace:*
       '@dlightjs/types': workspace:*
       '@emotion/css': ^11.10.6
@@ -85,7 +82,6 @@ importers:
     dependencies:
       '@dlightjs/components': link:../../packages/ecosystem/components
       '@dlightjs/dlight': link:../../packages/core/dlight
-      '@dlightjs/emotion': link:../../packages/ecosystem/emotion
       '@dlightjs/transpiler': link:../../packages/ecosystem/transpiler
       '@dlightjs/types': link:../../packages/core/types
       '@emotion/css': 11.11.2
@@ -221,25 +217,6 @@ importers:
     devDependencies:
       tsup: 6.7.0
 
-  packages/ecosystem/emotion:
-    specifiers:
-      '@babel/cli': ^7.22.6
-      '@babel/core': ^7.20.12
-      '@dlightjs/dlight': workspace:*
-      '@dlightjs/types': workspace:*
-      '@emotion/css': ^11.10.6
-      babel-preset-dlight: workspace:^0.9.3
-      tsup: ^6.5.0
-    dependencies:
-      '@dlightjs/dlight': link:../../core/dlight
-      '@dlightjs/types': link:../../core/types
-      '@emotion/css': 11.11.2
-    devDependencies:
-      '@babel/cli': 7.22.6_@babel+core@7.22.8
-      '@babel/core': 7.22.8
-      babel-preset-dlight: link:../../core/babel-preset-dlight
-      tsup: 6.7.0
-
   packages/ecosystem/eslint-plugin-dlight:
     specifiers:
       eslint: ^8.38.0
@@ -251,24 +228,24 @@ importers:
       '@babel/cli': ^7.22.6
       '@babel/core': ^7.20.12
       '@dlightjs/dlight': workspace:*
-      '@dlightjs/easy-css': workspace:*
       '@dlightjs/types': workspace:*
+      '@iandx/easy-css': 0.10.14
       '@iandx/markit': ^0.1.5
       babel-preset-dlight: workspace:*
-      babel-preset-dlight-easy-css: workspace:*
+      babel-preset-easy-css: 0.10.14
       path: ^0.12.7
       tsup: ^6.5.0
       typescript: ^4.9.3
     dependencies:
       '@dlightjs/dlight': link:../../core/dlight
-      '@dlightjs/easy-css': link:../easy-css/easy-css
+      '@iandx/easy-css': 0.10.14
       '@iandx/markit': 0.1.5
     devDependencies:
       '@babel/cli': 7.22.6_@babel+core@7.22.8
       '@babel/core': 7.22.8
       '@dlightjs/types': link:../../core/types
       babel-preset-dlight: link:../../core/babel-preset-dlight
-      babel-preset-dlight-easy-css: link:../easy-css/babel-preset-dlight-easy-css
+      babel-preset-easy-css: 0.10.14_@babel+core@7.22.8
       path: 0.12.7
       tsup: 6.7.0_typescript@4.9.5
       typescript: 4.9.5
@@ -279,7 +256,7 @@ importers:
       '@babel/core': ^7.20.12
       '@dlightjs/dlight': workspace:*
       '@dlightjs/types': workspace:*
-      babel-preset-dlight: workspace:^0.9.3
+      babel-preset-dlight: workspace:^0.9.26
       tsup: ^6.5.0
       typescript: ^5.2.2
     dependencies:

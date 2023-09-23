@@ -1,6 +1,6 @@
 import { View } from "@dlightjs/dlight"
 import { htmlTag, type Pretty, Prop, required, type Typed } from "@dlightjs/types"
-import { css } from "@dlightjs/easy-css"
+import { css } from "@iandx/easy-css"
 import InlineRenderer from "../inlineView"
 
 interface HeadingProps {
