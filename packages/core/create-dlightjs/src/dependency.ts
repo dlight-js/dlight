@@ -2,12 +2,15 @@
 export const dependencies = {
   "@dlightjs/components": "*",
   "@dlightjs/emotion": "*",
+  "@dlightjs/material-icons": "*",
+  "@dlightjs/markit": "*",
+  "@iandx/easy-css": "*",
   "@dlightjs/dlight": "*",
   "@dlightjs/types": "*"
 }
 
 export const devDependencies = {
-  vite: "^4.0.0",
+  vite: "*",
   "vite-plugin-dlight": "*",
-  typescript: "^4.9.3"
+  typescript: "*"
 }
