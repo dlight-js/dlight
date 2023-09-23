@@ -1,5 +1,11 @@
 # create-dlightjs
 
+## 0.9.29
+
+### Patch Changes
+
+- build
+
 ## 0.9.28
 
 ### Patch Changes
