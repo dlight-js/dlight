@@ -1,6 +1,6 @@
 import { View } from "@dlightjs/dlight"
 import { type Pretty, Prop, required, strong, type Typed } from "@dlightjs/types"
-import { css } from "@dlightjs/easy-css"
+import { css } from "@iandx/easy-css"
 import InlineRenderer from "."
 
 interface BoldProps {

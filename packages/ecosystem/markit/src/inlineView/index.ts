@@ -36,7 +36,7 @@ export const InlineRenderer = new Proxy(InlineRendererBase, {
 interface InlineRuleType {
   name: string
   rule: any
-  view: new (...args: any[]) => any & typeof View
+  view: (new (...args: any[]) => any & typeof View) | Function
 }
 
 export const addInlineRule = ({ name, rule, view }: InlineRuleType) => {

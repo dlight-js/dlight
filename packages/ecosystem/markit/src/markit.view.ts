@@ -5,12 +5,12 @@ import { parse } from "@iandx/markit"
 
 interface MarkitProps {
   _$content: any
-  getAst: (data: any) => any
+  getAst?: (data: any) => any
 }
 class MarkitView extends View implements MarkitProps {
   /** @prop */
   @Prop _$content = required
-  @Prop getAst = undefined as any
+  @Prop getAst?: (data: any) => any
 
   /** @reactive */
   markitAst: any = parse(this._$content)

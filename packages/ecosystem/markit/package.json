@@ -1,6 +1,6 @@
 {
   "name": "@dlightjs/markit",
-  "version": "0.9.33",
+  "version": "0.9.35",
   "description": "Markit for DLight",
   "author": {
     "name": "IanDx",
@@ -24,7 +24,7 @@
   "devDependencies": {
     "@dlightjs/types": "workspace:*",
     "babel-preset-dlight": "workspace:*",
-    "babel-preset-dlight-easy-css": "workspace:*",
+    "babel-preset-easy-css": "0.10.14",
     "path": "^0.12.7",
     "tsup": "^6.5.0",
     "typescript": "^4.9.3",
@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "@dlightjs/dlight": "workspace:*",
-    "@dlightjs/easy-css": "workspace:*",
+    "@iandx/easy-css": "0.10.14",
     "@iandx/markit": "^0.1.5"
   }
 }

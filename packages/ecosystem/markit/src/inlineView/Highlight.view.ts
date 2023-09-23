@@ -1,7 +1,7 @@
 import { View } from "@dlightjs/dlight"
 import { type Pretty, Prop, required, span, type Typed } from "@dlightjs/types"
 import InlineRenderer from "."
-import { css } from "@dlightjs/easy-css"
+import { css } from "@iandx/easy-css"
 
 interface HighlightProps {
   _$content: any

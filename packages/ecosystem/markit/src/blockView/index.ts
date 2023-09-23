@@ -36,7 +36,7 @@ export const BlockRenderer = new Proxy(BlockRendererBase, {
 interface BlockRuleType {
   name: string
   rule?: any
-  view: new (...args: any[]) => any & typeof View
+  view: (new (...args: any[]) => any & typeof View) | Function
 }
 
 export const addBlockRule = ({ name, rule, view }: BlockRuleType) => {

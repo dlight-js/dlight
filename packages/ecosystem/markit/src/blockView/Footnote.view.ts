@@ -1,6 +1,6 @@
 import { View } from "@dlightjs/dlight"
 import { a, div, type Pretty, Prop, required, span, type Typed } from "@dlightjs/types"
-import { css } from "@dlightjs/easy-css"
+import { css } from "@iandx/easy-css"
 import Markit from "@iandx/markit"
 import InlineRenderer from "../inlineView"
 

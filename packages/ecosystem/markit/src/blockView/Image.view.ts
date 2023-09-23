@@ -1,6 +1,6 @@
 import { View } from "@dlightjs/dlight"
 import { a, div, img, type Pretty, Prop, required, type Typed } from "@dlightjs/types"
-import { css } from "@dlightjs/easy-css"
+import { css } from "@iandx/easy-css"
 
 interface ImageProps {
   _$content: any
