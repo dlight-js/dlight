@@ -1,5 +1,11 @@
 # @dlightjs/markit
 
+## 0.9.36
+
+### Patch Changes
+
+- fix: no dlight-easy-css
+
 ## 0.9.35
 
 ### Patch Changes
