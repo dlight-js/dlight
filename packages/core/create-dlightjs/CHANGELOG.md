@@ -1,5 +1,11 @@
 # create-dlightjs
 
+## 0.9.30
+
+### Patch Changes
+
+- feat: change blank project icon
+
 ## 0.9.29
 
 ### Patch Changes

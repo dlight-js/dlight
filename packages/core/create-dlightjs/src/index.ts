@@ -40,7 +40,7 @@ const language = await select({
 })
 
 const isBlank = await select({
-  message: "🈳️ blank template",
+  message: "📃 blank template",
   choices: [
     {
       name: "yes",
