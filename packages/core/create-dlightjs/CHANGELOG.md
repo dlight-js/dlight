@@ -1,5 +1,17 @@
 # create-dlightjs
 
+## 0.9.32
+
+### Patch Changes
+
+- feat: change package version get method
+
+## 0.9.31
+
+### Patch Changes
+
+- build
+
 ## 0.9.30
 
 ### Patch Changes
