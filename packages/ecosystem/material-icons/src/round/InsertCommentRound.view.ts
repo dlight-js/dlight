@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class InsertCommentRound extends View {
@@ -12,4 +12,4 @@ class InsertCommentRound extends View {
   }
 }
 
-export default InsertCommentRound as any as Typed<DLightIconType>
+export default InsertCommentRound as Pretty as Typed<DLightIconType, HTMLSpanElement>

@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class VolumeOffSharp extends View {
@@ -12,4 +12,4 @@ class VolumeOffSharp extends View {
   }
 }
 
-export default VolumeOffSharp as any as Typed<DLightIconType>
+export default VolumeOffSharp as Pretty as Typed<DLightIconType, HTMLSpanElement>

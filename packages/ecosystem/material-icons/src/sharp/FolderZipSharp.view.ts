@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class FolderZipSharp extends View {
@@ -12,4 +12,4 @@ class FolderZipSharp extends View {
   }
 }
 
-export default FolderZipSharp as any as Typed<DLightIconType>
+export default FolderZipSharp as Pretty as Typed<DLightIconType, HTMLSpanElement>

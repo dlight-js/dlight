@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class VpnKeyOutlined extends View {
@@ -12,4 +12,4 @@ class VpnKeyOutlined extends View {
   }
 }
 
-export default VpnKeyOutlined as any as Typed<DLightIconType>
+export default VpnKeyOutlined as Pretty as Typed<DLightIconType, HTMLSpanElement>

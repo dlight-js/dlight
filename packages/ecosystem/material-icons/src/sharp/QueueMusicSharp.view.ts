@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class QueueMusicSharp extends View {
@@ -12,4 +12,4 @@ class QueueMusicSharp extends View {
   }
 }
 
-export default QueueMusicSharp as any as Typed<DLightIconType>
+export default QueueMusicSharp as Pretty as Typed<DLightIconType, HTMLSpanElement>

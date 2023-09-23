@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class RepeatOnSharp extends View {
@@ -12,4 +12,4 @@ class RepeatOnSharp extends View {
   }
 }
 
-export default RepeatOnSharp as any as Typed<DLightIconType>
+export default RepeatOnSharp as Pretty as Typed<DLightIconType, HTMLSpanElement>

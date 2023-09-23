@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class CheckCircleTwoTone extends View {
@@ -12,4 +12,4 @@ class CheckCircleTwoTone extends View {
   }
 }
 
-export default CheckCircleTwoTone as any as Typed<DLightIconType>
+export default CheckCircleTwoTone as Pretty as Typed<DLightIconType, HTMLSpanElement>

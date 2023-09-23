@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class CloudSyncTwoTone extends View {
@@ -12,4 +12,4 @@ class CloudSyncTwoTone extends View {
   }
 }
 
-export default CloudSyncTwoTone as any as Typed<DLightIconType>
+export default CloudSyncTwoTone as Pretty as Typed<DLightIconType, HTMLSpanElement>

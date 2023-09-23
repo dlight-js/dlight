@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class DataSaverOffOutlined extends View {
@@ -12,4 +12,4 @@ class DataSaverOffOutlined extends View {
   }
 }
 
-export default DataSaverOffOutlined as any as Typed<DLightIconType>
+export default DataSaverOffOutlined as Pretty as Typed<DLightIconType, HTMLSpanElement>

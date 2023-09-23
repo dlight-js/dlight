@@ -1,8 +1,12 @@
 import { View } from "@dlightjs/dlight"
-import { a, div, img, Prop, required, type Typed } from "@dlightjs/types"
+import { a, div, img, type Pretty, Prop, required, type Typed } from "@dlightjs/types"
 import { css } from "@dlightjs/easy-css"
 
-class Image extends View {
+interface ImageProps {
+  _$content: any
+  props: any
+}
+class Image extends View implements ImageProps {
   @Prop _$content = required
   @Prop props = required
   imageUrl = this.props.imageUrl
@@ -56,4 +60,4 @@ class Image extends View {
   dlightMarkitImageA$ = css``
 }
 
-export default Image as any as Typed<Image>
+export default Image as Pretty as Typed<ImageProps>

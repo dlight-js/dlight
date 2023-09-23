@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class PolylineSharp extends View {
@@ -12,4 +12,4 @@ class PolylineSharp extends View {
   }
 }
 
-export default PolylineSharp as any as Typed<DLightIconType>
+export default PolylineSharp as Pretty as Typed<DLightIconType, HTMLSpanElement>

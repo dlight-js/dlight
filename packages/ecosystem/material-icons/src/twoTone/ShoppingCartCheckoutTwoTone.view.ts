@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class ShoppingCartCheckoutTwoTone extends View {
@@ -12,4 +12,4 @@ class ShoppingCartCheckoutTwoTone extends View {
   }
 }
 
-export default ShoppingCartCheckoutTwoTone as any as Typed<DLightIconType>
+export default ShoppingCartCheckoutTwoTone as Pretty as Typed<DLightIconType, HTMLSpanElement>

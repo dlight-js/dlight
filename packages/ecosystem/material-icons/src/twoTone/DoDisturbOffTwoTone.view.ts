@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class DoDisturbOffTwoTone extends View {
@@ -12,4 +12,4 @@ class DoDisturbOffTwoTone extends View {
   }
 }
 
-export default DoDisturbOffTwoTone as any as Typed<DLightIconType>
+export default DoDisturbOffTwoTone as Pretty as Typed<DLightIconType, HTMLSpanElement>

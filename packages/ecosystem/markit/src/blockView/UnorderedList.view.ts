@@ -1,10 +1,14 @@
 import { View } from "@dlightjs/dlight"
-import { li, Prop, required, ul, type Typed } from "@dlightjs/types"
+import { li, Prop, required, ul, type Typed, type Pretty } from "@dlightjs/types"
 import { css } from "@dlightjs/easy-css"
 import BlockRenderer from "."
 import InlineRenderer from "../inlineView"
 
-class UnorderedList extends View {
+interface UnorderedListProps {
+  _$content: any
+  props: any
+}
+class UnorderedList extends View implements UnorderedListProps {
   @Prop _$content = required
   @Prop props = required
   level = this.props.level
@@ -35,4 +39,4 @@ class UnorderedList extends View {
   dlightMarkitUnorderedListLi$ = css``
 }
 
-export default UnorderedList as any as Typed<UnorderedList>
+export default UnorderedList as Pretty as Typed<UnorderedListProps>

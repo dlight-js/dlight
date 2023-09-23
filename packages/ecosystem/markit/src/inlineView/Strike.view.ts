@@ -1,9 +1,12 @@
 import { View } from "@dlightjs/dlight"
-import { Prop, required, span, type Typed } from "@dlightjs/types"
+import { type Pretty, Prop, required, span, type Typed } from "@dlightjs/types"
 import InlineRenderer from "."
 import { css } from "@dlightjs/easy-css"
 
-class Strike extends View {
+interface StrikeProps {
+  _$content: any
+}
+class Strike extends View implements StrikeProps {
   @Prop _$content = required
 
   Body() {
@@ -21,4 +24,4 @@ class Strike extends View {
   `
 }
 
-export default Strike as any as Typed<Strike>
+export default Strike as Pretty as Typed<StrikeProps>

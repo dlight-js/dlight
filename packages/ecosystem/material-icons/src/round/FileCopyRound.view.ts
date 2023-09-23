@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class FileCopyRound extends View {
@@ -12,4 +12,4 @@ class FileCopyRound extends View {
   }
 }
 
-export default FileCopyRound as any as Typed<DLightIconType>
+export default FileCopyRound as Pretty as Typed<DLightIconType, HTMLSpanElement>

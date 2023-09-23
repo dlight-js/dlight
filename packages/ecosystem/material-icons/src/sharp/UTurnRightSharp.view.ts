@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class UTurnRightSharp extends View {
@@ -12,4 +12,4 @@ class UTurnRightSharp extends View {
   }
 }
 
-export default UTurnRightSharp as any as Typed<DLightIconType>
+export default UTurnRightSharp as Pretty as Typed<DLightIconType, HTMLSpanElement>

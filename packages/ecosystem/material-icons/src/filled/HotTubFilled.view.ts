@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class HotTubFilled extends View {
@@ -12,4 +12,4 @@ class HotTubFilled extends View {
   }
 }
 
-export default HotTubFilled as any as Typed<DLightIconType>
+export default HotTubFilled as Pretty as Typed<DLightIconType, HTMLSpanElement>

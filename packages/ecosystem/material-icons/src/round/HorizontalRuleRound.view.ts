@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class HorizontalRuleRound extends View {
@@ -12,4 +12,4 @@ class HorizontalRuleRound extends View {
   }
 }
 
-export default HorizontalRuleRound as any as Typed<DLightIconType>
+export default HorizontalRuleRound as Pretty as Typed<DLightIconType, HTMLSpanElement>

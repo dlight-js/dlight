@@ -1,9 +1,12 @@
 import { View } from "@dlightjs/dlight"
-import { Prop, required, strong, type Typed } from "@dlightjs/types"
+import { type Pretty, Prop, required, strong, type Typed } from "@dlightjs/types"
 import { css } from "@dlightjs/easy-css"
 import InlineRenderer from "."
 
-class Bold extends View {
+interface BoldProps {
+  _$content: any
+}
+class Bold extends View implements BoldProps {
   @Prop _$content = required
 
   Body() {
@@ -19,4 +22,4 @@ class Bold extends View {
   dlightMarkitBold$ = css``
 }
 
-export default Bold as any as Typed<Bold>
+export default Bold as Pretty as Typed<BoldProps>

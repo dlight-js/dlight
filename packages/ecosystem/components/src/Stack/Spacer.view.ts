@@ -1,15 +1,14 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import DLight, { type DLNode, DLNodeType, View } from "@dlightjs/dlight"
+import { type DLNode, DLNodeType, View } from "@dlightjs/dlight"
 import { type Typed, div } from "@dlightjs/types"
-import { css } from "@dlightjs/emotion"
+import { css } from "@iandx/easy-css"
 
 class Spacer extends View {
   isSpacer = true
   Body() {
     div()
       .className(css`
-            flex-grow: 1;
-        `)
+          flex-grow: 1;
+      `)
   }
 }
 
@@ -27,4 +26,4 @@ export function isChildSpacer(child: DLNode) {
   return false
 }
 
-export default Spacer as any as Typed<Spacer>
+export default Spacer as any as Typed

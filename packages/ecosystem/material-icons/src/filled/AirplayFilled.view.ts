@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class AirplayFilled extends View {
@@ -12,4 +12,4 @@ class AirplayFilled extends View {
   }
 }
 
-export default AirplayFilled as any as Typed<DLightIconType>
+export default AirplayFilled as Pretty as Typed<DLightIconType, HTMLSpanElement>

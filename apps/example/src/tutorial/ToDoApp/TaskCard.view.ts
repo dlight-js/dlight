@@ -4,9 +4,9 @@ import { type Typed, Prop, div, input, span, button, required, type RequiredProp
 import { type Task } from "./Task"
 
 class TaskCard extends View {
-  @Prop task: RequiredProp<Task> = required
-  @Prop deleteTask: RequiredProp<() => any> = required
-  @Prop toggleBox: RequiredProp<(checked: any) => any> = required
+  @Prop task: RequiredTask = required
+  @Prop deleteTask: Required() = any> = required
+  @Prop toggleBox: Required(checked: any) = any> = required
   didMount() {
     console.log(`[didMount] Loaded task named ${this.task.name}, it is${this.task.finished ? "" : " not"} finished.`)
   }

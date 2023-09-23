@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class FormatColorTextSharp extends View {
@@ -12,4 +12,4 @@ class FormatColorTextSharp extends View {
   }
 }
 
-export default FormatColorTextSharp as any as Typed<DLightIconType>
+export default FormatColorTextSharp as Pretty as Typed<DLightIconType, HTMLSpanElement>

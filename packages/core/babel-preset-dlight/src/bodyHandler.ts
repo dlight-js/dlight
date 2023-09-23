@@ -106,7 +106,7 @@ export function handleBody(classBodyNode: t.ClassBody, depChain: string[], path:
   const views: any[] = []
   for (const c of classBodyNode.body) {
     if ((c as any).decorators?.find((d: any) =>
-      t.isIdentifier(d.expression) && d.expression.name === "SubView"
+      t.isIdentifier(d.expression) && d.expression.name === "View"
     )) {
       (c as any).decorators = null
       views.push(c)

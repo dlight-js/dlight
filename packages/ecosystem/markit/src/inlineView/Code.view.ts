@@ -1,8 +1,11 @@
 import { View } from "@dlightjs/dlight"
-import { Prop, required, span, type Typed } from "@dlightjs/types"
+import { type Pretty, Prop, required, span, type Typed } from "@dlightjs/types"
 import { css } from "@dlightjs/easy-css"
 
-class Code extends View {
+interface CodeProps {
+  _$content: any
+}
+class Code extends View implements CodeProps {
   @Prop _$content = required
 
   Body() {
@@ -19,4 +22,4 @@ class Code extends View {
 `
 }
 
-export default Code as any as Typed<Code>
+export default Code as Pretty as Typed<CodeProps>

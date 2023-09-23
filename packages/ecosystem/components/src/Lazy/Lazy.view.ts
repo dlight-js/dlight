@@ -1,5 +1,5 @@
 import { View } from "@dlightjs/dlight"
-import { tag } from "@dlightjs/types"
+import { type Pretty, tag } from "@dlightjs/types"
 
 /**
  * @example
@@ -23,10 +23,10 @@ export function lazy<T>(importFunc: () => Promise<{ default: T }>, fallback?: an
     Body() {
       if (this.v) {
         tag(this.v)()
-          .forwardProps()
+          .forwardProps(true)
       } else if (fallback) {
         tag(fallback)()
       }
     }
-  } as any as T
+  } as Pretty as T
 }

@@ -1,9 +1,13 @@
 import { View } from "@dlightjs/dlight"
-import { blockquote, Prop, required, type Typed } from "@dlightjs/types"
+import { blockquote, type Pretty, Prop, required, type Typed } from "@dlightjs/types"
 import { css } from "@dlightjs/easy-css"
 import BlockRenderer from "."
 
-class Blockquote extends View {
+interface BlockquoteProps {
+  _$content: any
+}
+
+class Blockquote extends View implements BlockquoteProps {
   @Prop _$content = required
 
   Body() {
@@ -24,4 +28,4 @@ class Blockquote extends View {
   `
 }
 
-export default Blockquote as any as Typed<Blockquote>
+export default Blockquote as Pretty as Typed<BlockquoteProps>

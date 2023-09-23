@@ -1,9 +1,12 @@
 import { View } from "@dlightjs/dlight"
-import { Prop, required, em, type Typed } from "@dlightjs/types"
+import { Prop, required, em, type Typed, type Pretty } from "@dlightjs/types"
 import { css } from "@dlightjs/easy-css"
 import InlineRenderer from "."
 
-class Italic extends View {
+interface ItalicProps {
+  _$content: any
+}
+class Italic extends View implements ItalicProps {
   @Prop _$content = required
 
   Body() {
@@ -19,4 +22,4 @@ class Italic extends View {
   dlightMarkitItalic$ = css``
 }
 
-export default Italic as any as Typed<Italic>
+export default Italic as Pretty as Typed<ItalicProps>

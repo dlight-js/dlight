@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class BorderOuterFilled extends View {
@@ -12,4 +12,4 @@ class BorderOuterFilled extends View {
   }
 }
 
-export default BorderOuterFilled as any as Typed<DLightIconType>
+export default BorderOuterFilled as Pretty as Typed<DLightIconType, HTMLSpanElement>

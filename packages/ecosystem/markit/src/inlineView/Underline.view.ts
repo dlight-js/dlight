@@ -1,9 +1,12 @@
 import { View } from "@dlightjs/dlight"
-import { Prop, required, span, type Typed } from "@dlightjs/types"
+import { type Pretty, Prop, required, span, type Typed } from "@dlightjs/types"
 import InlineRenderer from "."
 import { css } from "@dlightjs/easy-css"
 
-class Underline extends View {
+interface UnderlineProps {
+  _$content: any
+}
+class Underline extends View implements UnderlineProps {
   @Prop _$content = required
 
   Body() {
@@ -20,4 +23,4 @@ class Underline extends View {
     text-decoration: underline;
   `
 }
-export default Underline as any as Typed<Underline>
+export default Underline as Pretty as Typed<UnderlineProps>

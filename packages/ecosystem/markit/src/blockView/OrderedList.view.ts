@@ -1,10 +1,18 @@
 import { View } from "@dlightjs/dlight"
-import { li, ol, Prop, required, type Typed } from "@dlightjs/types"
+import { li, ol, type Pretty, Prop, required, type Typed } from "@dlightjs/types"
 import { css } from "@dlightjs/easy-css"
 import BlockRenderer from "."
 import InlineRenderer from "../inlineView"
 
-class OrderedList extends View {
+interface OrderedListProps {
+  _$content: any
+  props: any
+}
+interface OrderedListProps {
+  _$content: any
+  props: any
+}
+class OrderedList extends View implements OrderedListProps {
   @Prop _$content = required
   @Prop props = required
   start = this.props.start
@@ -36,4 +44,4 @@ class OrderedList extends View {
   dlightMarkitOrderedListLi$ = css``
 }
 
-export default OrderedList as any as Typed<OrderedList>
+export default OrderedList as Pretty as Typed<OrderedListProps>

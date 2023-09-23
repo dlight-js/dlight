@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class GroupRemoveFilled extends View {
@@ -12,4 +12,4 @@ class GroupRemoveFilled extends View {
   }
 }
 
-export default GroupRemoveFilled as any as Typed<DLightIconType>
+export default GroupRemoveFilled as Pretty as Typed<DLightIconType, HTMLSpanElement>

@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class HdrEnhancedSelectTwoTone extends View {
@@ -12,4 +12,4 @@ class HdrEnhancedSelectTwoTone extends View {
   }
 }
 
-export default HdrEnhancedSelectTwoTone as any as Typed<DLightIconType>
+export default HdrEnhancedSelectTwoTone as Pretty as Typed<DLightIconType, HTMLSpanElement>

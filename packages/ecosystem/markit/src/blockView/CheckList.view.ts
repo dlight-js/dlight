@@ -1,10 +1,15 @@
 import { View } from "@dlightjs/dlight"
-import { div, input, Prop, required, type Typed } from "@dlightjs/types"
+import { div, input, type Pretty, Prop, required, type Typed } from "@dlightjs/types"
 import { css } from "@dlightjs/easy-css"
 import BlockRenderer from "."
 import InlineRenderer from "../inlineView"
 
-class CheckList extends View {
+interface CheckListProps {
+  _$content: any
+  props: any
+}
+
+class CheckList extends View implements CheckListProps {
   @Prop _$content = required
   @Prop props = required
   isChecked = this.props.isChecked
@@ -47,4 +52,4 @@ class CheckList extends View {
   `
 }
 
-export default CheckList as any as Typed<CheckList>
+export default CheckList as Pretty as Typed<CheckListProps>

@@ -15,7 +15,11 @@ class TestView extends View {
   count = 5
 
   Body() {
-    "jjj"
+    HStack()
+    {
+      div("hh")
+      div("jj")
+    }
     RouterSpace()
     {
       Route("hello")

@@ -1,5 +1,14 @@
 # @dlightjs/markit
 
+## 0.9.33
+
+### Patch Changes
+
+- Type change
+- Updated dependencies
+  - @dlightjs/dlight@0.9.28
+  - @dlightjs/easy-css@0.9.27
+
 ## 0.9.32
 
 ### Patch Changes

@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class HowToRegTwoTone extends View {
@@ -12,4 +12,4 @@ class HowToRegTwoTone extends View {
   }
 }
 
-export default HowToRegTwoTone as any as Typed<DLightIconType>
+export default HowToRegTwoTone as Pretty as Typed<DLightIconType, HTMLSpanElement>

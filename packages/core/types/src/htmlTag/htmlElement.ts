@@ -1,6 +1,6 @@
 import { type Properties } from "csstype"
 
-// ---- 用来判断 X和Y 是不是想等，想等返回A，否则B
+// ---- 用来判断 X和Y 是不是相等，相等返回A，否则B
 type IfEquals<X, Y, A, B> =
     (<T>() => T extends X ? 1 : 2) extends
     (<T>() => T extends Y ? 1 : 2) ? A : B

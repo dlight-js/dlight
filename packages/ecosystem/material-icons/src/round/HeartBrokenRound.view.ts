@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class HeartBrokenRound extends View {
@@ -12,4 +12,4 @@ class HeartBrokenRound extends View {
   }
 }
 
-export default HeartBrokenRound as any as Typed<DLightIconType>
+export default HeartBrokenRound as Pretty as Typed<DLightIconType, HTMLSpanElement>

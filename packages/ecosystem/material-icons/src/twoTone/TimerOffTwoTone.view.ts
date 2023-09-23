@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class TimerOffTwoTone extends View {
@@ -12,4 +12,4 @@ class TimerOffTwoTone extends View {
   }
 }
 
-export default TimerOffTwoTone as any as Typed<DLightIconType>
+export default TimerOffTwoTone as Pretty as Typed<DLightIconType, HTMLSpanElement>

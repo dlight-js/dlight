@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class VoiceChatRound extends View {
@@ -12,4 +12,4 @@ class VoiceChatRound extends View {
   }
 }
 
-export default VoiceChatRound as any as Typed<DLightIconType>
+export default VoiceChatRound as Pretty as Typed<DLightIconType, HTMLSpanElement>

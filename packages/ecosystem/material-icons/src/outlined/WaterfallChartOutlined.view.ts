@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class WaterfallChartOutlined extends View {
@@ -12,4 +12,4 @@ class WaterfallChartOutlined extends View {
   }
 }
 
-export default WaterfallChartOutlined as any as Typed<DLightIconType>
+export default WaterfallChartOutlined as Pretty as Typed<DLightIconType, HTMLSpanElement>

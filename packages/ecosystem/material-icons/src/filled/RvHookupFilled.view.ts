@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class RvHookupFilled extends View {
@@ -12,4 +12,4 @@ class RvHookupFilled extends View {
   }
 }
 
-export default RvHookupFilled as any as Typed<DLightIconType>
+export default RvHookupFilled as Pretty as Typed<DLightIconType, HTMLSpanElement>

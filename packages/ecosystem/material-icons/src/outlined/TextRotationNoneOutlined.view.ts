@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class TextRotationNoneOutlined extends View {
@@ -12,4 +12,4 @@ class TextRotationNoneOutlined extends View {
   }
 }
 
-export default TextRotationNoneOutlined as any as Typed<DLightIconType>
+export default TextRotationNoneOutlined as Pretty as Typed<DLightIconType, HTMLSpanElement>

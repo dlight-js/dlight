@@ -2,8 +2,8 @@ import fs from "fs"
 import path from "path"
 
 function template(content, name) {
-  return `import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+  return `import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class ${name} extends View {
@@ -16,7 +16,7 @@ class ${name} extends View {
   }
 }
 
-export default ${name} as any as Typed<DLightIconType>
+export default ${name} as Pretty as Typed<DLightIconType, HTMLSpanElement>
 `
 }
 
@@ -34,7 +34,7 @@ function parseName(string, type) {
   return name
 }
 
-const type = "twoTone"
+const type = "sharp"
 
 const dirPath = `./assets/${type}`
 const targetDirPath = `./src/${type}`
@@ -49,13 +49,9 @@ for (const file of files) {
   if (names.map(name => name.toLowerCase()).includes(name.toLowerCase())) continue
 
   const code = template(getSVGContent(data), name)
-  fs.writeFile(`${targetDirPath}/${name}.view.ts`, code, (err) => {
-    if (err) {
-      console.log(`${name} wrong!`)
-      throw err
-    }
-    console.log(`${name} done!`)
-  })
+
+  fs.writeFileSync(`${targetDirPath}/${name}.view.ts`, code)
+  console.log(`${name} done!`)
   names.push(name)
 }
 

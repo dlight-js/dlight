@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class PieChartOutlineFilled extends View {
@@ -12,4 +12,4 @@ class PieChartOutlineFilled extends View {
   }
 }
 
-export default PieChartOutlineFilled as any as Typed<DLightIconType>
+export default PieChartOutlineFilled as Pretty as Typed<DLightIconType, HTMLSpanElement>

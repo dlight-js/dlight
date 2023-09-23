@@ -1,14 +1,18 @@
 import { type DLNode, View } from "@dlightjs/dlight"
 import { Navigator } from "./Navigator"
 import { getHashLocation, getHistoryLocation } from "./utils"
-import { type Typed, _, env, Prop, Static } from "@dlightjs/types"
+import { type Typed, _, env, Prop, Static, type Pretty } from "@dlightjs/types"
 
 const rawHistoryPushState = history.pushState
 let historyPushStateFuncs: Array<() => any> = []
 
-class RouterSpace extends View {
-  @Prop mode: Prop<"hash" | "history"> = "history" as any
-  @Prop getNavigator: Prop<(nav: Navigator) => void> = (() => {}) as any
+interface RouterSpaceProps {
+  mode?: "hash" | "history"
+  getNavigator?: (nav: Navigator) => void
+}
+class RouterSpace extends View implements RouterSpaceProps {
+  @Prop mode: "hash" | "history" = "history"
+  @Prop getNavigator?: (nav: Navigator) => void
   currUrl = this.mode === "hash" ? getHashLocation() : getHistoryLocation()
 
   @Static baseUrl = ""
@@ -62,7 +66,7 @@ class RouterSpace extends View {
 
   willMount() {
     this.navigator.mode = this.mode
-    this.getNavigator(this.navigator)
+    this.getNavigator?.(this.navigator)
     let parent: any = this._$parentNode
     while (parent) {
       if (parent.isRoute) {
@@ -128,4 +132,4 @@ class RouterSpace extends View {
   }
 }
 
-export default RouterSpace as any as Typed<RouterSpace>
+export default RouterSpace as Pretty as Typed<RouterSpaceProps>
