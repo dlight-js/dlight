@@ -1,5 +1,11 @@
 # @dlightjs/components
 
+## 0.9.30
+
+### Patch Changes
+
+- add lazyLoad to Router
+
 ## 0.9.29
 
 ### Patch Changes
