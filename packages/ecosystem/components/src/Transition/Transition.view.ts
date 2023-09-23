@@ -1,12 +1,17 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed, _, Prop } from "@dlightjs/types"
-import { css } from "@dlightjs/emotion"
+import { View } from "@dlightjs/dlight"
+import { type Typed, _, Prop, type Pretty } from "@dlightjs/types"
+import { css } from "@iandx/easy-css"
 
-class Transition extends View {
-  @Prop duration: Prop<number> = 0.5 as any
-  @Prop easing: Prop<string> = "ease-in-out" as any
-  @Prop delay: Prop<number> = 0 as any
+interface TransitionProps {
+  duration?: number
+  easing?: string
+  delay?: number
+}
+
+class Transition extends View implements TransitionProps {
+  @Prop duration = 0.5
+  @Prop easing = "ease-in-out"
+  @Prop delay = 0
 
   Body() {
     _(this._$children)
@@ -16,4 +21,4 @@ class Transition extends View {
   }
 }
 
-export default Transition as any as Typed<Transition>
+export default Transition as Pretty as Typed<TransitionProps>

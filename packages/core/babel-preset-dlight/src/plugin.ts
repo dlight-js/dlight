@@ -161,7 +161,7 @@ export default function(api: any, options: DLightOption) {
         if (!t.isIdentifier(path.node.key)) return
         const name = path.node.key.name
         if (name === "Body") return
-        const isSubView = path.node.decorators?.find((d: t.Decorator) => t.isIdentifier(d.expression) && d.expression.name === "SubView")
+        const isSubView = path.node.decorators?.find((d: t.Decorator) => t.isIdentifier(d.expression) && d.expression.name === "View")
         if (isSubView) return
         methodsToBind.push(name)
       },

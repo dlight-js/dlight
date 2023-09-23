@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class SdCardFilled extends View {
@@ -12,4 +12,4 @@ class SdCardFilled extends View {
   }
 }
 
-export default SdCardFilled as any as Typed<DLightIconType>
+export default SdCardFilled as Pretty as Typed<DLightIconType, HTMLSpanElement>

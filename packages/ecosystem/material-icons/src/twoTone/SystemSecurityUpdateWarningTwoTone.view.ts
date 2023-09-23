@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class SystemSecurityUpdateWarningTwoTone extends View {
@@ -12,4 +12,4 @@ class SystemSecurityUpdateWarningTwoTone extends View {
   }
 }
 
-export default SystemSecurityUpdateWarningTwoTone as any as Typed<DLightIconType>
+export default SystemSecurityUpdateWarningTwoTone as Pretty as Typed<DLightIconType, HTMLSpanElement>

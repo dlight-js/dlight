@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class PinSharp extends View {
@@ -12,4 +12,4 @@ class PinSharp extends View {
   }
 }
 
-export default PinSharp as any as Typed<DLightIconType>
+export default PinSharp as Pretty as Typed<DLightIconType, HTMLSpanElement>

@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class FoodBankOutlined extends View {
@@ -12,4 +12,4 @@ class FoodBankOutlined extends View {
   }
 }
 
-export default FoodBankOutlined as any as Typed<DLightIconType>
+export default FoodBankOutlined as Pretty as Typed<DLightIconType, HTMLSpanElement>

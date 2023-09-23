@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class FlipToFrontFilled extends View {
@@ -12,4 +12,4 @@ class FlipToFrontFilled extends View {
   }
 }
 
-export default FlipToFrontFilled as any as Typed<DLightIconType>
+export default FlipToFrontFilled as Pretty as Typed<DLightIconType, HTMLSpanElement>

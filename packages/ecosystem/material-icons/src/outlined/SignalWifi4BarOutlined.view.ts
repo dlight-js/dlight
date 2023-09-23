@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class SignalWifi4BarOutlined extends View {
@@ -12,4 +12,4 @@ class SignalWifi4BarOutlined extends View {
   }
 }
 
-export default SignalWifi4BarOutlined as any as Typed<DLightIconType>
+export default SignalWifi4BarOutlined as Pretty as Typed<DLightIconType, HTMLSpanElement>

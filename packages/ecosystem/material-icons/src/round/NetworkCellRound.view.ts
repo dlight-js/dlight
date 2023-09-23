@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class NetworkCellRound extends View {
@@ -12,4 +12,4 @@ class NetworkCellRound extends View {
   }
 }
 
-export default NetworkCellRound as any as Typed<DLightIconType>
+export default NetworkCellRound as Pretty as Typed<DLightIconType, HTMLSpanElement>

@@ -21,11 +21,11 @@ function buildData(count: number) {
 }
 
 class RowClass extends View {
-  @Prop id: Prop<number> = required
-  @Prop className: Prop<string> = required
-  @Prop label: Prop<string> = required
-  @Prop selectRow: Prop<() => void> = required
-  @Prop deleteRow: Prop<() => void> = required
+  @Prop id: number = required
+  @Prop className: string = required
+  @Prop label: string = required
+  @Prop selectRow: () = void> = required
+  @Prop deleteRow: () = void> = required
 
   Body() {
     tr()
@@ -59,9 +59,9 @@ class RowClass extends View {
 const Row = RowClass as any as Typed<RowClass>
 
 class ButtonClass extends View {
-  @Prop _$content: Prop<string> = required
-  @Prop id: Prop<string> = required
-  @Prop onclick: Prop<() => void> = required
+  @Prop _$content: string = required
+  @Prop id: string = required
+  @Prop onclick: () = void> = required
 
   Body() {
     div()

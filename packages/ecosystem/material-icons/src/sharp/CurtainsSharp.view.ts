@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class CurtainsSharp extends View {
@@ -12,4 +12,4 @@ class CurtainsSharp extends View {
   }
 }
 
-export default CurtainsSharp as any as Typed<DLightIconType>
+export default CurtainsSharp as Pretty as Typed<DLightIconType, HTMLSpanElement>

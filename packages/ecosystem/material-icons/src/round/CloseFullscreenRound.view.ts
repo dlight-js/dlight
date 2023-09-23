@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class CloseFullscreenRound extends View {
@@ -12,4 +12,4 @@ class CloseFullscreenRound extends View {
   }
 }
 
-export default CloseFullscreenRound as any as Typed<DLightIconType>
+export default CloseFullscreenRound as Pretty as Typed<DLightIconType, HTMLSpanElement>

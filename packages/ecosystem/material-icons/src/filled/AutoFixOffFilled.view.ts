@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class AutoFixOffFilled extends View {
@@ -12,4 +12,4 @@ class AutoFixOffFilled extends View {
   }
 }
 
-export default AutoFixOffFilled as any as Typed<DLightIconType>
+export default AutoFixOffFilled as Pretty as Typed<DLightIconType, HTMLSpanElement>

@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class CurrencyRupeeSharp extends View {
@@ -12,4 +12,4 @@ class CurrencyRupeeSharp extends View {
   }
 }
 
-export default CurrencyRupeeSharp as any as Typed<DLightIconType>
+export default CurrencyRupeeSharp as Pretty as Typed<DLightIconType, HTMLSpanElement>

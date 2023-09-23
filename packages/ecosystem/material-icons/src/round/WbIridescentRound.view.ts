@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class WbIridescentRound extends View {
@@ -12,4 +12,4 @@ class WbIridescentRound extends View {
   }
 }
 
-export default WbIridescentRound as any as Typed<DLightIconType>
+export default WbIridescentRound as Pretty as Typed<DLightIconType, HTMLSpanElement>

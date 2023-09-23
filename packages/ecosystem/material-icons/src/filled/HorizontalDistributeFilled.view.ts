@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class HorizontalDistributeFilled extends View {
@@ -12,4 +12,4 @@ class HorizontalDistributeFilled extends View {
   }
 }
 
-export default HorizontalDistributeFilled as any as Typed<DLightIconType>
+export default HorizontalDistributeFilled as Pretty as Typed<DLightIconType, HTMLSpanElement>

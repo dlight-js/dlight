@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class ThumbDownAltRound extends View {
@@ -12,4 +12,4 @@ class ThumbDownAltRound extends View {
   }
 }
 
-export default ThumbDownAltRound as any as Typed<DLightIconType>
+export default ThumbDownAltRound as Pretty as Typed<DLightIconType, HTMLSpanElement>

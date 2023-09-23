@@ -1,12 +1,12 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import DLight, { View } from "@dlightjs/dlight"
-import { div, input } from "@dlightjs/types"
+import { type Typed, div, input } from "@dlightjs/types"
 
 class ReactiveView extends View {
   name = ""
   mouseX = 0
   mouseY = 0
-  color = (function () {
+  color = (function() {
     if (this.mouseX > 250 && this.mouseY > 250) {
       return "red"
     } else if (this.mouseX > 250 && this.mouseY < 250) {
@@ -40,4 +40,4 @@ class ReactiveView extends View {
   }
 }
 
-export default ReactiveView
+export default ReactiveView as any as Typed<{}>

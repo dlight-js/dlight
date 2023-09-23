@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class SyncAltOutlined extends View {
@@ -12,4 +12,4 @@ class SyncAltOutlined extends View {
   }
 }
 
-export default SyncAltOutlined as any as Typed<DLightIconType>
+export default SyncAltOutlined as Pretty as Typed<DLightIconType, HTMLSpanElement>

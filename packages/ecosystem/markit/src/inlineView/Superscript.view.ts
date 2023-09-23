@@ -1,8 +1,11 @@
 import { View } from "@dlightjs/dlight"
-import { Prop, required, sup, type Typed } from "@dlightjs/types"
+import { type Pretty, Prop, required, sup, type Typed } from "@dlightjs/types"
 import { css } from "@dlightjs/easy-css"
 import InlineRenderer from "."
 
+interface SuperscriptProps {
+  _$content: any
+}
 class Superscript extends View {
   @Prop _$content = required
 
@@ -19,4 +22,4 @@ class Superscript extends View {
   dlightMarkitSupscript$ = css``
 }
 
-export default Superscript as any as Typed<Superscript>
+export default Superscript as Pretty as Typed<SuperscriptProps>

@@ -1,14 +1,21 @@
 import { View } from "@dlightjs/dlight"
-import { css } from "@dlightjs/emotion"
-import { type Typed, _, div, Prop } from "@dlightjs/types"
+import { css } from "@iandx/easy-css"
+import { type Typed, _, div, Prop, type Pretty } from "@dlightjs/types"
 import { type VAlignment } from "./types"
 import { isChildSpacer } from "./Spacer.view"
 
-export class HStack extends View {
-  @Prop spacing: Prop<number> = 0 as any
-  @Prop alignment: Prop<VAlignment> = "top" as any
-  @Prop width: Prop<string> = "100%" as any
-  @Prop height: Prop<string> = "max-content" as any
+interface HStackProps {
+  spacing?: number
+  alignment?: VAlignment
+  width?: string
+  height?: string
+}
+
+class HStack extends View implements HStackProps {
+  @Prop spacing = 0
+  @Prop alignment: VAlignment = "top"
+  @Prop width = "100%"
+  @Prop height = "max-content"
   margin = (function() {
     switch (this.alignment) {
       case "top":
@@ -47,4 +54,4 @@ export class HStack extends View {
   }
 }
 
-export default HStack as any as Typed<HStack>
+export default HStack as Pretty as Typed<HStackProps>

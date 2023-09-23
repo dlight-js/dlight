@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class ConnectWithoutContactFilled extends View {
@@ -12,4 +12,4 @@ class ConnectWithoutContactFilled extends View {
   }
 }
 
-export default ConnectWithoutContactFilled as any as Typed<DLightIconType>
+export default ConnectWithoutContactFilled as Pretty as Typed<DLightIconType, HTMLSpanElement>

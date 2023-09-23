@@ -1,9 +1,13 @@
 import { View } from "@dlightjs/dlight"
-import { Prop, required, span, type Typed } from "@dlightjs/types"
+import { type Pretty, Prop, required, span, type Typed } from "@dlightjs/types"
 import InlineRenderer from "."
 import { css } from "@dlightjs/easy-css"
 
-class Highlight extends View {
+interface HighlightProps {
+  _$content: any
+}
+
+class Highlight extends View implements HighlightProps {
   @Prop _$content = required
 
   Body() {
@@ -21,4 +25,4 @@ class Highlight extends View {
   `
 }
 
-export default Highlight as any as Typed<Highlight>
+export default Highlight as Pretty as Typed<HighlightProps>

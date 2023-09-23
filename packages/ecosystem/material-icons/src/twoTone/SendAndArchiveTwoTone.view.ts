@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class SendAndArchiveTwoTone extends View {
@@ -12,4 +12,4 @@ class SendAndArchiveTwoTone extends View {
   }
 }
 
-export default SendAndArchiveTwoTone as any as Typed<DLightIconType>
+export default SendAndArchiveTwoTone as Pretty as Typed<DLightIconType, HTMLSpanElement>

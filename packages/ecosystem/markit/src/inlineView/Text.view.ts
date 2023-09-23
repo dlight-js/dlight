@@ -1,8 +1,11 @@
 import { View } from "@dlightjs/dlight"
-import { Prop, required, span, type Typed } from "@dlightjs/types"
+import { type Pretty, Prop, required, span, type Typed } from "@dlightjs/types"
 import { css } from "@dlightjs/easy-css"
 
-class Text extends View {
+interface TextProps {
+  _$content: any
+}
+class Text extends View implements TextProps {
   @Prop _$content = required
   Body() {
     span(this._$content)
@@ -12,4 +15,4 @@ class Text extends View {
   dlightMarkitText$ = css``
 }
 
-export default Text as any as Typed<Text>
+export default Text as Pretty as Typed<TextProps>

@@ -1,10 +1,14 @@
 import { View } from "@dlightjs/dlight"
-import { a, div, Prop, required, span, type Typed } from "@dlightjs/types"
+import { a, div, type Pretty, Prop, required, span, type Typed } from "@dlightjs/types"
 import { css } from "@dlightjs/easy-css"
 import Markit from "@iandx/markit"
 import InlineRenderer from "../inlineView"
 
-class Footnote extends View {
+interface FootnoteProps {
+  _$content: any
+  props: any
+}
+class Footnote extends View implements FootnoteProps {
   @Prop _$content = required
   @Prop props = required
   noteName = this.props.noteName
@@ -47,4 +51,4 @@ class Footnote extends View {
   `
 }
 
-export default Footnote as any as Typed<Footnote>
+export default Footnote as Pretty as Typed<FootnoteProps>

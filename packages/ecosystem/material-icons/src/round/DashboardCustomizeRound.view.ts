@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class DashboardCustomizeRound extends View {
@@ -12,4 +12,4 @@ class DashboardCustomizeRound extends View {
   }
 }
 
-export default DashboardCustomizeRound as any as Typed<DLightIconType>
+export default DashboardCustomizeRound as Pretty as Typed<DLightIconType, HTMLSpanElement>

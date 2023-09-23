@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class PublicSharp extends View {
@@ -12,4 +12,4 @@ class PublicSharp extends View {
   }
 }
 
-export default PublicSharp as any as Typed<DLightIconType>
+export default PublicSharp as Pretty as Typed<DLightIconType, HTMLSpanElement>

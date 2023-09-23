@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class Battery5BarSharp extends View {
@@ -12,4 +12,4 @@ class Battery5BarSharp extends View {
   }
 }
 
-export default Battery5BarSharp as any as Typed<DLightIconType>
+export default Battery5BarSharp as Pretty as Typed<DLightIconType, HTMLSpanElement>

@@ -1,9 +1,14 @@
 import { View } from "@dlightjs/dlight"
-import { type Typed, _, Prop } from "@dlightjs/types"
+import { type Typed, _, Prop, type Pretty } from "@dlightjs/types"
 
-class Route extends View {
-  @Prop _$content: Prop<string> = " none" as any // 空格不是合法url，所以不会有问题
-  @Prop lazyLoad: Prop<() => Promise<{ default: any }>> = null as any
+interface RouteProps {
+  _$content?: string
+  lazyLoad?: () => Promise<{ default: any }>
+}
+
+class Route extends View implements RouteProps {
+  @Prop _$content = " none" // 空格不是合法url，所以不会有问题
+  @Prop lazyLoad?: () => Promise<{ default: any }>
   lazyLoadedComp?: any
   isRoute = true
 
@@ -20,4 +25,4 @@ class Route extends View {
   }
 }
 
-export default Route as any as Typed<Route>
+export default Route as Pretty as Typed<RouteProps>

@@ -1,9 +1,13 @@
 import { View } from "@dlightjs/dlight"
-import { htmlTag, Prop, required, type Typed } from "@dlightjs/types"
+import { htmlTag, type Pretty, Prop, required, type Typed } from "@dlightjs/types"
 import { css } from "@dlightjs/easy-css"
 import InlineRenderer from "../inlineView"
 
-class Heading extends View {
+interface HeadingProps {
+  _$content: any
+  props: any
+}
+class Heading extends View implements HeadingProps {
   @Prop _$content = required
   @Prop props = required
   headdingName = `h${this.props.headingLevel}`
@@ -22,4 +26,4 @@ class Heading extends View {
   dlightMarkitHeading$ = css``
 }
 
-export default Heading as any as Typed<Heading>
+export default Heading as Pretty as Typed<HeadingProps>

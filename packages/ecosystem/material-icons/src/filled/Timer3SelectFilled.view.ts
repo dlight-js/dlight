@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class Timer3SelectFilled extends View {
@@ -12,4 +12,4 @@ class Timer3SelectFilled extends View {
   }
 }
 
-export default Timer3SelectFilled as any as Typed<DLightIconType>
+export default Timer3SelectFilled as Pretty as Typed<DLightIconType, HTMLSpanElement>

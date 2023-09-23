@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class PunchClockTwoTone extends View {
@@ -12,4 +12,4 @@ class PunchClockTwoTone extends View {
   }
 }
 
-export default PunchClockTwoTone as any as Typed<DLightIconType>
+export default PunchClockTwoTone as Pretty as Typed<DLightIconType, HTMLSpanElement>

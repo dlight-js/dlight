@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class MergeTypeFilled extends View {
@@ -12,4 +12,4 @@ class MergeTypeFilled extends View {
   }
 }
 
-export default MergeTypeFilled as any as Typed<DLightIconType>
+export default MergeTypeFilled as Pretty as Typed<DLightIconType, HTMLSpanElement>

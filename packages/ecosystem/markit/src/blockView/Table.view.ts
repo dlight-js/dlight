@@ -1,9 +1,13 @@
 import { View } from "@dlightjs/dlight"
-import { Prop, required, table, th, tr, td, type Typed } from "@dlightjs/types"
+import { Prop, required, table, th, tr, td, type Typed, type Pretty } from "@dlightjs/types"
 import { css } from "@dlightjs/easy-css"
 import InlineRenderer from "../inlineView"
 
-class Table extends View {
+interface TableProps {
+  _$content: any
+  props: any
+}
+class Table extends View implements TableProps {
   @Prop _$content = required
   @Prop props = required
   headerAligns = this.props.headerAligns
@@ -67,4 +71,4 @@ class Table extends View {
   `
 }
 
-export default Table as any as Typed<Table>
+export default Table as Pretty as Typed<TableProps>

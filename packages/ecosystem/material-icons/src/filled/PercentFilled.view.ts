@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class PercentFilled extends View {
@@ -12,4 +12,4 @@ class PercentFilled extends View {
   }
 }
 
-export default PercentFilled as any as Typed<DLightIconType>
+export default PercentFilled as Pretty as Typed<DLightIconType, HTMLSpanElement>

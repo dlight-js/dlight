@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class CloudOutlined extends View {
@@ -12,4 +12,4 @@ class CloudOutlined extends View {
   }
 }
 
-export default CloudOutlined as any as Typed<DLightIconType>
+export default CloudOutlined as Pretty as Typed<DLightIconType, HTMLSpanElement>

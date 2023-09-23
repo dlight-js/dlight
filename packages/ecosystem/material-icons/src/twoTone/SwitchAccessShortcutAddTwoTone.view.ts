@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class SwitchAccessShortcutAddTwoTone extends View {
@@ -12,4 +12,4 @@ class SwitchAccessShortcutAddTwoTone extends View {
   }
 }
 
-export default SwitchAccessShortcutAddTwoTone as any as Typed<DLightIconType>
+export default SwitchAccessShortcutAddTwoTone as Pretty as Typed<DLightIconType, HTMLSpanElement>

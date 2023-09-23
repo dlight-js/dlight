@@ -1,8 +1,12 @@
 import { View } from "@dlightjs/dlight"
-import { Prop, required, sup, a, type Typed } from "@dlightjs/types"
+import { Prop, required, sup, a, type Typed, type Pretty } from "@dlightjs/types"
 import { css } from "@dlightjs/easy-css"
 
-class FootnoteSup extends View {
+interface FootnoteSupProps {
+  _$content: any
+  props: any
+}
+class FootnoteSup extends View implements FootnoteSupProps {
   @Prop _$content = required
   @Prop props = required
   footnoteSupId = this.props.footnoteSupId
@@ -14,7 +18,7 @@ class FootnoteSup extends View {
     {
       sup(this._$content)
         .id(`Markit-FootnoteSup-${this._$content}-${this.footnoteSupId}`)
-        .className(this.dlightMarkitFootnoteSupSup)
+        .className(this.dlightMarkitFootnoteSupSup$)
     }
   }
 
@@ -26,4 +30,4 @@ class FootnoteSup extends View {
   dlightMarkitFootnoteSupSup$ = css``
 }
 
-export default FootnoteSup as any as Typed<FootnoteSup>
+export default FootnoteSup as Pretty as Typed<FootnoteSupProps>

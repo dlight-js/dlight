@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class PanoramaPhotosphereOutlined extends View {
@@ -12,4 +12,4 @@ class PanoramaPhotosphereOutlined extends View {
   }
 }
 
-export default PanoramaPhotosphereOutlined as any as Typed<DLightIconType>
+export default PanoramaPhotosphereOutlined as Pretty as Typed<DLightIconType, HTMLSpanElement>

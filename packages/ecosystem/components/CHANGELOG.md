@@ -1,5 +1,13 @@
 # @dlightjs/components
 
+## 0.9.31
+
+### Patch Changes
+
+- Type change
+- Updated dependencies
+  - @dlightjs/dlight@0.9.28
+
 ## 0.9.30
 
 ### Patch Changes

@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class HeadsetMicSharp extends View {
@@ -12,4 +12,4 @@ class HeadsetMicSharp extends View {
   }
 }
 
-export default HeadsetMicSharp as any as Typed<DLightIconType>
+export default HeadsetMicSharp as Pretty as Typed<DLightIconType, HTMLSpanElement>

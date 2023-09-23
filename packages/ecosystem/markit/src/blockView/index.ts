@@ -1,5 +1,5 @@
 import { type View } from "@dlightjs/dlight"
-import { type PropWrapper, type Typed } from "@dlightjs/types"
+import { type Typed } from "@dlightjs/types"
 import Blockquote from "./Blockquote.view"
 import CheckList from "./CheckList.view"
 import Divider from "./Divider.view"
@@ -13,7 +13,7 @@ import Footnote from "./Footnote.view"
 import CodeBlock from "./CodeBlock.view"
 import { addBlockRule as addMarkitBlockRule } from "@iandx/markit"
 
-const BlockRendererBase: Record<string, Typed<PropWrapper<{ props: Object, _$content: any }>>> = {
+const BlockRendererBase: Record<string, Typed<{ props: Object, _$content: any }>> = {
   Paragraph,
   Heading,
   UnorderedList,

@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class FastRewindOutlined extends View {
@@ -12,4 +12,4 @@ class FastRewindOutlined extends View {
   }
 }
 
-export default FastRewindOutlined as any as Typed<DLightIconType>
+export default FastRewindOutlined as Pretty as Typed<DLightIconType, HTMLSpanElement>

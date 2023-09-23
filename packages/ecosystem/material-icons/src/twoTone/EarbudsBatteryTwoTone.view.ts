@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class EarbudsBatteryTwoTone extends View {
@@ -12,4 +12,4 @@ class EarbudsBatteryTwoTone extends View {
   }
 }
 
-export default EarbudsBatteryTwoTone as any as Typed<DLightIconType>
+export default EarbudsBatteryTwoTone as Pretty as Typed<DLightIconType, HTMLSpanElement>

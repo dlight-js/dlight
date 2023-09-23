@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class FlipRound extends View {
@@ -12,4 +12,4 @@ class FlipRound extends View {
   }
 }
 
-export default FlipRound as any as Typed<DLightIconType>
+export default FlipRound as Pretty as Typed<DLightIconType, HTMLSpanElement>

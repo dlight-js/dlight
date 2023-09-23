@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class NavigateNextRound extends View {
@@ -12,4 +12,4 @@ class NavigateNextRound extends View {
   }
 }
 
-export default NavigateNextRound as any as Typed<DLightIconType>
+export default NavigateNextRound as Pretty as Typed<DLightIconType, HTMLSpanElement>

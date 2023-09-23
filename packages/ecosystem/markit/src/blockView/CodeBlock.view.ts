@@ -1,8 +1,13 @@
 import { View } from "@dlightjs/dlight"
-import { div, Prop, required, type Typed } from "@dlightjs/types"
+import { div, type Pretty, Prop, required, type Typed } from "@dlightjs/types"
 import InlineRenderer from "../inlineView"
 
-class CodeBlock extends View {
+interface CodeBlockProps {
+  _$content: any
+  props: any
+}
+
+class CodeBlock extends View implements CodeBlockProps {
   @Prop _$content = required
   @Prop props = required
   language = this.props.language
@@ -15,4 +20,4 @@ class CodeBlock extends View {
   }
 }
 
-export default CodeBlock as any as Typed<CodeBlock>
+export default CodeBlock as Pretty as Typed<CodeBlockProps>

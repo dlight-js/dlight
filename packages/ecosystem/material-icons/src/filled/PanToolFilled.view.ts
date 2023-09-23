@@ -1,5 +1,5 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
 class PanToolFilled extends View {
@@ -12,4 +12,4 @@ class PanToolFilled extends View {
   }
 }
 
-export default PanToolFilled as any as Typed<DLightIconType>
+export default PanToolFilled as Pretty as Typed<DLightIconType, HTMLSpanElement>
