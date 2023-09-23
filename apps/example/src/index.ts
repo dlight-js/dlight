@@ -14,6 +14,7 @@ import FetchDataView from "./basic/fetchData.view"
 import DerivedValueView from "./basic/derivedValue.view"
 import StyledView from "./advanced/styledView.view"
 import transformDLight from "@dlightjs/transpiler-standalone"
+import { RouteTest } from "./components/Router.view"
 // import { RouteTest } from "./components/Router.view"
 // import JJ from "./aa.view"
 const code = `
@@ -35,4 +36,4 @@ console.log(transformDLight(code))
 
 // console.log(renderToText(BenchmarkView))
 // render("app", BenchmarkView)
-render("app", TestView)
+render("app", RouteTest)
