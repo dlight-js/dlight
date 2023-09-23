@@ -62,8 +62,16 @@ const selectedDependencies: string[] = await checkbox({
       value: "@dlightjs/components"
     },
     {
-      name: "@dlightjs/emotion",
-      value: "@dlightjs/emotion"
+      name: "@dlightjs/material-icons",
+      value: "@dlightjs/material-icons"
+    },
+    {
+      name: "@dlightjs/markit",
+      value: "@dlightjs/markit"
+    },
+    {
+      name: "@iandx/easy-css",
+      value: "@iandx/easy-css"
     }
   ]
 })
