@@ -1,15 +1,20 @@
 {
   "name": "create-dlightjs",
-  "version": "0.9.25",
+  "version": "0.9.32",
   "description": "DLight cli",
   "author": {
     "name": "Xinyi",
     "email": "chenxy0404@gmail.com"
   },
-  "keywords": ["dlight.js"],
+  "keywords": [
+    "dlight.js"
+  ],
   "license": "MIT",
   "type": "module",
-  "files": ["dist", "templates"],
+  "files": [
+    "dist",
+    "templates"
+  ],
   "bin": {
     "create-dlightjs": "./dist/index.js"
   },
@@ -20,6 +25,7 @@
     "tsup": "^6.5.0"
   },
   "dependencies": {
-    "@inquirer/prompts": "^1.2.3"
+    "@inquirer/prompts": "^1.2.3",
+    "node-fetch": "^3.3.2"
   }
 }

@@ -1,10 +1,13 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed, div } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty, div } from "@dlightjs/types"
 
-class App extends View {
+interface AppProps {
+}
+
+class App extends View implements AppProps {
   Body() {
     div("hello dlight")
   }
 }
 
-export default App as any as Typed<App>
+export default App as Pretty as Typed<AppProps>

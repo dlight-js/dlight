@@ -1,4 +1,4 @@
-import DLight, { View } from "@dlightjs/dlight"
+import { View } from "@dlightjs/dlight"
 import { headerWrap, navBtn, headerLogo } from "./style.module.css"
 
 class Header extends View {

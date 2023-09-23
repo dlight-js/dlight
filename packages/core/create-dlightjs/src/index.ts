@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 import { input, select, checkbox } from "@inquirer/prompts"
 import { execSync } from "child_process"
-import { dependencies, devDependencies } from "./dependency"
 import { info, jsonify, logo, success } from "./utils"
 import { fileURLToPath } from "node:url"
+import fetch from "node-fetch"
 import path from "path"
 import fs from "fs"
 
@@ -40,7 +40,7 @@ const language = await select({
 })
 
 const isBlank = await select({
-  message: "🈳️ blank template",
+  message: "📃 blank template",
   choices: [
     {
       name: "yes",
@@ -62,8 +62,16 @@ const selectedDependencies: string[] = await checkbox({
       value: "@dlightjs/components"
     },
     {
-      name: "@dlightjs/emotion",
-      value: "@dlightjs/emotion"
+      name: "@dlightjs/material-icons",
+      value: "@dlightjs/material-icons"
+    },
+    {
+      name: "@dlightjs/markit",
+      value: "@dlightjs/markit"
+    },
+    {
+      name: "@iandx/easy-css",
+      value: "@iandx/easy-css"
     }
   ]
 })
@@ -74,38 +82,30 @@ if (language === "ts") {
   selectedDevDependencies.push("typescript")
 }
 
-let version = ""
-
-const getCreateVersion = () => {
-  const packagePath = path.resolve(
-    fileURLToPath(import.meta.url),
-    "../../package.json"
-  )
-  const str = fs.readFileSync(packagePath, { encoding: "utf8", flag: "r" })
-  const data = JSON.parse(str)
-  version = data.version
+const getLatestVersion = async(key: string) => {
+  return await fetch(`https://registry.npmjs.org/${key}`)
+    .then(async res => await res.json())
+    .then((data: any) => data["dist-tags"].latest)
 }
-
-const selectDep = (selectFields: string[], fullDic: Record<string, string>, type: string) => {
-  const selectDep: Record<string, string> = {}
-  selectFields.forEach((field) => {
-    if (fullDic[field]) {
-      selectDep[field] = fullDic[field]
-    }
-  })
-
-  getCreateVersion()
+const selectDep = async(selectFields: string[], type: string) => {
+  const selectedDeps: Record<string, string> = {}
 
   if (type === "dep") {
-    Object.entries(selectDep).forEach(([key]) => { selectDep[key] = `^${version}` })
+    await Promise.all(selectFields.map(async key => {
+      const version = await getLatestVersion(key)
+      selectedDeps[key] = `^${version}`
+    }))
   } else if (type === "dev") {
-    selectDep["vite-plugin-dlight"] = `^${version}`
+    const version = await getLatestVersion("vite-plugin-dlight")
+    selectedDeps["vite-plugin-dlight"] = `^${version}`
   }
-  return selectDep
+  return selectedDeps
 }
 
-const deps = selectDep(selectedDependencies, dependencies, "dep")
-const devDeps = selectDep(selectedDevDependencies, devDependencies, "dev")
+const [deps, devDeps] = await Promise.all([
+  selectDep(selectedDependencies, "dep"),
+  selectDep(selectedDevDependencies, "dev")
+])
 
 // --- Download templates
 const templateDir = path.resolve(
