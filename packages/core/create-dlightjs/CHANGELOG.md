@@ -1,5 +1,11 @@
 # create-dlightjs
 
+## 0.9.33
+
+### Patch Changes
+
+- fix: no vite and typescript packages
+
 ## 0.9.32
 
 ### Patch Changes

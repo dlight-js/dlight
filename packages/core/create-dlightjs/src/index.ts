@@ -87,24 +87,20 @@ const getLatestVersion = async(key: string) => {
     .then(async res => await res.json())
     .then((data: any) => data["dist-tags"].latest)
 }
-const selectDep = async(selectFields: string[], type: string) => {
+const selectDep = async(selectFields: string[]) => {
   const selectedDeps: Record<string, string> = {}
 
-  if (type === "dep") {
-    await Promise.all(selectFields.map(async key => {
-      const version = await getLatestVersion(key)
-      selectedDeps[key] = `^${version}`
-    }))
-  } else if (type === "dev") {
-    const version = await getLatestVersion("vite-plugin-dlight")
-    selectedDeps["vite-plugin-dlight"] = `^${version}`
-  }
+  await Promise.all(selectFields.map(async key => {
+    const version = await getLatestVersion(key)
+    selectedDeps[key] = `^${version}`
+  }))
+
   return selectedDeps
 }
 
 const [deps, devDeps] = await Promise.all([
-  selectDep(selectedDependencies, "dep"),
-  selectDep(selectedDevDependencies, "dev")
+  selectDep(selectedDependencies),
+  selectDep(selectedDevDependencies)
 ])
 
 // --- Download templates
@@ -151,8 +147,8 @@ const packageManager = await select({
 })
 
 if (packageManager) {
-  execSync(`${packageManager as string} install`, { cwd: projectName, stdio: "inherit" })
-  success(`Successfully installed dependencies using ${packageManager as string}!`)
+  execSync(`${packageManager} install`, { cwd: projectName, stdio: "inherit" })
+  success(`Successfully installed dependencies using ${packageManager}!`)
   let cmd = ""
   if (packageManager === "pnpm") {
     cmd = "pnpm dev"
