@@ -21,6 +21,7 @@
     "@dlightjs/dlight": "workspace:*",
     "@dlightjs/easy-css": "workspace:*",
     "@dlightjs/markit": "workspace:*",
+    "@dlightjs/decorators": "workspace:*",
     "@dlightjs/material-icons": "workspace:*",
     "@dlightjs/transpiler-standalone": "workspace:*",
     "@dlightjs/types": "workspace:*",

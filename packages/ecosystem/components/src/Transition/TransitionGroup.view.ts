@@ -1,5 +1,5 @@
-import { View } from "@dlightjs/dlight"
-import { type Typed, _, Prop, Static, type Pretty } from "@dlightjs/types"
+import { Children, type DLNode, Prop, Static, View, required } from "@dlightjs/dlight"
+import { type Typed, _, type Pretty } from "@dlightjs/types"
 
 type TransitionPropSub<T> = T | ((el: HTMLElement) => T)
 type Timing = "appear" | "firstAppear" | "move" | "disappear" | "lastDisappear"
@@ -24,7 +24,9 @@ interface TransitionGroupProps {
   movable?: boolean
 }
 
-class TransitionGroup extends View implements TransitionGroupProps {
+@View
+class TransitionGroup implements TransitionGroupProps {
+  @Children children: DLNode[] = required
   @Static _$duration = 0.5
   @Static _$easing = "ease-in-out"
   @Static _$delay = 0
@@ -113,7 +115,7 @@ class TransitionGroup extends View implements TransitionGroupProps {
   // ---- 最后一次消失
   willUnmount() {
     this.lastDisappear = true
-    const els = this._$el
+    const els = (this as any)._$el
     this.removeStores = []
     for (const el of els) {
       this.removeStores.push(setRemoveStore(el))
@@ -127,7 +129,7 @@ class TransitionGroup extends View implements TransitionGroupProps {
   }
 
   Body() {
-    _(this._$children)
+    _(this.children)
       .onUpdateNodes(() => {
         for (const [el, prevElInfo] of this.prevElInfos.entries()) {
           if (this.movable) {

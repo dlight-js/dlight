@@ -1,5 +1,18 @@
 # @dlightjs/components
 
+## 0.9.33
+
+### Patch Changes
+
+- feat: change to decorators family
+
+## 0.9.32
+
+### Patch Changes
+
+- Updated dependencies
+  - @dlightjs/dlight@0.9.29
+
 ## 0.9.31
 
 ### Patch Changes

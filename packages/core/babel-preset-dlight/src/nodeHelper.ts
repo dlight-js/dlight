@@ -139,5 +139,15 @@ export function bindMethods(classBodyNode: t.ClassBody, methodsToBind: string[])
 }
 
 export function isDLightView(path: any) {
-  return t.isIdentifier(path.node.superClass, { name: "View" })
+  const node = path.node
+  const decorators = node.decorators ?? []
+  const isDecorator = decorators.find((deco: t.Decorator) => t.isIdentifier(deco.expression, { name: "View" }))
+  if (isDecorator) {
+    node.superClass = t.identifier("View")
+    node.decorators = node.decorators?.filter((deco: t.Decorator) => (
+      !t.isIdentifier(deco.expression, { name: "View" })
+    ))
+  }
+
+  return t.isIdentifier(node.superClass, { name: "View" })
 }

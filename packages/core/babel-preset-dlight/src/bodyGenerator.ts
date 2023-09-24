@@ -1107,6 +1107,9 @@ export class Generator {
         }
         continue
       }
+      const addPropFuncName = key === "_$content"
+        ? "_$addDefaultProp"
+        : "_$addProp"
       if (listenDeps.length > 0) {
         /**
          * ${nodeName}._$addProp("${key}", () => (${value}), this, ${geneDepsStr(listenDeps)})
@@ -1116,7 +1119,7 @@ export class Generator {
             t.callExpression(
               t.memberExpression(
                 t.identifier(nodeName),
-                t.identifier("_$addProp")
+                t.identifier(addPropFuncName)
               ), [
                 t.stringLiteral(key),
                 t.arrowFunctionExpression([], value),
@@ -1136,7 +1139,7 @@ export class Generator {
           t.callExpression(
             t.memberExpression(
               t.identifier(nodeName),
-              t.identifier("_$addProp")
+              t.identifier(addPropFuncName)
             ), [
               t.stringLiteral(key),
               value

@@ -1,6 +1,7 @@
 import { View } from "@dlightjs/dlight"
 
-export default class App extends View {
+@View
+export default class App {
   Body() {
     div("hello dlight!")
   }

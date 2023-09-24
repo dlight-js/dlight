@@ -4,7 +4,8 @@ import { type Typed, type Pretty, div } from "@dlightjs/types"
 interface AppProps {
 }
 
-class App extends View implements AppProps {
+@View
+class App implements AppProps {
   Body() {
     div("hello dlight")
   }

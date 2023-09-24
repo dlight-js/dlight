@@ -1,7 +1,7 @@
 {
-  "name": "@dlightjs/dlight",
-  "version": "0.9.29",
-  "description": "DX-first UI rendering library",
+  "name": "@dlightjs/decorators",
+  "version": "0.9.1",
+  "description": "DLight decorator helpers",
   "author": {
     "name": "IanDx",
     "email": "iandxssxx@gmail.com"
@@ -11,8 +11,7 @@
   ],
   "license": "MIT",
   "files": [
-    "dist",
-    "README.md"
+    "dist"
   ],
   "type": "module",
   "main": "dist/index.cjs",
@@ -22,7 +21,6 @@
     "build": "tsup --sourcemap"
   },
   "devDependencies": {
-    "typescript": "^4.5.2",
     "tsup": "^6.5.0"
   }
 }

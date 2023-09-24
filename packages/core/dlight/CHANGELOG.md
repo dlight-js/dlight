@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 0.9.29
+
+### Patch Changes
+
+- feat: add advanced dx
+
 ## 0.9.28
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # create-dlightjs
 
+## 0.9.34
+
+### Patch Changes
+
+- feat: change to decorator family
+
 ## 0.9.33
 
 ### Patch Changes

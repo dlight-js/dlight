@@ -1,7 +1,7 @@
-import { View } from "@dlightjs/dlight"
+import { Children, type DLNode, View, required, Prop } from "@dlightjs/dlight"
 import { type HAlignment } from "./types"
 import { isChildSpacer } from "./Spacer.view"
-import { type Typed, _, div, Prop, type Pretty } from "@dlightjs/types"
+import { type Typed, _, div, type Pretty } from "@dlightjs/types"
 import { css } from "@iandx/easy-css"
 
 interface VStackProps {
@@ -11,11 +11,13 @@ interface VStackProps {
   height?: string
 }
 
-class VStack extends View implements VStackProps {
+@View
+class VStack implements VStackProps {
   @Prop spacing = 0
   @Prop alignment: HAlignment = "leading"
   @Prop width = "max-content"
   @Prop height = "100%"
+  @Children children: DLNode[] = required
   margin = (function() {
     switch (this.alignment) {
       case "leading":
@@ -39,7 +41,7 @@ class VStack extends View implements VStackProps {
         flex-direction: column;
     `)
     {
-      for (const child of this._$children) {
+      for (const child of this.children) {
         if (isChildSpacer(child)) {
           _(child)
         } else {

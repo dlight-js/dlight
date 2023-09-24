@@ -2,7 +2,8 @@ import { type DLNode, DLNodeType, View } from "@dlightjs/dlight"
 import { type Typed, div } from "@dlightjs/types"
 import { css } from "@iandx/easy-css"
 
-class Spacer extends View {
+@View
+class Spacer {
   isSpacer = true
   Body() {
     div()
