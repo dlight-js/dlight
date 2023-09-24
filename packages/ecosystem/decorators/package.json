@@ -1,6 +1,6 @@
 {
   "name": "@dlightjs/decorators",
-  "version": "0.9.1",
+  "version": "0.10.0",
   "description": "DLight decorator helpers",
   "author": {
     "name": "IanDx",

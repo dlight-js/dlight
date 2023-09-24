@@ -1,5 +1,11 @@
 # babel-preset-dlight
 
+## 0.10.0
+
+### Minor Changes
+
+- feat: upgrade to 0.10.0
+
 ## 0.9.29
 
 ### Patch Changes

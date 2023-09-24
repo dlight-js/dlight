@@ -1,4 +1,4 @@
-import { View, renderToString, Children, _, required } from "@dlightjs/dlight"
+import { View, renderToString, Children, _, required, Content } from "@dlightjs/dlight"
 import { css, div } from "@dlightjs/easy-css"
 import { type Typed, button, type SubTyped, type Pretty } from "@dlightjs/types"
 import { HStack, Route, RouterSpace, VStack } from "@dlightjs/components"
@@ -18,39 +18,39 @@ class NNN {
 const Default = (() => {}) as any
 @View
 class JJ {
-  @Default @Prop qushifafe = required
+  @Content @Prop qushifafe = required
   @Children hh = required
+  @Prop jj = required
 
   willMount() {
   }
 
   Body() {
-    div(this.qushifafe)
-    _(this.hh)
+    // _(this.hh)
+    _(this.jj(this.qushifafe))
   }
 }
 
-function OK() {
-  console.log("jj")
-  this.loading = true
-  setTimeout(() => {
-    this.count++
-    this.loading = false
-  }, 1000)
-}
+// function OK() {
+//   console.log("jj")
+//   this.loading = true
+//   setTimeout(() => {
+//     this.count++
+//     this.loading = false
+//   }, 1000)
+// }
 
-function OK2() {
-  console.log("oo")
-  setInterval(() => {
-    this.count++
-  }, 1000)
-}
+// function OK2() {
+//   console.log("oo")
+//   setInterval(() => {
+//     this.count++
+//   }, 1000)
+// }
 
 interface SubView {
   content: string
 }
-@Func(OK)
-@Func(OK2)
+
 @View
 class TestView {
   count = 5
@@ -61,25 +61,31 @@ class TestView {
     }) as Pretty as SubTyped<SubView>
 
   Body = () => {
-    if (this.loading) {
-      div("shitttt")
-    }
-    this.OK("hh")
+    // if (this.loading) {
+    //   div("shitttt")
+    // }
+    // this.OK("hh")
 
     // Filter1Filled()
     JJ("xefe")
-    {
-      div("shit")
-    }
-    div(this.count)
-    button("+")
-      .onclick(() => {
-        this.count++
-      })
-    NNN("hhh")
-      .style({
-        color: "red"
-      })
+      .jj((ii) => {
+        return do {
+          div(ii)
+            .style({
+              color: "red"
+            })
+        }
+       })
+
+    // div(this.count)
+    // button("+")
+    //   .onclick(() => {
+    //     this.count++
+    //   })
+    // NNN("hhh")
+    //   .style({
+    //     color: "red"
+    //   })
   }
 }
 
