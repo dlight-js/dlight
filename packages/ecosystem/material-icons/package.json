@@ -26,10 +26,12 @@
     "@babel/core": "^7.20.12",
     "babel-preset-dlight": "workspace:^0.9.29",
     "tsup": "^6.5.0",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "@dlightjs/types": "workspace:*"
+
   },
   "dependencies": {
     "@dlightjs/dlight": "workspace:*",
-    "@dlightjs/types": "workspace:*"
+    "@dlightjs/decorators": "workspace:*"
   }
 }

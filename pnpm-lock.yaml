@@ -126,31 +126,6 @@ importers:
     devDependencies:
       tsup: 6.7.0
 
-  packages/core/create-dlightjs/nono:
-    specifiers:
-      '@dlightjs/components': ^0.9.33
-      '@dlightjs/decorators': ^0.9.1
-      '@dlightjs/dlight': ^0.9.29
-      '@dlightjs/markit': ^0.9.37
-      '@dlightjs/material-icons': ^0.9.29
-      '@dlightjs/types': ^0.9.29
-      '@iandx/easy-css': ^0.10.14
-      typescript: ^5.2.2
-      vite: ^4.4.9
-      vite-plugin-dlight: ^0.9.28
-    dependencies:
-      '@dlightjs/components': link:../../../ecosystem/components
-      '@dlightjs/decorators': link:../../../ecosystem/decorators
-      '@dlightjs/dlight': link:../../dlight
-      '@dlightjs/markit': link:../../../ecosystem/markit
-      '@dlightjs/material-icons': link:../../../ecosystem/material-icons
-      '@iandx/easy-css': 0.10.14
-    devDependencies:
-      '@dlightjs/types': link:../../types
-      typescript: 5.2.2
-      vite: 4.4.9
-      vite-plugin-dlight: link:../../../ecosystem/vite-plugin-dlight
-
   packages/core/dlight:
     specifiers:
       tsup: ^6.5.0
@@ -287,17 +262,19 @@ importers:
     specifiers:
       '@babel/cli': ^7.22.6
       '@babel/core': ^7.20.12
+      '@dlightjs/decorators': workspace:*
       '@dlightjs/dlight': workspace:*
       '@dlightjs/types': workspace:*
-      babel-preset-dlight: workspace:^0.9.27
+      babel-preset-dlight: workspace:^0.9.29
       tsup: ^6.5.0
       typescript: ^5.2.2
     dependencies:
+      '@dlightjs/decorators': link:../decorators
       '@dlightjs/dlight': link:../../core/dlight
-      '@dlightjs/types': link:../../core/types
     devDependencies:
       '@babel/cli': 7.22.6_@babel+core@7.22.8
       '@babel/core': 7.22.8
+      '@dlightjs/types': link:../../core/types
       babel-preset-dlight: link:../../core/babel-preset-dlight
       tsup: 6.7.0_typescript@5.2.2
       typescript: 5.2.2
@@ -4322,15 +4299,6 @@ packages:
       source-map-js: 1.0.2
     dev: true
 
-  /postcss/8.4.30:
-    resolution: {integrity: sha512-7ZEao1g4kd68l97aWG/etQKPKq07us0ieSZ2TnFDk11i0ZfDW2AwKHYU8qv4MZKqN2fdBfg+7q0ES06UA73C1g==}
-    engines: {node: ^10 || ^12 || >=14}
-    dependencies:
-      nanoid: 3.3.6
-      picocolors: 1.0.0
-      source-map-js: 1.0.2
-    dev: true
-
   /preferred-pm/3.0.3:
     resolution: {integrity: sha512-+wZgbxNES/KlJs9q40F/1sfOd/j7f1O9JaHcW5Dsn3aUUOZg3L2bjpVUcKV2jvtElYfoTuQiNeMfQJ4kwUAhCQ==}
     engines: {node: '>=10'}
@@ -4508,14 +4476,6 @@ packages:
 
   /rollup/3.26.2:
     resolution: {integrity: sha512-6umBIGVz93er97pMgQO08LuH3m6PUb3jlDUUGFsNJB6VgTCUaDFpupf5JfU30529m/UKOgmiX+uY6Sx8cOYpLA==}
-    engines: {node: '>=14.18.0', npm: '>=8.0.0'}
-    hasBin: true
-    optionalDependencies:
-      fsevents: 2.3.2
-    dev: true
-
-  /rollup/3.29.3:
-    resolution: {integrity: sha512-T7du6Hum8jOkSWetjRgbwpM6Sy0nECYrYRSmZjayFcOddtKJWU4d17AC3HNUk7HRuqy4p+G7aEZclSHytqUmEg==}
     engines: {node: '>=14.18.0', npm: '>=8.0.0'}
     hasBin: true
     optionalDependencies:
@@ -5299,41 +5259,6 @@ packages:
       esbuild: 0.18.11
       postcss: 8.4.25
       rollup: 3.26.2
-    optionalDependencies:
-      fsevents: 2.3.2
-    dev: true
-
-  /vite/4.4.9:
-    resolution: {integrity: sha512-2mbUn2LlUmNASWwSCNSJ/EG2HuSRTnVNaydp6vMCm5VIqJsjMfbIWtbH2kDuwUVW5mMUKKZvGPX/rqeqVvv1XA==}
-    engines: {node: ^14.18.0 || >=16.0.0}
-    hasBin: true
-    peerDependencies:
-      '@types/node': '>= 14'
-      less: '*'
-      lightningcss: ^1.21.0
-      sass: '*'
-      stylus: '*'
-      sugarss: '*'
-      terser: ^5.4.0
-    peerDependenciesMeta:
-      '@types/node':
-        optional: true
-      less:
-        optional: true
-      lightningcss:
-        optional: true
-      sass:
-        optional: true
-      stylus:
-        optional: true
-      sugarss:
-        optional: true
-      terser:
-        optional: true
-    dependencies:
-      esbuild: 0.18.11
-      postcss: 8.4.30
-      rollup: 3.29.3
     optionalDependencies:
       fsevents: 2.3.2
     dev: true

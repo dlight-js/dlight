@@ -24,25 +24,32 @@ interface CustomNodeProps {
   didUnmount: CustomLifecycleFuncType
 }
 
-export type DefaultProp<T> = T & { _$idDefault: true }
+export type ContentProp<T> = T & { _$idContent: true }
 
 export type RemoveOptional<T> = {
   [K in keyof T]-?: T[K]
 }
 
-type DefaultKeyName<T> = {
+type ContentKeyName<T> = {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  [K in keyof T]-?: T[K] extends DefaultProp<infer _> ? K : never
+  [K in keyof T]-?: T[K] extends ContentProp<infer _> ? K : never
 }[keyof T]
 
-type CustomClassTag<T, O> = DefaultKeyName<RemoveOptional<O>> extends undefined
+type CustomClassTag<T, O> = ContentKeyName<RemoveOptional<O>> extends undefined
   ? () => DLightObject<T>
-  : undefined extends O[DefaultKeyName<RemoveOptional<O>>]
-    ? (defaultProp?: O[DefaultKeyName<RemoveOptional<O>>] extends (DefaultProp<infer U> | undefined) ? U : never) => DLightObject<T>
-    : (defaultProp: O[DefaultKeyName<RemoveOptional<O>>] extends DefaultProp<infer U> ? U : never) => DLightObject<T>
+  : undefined extends O[ContentKeyName<RemoveOptional<O>>]
+    ? (content?: O[ContentKeyName<RemoveOptional<O>>] extends (ContentProp<infer U> | undefined) ? U : never) => DLightObject<T>
+    : (content: O[ContentKeyName<RemoveOptional<O>>] extends ContentProp<infer U> ? U : never) => DLightObject<T>
+
+type CustomSubViewTag<T> = T extends { "content": infer U }
+  ? (content: U) => DLightObject<Omit<T, "content">>
+  : T extends { "content"?: infer U }
+    ? (content?: U) => DLightObject<Omit<T, "content">>
+    : () => DLightObject<T>
 
 type CustomTagType<T, G> = CustomClassTag<T & CustomNodeProps & DLightHTMLAttributes<G>, T> & Useless
 export type Typed<T={}, G={}> = CustomTagType<T, G> & Useless
+export type SubTyped<T> = CustomSubViewTag<T> & Useless
 
 export type Pretty = any
 

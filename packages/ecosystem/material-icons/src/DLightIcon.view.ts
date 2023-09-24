@@ -11,6 +11,7 @@ interface DLightIconProps {
   fontSize?: string
 }
 
+
 class DLightIcon extends View implements DLightIconProps {
   @Prop content: string = required
   @Prop name: string = required

@@ -1,6 +1,6 @@
 import * as t from "@babel/types"
 import { handleBody } from "./bodyHandler"
-import { resolveState, resolveProp, resolveDefault, resolveChildren } from "./decoratorResolver"
+import { resolveState, resolveProp, resolveContent, resolveChildren } from "./decoratorResolver"
 import { bindMethods, isDLightView, pushDerived, shouldBeListened, valueWithArrowFunc } from "./nodeHelper"
 import { minimatch } from "minimatch"
 
@@ -34,7 +34,7 @@ export default function(api: any, options: DLightOption) {
     node: t.ClassProperty
     derivedFrom: string[]
     isStatic: boolean
-    isDefault: boolean
+    isContent: boolean
     isChildren: boolean
     propOrEnv: "Prop" | "Env" | undefined
   }> = {}
@@ -50,7 +50,7 @@ export default function(api: any, options: DLightOption) {
     )
 
     const defaultPropKey = Object.entries(propertiesContainer)
-      .find(([, { propOrEnv, isDefault }]) => isDefault && propOrEnv === "Prop")?.[0] ?? ""
+      .find(([, { propOrEnv, isContent }]) => isContent && propOrEnv === "Prop")?.[0] ?? ""
 
     for (let [key, { node, derivedFrom, isStatic, isChildren, propOrEnv }] of Object.entries(propertiesContainer).reverse()) {
       if (!node.value) node.value = t.identifier("undefined")
@@ -66,7 +66,7 @@ export default function(api: any, options: DLightOption) {
       }
       if (propOrEnv) {
         resolveProp(node as any, classBodyNode!, propOrEnv, key)
-        if (defaultPropKey === key) resolveDefault(node as any, classBodyNode!, key)
+        if (defaultPropKey === key) resolveContent(node as any, classBodyNode!, key)
       }
       if (isStatic) continue
       if (usedProperties.includes(key)) {
@@ -189,7 +189,7 @@ export default function(api: any, options: DLightOption) {
         const node = path.node as t.ClassProperty
         const key = (node.key as any).name
         if (key === "Body") return
-        const availableDecoNames = ["Static", "Prop", "Env", "Default", "Children"]
+        const availableDecoNames = ["Static", "Prop", "Env", "Content", "Children"]
         const decoNames = node.decorators?.filter(deco => (
           t.isIdentifier(deco.expression) && availableDecoNames.includes(deco.expression.name)
         )).map(deco => (deco.expression as any).name) ?? []
@@ -213,7 +213,7 @@ export default function(api: any, options: DLightOption) {
         propertiesContainer[key] = {
           node,
           isStatic: decoNames.includes("Static"),
-          isDefault: decoNames.includes("Default"),
+          isContent: decoNames.includes("Content"),
           isChildren: decoNames.includes("Children"),
           propOrEnv: decoNames.includes("Prop") ? "Prop" : decoNames.includes("Env") ? "Env" : undefined,
           derivedFrom: [...new Set(deps)]

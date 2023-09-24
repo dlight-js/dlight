@@ -67,7 +67,7 @@ export function resolveProp(node: t.ClassProperty, classBodyNode: t.ClassBody, d
   classBodyNode.body.splice(propertyIdx, 0, derivedStatusKey)
 }
 
-export function resolveDefault(node: t.ClassProperty, classBodyNode: t.ClassBody, propertyName: string) {
+export function resolveContent(node: t.ClassProperty, classBodyNode: t.ClassBody, propertyName: string) {
   if (classBodyNode.body.find(n => t.isClassProperty(n) && (n.key as t.Identifier).name === "_$defaultProp")) return
   const propertyIdx = classBodyNode.body.indexOf(node)
   /**

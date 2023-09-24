@@ -1187,7 +1187,8 @@ export class Generator {
 
     const keyId = uid()
     const passProps: any[] = []
-    for (const { key, value } of props) {
+    for (let { key, value } of props) {
+      if (key === "_$content") key = "content"
       const keyWithId = `${key}_${keyId}`
       const listenDeps = this.geneDeps(value)
       /**
