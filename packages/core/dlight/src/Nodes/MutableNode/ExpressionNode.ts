@@ -18,7 +18,6 @@ export class ExpressionNode extends MutableNode {
   constructor(nodeOrFunc: ExpressionNodeType | (() => ExpressionNodeType), dlScope?: CustomNode, listenDeps?: string[]) {
     super(DLNodeType.Expression)
     if (!listenDeps) {
-      console.log("in", nodeOrFunc)
       this._$nodes = this.formatNodes(nodeOrFunc)
       return
     }

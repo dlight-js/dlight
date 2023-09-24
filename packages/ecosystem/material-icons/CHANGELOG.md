@@ -1,5 +1,13 @@
 # @dlightjs/material-icons
 
+## 0.9.30
+
+### Patch Changes
+
+- Updated dependencies
+  - @dlightjs/dlight@0.9.30
+  - @dlightjs/types@0.9.30
+
 ## 0.9.29
 
 ### Patch Changes

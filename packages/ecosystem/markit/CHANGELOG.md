@@ -1,5 +1,12 @@
 # @dlightjs/markit
 
+## 0.9.38
+
+### Patch Changes
+
+- Updated dependencies
+  - @dlightjs/dlight@0.9.30
+
 ## 0.9.37
 
 ### Patch Changes

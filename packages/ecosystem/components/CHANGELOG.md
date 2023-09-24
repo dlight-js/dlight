@@ -1,5 +1,13 @@
 # @dlightjs/components
 
+## 0.9.34
+
+### Patch Changes
+
+- feat: add subview type support
+- Updated dependencies
+  - @dlightjs/dlight@0.9.30
+
 ## 0.9.33
 
 ### Patch Changes

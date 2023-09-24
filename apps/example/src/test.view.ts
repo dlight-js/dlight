@@ -1,6 +1,6 @@
-import { View, renderToString, Children, _ } from "@dlightjs/dlight"
+import { View, renderToString, Children, _, required } from "@dlightjs/dlight"
 import { css, div } from "@dlightjs/easy-css"
-import { button, Env, htmlTag, Prop, required } from "@dlightjs/types"
+import { type Typed, button } from "@dlightjs/types"
 import { HStack, Route, RouterSpace, VStack } from "@dlightjs/components"
 import { MarkitView, addBlockRule } from "@dlightjs/markit"
 import { ForwardProp, Func } from "@dlightjs/decorators"
@@ -44,16 +44,28 @@ function OK2() {
     this.count++
   }, 1000)
 }
+
+interface SubView {
+  text: string
+}
 @Func(OK)
 @Func(OK2)
 @View
 class TestView {
   count = 5
   loading = false
-  Body() {
+  @View
+    OK = (({ text }: SubView) => {
+      div(text)
+    }) as Typed<SubView>
+
+  Body = () => {
     if (this.loading) {
       div("shitttt")
     }
+    this.OK()
+      .text("ok")
+
     JJ("xefe")
     {
       div("shit")
@@ -104,3 +116,6 @@ class TestView {
 // console.log(renderToString(TestView))
 
 export default TestView
+function Prop(target: JJ, propertyKey: "qushifafe"): void {
+  throw new Error("Function not implemented.")
+}

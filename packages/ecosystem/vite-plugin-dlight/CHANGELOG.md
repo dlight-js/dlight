@@ -1,5 +1,13 @@
 # vite-plugin-dlight
 
+## 0.9.29
+
+### Patch Changes
+
+- feat: add subview type support
+- Updated dependencies
+  - babel-preset-dlight@0.9.29
+
 ## 0.9.28
 
 ### Patch Changes
