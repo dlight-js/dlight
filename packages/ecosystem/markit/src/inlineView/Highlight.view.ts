@@ -1,20 +1,21 @@
-import { View } from "@dlightjs/dlight"
-import { type Pretty, Prop, required, span, type Typed } from "@dlightjs/types"
+import { Prop, View, required, Content } from "@dlightjs/dlight"
+import { type Pretty, span, type Typed, type ContentProp } from "@dlightjs/types"
 import InlineRenderer from "."
 import { css } from "@iandx/easy-css"
 
 interface HighlightProps {
-  _$content: any
+  ast: ContentProp<any>
 }
 
-class Highlight extends View implements HighlightProps {
-  @Prop _$content = required
+@View
+class Highlight implements HighlightProps {
+  @Prop @Content ast = required
 
   Body() {
     span()
       .className(this.dlightMarkitHighlight$)
     {
-      for (const content of this._$content) {
+      for (const content of this.ast) {
         InlineRenderer[content.type](content.content)
       }
     }

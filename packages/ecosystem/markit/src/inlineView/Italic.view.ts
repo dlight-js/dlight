@@ -1,19 +1,20 @@
-import { View } from "@dlightjs/dlight"
-import { Prop, required, em, type Typed, type Pretty } from "@dlightjs/types"
+import { Prop, View, required, Content } from "@dlightjs/dlight"
+import { em, type Typed, type Pretty, type ContentProp } from "@dlightjs/types"
 import { css } from "@iandx/easy-css"
 import InlineRenderer from "."
 
 interface ItalicProps {
-  _$content: any
+  ast: ContentProp<any>
 }
-class Italic extends View implements ItalicProps {
-  @Prop _$content = required
+@View
+class Italic implements ItalicProps {
+  @Prop @Content ast = required
 
   Body() {
     em()
       .className(this.dlightMarkitItalic$)
     {
-      for (const content of this._$content) {
+      for (const content of this.ast) {
         InlineRenderer[content.type](content.content)
       }
     }

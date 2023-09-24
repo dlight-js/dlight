@@ -1,14 +1,16 @@
-import { View } from "@dlightjs/dlight"
-import { Prop, required, table, th, tr, td, type Typed, type Pretty } from "@dlightjs/types"
+import { Prop, View, required, Content } from "@dlightjs/dlight"
+import { table, th, tr, td, type Typed, type Pretty, type ContentProp } from "@dlightjs/types"
 import { css } from "@iandx/easy-css"
 import InlineRenderer from "../inlineView"
 
 interface TableProps {
-  _$content: any
+  ast: ContentProp<any>
   props: any
 }
-class Table extends View implements TableProps {
-  @Prop _$content = required
+@View
+class Table implements TableProps {
+  @Prop @Content ast = required
+
   @Prop props = required
   headerAligns = this.props.headerAligns
   rowAligns = this.props.rowAligns
@@ -20,7 +22,7 @@ class Table extends View implements TableProps {
       tr()
         .className(this.dlightMarkitTableTrStyle$)
       {
-        for (const [index, headerColumn] of this._$content[0].entries()) {
+        for (const [index, headerColumn] of this.ast[0].entries()) {
           for (const { type, content, props } of headerColumn) {
             th()
               .className(this.dlightMarkitTableThStyle$(this.headerAligns[index]))
@@ -31,7 +33,7 @@ class Table extends View implements TableProps {
           }
         }
       }
-      for (const cellRow of this._$content.slice(1)) {
+      for (const cellRow of this.ast.slice(1)) {
         tr()
           .className(this.dlightMarkitTableTrStyle$)
         {

@@ -1,13 +1,15 @@
-import { View } from "@dlightjs/dlight"
-import { a, div, img, type Pretty, Prop, required, type Typed } from "@dlightjs/types"
+import { Prop, required, View, Content } from "@dlightjs/dlight"
+import { a, type ContentProp, div, img, type Pretty, type Typed } from "@dlightjs/types"
 import { css } from "@iandx/easy-css"
 
 interface ImageProps {
-  _$content: any
+  ast: ContentProp<any>
   props: any
 }
-class Image extends View implements ImageProps {
-  @Prop _$content = required
+@View
+class Image implements ImageProps {
+  @Prop @Content ast = required
+
   @Prop props = required
   imageUrl = this.props.imageUrl
   alt = this.props.altContent

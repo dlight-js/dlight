@@ -1,19 +1,20 @@
-import { View } from "@dlightjs/dlight"
-import { type Pretty, Prop, required, strong, type Typed } from "@dlightjs/types"
+import { Prop, View, required, Content } from "@dlightjs/dlight"
+import { type Pretty, strong, type Typed, type ContentProp } from "@dlightjs/types"
 import { css } from "@iandx/easy-css"
 import InlineRenderer from "."
 
 interface BoldProps {
-  _$content: any
+  ast: ContentProp<any>
 }
-class Bold extends View implements BoldProps {
-  @Prop _$content = required
+@View
+class Bold implements BoldProps {
+  @Prop @Content ast = required
 
   Body() {
     strong()
       .className(this.dlightMarkitBold$)
     {
-      for (const content of this._$content) {
+      for (const content of this.ast) {
         InlineRenderer[content.type](content.content)
       }
     }

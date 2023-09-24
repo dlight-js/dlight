@@ -1,15 +1,16 @@
-import { View } from "@dlightjs/dlight"
-import { type Pretty, Prop, required, span, type Typed } from "@dlightjs/types"
+import { Prop, View, required, Content } from "@dlightjs/dlight"
+import { type Pretty, span, type Typed, type ContentProp } from "@dlightjs/types"
 import { css } from "@iandx/easy-css"
 
 interface CodeProps {
-  _$content: any
+  ast: ContentProp<any>
 }
-class Code extends View implements CodeProps {
-  @Prop _$content = required
+@View
+class Code implements CodeProps {
+  @Prop @Content ast = required
 
   Body() {
-    span(this._$content)
+    span(this.ast)
       .className(this.dlightMarkitCode$)
   }
 

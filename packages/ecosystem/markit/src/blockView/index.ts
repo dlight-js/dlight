@@ -13,7 +13,7 @@ import Footnote from "./Footnote.view"
 import CodeBlock from "./CodeBlock.view"
 import { addBlockRule as addMarkitBlockRule } from "@iandx/markit"
 
-const BlockRendererBase: Record<string, Typed<{ props: Object, _$content: any }>> = {
+const BlockRendererBase: Record<string, Typed<{ props: Object, ast: any }>> = {
   Paragraph,
   Heading,
   UnorderedList,

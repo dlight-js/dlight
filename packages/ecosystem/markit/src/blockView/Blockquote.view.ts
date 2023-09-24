@@ -1,20 +1,21 @@
-import { View } from "@dlightjs/dlight"
-import { blockquote, type Pretty, Prop, required, type Typed } from "@dlightjs/types"
+import { Content, Prop, required, View } from "@dlightjs/dlight"
+import { blockquote, type ContentProp, type Pretty, type Typed } from "@dlightjs/types"
 import { css } from "@iandx/easy-css"
 import BlockRenderer from "."
 
 interface BlockquoteProps {
-  _$content: any
+  ast: ContentProp<any>
 }
 
-class Blockquote extends View implements BlockquoteProps {
-  @Prop _$content = required
+@View
+class Blockquote implements BlockquoteProps {
+  @Prop @Content ast = required
 
   Body() {
     blockquote()
       .className(this.dlightMarkitBlockquoteStyle$)
     {
-      for (const content of this._$content) {
+      for (const content of this.ast) {
         BlockRenderer[content.type](content.content)
           .props(content.props)
       }
