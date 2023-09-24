@@ -1,10 +1,10 @@
 import { View, renderToString, Children, _, required } from "@dlightjs/dlight"
 import { css, div } from "@dlightjs/easy-css"
-import { type Typed, button } from "@dlightjs/types"
+import { type Typed, button, type SubTyped, type Pretty } from "@dlightjs/types"
 import { HStack, Route, RouterSpace, VStack } from "@dlightjs/components"
 import { MarkitView, addBlockRule } from "@dlightjs/markit"
 import { ForwardProp, Func } from "@dlightjs/decorators"
-import { Filter1Filled } from "@dlightjs/material-icons"
+// import { Filter1Filled } from "@dlightjs/material-icons"
 
 @ForwardProp
 @View
@@ -47,7 +47,7 @@ function OK2() {
 }
 
 interface SubView {
-  text: string
+  content: string
 }
 @Func(OK)
 @Func(OK2)
@@ -56,17 +56,17 @@ class TestView {
   count = 5
   loading = false
   @View
-    OK = (({ text }: SubView) => {
-      div(text)
-    }) as Typed<SubView>
+    OK = (({ content }: SubView) => {
+      div(content)
+    }) as Pretty as SubTyped<SubView>
 
   Body = () => {
     if (this.loading) {
       div("shitttt")
     }
-    this.OK()
-      .text("ok")
-    Filter1Filled()
+    this.OK("hh")
+
+    // Filter1Filled()
     JJ("xefe")
     {
       div("shit")

@@ -106,13 +106,14 @@ export function handleBody(classBodyNode: t.ClassBody, depChain: string[], path:
   let body: undefined | t.Node
   const views: any[] = []
   for (const c of classBodyNode.body) {
-    if (!(
-      t.isClassMethod(c) ||
-      (t.isClassProperty(c) && (
-        t.isArrowFunctionExpression(c.value) ||
-        (t.isTSAsExpression(c.value) && t.isArrowFunctionExpression(c.value.expression))
-      ))
-    )) continue
+    if (t.isClassProperty(c)) {
+      let exp = c.value
+      while (t.isTSAsExpression(exp)) {
+        exp = exp.expression
+      }
+      c.value = exp
+      if (!t.isArrowFunctionExpression(c.value)) continue
+    }
 
     const isSubView = (c as any).decorators?.find((d: any) =>
       t.isIdentifier(d.expression) && d.expression.name === "View"
@@ -120,10 +121,7 @@ export function handleBody(classBodyNode: t.ClassBody, depChain: string[], path:
     const isBody = (c as any).key.name === "Body"
     if (!isSubView && !isBody) continue
 
-    if (t.isClassProperty(c)) {
-      if (t.isTSAsExpression(c.value)) c.value = c.value.expression
-      arrowFunctionPropertyToMethod(c)
-    }
+    if (t.isClassProperty(c)) arrowFunctionPropertyToMethod(c)
 
     if (isSubView) {
       (c as any).decorators = null
