@@ -36,4 +36,4 @@ console.log(transformDLight(code))
 
 // console.log(renderToText(BenchmarkView))
 // render("app", BenchmarkView)
-render("app", RouteTest)
+render("app", TestView)

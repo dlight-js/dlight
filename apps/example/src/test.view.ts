@@ -4,6 +4,7 @@ import { type Typed, button } from "@dlightjs/types"
 import { HStack, Route, RouterSpace, VStack } from "@dlightjs/components"
 import { MarkitView, addBlockRule } from "@dlightjs/markit"
 import { ForwardProp, Func } from "@dlightjs/decorators"
+import { Filter1Filled } from "@dlightjs/material-icons"
 
 @ForwardProp
 @View
@@ -65,7 +66,7 @@ class TestView {
     }
     this.OK()
       .text("ok")
-
+    Filter1Filled()
     JJ("xefe")
     {
       div("shit")
