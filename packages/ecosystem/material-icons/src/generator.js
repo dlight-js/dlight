@@ -4,10 +4,12 @@ import path from "path"
 function template(content, name) {
   return `import { View } from "@dlightjs/dlight"
 import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class ${name} extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class ${name} {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -34,30 +36,33 @@ function parseName(string, type) {
   return name
 }
 
-const type = "sharp"
+function go(type) {
+  const dirPath = `./assets/${type}`
+  const targetDirPath = `./src/${type}`
+  fs.mkdirSync(targetDirPath)
+  const files = fs.readdirSync(dirPath)
+  const names = []
+  for (const file of files) {
+    const filePath = path.join(dirPath, file)
+    const data = fs.readFileSync(filePath, "utf-8")
+    const name = parseName(file, type)
 
-const dirPath = `./assets/${type}`
-const targetDirPath = `./src/${type}`
+    if (names.map(name => name.toLowerCase()).includes(name.toLowerCase())) continue
 
-const files = fs.readdirSync(dirPath)
-const names = []
-for (const file of files) {
-  const filePath = path.join(dirPath, file)
-  const data = fs.readFileSync(filePath, "utf-8")
-  const name = parseName(file, type)
+    const code = template(getSVGContent(data), name)
 
-  if (names.map(name => name.toLowerCase()).includes(name.toLowerCase())) continue
+    fs.writeFileSync(`${targetDirPath}/${name}.view.ts`, code)
+    console.log(`${name} done!`)
+    names.push(name)
+  }
 
-  const code = template(getSVGContent(data), name)
-
-  fs.writeFileSync(`${targetDirPath}/${name}.view.ts`, code)
-  console.log(`${name} done!`)
-  names.push(name)
+  const code = names.map(name => (
+  `export { default as ${name} } from "./${name}.view"\n`
+  )
+  ).join("")
+  fs.writeFile(`${targetDirPath}/index.ts`, code, () => {})
+  console.log("index done!")
 }
-
-const code = names.map(name => (
-`export { default as ${name} } from "./${name}.view"\n`
-)
-).join("")
-fs.writeFile(`${targetDirPath}/index.ts`, code, () => {})
-console.log("index done!")
+for (const type of ["filled", "outlined", "round", "sharp", "twoTone"]) {
+  go(type)
+}

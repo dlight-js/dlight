@@ -1,9 +1,11 @@
 import { View } from "@dlightjs/dlight"
 import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class Looks6TwoTone extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class Looks6TwoTone {
   Body() {
     DLightIcon()
       .forwardProps(true)

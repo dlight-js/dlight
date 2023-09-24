@@ -1,5 +1,30 @@
 # @dlightjs/markit
 
+## 0.10.0
+
+### Minor Changes
+
+- feat: upgrade to 0.10.0
+
+### Patch Changes
+
+- Updated dependencies
+  - @dlightjs/dlight@0.10.0
+
+## 0.9.38
+
+### Patch Changes
+
+- Updated dependencies
+  - @dlightjs/dlight@0.9.30
+
+## 0.9.37
+
+### Patch Changes
+
+- Updated dependencies
+  - @dlightjs/dlight@0.9.29
+
 ## 0.9.36
 
 ### Patch Changes

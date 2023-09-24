@@ -62,6 +62,10 @@ const selectedDependencies: string[] = await checkbox({
       value: "@dlightjs/components"
     },
     {
+      name: "@dlightjs/decorators",
+      value: "@dlightjs/decorators"
+    },
+    {
       name: "@dlightjs/material-icons",
       value: "@dlightjs/material-icons"
     },
@@ -78,7 +82,7 @@ const selectedDependencies: string[] = await checkbox({
 const selectedDevDependencies = ["vite", "vite-plugin-dlight"]
 selectedDependencies.push("@dlightjs/dlight")
 if (language === "ts") {
-  selectedDependencies.push("@dlightjs/types")
+  selectedDevDependencies.push("@dlightjs/types")
   selectedDevDependencies.push("typescript")
 }
 
@@ -144,7 +148,7 @@ const packageManager = await select({
       description: "Install by yourself"
     }
   ]
-})
+}) as any as string
 
 if (packageManager) {
   execSync(`${packageManager} install`, { cwd: projectName, stdio: "inherit" })

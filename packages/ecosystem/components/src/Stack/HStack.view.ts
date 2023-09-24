@@ -1,6 +1,6 @@
-import { View } from "@dlightjs/dlight"
+import { Children, type DLNode, Prop, View, required } from "@dlightjs/dlight"
 import { css } from "@iandx/easy-css"
-import { type Typed, _, div, Prop, type Pretty } from "@dlightjs/types"
+import { type Typed, _, div, type Pretty } from "@dlightjs/types"
 import { type VAlignment } from "./types"
 import { isChildSpacer } from "./Spacer.view"
 
@@ -11,11 +11,14 @@ interface HStackProps {
   height?: string
 }
 
-class HStack extends View implements HStackProps {
+@View
+class HStack implements HStackProps {
   @Prop spacing = 0
   @Prop alignment: VAlignment = "top"
   @Prop width = "100%"
   @Prop height = "max-content"
+  @Children children: DLNode[] = required
+
   margin = (function() {
     switch (this.alignment) {
       case "top":
@@ -39,7 +42,7 @@ class HStack extends View implements HStackProps {
             flex-direction: row;
         `)
     {
-      for (const child of this._$children) {
+      for (const child of this.children) {
         if (isChildSpacer(child)) {
           _(child)
         } else {

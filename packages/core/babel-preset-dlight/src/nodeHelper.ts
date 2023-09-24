@@ -139,5 +139,25 @@ export function bindMethods(classBodyNode: t.ClassBody, methodsToBind: string[])
 }
 
 export function isDLightView(path: any) {
-  return t.isIdentifier(path.node.superClass, { name: "View" })
+  const node = path.node
+  const decorators = node.decorators ?? []
+  const isDecorator = decorators.find((deco: t.Decorator) => t.isIdentifier(deco.expression, { name: "View" }))
+  if (isDecorator) {
+    node.superClass = t.identifier("View")
+    node.decorators = node.decorators?.filter((deco: t.Decorator) => (
+      !t.isIdentifier(deco.expression, { name: "View" })
+    ))
+  }
+
+  return t.isIdentifier(node.superClass, { name: "View" })
+}
+
+export function arrowFunctionPropertyToMethod(propertyNode: t.ClassProperty) {
+  const propertyBody = (propertyNode.value as t.ArrowFunctionExpression).body
+  const body = t.isExpression(propertyBody) ? t.blockStatement([t.returnStatement(propertyBody)]) : propertyBody
+  propertyNode.type = "ClassMethod" as any
+  (propertyNode as any).body = body
+  ;(propertyNode as any).kind = "method"
+  ;(propertyNode as any).params = (propertyNode.value as t.ArrowFunctionExpression).params
+  propertyNode.value = null
 }

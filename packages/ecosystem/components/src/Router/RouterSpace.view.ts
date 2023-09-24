@@ -1,7 +1,7 @@
-import { type DLNode, View } from "@dlightjs/dlight"
+import { type DLNode, View, Children, required, Prop, Static, env } from "@dlightjs/dlight"
 import { Navigator } from "./Navigator"
 import { getHashLocation, getHistoryLocation } from "./utils"
-import { type Typed, _, env, Prop, Static, type Pretty } from "@dlightjs/types"
+import { type Typed, _, type Pretty } from "@dlightjs/types"
 
 const rawHistoryPushState = history.pushState
 let historyPushStateFuncs: Array<() => any> = []
@@ -10,11 +10,12 @@ interface RouterSpaceProps {
   mode?: "hash" | "history"
   getNavigator?: (nav: Navigator) => void
 }
-class RouterSpace extends View implements RouterSpaceProps {
+@View
+class RouterSpace implements RouterSpaceProps {
   @Prop mode: "hash" | "history" = "history"
   @Prop getNavigator?: (nav: Navigator) => void
   currUrl = this.mode === "hash" ? getHashLocation() : getHistoryLocation()
-
+  @Children children: DLNode[] = required
   @Static baseUrl = ""
   @Static prevPathCondition = ""
   @Static prevRoutes: DLNode[] = []
@@ -26,11 +27,11 @@ class RouterSpace extends View implements RouterSpaceProps {
     const currUrl = this.currUrl.replace(new RegExp(`^${this.baseUrl}`), "")
     const targetNodes: any[] = []
 
-    for (const child of this._$children) {
+    for (const child of this.children) {
       if (!child.isRoute) continue
-      let targetUrl = child._$content
+      let targetUrl = child.path
       let isMatch = false
-      if (typeof child._$content === "string") {
+      if (typeof child.path === "string") {
         targetUrl = targetUrl.replace(/^(\.\/)+/, "")
         const isRootRoute = (targetUrl === "." && currUrl === "")
         const isPathMatch = ((currUrl + "/").startsWith(targetUrl + "/"))
@@ -67,7 +68,7 @@ class RouterSpace extends View implements RouterSpaceProps {
   willMount() {
     this.navigator.mode = this.mode
     this.getNavigator?.(this.navigator)
-    let parent: any = this._$parentNode
+    let parent: any = (this as any)._$parentNode
     while (parent) {
       if (parent.isRoute) {
         this.baseUrl = parent._$content + "/" + this.baseUrl

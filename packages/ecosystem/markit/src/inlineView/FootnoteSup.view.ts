@@ -1,23 +1,25 @@
-import { View } from "@dlightjs/dlight"
-import { Prop, required, sup, a, type Typed, type Pretty } from "@dlightjs/types"
+import { Prop, View, required, Content } from "@dlightjs/dlight"
+import { sup, a, type Typed, type Pretty, type ContentProp } from "@dlightjs/types"
 import { css } from "@iandx/easy-css"
 
 interface FootnoteSupProps {
-  _$content: any
+  ast: ContentProp<any>
   props: any
 }
-class FootnoteSup extends View implements FootnoteSupProps {
-  @Prop _$content = required
+@View
+class FootnoteSup implements FootnoteSupProps {
+  @Prop @Content ast = required
+
   @Prop props = required
   footnoteSupId = this.props.footnoteSupId
 
   Body() {
     a()
-      .href(`#Markit-Footnote-${this._$content}-0`)
+      .href(`#Markit-Footnote-${this.ast}-0`)
       .className(this.dlightMarkitFootnoteSup$)
     {
-      sup(this._$content)
-        .id(`Markit-FootnoteSup-${this._$content}-${this.footnoteSupId}`)
+      sup(this.ast)
+        .id(`Markit-FootnoteSup-${this.ast}-${this.footnoteSupId}`)
         .className(this.dlightMarkitFootnoteSupSup$)
     }
   }

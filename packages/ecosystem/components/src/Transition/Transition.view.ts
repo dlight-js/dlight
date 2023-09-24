@@ -1,5 +1,5 @@
-import { View } from "@dlightjs/dlight"
-import { type Typed, _, Prop, type Pretty } from "@dlightjs/types"
+import { Children, type DLNode, View, required, Prop } from "@dlightjs/dlight"
+import { type Typed, _, type Pretty } from "@dlightjs/types"
 import { css } from "@iandx/easy-css"
 
 interface TransitionProps {
@@ -8,13 +8,15 @@ interface TransitionProps {
   delay?: number
 }
 
-class Transition extends View implements TransitionProps {
+@View
+class Transition implements TransitionProps {
   @Prop duration = 0.5
   @Prop easing = "ease-in-out"
   @Prop delay = 0
+  @Children children: DLNode[] = required
 
   Body() {
-    _(this._$children)
+    _(this.children)
       .className(css`
         transition: all ${this.duration}s ${this.easing} ${this.delay}s;
       `)

@@ -1,6 +1,6 @@
-import { View } from "@dlightjs/dlight"
-import { Prop, required, span, type Typed, type Pretty } from "@dlightjs/types"
-
+import { Prop, View, required } from "@dlightjs/dlight"
+import { span, type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 interface DLightIconProps {
   content: string
   name: string
@@ -11,7 +11,9 @@ interface DLightIconProps {
   fontSize?: string
 }
 
-class DLightIcon extends View implements DLightIconProps {
+@View
+@ForwardProp
+class DLightIcon implements DLightIconProps {
   @Prop content: string = required
   @Prop name: string = required
   /**

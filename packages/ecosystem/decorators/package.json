@@ -1,0 +1,26 @@
+{
+  "name": "@dlightjs/decorators",
+  "version": "0.10.0",
+  "description": "DLight decorator helpers",
+  "author": {
+    "name": "IanDx",
+    "email": "iandxssxx@gmail.com"
+  },
+  "keywords": [
+    "dlight.js"
+  ],
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup --sourcemap"
+  },
+  "devDependencies": {
+    "tsup": "^6.5.0"
+  }
+}

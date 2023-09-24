@@ -1,4 +1,5 @@
 import {
+  arrowFunctionPropertyToMethod,
   isMemberExpressionProperty,
   isObjectKey
 } from "./nodeHelper"
@@ -105,14 +106,28 @@ export function handleBody(classBodyNode: t.ClassBody, depChain: string[], path:
   let body: undefined | t.Node
   const views: any[] = []
   for (const c of classBodyNode.body) {
-    if ((c as any).decorators?.find((d: any) =>
+    if (t.isClassProperty(c)) {
+      let exp = c.value
+      while (t.isTSAsExpression(exp)) {
+        exp = exp.expression
+      }
+      c.value = exp
+      if (!t.isArrowFunctionExpression(c.value)) continue
+    }
+
+    const isSubView = (c as any).decorators?.find((d: any) =>
       t.isIdentifier(d.expression) && d.expression.name === "View"
-    )) {
+    )
+    const isBody = (c as any).key.name === "Body"
+    if (!isSubView && !isBody) continue
+
+    if (t.isClassProperty(c)) arrowFunctionPropertyToMethod(c)
+
+    if (isSubView) {
       (c as any).decorators = null
       views.push(c)
-    } else if ((c as any).key.name === "Body") {
-      body = c
     }
+    body = c
   }
   const subViews: string[] = views.map(v => v.key.name)
   for (const view of views) {

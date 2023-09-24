@@ -1,21 +1,23 @@
-import { View } from "@dlightjs/dlight"
-import { div, type Pretty, Prop, required, type Typed } from "@dlightjs/types"
+import { Prop, required, View, Content } from "@dlightjs/dlight"
+import { type ContentProp, div, type Pretty, type Typed } from "@dlightjs/types"
 import InlineRenderer from "../inlineView"
 
 interface CodeBlockProps {
-  _$content: any
+  ast: ContentProp<any>
   props: any
 }
 
-class CodeBlock extends View implements CodeBlockProps {
-  @Prop _$content = required
+@View
+class CodeBlock implements CodeBlockProps {
+  @Prop @Content ast = required
+
   @Prop props = required
   language = this.props.language
 
   Body() {
     div()
     {
-      InlineRenderer.Text(this._$content)
+      InlineRenderer.Text(this.ast)
     }
   }
 }

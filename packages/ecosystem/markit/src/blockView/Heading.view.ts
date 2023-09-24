@@ -1,14 +1,16 @@
-import { View } from "@dlightjs/dlight"
-import { htmlTag, type Pretty, Prop, required, type Typed } from "@dlightjs/types"
+import { Prop, required, View, Content } from "@dlightjs/dlight"
+import { type ContentProp, htmlTag, type Pretty, type Typed } from "@dlightjs/types"
 import { css } from "@iandx/easy-css"
 import InlineRenderer from "../inlineView"
 
 interface HeadingProps {
-  _$content: any
+  ast: ContentProp<any>
   props: any
 }
-class Heading extends View implements HeadingProps {
-  @Prop _$content = required
+@View
+class Heading implements HeadingProps {
+  @Prop @Content ast = required
+
   @Prop props = required
   headdingName = `h${this.props.headingLevel}`
 
@@ -16,7 +18,7 @@ class Heading extends View implements HeadingProps {
     htmlTag(this.headdingName)()
       .className(this.dlightMarkitHeading$)
     {
-      for (const content of this._$content) {
+      for (const content of this.ast) {
         InlineRenderer[content.type](content.content)
           .props(content.props)
       }

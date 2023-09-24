@@ -1,5 +1,37 @@
 # @dlightjs/components
 
+## 0.10.0
+
+### Minor Changes
+
+- feat: upgrade to 0.10.0
+
+### Patch Changes
+
+- Updated dependencies
+  - @dlightjs/dlight@0.10.0
+
+## 0.9.34
+
+### Patch Changes
+
+- feat: add subview type support
+- Updated dependencies
+  - @dlightjs/dlight@0.9.30
+
+## 0.9.33
+
+### Patch Changes
+
+- feat: change to decorators family
+
+## 0.9.32
+
+### Patch Changes
+
+- Updated dependencies
+  - @dlightjs/dlight@0.9.29
+
 ## 0.9.31
 
 ### Patch Changes

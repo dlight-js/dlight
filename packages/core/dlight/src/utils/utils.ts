@@ -20,3 +20,14 @@ export function renderToString(DL: typeof View | Function) {
   new (DL as any)().render(newEl)
   return newEl.innerHTML
 }
+
+export const tag = null as any
+export const htmlTag = null as any
+export const Static = null as any
+export const Children = null as any
+export const Content = null as any
+export const Prop = null as any
+export const Env = null as any
+export const env = null as any
+export const _ = null as any
+export const required = null as any

@@ -1,19 +1,20 @@
-import { View } from "@dlightjs/dlight"
-import { type Pretty, Prop, required, sup, type Typed } from "@dlightjs/types"
+import { Prop, View, required, Content } from "@dlightjs/dlight"
+import { type Pretty, sup, type Typed, type ContentProp } from "@dlightjs/types"
 import { css } from "@iandx/easy-css"
 import InlineRenderer from "."
 
 interface SuperscriptProps {
-  _$content: any
+  ast: ContentProp<any>
 }
-class Superscript extends View {
-  @Prop _$content = required
+@View
+class Superscript {
+  @Prop @Content ast = required
 
   Body() {
     sup()
       .className(this.dlightMarkitSupscript$)
     {
-      for (const content of this._$content) {
+      for (const content of this.ast) {
         InlineRenderer[content.type](content.content)
       }
     }

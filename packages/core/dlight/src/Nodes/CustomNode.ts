@@ -89,6 +89,10 @@ export class CustomNode extends DLNode {
     addDLProp(this, "prop", key, propFunc, dlScope, listenDeps)
   }
 
+  _$addDefaultProp(key: string, propFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]) {
+    addDLProp(this, "prop", (this as any)._$defaultProp ?? "_$content", propFunc, dlScope, listenDeps)
+  }
+
   // ---- lifecycles
   willMount(_els: HTMLElement[], _node: CustomNode) { }
   didMount(_els: HTMLElement[], _node: CustomNode) { }
@@ -133,8 +137,9 @@ export class CustomNode extends DLNode {
     for (const member of members) {
       if (dlNode._$nodeType === DLNodeType.HTML) {
         (dlNode as HtmlNode)._$addAnyProp(member, () => (this as any)[member], this, [member])
+      } else {
+        dlNode._$addProp(member, () => (this as any)[member], this, [member])
       }
-      dlNode._$addProp(member, () => (this as any)[member], this, [member])
     }
 
     if (dlNode._$nodeType === DLNodeType.Custom) {
