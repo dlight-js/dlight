@@ -1,5 +1,5 @@
 import { View } from "@dlightjs/dlight"
-import {SubTyped, Content, type div, type Pretty, type Typed, type UnTyped } from "./index"
+import {SubTyped, type div, type Pretty, type Typed, type UnTyped, ContentProp } from "./index"
 
 const VV = View as any as (typeof View & ((...args: any) => any))
 /**
@@ -7,10 +7,10 @@ const VV = View as any as (typeof View & ((...args: any) => any))
 */
 interface Props {
   /** jfjsf */
-  a?: Content<string>
+  a: ContentProp<string>
   b: string
   c?: number
-  content: string
+  content?: string
 }
 const Prop = null as any
 type CC = SubTyped<Props>
@@ -29,7 +29,7 @@ const t = JJClass as Pretty as Typed<Props>
 // type j = ContentKeyName<Props>
 t()
   .c(1)
-  .
+
 const g: Typed<UnTyped<typeof t>, HTMLDivElement> = null as any
 g()
   .a("1")

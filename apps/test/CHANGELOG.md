@@ -1,5 +1,13 @@
 # dlight-test
 
+## 0.0.10
+
+### Patch Changes
+
+- Updated dependencies
+  - @dlightjs/types@0.10.1
+  - @dlightjs/components@0.10.0
+
 ## 0.0.9
 
 ### Patch Changes
