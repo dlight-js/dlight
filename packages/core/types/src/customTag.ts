@@ -35,11 +35,15 @@ type ContentKeyName<T> = {
   [K in keyof T]-?: T[K] extends ContentProp<infer _> ? K : never
 }[keyof T]
 
+type CheckContent<T> = RemoveOptional<T>[ContentKeyName<RemoveOptional<T>>]
+
 type CustomClassTag<T, O> = ContentKeyName<RemoveOptional<O>> extends undefined
   ? () => DLightObject<T>
   : undefined extends O[ContentKeyName<RemoveOptional<O>>]
-    ? (content?: O[ContentKeyName<RemoveOptional<O>>] extends (ContentProp<infer U> | undefined) ? U : never) => DLightObject<T>
-    : (content: O[ContentKeyName<RemoveOptional<O>>] extends ContentProp<infer U> ? U : never) => DLightObject<T>
+    ? CheckContent<O> extends ContentProp<infer U>
+      ? (content?: U) => DLightObject<Omit<T, ContentKeyName<RemoveOptional<O>>>> : never
+    : CheckContent<O> extends ContentProp<infer U>
+      ? (content: U) => DLightObject<Omit<T, ContentKeyName<RemoveOptional<O>>>> : never
 
 type CustomSubViewTag<T> = T extends { "content": infer U }
   ? (content: U) => DLightObject<Omit<T, "content">>

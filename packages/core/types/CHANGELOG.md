@@ -1,5 +1,11 @@
 # @dlightjs/types
 
+## 0.10.1
+
+### Patch Changes
+
+- fix: Typed not omit content prop
+
 ## 0.10.0
 
 ### Minor Changes
