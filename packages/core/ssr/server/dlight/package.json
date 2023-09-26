@@ -1,0 +1,31 @@
+{
+  "name": "@dlightjs/dlight-server",
+  "version": "0.9.20",
+  "description": "DX-first UI rendering library",
+  "author": {
+    "name": "IanDx",
+    "email": "iandxssxx@gmail.com"
+  },
+  "keywords": [
+    "dlight.js"
+  ],
+  "license": "MIT",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup --sourcemap"
+  },
+  "devDependencies": {
+    "tsup": "^6.5.0",
+    "typescript": "^4.5.2"
+  },
+  "dependencies": {
+    "jsdom": "^22.1.0"
+  }
+}
