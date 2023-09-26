@@ -1,6 +1,6 @@
 import * as t from "@babel/types"
 import { handleBody } from "./bodyHandler"
-import { resolveState, resolveProp, resolveContent, resolveChildren } from "./decoratorResolver"
+import { resolveState, resolveProp, resolveContent, resolveChildren, resolveWatch } from "./decoratorResolver"
 import { bindMethods, isDLightView, pushDerived, shouldBeListened, valueWithArrowFunc } from "./nodeHelper"
 import { minimatch } from "minimatch"
 
@@ -17,6 +17,16 @@ export interface DLightOption {
   excludeFiles?: string | string[]
 }
 
+type PropertyContainer = Record<string, {
+  node: t.ClassProperty | t.ClassMethod
+  derivedFrom: string[]
+  isStatic?: boolean
+  isContent?: boolean
+  isChildren?: boolean
+  isWatcher?: boolean
+  propOrEnv?: "Prop" | "Env"
+}>
+
 export default function(api: any, options: DLightOption) {
   const {
     files: preFiles = "**/*.{js,jsx,ts,tsx}",
@@ -30,14 +40,8 @@ export default function(api: any, options: DLightOption) {
   // ---- 在这里新建node很省时间
   let derivedPairNode: t.ClassProperty | null = null
   let properties: string[] = []
-  let propertiesContainer: Record<string, {
-    node: t.ClassProperty
-    derivedFrom: string[]
-    isStatic: boolean
-    isContent: boolean
-    isChildren: boolean
-    propOrEnv: "Prop" | "Env" | undefined
-  }> = {}
+  let propertiesContainer: PropertyContainer = {}
+  let watcheresContainer: PropertyContainer = {}
   let staticProperties: string[] = []
   let methodsToBind: string[] = []
   let rootPath: any
@@ -49,11 +53,13 @@ export default function(api: any, options: DLightOption) {
       rootPath
     )
 
-    const defaultPropKey = Object.entries(propertiesContainer)
+    const contentPropKey = Object.entries(propertiesContainer)
       .find(([, { propOrEnv, isContent }]) => isContent && propOrEnv === "Prop")?.[0] ?? ""
 
-    for (let [key, { node, derivedFrom, isStatic, isChildren, propOrEnv }] of Object.entries(propertiesContainer).reverse()) {
-      if (!node.value) node.value = t.identifier("undefined")
+    const propertyArr = [...Object.entries(propertiesContainer).reverse(), ...Object.entries(watcheresContainer)]
+
+    for (let [key, { node, derivedFrom, isStatic, isChildren, propOrEnv, isWatcher }] of propertyArr) {
+      if (t.isClassProperty(node) && !node.value) node.value = t.identifier("undefined")
       if (isChildren) {
         resolveChildren(node as any, classBodyNode!, key)
         continue
@@ -62,11 +68,12 @@ export default function(api: any, options: DLightOption) {
         derivedFrom = derivedFrom.filter(k => !staticProperties.includes(k))
         usedProperties.push(...derivedFrom)
         pushDerived(key, derivedFrom, derivedPairNode!, classBodyNode!)
-        valueWithArrowFunc(node)
+        if (isWatcher) resolveWatch(node as t.ClassMethod, classBodyNode!, key)
+        else valueWithArrowFunc(node)
       }
       if (propOrEnv) {
         resolveProp(node as any, classBodyNode!, propOrEnv, key)
-        if (defaultPropKey === key) resolveContent(node as any, classBodyNode!, key)
+        if (contentPropKey === key) resolveContent(node as any, classBodyNode!, key)
       }
       if (isStatic) continue
       if (usedProperties.includes(key)) {
@@ -95,6 +102,7 @@ export default function(api: any, options: DLightOption) {
       })
       .map(n => (n as any).key.name)
     propertiesContainer = {}
+    watcheresContainer = {}
     rootPath = path
 
     this.addDLightImport()
@@ -107,6 +115,7 @@ export default function(api: any, options: DLightOption) {
     staticProperties = []
     methodsToBind = []
     propertiesContainer = {}
+    watcheresContainer = {}
   }
 
   return {
@@ -177,11 +186,49 @@ export default function(api: any, options: DLightOption) {
         if (!this.enter) return
         if (!classDeclarationNode) return
         if (!t.isIdentifier(path.node.key)) return
-        const name = path.node.key.name
-        if (name === "Body") return
-        const isSubView = path.node.decorators?.find((d: t.Decorator) => t.isIdentifier(d.expression) && d.expression.name === "View")
+        const node: t.ClassMethod = path.node
+        const key = path.node.key.name
+        if (key === "Body") return
+        methodsToBind.push(key)
+        const isSubView = node.decorators?.find((d: t.Decorator) => t.isIdentifier(d.expression) && d.expression.name === "View")
         if (isSubView) return
-        methodsToBind.push(name)
+        // --- @Watch
+        const findWatcher = (d: t.Decorator) => (
+          t.isIdentifier(d.expression) && d.expression.name === "Watch"
+        )
+        const watcher = node.decorators?.find(findWatcher)
+        const findWatcherFunc = (d: t.Decorator) => (
+          t.isCallExpression(d.expression) && t.isIdentifier(d.expression.callee) && d.expression.callee.name === "Watch"
+        )
+        const watcherFunc = node.decorators?.find(findWatcherFunc)
+        if (watcher ?? watcherFunc) {
+          const deps: string[] = []
+          if (watcher) {
+            path.scope.traverse(node, {
+              MemberExpression(innerPath: any) {
+                if (properties.includes(innerPath.node.property.name) && t.isThisExpression(innerPath.node.object)) {
+                  if (shouldBeListened(innerPath, classDeclarationNode!)) {
+                    deps.push(innerPath.node.property.name)
+                  }
+                }
+              }
+            })
+          } else {
+            const listenDeps = (watcherFunc!.expression as t.CallExpression).arguments[0]
+            if (t.isArrayExpression(listenDeps)) {
+              deps.push(...(listenDeps.elements
+                .filter(arg => t.isStringLiteral(arg))
+                .map(arg => (arg as t.StringLiteral).value)
+              ))
+            }
+          }
+          watcheresContainer[key] = {
+            node,
+            isWatcher: true,
+            derivedFrom: [...new Set(deps)]
+          }
+          node.decorators = node.decorators?.filter(d => !(findWatcher(d) || findWatcherFunc(d)))
+        }
       },
       ClassProperty(path: any) {
         if (!this.enter) return

@@ -101,3 +101,15 @@ export function resolveChildren(node: t.ClassProperty, classBodyNode: t.ClassBod
   )
   classBodyNode.body.splice(propertyIdx, 1, getterNode)
 }
+
+export function resolveWatch(node: t.ClassMethod, classBodyNode: t.ClassBody, key: string) {
+  const propertyIdx = classBodyNode.body.indexOf(node)
+  /**
+   * _$$${propertyName} = "Watcher"
+   */
+  const watcherNode = t.classProperty(
+    t.identifier(`_$$${key}`),
+    t.stringLiteral("Watcher")
+  )
+  classBodyNode.body.splice(propertyIdx, 0, watcherNode)
+}

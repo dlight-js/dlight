@@ -28,6 +28,7 @@ export const Children = null as any
 export const Content = null as any
 export const Prop = null as any
 export const Env = null as any
+export const Watch = null as any
 export const env = null as any
 export const _ = null as any
 export const required = null as any
