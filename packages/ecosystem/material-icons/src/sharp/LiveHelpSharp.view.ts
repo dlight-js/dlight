@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class LiveHelpSharp extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class LiveHelpSharp {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class LiveHelpSharp extends View {
   }
 }
 
-export default LiveHelpSharp as any as Typed<DLightIconType>
+export default LiveHelpSharp as Pretty as Typed<DLightIconType, HTMLSpanElement>

@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class ZoomInMapFilled extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class ZoomInMapFilled {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class ZoomInMapFilled extends View {
   }
 }
 
-export default ZoomInMapFilled as any as Typed<DLightIconType>
+export default ZoomInMapFilled as Pretty as Typed<DLightIconType, HTMLSpanElement>

@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class ShortcutRound extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class ShortcutRound {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class ShortcutRound extends View {
   }
 }
 
-export default ShortcutRound as any as Typed<DLightIconType>
+export default ShortcutRound as Pretty as Typed<DLightIconType, HTMLSpanElement>

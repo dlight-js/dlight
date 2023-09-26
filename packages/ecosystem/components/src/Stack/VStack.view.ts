@@ -1,15 +1,23 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import DLight, { View } from "@dlightjs/dlight"
+import { Children, type DLNode, View, required, Prop } from "@dlightjs/dlight"
 import { type HAlignment } from "./types"
 import { isChildSpacer } from "./Spacer.view"
-import { type Typed, _, div, Prop } from "@dlightjs/types"
-import { css } from "@dlightjs/emotion"
+import { type Typed, _, div, type Pretty } from "@dlightjs/types"
+import { css } from "@iandx/easy-css"
 
-class VStack extends View {
-  @Prop spacing: Prop<number> = 0 as any
-  @Prop alignment: Prop<HAlignment> = "leading" as any
-  @Prop width: Prop<string> = "max-content" as any
-  @Prop height: Prop<string> = "100%" as any
+interface VStackProps {
+  spacing?: number
+  alignment?: HAlignment
+  width?: string
+  height?: string
+}
+
+@View
+class VStack implements VStackProps {
+  @Prop spacing = 0
+  @Prop alignment: HAlignment = "leading"
+  @Prop width = "max-content"
+  @Prop height = "100%"
+  @Children children: DLNode[] = required
   margin = (function() {
     switch (this.alignment) {
       case "leading":
@@ -33,7 +41,7 @@ class VStack extends View {
         flex-direction: column;
     `)
     {
-      for (const child of this._$children) {
+      for (const child of this.children) {
         if (isChildSpacer(child)) {
           _(child)
         } else {
@@ -48,4 +56,4 @@ class VStack extends View {
   }
 }
 
-export default VStack as any as Typed<VStack>
+export default VStack as Pretty as Typed<VStackProps>

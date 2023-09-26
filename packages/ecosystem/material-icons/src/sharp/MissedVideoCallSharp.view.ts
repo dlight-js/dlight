@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class MissedVideoCallSharp extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class MissedVideoCallSharp {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class MissedVideoCallSharp extends View {
   }
 }
 
-export default MissedVideoCallSharp as any as Typed<DLightIconType>
+export default MissedVideoCallSharp as Pretty as Typed<DLightIconType, HTMLSpanElement>

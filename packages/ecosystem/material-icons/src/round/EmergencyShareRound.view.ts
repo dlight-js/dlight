@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class EmergencyShareRound extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class EmergencyShareRound {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class EmergencyShareRound extends View {
   }
 }
 
-export default EmergencyShareRound as any as Typed<DLightIconType>
+export default EmergencyShareRound as Pretty as Typed<DLightIconType, HTMLSpanElement>

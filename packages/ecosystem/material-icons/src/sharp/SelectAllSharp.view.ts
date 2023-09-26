@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class SelectAllSharp extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class SelectAllSharp {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class SelectAllSharp extends View {
   }
 }
 
-export default SelectAllSharp as any as Typed<DLightIconType>
+export default SelectAllSharp as Pretty as Typed<DLightIconType, HTMLSpanElement>

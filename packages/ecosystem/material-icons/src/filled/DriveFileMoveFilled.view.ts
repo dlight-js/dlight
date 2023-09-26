@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class DriveFileMoveFilled extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class DriveFileMoveFilled {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class DriveFileMoveFilled extends View {
   }
 }
 
-export default DriveFileMoveFilled as any as Typed<DLightIconType>
+export default DriveFileMoveFilled as Pretty as Typed<DLightIconType, HTMLSpanElement>

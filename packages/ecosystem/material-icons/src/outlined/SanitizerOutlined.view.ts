@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class SanitizerOutlined extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class SanitizerOutlined {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class SanitizerOutlined extends View {
   }
 }
 
-export default SanitizerOutlined as any as Typed<DLightIconType>
+export default SanitizerOutlined as Pretty as Typed<DLightIconType, HTMLSpanElement>

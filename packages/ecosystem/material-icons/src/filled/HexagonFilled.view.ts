@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class HexagonFilled extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class HexagonFilled {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class HexagonFilled extends View {
   }
 }
 
-export default HexagonFilled as any as Typed<DLightIconType>
+export default HexagonFilled as Pretty as Typed<DLightIconType, HTMLSpanElement>

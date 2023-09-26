@@ -1,16 +1,20 @@
-import { View } from "@dlightjs/dlight"
-import { Prop, required, sub, type Typed } from "@dlightjs/types"
-import { css } from "@dlightjs/easy-css"
+import { Prop, View, required, Content } from "@dlightjs/dlight"
+import { type Pretty, sub, type Typed, type ContentProp } from "@dlightjs/types"
+import { css } from "@iandx/easy-css"
 import InlineRenderer from "."
 
-class Subscript extends View {
-  @Prop _$content = required
+interface SubscriptProps {
+  ast: ContentProp<any>
+}
+@View
+class Subscript implements SubscriptProps {
+  @Prop @Content ast = required
 
   Body() {
     sub()
       .className(this.dlightMarkitSubscript$)
     {
-      for (const content of this._$content) {
+      for (const content of this.ast) {
         InlineRenderer[content.type](content.content)
       }
     }
@@ -19,4 +23,4 @@ class Subscript extends View {
   dlightMarkitSubscript$ = css``
 }
 
-export default Subscript as any as Typed<Subscript>
+export default Subscript as Pretty as Typed<SubscriptProps>

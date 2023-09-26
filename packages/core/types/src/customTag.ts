@@ -1,4 +1,5 @@
 import { type CustomNode } from "@dlightjs/dlight"
+import { type DLightHTMLAttributes } from "./htmlTag"
 
 // 非常神奇的一个解法
 // vscode解析ts的提示时，如果是 type A<T> = B<xxx<T>> 的形式，会显示详细的类型，
@@ -9,37 +10,8 @@ import { type CustomNode } from "@dlightjs/dlight"
 type Useless = { [key in ""]: never }
 
 type DLightObject<T> = {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  [K in keyof T]: T[K] extends undefined | infer _
-    ? (value?: T[K]) => DLightObject<Omit<T, K>>
-    : (value: T[K]) => DLightObject<Omit<T, K>>
+  [K in keyof T]-?: ((value: T[K]) => DLightObject<Omit<T, K>>)
 }
-
-type CustomTag<P extends { _$content?: any }, T> = P["_$content"] extends RequiredProp<infer U>
-  ? (_$content: U) => DLightObject<Omit<T, "_$content">>
-  : P["_$content"] extends Prop<infer U>
-    ? (_$content?: U) => DLightObject<Omit<T, "_$content">>
-    : () => DLightObject<T>
-
-// ---- auto gene type
-export const Prop = null as any
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export type Prop<T> = T & { _$isProp: true, _$required: false }
-export type RequiredProp<T> = T & { _$isProp: true, _$required: true }
-
-// 过滤掉所有的 never
-type FilterNever<T> = Omit<
-T,
-{ [K in keyof T]: T[K] extends never ? K : never }[keyof T]
->
-
-type SelectProps<T> = FilterNever<{
-  [K in keyof T]-?: T[K] extends RequiredProp<infer U>
-    ? U
-    : T[K] extends Prop<infer U>
-      ? (U | undefined)
-      : never
-}>
 
 type CustomLifecycleFuncType = ((els?: HTMLElement[], node?: CustomNode) => void) | undefined
 interface CustomNodeProps {
@@ -52,35 +24,95 @@ interface CustomNodeProps {
   didUnmount: CustomLifecycleFuncType
 }
 
-// @ts-ignore
-export type Typed<T, G={}> = CustomTag<T, SelectProps<T> & CustomNodeProps & G> & Useless
+export type ContentProp<T> = T & { _$idContent: true }
 
+export type RemoveOptional<T> = {
+  [K in keyof T]-?: T[K]
+}
+
+type ContentKeyName<T> = {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  [K in keyof T]-?: T[K] extends ContentProp<infer _> ? K : never
+}[keyof T]
+
+type CheckContent<T> = RemoveOptional<T>[ContentKeyName<RemoveOptional<T>>]
+
+type CustomClassTag<T, O> = ContentKeyName<RemoveOptional<O>> extends undefined
+  ? () => DLightObject<T>
+  : undefined extends O[ContentKeyName<RemoveOptional<O>>]
+    ? CheckContent<O> extends ContentProp<infer U>
+      ? (content?: U) => DLightObject<Omit<T, ContentKeyName<RemoveOptional<O>>>> : never
+    : CheckContent<O> extends ContentProp<infer U>
+      ? (content: U) => DLightObject<Omit<T, ContentKeyName<RemoveOptional<O>>>> : never
+
+type CustomSubViewTag<T> = T extends { "content": infer U }
+  ? (content: U) => DLightObject<Omit<T, "content">>
+  : T extends { "content"?: infer U }
+    ? (content?: U) => DLightObject<Omit<T, "content">>
+    : () => DLightObject<T>
+
+type CustomTagType<T, G> = CustomClassTag<T & CustomNodeProps & DLightHTMLAttributes<G>, T> & Useless
+export type Typed<T={}, G={}> = CustomTagType<T, G> & Useless
+export type SubTyped<T> = CustomSubViewTag<T> & Useless
+
+export type Pretty = any
+
+// ---- reverse
 export type UnTyped<T> = T extends Typed<infer U> ? U : never
 
-export type PropWrapper<T> = {
-  [key in keyof T]-?: undefined extends T[key] ? Prop<T[key]> : RequiredProp<T[key]>;
-}
+// ---- 前一个版本 -> type
+// type CustomTag<P extends { _$content?: any }, T> = P["_$content"] extends Requiredinfer U
+//   ? (_$content: U) => DLightObject<Omit<T, "_$content">>
+//   : P["_$content"] extends infer U
+//     ? (_$content?: U) => DLightObject<Omit<T, "_$content">>
+//     : () => DLightObject<T>
 
-export type PartialPropWrapper<T> = {
-  [key in keyof T]: Prop<T[key]>;
-}
+// // ---- auto gene type
+// export const Prop = null as any
+// // eslint-disable-next-line @typescript-eslint/no-redeclare
+// export type T = T & { _$isProp: true, _$required: false }
+// export type RequiredT = T & { _$isProp: true, _$required: true }
 
-export type RequiredPropWrapper<T> = {
-  [key in keyof T]: RequiredProp<T[key]>;
-}
+// // 过滤掉所有的 never
+// type FilterNever<T> = Omit<
+// T,
+// { [K in keyof T]: T[K] extends never ? K : never }[keyof T]
+// >
 
-export type UnPropWrapper<T> = {
-  [key in keyof T]: T[key] extends RequiredProp<infer U> ? U :
-    T[key] extends Prop<infer U> ? U | undefined :
-      never;
-}
+// type SelectProps<T> = FilterNever<{
+//   [K in keyof T]-?: T[K] extends Requiredinfer U
+//     ? U
+//     : T[K] extends infer U
+//       ? (U | undefined)
+//       : never
+// }>
 
-// ---- 前一个版本，虽然全，但是太深了
+// export type Typed<T, G={}> = CustomTag<T, SelectProps<T> & CustomNodeProps & G> & Useless
+
+// export type PropWrapper<T> = {
+//   [key in keyof T]-?: undefined extends T[key] ? T[key] : RequiredT[key];
+// }
+
+// export type PartialPropWrapper<T> = {
+//   [key in keyof T]: T[key];
+// }
+
+// export type RequiredPropWrapper<T> = {
+//   [key in keyof T]: RequiredT[key];
+// }
+
+// export type UnPropWrapper<T> = {
+//   [key in keyof T]: T[key] extends Requiredinfer U ? U :
+//     T[key] extends infer U ? U | undefined :
+//       never;
+// }
+
+// ---- 前2个版本，虽然全，但是太深了
 // // ---- 判断是不是只有 optional 的 prop
-// type IsOptionalProp<T> = undefined extends T ? true : false
+// type IsOptionalT = undefined extends T ? true : false
 // type HasOnlyOptionalProps<T> = keyof T extends infer K
 //   ? K extends keyof T
-//     ? IsOptionalProp<T[K]> extends true
+//     ? IsOptionalT[K] extends true
 //       ? HasOnlyOptionalProps<Omit<T, K>>
 //       : false
 //     : true
@@ -102,8 +134,8 @@ export type UnPropWrapper<T> = {
 // // 抽取被Prop包裹的Key
 // type ExtractPropKeys<T> = {
 //   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-//   [K in keyof T]: T[K] extends Prop<infer _>
-//     ? (T[K] extends Prop<infer U> ? U : Never)
+//   [K in keyof T]: T[K] extends infer _
+//     ? (T[K] extends infer U ? U : Never)
 //     : Never
 // }
 // type GetOptionalKeys<T> = {
@@ -112,11 +144,11 @@ export type UnPropWrapper<T> = {
 //     : K;
 // }[keyof T]
 // type RequiredPart<T> = FilterNever<{
-//   [K in keyof T]: T[K] extends RequiredProp<infer U> ? Prop<U> : Never
+//   [K in keyof T]: T[K] extends Requiredinfer U ? U : Never
 // }>
 // type OptionalPart<T> = FilterNever<{
 //   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-//   [K in keyof T]?: T[K] extends RequiredProp<infer _> ? Never : T[K]
+//   [K in keyof T]?: T[K] extends Requiredinfer _ ? Never : T[K]
 // }>
 // type Together<T> = OptionalPart<T> & RequiredPart<T>
 // type AllProperties<T> = NoAny<Together<T>>
@@ -126,7 +158,7 @@ export type UnPropWrapper<T> = {
 //   // @ts-ignore
 //   [K in keyof AllProperties<T>]: K extends keyof RequiredProperties<T> ?
 //     K extends OptionalKeys<T>
-//       ? Exclude<AllProperties<T>[K], undefined> extends Prop<infer U> ? U : Never
+//       ? Exclude<AllProperties<T>[K], undefined> extends infer U ? U : Never
 //       : RequiredProperties<T>[K]
 //     : Never
 // }> & OptionalUseless

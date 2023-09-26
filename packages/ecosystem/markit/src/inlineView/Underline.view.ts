@@ -1,16 +1,20 @@
-import { View } from "@dlightjs/dlight"
-import { Prop, required, span, type Typed } from "@dlightjs/types"
+import { Prop, View, required, Content } from "@dlightjs/dlight"
+import { type Pretty, span, type Typed, type ContentProp } from "@dlightjs/types"
 import InlineRenderer from "."
-import { css } from "@dlightjs/easy-css"
+import { css } from "@iandx/easy-css"
 
-class Underline extends View {
-  @Prop _$content = required
+interface UnderlineProps {
+  ast: ContentProp<any>
+}
+@View
+class Underline implements UnderlineProps {
+  @Prop @Content ast = required
 
   Body() {
     span()
       .className(this.dlightMarkitUnderline$)
     {
-      for (const content of this._$content) {
+      for (const content of this.ast) {
         InlineRenderer[content.type](content.content)
       }
     }
@@ -20,4 +24,4 @@ class Underline extends View {
     text-decoration: underline;
   `
 }
-export default Underline as any as Typed<Underline>
+export default Underline as Pretty as Typed<UnderlineProps>

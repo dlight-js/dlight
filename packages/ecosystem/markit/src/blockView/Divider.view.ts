@@ -1,9 +1,15 @@
-import { View } from "@dlightjs/dlight"
-import { div, Prop, required, type Typed } from "@dlightjs/types"
-import { css } from "@dlightjs/easy-css"
+import { Prop, required, View, Content } from "@dlightjs/dlight"
+import { type ContentProp, div, type Pretty, type Typed } from "@dlightjs/types"
+import { css } from "@iandx/easy-css"
 
-class Divider extends View {
-  @Prop _$content = required
+interface DividerProps {
+  ast: ContentProp<any>
+  props: any
+}
+@View
+class Divider implements DividerProps {
+  @Prop @Content ast = required
+
   @Prop props = required
   dividerType = this.props.dividerType
 
@@ -26,4 +32,4 @@ class Divider extends View {
   `
 }
 
-export default Divider as any as Typed<Divider>
+export default Divider as Pretty as Typed<DividerProps>

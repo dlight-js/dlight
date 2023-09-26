@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class CheckBoxOutlined extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class CheckBoxOutlined {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class CheckBoxOutlined extends View {
   }
 }
 
-export default CheckBoxOutlined as any as Typed<DLightIconType>
+export default CheckBoxOutlined as Pretty as Typed<DLightIconType, HTMLSpanElement>

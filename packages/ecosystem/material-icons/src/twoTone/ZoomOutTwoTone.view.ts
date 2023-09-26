@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class ZoomOutTwoTone extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class ZoomOutTwoTone {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class ZoomOutTwoTone extends View {
   }
 }
 
-export default ZoomOutTwoTone as any as Typed<DLightIconType>
+export default ZoomOutTwoTone as Pretty as Typed<DLightIconType, HTMLSpanElement>

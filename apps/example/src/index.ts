@@ -14,33 +14,25 @@ import FetchDataView from "./basic/fetchData.view"
 import DerivedValueView from "./basic/derivedValue.view"
 import StyledView from "./advanced/styledView.view"
 import transformDLight from "@dlightjs/transpiler-standalone"
+import { RouteTest } from "./components/Router.view"
 // import { RouteTest } from "./components/Router.view"
 // import JJ from "./aa.view"
-// const code = `
-// import { View } from "@dlightjs/dlight"
-// import { button, div, SubView } from "@dlightjs/types"
+const code = `
+import { View } from "@dlightjs/dlight"
+import { button, div, SubView } from "@dlightjs/types"
 
-// class TestView extends View {
-//   tabKey = 1
-//   b = function() {
-//     console.log(this.tabKey)
-//   }
-//   Body() {
-//     _(this.b)
-//   }
-// }
-// `
-
+class TestView extends View {
+  tabKey = 1
+  b = function() {
+    console.log(this.tabKey)
+  }
+  Body() {
+    _(this.b)
+  }
+}
+`
 // console.log(transformDLight(code))
 
 // console.log(renderToText(BenchmarkView))
 // render("app", BenchmarkView)
-console.time("0")
-render("app", TransitionGroupView)
-console.timeEnd("0")
-
-console.time("0")
-const a = document.querySelectorAll("[fuck-id=\"shit\"]")
-
-console.timeEnd("0")
-console.log(a)
+render("app", TestView)

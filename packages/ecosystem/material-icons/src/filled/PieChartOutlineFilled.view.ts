@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class PieChartOutlineFilled extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class PieChartOutlineFilled {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class PieChartOutlineFilled extends View {
   }
 }
 
-export default PieChartOutlineFilled as any as Typed<DLightIconType>
+export default PieChartOutlineFilled as Pretty as Typed<DLightIconType, HTMLSpanElement>

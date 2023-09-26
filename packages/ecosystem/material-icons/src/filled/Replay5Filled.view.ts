@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class Replay5Filled extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class Replay5Filled {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class Replay5Filled extends View {
   }
 }
 
-export default Replay5Filled as any as Typed<DLightIconType>
+export default Replay5Filled as Pretty as Typed<DLightIconType, HTMLSpanElement>

@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class AvTimerRound extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class AvTimerRound {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class AvTimerRound extends View {
   }
 }
 
-export default AvTimerRound as any as Typed<DLightIconType>
+export default AvTimerRound as Pretty as Typed<DLightIconType, HTMLSpanElement>

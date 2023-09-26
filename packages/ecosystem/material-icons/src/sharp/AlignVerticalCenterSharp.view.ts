@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class AlignVerticalCenterSharp extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class AlignVerticalCenterSharp {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class AlignVerticalCenterSharp extends View {
   }
 }
 
-export default AlignVerticalCenterSharp as any as Typed<DLightIconType>
+export default AlignVerticalCenterSharp as Pretty as Typed<DLightIconType, HTMLSpanElement>

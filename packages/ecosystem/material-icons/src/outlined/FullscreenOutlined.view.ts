@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class FullscreenOutlined extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class FullscreenOutlined {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class FullscreenOutlined extends View {
   }
 }
 
-export default FullscreenOutlined as any as Typed<DLightIconType>
+export default FullscreenOutlined as Pretty as Typed<DLightIconType, HTMLSpanElement>

@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class EditRoadOutlined extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class EditRoadOutlined {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class EditRoadOutlined extends View {
   }
 }
 
-export default EditRoadOutlined as any as Typed<DLightIconType>
+export default EditRoadOutlined as Pretty as Typed<DLightIconType, HTMLSpanElement>

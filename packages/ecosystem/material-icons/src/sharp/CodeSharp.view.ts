@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class CodeSharp extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class CodeSharp {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class CodeSharp extends View {
   }
 }
 
-export default CodeSharp as any as Typed<DLightIconType>
+export default CodeSharp as Pretty as Typed<DLightIconType, HTMLSpanElement>

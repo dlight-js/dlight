@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class RepeatOneRound extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class RepeatOneRound {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class RepeatOneRound extends View {
   }
 }
 
-export default RepeatOneRound as any as Typed<DLightIconType>
+export default RepeatOneRound as Pretty as Typed<DLightIconType, HTMLSpanElement>

@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class WebhookSharp extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class WebhookSharp {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class WebhookSharp extends View {
   }
 }
 
-export default WebhookSharp as any as Typed<DLightIconType>
+export default WebhookSharp as Pretty as Typed<DLightIconType, HTMLSpanElement>

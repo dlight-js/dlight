@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "jsx": "react",
     "target": "ESNext",
     "useDefineForClassFields": true,
     "module": "ESNext",
@@ -18,8 +17,5 @@
   },
   "ts-node": {
     "esm": true
-  },
-  "include": [
-    "src"
-  ]
+  }
 }

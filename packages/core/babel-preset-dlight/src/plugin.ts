@@ -1,7 +1,7 @@
 import * as t from "@babel/types"
 import { handleBody } from "./bodyHandler"
-import { resolveState, resolveProp } from "./decoratorResolver"
-import { bindMethods, isDLightView, pushDerived, shouldBeListened, valueWithArrowFunc } from "./nodeHelper"
+import { resolveState, resolveProp, resolveContent, resolveChildren, resolveWatch } from "./decoratorResolver"
+import { bindMethods, eliminateLoopDeps, getListenDeps, isDLightView, pushDerived, valueWithArrowFunc } from "./nodeHelper"
 import { minimatch } from "minimatch"
 
 export interface DLightOption {
@@ -17,6 +17,17 @@ export interface DLightOption {
   excludeFiles?: string | string[]
 }
 
+type PropertyContainer = Record<string, {
+  node: t.ClassProperty | t.ClassMethod
+  derivedFrom: string[]
+  assignDeps: string[]
+  isStatic?: boolean
+  isContent?: boolean
+  isChildren?: boolean
+  isWatcher?: boolean
+  propOrEnv?: "Prop" | "Env"
+}>
+
 export default function(api: any, options: DLightOption) {
   const {
     files: preFiles = "**/*.{js,jsx,ts,tsx}",
@@ -30,27 +41,40 @@ export default function(api: any, options: DLightOption) {
   // ---- 在这里新建node很省时间
   let derivedPairNode: t.ClassProperty | null = null
   let properties: string[] = []
-  let propertiesContainer: Record<string, {
-    node: t.ClassProperty
-    derivedFrom: string[]
-    isStatic: boolean
-    propOrEnv: "Prop" | "Env" | undefined
-  }> = {}
+  let propertiesContainer: PropertyContainer = {}
   let staticProperties: string[] = []
   let methodsToBind: string[] = []
   let rootPath: any
 
   function handleBodyAtLast() {
-    const usedProperties = handleBody(classBodyNode!, properties.filter(p => !staticProperties.includes(p)), rootPath)
-    for (let [key, { node, derivedFrom, isStatic, propOrEnv }] of Object.entries(propertiesContainer).reverse()) {
-      if (!node.value) node.value = t.identifier("undefined")
-      if (derivedFrom.length !== 0) {
-        derivedFrom = derivedFrom.filter(k => !staticProperties.includes(k))
-        usedProperties.push(...derivedFrom)
-        pushDerived(key, derivedFrom, derivedPairNode!, classBodyNode!)
-        valueWithArrowFunc(node)
+    const usedProperties = handleBody(
+      classBodyNode!,
+      properties.filter(p => !staticProperties.includes(p)),
+      rootPath
+    )
+
+    const contentPropKey = Object.entries(propertiesContainer)
+      .find(([, { propOrEnv, isContent }]) => isContent && propOrEnv === "Prop")?.[0] ?? ""
+
+    const propertyArr = Object.entries(propertiesContainer).reverse()
+
+    for (const [key, { node, derivedFrom, assignDeps, isStatic, isChildren, propOrEnv, isWatcher }] of propertyArr) {
+      if (t.isClassProperty(node) && !node.value) node.value = t.identifier("undefined")
+      if (isChildren) {
+        resolveChildren(node as any, classBodyNode!, key)
+        continue
       }
-      if (propOrEnv) resolveProp(node as any, classBodyNode!, propOrEnv, key)
+      if (derivedFrom.length !== 0) {
+        const deps = eliminateLoopDeps(derivedPairNode!, derivedFrom, assignDeps, staticProperties)
+        usedProperties.push(...deps)
+        pushDerived(key, deps, derivedPairNode!, classBodyNode!)
+        if (isWatcher) resolveWatch(node as t.ClassMethod, classBodyNode!, key)
+        else valueWithArrowFunc(node)
+      }
+      if (propOrEnv) {
+        resolveProp(node as any, classBodyNode!, propOrEnv, key)
+        if (contentPropKey === key) resolveContent(node as any, classBodyNode!, key)
+      }
       if (isStatic) continue
       if (usedProperties.includes(key)) {
         resolveState(node as any, classBodyNode!)
@@ -71,10 +95,11 @@ export default function(api: any, options: DLightOption) {
       .filter(n => t.isClassProperty(n))
       .map(n => (n as any).key.name)
     staticProperties = classBodyNode.body
-      .filter(
-        n => t.isClassProperty(n) &&
-          n.decorators?.map(d => (d.expression as any).name).includes("Static")
-      )
+      .filter(n => {
+        if (!t.isClassProperty(n)) return false
+        const decoNames = n.decorators?.map(d => (d.expression as any).name) ?? []
+        return decoNames.includes("Static") || decoNames.includes("Children")
+      })
       .map(n => (n as any).key.name)
     propertiesContainer = {}
     rootPath = path
@@ -159,44 +184,74 @@ export default function(api: any, options: DLightOption) {
         if (!this.enter) return
         if (!classDeclarationNode) return
         if (!t.isIdentifier(path.node.key)) return
-        const name = path.node.key.name
-        if (name === "Body") return
-        const isSubView = path.node.decorators?.find((d: t.Decorator) => t.isIdentifier(d.expression) && d.expression.name === "SubView")
+        const node: t.ClassMethod = path.node
+        const key = path.node.key.name
+        if (key === "Body") return
+        methodsToBind.push(key)
+        const isSubView = node.decorators?.find((d: t.Decorator) => t.isIdentifier(d.expression) && d.expression.name === "View")
         if (isSubView) return
-        methodsToBind.push(name)
+        // --- @Watch
+        const findWatcher = (d: t.Decorator) => (
+          t.isIdentifier(d.expression) && d.expression.name === "Watch"
+        )
+        const watcher = node.decorators?.find(findWatcher)
+        const findWatcherFunc = (d: t.Decorator) => (
+          t.isCallExpression(d.expression) && t.isIdentifier(d.expression.callee) && d.expression.callee.name === "Watch"
+        )
+        const watcherFunc = node.decorators?.find(findWatcherFunc)
+        if (watcher ?? watcherFunc) {
+          let { deps, assignDeps } = getListenDeps(path, node, classDeclarationNode, properties)
+
+          if (watcherFunc) {
+            const listenDeps = (watcherFunc.expression as t.CallExpression).arguments[0]
+            if (t.isArrayExpression(listenDeps)) {
+              deps = listenDeps.elements
+                .filter(arg => t.isStringLiteral(arg))
+                .map(arg => (arg as t.StringLiteral).value)
+            }
+          }
+          propertiesContainer[key] = {
+            node,
+            isWatcher: true,
+            derivedFrom: [...new Set(deps)],
+            assignDeps: [...new Set(assignDeps)]
+          }
+          node.decorators = node.decorators?.filter(d => !(findWatcher(d) || findWatcherFunc(d)))
+        }
       },
       ClassProperty(path: any) {
         if (!this.enter) return
         if (!classDeclarationNode) return
         const node = path.node as t.ClassProperty
         const key = (node.key as any).name
+        if (key === "Body") return
+        const availableDecoNames = ["Static", "Prop", "Env", "Content", "Children"]
         const decoNames = node.decorators?.filter(deco => (
-          t.isIdentifier(deco.expression) && ["Static", "Prop", "Env"].includes(deco.expression.name)
+          t.isIdentifier(deco.expression) && availableDecoNames.includes(deco.expression.name)
         )).map(deco => (deco.expression as any).name) ?? []
+        if (decoNames.includes("View")) return
         // ---- 看是不是有属性是 prop derived，有就加一个()=>
         //      同时在propDerived中记录，这会在constructor的调用一遍
         //      不管@prop和@env
-        const deps: string[] = []
+        let deps: string[] = []
+        let assignDeps: string[] = []
         if (!(decoNames.includes("Prop") || decoNames.includes("Env"))) {
-          path.scope.traverse(node, {
-            MemberExpression(innerPath: any) {
-              if (properties.includes(innerPath.node.property.name) && t.isThisExpression(innerPath.node.object)) {
-                if (shouldBeListened(innerPath, classDeclarationNode!)) {
-                  deps.push(innerPath.node.property.name)
-                }
-              }
-            }
-          })
+          const listens = getListenDeps(path, node, classDeclarationNode, properties)
+          deps = listens.deps
+          assignDeps = listens.assignDeps
         }
 
         propertiesContainer[key] = {
           node,
           isStatic: decoNames.includes("Static"),
-          propOrEnv: decoNames.filter(name => name !== "Static")[0],
-          derivedFrom: [...new Set(deps)]
+          isContent: decoNames.includes("Content"),
+          isChildren: decoNames.includes("Children"),
+          propOrEnv: decoNames.includes("Prop") ? "Prop" : decoNames.includes("Env") ? "Env" : undefined,
+          derivedFrom: [...new Set(deps)],
+          assignDeps: [...new Set(assignDeps)]
         }
         node.decorators = node.decorators?.filter(deco => !(
-          t.isIdentifier(deco.expression) && ["Static", "Prop", "Env"].includes(deco.expression.name)
+          t.isIdentifier(deco.expression) && availableDecoNames.includes(deco.expression.name)
         ))
       }
     }

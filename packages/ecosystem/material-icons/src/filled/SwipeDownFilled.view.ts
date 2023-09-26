@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class SwipeDownFilled extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class SwipeDownFilled {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class SwipeDownFilled extends View {
   }
 }
 
-export default SwipeDownFilled as any as Typed<DLightIconType>
+export default SwipeDownFilled as Pretty as Typed<DLightIconType, HTMLSpanElement>

@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class RssFeedFilled extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class RssFeedFilled {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class RssFeedFilled extends View {
   }
 }
 
-export default RssFeedFilled as any as Typed<DLightIconType>
+export default RssFeedFilled as Pretty as Typed<DLightIconType, HTMLSpanElement>

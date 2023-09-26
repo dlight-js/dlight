@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class MarkUnreadChatAltFilled extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class MarkUnreadChatAltFilled {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class MarkUnreadChatAltFilled extends View {
   }
 }
 
-export default MarkUnreadChatAltFilled as any as Typed<DLightIconType>
+export default MarkUnreadChatAltFilled as Pretty as Typed<DLightIconType, HTMLSpanElement>

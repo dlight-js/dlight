@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class SignalWifiStatusbar4BarTwoTone extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class SignalWifiStatusbar4BarTwoTone {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class SignalWifiStatusbar4BarTwoTone extends View {
   }
 }
 
-export default SignalWifiStatusbar4BarTwoTone as any as Typed<DLightIconType>
+export default SignalWifiStatusbar4BarTwoTone as Pretty as Typed<DLightIconType, HTMLSpanElement>

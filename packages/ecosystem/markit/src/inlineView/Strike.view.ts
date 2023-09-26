@@ -1,16 +1,20 @@
-import { View } from "@dlightjs/dlight"
-import { Prop, required, span, type Typed } from "@dlightjs/types"
+import { Prop, View, required, Content } from "@dlightjs/dlight"
+import { type Pretty, span, type Typed, type ContentProp } from "@dlightjs/types"
 import InlineRenderer from "."
-import { css } from "@dlightjs/easy-css"
+import { css } from "@iandx/easy-css"
 
-class Strike extends View {
-  @Prop _$content = required
+interface StrikeProps {
+  ast: ContentProp<any>
+}
+@View
+class Strike implements StrikeProps {
+  @Prop @Content ast = required
 
   Body() {
     span()
       .className(this.dlightMarkitStrike$)
     {
-      for (const content of this._$content) {
+      for (const content of this.ast) {
         InlineRenderer[content.type](content.content)
       }
     }
@@ -21,4 +25,4 @@ class Strike extends View {
   `
 }
 
-export default Strike as any as Typed<Strike>
+export default Strike as Pretty as Typed<StrikeProps>

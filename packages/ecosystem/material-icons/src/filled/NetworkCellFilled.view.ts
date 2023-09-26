@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class NetworkCellFilled extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class NetworkCellFilled {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class NetworkCellFilled extends View {
   }
 }
 
-export default NetworkCellFilled as any as Typed<DLightIconType>
+export default NetworkCellFilled as Pretty as Typed<DLightIconType, HTMLSpanElement>

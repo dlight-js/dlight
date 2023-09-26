@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class ChromeReaderModeSharp extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class ChromeReaderModeSharp {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class ChromeReaderModeSharp extends View {
   }
 }
 
-export default ChromeReaderModeSharp as any as Typed<DLightIconType>
+export default ChromeReaderModeSharp as Pretty as Typed<DLightIconType, HTMLSpanElement>

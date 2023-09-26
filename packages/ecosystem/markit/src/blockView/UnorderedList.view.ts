@@ -1,11 +1,17 @@
-import { View } from "@dlightjs/dlight"
-import { li, Prop, required, ul, type Typed } from "@dlightjs/types"
-import { css } from "@dlightjs/easy-css"
+import { Prop, View, required, Content } from "@dlightjs/dlight"
+import { li, ul, type Typed, type Pretty, type ContentProp } from "@dlightjs/types"
+import { css } from "@iandx/easy-css"
 import BlockRenderer from "."
 import InlineRenderer from "../inlineView"
 
-class UnorderedList extends View {
-  @Prop _$content = required
+interface UnorderedListProps {
+  ast: ContentProp<any>
+  props: any
+}
+@View
+class UnorderedList implements UnorderedListProps {
+  @Prop @Content ast = required
+
   @Prop props = required
   level = this.props.level
 
@@ -13,11 +19,11 @@ class UnorderedList extends View {
     ul()
       .className(this.dlightMarkitUnorderedListUl$)
     {
-      for (const { content, item: itemList } of this._$content) {
-        for (const item of itemList) {
-          li()
-            .className(this.dlightMarkitUnorderedListLi$)
-          {
+      for (const { content, item: itemList } of this.ast) {
+        li()
+          .className(this.dlightMarkitUnorderedListLi$)
+        {
+          for (const item of itemList) {
             InlineRenderer[item.type](item.content)
               .props(item.props)
           }
@@ -35,4 +41,4 @@ class UnorderedList extends View {
   dlightMarkitUnorderedListLi$ = css``
 }
 
-export default UnorderedList as any as Typed<UnorderedList>
+export default UnorderedList as Pretty as Typed<UnorderedListProps>

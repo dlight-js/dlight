@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class SentimentDissatisfiedRound extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class SentimentDissatisfiedRound {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class SentimentDissatisfiedRound extends View {
   }
 }
 
-export default SentimentDissatisfiedRound as any as Typed<DLightIconType>
+export default SentimentDissatisfiedRound as Pretty as Typed<DLightIconType, HTMLSpanElement>

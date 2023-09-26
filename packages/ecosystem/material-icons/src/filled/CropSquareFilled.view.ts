@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class CropSquareFilled extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class CropSquareFilled {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class CropSquareFilled extends View {
   }
 }
 
-export default CropSquareFilled as any as Typed<DLightIconType>
+export default CropSquareFilled as Pretty as Typed<DLightIconType, HTMLSpanElement>

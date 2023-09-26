@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 import { input, select, checkbox } from "@inquirer/prompts"
 import { execSync } from "child_process"
-import { dependencies, devDependencies } from "./dependency"
 import { info, jsonify, logo, success } from "./utils"
 import { fileURLToPath } from "node:url"
+import fetch from "node-fetch"
 import path from "path"
 import fs from "fs"
 
@@ -40,7 +40,7 @@ const language = await select({
 })
 
 const isBlank = await select({
-  message: "🈳️ blank template",
+  message: "📃 blank template",
   choices: [
     {
       name: "yes",
@@ -62,50 +62,50 @@ const selectedDependencies: string[] = await checkbox({
       value: "@dlightjs/components"
     },
     {
-      name: "@dlightjs/emotion",
-      value: "@dlightjs/emotion"
+      name: "@dlightjs/decorators",
+      value: "@dlightjs/decorators"
+    },
+    {
+      name: "@dlightjs/material-icons",
+      value: "@dlightjs/material-icons"
+    },
+    {
+      name: "@dlightjs/markit",
+      value: "@dlightjs/markit"
+    },
+    {
+      name: "@iandx/easy-css",
+      value: "@iandx/easy-css"
     }
   ]
 })
 const selectedDevDependencies = ["vite", "vite-plugin-dlight"]
 selectedDependencies.push("@dlightjs/dlight")
 if (language === "ts") {
-  selectedDependencies.push("@dlightjs/types")
+  selectedDevDependencies.push("@dlightjs/types")
   selectedDevDependencies.push("typescript")
 }
 
-let version = ""
+const getLatestVersion = async(key: string) => {
+  return await fetch(`https://registry.npmjs.org/${key}`)
+    .then(async res => await res.json())
+    .then((data: any) => data["dist-tags"].latest)
+}
+const selectDep = async(selectFields: string[]) => {
+  const selectedDeps: Record<string, string> = {}
 
-const getCreateVersion = () => {
-  const packagePath = path.resolve(
-    fileURLToPath(import.meta.url),
-    "../../package.json"
-  )
-  const str = fs.readFileSync(packagePath, { encoding: "utf8", flag: "r" })
-  const data = JSON.parse(str)
-  version = data.version
+  await Promise.all(selectFields.map(async key => {
+    const version = await getLatestVersion(key)
+    selectedDeps[key] = `^${version}`
+  }))
+
+  return selectedDeps
 }
 
-const selectDep = (selectFields: string[], fullDic: Record<string, string>, type: string) => {
-  const selectDep: Record<string, string> = {}
-  selectFields.forEach((field) => {
-    if (fullDic[field]) {
-      selectDep[field] = fullDic[field]
-    }
-  })
-
-  getCreateVersion()
-
-  if (type === "dep") {
-    Object.entries(selectDep).forEach(([key]) => { selectDep[key] = `^${version}` })
-  } else if (type === "dev") {
-    selectDep["vite-plugin-dlight"] = `^${version}`
-  }
-  return selectDep
-}
-
-const deps = selectDep(selectedDependencies, dependencies, "dep")
-const devDeps = selectDep(selectedDevDependencies, devDependencies, "dev")
+const [deps, devDeps] = await Promise.all([
+  selectDep(selectedDependencies),
+  selectDep(selectedDevDependencies)
+])
 
 // --- Download templates
 const templateDir = path.resolve(
@@ -148,11 +148,11 @@ const packageManager = await select({
       description: "Install by yourself"
     }
   ]
-})
+}) as any as string
 
 if (packageManager) {
-  execSync(`${packageManager as string} install`, { cwd: projectName, stdio: "inherit" })
-  success(`Successfully installed dependencies using ${packageManager as string}!`)
+  execSync(`${packageManager} install`, { cwd: projectName, stdio: "inherit" })
+  success(`Successfully installed dependencies using ${packageManager}!`)
   let cmd = ""
   if (packageManager === "pnpm") {
     cmd = "pnpm dev"

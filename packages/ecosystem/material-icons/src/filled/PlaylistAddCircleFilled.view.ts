@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class PlaylistAddCircleFilled extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class PlaylistAddCircleFilled {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class PlaylistAddCircleFilled extends View {
   }
 }
 
-export default PlaylistAddCircleFilled as any as Typed<DLightIconType>
+export default PlaylistAddCircleFilled as Pretty as Typed<DLightIconType, HTMLSpanElement>

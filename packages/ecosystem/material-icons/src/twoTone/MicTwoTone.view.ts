@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class MicTwoTone extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class MicTwoTone {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class MicTwoTone extends View {
   }
 }
 
-export default MicTwoTone as any as Typed<DLightIconType>
+export default MicTwoTone as Pretty as Typed<DLightIconType, HTMLSpanElement>

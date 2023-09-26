@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class TabletAndroidFilled extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class TabletAndroidFilled {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class TabletAndroidFilled extends View {
   }
 }
 
-export default TabletAndroidFilled as any as Typed<DLightIconType>
+export default TabletAndroidFilled as Pretty as Typed<DLightIconType, HTMLSpanElement>

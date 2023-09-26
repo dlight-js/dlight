@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class LoopRound extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class LoopRound {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class LoopRound extends View {
   }
 }
 
-export default LoopRound as any as Typed<DLightIconType>
+export default LoopRound as Pretty as Typed<DLightIconType, HTMLSpanElement>

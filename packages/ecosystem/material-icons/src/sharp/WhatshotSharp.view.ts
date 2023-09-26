@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class WhatshotSharp extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class WhatshotSharp {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class WhatshotSharp extends View {
   }
 }
 
-export default WhatshotSharp as any as Typed<DLightIconType>
+export default WhatshotSharp as Pretty as Typed<DLightIconType, HTMLSpanElement>

@@ -1,12 +1,16 @@
-import { View } from "@dlightjs/dlight"
-import { Prop, required, span, type Typed } from "@dlightjs/types"
-import { css } from "@dlightjs/easy-css"
+import { Prop, View, required, Content } from "@dlightjs/dlight"
+import { type Pretty, span, type Typed, type ContentProp } from "@dlightjs/types"
+import { css } from "@iandx/easy-css"
 
-class Code extends View {
-  @Prop _$content = required
+interface CodeProps {
+  ast: ContentProp<any>
+}
+@View
+class Code implements CodeProps {
+  @Prop @Content ast = required
 
   Body() {
-    span(this._$content)
+    span(this.ast)
       .className(this.dlightMarkitCode$)
   }
 
@@ -19,4 +23,4 @@ class Code extends View {
 `
 }
 
-export default Code as any as Typed<Code>
+export default Code as Pretty as Typed<CodeProps>

@@ -6,8 +6,8 @@ class SubViewClass extends View {
   /**
    * @Prop xxx
    */
-  @Prop count: RequiredProp<number> = required
-  @Prop message: Prop<string> = "defaultMessage" as any
+  @Prop count: Requirednumber = required
+  @Prop message: string = "defaultMessage" as any
 
   Body() {
     div(this.message)

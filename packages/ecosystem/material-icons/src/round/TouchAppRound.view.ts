@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class TouchAppRound extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class TouchAppRound {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class TouchAppRound extends View {
   }
 }
 
-export default TouchAppRound as any as Typed<DLightIconType>
+export default TouchAppRound as Pretty as Typed<DLightIconType, HTMLSpanElement>

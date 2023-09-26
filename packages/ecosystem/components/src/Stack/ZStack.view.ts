@@ -1,15 +1,22 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import DLight, { View } from "@dlightjs/dlight"
+import { Children, type DLNode, Prop, View, required } from "@dlightjs/dlight"
 import { type HAlignment, type VAlignment } from "./types"
-import { type Typed, div, Prop, _ } from "@dlightjs/types"
-import { css } from "@dlightjs/emotion"
+import { type Typed, div, _, type Pretty } from "@dlightjs/types"
+import { css } from "@iandx/easy-css"
 
-class ZStack extends View {
-  @Prop hAlignment: Prop<HAlignment> = "center" as any
-  @Prop vAlignment: Prop<VAlignment> = "center" as any
-  @Prop width: Prop<string> = "max-content" as any
-  @Prop height: Prop<string> = "max-content" as any
+interface ZStackProps {
+  hAlignment?: HAlignment
+  vAlignment?: VAlignment
+  width?: string
+  height?: string
+}
 
+@View
+class ZStack implements ZStackProps {
+  @Prop hAlignment: HAlignment = "center"
+  @Prop vAlignment: VAlignment = "center"
+  @Prop width = "max-content"
+  @Prop height = "max-content"
+  @Children children: DLNode[] = required
   Body() {
     div()
       .className(css`
@@ -28,7 +35,7 @@ class ZStack extends View {
           })[this.hAlignment]};
       `)
     {
-      for (const child of this._$children) {
+      for (const child of this.children) {
         _(child)
           .className(css`
             position: relative;
@@ -39,4 +46,4 @@ class ZStack extends View {
   }
 }
 
-export default ZStack as any as Typed<ZStack>
+export default ZStack as Pretty as Typed<ZStack>

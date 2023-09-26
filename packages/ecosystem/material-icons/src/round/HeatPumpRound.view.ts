@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class HeatPumpRound extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class HeatPumpRound {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class HeatPumpRound extends View {
   }
 }
 
-export default HeatPumpRound as any as Typed<DLightIconType>
+export default HeatPumpRound as Pretty as Typed<DLightIconType, HTMLSpanElement>

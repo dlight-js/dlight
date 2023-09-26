@@ -1,7 +1,7 @@
 {
   "name": "dlight-test",
   "private": true,
-  "version": "0.0.1",
+  "version": "0.0.11",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -17,7 +17,6 @@
   },
   "dependencies": {
     "@dlightjs/components": "workspace:*",
-    "@dlightjs/emotion": "workspace:*",
     "@dlightjs/dlight": "workspace:*",
     "@dlightjs/transpiler": "workspace:*",
     "@dlightjs/types": "workspace:*",

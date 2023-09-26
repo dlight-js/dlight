@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class KeyboardBackspaceTwoTone extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class KeyboardBackspaceTwoTone {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class KeyboardBackspaceTwoTone extends View {
   }
 }
 
-export default KeyboardBackspaceTwoTone as any as Typed<DLightIconType>
+export default KeyboardBackspaceTwoTone as Pretty as Typed<DLightIconType, HTMLSpanElement>

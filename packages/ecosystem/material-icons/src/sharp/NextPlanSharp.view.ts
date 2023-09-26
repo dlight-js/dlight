@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class NextPlanSharp extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class NextPlanSharp {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class NextPlanSharp extends View {
   }
 }
 
-export default NextPlanSharp as any as Typed<DLightIconType>
+export default NextPlanSharp as Pretty as Typed<DLightIconType, HTMLSpanElement>

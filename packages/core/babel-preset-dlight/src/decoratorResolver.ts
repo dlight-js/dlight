@@ -66,3 +66,50 @@ export function resolveProp(node: t.ClassProperty, classBodyNode: t.ClassBody, d
   )
   classBodyNode.body.splice(propertyIdx, 0, derivedStatusKey)
 }
+
+export function resolveContent(node: t.ClassProperty, classBodyNode: t.ClassBody, propertyName: string) {
+  if (classBodyNode.body.find(n => t.isClassProperty(n) && (n.key as t.Identifier).name === "_$defaultProp")) return
+  const propertyIdx = classBodyNode.body.indexOf(node)
+  /**
+   * _$defaultProp = "propertyName"
+   */
+  const derivedStatusKey = t.classProperty(
+    t.identifier("_$defaultProp"),
+    t.stringLiteral(propertyName)
+  )
+  classBodyNode.body.splice(propertyIdx, 0, derivedStatusKey)
+}
+
+export function resolveChildren(node: t.ClassProperty, classBodyNode: t.ClassBody, propertyName: string) {
+  const propertyIdx = classBodyNode.body.indexOf(node)
+  /**
+   * get ${propertyName}() {
+   *  return this._$childrenFuncs()
+   * }
+   */
+  const getterNode = t.classMethod("get", t.identifier(propertyName), [],
+    t.blockStatement([
+      t.returnStatement(
+        t.callExpression(
+          t.memberExpression(
+            t.thisExpression(),
+            t.identifier("_$childrenFuncs")
+          ), []
+        )
+      )
+    ])
+  )
+  classBodyNode.body.splice(propertyIdx, 1, getterNode)
+}
+
+export function resolveWatch(node: t.ClassMethod, classBodyNode: t.ClassBody, key: string) {
+  const propertyIdx = classBodyNode.body.indexOf(node)
+  /**
+   * _$$${propertyName} = "Watcher"
+   */
+  const watcherNode = t.classProperty(
+    t.identifier(`_$$${key}`),
+    t.stringLiteral("Watcher")
+  )
+  classBodyNode.body.splice(propertyIdx, 0, watcherNode)
+}

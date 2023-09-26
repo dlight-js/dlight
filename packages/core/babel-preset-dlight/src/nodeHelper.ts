@@ -1,10 +1,10 @@
 import * as t from "@babel/types"
 
-export function pushDerived(name: string, deps: string[], propDerivedNode: t.ClassProperty, classBodyNode: t.ClassBody) {
-  if (!classBodyNode.body.includes(propDerivedNode)) {
-    classBodyNode.body.unshift(propDerivedNode)
+export function pushDerived(name: string, deps: string[], derivedPairNode: t.ClassProperty, classBodyNode: t.ClassBody) {
+  if (!classBodyNode.body.includes(derivedPairNode)) {
+    classBodyNode.body.unshift(derivedPairNode)
   }
-  (propDerivedNode as any).value.properties.unshift(
+  (derivedPairNode as any).value.properties.unshift(
     t.objectProperty(
       t.identifier(name),
       t.arrayExpression(deps.map(dep => t.stringLiteral(dep)))
@@ -88,9 +88,10 @@ export function isAssignmentExpressionRight(innerPath: any, classDeclarationNode
 export function shouldBeListened(innerPath: any, classDeclarationNode?: t.Node) {
   return (
     !isMemberInManualFunction(innerPath, classDeclarationNode) &&
-    !isMemberInEscapeFunction(innerPath, classDeclarationNode) &&
-    !isAssignmentExpressionLeft(innerPath) &&
-    !isAssignmentExpressionRight(innerPath, classDeclarationNode))
+    !isMemberInEscapeFunction(innerPath, classDeclarationNode)
+    // !isAssignmentExpressionLeft(innerPath) &&
+    // !isAssignmentExpressionRight(innerPath, classDeclarationNode))
+  )
 }
 
 export function valueWithArrowFunc(node: any) {
@@ -139,5 +140,83 @@ export function bindMethods(classBodyNode: t.ClassBody, methodsToBind: string[])
 }
 
 export function isDLightView(path: any) {
-  return t.isIdentifier(path.node.superClass, { name: "View" })
+  const node = path.node
+  const decorators = node.decorators ?? []
+  const isDecorator = decorators.find((deco: t.Decorator) => t.isIdentifier(deco.expression, { name: "View" }))
+  if (isDecorator) {
+    node.superClass = t.identifier("View")
+    node.decorators = node.decorators?.filter((deco: t.Decorator) => (
+      !t.isIdentifier(deco.expression, { name: "View" })
+    ))
+  }
+
+  return t.isIdentifier(node.superClass, { name: "View" })
+}
+
+export function arrowFunctionPropertyToMethod(propertyNode: t.ClassProperty) {
+  const propertyBody = (propertyNode.value as t.ArrowFunctionExpression).body
+  const body = t.isExpression(propertyBody) ? t.blockStatement([t.returnStatement(propertyBody)]) : propertyBody
+  propertyNode.type = "ClassMethod" as any
+  (propertyNode as any).body = body
+  ;(propertyNode as any).kind = "method"
+  ;(propertyNode as any).params = (propertyNode.value as t.ArrowFunctionExpression).params
+  propertyNode.value = null
+}
+
+export function getListenDeps(
+  path: any,
+  node: t.Node,
+  classDeclarationNode:
+  t.ClassDeclaration,
+  allowedProperties: string[]
+) {
+  const deps: string[] = []
+  const assignDeps: string[] = []
+  path.scope.traverse(node, {
+    MemberExpression(innerPath: any) {
+      if (isAssignmentExpressionLeft(innerPath)) {
+        assignDeps.push(innerPath.node.property.name)
+      } else if (
+        allowedProperties.includes(innerPath.node.property.name) &&
+        t.isThisExpression(innerPath.node.object) &&
+        shouldBeListened(innerPath, classDeclarationNode)
+      ) {
+        deps.push(innerPath.node.property.name)
+      }
+    }
+  })
+
+  return { deps, assignDeps }
+}
+
+export function eliminateLoopDeps(derivedPairNode: t.ClassProperty, derivedFrom: string[], assignDeps: string[], staticProperties: string[]) {
+  const deps = derivedFrom.filter(k => !staticProperties.includes(k))
+
+  const propDerivedObjNode = derivedPairNode.value as any as t.ObjectExpression
+  const propDerivedObj = propDerivedObjNode.properties.reduce<any>((acc, v) => {
+    const key = ((v as t.ObjectProperty).key as t.Identifier).name
+    const deps = ((v as t.ObjectProperty).value as t.ArrayExpression).elements.map(vv => (vv as t.StringLiteral).value)
+    acc[key] = deps
+    return acc
+  }, {})
+
+  const loopDeps = new Set()
+  const visited = new Set()
+
+  function dfs(key: string) {
+    if (!visited.has(key)) {
+      visited.add(key)
+      loopDeps.add(key)
+
+      for (const derivedKey of propDerivedObj[key] ?? []) {
+        dfs(derivedKey)
+      }
+    }
+  }
+
+  for (const key of assignDeps) {
+    dfs(key)
+  }
+
+  return deps.filter(d => !loopDeps.has(d))
 }

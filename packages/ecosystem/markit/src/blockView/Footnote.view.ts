@@ -1,11 +1,17 @@
-import { View } from "@dlightjs/dlight"
-import { a, div, Prop, required, span, type Typed } from "@dlightjs/types"
-import { css } from "@dlightjs/easy-css"
+import { Prop, View, required, Content } from "@dlightjs/dlight"
+import { a, div, type Pretty, span, type Typed, type ContentProp } from "@dlightjs/types"
+import { css } from "@iandx/easy-css"
 import Markit from "@iandx/markit"
 import InlineRenderer from "../inlineView"
 
-class Footnote extends View {
-  @Prop _$content = required
+interface FootnoteProps {
+  ast: ContentProp<any>
+  props: any
+}
+@View
+class Footnote implements FootnoteProps {
+  @Prop @Content ast = required
+
   @Prop props = required
   noteName = this.props.noteName
   footnoteIdx = this.props.footnoteIdx
@@ -22,7 +28,7 @@ class Footnote extends View {
     {
       span(`[${this.noteName}] `)
         .className(this.dlightMarkitNoteName$)
-      for (const content of this._$content) {
+      for (const content of this.ast) {
         InlineRenderer[content.type](content.content)
       }
       for (const footnoteSup of this.footNoteSubTrees) {
@@ -47,4 +53,4 @@ class Footnote extends View {
   `
 }
 
-export default Footnote as any as Typed<Footnote>
+export default Footnote as Pretty as Typed<FootnoteProps>

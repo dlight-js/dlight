@@ -1,10 +1,17 @@
-import { View } from "@dlightjs/dlight"
-import { a, Prop, required, type Typed } from "@dlightjs/types"
+import { Prop, required, View, Content } from "@dlightjs/dlight"
+import { a, type ContentProp, type Pretty, type Typed } from "@dlightjs/types"
 import InlineRenderer from "."
-import { css } from "@dlightjs/easy-css"
+import { css } from "@iandx/easy-css"
 
-class Link extends View {
-  @Prop _$content = required
+interface LinkProps {
+  ast: ContentProp<any>
+  props: any
+}
+
+@View
+class Link implements LinkProps {
+  @Prop @Content ast = required
+
   @Prop props = required
   linkUrl = this.props.linkUrl
 
@@ -13,7 +20,7 @@ class Link extends View {
       .href(this.linkUrl)
       .className(this.dlightMarkitLink$)
     {
-      for (const content of this._$content) {
+      for (const content of this.ast) {
         InlineRenderer[content.type](content.content)
       }
     }
@@ -22,4 +29,4 @@ class Link extends View {
   dlightMarkitLink$ = css``
 }
 
-export default Link as any as Typed<Link>
+export default Link as Pretty as Typed<LinkProps>

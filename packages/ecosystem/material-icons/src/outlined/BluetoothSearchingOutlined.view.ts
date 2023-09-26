@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class BluetoothSearchingOutlined extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class BluetoothSearchingOutlined {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class BluetoothSearchingOutlined extends View {
   }
 }
 
-export default BluetoothSearchingOutlined as any as Typed<DLightIconType>
+export default BluetoothSearchingOutlined as Pretty as Typed<DLightIconType, HTMLSpanElement>

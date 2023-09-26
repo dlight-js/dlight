@@ -1,32 +1,41 @@
-import { type DLNode, View } from "@dlightjs/dlight"
+import { type DLNode, View, Children, required, Prop, env, Watch } from "@dlightjs/dlight"
 import { Navigator } from "./Navigator"
 import { getHashLocation, getHistoryLocation } from "./utils"
-import { type Typed, _, env, Prop, Static } from "@dlightjs/types"
+import { type Typed, _, type Pretty } from "@dlightjs/types"
 
 const rawHistoryPushState = history.pushState
 let historyPushStateFuncs: Array<() => any> = []
 
-class RouterSpace extends View {
-  @Prop mode: Prop<"hash" | "history"> = "history" as any
-  @Prop getNavigator: Prop<(nav: Navigator) => void> = (() => {}) as any
+interface RouterSpaceProps {
+  mode?: "hash" | "history"
+  getNavigator?: (nav: Navigator) => void
+}
+@View
+class RouterSpace implements RouterSpaceProps {
+  @Prop mode: "hash" | "history" = "history"
+  @Prop getNavigator?: (nav: Navigator) => void
+  @Children children: DLNode[] = required
+
   currUrl = this.mode === "hash" ? getHashLocation() : getHistoryLocation()
 
-  @Static baseUrl = ""
-  @Static prevPathCondition = ""
-  @Static prevRoutes: DLNode[] = []
+  baseUrl = ""
+  prevPathCondition = ""
+  currentRoute: DLNode[] = []
   navigator = new Navigator()
 
-  showedRoute = (function() {
+  @Watch
+  updateRoute() {
     const prevPathCondition = this.prevPathCondition
     this.prevPathCondition = ""
     const currUrl = this.currUrl.replace(new RegExp(`^${this.baseUrl}`), "")
     const targetNodes: any[] = []
+    const prevRoutes = this.currentRoute
 
-    for (const child of this._$children) {
-      if (!child.isRoute) continue
-      let targetUrl = child._$content
+    for (const child of this.children) {
+      if (!(child as any).isRoute) continue
+      let targetUrl = (child as any).path
       let isMatch = false
-      if (typeof child._$content === "string") {
+      if (typeof (child as any).path === "string") {
         targetUrl = targetUrl.replace(/^(\.\/)+/, "")
         const isRootRoute = (targetUrl === "." && currUrl === "")
         const isPathMatch = ((currUrl + "/").startsWith(targetUrl + "/"))
@@ -41,16 +50,15 @@ class RouterSpace extends View {
         if (targetUrl === prevPathCondition) {
           // ---- 发现condition没有改变，直接return原来的
           this.prevPathCondition = prevPathCondition
-          return this.prevRoutes
+          return prevRoutes
         }
         targetNodes.push(child)
         this.prevPathCondition = targetUrl
         break
       }
     }
-    this.prevRoutes = targetNodes
-    return targetNodes
-  }.call(this))
+    this.currentRoute = targetNodes
+  }
 
   historyChangeListen = () => {
     this.currUrl = getHistoryLocation()
@@ -62,8 +70,8 @@ class RouterSpace extends View {
 
   willMount() {
     this.navigator.mode = this.mode
-    this.getNavigator(this.navigator)
-    let parent: any = this._$parentNode
+    this.getNavigator?.(this.navigator)
+    let parent: any = (this as any)._$parentNode
     while (parent) {
       if (parent.isRoute) {
         this.baseUrl = parent._$content + "/" + this.baseUrl
@@ -121,10 +129,11 @@ class RouterSpace extends View {
   Body() {
     env()
       .navigator(this.navigator)
+      .path(this.currUrl)
     {
-      _(this.showedRoute)
+      _(this.currentRoute)
     }
   }
 }
 
-export default RouterSpace as any as Typed<RouterSpace>
+export default RouterSpace as Pretty as Typed<RouterSpaceProps>

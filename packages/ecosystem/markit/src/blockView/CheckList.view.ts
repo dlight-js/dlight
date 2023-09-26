@@ -1,11 +1,18 @@
-import { View } from "@dlightjs/dlight"
-import { div, input, Prop, required, type Typed } from "@dlightjs/types"
-import { css } from "@dlightjs/easy-css"
+import { Prop, required, View, Content } from "@dlightjs/dlight"
+import { type ContentProp, div, input, type Pretty, type Typed } from "@dlightjs/types"
+import { css } from "@iandx/easy-css"
 import BlockRenderer from "."
 import InlineRenderer from "../inlineView"
 
-class CheckList extends View {
-  @Prop _$content = required
+interface CheckListProps {
+  ast: ContentProp<any>
+  props: any
+}
+
+@View
+class CheckList implements CheckListProps {
+  @Prop @Content ast = required
+
   @Prop props = required
   isChecked = this.props.isChecked
 
@@ -13,7 +20,7 @@ class CheckList extends View {
     div()
       .className(this.dlightMarkitCheckList$)
     {
-      for (const { item: itemList, content: contentList } of this._$content) {
+      for (const { item: itemList, content: contentList } of this.ast) {
         div()
           .className(this.dlightMarkitCheckboxWrap$)
         {
@@ -47,4 +54,4 @@ class CheckList extends View {
   `
 }
 
-export default CheckList as any as Typed<CheckList>
+export default CheckList as Pretty as Typed<CheckListProps>

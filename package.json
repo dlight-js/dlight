@@ -46,7 +46,6 @@
     ],
     "ecosystem": [
       "ecosystem/vite-plugin-dlight",
-      "ecosystem/emotion",
       "ecosystem/components",
       "ecosystem/transpiler",
       "ecosystem/transpiler-standalone",

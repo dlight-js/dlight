@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class PunchClockOutlined extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class PunchClockOutlined {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class PunchClockOutlined extends View {
   }
 }
 
-export default PunchClockOutlined as any as Typed<DLightIconType>
+export default PunchClockOutlined as Pretty as Typed<DLightIconType, HTMLSpanElement>

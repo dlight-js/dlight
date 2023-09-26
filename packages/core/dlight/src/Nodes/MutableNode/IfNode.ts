@@ -30,17 +30,6 @@ export class IfNode extends MutableNode {
   }
 
   _$init() {
-    // ---- 生成nodes
-    // ---- 只要找到符合条件的就break
-    let nodes: DLNode[] = []
-    for (const conditionPair of this.conditionPairs) {
-      if (conditionPair.condition()) {
-        this.condition = conditionPair.condition.toString()
-        nodes = conditionPair.node()
-        break
-      }
-    }
-    this._$nodes = nodes
     // ---- 加if依赖
     // ---- 找到HTMLNode作为parentNode，因为它是有真实el的
     let parentNode: DLNode | undefined = this._$parentNode
@@ -51,6 +40,18 @@ export class IfNode extends MutableNode {
     if (parentNode) {
       this.dlScope?._$addDeps(this.listenDeps, () => { this.update(parentNode as HtmlNode) }, this)
     }
+
+    // ---- 生成nodes
+    // ---- 只要找到符合条件的就break
+    let nodes: DLNode[] = []
+    for (const { condition, node } of this.conditionPairs) {
+      if (condition()) {
+        this.condition = condition.toString()
+        nodes = node()
+        break
+      }
+    }
+    this._$nodes = nodes
 
     this._$bindNodes()
   }

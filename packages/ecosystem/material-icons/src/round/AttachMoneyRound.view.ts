@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class AttachMoneyRound extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class AttachMoneyRound {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class AttachMoneyRound extends View {
   }
 }
 
-export default AttachMoneyRound as any as Typed<DLightIconType>
+export default AttachMoneyRound as Pretty as Typed<DLightIconType, HTMLSpanElement>

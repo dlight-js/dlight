@@ -15,9 +15,9 @@ interface DLightHtmlProps {
   setAttributes: Record<string, any>
 }
 
-export type DLightHTMLAttributes<T, G> = DLightHtmlProps & HTMLAttributes<Required<T>> & G
+export type DLightHTMLAttributes<T, G={}> = DLightHtmlProps & HTMLAttributes<Required<T>> & G
 
-export type DLightHTMLAttributesFunc<T, G> = {
+export type DLightHTMLAttributesFunc<T, G={}> = {
   [K in keyof DLightHTMLAttributes<T, G>]: (value?: DLightHTMLAttributes<T, G>[K]) => (
     K extends "className"
       ? DLightHTMLAttributesFunc<T, G>

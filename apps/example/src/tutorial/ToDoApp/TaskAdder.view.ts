@@ -4,7 +4,7 @@ import { type Typed, input, button, Prop } from "@dlightjs/types"
 import { type Task } from "./Task"
 
 class TaskAdder extends View {
-  @Prop tasks: Prop<Task[]> = [] as any
+  @Prop tasks: Task[] = [] as any
   inputText = ""
   inputEl?: HTMLInputElement
 

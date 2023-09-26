@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class DateRangeRound extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class DateRangeRound {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class DateRangeRound extends View {
   }
 }
 
-export default DateRangeRound as any as Typed<DLightIconType>
+export default DateRangeRound as Pretty as Typed<DLightIconType, HTMLSpanElement>

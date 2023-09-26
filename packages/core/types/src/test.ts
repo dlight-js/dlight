@@ -1,118 +1,38 @@
-import { type Typed, type Prop, S, type RequiredProp, div, svg, type DLightHTMLAttributes, PropWrapper, type PartialPropWrapper, button } from "./index"
-import { _ } from "./expressionTag"
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-// import { a, area, div, img } from "./htmlTag"
+import { View } from "@dlightjs/dlight"
+import {SubTyped, type div, type Pretty, type Typed, type UnTyped, ContentProp } from "./index"
 
-button()
-
-const View = class { }
-
-type GG<T> = (T | string)
-
+const VV = View as any as (typeof View & ((...args: any) => any))
 /**
  * @content kk
- */
-class MyView extends View {
-/**
-   * @prop aejfaoie
-   */
-  hh1: RequiredProp<GG<number>> = 1 as any
-  /**
-   * @okkkfja aejfaoie
-   */
-  _$content: Prop<string> = "" as any
-  hh3: Prop<string> = "" as any
-  hh4: Prop<string> = "" as any
-  hh5: Prop<string> = "" as any
-  hh6: Prop<string> = "" as any
-  hh7: Prop<string> = "" as any
-  hh8: Prop<string> = "" as any
-  hh9: Prop<string> = "" as any
-  hh10: Prop<string> = "" as any
-  hh11: Prop<string> = "" as any
-  hh12: Prop<string> = "" as any
-  hh13: Prop<string> = "" as any
-  hh14: Prop<string> = "" as any
-  hh15: Prop<string> = "" as any
-  hh16: Prop<string> = "" as any
-  hh17: Prop<string> = "" as any
-  hh18: Prop<string> = "" as any
-  hh19: Prop<string> = "" as any
-  hh20: Prop<string> = "" as any
-
-  jj: string = 1
+*/
+interface Props {
+  /** jfjsf */
+  a: ContentProp<string>
+  b: string
+  c?: number
+  content?: string
 }
-
-/** @inner */
-interface AA {
-  /**
-   * good
-   */
-  ok: string
-}
-
-interface t {
-  /**
-   * typeof
-   */
-  ok: AA["ok"]
-}
-
-let T: t
-T.ok
-
-type NNN<T> = T["_$content"] extends RequiredProp<infer U>
-  ? "jj"
-  : T["_$content"] extends Prop<infer U>
-    ? "hh"
-    : "no"
-
-type JJA = NNN<MyView>
-
-const SubViewWithTypes = MyView as any as Typed<MyView, t>
-
-SubViewWithTypes().ok
-
-/**
- * A simple function that adds two numbers.
- * @param {number} a - The first number to add.
- * @param {number} b - The second number to add.
- * @returns {number} The sum of the two input numbers.
- */
-function add(a, b) {
-  return a + b
-}
-
-/** @inheritdoc */
-type jj<T> = T
-
-/** @inheritdoc */
-const b = add as any as jj<typeof add>
-
-svg()
-
-/**
- * hhfaef
- */
-class LL {
-
-}
-
-const JJ = LL
-
-type a = undefined | ""
-
-type b = a extends undefined | infer _ ? "hh" : "ahha"
-type TTT = PartialPropWrapper<DLightHTMLAttributes<HTMLSpanElement, {}>>
-
-const j: Typed<TTT>
-const mmm: TTT
-
+const Prop = null as any
+type CC = SubTyped<Props>
+let j: CC
 j()
+class JJClass extends VV implements Props {
+  @Prop a = ""
+  @Prop b = ""
+  c = 1
 
-const pic: DLightHTMLAttributes<Required<HTMLSpanElement>, {}>
+  @VV
+  Body() {
+  }
+}
+const t = JJClass as Pretty as Typed<Props>
+// type j = ContentKeyName<Props>
+t()
+  .c(1)
 
-pic.ariaAutoComplete
-
-const jic: DLightHTMLAttributes<HTMLSpanElement, {}>
-jic.ariaAutoComplete
+const g: Typed<UnTyped<typeof t>, HTMLDivElement> = null as any
+g()
+  .a("1")
+  .b("2")
+  .c(3)
+  .

@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class SoapSharp extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class SoapSharp {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class SoapSharp extends View {
   }
 }
 
-export default SoapSharp as any as Typed<DLightIconType>
+export default SoapSharp as Pretty as Typed<DLightIconType, HTMLSpanElement>

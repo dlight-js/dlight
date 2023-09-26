@@ -1,23 +1,35 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { Prop, type PartialPropWrapper, required, span, type Typed, type DLightHTMLAttributes } from "@dlightjs/types"
+import { Prop, View, required } from "@dlightjs/dlight"
+import { span, type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
+interface DLightIconProps {
+  content: string
+  name: string
+  width?: number
+  height?: number
+  color?: string
+  opacity?: string
+  fontSize?: string
+}
 
-class DLightIcon extends View {
-  @Prop content: Prop<string> = required
-  @Prop name: Prop<string> = required
+@View
+@ForwardProp
+class DLightIcon implements DLightIconProps {
+  @Prop content: string = required
+  @Prop name: string = required
   /**
    * @default 24
    */
-  @Prop width: Prop<number> = 24 as any
+  @Prop width = 24
   /**
    * @default 24
    */
-  @Prop height: Prop<number> = 24 as any
-  @Prop color: Prop<string> = undefined as any
-  @Prop opacity: Prop<string> = undefined as any
+  @Prop height = 24
+  @Prop color = undefined
+  @Prop opacity = undefined
   /**
    * font-size
    */
-  @Prop fontSize: Prop<string> = undefined as any
+  @Prop fontSize = undefined
 
   _$forwardProps = true
 
@@ -29,6 +41,6 @@ class DLightIcon extends View {
   }
 }
 
-export type DLightIconType = PartialPropWrapper<DLightHTMLAttributes<HTMLSpanElement, {}>> & Omit<DLightIcon, "content" | "name">
+export type DLightIconType = Omit<DLightIconProps, "content" | "name">
 
-export default DLightIcon as any as Typed<DLightIcon>
+export default DLightIcon as Pretty as Typed<DLightIconProps>

@@ -1,5 +1,5 @@
 import { type View } from "@dlightjs/dlight"
-import { type Typed, type PropWrapper } from "@dlightjs/types"
+import { type ContentProp, type Typed } from "@dlightjs/types"
 import Bold from "./Bold.view"
 import Code from "./Code.view"
 import Highlight from "./Highlight.view"
@@ -13,7 +13,7 @@ import Text from "./Text.view"
 import FootnoteSup from "./FootnoteSup.view"
 import { addInlineRule as addMarkitInlineRule } from "@iandx/markit"
 
-const InlineRendererBase: Record<string, Typed<PropWrapper<{ props: Object, _$content: string }>>> = {
+const InlineRendererBase: Record<string, Typed<{ props: Object, ast: ContentProp<string> }>> = {
   Text,
   Bold,
   Italic,
@@ -36,7 +36,7 @@ export const InlineRenderer = new Proxy(InlineRendererBase, {
 interface InlineRuleType {
   name: string
   rule: any
-  view: new (...args: any[]) => any & typeof View
+  view: (new (...args: any[]) => any & typeof View) | Function
 }
 
 export const addInlineRule = ({ name, rule, view }: InlineRuleType) => {

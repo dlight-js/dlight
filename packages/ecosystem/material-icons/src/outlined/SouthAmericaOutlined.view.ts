@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class SouthAmericaOutlined extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class SouthAmericaOutlined {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class SouthAmericaOutlined extends View {
   }
 }
 
-export default SouthAmericaOutlined as any as Typed<DLightIconType>
+export default SouthAmericaOutlined as Pretty as Typed<DLightIconType, HTMLSpanElement>

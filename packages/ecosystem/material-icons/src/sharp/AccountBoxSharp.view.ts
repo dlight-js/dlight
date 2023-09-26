@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class AccountBoxSharp extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class AccountBoxSharp {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class AccountBoxSharp extends View {
   }
 }
 
-export default AccountBoxSharp as any as Typed<DLightIconType>
+export default AccountBoxSharp as Pretty as Typed<DLightIconType, HTMLSpanElement>

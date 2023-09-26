@@ -22,11 +22,11 @@ function buildData(count: number) {
 }
 
 class RowClass extends View {
-  @Prop id: RequiredProp<number> = required
-  @Prop label: RequiredProp<string> = required
-  @Prop className: RequiredProp<string> = required
-  @Prop deleteRow: RequiredProp<(id: number) => void> = required
-  @Prop selectRow: RequiredProp<(id: number) => void> = required
+  @Prop id: Requirednumber = required
+  @Prop label: Requiredstring = required
+  @Prop className: Requiredstring = required
+  @Prop deleteRow: Required(id: number) = void> = required
+  @Prop selectRow: Required(id: number) = void> = required
 
   Body() {
     tr()

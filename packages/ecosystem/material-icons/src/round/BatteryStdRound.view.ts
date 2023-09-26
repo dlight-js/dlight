@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class BatteryStdRound extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class BatteryStdRound {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class BatteryStdRound extends View {
   }
 }
 
-export default BatteryStdRound as any as Typed<DLightIconType>
+export default BatteryStdRound as Pretty as Typed<DLightIconType, HTMLSpanElement>

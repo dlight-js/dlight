@@ -1,6 +1,5 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed, _, Prop, Static } from "@dlightjs/types"
+import { Children, type DLNode, Prop, Static, View, required } from "@dlightjs/dlight"
+import { type Typed, _, type Pretty } from "@dlightjs/types"
 
 type TransitionPropSub<T> = T | ((el: HTMLElement) => T)
 type Timing = "appear" | "firstAppear" | "move" | "disappear" | "lastDisappear"
@@ -16,14 +15,25 @@ interface RemoveStore {
   idx: number
 }
 
-class TransitionGroup extends View {
+interface TransitionGroupProps {
+  duration?: TransitionProp<number>
+  easing?: TransitionProp<string>
+  delay?: TransitionProp<number>
+  appearWith?: StyleWith | ((el: HTMLElement) => StyleWith)
+  disappearWith?: StyleWith | ((el: HTMLElement) => StyleWith)
+  movable?: boolean
+}
+
+@View
+class TransitionGroup implements TransitionGroupProps {
+  @Children children: DLNode[] = required
   @Static _$duration = 0.5
   @Static _$easing = "ease-in-out"
   @Static _$delay = 0
-  @Prop duration: Prop<TransitionProp<number>> = this._$duration as any
-  @Prop easing: Prop<TransitionProp<string>> = this._$easing as any
+  @Prop duration = this._$duration
+  @Prop easing = this._$easing
   // 这里的delay在新建会先把下面的push下去，等delay时间到了再出现，这其实是符合预期的，因为不然你setTimeOut控制它出现
-  @Prop delay: Prop<TransitionProp<number>> = this._$delay as any
+  @Prop delay = this._$delay
 
   parseProp(el: HTMLElement, key: "duration" | "easing" | "delay") {
     const prop: any = {}
@@ -63,9 +73,9 @@ class TransitionGroup extends View {
         `all ${this._duration(el)[timing]}s ${this._easing(el)[timing]} ${this._delay(el)[timing]}s`
   )
 
-  @Prop appearWith: Prop<StyleWith | ((el: HTMLElement) => StyleWith)> = { opacity: 0 } as any
-  @Prop disappearWith: Prop<StyleWith | ((el: HTMLElement) => StyleWith)> = { opacity: 0 } as any
-  @Prop movable: Prop<boolean> = true as any
+  @Prop appearWith = { opacity: 0 }
+  @Prop disappearWith = { opacity: 0 }
+  @Prop movable = true
 
   resolveDisappear(removeStore: RemoveStore) {
     const { el, parentNode, rect, idx } = removeStore
@@ -105,7 +115,7 @@ class TransitionGroup extends View {
   // ---- 最后一次消失
   willUnmount() {
     this.lastDisappear = true
-    const els = this._$el
+    const els = (this as any)._$el
     this.removeStores = []
     for (const el of els) {
       this.removeStores.push(setRemoveStore(el))
@@ -119,7 +129,7 @@ class TransitionGroup extends View {
   }
 
   Body() {
-    _(this._$children)
+    _(this.children)
       .onUpdateNodes(() => {
         for (const [el, prevElInfo] of this.prevElInfos.entries()) {
           if (this.movable) {
@@ -271,4 +281,4 @@ function moveElement(element: HTMLElement, duration: number, easing: string, del
   requestAnimationFrame(step)
 }
 
-export default TransitionGroup as any as Typed<TransitionGroup>
+export default TransitionGroup as Pretty as Typed<TransitionGroup>

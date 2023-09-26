@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class GppMaybeTwoTone extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class GppMaybeTwoTone {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class GppMaybeTwoTone extends View {
   }
 }
 
-export default GppMaybeTwoTone as any as Typed<DLightIconType>
+export default GppMaybeTwoTone as Pretty as Typed<DLightIconType, HTMLSpanElement>

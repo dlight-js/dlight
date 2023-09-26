@@ -1,98 +1,136 @@
-import { View, renderToString } from "@dlightjs/dlight"
+import { View, renderToString, Children, _, required, Content } from "@dlightjs/dlight"
 import { css, div } from "@dlightjs/easy-css"
-import { button, htmlTag, Prop, required, SubView } from "@dlightjs/types"
+import { type Typed, button, type SubTyped, type Pretty } from "@dlightjs/types"
 import { HStack, Route, RouterSpace, VStack } from "@dlightjs/components"
 import { MarkitView, addBlockRule } from "@dlightjs/markit"
+import { ForwardProp, Func } from "@dlightjs/decorators"
+// import { Filter1Filled } from "@dlightjs/material-icons"
 
-class TestView extends View {
+@ForwardProp
+@View
+class NNN {
   Body() {
-    button("hello world")
-    // .onclick(() => {
-    //   console.log("jj")
-    // })
+    div()
+      .forwardProps()
+  }
+}
 
-      .setAttributes({
-        "dynamic-id": "111",
-        "will-click": "",
-        "will-mouseover": "",
-        "dynamic-path": "./test"
+function Watch() {
+
+}
+
+function parseData(msg: any) {
+  msg.a++
+}
+
+function createObservableObject(target: any, func: Function, wrapper?: boolean) {
+  // 定义handler对象
+  const proxiedTarget = new Proxy(target, {
+    set(obj, key, value) {
+      if (typeof value === "object" && value !== null) {
+        obj[key] = createObservableObject(value, func) // 如果值是一个对象，则再次对其进行代理
+      } else {
+        obj[key] = value
+      }
+      func()
+      return true
+    }
+  })
+
+  // 对每一个对象属性进行代理，确保嵌套对象也被代理
+  if (!wrapper) {
+    for (const key in target) {
+      const value = target[key]
+      if (typeof value === "object" && value !== null) {
+        target[key] = createObservableObject(target[key], func)
+      }
+    }
+  }
+
+  return proxiedTarget
+}
+
+export function Observable(target: any, key: string) {
+  const realKey = key.slice(3)
+
+  if (delete target[realKey]) {
+    let firstIn = true
+    const newObservable = function() {
+      this._$runDeps(realKey)
+    }
+    Object.defineProperty(target, realKey, {
+      get() {
+        if (firstIn) {
+          this[key] = createObservableObject(this[key], newObservable.bind(this))
+          firstIn = false
+        }
+        return this[key]
+      },
+      set(value) {
+        this._$updateProperty(realKey, createObservableObject(value, newObservable.bind(this)))
+      }
+    })
+  }
+}
+
+@View
+@Func(OK)
+class TestView {
+  @Observable
+    ok
+
+  Body() {
+    if (this.ok.loading) {
+      div("loading")
+        .style({
+          color: "red"
+        })
+    } else {
+      div(`Count: ${this.ok.data}`)
+    }
+    // div(`hello ${this.count}`)
+    button("+")
+      .onclick(() => {
+        console.log(this.ok.loading)
+        this.ok.data++
       })
   }
 }
-addBlockRule({
-  name: "CodeBlock",
-  rule: {
-    getProps: raw => {
-      const text = raw.replace(/ *```|```$/g, "")
-      let [language, title] = (text.match(/^.+?\n/g) ?? ["text"])[0].replace("```", "").trim().split("[")
-      if (title) {
-        title = title.replace("]", "")
-      }
-      return { language, title }
-    }
-  },
-  view: AdvantageBlock
-})
 
-export class TestMarkit extends View {
-  testMDString = `
-Here's a simple footnote,[^1] and here's a longer one.[^bignote]
+// export class TestMarkit extends View {
+//   testMDString = `
+// Search 🌟 in doc for important concepts and performance results.
 
-hhh
-**b*o*ld**
+// # Quick start
 
-***hhh*hh**
+// DLight uses [vite](https://vitejs.dev/) to construct its apps. We mainly use [this vite plugin](https://www.npmjs.com/package/vite-plugin-dlight-transpiler) to transpile jsx/jsd file into pure js code.
 
-*italic*~~ddd~~test \`function test { console.log('hello')}\`
+// Three ways to try DLight.js out.
 
-## 标题2
+// * Use CLI to build a dlight app. (**This feature is still in development.**)
 
-[haha](https://www.baidu.com)
+// \`\`\`shell
+// npm install -g @dlightjs/cli
+// create-dlight-app my-first-dlight-app
+// \`\`\`
 
-\`\`\`js [config.js]
-console.log('hello sd dyh');
-function test () {
-  const hh = 1
-}
-Body() {
-  div()
-    .className(this.dlightMarkitCodeBlock)
-  {
-    div(this.title)
-      .className(this.dlightMarkitCodeBlockHeader)
-    div()
-      .className(this.dlightMarkitCode)
-    {
-      pre()
-      {
-        code()
-          .innerHTML(this.highlightedCode)
-      }
-      div("copy")
-    }
-  }
-}
-\`\`\`
+// * Clone this repo https://github.com/dlight-js/dlight-vite-template for a quick start.
+// * 🌟 Play around in [codesandbox](https://codesandbox.io/p/sandbox/dlight-vite-quickstart-4tgogd)
+//   `
 
-\`\`\`python
-print("hhh")
-a=12
-b=15
-c=a+b
-\`\`\`
+//   getAst = (ast: any) => {
+//     console.log(ast)
+//   }
 
-# heading1
+//   Body() {
+//     MarkitView(this.testMDString)
+//       .getAst(this.getAst)
+//   }
+// }
 
-## heading2
-
-### heading3
-
-----[dashed]
-  `
-
-  Body() {
-    MarkitView(this.testMDString)
-  }
-}
+// console.log(renderToString(TestView))
 
 export default TestView
+function Prop(target: JJ, propertyKey: "qushifafe"): void {
+  throw new Error("Function not implemented.")
+}

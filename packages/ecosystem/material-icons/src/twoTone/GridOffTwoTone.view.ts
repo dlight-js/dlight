@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class GridOffTwoTone extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class GridOffTwoTone {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class GridOffTwoTone extends View {
   }
 }
 
-export default GridOffTwoTone as any as Typed<DLightIconType>
+export default GridOffTwoTone as Pretty as Typed<DLightIconType, HTMLSpanElement>

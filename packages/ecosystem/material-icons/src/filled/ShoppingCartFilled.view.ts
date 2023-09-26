@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class ShoppingCartFilled extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class ShoppingCartFilled {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class ShoppingCartFilled extends View {
   }
 }
 
-export default ShoppingCartFilled as any as Typed<DLightIconType>
+export default ShoppingCartFilled as Pretty as Typed<DLightIconType, HTMLSpanElement>

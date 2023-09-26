@@ -1,9 +1,11 @@
-import DLight, { View } from "@dlightjs/dlight"
-import { type Typed } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import { type Typed, type Pretty } from "@dlightjs/types"
+import { ForwardProp } from "@dlightjs/decorators"
 import DLightIcon, { type DLightIconType } from "../DLightIcon.view"
 
-class WifiChannelOutlined extends View {
-  _$forwardProps = true
+@View
+@ForwardProp
+class WifiChannelOutlined {
   Body() {
     DLightIcon()
       .forwardProps(true)
@@ -12,4 +14,4 @@ class WifiChannelOutlined extends View {
   }
 }
 
-export default WifiChannelOutlined as any as Typed<DLightIconType>
+export default WifiChannelOutlined as Pretty as Typed<DLightIconType, HTMLSpanElement>
