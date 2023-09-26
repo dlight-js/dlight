@@ -3,7 +3,7 @@ import { css, div } from "@dlightjs/easy-css"
 import { type Typed, button, type SubTyped, type Pretty } from "@dlightjs/types"
 import { HStack, Route, RouterSpace, VStack } from "@dlightjs/components"
 import { MarkitView, addBlockRule } from "@dlightjs/markit"
-import { ForwardProp, Func } from "@dlightjs/decorators"
+import { ForwardProp, Func, Observable } from "@dlightjs/decorators"
 // import { Filter1Filled } from "@dlightjs/material-icons"
 
 @ForwardProp
@@ -18,74 +18,31 @@ class NNN {
 const Default = (() => {}) as any
 @View
 class JJ {
-  @Content @Prop qushifafe = required
-  @Children hh = required
-  @Prop jj = required
-
-  willMount() {
-  }
+  @Observable @Prop msg
 
   Body() {
-    // _(this.hh)
-    _(this.jj(this.qushifafe))
+    div(this.msg.a)
+    button("+")
+      .onclick(() => {
+        parseData(this.msg)
+      })
   }
 }
 
-// function OK() {
-//   console.log("jj")
-//   this.loading = true
-//   setTimeout(() => {
-//     this.count++
-//     this.loading = false
-//   }, 1000)
-// }
-
-// function OK2() {
-//   console.log("oo")
-//   setInterval(() => {
-//     this.count++
-//   }, 1000)
-// }
-
-interface SubView {
-  content: string
+function parseData(msg: any) {
+  msg.a++
 }
 
 @View
 class TestView {
-  count = 5
-  loading = false
-  @View
-    OK = (({ content }: SubView) => {
-      div(content)
-    }) as Pretty as SubTyped<SubView>
+  msg = {
+    a: 100
+  }
 
-  Body = () => {
-    // if (this.loading) {
-    //   div("shitttt")
-    // }
-    // this.OK("hh")
-
-    // Filter1Filled()
-    JJ("xefe")
-      .jj((ii) => {
-        return do {
-          div(ii)
-            .style({
-              color: "red"
-            })
-        }
-       })
-
-    // div(this.count)
-    // button("+")
-    //   .onclick(() => {
-    //     this.count++
-    //   })
-    // NNN("hhh")
-    //   .style({
-    //     color: "red"
-    //   })
+  Body() {
+    div(`hello ${this.msg.a}`)
+    JJ()
+      .msg(this.msg)
   }
 }
 

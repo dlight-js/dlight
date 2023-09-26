@@ -15,3 +15,5 @@ export function Func(func: (...args: any) => any, ...args: any) {
     }
   }
 }
+
+export { Observable } from "./obeservable"

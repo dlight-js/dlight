@@ -47,6 +47,7 @@ export class CustomNode extends DLNode {
   }
 
   _$updateProperty(key: string, value: any) {
+    console.log("reset", key)
     if ((this as any)[`_$$${key}`] === value) return
     (this as any)[`_$$${key}`] = value
     for (const func of (this as any)[`_$$${key}Deps`]) {
