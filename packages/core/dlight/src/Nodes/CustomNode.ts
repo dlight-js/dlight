@@ -24,17 +24,24 @@ export class CustomNode extends DLNode {
   // ---- dep
   _$initDecorators() {
     if (this._$derivedPairs) {
-      // 遍历_$derivedPairs，将derived变量监听的变量的change函数挂载到被监听变量上
+      // ---- traverse _$derivedPairs, derived变量监听的变量的change函数挂载到被监听变量上
       for (const [propertyKey, listenDeps] of Object.entries(this._$derivedPairs)) {
         const key = `_$$${propertyKey}` in this ? `_$$${propertyKey}` : propertyKey
         const func = (this as any)[key]
-        if (typeof func !== "function") {
+        if (func === "Watcher") {
+          const watcher = (this as any)[propertyKey]
+          watcher()
+          this._$addDeps(listenDeps, watcher)
+          continue
+        }
+
+        const isDerived = typeof func === "function"
+        if (!isDerived) {
           (this as any)[key] = func
           continue
         }
         (this as any)[key] = func()
 
-        if (listenDeps.length === 0) continue
         let prevValue = (this as any)[propertyKey]
         this._$addDeps(listenDeps, () => {
           const newValue = func()
@@ -47,7 +54,6 @@ export class CustomNode extends DLNode {
   }
 
   _$updateProperty(key: string, value: any) {
-    console.log("reset", key)
     if ((this as any)[`_$$${key}`] === value) return
     (this as any)[`_$$${key}`] = value
     for (const func of (this as any)[`_$$${key}Deps`]) {
@@ -103,14 +109,14 @@ export class CustomNode extends DLNode {
   _$addLifeCycle(func: (_els: HTMLElement[], _node: CustomNode) => any, lifeCycleName: "willMount" | "didMount" | "willUnmount" | "didUnmount") {
     const preLifeCycle = this[lifeCycleName]
     if (["willMount", "willUnmount"].includes(lifeCycleName)) {
-      // ---- 从外向内
+      // ---- outside in
       this[lifeCycleName] = function(_els: HTMLElement[], _node: CustomNode) {
         func.call(this, this._$el, this)
         preLifeCycle.call(this, this._$el, this)
       }
     } else {
       this[lifeCycleName] = function(_els: HTMLElement[], _node: CustomNode) {
-        // ---- 从内向外
+        // ---- inside out
         preLifeCycle.call(this, this._$el, this)
         func.call(this, this._$el, this)
       }

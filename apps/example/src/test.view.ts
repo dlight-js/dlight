@@ -15,18 +15,8 @@ class NNN {
   }
 }
 
-const Default = (() => {}) as any
-@View
-class JJ {
-  @Observable @Prop msg
+function Watch() {
 
-  Body() {
-    div(this.msg.a)
-    button("+")
-      .onclick(() => {
-        parseData(this.msg)
-      })
-  }
 }
 
 function parseData(msg: any) {
@@ -35,14 +25,19 @@ function parseData(msg: any) {
 
 @View
 class TestView {
-  msg = {
-    a: 100
+  @Watch
+  ok() {
+    console.log(this.count)
   }
 
+  count = 1
+
   Body() {
-    div(`hello ${this.msg.a}`)
-    JJ()
-      .msg(this.msg)
+    div(`hello ${this.count}`)
+    button("+")
+      .onclick(() => {
+        this.count++
+      })
   }
 }
 

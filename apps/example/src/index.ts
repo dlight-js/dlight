@@ -31,7 +31,6 @@ class TestView extends View {
   }
 }
 `
-
 // console.log(transformDLight(code))
 
 // console.log(renderToText(BenchmarkView))
