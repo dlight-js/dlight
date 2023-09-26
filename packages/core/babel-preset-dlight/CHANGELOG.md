@@ -1,5 +1,11 @@
 # babel-preset-dlight
 
+## 0.10.1
+
+### Patch Changes
+
+- feat: Add @Watch and fix dep loop
+
 ## 0.10.0
 
 ### Minor Changes

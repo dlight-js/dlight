@@ -3,7 +3,7 @@ import { css, div } from "@dlightjs/easy-css"
 import { type Typed, button, type SubTyped, type Pretty } from "@dlightjs/types"
 import { HStack, Route, RouterSpace, VStack } from "@dlightjs/components"
 import { MarkitView, addBlockRule } from "@dlightjs/markit"
-import { ForwardProp, Func, Observable } from "@dlightjs/decorators"
+import { ForwardProp, Func } from "@dlightjs/decorators"
 // import { Filter1Filled } from "@dlightjs/material-icons"
 
 @ForwardProp
@@ -23,20 +23,76 @@ function parseData(msg: any) {
   msg.a++
 }
 
-@View
-class TestView {
-  @Watch
-  ok() {
-    console.log(this.count)
+function createObservableObject(target: any, func: Function, wrapper?: boolean) {
+  // 定义handler对象
+  const proxiedTarget = new Proxy(target, {
+    set(obj, key, value) {
+      if (typeof value === "object" && value !== null) {
+        obj[key] = createObservableObject(value, func) // 如果值是一个对象，则再次对其进行代理
+      } else {
+        obj[key] = value
+      }
+      func()
+      return true
+    }
+  })
+
+  // 对每一个对象属性进行代理，确保嵌套对象也被代理
+  if (!wrapper) {
+    for (const key in target) {
+      const value = target[key]
+      if (typeof value === "object" && value !== null) {
+        target[key] = createObservableObject(target[key], func)
+      }
+    }
   }
 
-  count = 1
+  return proxiedTarget
+}
+
+export function Observable(target: any, key: string) {
+  const realKey = key.slice(3)
+
+  if (delete target[realKey]) {
+    let firstIn = true
+    const newObservable = function() {
+      this._$runDeps(realKey)
+    }
+    Object.defineProperty(target, realKey, {
+      get() {
+        if (firstIn) {
+          this[key] = createObservableObject(this[key], newObservable.bind(this))
+          firstIn = false
+        }
+        return this[key]
+      },
+      set(value) {
+        this._$updateProperty(realKey, createObservableObject(value, newObservable.bind(this)))
+      }
+    })
+  }
+}
+
+@View
+@Func(OK)
+class TestView {
+  @Observable
+    ok
 
   Body() {
-    div(`hello ${this.count}`)
+    if (this.ok.loading) {
+      div("loading")
+        .style({
+          color: "red"
+        })
+    } else {
+      div(`Count: ${this.ok.data}`)
+    }
+    // div(`hello ${this.count}`)
     button("+")
       .onclick(() => {
-        this.count++
+        console.log(this.ok.loading)
+        this.ok.data++
       })
   }
 }

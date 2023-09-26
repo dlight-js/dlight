@@ -1,5 +1,16 @@
 # dlight-test
 
+## 0.0.11
+
+### Patch Changes
+
+- Updated dependencies
+  - @dlightjs/components@0.10.1
+  - @dlightjs/dlight@0.10.1
+  - @dlightjs/transpiler@0.10.1
+  - vite-plugin-dlight@0.10.1
+  - @dlightjs/types@0.10.2
+
 ## 0.0.10
 
 ### Patch Changes

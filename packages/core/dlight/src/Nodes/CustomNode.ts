@@ -56,6 +56,10 @@ export class CustomNode extends DLNode {
   _$updateProperty(key: string, value: any) {
     if ((this as any)[`_$$${key}`] === value) return
     (this as any)[`_$$${key}`] = value
+    this._$runDeps(key)
+  }
+
+  _$runDeps(key: string) {
     for (const func of (this as any)[`_$$${key}Deps`]) {
       func()
     }

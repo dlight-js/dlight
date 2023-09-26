@@ -1,6 +1,6 @@
 {
   "name": "@dlightjs/material-icons",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "description": "Material icons for DLight.js",
   "author": {
     "name": "IanDx",
@@ -24,7 +24,7 @@
   "devDependencies": {
     "@babel/cli": "^7.22.6",
     "@babel/core": "^7.20.12",
-    "babel-preset-dlight": "workspace:^0.10.0",
+    "babel-preset-dlight": "workspace:^0.10.1",
     "tsup": "^6.5.0",
     "typescript": "^5.2.2",
     "@dlightjs/types": "workspace:*"
