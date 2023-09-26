@@ -1,5 +1,12 @@
 # @dlightjs/types
 
+## 0.10.2
+
+### Patch Changes
+
+- Updated dependencies
+  - @dlightjs/dlight@0.10.1
+
 ## 0.10.1
 
 ### Patch Changes

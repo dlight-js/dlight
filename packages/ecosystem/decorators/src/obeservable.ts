@@ -26,14 +26,13 @@ function createObservableObject(target: any, func: Function, wrapper?: boolean) 
   return proxiedTarget
 }
 
-// @TODO how to handle array? @orange04
 export function Observable(target: any, key: string) {
   const realKey = key.slice(3)
 
   if (delete target[realKey]) {
     let firstIn = true
     const newObservable = function() {
-      this._$updateProperty(realKey, createObservableObject({ ...this[key] }, newObservable.bind(this), true))
+      this._$runDeps(realKey)
     }
     Object.defineProperty(target, realKey, {
       get() {
