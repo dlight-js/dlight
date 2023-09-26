@@ -1,8 +1,0 @@
-{
-  "presets": [
-    "easy-css",
-    ["dlight", {
-      "files": "**/*.view.ts"
-    }]
-  ]
-}
