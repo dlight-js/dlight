@@ -58,7 +58,8 @@ Try it [online](https://stackblitz.com/edit/dlight-preview)
 [README-dlight.md](./packages/core/dlight/README.md) 
 # Homepage
 
-Building with DLight now👨🏻‍💻
+Available at [dlight-js](https://dlight-js.com) but still under development with DLight now👨🏻‍💻
+
 
 # Contributors
 
