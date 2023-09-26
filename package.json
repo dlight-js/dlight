@@ -17,11 +17,8 @@
   "scripts": {
     "example": "pnpm --filter ./apps/example dev",
     "prepare": "husky install",
-    "refresh": "node ./common/scripts/refresh.js",
     "pipeline": "node ./common/scripts/pipeline.js",
-    "build": "pnpm pipeline build",
-    "pub": "pnpm pipeline publish",
-    "newVersion": "pnpm pipeline newVersion"
+    "build": "pnpm pipeline build"
   },
   "devDependencies": {
     "@changesets/cli": "^2.26.2",
@@ -42,20 +39,15 @@
       "core/dlight",
       "core/babel-preset-dlight",
       "core/types",
-      "core/create-dlightjs"
+      "core/parser"
     ],
-    "ecosystem": [
-      "ecosystem/vite-plugin-dlight",
-      "ecosystem/components",
-      "ecosystem/transpiler",
-      "ecosystem/transpiler-standalone",
-      "ecosystem/material-icons",
-      "ecosystem/markit"
-    ],
-    "easy-css": [
-      "ecosystem/easy-css/babel-preset-dlight-easy-css",
-      "ecosystem/easy-css/vite-plugin-dlight-easy-css",
-      "ecosystem/easy-css/easy-css"
+    "tools": [
+      "tools/create-dlightjs",
+      "tools/vite-plugin-dlight",
+      "tools/vite-plugin-dlight-js",
+      "tools/babel-plugin-syntax-typescript-new",
+      "tools/transpiler",
+      "tools/transpiler-standalone"
     ]
   }
 }
