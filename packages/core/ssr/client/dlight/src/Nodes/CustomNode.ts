@@ -83,15 +83,13 @@ export class CustomNode extends DLNode {
 
   _$init() {
     this._$initDecorators()
-    // this.willMount(this._$el, this)
+    this.willMount(this._$el, this)
     ;((this as any).Body.bind(this) ?? (() => []))()
     // this._$bindNodes()
-    // this.didMount(this._$el, this)
+    this.didMount(this._$el, this)
   }
 
   _$addProp(key: string, propFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]) {
-    if (dlScope) console.log(propFunc())
-    console.log("called")
     addDLProp(this, "prop", key, propFunc, dlScope, listenDeps)
   }
 

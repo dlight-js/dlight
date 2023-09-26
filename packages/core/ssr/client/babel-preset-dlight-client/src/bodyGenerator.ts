@@ -29,8 +29,6 @@ export class Generator {
 
   path: any
 
-  allDeps: any[] = []
-
   constructor(path: any, depChain: string[], subViews: string[], idDepsArr: IdDepsArr = []) {
     this.path = path
     this.depChain = depChain
@@ -58,7 +56,6 @@ export class Generator {
     const deps: t.Node[] = [...new Set([...geneTriggersDeps(this.path, value, this.depChain), ...geneIdDeps(this.path, value, this.idDepsArr)])]
     // deps 有可能是subview的 ...xxx.deps
     this.usedProperties.push(...deps.filter(node => t.isStringLiteral(node)).map(node => (node as any).value))
-    this.allDeps = deduplicateDeps([...this.allDeps, ...deps])
     return deps as any
   }
 
@@ -515,8 +512,6 @@ export class Generator {
     const statements: t.Statement[] = []
 
     if (listenDeps.length > 0) {
-      this.allDeps = deduplicateDeps([...this.allDeps, ...listenDeps])
-
       /**
          * ${nodeName}._$addProp(() => (${value}), this, ${geneDepsStr(listenDeps)});
          */
@@ -556,7 +551,7 @@ export class Generator {
       t.callExpression(
         t.memberExpression(t.identifier("DLight"), t.identifier("hydrateText")),
         [
-          t.arrowFunctionExpression([t.identifier(nodeName)], t.blockStatement(statements)),
+          statements.length > 0 ? t.arrowFunctionExpression([t.identifier(nodeName)], t.blockStatement(statements)) : t.identifier("undefined"),
           parenNodeName ? t.identifier(parenNodeName) : t.thisExpression(),
           t.thisExpression(),
           t.arrayExpression(listenDeps)
@@ -927,8 +922,6 @@ export class Generator {
       const newGenerator = new Generator(this.path, this.depChain, this.subViews, this.idDepsArr)
       const subChildren = newGenerator.generate(parserNode.children, nodeName)
       this.usedProperties.push(...newGenerator.usedProperties)
-      triggersDeps = deduplicateDeps([...triggersDeps, ...newGenerator.allDeps])
-      this.allDeps = deduplicateDeps([...this.allDeps, ...newGenerator.allDeps])
       hydationStatements.push(...subChildren.body)
     }
 
@@ -941,6 +934,7 @@ export class Generator {
         )
       )
     }
+
     if (triggersDeps.length > 0) {
       hydrationOptions.push(
         t.objectProperty(
@@ -954,11 +948,11 @@ export class Generator {
       t.callExpression(
         t.memberExpression(t.identifier("DLight"), t.identifier("hydrateElement")),
         [
-          t.arrowFunctionExpression([t.identifier(nodeName)], t.blockStatement(statements)),
+          statements.length > 0 ? t.arrowFunctionExpression([t.identifier(nodeName)], t.blockStatement(statements)) : t.identifier("undefined"),
           parenNodeName ? t.identifier(parenNodeName) : t.thisExpression(),
           t.thisExpression(),
           t.objectExpression(hydrationOptions),
-          t.arrowFunctionExpression([t.identifier(nodeName)], t.blockStatement(hydationStatements))
+          hydationStatements.length > 0 ? t.arrowFunctionExpression([t.identifier(nodeName)], t.blockStatement(hydationStatements)) : t.identifier("undefined")
         ]
       )
     )]
@@ -967,7 +961,7 @@ export class Generator {
   resolveCustom(parserNode: ParserNode, parenNodeName?: string) {
     const statements: t.Statement[] = []
     const nodeName = `dlNode_${uid()}`
-    const deps: any[] = []
+    let deps: any[] = []
 
     // ---- props
     for (let { key, value, nodes } of parserNode.attr.props) {
@@ -1021,7 +1015,7 @@ export class Generator {
         continue
       }
       let listenDeps = this.geneDeps(value)
-      deps.push(...listenDeps)
+      deps = deduplicateDeps([...deps, ...listenDeps])
       if (key === "element") {
         // ---- 过滤掉绑定的this.xxEl
         if (t.isMemberExpression(value) && t.isThisExpression(value.object) && t.isIdentifier(value.property)) {
@@ -1198,7 +1192,7 @@ export class Generator {
       t.callExpression(
         t.memberExpression(t.identifier("DLight"), t.identifier("hydrateComponent")),
         [
-          t.arrowFunctionExpression([t.identifier(nodeName)], t.blockStatement(statements)),
+          statements.length > 0 ? t.arrowFunctionExpression([t.identifier(nodeName)], t.blockStatement(statements)) : t.identifier("undefined"),
           parenNodeName ? t.identifier(parenNodeName) : t.thisExpression(),
           t.thisExpression(),
           t.arrayExpression(deps)

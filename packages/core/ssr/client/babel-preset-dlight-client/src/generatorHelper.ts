@@ -88,9 +88,11 @@ export function deduplicateDeps(deps: t.Node[]) {
   const depStringNames: string[] = []
   const newDeps = []
   for (const dep of deps) {
-    if (t.isStringLiteral(dep) && !depStringNames.includes(dep.value)) {
-      depStringNames.push(dep.value)
-      newDeps.push(dep)
+    if (t.isStringLiteral(dep)) {
+      if (!depStringNames.includes(dep.value)) {
+        depStringNames.push(dep.value)
+        newDeps.push(dep)
+      }
     } else {
       newDeps.push(dep)
     }

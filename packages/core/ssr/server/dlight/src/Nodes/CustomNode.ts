@@ -1,7 +1,7 @@
 import { type EnvNode } from "./EnvNode"
 import { DLNode, DLNodeType } from "./DLNode"
 import { addDLProp } from "../utils/prop"
-import { HtmlNode } from "../Nodes"
+import { HtmlNode } from "."
 import { addToClassPathMap, document } from "../utils/dom"
 
 export class CustomNode extends DLNode {

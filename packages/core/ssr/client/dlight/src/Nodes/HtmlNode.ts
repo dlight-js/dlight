@@ -41,9 +41,7 @@ export class HtmlNode extends DLNode {
       this._$el.className = classNames.length === 0 ? newClassNames : `${classNames} ${newClassNames}`
       return
     }
-    let prevValue: any
-    // const classNames = this._$el.className
-    // this._$el.className = classNames.length === 0 ? prevValue : `${classNames} ${prevValue}`
+    let prevValue = this._$el.className
 
     dlScope!._$addDeps(listenDeps, () => {
       const newValue = valueOrFunc()

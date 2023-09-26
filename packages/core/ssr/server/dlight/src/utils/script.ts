@@ -8,12 +8,16 @@ export function getScript() {
           key
             .replace("server", "client")
             .replace(".ts", "") + "?import",
-          [...new Set(value)]
+          value
         ]
       })
   )
-  return `
+  const script = `
 window.hydrationMap = {}
+window.callHydrationMap = async id => {
+  await window.hydrationMap[id]()
+  delete window.hydrationMap[id]
+}
 window.dlNodeMap = {}
 const reversedMap = ${JSON.stringify(classPath)}
 const pathMap = Object.entries(reversedMap).reduce((acc, [key, values]) => {
@@ -33,9 +37,7 @@ window.load = async(dynamicId) => {
   }
   return dlNode
 }
-
-const onEvents = ${JSON.stringify(onEvents)}
-for (const event of onEvents) {
+${JSON.stringify(onEvents)}.forEach(event => {
   document.addEventListener(event, async e => {
     const el = e.target
     if (!el?.getAttribute) return
@@ -45,10 +47,13 @@ for (const event of onEvents) {
     await window.load(dynamicId)
     await window.hydrationMap[dynamicId]()
     delete window.hydrationMap[dynamicId]
-    console.log(dynamicId, window.hydrationMap)
-
     el.dispatchEvent(new MouseEvent(event))
   })
-}
+})
 `
+  onEvents.splice(0, onEvents.length)
+  for (const key in classPathMap) {
+    delete classPathMap[key]
+  }
+  return script
 }
