@@ -34,14 +34,14 @@ importers:
     specifiers:
       '@dlightjs/components': ^0.10.1
       '@dlightjs/decorators': ^0.10.1
-      '@dlightjs/dlight': ^0.10.1
+      '@dlightjs/dlight': workspace:*
       '@dlightjs/markit': ^0.10.1
       '@dlightjs/material-icons': ^0.10.1
-      '@dlightjs/types': ^0.10.2
+      '@dlightjs/types': workspace:*
       '@iandx/easy-css': ^0.10.14
       typescript: ^5.2.2
       vite: ^4.4.9
-      vite-plugin-dlight: ^0.10.1
+      vite-plugin-dlight: workspace:*
     dependencies:
       '@dlightjs/components': 0.10.1
       '@dlightjs/decorators': 0.10.1
