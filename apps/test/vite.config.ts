@@ -7,6 +7,6 @@ export default defineConfig({
     },
     base: '',
     plugins: [
-        dlight({ appendix: [".view.ts"] }),
+        dlight({ files: "**/*.view.ts" }),
     ]
 });

@@ -1,7 +1,8 @@
 import { View } from "@dlightjs/dlight"
 import { headerWrap, navBtn, headerLogo } from "./style.module.css"
 
-class Header extends View {
+@View
+export default class Header {
   navList = [
     {
       url: "",
@@ -35,5 +36,3 @@ class Header extends View {
     }
   }
 }
-
-export default Header

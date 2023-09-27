@@ -1,13 +1,14 @@
 import { View } from "@dlightjs/dlight"
 import { countBtn, btnHover } from "./style.module.css"
 
-export default class Button extends View {
-  _$content
+@View
+export default class Button {
+  @Content content
   onclick
   btnStatus = 0
 
   Body() {
-    button(this._$content)
+    button(this.content)
       .className(this.btnStatus[index] === 1 ? `${countBtn} ${btnHover}` : countBtn)
       .onclick(this.onclick)
       .onmouseover(() => {
