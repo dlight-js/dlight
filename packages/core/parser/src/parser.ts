@@ -1,5 +1,8 @@
 import * as t from "@babel/types"
-import { valueWrapper } from "./generatorHelper"
+
+function valueWrapper(value: t.Node) {
+  return t.variableDeclaration("const", [t.variableDeclarator(t.identifier("_"), value as any)])
+}
 
 function uid() {
   return Math.random().toString(32).slice(2)
@@ -52,7 +55,7 @@ function isPureMemberExpression(node: any) {
 }
 
 function parseTag(node: t.CallExpression, path: any) {
-  const parserNode: any = { tag: "", attr: { props: [] }, children: [] }
+  const parserNode: ParserNode = { tag: "", attr: { props: [] }, children: [] }
   let n = node
 
   // ---- 会存在.xxx()不知道是预期tag还是prop的情况，所有强制tag只能有一层
@@ -100,7 +103,13 @@ function parseNode(node: any, path: any): ParserNode | ParserNode[] {
 
   if (t.isTaggedTemplateExpression(node)) return parseTaggedTemplate(node, path)
 
-  return {} as any
+  return {
+    tag: t.identifier("_"),
+    attr: {
+      props: [parseProp("_$content", node, path)]
+    },
+    children: []
+  }
 }
 
 function parseFor(node: t.ForOfStatement, path: any): ParserNode {
@@ -185,8 +194,6 @@ export function parseBlock(nodes: any, path: any): ParserNode[] {
   return children
 }
 
-function parseBody(nodes: any, path: any) {
+export function parseBody(nodes: any, path: any) {
   return parseBlock(nodes, path)
 }
-
-export default parseBody

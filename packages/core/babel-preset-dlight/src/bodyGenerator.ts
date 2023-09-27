@@ -1,4 +1,4 @@
-import { type ParserNode } from "./parser"
+import { type ParserNode } from "@dlightjs/view-parser"
 import { geneDeps, geneIdDeps, uid, resolveForBody, isHTMLTag, parseCustomTag, isSubViewTag, isOnlyMemberExpression, isTagName, getForBodyIdentifiers, valueWrapper } from "./generatorHelper"
 import * as t from "@babel/types"
 

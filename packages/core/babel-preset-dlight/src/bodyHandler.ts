@@ -4,7 +4,7 @@ import {
   isObjectKey
 } from "./nodeHelper"
 import * as t from "@babel/types"
-import parseBody from "./parser"
+import { parseBody } from "@dlightjs/view-parser"
 import { type IdDepsArr, resolveParserNode } from "./bodyGenerator"
 
 export function handleBodyFunc(node: t.ClassMethod, depChain: string[], subViews: string[], path: any, isSubView = false) {

@@ -1,5 +1,12 @@
 # babel-preset-dlight
 
+## 0.10.4
+
+### Patch Changes
+
+- Updated dependencies
+  - @dlightjs/view-parser@0.10.1
+
 ## 0.10.3
 
 ### Patch Changes
