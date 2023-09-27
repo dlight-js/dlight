@@ -9,18 +9,20 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@dlightjs/material-icons":"^0.10.1",
-    "@dlightjs/decorators":"^0.10.1",
-    "@dlightjs/dlight":"workspace:*",
-    "@iandx/easy-css":"^0.10.14",
-    "@dlightjs/markit":"^0.10.1",
-    "@dlightjs/components":"^0.10.1"
+    "@dlightjs/material-icons": "^0.10.1",
+    "@dlightjs/decorators": "^0.10.1",
+    "@dlightjs/dlight": "workspace:*",
+    "@iandx/easy-css": "^0.10.14",
+    "@dlightjs/markit": "^0.10.1",
+    "@dlightjs/components": "^0.10.1"
   },
   "devDependencies": {
-    "vite-plugin-dlight":"workspace:*",
-    "typescript":"^5.2.2",
-    "@dlightjs/types":"workspace:*",
-    "vite":"^4.4.9"
+    "vite-plugin-dlight": "workspace:*",
+    "typescript": "^5.2.2",
+    "@dlightjs/types": "workspace:*",
+    "vite": "^4.4.9"
   },
-  "keywords": ["dlight.js"]
+  "keywords": [
+    "dlight.js"
+  ]
 }

@@ -225,11 +225,14 @@ export default function(api: any, options: DLightOption) {
         const node = path.node as t.ClassProperty
         const key = (node.key as any).name
         if (key === "Body") return
+        const isSubView = node.decorators?.find(deco => (
+          t.isIdentifier(deco.expression) && deco.expression.name === "View")
+        )
+        if (isSubView) return
         const availableDecoNames = ["Static", "Prop", "Env", "Content", "Children"]
         const decoNames = node.decorators?.filter(deco => (
           t.isIdentifier(deco.expression) && availableDecoNames.includes(deco.expression.name)
         )).map(deco => (deco.expression as any).name) ?? []
-        if (decoNames.includes("View")) return
         // ---- 看是不是有属性是 prop derived，有就加一个()=>
         //      同时在propDerived中记录，这会在constructor的调用一遍
         //      不管@prop和@env

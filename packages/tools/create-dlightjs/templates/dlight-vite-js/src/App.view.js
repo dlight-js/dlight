@@ -3,7 +3,8 @@ import { wrap, slogan2, countWrap, countBtn, btnWrap, countText, colorD, colorL,
 import Button from "./Button.view"
 import Header from "./Header.view"
 
-export default class App extends View {
+@View
+export default class App {
   count = 0
 
   Body() {

@@ -1,14 +1,21 @@
 import { View } from "@dlightjs/dlight"
-import { type Typed, div, p, button, span, type Pretty } from "@dlightjs/types"
+import { type Typed, div, p, button, span, type Pretty, SubTyped } from "@dlightjs/types"
 import Header from "./Header.view"
 import { wrap, slogan2, countWrap, countBtn, btnHover, btnWrap, countText, colorD, colorL, m0 } from "./style.module.css"
 
-class App extends View {
+interface BtnProps {
+  content: string
+  onclick: () => void
+  index: number
+}
+@View
+class App {
   count = 0
   btnStatus = [0, 0]
+
   @View
-  Btn({ _$content, onclick, index }: any): any {
-    button(_$content)
+  Btn = (({ content, onclick, index }: BtnProps) => {
+    button(content)
       .className(this.btnStatus[index] === 1 ? `${countBtn} ${btnHover}` : countBtn)
       .onclick(onclick)
       .onmouseover(() => {
@@ -19,7 +26,7 @@ class App extends View {
         this.btnStatus[index] = 0
         this.btnStatus = [...this.btnStatus]
       })
-  }
+  }) as any as SubTyped<BtnProps>
 
 
   Body() {

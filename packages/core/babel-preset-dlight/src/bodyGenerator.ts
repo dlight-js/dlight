@@ -361,7 +361,7 @@ export class Generator {
                 ),
                 ...forBody.body.slice(0, -1),
                 /**
-                 * this._$deleteDeps(depsStr, ${key}UpdateFunc, Array.isArray(_$node0) ? _$node0[0] : _$node0);
+                 * this._$deleteDeps(depsStr, updateFunc, Array.isArray(_$node0) ? _$node0[0] : _$node0);
                  **/
                 t.expressionStatement(
                   t.callExpression(
@@ -1215,13 +1215,13 @@ export class Generator {
       )
       if (listenDeps.length > 0) {
         /**
-         * const ${key}UpdateFunc = () => ${keyWithId}.xx = xx
+         * const ${key}UpdateFunc${idx} = () => ${keyWithId}.xx = xx
          **/
         statements.push(
           t.variableDeclaration(
             "const", [
               t.variableDeclarator(
-                t.identifier(`${key}UpdateFunc`),
+                t.identifier(`${key}UpdateFunc${idx}`),
                 t.arrowFunctionExpression(
                   [],
                   t.assignmentExpression(
@@ -1238,7 +1238,7 @@ export class Generator {
           )
         )
         /**
-         * this._$addDeps(depsStr, ${key}UpdateFunc);
+         * this._$addDeps(depsStr, ${key}UpdateFunc${idx});
          **/
         statements.push(
           t.expressionStatement(
@@ -1248,7 +1248,7 @@ export class Generator {
                 t.identifier("_$addDeps")
               ), [
                 t.arrayExpression(listenDeps),
-                t.identifier(`${key}UpdateFunc`)
+                t.identifier(`${key}UpdateFunc${idx}`)
               ]
             )
           )
@@ -1284,7 +1284,7 @@ export class Generator {
     for (const { key, listenDeps } of passProps) {
       if (listenDeps.length > 0) {
         /**
-         * this._$deleteDeps(depsStr, ${key}UpdateFunc, ${nodeName}[0]);
+         * this._$deleteDeps(depsStr, ${key}UpdateFunc${idx}, ${nodeName}[0]);
          **/
         statements.push(
           t.expressionStatement(
@@ -1294,7 +1294,7 @@ export class Generator {
                 t.identifier("_$deleteDeps")
               ), [
                 t.arrayExpression(listenDeps),
-                t.identifier(`${key}UpdateFunc`),
+                t.identifier(`${key}UpdateFunc${idx}`),
                 t.memberExpression(
                   t.identifier(nodeName),
                   t.numericLiteral(0),

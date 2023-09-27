@@ -1,29 +1,35 @@
 import { View } from "@dlightjs/dlight"
 import { headerWrap, navBtn, headerLogo } from "./style.module.css"
-import { type Typed, div, img, a type Pretty } from "@dlightjs/types"
+import { type Typed, div, img, a, type Pretty } from "@dlightjs/types"
 
-class Header extends View {
+interface NavProps {
+  url: string
+  navName: string
+}
+
+@View
+class Header {
   navList = [
     {
-      url: "",
+      url: "https://dlight-js.com/docs",
       navName: "Docs"
     },
     {
-      url: "https://www.baidu.com",
+      url: "https://dlight-js.com/examples",
       navName: "Examples"
     },
     {
-      url: "",
-      navName: "Tutorials"
+      url: "https://dlight-js.com/playground",
+      navName: "Playground"
     }
   ]
 
   @View
-  Nav({ url, navName }: any): any {
+  Nav = (({ url, navName }: NavProps) => {
     a(navName)
       .className(navBtn)
       .href(url)
-  }
+  }) as any as Typed<NavProps>
 
   Body() {
     div()
@@ -35,7 +41,7 @@ class Header extends View {
       div()
       {
         for (const navItem of this.navList) {
-          this.Nav({})
+          this.Nav()
             .url(navItem.url)
             .navName(navItem.navName)
         }
