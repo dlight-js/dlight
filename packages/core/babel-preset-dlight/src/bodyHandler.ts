@@ -105,7 +105,7 @@ export function handleBody(classBodyNode: t.ClassBody, depChain: string[], path:
   const usedProperties: string[] = []
   let body: undefined | t.Node
   const views: any[] = []
-  for (const c of classBodyNode.body) {
+  for (let c of classBodyNode.body) {
     if (t.isClassProperty(c)) {
       let exp = c.value
       while (t.isTSAsExpression(exp)) {
@@ -114,14 +114,13 @@ export function handleBody(classBodyNode: t.ClassBody, depChain: string[], path:
       c.value = exp
       if (!t.isArrowFunctionExpression(c.value)) continue
     }
-
     const isSubView = (c as any).decorators?.find((d: any) =>
       t.isIdentifier(d.expression) && d.expression.name === "View"
     )
     const isBody = (c as any).key.name === "Body"
     if (!isSubView && !isBody) continue
 
-    if (t.isClassProperty(c)) arrowFunctionPropertyToMethod(c)
+    if (t.isClassProperty(c)) c = arrowFunctionPropertyToMethod(c, path)
 
     if (isSubView) {
       (c as any).decorators = null

@@ -153,14 +153,24 @@ export function isDLightView(path: any) {
   return t.isIdentifier(node.superClass, { name: "View" })
 }
 
-export function arrowFunctionPropertyToMethod(propertyNode: t.ClassProperty) {
-  const propertyBody = (propertyNode.value as t.ArrowFunctionExpression).body
-  const body = t.isExpression(propertyBody) ? t.blockStatement([t.returnStatement(propertyBody)]) : propertyBody
-  propertyNode.type = "ClassMethod" as any
-  (propertyNode as any).body = body
-  ;(propertyNode as any).kind = "method"
-  ;(propertyNode as any).params = (propertyNode.value as t.ArrowFunctionExpression).params
-  propertyNode.value = null
+export function arrowFunctionPropertyToMethod(propertyNode: t.ClassProperty, path: any) {
+  let newNode: any = propertyNode
+  path.scope.traverse(path.node, {
+    ClassProperty(innerPath: any) {
+      if (innerPath.node !== propertyNode) return
+      const propertyBody = (propertyNode.value as t.ArrowFunctionExpression).body
+      const body = t.isExpression(propertyBody) ? t.blockStatement([t.returnStatement(propertyBody)]) : propertyBody
+      const methodNode = t.classMethod(
+        "method",
+        propertyNode.key,
+        (propertyNode.value as t.ArrowFunctionExpression).params,
+        body
+      )
+      newNode = methodNode
+      innerPath.replaceWith(methodNode)
+    }
+  })
+  return newNode
 }
 
 export function getListenDeps(

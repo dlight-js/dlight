@@ -1,5 +1,11 @@
 # @dlightjs/types
 
+## 0.10.3
+
+### Patch Changes
+
+- fix: tag(any) to tag({})
+
 ## 0.10.2
 
 ### Patch Changes
