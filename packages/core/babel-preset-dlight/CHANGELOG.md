@@ -1,5 +1,11 @@
 # babel-preset-dlight
 
+## 0.10.3
+
+### Patch Changes
+
+- fix: duplicated updateFunc in subview
+
 ## 0.10.2
 
 ### Patch Changes

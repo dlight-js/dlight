@@ -53,7 +53,7 @@ type CustomSubViewTag<T> = T extends { "content": infer U }
 
 type CustomTagType<T, G> = CustomClassTag<T & CustomNodeProps & DLightHTMLAttributes<G>, T> & Useless
 export type Typed<T={}, G={}> = CustomTagType<T, G> & Useless
-export type SubTyped<T> = CustomSubViewTag<T> & Useless
+export type SubTyped<T={}> = CustomSubViewTag<T> & Useless
 
 export type Pretty = any
 

@@ -6,17 +6,21 @@ class App {
   count = 0
 
   @View
-    myButton = (() => {
-      button("+")
-        .onclick(() => {
-          this.count++
-        })
-    }) as any as SubTyped
+    myButton = (({ content }: any) => {
+      button(content)
+    }) as any as SubTyped<{}>
 
   Body() {
     div("hello dlight")
     div(this.count)
-    this.myButton()
+    this.myButton("+")
+      .onclick(() => {
+        this.count++
+      })
+    this.myButton("-")
+      .onclick(() => {
+        this.count--
+      })
   }
 }
 

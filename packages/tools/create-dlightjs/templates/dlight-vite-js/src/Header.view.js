@@ -5,16 +5,16 @@ import { headerWrap, navBtn, headerLogo } from "./style.module.css"
 export default class Header {
   navList = [
     {
-      url: "",
+      url: "https://dlight-js.com/docs",
       navName: "Docs"
     },
     {
-      url: "https://www.baidu.com",
+      url: "https://dlight-js.com/examples",
       navName: "Examples"
     },
     {
-      url: "",
-      navName: "Tutorials"
+      url: "https://dlight-js.com/playground",
+      navName: "Playground"
     }
   ]
 

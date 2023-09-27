@@ -1,5 +1,5 @@
 import { View } from "@dlightjs/dlight"
-import { type Typed, div, p, button, span, type Pretty } from "@dlightjs/types"
+import { type Typed, div, p, button, span, type Pretty, SubTyped } from "@dlightjs/types"
 import Header from "./Header.view"
 import { wrap, slogan2, countWrap, countBtn, btnHover, btnWrap, countText, colorD, colorL, m0 } from "./style.module.css"
 
@@ -26,7 +26,7 @@ class App {
         this.btnStatus[index] = 0
         this.btnStatus = [...this.btnStatus]
       })
-  }) as any as Typed<BtnProps>
+  }) as any as SubTyped<BtnProps>
 
 
   Body() {
