@@ -1,4 +1,6 @@
-<img src="./docs/imgs/logo_title.png" style="display:block; margin: auto; width: 50%;"/>
+<p align="center">
+  <img src="./docs/imgs/logo_title.png" style="display:block; margin: auto; width: 50%;"/>
+</p>
 <p align="center">
   <a href="https://github.com/iandxssxx" target="_black">
     <img src="https://img.shields.io/badge/Author-%20IanDxSSXX%20-a046c2.svg?&logo=github" alt="author" />
@@ -42,7 +44,7 @@ import { View } from "@dlightjs/dlight"
 
 @View
 class MyComp {
-  toggle = true
+  atNight = false
   fruits = ["🍎", "🍊", "🥑"]
 
   Body() {
@@ -50,18 +52,21 @@ class MyComp {
     button("toggle")
       .className("toggle")
       .onclick(() => {
-        this.toggle = !this.toggle
+        this.atNight = !this.atNight
       })
-    if (this.toggle) {
-      "simple text"
+
+    if (this.atNight) {
+      "🌘"
+    } else {
+      "🔆"
     }
+
     for (const fruit of this.fruits) {
       div(fruit)
     }
   }
 }
 ```
-Try it [online](https://stackblitz.com/edit/dlight-preview)
 
 # Documentation
 [README-dlight.md](./packages/core/dlight/README.md) 
