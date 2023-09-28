@@ -1,18 +1,17 @@
 import * as t from "@babel/types"
 import { type IdDepsArr } from "./bodyGenerator"
-import { isAHtmlTag } from "./htmlTags"
 import { shouldBeListened, isMemberExpressionProperty, isObjectKey } from "./nodeHelper"
-import { type ParserNode } from "./parser"
+import { type ParserNode, isAHtmlTag } from "@dlightjs/view-parser"
 
 export function isHTMLTag(parserNode: ParserNode) {
-  const tag = parserNode.tag
+  const tag = parserNode.tag as any
   if (typeof tag === "string") return false
-  if (t.isIdentifier(tag) && isAHtmlTag(tag.name)) {
-    parserNode.tag = t.stringLiteral(tag.name)
+  if (t.isIdentifier(tag) && isAHtmlTag((tag).name)) {
+    parserNode.tag = t.stringLiteral((tag).name) as any
     return true
   }
-  if (t.isCallExpression(tag) && (tag.callee as any).name === "htmlTag") {
-    parserNode.tag = tag.arguments[0]
+  if (t.isCallExpression((tag)) && (tag.callee as any).name === "htmlTag") {
+    parserNode.tag = tag.arguments[0] as any
     return true
   }
   return false
@@ -26,11 +25,11 @@ export function isSubViewTag(subViews: string[], parserNode: ParserNode) {
 }
 
 export function parseCustomTag(parserNode: ParserNode) {
-  const tag = parserNode.tag
+  const tag = parserNode.tag as any
   if (typeof tag === "string") return false
   // ---- 碰到名字叫tag，可以嵌套：tag(MyTagList[100].getTag())().height(100)
   if (t.isCallExpression(tag) && (tag.callee as any).name === "tag") {
-    parserNode.tag = tag.arguments[0]
+    parserNode.tag = tag.arguments[0] as any
     return true
   }
 }

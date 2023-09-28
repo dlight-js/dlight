@@ -1,4 +1,4 @@
-import { type ParserNode } from "./parser"
+import { type ParserNode } from "@dlightjs/view-parser"
 import { geneDeps, geneIdDeps, uid, resolveForBody, isHTMLTag, parseCustomTag, isSubViewTag, isOnlyMemberExpression, isTagName, getForBodyIdentifiers, valueWrapper } from "./generatorHelper"
 import * as t from "@babel/types"
 
@@ -360,6 +360,7 @@ export class Generator {
                   )
                 ),
                 ...forBody.body.slice(0, -1),
+                // ---- The reason to split add and delete deps is to make the dep order right
                 /**
                  * this._$deleteDeps(depsStr, updateFunc, Array.isArray(_$node0) ? _$node0[0] : _$node0);
                  **/
@@ -1283,6 +1284,7 @@ export class Generator {
 
     for (const { key, listenDeps } of passProps) {
       if (listenDeps.length > 0) {
+        // ---- The reason to split add and delete deps is to make the dep order right
         /**
          * this._$deleteDeps(depsStr, ${key}UpdateFunc${idx}, ${nodeName}[0]);
          **/

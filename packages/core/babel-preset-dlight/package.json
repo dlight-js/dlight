@@ -1,6 +1,6 @@
 {
   "name": "babel-preset-dlight",
-  "version": "0.10.3",
+  "version": "0.10.4",
   "description": "DLight transpiler for babel",
   "author": {
     "name": "IanDx",
@@ -22,11 +22,12 @@
     "build": "tsup --sourcemap && node ./scripts/envPrefix.js"
   },
   "devDependencies": {
-    "@babel/types": "^7.20.7",
     "tsup": "^6.5.0",
     "typescript": "^5.1.6"
   },
   "dependencies": {
+    "@dlightjs/view-parser": "workspace:*",
+    "@babel/types": "^7.20.7",
     "@babel/helper-plugin-utils": "^7.22.5",
     "@babel/plugin-syntax-decorators": "^7.21.0",
     "@babel/plugin-syntax-do-expressions": "^7.18.6",

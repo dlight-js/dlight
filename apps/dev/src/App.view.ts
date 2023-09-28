@@ -4,23 +4,13 @@ import { type Typed, type Pretty, div, button, type SubTyped } from "@dlightjs/t
 @View
 class App {
   count = 0
-
-  @View
-    myButton = (({ content }: any) => {
-      button(content)
-    }) as any as SubTyped<{}>
+  flag = true
 
   Body() {
-    div("hello dlight")
-    div(this.count)
-    this.myButton("+")
-      .onclick(() => {
-        this.count++
-      })
-    this.myButton("-")
-      .onclick(() => {
-        this.count--
-      })
+    this.count
+    this.count + 1
+    this.flag ? "ok" : "no"
+    this.count
   }
 }
 
