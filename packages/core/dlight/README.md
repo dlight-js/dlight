@@ -72,14 +72,15 @@ When you create a new dlight.js project using the CLI tool, it sets up a file st
 ```
 
 # Examples
-Writing components in Dlight is simple and straightforward. Small focused components are the basic building blocks in Dlight, making apps composable, reusable and modular. We follow the examples of https://component-party.dev to make it easier for developers that are familar with other front-end libraries to migirate to dlight.
+Writing components in Dlight is simple and straightforward. Small focused components are the basic building blocks in Dlight, making apps composable, reusable and modular. We follow the examples of https://component-party.dev to make it easier for developers that are familiar with other front-end libraries to migrate to dlight.
 ## Reactivity
 ### Declare state
 ```js
 // ~> Name.js
 import { View } from "@dlightjs/dlight"
 
-class Name extends View {
+@View
+class Name {
   name = "John"
 
   Body() {
@@ -94,7 +95,8 @@ export default Name
 // ~> Name.js
 import { View } from "@dlightjs/dlight"
 
-class Name extends View {
+@View
+class Name {
   name = "John"
 
   willMount() {
@@ -113,7 +115,8 @@ export default Name
 // ~> DoubleCount.js
 import { View } from "@dlightjs/dlight"
 
-class DoubleCount extends View {
+@View
+class DoubleCount {
   count = 10
   doubleCount = this.count * 2
 
@@ -131,7 +134,8 @@ export default DoubleCount
 // ~> HelloWorld.js
 import { View } from "@dlightjs/dlight"
 
-class HelloWorld extends View {
+@View
+class HelloWorld {
   Body() {
     h1("hello world")
   }
@@ -145,7 +149,8 @@ export default HelloWorld
 import { View } from "@dlightjs/dlight"
 import "./style.css"
 
-class CssStyle extends View {
+@View
+class CssStyle {
   Body() {
     h1("I am red")
       .className("title")
@@ -169,7 +174,8 @@ export default CssStyle
 // ~> Colors.js
 import { View } from "@dlightjs/dlight"
 
-class Colors extends View {
+@View
+class Colors {
   colors = ["red", "green", "blue"]
 
   Body() {
@@ -189,7 +195,8 @@ export default Colors
 // ~> Counter.js
 import { View } from "@dlightjs/dlight"
 
-class Counter extends View {
+@View
+class Counter {
   count = 0
 
   Body() {
@@ -208,7 +215,8 @@ export default Counter
 // ~> InputFocused.js
 import { View } from "@dlightjs/dlight"
 
-class InputFocused extends View {
+@View
+class InputFocused {
   inputElement
 
   didMount() {
@@ -231,7 +239,8 @@ import { View } from "@dlightjs/dlight"
 
 const TRAFFIC_LIGHTS = ["red", "orange", "green"]
 
-class TrafficLight extends View {
+@View
+class TrafficLight {
   lightIndex = 0
   light = TRAFFIC_LIGHTS[this.lightIndex]
 
@@ -269,7 +278,8 @@ export default TrafficLight
 // ~> PageTitle.js
 import { View } from "@dlightjs/dlight"
 
-class PageTitle extends View {
+@View
+class PageTitle {
   pageTitle = ""
 
   didMount() {
@@ -288,7 +298,8 @@ export default PageTitle
 // ~> Time.js
 import { View } from "@dlightjs/dlight"
 
-class Time extends View {
+@View
+class Time {
   time = new Date().toLocaleTimeString()
   timer
 
@@ -316,7 +327,8 @@ export default Time
 import { View } from "@dlightjs/dlight"
 import UserProfile from "./UserProfile"
 
-class App extends View {
+@View
+class App {
   Body() {
     UserProfile()
       .name("John")
@@ -330,7 +342,8 @@ export default App
 ```
 ```ts
 // ~> UserProfile.js
-class UserProfile extends View {
+@View
+class UserProfile {
   @Prop name = ""
   @Prop age = null
   @Prop favouriteColors = []
@@ -351,7 +364,8 @@ export default UserProfile
 // ~> App.js
 import { View } from "@dlightjs/dlight"
 import AnswerButton from "./AnswerButton.view"
-class App extends View {
+@View
+class App {
   canCome = true
 
   onAnswerNo() {
@@ -376,7 +390,8 @@ export default App
 ```
 ```js
 // ~> AnswerButton.js
-class AnswerButton extends View {
+@View
+class AnswerButton {
   @Prop onYes
   @Prop onNo
 
@@ -396,7 +411,8 @@ export default AnswerButton
 import { View } from "@dlightjs/dlight"
 import FunnyButton from "./FunnyButton.view"
 
-class App extends View {
+@View
+class App {
   Body() {
     FunnyButton()
     {
@@ -409,7 +425,9 @@ export default App
 ```
 ```js
 // ~> FunnyButton.js
-class FunnyButton extends View {
+@View
+class FunnyButton {
+  @Children children
   Body() {
     button()
       .style({
@@ -425,7 +443,7 @@ class FunnyButton extends View {
         outline: "0"
       })
     {
-      _(this._$children)
+      this.children
     }
   }
 }
@@ -438,7 +456,8 @@ export default FunnyButton
 import { View } from "@dlightjs/dlight"
 import FunnyButton from "./FunnyButton"
 
-class App extends View {
+@View
+class App {
   Body() {
     FunnyButton()
     {
@@ -452,7 +471,9 @@ export default App
 ```
 ```js
 // ~> FunnyButton.js
-class FunnyButton extends View {
+@View
+class FunnyButton {
+  @Children children
   Body() {
     button()
       .style({
@@ -468,10 +489,10 @@ class FunnyButton extends View {
         outline: "0"
       })
     {
-      if (this._$children.length === 0) {
+      if (this.children.length === 0) {
         span("No content found")
       } else {
-        _(this._$children)
+        this.children
       }
     }
   }
@@ -485,7 +506,8 @@ export default FunnyButton
 import { View } from "@dlightjs/dlight"
 import UserProfile from 'UserProfile.view'
 
-class App extends View {
+@View
+class App {
   user = {
     id: 1,
     username: "unicorn42",
@@ -511,7 +533,8 @@ export default App
 ```
 ```ts
 // ~> UserProfile.js
-class UserProfile extends View {
+@View
+class UserProfile {
   @Env user
   @Env updateUsername
 
@@ -535,7 +558,8 @@ export default UserProfile
 // ~> InputHello.js
 import { View } from "@dlightjs/dlight"
 
-class InputHello extends View {
+@View
+class InputHello {
   text = "Hello world"
 
   Body() {
@@ -555,7 +579,8 @@ export default InputHello
 // ~> IsAvailable.js
 import { View } from "@dlightjs/dlight"
 
-class IsAvailable extends View {
+@View
+class IsAvailable {
   isAvailable = false
 
   Body() {
@@ -576,7 +601,8 @@ export default IsAvailable
 // ~> PickPill.js
 import { View } from "@dlightjs/dlight"
 
-class PickPill extends View {
+@View
+class PickPill {
   picked = "red"
 
   handleChange(event) {
@@ -616,7 +642,8 @@ const colors = [
   { id: 4, text: "gray", isDisabled: true }
 ]
 
-class ColorSelect extends View {
+@View
+class ColorSelect {
   selectedColorId = 2
 
   Body() {
@@ -651,7 +678,8 @@ export default ColorSelect
 // ~> App.js
 import { View } from "@dlightjs/dlight"
 
-class App extends View {
+@View
+class App {
   Body() {
     h1("Hello world")
   }
@@ -671,7 +699,8 @@ render("app", App)
 import { View } from "@dlightjs/dlight"
 import fetchUser from "./fetchUser"
 
-class App extends View {
+@View
+class App {
   isLoading
   error
   users
@@ -725,7 +754,8 @@ export default async function fetchUsers(dataKey = "data", errorKey = "error", i
 // ~> Router.js
 import { View } from "@dlightjs/dlight"
 
-class Router extends View {
+@View
+class Router {
   @Env navigator
 
   Body() {
@@ -758,7 +788,8 @@ export default Router
 import { View } from "@dlightjs/dlight"
 import { RouterSpace, Route } from "@dlightjs/components"
 
-class Routing extends View {
+@View
+class Routing {
   Body() {
     RouterSpace()
     {
@@ -850,7 +881,8 @@ Body() {
   }
   // expression
   _("this is expression")
-  _(this._$children) // _ accepts (string | number | DLNode | DLNode[]), here `this._$children` is of type DLNode[]
+  // or
+  this._$children // _ accepts (string | number | DLNode | DLNode[]), here `this._$children` is of type DLNode[]
 }
 ...
 ```
