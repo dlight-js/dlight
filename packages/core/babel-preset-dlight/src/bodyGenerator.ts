@@ -602,45 +602,6 @@ export class Generator {
         )
         continue
       }
-      if (key.startsWith("on")) {
-        // event
-        const eventName = key.slice(2)
-        /**
-         * ${nodeName}._$addEvent(${eventName}, value);
-         */
-        statements.push(
-          t.expressionStatement(
-            t.callExpression(
-              t.memberExpression(
-                t.identifier(nodeName),
-                t.identifier("_$addEvent")
-              ), [
-                t.stringLiteral(eventName),
-                value
-              ]
-            )
-          )
-        )
-        continue
-      }
-      if (key === "addEvents") {
-        statements.push(
-          t.expressionStatement(
-            t.callExpression(
-              t.memberExpression(
-                t.identifier(nodeName),
-                t.identifier("_$addEvents")
-              ), [
-                value
-              ]
-            )
-          )
-        )
-        continue
-      }
-      if (key === "_$content") {
-        key = "innerText"
-      }
       let listenDeps = this.geneDeps(value)
       if (key === "element") {
         if (t.isMemberExpression(value) && t.isThisExpression(value.object) && t.isIdentifier(value.property)) {
@@ -746,17 +707,28 @@ export class Generator {
         }
         continue
       }
-      if (key === "setAttributes") {
+      if (key === "_$content") {
+        key = "innerText"
+      }
+      const nonPropertyFuncMap = {
+        addEvents: "_$addEvents",
+        setAttributes: "_$addAttributes",
+        style: "_$addStyle",
+        className: "_$addClassName"
+      }
+      let funcName = "_$addProp"
+      if (Object.keys(nonPropertyFuncMap).includes(key)) {
+        funcName = (nonPropertyFuncMap as any)[key]
         if (listenDeps.length > 0) {
           /**
-           * ${nodeName}._$addAttributes(() => (${value}), this, ${geneDepsStr(listenDeps)});
+           * ${nodeName}.${funcName}(() => ${value}, this, ${geneDepsStr(listenDeps)});
            */
           statements.push(
             t.expressionStatement(
               t.callExpression(
                 t.memberExpression(
                   t.identifier(nodeName),
-                  t.identifier("_$addAttributes")
+                  t.identifier(funcName)
                 ), [
                   t.arrowFunctionExpression([], value),
                   t.thisExpression(),
@@ -768,14 +740,14 @@ export class Generator {
           continue
         }
         /**
-         * ${nodeName}._$addAttributes(${value});
+         * ${nodeName}.${funcName}(value);
          */
         statements.push(
           t.expressionStatement(
             t.callExpression(
               t.memberExpression(
                 t.identifier(nodeName),
-                t.identifier("_$addAttributes")
+                t.identifier(funcName)
               ), [
                 value
               ]
@@ -784,92 +756,20 @@ export class Generator {
         )
         continue
       }
-      if (key === "style") {
-        if (listenDeps.length > 0) {
-          /**
-           * ${nodeName}._$addStyle(() => (${value}), this, ${geneDepsStr(listenDeps)});
-           */
-          statements.push(
-            t.expressionStatement(
-              t.callExpression(
-                t.memberExpression(
-                  t.identifier(nodeName),
-                  t.identifier("_$addStyle")
-                ), [
-                  t.arrowFunctionExpression([], value),
-                  t.thisExpression(),
-                  t.arrayExpression(listenDeps)
-                ]
-              )
-            )
-          )
-          continue
-        }
-        /**
-         * ${nodeName}._$addStyle(${value});
-         */
-        statements.push(
-          t.expressionStatement(
-            t.callExpression(
-              t.memberExpression(
-                t.identifier(nodeName),
-                t.identifier("_$addStyle")
-              ), [
-                value
-              ]
-            )
-          )
-        )
-        continue
-      }
-      if (key === "className") {
-        if (listenDeps.length > 0) {
-          /**
-           * ${nodeName}._$addClassName(() => (${value}), this, ${geneDepsStr(listenDeps)});
-           */
-          statements.push(
-            t.expressionStatement(
-              t.callExpression(
-                t.memberExpression(
-                  t.identifier(nodeName),
-                  t.identifier("_$addClassName")
-                ), [
-                  t.arrowFunctionExpression([], value),
-                  t.thisExpression(),
-                  t.arrayExpression(listenDeps)
-                ]
-              )
-            )
-          )
-          continue
-        }
-        /**
-         * ${nodeName}._$addClassName(${value});
-         */
-        statements.push(
-          t.expressionStatement(
-            t.callExpression(
-              t.memberExpression(
-                t.identifier(nodeName),
-                t.identifier("_$addClassName")
-              ), [
-                value
-              ]
-            )
-          )
-        )
-        continue
+      if (key.startsWith("on")) {
+        key = key.slice(2)
+        funcName = "_$addEvent"
       }
       if (listenDeps.length > 0) {
         /**
-         * ${nodeName}._$addProp("${key}", () => (${value}), this, ${geneDepsStr(listenDeps)});
+         * ${nodeName}.${funcName}("${key}", () => (${value}), this, ${geneDepsStr(listenDeps)});
          */
         statements.push(
           t.expressionStatement(
             t.callExpression(
               t.memberExpression(
                 t.identifier(nodeName),
-                t.identifier("_$addProp")
+                t.identifier(funcName)
               ), [
                 t.stringLiteral(key),
                 t.arrowFunctionExpression([], value),
@@ -882,14 +782,14 @@ export class Generator {
         continue
       }
       /**
-       * ${nodeName}._$addProp("${key}", ${value});
+       * ${nodeName}.${funcName}("${key}", ${value});
        */
       statements.push(
         t.expressionStatement(
           t.callExpression(
             t.memberExpression(
               t.identifier(nodeName),
-              t.identifier("_$addProp")
+              t.identifier(funcName)
             ), [
               t.stringLiteral(key),
               value

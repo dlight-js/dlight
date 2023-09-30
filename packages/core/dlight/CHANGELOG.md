@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 0.10.2
+
+### Patch Changes
+
+- fix: event not reactive
+
 ## 0.10.1
 
 ### Patch Changes

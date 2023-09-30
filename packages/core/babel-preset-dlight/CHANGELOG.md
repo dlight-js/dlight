@@ -1,5 +1,11 @@
 # babel-preset-dlight
 
+## 0.10.5
+
+### Patch Changes
+
+- fix: event not reactive
+
 ## 0.10.4
 
 ### Patch Changes
