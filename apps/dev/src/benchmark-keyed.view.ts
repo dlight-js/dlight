@@ -24,7 +24,7 @@ export default class Main {
   rows = []
   selectIdx = -1
   addRows() {
-    this.rows = buildData(1)
+    this.rows = buildData(10)
   }
 
   swapRows() {
@@ -44,7 +44,7 @@ export default class Main {
   deleteRow(id) {
     return () => {
       const idx = this.rows.findIndex(row => row.id === id)
-      this.rows = [...this.rows.slice(0, idx), ...this.rows.slice(idx + 1)]
+      this.rows = this.rows.filter(row => row.id !== id)
     }
   }
 
@@ -131,7 +131,7 @@ export default class Main {
           tbody()
           {
             for (const { id, label } of this.rows) {
-              [id]
+              [null]
               tr()
                 .className(this.selectIdx === id ? "danger" : "")
               {
@@ -146,13 +146,13 @@ export default class Main {
                 td()
                   .className("col-md-1")
                 {
-                  a()
+                  button("delete")
                     .onclick(this.deleteRow(id))
-                  {
-                    span()
-                      .className("glyphicon glyphicon-remove")
-                      .ariaHidden("true")
-                  }
+                  // {
+                  //   span()
+                  //     .className("glyphicon glyphicon-remove")
+                  //     .ariaHidden("true")
+                  // }
                 }
                 td()
                   .className("col-md-6")

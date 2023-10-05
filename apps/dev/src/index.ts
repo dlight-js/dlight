@@ -2,7 +2,7 @@ import { render } from "@dlightjs/dlight"
 import App from "./App.view"
 import Main from "./benchmark-keyed.view"
 
-render("app", Main)
+render("app", App)
 
 const a = Array(10000).fill(0).map((_, i) => i)
 console.time("0")

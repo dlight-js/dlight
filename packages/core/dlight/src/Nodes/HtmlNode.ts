@@ -90,14 +90,42 @@ export class HtmlNode extends DLNode {
     }, this)
   }
 
-  _$addEvent(eventName: string, func: () => void) {
-    this._$el.addEventListener(eventName, func)
+  _$addEvent(eventName: string, valueOrFunc: any, dlScope?: CustomNode, listenDeps?: string[]) {
+    if (!listenDeps) {
+      this._$el.addEventListener(eventName, valueOrFunc)
+      return
+    }
+    let prevValue: any = valueOrFunc()
+    this._$el.addEventListener(eventName, prevValue)
+    dlScope!._$addDeps(listenDeps, () => {
+      const newValue = valueOrFunc()
+      this._$el.removeEventListener(eventName, prevValue)
+      this._$el.addEventListener(eventName, newValue)
+      prevValue = newValue
+    }, this)
   }
 
-  _$addEvents(eventMap: Record<string, () => void>) {
-    for (const [eventName, func] of Object.entries(eventMap)) {
-      this._$addEvent(eventName, func)
+  _$addEvents(valueOrFunc: any, dlScope?: CustomNode, listenDeps?: string[]) {
+    if (!listenDeps) {
+      for (const [eventName, func] of Object.entries(valueOrFunc)) {
+        this._$el.addEventListener(eventName, func)
+      }
+      return
     }
+    let prevValue: any = valueOrFunc()
+    for (const [eventName, func] of Object.entries(prevValue)) {
+      this._$el.addEventListener(eventName, func)
+    }
+    dlScope!._$addDeps(listenDeps, () => {
+      const newValue = valueOrFunc()
+      for (const [eventName, func] of Object.entries(prevValue)) {
+        this._$el.removeEventListener(eventName, func)
+      }
+      for (const [eventName, func] of Object.entries(newValue)) {
+        this._$el.addEventListener(eventName, func)
+      }
+      prevValue = newValue
+    }, this)
   }
 
   _$addStyle(valueOrFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]) {
