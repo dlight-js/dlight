@@ -1,5 +1,17 @@
 # babel-preset-dlight
 
+## 0.10.6
+
+### Patch Changes
+
+- fix: tranpiler-standalone process undefined
+
+## 0.10.5
+
+### Patch Changes
+
+- fix: event not reactive
+
 ## 0.10.4
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@dlightjs/transpiler-standalone",
-  "version": "0.10.4",
+  "version": "0.10.6",
   "description": "DLight transpiler as function for browser",
   "author": {
     "name": "IanDx",
@@ -18,10 +18,11 @@
   "module": "dist/index.js",
   "typings": "dist/index.d.ts",
   "scripts": {
-    "build": "tsup --sourcemap"
+    "build": "tsup --sourcemap && node ./scripts/envPrefix.js"
   },
   "devDependencies": {
-    "tsup": "^6.5.0"
+    "tsup": "^6.5.0",
+    "typescript": "^5.2.2"
   },
   "dependencies": {
     "@babel/standalone": "^7.22.4",

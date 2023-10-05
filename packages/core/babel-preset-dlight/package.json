@@ -1,6 +1,6 @@
 {
   "name": "babel-preset-dlight",
-  "version": "0.10.4",
+  "version": "0.10.6",
   "description": "DLight transpiler for babel",
   "author": {
     "name": "IanDx",
@@ -19,7 +19,7 @@
   "module": "dist/index.js",
   "typings": "dist/index.d.ts",
   "scripts": {
-    "build": "tsup --sourcemap && node ./scripts/envPrefix.js"
+    "build": "tsup --sourcemap"
   },
   "devDependencies": {
     "tsup": "^6.5.0",

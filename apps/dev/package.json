@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@dlightjs/material-icons":"^0.10.1",
+    "@dlightjs/transpiler-standalone":"workspace:*",
     "@dlightjs/decorators":"^0.10.1",
     "@dlightjs/dlight":"workspace:*",
     "@iandx/easy-css":"^0.10.14",
