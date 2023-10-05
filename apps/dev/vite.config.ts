@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite'
-import dlight from "vite-plugin-dlight"
+import dlight from "../../packages/tools/vite-plugin-dlight/dist"
 
 export default defineConfig({
     server: {

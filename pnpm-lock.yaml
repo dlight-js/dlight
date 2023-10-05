@@ -37,6 +37,7 @@ importers:
       '@dlightjs/dlight': workspace:*
       '@dlightjs/markit': ^0.10.1
       '@dlightjs/material-icons': ^0.10.1
+      '@dlightjs/transpiler-standalone': workspace:*
       '@dlightjs/types': workspace:*
       '@iandx/easy-css': ^0.10.14
       typescript: ^5.2.2
@@ -48,6 +49,7 @@ importers:
       '@dlightjs/dlight': link:../../packages/core/dlight
       '@dlightjs/markit': 0.10.1
       '@dlightjs/material-icons': 0.10.1
+      '@dlightjs/transpiler-standalone': link:../../packages/tools/transpiler-standalone
       '@iandx/easy-css': 0.10.14
     devDependencies:
       '@dlightjs/types': link:../../packages/core/types
@@ -318,11 +320,13 @@ importers:
       '@babel/standalone': ^7.22.4
       babel-preset-dlight: workspace:*
       tsup: ^6.5.0
+      typescript: ^5.2.2
     dependencies:
       '@babel/standalone': 7.22.8
       babel-preset-dlight: link:../../core/babel-preset-dlight
     devDependencies:
-      tsup: 6.7.0
+      tsup: 6.7.0_typescript@5.2.2
+      typescript: 5.2.2
 
   packages/tools/vite-plugin-dlight:
     specifiers:
