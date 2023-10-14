@@ -15,6 +15,11 @@ export interface DLightOption {
    * @default ** /{dist,node_modules,lib}/*.{js,ts}
    */
   excludeFiles?: string | string[]
+  /**
+   * Enable devtools
+   * @default false
+   */
+  enableDevTools?: boolean
 }
 
 type PropertyContainer = Record<string, {
@@ -31,10 +36,12 @@ type PropertyContainer = Record<string, {
 export default function(api: any, options: DLightOption) {
   const {
     files: preFiles = "**/*.{js,jsx,ts,tsx}",
-    excludeFiles: preExcludeFiles = "**/{dist,node_modules,lib}/*.{js,ts}"
+    excludeFiles: preExcludeFiles = "**/{dist,node_modules,lib}/*.{js,ts}",
+    enableDevTools = false
   } = options
   const files = Array.isArray(preFiles) ? preFiles : [preFiles]
   const excludeFiles = Array.isArray(preExcludeFiles) ? preExcludeFiles : [preExcludeFiles]
+  const isDev = (process.env.NODE_ENV === "development") && enableDevTools
 
   let classDeclarationNode: t.ClassDeclaration | null = null
   let classBodyNode: t.ClassBody | null = null
@@ -104,6 +111,14 @@ export default function(api: any, options: DLightOption) {
     propertiesContainer = {}
     rootPath = path
 
+    if (isDev) {
+      const compName = t.classProperty(
+        t.identifier("_$compName"),
+        t.stringLiteral(node.id.name)
+      )
+      classBodyNode.body.unshift(compName)
+    }
+
     this.addDLightImport()
   }
   function clearNode() {
@@ -139,6 +154,11 @@ export default function(api: any, options: DLightOption) {
         const allImports: t.ImportDeclaration[] = path.node.body.filter(t.isImportDeclaration)
         const dlightImports = allImports.filter(n => n.source.value === "@dlightjs/dlight")
         if (dlightImports.length === 0) this.enter = false
+        if (isDev) {
+          for (const dlightImport of dlightImports) {
+            dlightImport.source.value = "@dlightjs/dlight-dev"
+          }
+        }
         this.addDLightImport = () => {
           if (this.didAddDLightImport || dlightImports.length === 0) return
           let alreadyDeclared = false

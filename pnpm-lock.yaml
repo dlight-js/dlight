@@ -35,6 +35,7 @@ importers:
       '@dlightjs/components': ^0.10.1
       '@dlightjs/decorators': ^0.10.1
       '@dlightjs/dlight': workspace:*
+      '@dlightjs/dlight-dev': workspace:*
       '@dlightjs/markit': ^0.10.1
       '@dlightjs/material-icons': ^0.10.1
       '@dlightjs/transpiler-standalone': workspace:*
@@ -47,6 +48,7 @@ importers:
       '@dlightjs/components': 0.10.1
       '@dlightjs/decorators': 0.10.1
       '@dlightjs/dlight': link:../../packages/core/dlight
+      '@dlightjs/dlight-dev': link:../../packages/core/dlight-dev
       '@dlightjs/markit': 0.10.1
       '@dlightjs/material-icons': 0.10.1
       '@dlightjs/transpiler-standalone': link:../../packages/tools/transpiler-standalone
@@ -157,6 +159,17 @@ importers:
       tsup: 6.7.0_typescript@4.9.5
       typescript: 4.9.5
       vitest: 0.34.5_@vitest+ui@0.34.5
+
+  packages/core/dlight-dev:
+    specifiers:
+      '@dlightjs/dlight': workspace:*
+      tsup: ^6.5.0
+      typescript: ^4.5.2
+    dependencies:
+      '@dlightjs/dlight': link:../dlight
+    devDependencies:
+      tsup: 6.7.0_typescript@4.9.5
+      typescript: 4.9.5
 
   packages/core/parser:
     specifiers:

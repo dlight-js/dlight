@@ -13,6 +13,7 @@
     "@dlightjs/transpiler-standalone":"workspace:*",
     "@dlightjs/decorators":"^0.10.1",
     "@dlightjs/dlight":"workspace:*",
+    "@dlightjs/dlight-dev":"workspace:*",
     "@iandx/easy-css":"^0.10.14",
     "@dlightjs/markit":"^0.10.1",
     "@dlightjs/components":"^0.10.1"
