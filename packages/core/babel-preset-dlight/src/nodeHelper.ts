@@ -63,7 +63,10 @@ export function isMemberInManualFunction(innerPath: any, classDeclarationNode?: 
 export function isAssignmentExpressionLeft(innerPath: any) {
   // ---- 判断是不是 this.count = 1 的情况
   const parentNode = innerPath.parentPath.node
-  return t.isAssignmentExpression(parentNode) && parentNode.left === innerPath.node
+  return (
+    (t.isAssignmentExpression(parentNode) && parentNode.left === innerPath.node) ||
+    t.isUpdateExpression(parentNode)
+  )
 }
 
 export function isAssignmentExpressionRight(innerPath: any, classDeclarationNode?: t.Node) {
@@ -178,10 +181,12 @@ export function getListenDeps(
   node: t.Node,
   classDeclarationNode:
   t.ClassDeclaration,
-  allowedProperties: string[]
+  allowedProperties: string[],
+  fullDepMap: Record<string, string[]>
 ) {
-  const deps: string[] = []
-  const assignDeps: string[] = []
+  const propertyKey = (node as any).key.name
+  let deps: string[] = []
+  let assignDeps: string[] = []
   path.scope.traverse(node, {
     MemberExpression(innerPath: any) {
       if (isAssignmentExpressionLeft(innerPath)) {
@@ -195,8 +200,27 @@ export function getListenDeps(
       }
     }
   })
+  deps = [...new Set(deps)]
+  assignDeps = [...new Set(assignDeps)]
 
-  return { deps, assignDeps }
+  // ---- recursively get all deps of current property
+  let allDeps = [...deps]
+  const dfsGetDeps = (key: string) => {
+    if (!fullDepMap[key] || propertyKey === key) return
+    for (const dep of fullDepMap[key]) {
+      if (!allDeps.includes(dep)) {
+        allDeps.push(dep)
+        dfsGetDeps(dep)
+      }
+    }
+  }
+  for (const dep of deps) {
+    dfsGetDeps(dep)
+  }
+  allDeps = [...new Set(allDeps)]
+
+  fullDepMap[propertyKey] = allDeps
+  return { deps: allDeps, assignDeps }
 }
 
 export function eliminateLoopDeps(derivedPairNode: t.ClassProperty, derivedFrom: string[], assignDeps: string[], staticProperties: string[]) {

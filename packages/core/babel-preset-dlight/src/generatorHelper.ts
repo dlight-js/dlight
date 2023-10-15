@@ -46,8 +46,14 @@ export function valueWrapper(value: t.Node) {
   return t.variableDeclaration("const", [t.variableDeclarator(t.identifier("_"), value as any)])
 }
 
-export function geneDeps(path: any, value: t.Node, depChain: string[], otherDeps: t.StringLiteral[] = []) {
-  let deps: t.StringLiteral[] = []
+export function geneDeps(
+  path: any,
+  value: t.Node,
+  depChain: string[],
+  fullDepMap: Record<string, string[]>,
+  otherDeps: t.StringLiteral[] = []
+) {
+  let deps: string[] = []
   path.scope.traverse(valueWrapper(value),
     {
       MemberExpression(innerPath: any) {
@@ -56,17 +62,25 @@ export function geneDeps(path: any, value: t.Node, depChain: string[], otherDeps
           t.isThisExpression(innerPath.node.object) &&
           shouldBeListened(innerPath)
         ) {
-          deps.push(t.stringLiteral(innerPath.node.property.name))
+          // deps.push(t.stringLiteral(innerPath.node.property.name))
+          const key = innerPath.node.property.name
+          deps.push(key)
+          deps.push(...(fullDepMap[key] ?? []))
         }
       }
     })
-  deps = [...new Set([...deps, ...otherDeps])]
+  deps = [...new Set([...deps])]
 
-  return deps
+  return [...new Set([...deps.map(dep => t.stringLiteral(dep)), ...otherDeps])]
 }
 
 // ---- 只给for的解构用
-export function geneIdDeps(path: any, value: t.Node, arr: IdDepsArr, otherDeps: t.StringLiteral[] = []) {
+export function geneIdDeps(
+  path: any,
+  value: t.Node,
+  arr: IdDepsArr,
+  otherDeps: t.StringLiteral[] = []
+) {
   let deps: t.Node[] = []
   path.scope.traverse(valueWrapper(value), {
     Identifier(innerPath: any) {

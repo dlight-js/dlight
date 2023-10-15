@@ -25,14 +25,22 @@ export class Generator {
   // ---- 通过对应拿到deps，比如 监听this.apples导致的apple变化 {ids: [apple], propNames: [this.apples]}
   idDepsArr: IdDepsArr = []
 
+  fullDepMap: Record<string, string[]>
   usedProperties: string[] = []
 
   path: any
 
-  constructor(path: any, depChain: string[], subViews: string[], idDepsArr: IdDepsArr = []) {
+  constructor(
+    path: any,
+    depChain: string[],
+    subViews: string[],
+    fullDepMap: Record<string, string[]>,
+    idDepsArr: IdDepsArr = []
+  ) {
     this.path = path
     this.depChain = depChain
     this.subViews = subViews
+    this.fullDepMap = fullDepMap
     this.idDepsArr = idDepsArr
   }
 
@@ -59,7 +67,10 @@ export class Generator {
   }
 
   geneDeps(value: t.Node) {
-    const deps: t.Node[] = [...new Set([...geneDeps(this.path, value, this.depChain), ...geneIdDeps(this.path, value, this.idDepsArr)])]
+    const deps: t.Node[] = [...new Set([
+      ...geneDeps(this.path, value, this.depChain, this.fullDepMap),
+      ...geneIdDeps(this.path, value, this.idDepsArr)
+    ])]
     // deps 有可能是subview的 ...xxx.deps
     this.usedProperties.push(...deps.filter(node => t.isStringLiteral(node)).map(node => (node as any).value))
     return deps as any
@@ -166,7 +177,7 @@ export class Generator {
       const valueId = uid()
       const valueItemStr = `_$valuedItem${valueId}`
       // ---- 子body
-      const newGenerator = new Generator(this.path, this.depChain, this.subViews,
+      const newGenerator = new Generator(this.path, this.depChain, this.subViews, this.fullDepMap,
         [...this.idDepsArr, { ids: idArr, propNames: listenDeps }])
       const forBody = newGenerator.generate(parserNode.children)
       this.usedProperties.push(...newGenerator.usedProperties)
@@ -1407,8 +1418,15 @@ export class Generator {
   }
 }
 
-export function resolveParserNode(path: any, parserNodes: ParserNode[], depChain: string[], subViews: string[], idDepsArr: IdDepsArr = []) {
-  const generator = new Generator(path, depChain, subViews, idDepsArr)
+export function resolveParserNode(
+  path: any,
+  parserNodes: ParserNode[],
+  depChain: string[],
+  subViews: string[],
+  fullDepMap: Record<string, string[]>,
+  idDepsArr: IdDepsArr = []
+) {
+  const generator = new Generator(path, depChain, subViews, fullDepMap, idDepsArr)
   const code = generator.generate(parserNodes)
   return {
     code,

@@ -49,6 +49,7 @@ export default function(api: any, options: DLightOption) {
   let derivedPairNode: t.ClassProperty | null = null
   let properties: string[] = []
   let propertiesContainer: PropertyContainer = {}
+  let fullDepMap: Record<string, string[]> = {}
   let staticProperties: string[] = []
   let methodsToBind: string[] = []
   let rootPath: any
@@ -57,7 +58,8 @@ export default function(api: any, options: DLightOption) {
     const usedProperties = handleBody(
       classBodyNode!,
       properties.filter(p => !staticProperties.includes(p)),
-      rootPath
+      rootPath,
+      fullDepMap
     )
 
     const contentPropKey = Object.entries(propertiesContainer)
@@ -126,6 +128,7 @@ export default function(api: any, options: DLightOption) {
     classBodyNode = null
     derivedPairNode = null
     properties = []
+    fullDepMap = {}
     staticProperties = []
     methodsToBind = []
     propertiesContainer = {}
@@ -220,7 +223,7 @@ export default function(api: any, options: DLightOption) {
         )
         const watcherFunc = node.decorators?.find(findWatcherFunc)
         if (watcher ?? watcherFunc) {
-          let { deps, assignDeps } = getListenDeps(path, node, classDeclarationNode, properties)
+          let { deps, assignDeps } = getListenDeps(path, node, classDeclarationNode, properties, fullDepMap)
 
           if (watcherFunc) {
             const listenDeps = (watcherFunc.expression as t.CallExpression).arguments[0]
@@ -228,13 +231,14 @@ export default function(api: any, options: DLightOption) {
               deps = listenDeps.elements
                 .filter(arg => t.isStringLiteral(arg))
                 .map(arg => (arg as t.StringLiteral).value)
+              deps = [...new Set(deps)]
             }
           }
           propertiesContainer[key] = {
             node,
             isWatcher: true,
-            derivedFrom: [...new Set(deps)],
-            assignDeps: [...new Set(assignDeps)]
+            derivedFrom: deps,
+            assignDeps
           }
           node.decorators = node.decorators?.filter(d => !(findWatcher(d) || findWatcherFunc(d)))
         }
@@ -259,7 +263,7 @@ export default function(api: any, options: DLightOption) {
         let deps: string[] = []
         let assignDeps: string[] = []
         if (!(decoNames.includes("Prop") || decoNames.includes("Env"))) {
-          const listens = getListenDeps(path, node, classDeclarationNode, properties)
+          const listens = getListenDeps(path, node, classDeclarationNode, properties, fullDepMap)
           deps = listens.deps
           assignDeps = listens.assignDeps
         }
@@ -270,8 +274,8 @@ export default function(api: any, options: DLightOption) {
           isContent: decoNames.includes("Content"),
           isChildren: decoNames.includes("Children"),
           propOrEnv: decoNames.includes("Prop") ? "Prop" : decoNames.includes("Env") ? "Env" : undefined,
-          derivedFrom: [...new Set(deps)],
-          assignDeps: [...new Set(assignDeps)]
+          derivedFrom: deps,
+          assignDeps
         }
         node.decorators = node.decorators?.filter(deco => !(
           t.isIdentifier(deco.expression) && availableDecoNames.includes(deco.expression.name)

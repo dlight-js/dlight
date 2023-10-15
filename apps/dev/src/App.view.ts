@@ -1,47 +1,32 @@
 import { View } from "@dlightjs/dlight"
-import { type Typed, type Pretty, div } from "@dlightjs/types"
+import { type Typed, type Pretty, div, button, type SubTyped, h1 } from "@dlightjs/types"
 
-@View
-class Comp {
-  message = "Hello"
-
-  Body() {
-    div()
-    {
-      div(this.message)
-    }
-  }
-}
-const CompView = Comp as Pretty as Typed
-
-@View
-class Comp2 {
-  message = "Hello"
-
-  Body() {
-    CompView()
-  }
-}
-const CompView2 = Comp2 as Pretty as Typed
-
-@View
-class Comp3 {
-  message = "Hello"
-
-  Body() {
-    CompView2()
-  }
-}
-const CompView3 = Comp3 as Pretty as Typed
+import transform from "@dlightjs/transpiler-standalone"
 
 @View
 class App {
-  count = 1
+  a = 1
+  b = (() => {
+    console.log("b changed", this.a)
+    return this.a
+  })()
+
+  c = (() => {
+    console.log("c changed", this.a)
+    return this.b
+  })()
+
+  d = (() => {
+    console.log("d changed", this.b + this.c)
+    return this.b + this.c
+  })()
 
   Body() {
-    div(this.count)
-    CompView()
-    CompView3()
+    div(this.d)
+    button("+")
+      .onclick(() => {
+        this.a++
+      })
   }
 }
 

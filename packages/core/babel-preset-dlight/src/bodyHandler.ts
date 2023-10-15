@@ -7,14 +7,20 @@ import * as t from "@babel/types"
 import { parseBody } from "@dlightjs/view-parser"
 import { type IdDepsArr, resolveParserNode } from "./bodyGenerator"
 
-export function handleBodyFunc(node: t.ClassMethod, depChain: string[], subViews: string[], path: any, isSubView = false) {
+export function handleBodyFunc(
+  node: t.ClassMethod,
+  depChain: string[],
+  subViews: string[],
+  path: any,
+  fullDepMap: Record<string, string[]>,
+  isSubView = false) {
   let newBody, usedProperties
 
   const nodeList = [...node.body.directives, ...node.body.body]
   if (isSubView) {
     const param = node.params[0]
     if (!param || !t.isObjectPattern(param)) {
-      const parsedBody = resolveParserNode(path, parseBody(nodeList, path), depChain, subViews)
+      const parsedBody = resolveParserNode(path, parseBody(nodeList, path), depChain, subViews, fullDepMap)
       newBody = parsedBody.code
       usedProperties = parsedBody.useProperties
     } else {
@@ -41,12 +47,12 @@ export function handleBodyFunc(node: t.ClassMethod, depChain: string[], subViews
           ]).elements[0]
         ]) as any
       }))
-      const parsedBody = resolveParserNode(path, parseBody(nodeList, path), depChain, subViews, idDepsArr)
+      const parsedBody = resolveParserNode(path, parseBody(nodeList, path), depChain, subViews, fullDepMap, idDepsArr)
       newBody = parsedBody.code
       usedProperties = parsedBody.useProperties
     }
   } else {
-    const parsedBody = resolveParserNode(path, parseBody(nodeList, path), depChain, subViews)
+    const parsedBody = resolveParserNode(path, parseBody(nodeList, path), depChain, subViews, fullDepMap)
     newBody = parsedBody.code
     usedProperties = parsedBody.useProperties
   }
@@ -101,7 +107,12 @@ export function handleSubView(view: t.ClassMethod, path: any) {
   })
 }
 
-export function handleBody(classBodyNode: t.ClassBody, depChain: string[], path: any) {
+export function handleBody(
+  classBodyNode: t.ClassBody,
+  depChain: string[],
+  path: any,
+  fullDepMap: Record<string, string[]>
+) {
   const usedProperties: string[] = []
   let body: undefined | t.Node
   const views: any[] = []
@@ -131,9 +142,9 @@ export function handleBody(classBodyNode: t.ClassBody, depChain: string[], path:
   const subViews: string[] = views.map(v => v.key.name)
   for (const view of views) {
     handleSubView(view, path)
-    usedProperties.push(...handleBodyFunc(view, depChain, subViews, path, true))
+    usedProperties.push(...handleBodyFunc(view, depChain, subViews, path, fullDepMap, true))
   }
-  usedProperties.push(...handleBodyFunc(body as any, depChain, subViews, path))
+  usedProperties.push(...handleBodyFunc(body as any, depChain, subViews, path, fullDepMap))
 
   return usedProperties
 }

@@ -45,8 +45,8 @@ export class CustomNode extends DLNode {
         let prevValue = (this as any)[propertyKey]
         this._$addDeps(listenDeps, () => {
           const newValue = func()
-          if (newValue === prevValue) return;
-          (this as any)[propertyKey] = newValue
+          if (newValue === prevValue) return
+          ;(this as any)[`_$$${propertyKey}`] = newValue
           prevValue = newValue
         })
       }
