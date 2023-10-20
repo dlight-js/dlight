@@ -1,5 +1,11 @@
 # @dlightjs/types
 
+## 0.10.7
+
+### Patch Changes
+
+- feat: build
+
 ## 0.10.6
 
 ### Patch Changes
