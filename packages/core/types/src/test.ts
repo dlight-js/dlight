@@ -11,11 +11,15 @@ interface Props {
   b: string
   c?: number
   content?: string
+  n: any
 }
 const Prop = null as any
 type CC = SubTyped<Props>
 let j: CC
 j()
+type TT = Typed<Props>
+let k: TT
+k().
 class JJClass extends VV implements Props {
   @Prop a = ""
   @Prop b = ""

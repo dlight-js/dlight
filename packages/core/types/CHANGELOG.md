@@ -1,5 +1,11 @@
 # @dlightjs/types
 
+## 0.10.6
+
+### Patch Changes
+
+- fix: any prop type not showing
+
 ## 0.10.5
 
 ### Patch Changes

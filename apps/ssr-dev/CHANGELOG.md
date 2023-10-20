@@ -1,5 +1,12 @@
 # ssr
 
+## 0.0.4
+
+### Patch Changes
+
+- Updated dependencies
+  - @dlightjs/types@0.10.6
+
 ## 0.0.3
 
 ### Patch Changes
