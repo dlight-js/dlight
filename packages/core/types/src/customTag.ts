@@ -24,7 +24,7 @@ interface CustomNodeProps {
   didUnmount: CustomLifecycleFuncType
 }
 
-export type ContentProp<T> = T & { _$idContent: true }
+export type ContentProp<T={}> = T & { _$idContent: true }
 
 export type RemoveOptional<T> = {
   [K in keyof T]-?: T[K]
@@ -43,9 +43,9 @@ type CustomClassTag<T, O> = ContentKeyName<RemoveOptional<O>> extends undefined
   ? () => DLightObject<T>
   : undefined extends O[ContentKeyName<RemoveOptional<O>>]
     ? CheckContent<O> extends ContentProp<infer U>
-      ? (content?: U) => DLightObject<Omit<T, ContentKeyName<RemoveOptional<O>>>> : never
+      ? (content?: U extends unknown ? any : unknown) => DLightObject<Omit<T, ContentKeyName<RemoveOptional<O>>>> : never
     : CheckContent<O> extends ContentProp<infer U>
-      ? (content: U) => DLightObject<Omit<T, ContentKeyName<RemoveOptional<O>>>> : never
+      ? (content: U extends unknown ? any : unknown) => DLightObject<Omit<T, ContentKeyName<RemoveOptional<O>>>> : never
 
 type CustomSubViewTag<T> = T extends { "content": infer U }
   ? (content: U) => DLightObject<Omit<T, "content">>
@@ -61,3 +61,11 @@ export type Pretty = any
 
 // ---- reverse
 export type UnTyped<T> = T extends Typed<infer U> ? U : never
+
+// ---- env
+// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+type AnyEnv = { _$anyEnv: true }
+
+export function env<T=AnyEnv>(): T extends AnyEnv ? any : DLightObject<T> {
+  return null as any
+}

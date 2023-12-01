@@ -1,5 +1,23 @@
 # @dlightjs/types
 
+## 0.10.10
+
+### Patch Changes
+
+- Feat: add env types
+
+## 0.10.9
+
+### Patch Changes
+
+- build: ContentProp<any>
+
+## 0.10.8
+
+### Patch Changes
+
+- fix: contentProp<any>
+
 ## 0.10.7
 
 ### Patch Changes
