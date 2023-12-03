@@ -35,16 +35,46 @@ class Comp3 {
 const CompView3 = Comp3 as Pretty as Typed
 
 @View
+class JJJ {
+  @Prop jjj = "shit"
+  Body() {
+    div(`this is ${this.jjj}`)
+    CompView2()
+  }
+}
+const JJJView = JJJ as Pretty as Typed
+
+@View
+class COOO {
+  Body() {
+    JJJView()
+  }
+}
+const COOOView = COOO as Pretty as Typed
+
+@View
 class App {
   count = 1
   toggle = false
+
+  shit = {
+    ok: true,
+    aa: 100,
+    str: "jjjj"
+  }
+
   Body() {
+    div(this.shit.aa)
+    div(String(this.shit.ok))
+    div(this.shit.str)
+
+    div("------- above shit ---------")
     div(this.count)
     button("+")
       .onclick(() => {
         this.count++
       })
-    button("toggle")
+    button(`toggle ${this.toggle}`)
       .onclick(() => {
         this.toggle = !this.toggle
       })
@@ -53,37 +83,9 @@ class App {
     } else {
       CompView3()
     }
+    COOOView()
   }
 }
 
+console.log(App.toString())
 export default App as Pretty as Typed
-
-@View
-class Span {
-  @Prop if = required
-  @Prop @Content content = required
-  Body() {
-    if (this.if) {
-      this.content
-    }
-  }
-}
-
-@View
-class MyComp {
-  light = "red"
-  Body() {
-    button("Next light")
-    p(`Light is: ${this.light}`)
-    p()
-    {
-      "You must"
-      Span("STOP")
-        .if(this.light === "red")
-      Span("SLOW DOWN")
-        .if(this.light === "orange")
-      Span("GO")
-        .if(this.light === "greed")
-    }
-  }
-}

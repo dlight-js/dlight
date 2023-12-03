@@ -1,6 +1,6 @@
 import { View } from "@dlightjs/dlight"
 import { a, button, div } from "@dlightjs/types"
-import OkView from "./ok.view"
+import OkView from "../ok.view"
 
 class App extends View {
   count = 33
@@ -45,9 +45,9 @@ class App extends View {
       })
     a("hhh")
       .href("https://www.google.com")
-    OkView()
-      .count(this.count + 10000)
-      .decrease(this.delete)
+    // OkView()
+    //   .count(this.count + 10000)
+    //   .decrease(this.delete)
 
     // }
     // OkView()

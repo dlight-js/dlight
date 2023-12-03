@@ -128,7 +128,6 @@ export class CustomNode extends DLNode {
   }
 
   render(idOrEl: string | HTMLElement) {
-    // ----
     if (typeof idOrEl === "string") {
       idOrEl = document.getElementById(idOrEl)!
     }

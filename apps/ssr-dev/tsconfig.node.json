@@ -7,6 +7,6 @@
     "allowSyntheticDefaultImports": true
   },
   "include": [
-    "src/entry-server.ts"
+    "src/index.ts"
   ]
 }
