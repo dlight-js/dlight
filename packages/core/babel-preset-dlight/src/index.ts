@@ -1,9 +1,10 @@
-import syntaxTypescript from "./babel-plugins/plugin-syntax-typescript"
+import syntaxTypescript from "babel-plugin-syntax-typescript-new"
 // @ts-ignore
 import syntaxDoExpressions from "@babel/plugin-syntax-do-expressions"
 // @ts-ignore
 import syntaxDecorators from "@babel/plugin-syntax-decorators"
-import dlight, { type DLightOption } from "./plugin"
+// import dlight, { type DLightOption } from "./plugin"
+import dlight, { type DLightOption } from "./newPlugin"
 
 export { type DLightOption }
 export default function(api: any, options: DLightOption) {

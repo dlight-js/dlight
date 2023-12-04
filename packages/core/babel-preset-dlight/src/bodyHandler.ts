@@ -4,8 +4,8 @@ import {
   isObjectKey
 } from "./nodeHelper"
 import * as t from "@babel/types"
-import { parseBody } from "@dlightjs/view-parser"
 import { type IdDepsArr, resolveParserNode } from "./bodyGenerator"
+import { parseView } from "./viewParser"
 
 export function handleBodyFunc(
   node: t.ClassMethod,
@@ -20,9 +20,9 @@ export function handleBodyFunc(
   if (isSubView) {
     const param = node.params[0]
     if (!param || !t.isObjectPattern(param)) {
-      const parsedBody = resolveParserNode(path, parseBody(nodeList, path), depChain, subViews, fullDepMap)
+      const parsedBody = resolveParserNode(path, parseView(path, nodeList), depChain, subViews, fullDepMap)
       newBody = parsedBody.code
-      usedProperties = parsedBody.useProperties
+      usedProperties = parsedBody.usedProperties
     } else {
       const propNames: string[] = param.properties.map((p: any) => p.key.name)
       /**
@@ -47,14 +47,14 @@ export function handleBodyFunc(
           ]).elements[0]
         ]) as any
       }))
-      const parsedBody = resolveParserNode(path, parseBody(nodeList, path), depChain, subViews, fullDepMap, idDepsArr)
+      const parsedBody = resolveParserNode(path, parseView(path, nodeList), depChain, subViews, fullDepMap, idDepsArr)
       newBody = parsedBody.code
-      usedProperties = parsedBody.useProperties
+      usedProperties = parsedBody.usedProperties
     }
   } else {
-    const parsedBody = resolveParserNode(path, parseBody(nodeList, path), depChain, subViews, fullDepMap)
+    const parsedBody = resolveParserNode(path, parseView(path, nodeList), depChain, subViews, fullDepMap)
     newBody = parsedBody.code
-    usedProperties = parsedBody.useProperties
+    usedProperties = parsedBody.usedProperties
   }
   node.body = newBody
 

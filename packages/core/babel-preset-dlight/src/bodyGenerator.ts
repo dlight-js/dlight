@@ -1,6 +1,6 @@
-import { type ParserNode } from "@dlightjs/view-parser"
 import { geneDeps, geneIdDeps, uid, resolveForBody, isHTMLTag, parseCustomTag, isSubViewTag, isOnlyMemberExpression, isTagName, getForBodyIdentifiers, valueWrapper } from "./generatorHelper"
 import * as t from "@babel/types"
+import { type ViewParserUnit } from "./viewParser"
 
 function nodeGeneration(nodeName: string, nodeType: t.Expression, args: Array<t.ArgumentPlaceholder | t.SpreadElement | t.Expression>) {
   return t.variableDeclaration(
@@ -44,19 +44,19 @@ export class Generator {
     this.idDepsArr = idDepsArr
   }
 
-  generate(parserNodes: ParserNode[]) {
+  generate(viewParserResult: ViewParserUnit[]) {
     const bodyStatements: t.Statement[] = []
-    for (const [idx, child] of parserNodes.entries()) {
+    for (const [idx, child] of viewParserResult.entries()) {
       bodyStatements.push(...this.resolveParserNode(child, idx))
     }
     /**
-     * body.add(`return ${geneChildNodesArray(parserNodes)};`)
+     * body.add(`return ${geneChildNodesArray(viewParserResult)};`)
      */
     bodyStatements.push(
       t.returnStatement(
         t.arrayExpression(
-          parserNodes.map((parserNode, idx) => {
-            if (parserNode.attr.isSubView) return t.spreadElement(t.identifier(`_$node${idx}`))
+          viewParserResult.map((viewParserUnit, idx) => {
+            if (viewParserUnit.attr.isSubView) return t.spreadElement(t.identifier(`_$node${idx}`))
             return t.identifier(`_$node${idx}`)
           })
         )
@@ -76,19 +76,19 @@ export class Generator {
     return deps as any
   }
 
-  resolveParserNode(parserNode: ParserNode, idx: number) {
-    if (isSubViewTag(this.subViews, parserNode)) return this.resolveSubView(parserNode, idx)
-    if (isTagName(parserNode, "_")) return this.resolveExpression(parserNode, idx)
-    if (isTagName(parserNode, "env")) return this.resolveEnv(parserNode, idx)
-    if (parserNode.tag === "if") return this.resolveIf(parserNode, idx)
-    if (parserNode.tag === "for") return this.resolveFor(parserNode, idx)
-    if (parserNode.tag === "_$text") return this.resolveText(parserNode, idx)
-    if (isHTMLTag(parserNode)) return this.resolveHTML(parserNode, idx)
-    parseCustomTag(parserNode)
-    return this.resolveCustom(parserNode, idx)
+  resolveParserNode(viewParserUnit: ViewParserUnit, idx: number) {
+    if (isSubViewTag(this.subViews, viewParserUnit)) return this.resolveSubView(viewParserUnit, idx)
+    if (viewParserUnit.tag === "_$exp") return this.resolveExpression(viewParserUnit, idx)
+    if (isTagName(viewParserUnit, "env")) return this.resolveEnv(viewParserUnit, idx)
+    if (viewParserUnit.tag === "_$if") return this.resolveIf(viewParserUnit, idx)
+    if (viewParserUnit.tag === "_$for") return this.resolveFor(viewParserUnit, idx)
+    if (viewParserUnit.tag === "_$text") return this.resolveText(viewParserUnit, idx)
+    if (isHTMLTag(viewParserUnit)) return this.resolveHTML(viewParserUnit, idx)
+    parseCustomTag(viewParserUnit)
+    return this.resolveCustom(viewParserUnit, idx)
   }
 
-  resolveIf(parserNode: ParserNode, idx: number) {
+  resolveIf(viewParserUnit: ViewParserUnit, idx: number) {
     const statements: t.Statement[] = []
     const nodeName = `_$node${idx}`
 
@@ -99,7 +99,7 @@ export class Generator {
       nodeGeneration(nodeName, t.identifier("IfNode"), [])
     )
 
-    for (const condition of parserNode.attr.conditions) {
+    for (const condition of viewParserUnit.attr.conditions) {
       const listenDeps = this.geneDeps(condition.condition)
       if (listenDeps.length > 0) {
         /**
@@ -118,7 +118,7 @@ export class Generator {
                   [], condition.condition
                 ),
                 t.arrowFunctionExpression(
-                  [], this.generate(condition.parserNodes)
+                  [], this.generate(condition.viewParserResult)
                 ),
                 t.thisExpression(),
                 t.arrayExpression(listenDeps)
@@ -144,7 +144,7 @@ export class Generator {
                 [], condition.condition
               ),
               t.arrowFunctionExpression(
-                [], this.generate(condition.parserNodes)
+                [], this.generate(condition.viewParserResult)
               )
             ]
           )
@@ -155,11 +155,11 @@ export class Generator {
     return statements
   }
 
-  resolveFor(parserNode: ParserNode, idx: number) {
+  resolveFor(viewParserUnit: ViewParserUnit, idx: number) {
     const statements: t.Statement[] = []
-    const key = parserNode.attr.key
-    const item = parserNode.attr.item
-    const array = parserNode.attr.array
+    const key = viewParserUnit.attr.key
+    const item = viewParserUnit.attr.item
+    const array = viewParserUnit.attr.array
 
     const nodeName = `_$node${idx}`
 
@@ -179,7 +179,7 @@ export class Generator {
       // ---- 子body
       const newGenerator = new Generator(this.path, this.depChain, this.subViews, this.fullDepMap,
         [...this.idDepsArr, { ids: idArr, propNames: listenDeps }])
-      const forBody = newGenerator.generate(parserNode.children)
+      const forBody = newGenerator.generate(viewParserUnit.children)
       this.usedProperties.push(...newGenerator.usedProperties)
 
       let redeclareBody: any[]
@@ -510,7 +510,7 @@ export class Generator {
                   ), [
                     t.arrowFunctionExpression(
                       [item],
-                      this.generate(parserNode.children)
+                      this.generate(viewParserUnit.children)
                     )
                   ]
                 )
@@ -523,8 +523,8 @@ export class Generator {
     return statements
   }
 
-  resolveText(parserNode: ParserNode, idx: number) {
-    const value = parserNode.attr._$content
+  resolveText(viewParserUnit: ViewParserUnit, idx: number) {
+    const value = viewParserUnit.attr._$content
     const listenDeps = this.geneDeps(value)
     const nodeName = `_$node${idx}`
     const statements: t.Statement[] = []
@@ -552,18 +552,18 @@ export class Generator {
     return statements
   }
 
-  resolveHTML(parserNode: ParserNode, idx: number) {
+  resolveHTML(viewParserUnit: ViewParserUnit, idx: number) {
     const statements: t.Statement[] = []
     const nodeName = `_$node${idx}`
     /**
-     * const ${nodeName} = new DLight.HtmlNode(${parserNode.tag})
+     * const ${nodeName} = new DLight.HtmlNode(${viewParserUnit.tag})
      */
     statements.push(
-      nodeGeneration(nodeName, t.identifier("HtmlNode"), [parserNode.tag as any])
+      nodeGeneration(nodeName, t.identifier("HtmlNode"), [viewParserUnit.tag as any])
     )
 
     // ---- properties
-    for (let { key, value, nodes } of parserNode.attr.props) {
+    for (let [key, { value, nodes }] of Object.entries<any>(viewParserUnit.attr.props)) {
       this.parsePropNodes(value, nodes)
       if (key === "do") {
         /**
@@ -811,7 +811,7 @@ export class Generator {
     }
 
     // ---- children
-    if (parserNode.children.length > 0) {
+    if (viewParserUnit.children.length > 0) {
       /**
        * ${nodeName}._$addNodes((() => {
        *  ${children}
@@ -827,7 +827,7 @@ export class Generator {
               t.callExpression(
                 t.arrowFunctionExpression(
                   [],
-                  this.generate(parserNode.children)
+                  this.generate(viewParserUnit.children)
                 ),
                 []
               )
@@ -840,26 +840,26 @@ export class Generator {
     return statements
   }
 
-  resolveCustom(parserNode: ParserNode, idx: number) {
+  resolveCustom(viewParserUnit: ViewParserUnit, idx: number) {
     const statements: t.Statement[] = []
     const nodeName = `_$node${idx}`
 
     /**
-     * const ${nodeName} = new (${parserNode.tag})();
+     * const ${nodeName} = new (${viewParserUnit.tag})();
      */
     statements.push(
       t.variableDeclaration(
         "const", [
           t.variableDeclarator(
             t.identifier(nodeName),
-            t.newExpression(parserNode.tag as any, [])
+            t.newExpression(viewParserUnit.tag as any, [])
           )
         ]
       )
     )
 
     // ---- props
-    for (let { key, value, nodes } of parserNode.attr.props) {
+    for (let [key, { value, nodes }] of Object.entries<any>(viewParserUnit.attr.props)) {
       value = this.parsePropNodes(value, nodes)
       if (key === "do") {
         /**
@@ -1062,7 +1062,7 @@ export class Generator {
     }
 
     // ---- child
-    if (parserNode.children.length > 0) {
+    if (viewParserUnit.children.length > 0) {
       /**
        * ${nodeName}._$addchildren(() => {
        *  children
@@ -1077,7 +1077,7 @@ export class Generator {
             ), [
               t.arrowFunctionExpression(
                 [],
-                this.generate(parserNode.children)
+                this.generate(viewParserUnit.children)
               )
             ]
           )
@@ -1088,11 +1088,11 @@ export class Generator {
     return statements
   }
 
-  resolveSubView(parserNode: ParserNode, idx: number) {
-    parserNode.attr.isSubView = true
+  resolveSubView(viewParserUnit: ViewParserUnit, idx: number) {
+    viewParserUnit.attr.isSubView = true
     const nodeName = `_$node${idx}`
     const statements: t.Statement[] = []
-    const props = parserNode.attr.props.map(({ key, value, nodes }: any) => {
+    const props = Object.entries<any>(viewParserUnit.attr.props).map(([key, { value, nodes }]) => {
       value = this.parsePropNodes(value, nodes)
       return { key, value }
     })
@@ -1169,7 +1169,7 @@ export class Generator {
       passProps.push({ key, keyWithId, listenDeps })
     }
     /**
-     * const nodeName = ${parserNode.tag}({${passProps.map(
+     * const nodeName = ${viewParserUnit.tag}({${passProps.map(
      *  ({ key, keyWithId }) => `${key}: ${keyWithId}`
      * ).join(", ")}});
      */
@@ -1179,7 +1179,7 @@ export class Generator {
           t.variableDeclarator(
             t.identifier(nodeName),
             t.callExpression(
-              parserNode.tag as t.MemberExpression, [
+              viewParserUnit.tag as t.MemberExpression, [
                 t.objectExpression(passProps.map(({ key, keyWithId }) => (
                   t.objectProperty(
                     t.identifier(key),
@@ -1223,7 +1223,7 @@ export class Generator {
     return statements
   }
 
-  resolveEnv(parserNode: ParserNode, idx: number) {
+  resolveEnv(viewParserUnit: ViewParserUnit, idx: number) {
     const nodeName = `_$node${idx}`
     const statements: t.Statement[] = []
 
@@ -1234,7 +1234,7 @@ export class Generator {
       nodeGeneration(nodeName, t.identifier("EnvNode"), [])
     )
     // ---- child 要先加children
-    if (parserNode.children.length > 0) {
+    if (viewParserUnit.children.length > 0) {
       /**
        * ${nodeName}._$addNodes((() => {
        *  ${children}
@@ -1250,7 +1250,7 @@ export class Generator {
               t.callExpression(
                 t.arrowFunctionExpression(
                   [],
-                  this.generate(parserNode.children)
+                  this.generate(viewParserUnit.children)
                 ),
                 []
               )
@@ -1261,7 +1261,7 @@ export class Generator {
     }
 
     // ---- props
-    for (let { key, value, nodes } of parserNode.attr.props) {
+    for (let [key, { value, nodes }] of Object.entries<any>(viewParserUnit.attr.props)) {
       value = this.parsePropNodes(value, nodes)
       const listenDeps = this.geneDeps(value)
       if (listenDeps.length > 0) {
@@ -1305,11 +1305,11 @@ export class Generator {
     return statements
   }
 
-  resolveExpression(parserNode: ParserNode, idx: number) {
+  resolveExpression(viewParserUnit: ViewParserUnit, idx: number) {
     const statements: t.Statement[] = []
     const nodeName = `_$node${idx}`
     // ---- forward props
-    for (let { key, value, nodes } of parserNode.attr.props) {
+    for (let [key, { value, nodes }] of Object.entries<any>(viewParserUnit.attr.props)) {
       value = this.parsePropNodes(value, nodes)
       if (key === "_$content") {
         const listenDeps = this.geneDeps(value)
@@ -1394,18 +1394,18 @@ export class Generator {
     return statements
   }
 
-  parsePropNodes(value: t.Node, nodes: Record<string, ParserNode[]>) {
+  parsePropNodes(value: t.Node, nodes: Record<string, ViewParserUnit[]>) {
     let newValue = value
     const generate = this.generate.bind(this)
 
     this.path.scope.traverse(valueWrapper(value), {
       StringLiteral(innerPath: any) {
         const id = innerPath.node.value
-        const parserNodes = nodes[id]
-        if (!parserNodes) return
+        const viewParserResult = nodes[id]
+        if (!viewParserResult) return
         const newNode = (
           t.callExpression(
-            t.arrowFunctionExpression([], generate(parserNodes)),
+            t.arrowFunctionExpression([], generate(viewParserResult)),
             []
           )
         )
@@ -1420,16 +1420,16 @@ export class Generator {
 
 export function resolveParserNode(
   path: any,
-  parserNodes: ParserNode[],
+  viewParserResult: ViewParserUnit[],
   depChain: string[],
   subViews: string[],
   fullDepMap: Record<string, string[]>,
   idDepsArr: IdDepsArr = []
 ) {
   const generator = new Generator(path, depChain, subViews, fullDepMap, idDepsArr)
-  const code = generator.generate(parserNodes)
+  const code = generator.generate(viewParserResult)
   return {
     code,
-    useProperties: generator.usedProperties
+    usedProperties: generator.usedProperties
   }
 }

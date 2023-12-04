@@ -1,41 +1,47 @@
 import * as t from "@babel/types"
 import { type IdDepsArr } from "./bodyGenerator"
 import { shouldBeListened, isMemberExpressionProperty, isObjectKey } from "./nodeHelper"
-import { type ParserNode, isAHtmlTag } from "@dlightjs/view-parser"
+import { type ViewParserUnit } from "./viewParser"
 
-export function isHTMLTag(parserNode: ParserNode) {
-  const tag = parserNode.tag as any
+export const htmlTags = ["a", "abbr", "address", "area", "article", "aside", "audio", "b", "base", "bdi", "bdo", "blockquote", "body", "br", "button", "canvas", "caption", "cite", "code", "col", "colgroup", "data", "datalist", "dd", "del", "details", "dfn", "dialog", "div", "dl", "dt", "em", "embed", "fieldset", "figcaption", "figure", "footer", "form", "h1", "h2", "h3", "h4", "h5", "h6", "head", "header", "hgroup", "hr", "html", "i", "iframe", "img", "input", "ins", "kbd", "label", "legend", "li", "link", "main", "map", "mark", "menu", "meta", "meter", "nav", "noscript", "object", "ol", "optgroup", "option", "output", "p", "picture", "pre", "progress", "q", "rp", "rt", "ruby", "s", "samp", "script", "section", "select", "slot", "small", "source", "span", "strong", "style", "sub", "summary", "sup", "table", "tbody", "td", "template", "textarea", "tfoot", "th", "thead", "time", "title", "tr", "track", "u", "ul", "var", "video", "wbr", "acronym", "applet", "basefont", "bgsound", "big", "blink", "center", "dir", "font", "frame", "frameset", "isindex", "keygen", "listing", "marquee", "menuitem", "multicol", "nextid", "nobr", "noembed", "noframes", "param", "plaintext", "rb", "rtc", "spacer", "strike", "tt", "xmp", "animate", "animateMotion", "animateTransform", "circle", "clipPath", "defs", "desc", "ellipse", "feBlend", "feColorMatrix", "feComponentTransfer", "feComposite", "feConvolveMatrix", "feDiffuseLighting", "feDisplacementMap", "feDistantLight", "feDropShadow", "feFlood", "feFuncA", "feFuncB", "feFuncG", "feFuncR", "feGaussianBlur", "feImage", "feMerge", "feMergeNode", "feMorphology", "feOffset", "fePointLight", "feSpecularLighting", "feSpotLight", "feTile", "feTurbulence", "filter", "foreignObject", "g", "image", "line", "linearGradient", "marker", "mask", "metadata", "mpath", "path", "pattern", "polygon", "polyline", "radialGradient", "rect", "set", "stop", "svg", "switch", "symbol", "text", "textPath", "tspan", "use", "view"]
+
+export function isAHtmlTag(key: string) {
+  return htmlTags.includes(key)
+}
+
+export function isHTMLTag(viewParserUnit: ViewParserUnit) {
+  const tag = viewParserUnit.tag as any
   if (typeof tag === "string") return false
   if (t.isIdentifier(tag) && isAHtmlTag((tag).name)) {
-    parserNode.tag = t.stringLiteral((tag).name) as any
+    viewParserUnit.tag = t.stringLiteral((tag).name) as any
     return true
   }
   if (t.isCallExpression((tag)) && (tag.callee as any).name === "htmlTag") {
-    parserNode.tag = tag.arguments[0] as any
+    viewParserUnit.tag = tag.arguments[0] as any
     return true
   }
   return false
 }
 
-export function isSubViewTag(subViews: string[], parserNode: ParserNode) {
-  const tag = parserNode.tag as t.Node
+export function isSubViewTag(subViews: string[], viewParserUnit: ViewParserUnit) {
+  const tag = viewParserUnit.tag as t.Node
   if (!t.isMemberExpression(tag) || !t.isThisExpression(tag.object)) return false
   if (subViews.includes((tag.property as any).name)) return true
   return false
 }
 
-export function parseCustomTag(parserNode: ParserNode) {
-  const tag = parserNode.tag as any
+export function parseCustomTag(viewParserUnit: ViewParserUnit) {
+  const tag = viewParserUnit.tag as any
   if (typeof tag === "string") return false
   // ---- 碰到名字叫tag，可以嵌套：tag(MyTagList[100].getTag())().height(100)
   if (t.isCallExpression(tag) && (tag.callee as any).name === "tag") {
-    parserNode.tag = tag.arguments[0] as any
+    viewParserUnit.tag = tag.arguments[0] as any
     return true
   }
 }
 
-export function isTagName(parserNode: ParserNode, name: string) {
-  return t.isIdentifier(parserNode.tag as any) && (parserNode.tag as any).name === name
+export function isTagName(viewParserUnit: ViewParserUnit, name: string) {
+  return t.isIdentifier(viewParserUnit.tag as any) && (viewParserUnit.tag as any).name === name
 }
 
 export function uid() {

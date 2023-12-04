@@ -64,26 +64,26 @@ class App {
   }
 
   Body() {
-    div(this.shit.aa)
-    div(String(this.shit.ok))
-    div(this.shit.str)
+    // div(this.shit.aa)
+    // div(String(this.shit.ok))
+    // div(this.shit.str)
 
-    div("------- above shit ---------")
+    // div("------- above shit ---------")
     div(this.count)
     button("+")
       .onclick(() => {
         this.count++
       })
-    button(`toggle ${this.toggle}`)
-      .onclick(() => {
-        this.toggle = !this.toggle
-      })
-    if (this.toggle) {
-      CompView()
-    } else {
-      CompView3()
-    }
-    COOOView()
+    // button(`toggle ${this.toggle}`)
+    //   .onclick(() => {
+    //     this.toggle = !this.toggle
+    //   })
+    // if (this.toggle) {
+    //   CompView()
+    // } else {
+    //   CompView3()
+    // }
+    // COOOView()
   }
 }
 

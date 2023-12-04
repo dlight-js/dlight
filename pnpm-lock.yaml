@@ -145,7 +145,7 @@ importers:
       '@babel/plugin-syntax-decorators': ^7.21.0
       '@babel/plugin-syntax-do-expressions': ^7.18.6
       '@babel/types': ^7.20.7
-      '@dlightjs/view-parser': workspace:*
+      babel-plugin-syntax-typescript-new: workspace:*
       minimatch: ^9.0.3
       tsup: ^6.5.0
       typescript: ^5.1.6
@@ -154,7 +154,7 @@ importers:
       '@babel/plugin-syntax-decorators': 7.22.5
       '@babel/plugin-syntax-do-expressions': 7.22.5
       '@babel/types': 7.22.5
-      '@dlightjs/view-parser': link:../parser
+      babel-plugin-syntax-typescript-new: link:../../tools/babel-plugin-syntax-typescript-new
       minimatch: 9.0.3
     devDependencies:
       tsup: 6.7.0_typescript@5.1.6
@@ -202,6 +202,7 @@ importers:
       '@babel/plugin-syntax-decorators': ^7.21.0
       '@babel/plugin-syntax-do-expressions': ^7.18.6
       '@babel/types': ^7.20.7
+      babel-plugin-syntax-typescript-new: workspace:*
       minimatch: ^9.0.3
       tsup: ^6.5.0
       typescript: ^5.1.6
@@ -209,6 +210,7 @@ importers:
       '@babel/helper-plugin-utils': 7.22.5
       '@babel/plugin-syntax-decorators': 7.22.10
       '@babel/plugin-syntax-do-expressions': 7.22.5
+      babel-plugin-syntax-typescript-new: link:../../../../tools/babel-plugin-syntax-typescript-new
       minimatch: 9.0.3
     devDependencies:
       '@babel/types': 7.23.0
