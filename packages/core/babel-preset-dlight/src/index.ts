@@ -4,7 +4,7 @@ import syntaxDoExpressions from "@babel/plugin-syntax-do-expressions"
 // @ts-ignore
 import syntaxDecorators from "@babel/plugin-syntax-decorators"
 // import dlight, { type DLightOption } from "./plugin"
-import dlight, { type DLightOption } from "./newPlugin"
+import dlight, { type DLightOption } from "./plugin"
 
 export { type DLightOption }
 export default function(api: any, options: DLightOption) {

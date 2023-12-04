@@ -63,6 +63,8 @@ class App {
     str: "jjjj"
   }
 
+  jj = [1, 2, 3]
+
   Body() {
     // div(this.shit.aa)
     // div(String(this.shit.ok))
@@ -74,10 +76,18 @@ class App {
       .onclick(() => {
         this.count++
       })
-    // button(`toggle ${this.toggle}`)
-    //   .onclick(() => {
-    //     this.toggle = !this.toggle
-    //   })
+    // for (const [idx, i] of this.jj.entries()) {
+    //   div(`${idx}`)
+    //     .onclick((i) => {
+    //       console.log(i)
+    //     })
+    // }
+    button(`toggle ${this.toggle}`)
+      .onclick(() => {
+        this.toggle = !this.toggle
+      })
+    "fae";
+    `fsfsf`
     // if (this.toggle) {
     //   CompView()
     // } else {

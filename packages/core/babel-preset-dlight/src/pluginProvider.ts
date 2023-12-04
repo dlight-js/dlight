@@ -2,8 +2,8 @@ import * as t from "@babel/types"
 import { type BabelPath } from "./types"
 import { minimatch } from "minimatch"
 import { parseView } from "./viewParser"
-import { type IdDepsArr, resolveParserNode } from "./bodyGenerator"
 import { isAssignmentExpressionLeft, isAssignmentExpressionRight, isMemberInEscapeFunction, isMemberInManualFunction } from "./utils/depChecker"
+import { generateView, type IdentifierToDepNode } from "./viewGenerator"
 
 type PropertyContainer = Record<string, {
   node: t.ClassProperty | t.ClassMethod
@@ -250,18 +250,12 @@ export class PluginProvider {
   }
 
   alterView(viewNode: t.ClassMethod, deps: string[], subViewNames: string[], isSubView = false) {
-    let idDepsArr: IdDepsArr | undefined
-    if (
-      isSubView &&
-      t.isObjectPattern(viewNode.params[0])
-    ) {
+    let identifierToDepsMap: Record<string, IdentifierToDepNode[]> = {}
+    if (isSubView && t.isObjectPattern(viewNode.params[0])) {
       const propNames: string[] = viewNode.params[0].properties.map((p: any) => p.key.name)
-      /**
-       * `...(${propName}?.deps ?? [])
-       */
-      idDepsArr = propNames.map(propName => ({
-        ids: [propName],
-        propNames: ([
+      identifierToDepsMap = propNames.reduce<Record<string, IdentifierToDepNode[]>>((acc, propName) => {
+        // ---- ...(${propName}?.deps ?? [])
+        acc[propName] = [
           t.arrayExpression([
             t.spreadElement(
               t.logicalExpression(
@@ -275,16 +269,23 @@ export class PluginProvider {
                 t.arrayExpression()
               )
             )
-          ]).elements[0]
-        ]) as any
-      }))
+          ]).elements[0]!
+        ]
+        return acc
+      }, {})
     }
 
     // ---- First string literal in a statement block is directives
     //      but in DLight it's still TextNode, so put them and all the body nodes into viewStatements
     const viewStatements = [...viewNode.body.directives, ...viewNode.body.body]
 
-    const { code, usedProperties } = resolveParserNode(this.classRootPath, parseView(this.classRootPath, viewStatements), deps, subViewNames, this.fullDepMap, idDepsArr)
+    const [code, usedProperties] = generateView(
+      parseView(this.classRootPath, viewStatements),
+      this.classRootPath,
+      this.fullDepMap,
+      subViewNames,
+      identifierToDepsMap
+    )
     viewNode.body = code
 
     return usedProperties
@@ -475,23 +476,23 @@ export class PluginProvider {
   /**
    * @brief Decorator resolver: Content
    * Add:
-   * _$defaultProp = "propertyName"
+   * _$contentProp = "propertyName"
    * @param node
    */
   resolveContentDecorator(node: t.ClassProperty) {
     if (!this.classBodyNode) return
     if (!t.isIdentifier(node.key)) return
 
-    // ---- Already has _$defaultProp
+    // ---- Already has _$contentProp
     if (this.classBodyNode.body.some(n => (
       t.isClassProperty(n) &&
-      (n.key as t.Identifier).name === "_$defaultProp")
+      (n.key as t.Identifier).name === "_$contentProp")
     )) return
     const key = node.key.name
     const propertyIdx = this.classBodyNode.body.indexOf(node)
 
     const derivedStatusKey = t.classProperty(
-      t.identifier("_$defaultProp"),
+      t.identifier("_$contentProp"),
       t.stringLiteral(key)
     )
     this.classBodyNode.body.splice(propertyIdx, 0, derivedStatusKey)
@@ -696,33 +697,22 @@ export class PluginProvider {
           !isAssignmentExpressionRight(innerPath, this.classDeclarationNode)
         ) {
           deps.add(propertyKey)
+          this.fullDepMap[propertyKey].forEach(deps.add.bind(deps))
         }
       }
     })
-
-    // ---- Recursively get all deps of current property
-    const propertyKey = (node.key as t.Identifier).name
-    const allDeps = new Set(deps)
-    const dfsGetDeps = (key: string) => {
-      if (!this.fullDepMap[key] || propertyKey === key) return
-      this.fullDepMap[key].forEach(dep => {
-        if (!allDeps.has(dep)) {
-          allDeps.add(dep)
-          dfsGetDeps(dep)
-        }
-      })
-    }
-    deps.forEach(dfsGetDeps)
-
-    this.fullDepMap[propertyKey] = [...allDeps]
 
     // ---- Eliminate deps that are assigned in the same method
     //      e.g. { console.log(this.count); this.count = 1 }
     //      this will cause infinite loop
     //      so we eliminate "count" from deps
-    assignDeps.forEach(allDeps.delete.bind(allDeps))
+    assignDeps.forEach(deps.delete.bind(deps))
 
-    return [...allDeps]
+    // ---- Add deps to fullDepMap
+    const propertyKey = (node.key as t.Identifier).name
+    this.fullDepMap[propertyKey] = [...deps]
+
+    return this.fullDepMap[propertyKey]
   }
 
   /**

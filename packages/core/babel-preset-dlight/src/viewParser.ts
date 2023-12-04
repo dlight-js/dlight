@@ -1,5 +1,6 @@
 import * as t from "@babel/types"
 import { type BabelPath } from "./types"
+import { valueWrapper } from "./utils/babelNode"
 
 export interface ViewParserUnit {
   tag: t.Node | string
@@ -173,7 +174,7 @@ export class ViewParser {
         // ---- Object and Array in declaration and expression have different types
         //      declaration: ObjectPattern | ArrayPattern
         //      expression: ObjectExpression | ArrayExpression
-        this.classRootPath.scope.traverse(this.valueWrapper(itemKey), {
+        this.classRootPath.scope.traverse(valueWrapper(itemKey), {
           ObjectPattern: (innerPath: any) => {
             innerPath.node.type = "ObjectExpression"
           },
@@ -188,6 +189,7 @@ export class ViewParser {
 
     // ---- Parse the for body statements
     viewParserUnit.children = parseView(this.classRootPath, forBodyStatements)
+    this.viewParserResult.push(viewParserUnit)
   }
 
   /**
@@ -252,7 +254,7 @@ export class ViewParser {
     // ---- Collect do expression nodes as DLProp
     const dlViewPropResult: Record<string, ViewParserUnit[]> = {}
     this.classRootPath.scope.traverse(
-      this.valueWrapper(propNode), {
+      valueWrapper(propNode), {
         DoExpression: (innerPath: BabelPath) => {
           const node = innerPath.node
           const id = this.randomId()
@@ -344,16 +346,6 @@ export class ViewParser {
       }
     }
     return true
-  }
-
-  /**
-   * @brief Wrap the value with a variable declaration
-   * const _ = ${value}
-   * @param value
-   * @returns wrapped value
-   */
-  private valueWrapper(value: t.Node): t.VariableDeclaration {
-    return t.variableDeclaration("const", [t.variableDeclarator(t.identifier("_"), value as any)])
   }
 
   /**
