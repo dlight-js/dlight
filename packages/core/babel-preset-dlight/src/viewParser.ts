@@ -1,19 +1,78 @@
 import * as t from "@babel/types"
 import { type BabelPath } from "./types"
 import { valueWrapper } from "./utils/babelNode"
+import { uid } from "./generatorHelper"
 
-export interface ViewParserUnit {
-  tag: t.Node | string
-  attr: Record<string, any>
-  children: ViewParserUnit[]
-}
-
-interface ViewParserProp {
-  value: t.Node
+export interface ViewParserProp {
+  value: t.Expression
   nodes: Record<string, ViewParserUnit[]>
 }
 
+export interface TextViewParserUnit {
+  type: "text"
+  content: t.Expression
+}
+
+export interface HTMLViewParserUnit {
+  type: "html"
+  tag: t.Expression
+  content?: ViewParserProp
+  props?: Record<string, ViewParserProp>
+  children?: ViewParserUnit[]
+}
+
+export interface CustomViewParserUnit {
+  type: "custom"
+  tag: t.Expression
+  content?: ViewParserProp
+  props?: Record<string, ViewParserProp>
+  children?: ViewParserUnit[]
+}
+
+export interface IfViewParserUnit {
+  type: "if"
+  conditions: IfCondition[]
+}
+
+export interface ForViewParserUnit {
+  type: "for"
+  item: t.LVal
+  array: t.Expression
+  key?: t.Expression
+  children: ViewParserUnit[]
+}
+
+export interface ExpViewParserUnit {
+  type: "exp"
+  content: ViewParserProp
+  props?: Record<string, ViewParserProp>
+}
+
+export interface EnvViewParserUnit {
+  type: "env"
+  props: Record<string, ViewParserProp>
+  children?: ViewParserUnit[]
+}
+
+export type ViewParserUnit =
+  TextViewParserUnit
+  | HTMLViewParserUnit
+  | IfViewParserUnit
+  | ForViewParserUnit
+  | ExpViewParserUnit
+  | EnvViewParserUnit
+  | CustomViewParserUnit
+
+export interface IfCondition {
+  condition: t.Expression
+  body: ViewParserUnit[]
+}
+
 export class ViewParser {
+  private readonly htmlTags = ["a", "abbr", "address", "area", "article", "aside", "audio", "b", "base", "bdi", "bdo", "blockquote", "body", "br", "button", "canvas", "caption", "cite", "code", "col", "colgroup", "data", "datalist", "dd", "del", "details", "dfn", "dialog", "div", "dl", "dt", "em", "embed", "fieldset", "figcaption", "figure", "footer", "form", "h1", "h2", "h3", "h4", "h5", "h6", "head", "header", "hgroup", "hr", "html", "i", "iframe", "img", "input", "ins", "kbd", "label", "legend", "li", "link", "main", "map", "mark", "menu", "meta", "meter", "nav", "noscript", "object", "ol", "optgroup", "option", "output", "p", "picture", "pre", "progress", "q", "rp", "rt", "ruby", "s", "samp", "script", "section", "select", "slot", "small", "source", "span", "strong", "style", "sub", "summary", "sup", "table", "tbody", "td", "template", "textarea", "tfoot", "th", "thead", "time", "title", "tr", "track", "u", "ul", "var", "video", "wbr", "acronym", "applet", "basefont", "bgsound", "big", "blink", "center", "dir", "font", "frame", "frameset", "isindex", "keygen", "listing", "marquee", "menuitem", "multicol", "nextid", "nobr", "noembed", "noframes", "param", "plaintext", "rb", "rtc", "spacer", "strike", "tt", "xmp", "animate", "animateMotion", "animateTransform", "circle", "clipPath", "defs", "desc", "ellipse", "feBlend", "feColorMatrix", "feComponentTransfer", "feComposite", "feConvolveMatrix", "feDiffuseLighting", "feDisplacementMap", "feDistantLight", "feDropShadow", "feFlood", "feFuncA", "feFuncB", "feFuncG", "feFuncR", "feGaussianBlur", "feImage", "feMerge", "feMergeNode", "feMorphology", "feOffset", "fePointLight", "feSpecularLighting", "feSpotLight", "feTile", "feTurbulence", "filter", "foreignObject", "g", "image", "line", "linearGradient", "marker", "mask", "metadata", "mpath", "path", "pattern", "polygon", "polyline", "radialGradient", "rect", "set", "stop", "svg", "switch", "symbol", "text", "textPath", "tspan", "use", "view"]
+  private readonly tagNameSymbol = "tag"
+  private readonly htmlTagSymbol = "htmlTag"
+  private readonly environmentTagSymbol = "env"
   private readonly expressionTagSymbol = "_"
   private readonly classRootPath: BabelPath
   private readonly statements: Array<t.Statement | t.Directive>
@@ -45,6 +104,8 @@ export class ViewParser {
     if (t.isBlockStatement(statement)) {
       // ---- If the statement is a block statement, treat it as last unit's children
       const lastViewParserUnit = this.viewParserResult[this.viewParserResult.length - 1]
+      const type = lastViewParserUnit?.type
+      if (!(type === "custom" || type === "html" || type === "env")) return
       lastViewParserUnit.children = parseView(this.classRootPath, statement.body)
     }
   }
@@ -65,11 +126,8 @@ export class ViewParser {
     // ---- Default ExpressionTag
     //      e.g. this.count -> _(this.count)
     this.viewParserResult.push({
-      tag: "_$exp",
-      attr: {
-        props: { _$content: this.parseProp(expression) }
-      },
-      children: []
+      type: "exp",
+      content: this.parseProp(expression)
     })
   }
 
@@ -78,13 +136,13 @@ export class ViewParser {
    * @param node
    * @returns
    */
-  parseIfConditions(node: t.IfStatement): Array<{ condition: t.Node, viewParserResult: ViewParserUnit[] }> {
-    const conditions: Array<{ condition: t.Node, viewParserResult: ViewParserUnit[] }> = []
+  parseIfConditions(node: t.IfStatement): IfCondition[] {
+    const conditions: IfCondition[] = []
     const condition = node.test
     const ifBody = t.isBlockStatement(node.consequent) ? node.consequent.body : [node.consequent]
     conditions.push({
       condition,
-      viewParserResult: parseView(this.classRootPath, ifBody)
+      body: parseView(this.classRootPath, ifBody)
     })
 
     // ---- If the alternate is an if statement, parse it recursively
@@ -94,7 +152,7 @@ export class ViewParser {
       const altBody = t.isBlockStatement(node.alternate) ? node.alternate.body : [node.alternate]
       conditions.push({
         condition: t.booleanLiteral(true),
-        viewParserResult: parseView(this.classRootPath, altBody)
+        body: parseView(this.classRootPath, altBody)
       })
     }
 
@@ -108,9 +166,8 @@ export class ViewParser {
    */
   parseIf(node: t.IfStatement): void {
     this.viewParserResult.push({
-      tag: "_$if",
-      attr: { conditions: this.parseIfConditions(node) },
-      children: []
+      type: "if",
+      conditions: this.parseIfConditions(node)
     })
   }
 
@@ -140,11 +197,7 @@ export class ViewParser {
     }
     const item = left.declarations[0].id
     const array = node.right
-    const viewParserUnit: ViewParserUnit = {
-      tag: "_$for",
-      attr: { item, array },
-      children: []
-    }
+    let key: t.Expression | undefined
     const forBody = node.body
     let forBodyStatements: Array<t.Statement | t.Directive>
     if (t.isExpressionStatement(forBody)) {
@@ -159,37 +212,38 @@ export class ViewParser {
         t.isArrayExpression(firstStatement.expression)
       ) {
         // ---- Treat the first array element inside the block statement as the key
-        const key = firstStatement.expression.elements[0]
+        const keyNode = firstStatement.expression.elements[0]
         // ---- If the key is undefined or null, treat it as no key
         if (
-          !(t.isNullLiteral(key) ||
-          (t.isIdentifier(key) && key.name === "undefined"))
+          t.isExpression(keyNode) &&
+          !(t.isNullLiteral(keyNode) ||
+          (t.isIdentifier(keyNode) && keyNode.name === "undefined"))
         ) {
-          viewParserUnit.attr.key = key
+          key = keyNode
         }
         forBodyStatements = childNodes.slice(1)
       } else {
         // ---- If there's no specified key, use the item as the key
-        const itemKey = JSON.parse(JSON.stringify(item))
-        // ---- Object and Array in declaration and expression have different types
-        //      declaration: ObjectPattern | ArrayPattern
-        //      expression: ObjectExpression | ArrayExpression
-        this.classRootPath.scope.traverse(valueWrapper(itemKey), {
-          ObjectPattern: (innerPath: any) => {
-            innerPath.node.type = "ObjectExpression"
-          },
-          ArrayPattern: (innerPath: any) => {
-            innerPath.node.type = "ArrayExpression"
-          }
-        })
-        viewParserUnit.attr.key = itemKey
+        key = JSON.parse(
+          // ---- Object and Array in declaration and expression have different types
+          //      declaration: ObjectPattern | ArrayPattern
+          //      expression: ObjectExpression | ArrayExpression
+          JSON.stringify(item)
+            .replace(/ObjectPattern/g, "ObjectExpression")
+            .replace(/ArrayPattern/g, "ArrayExpression")
+        )
         forBodyStatements = childNodes
       }
     } else return
 
     // ---- Parse the for body statements
-    viewParserUnit.children = parseView(this.classRootPath, forBodyStatements)
-    this.viewParserResult.push(viewParserUnit)
+    this.viewParserResult.push({
+      type: "for",
+      item,
+      array,
+      key,
+      children: parseView(this.classRootPath, forBodyStatements)
+    })
   }
 
   /**
@@ -202,21 +256,20 @@ export class ViewParser {
     if (t.isDirectiveLiteral(node)) node = t.stringLiteral(node.value)
 
     this.viewParserResult.push({
-      tag: "_$text",
-      attr: { _$content: node },
-      children: []
+      type: "text",
+      content: node
     })
   }
 
   /**
    * @brief Parse tagged template expression
    * Two tagged template expression cases
-   *  1. tag without call expressions
+   *  1. type without call expressions
    *      e.g. i18n`any text`
    *        => exp: _(i18n`any text`)
-   *  2. tag with call expressions
+   *  2. type with call expressions
    *      e.g. div()`any text`
-   *        => tag: div() + text: `any text`
+   *        => type: div() + text: `any text`
    * @param node
    * @param path
    */
@@ -224,11 +277,8 @@ export class ViewParser {
     if (this.isPureMemberExpression(node.tag)) {
       // ---- Case 1
       this.viewParserResult.push({
-        tag: "_$exp",
-        attr: {
-          props: { _$content: this.parseProp(node) }
-        },
-        children: []
+        type: "exp",
+        content: this.parseProp(node)
       })
       return
     }
@@ -236,18 +286,22 @@ export class ViewParser {
     // ---- Case 2
     this.parseExpression(node.tag)
     this.viewParserResult.push({
-      tag: "_$text",
-      attr: { _$content: node.quasi },
-      children: []
+      type: "text",
+      content: node.quasi
     })
   }
 
   /**
-   * @brief Parse props in the tag node
+   * @brief Parse props in the type node
    * @param propNode
    * @returns ViewParserProp
    */
   private parseProp(propNode: t.Node | undefined): ViewParserProp {
+    if (!t.isExpression(propNode)) {
+      throw new Error(
+        "Invalid syntax in DLight's View, only accepts expression as props"
+      )
+    }
     // ---- If there is no propNode, set the default prop as true
     if (!propNode) return { value: t.booleanLiteral(true), nodes: {} }
 
@@ -257,7 +311,7 @@ export class ViewParser {
       valueWrapper(propNode), {
         DoExpression: (innerPath: BabelPath) => {
           const node = innerPath.node
-          const id = this.randomId()
+          const id = uid()
           // ---- Parse the body of do expression as a new ViewParser
           dlViewPropResult[id] = parseView(innerPath, node.body.body)
           // ---- Replace the do expression with a id string literal
@@ -278,16 +332,11 @@ export class ViewParser {
   }
 
   /**
-   * @brief Parse the tag node
+   * @brief Parse the type node
    * @param node
    */
   private parseTag(node: t.CallExpression): void {
     const props: Record<string, any> = {}
-    const viewParserUnit: ViewParserUnit = {
-      tag: "",
-      attr: { props },
-      children: []
-    }
 
     // ---- Keep iterating until the node has no call expression
     let n = node
@@ -311,26 +360,49 @@ export class ViewParser {
       n = n.callee.object
     }
 
+    let contentProp: ViewParserProp | undefined
     if (n.arguments.length > 0) {
-      // ---- The last argument is the content prop of the tag,
+      // ---- The last argument is the content prop of the type,
       //      so only parse prop when it exists instead of
       //      treating empty prop as "true" like other props
-      const prop = this.parseProp(n.arguments[0])
-      props._$content = prop
+      contentProp = this.parseProp(n.arguments[0])
     }
 
-    if (
-      t.isIdentifier(n.callee) &&
-      n.callee.name === this.expressionTagSymbol
-    ) {
-      // ---- Special case for expression tag
-      viewParserUnit.tag = "_$exp"
-    } else {
-      // ---- The last callee is the tag
-      viewParserUnit.tag = n.callee
+    if (t.isIdentifier(n.callee)) {
+      // ---- Special cases for expression type
+      const tagName = n.callee.name
+      if (tagName === this.expressionTagSymbol && contentProp) {
+        // ---- Must have content prop or else just ignore it
+        this.viewParserResult.push({
+          type: "exp",
+          content: contentProp,
+          props
+        })
+      } else if (tagName === this.environmentTagSymbol) {
+        this.viewParserResult.push({
+          type: "env",
+          props
+        })
+      } else if (this.htmlTags.includes(tagName)) {
+        this.viewParserResult.push({
+          type: "html",
+          tag: t.stringLiteral(tagName),
+          content: contentProp,
+          props
+        })
+      }
+    } else if (t.isExpression(n.callee)) {
+      // ---- 1. Custom tag
+      //      2. htmlTag(xxx)
+      //      3. tag(xxx)
+      const [tagType, tag] = this.alterTagType(n.callee)
+      this.viewParserResult.push({
+        type: tagType,
+        tag,
+        content: contentProp,
+        props
+      })
     }
-
-    this.viewParserResult.push(viewParserUnit)
   }
 
   /* ---- Helper Functions ---- */
@@ -349,11 +421,27 @@ export class ViewParser {
   }
 
   /**
-   * @brief Generate a unique id
-   * @returns unique id
+   * @brief Alter the tag type
+   * @param viewParserUnit
+   * @returns
    */
-  private randomId(): string {
-    return Math.random().toString(32).slice(2)
+  alterTagType(tag: t.Expression): ["html" | "custom", t.Expression] {
+    if (t.isCallExpression(tag) && t.isIdentifier(tag.callee)) {
+      const tagName = tag.callee.name
+      const tagType = tagName === this.htmlTagSymbol
+        ? "html"
+        : tagName === this.tagNameSymbol
+          ? "custom"
+          : undefined
+      if (tagType) {
+        const tagTarget = tag.arguments[0]
+        if (!t.isExpression(tagTarget)) {
+          throw new Error(`First argument of ${tagName}() must be an expression`)
+        }
+        return [tagType, tagTarget]
+      }
+    }
+    return ["custom", tag]
   }
 }
 

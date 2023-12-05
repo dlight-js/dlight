@@ -4,11 +4,23 @@ import { type BabelPath } from "../types"
 /**
   * @brief Wrap the value with a variable declaration
   * const _ = ${value}
-  * @param value
+  * @param node
   * @returns wrapped value
   */
-export function valueWrapper(value: t.Node): t.VariableDeclaration {
-  return t.variableDeclaration("const", [t.variableDeclarator(t.identifier("_"), value as any)])
+export function valueWrapper(node: t.Expression): t.VariableDeclaration {
+  return t.variableDeclaration("const", [t.variableDeclarator(t.identifier("_"), node)])
+}
+
+/**
+ * @brief Wrap the value with a function declaration
+ * function () {
+ *  ${node}
+ * }
+ * @param node
+ * @returns wrapped function
+ */
+export function functionWrapper(node: t.BlockStatement): t.FunctionDeclaration {
+  return t.functionDeclaration(null, [], node)
 }
 
 /**

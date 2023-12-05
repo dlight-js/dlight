@@ -2,55 +2,55 @@
 import { Children, Content, Prop, View, required } from "@dlightjs/dlight"
 import { type Typed, type Pretty, div, button, p, span } from "@dlightjs/types"
 
-@View
-class Comp {
-  @Prop message = "shit"
+// @View
+// class Comp {
+//   @Prop message = "shit"
 
-  Body() {
-    div()
-    {
-      div(this.message)
-    }
-  }
-}
-const CompView = Comp as Pretty as Typed
+//   Body() {
+//     div()
+//     {
+//       div(this.message)
+//     }
+//   }
+// }
+// const CompView = Comp as Pretty as Typed
 
-@View
-class Comp2 {
-  message = "Hello"
+// @View
+// class Comp2 {
+//   message = "Hello"
 
-  Body() {
-    CompView()
-      .message(this.message)
-  }
-}
-const CompView2 = Comp2 as Pretty as Typed
+//   Body() {
+//     CompView()
+//       .message(this.message)
+//   }
+// }
+// const CompView2 = Comp2 as Pretty as Typed
 
-@View
-class Comp3 {
-  Body() {
-    CompView2()
-  }
-}
-const CompView3 = Comp3 as Pretty as Typed
+// @View
+// class Comp3 {
+//   Body() {
+//     CompView2()
+//   }
+// }
+// const CompView3 = Comp3 as Pretty as Typed
 
-@View
-class JJJ {
-  @Prop jjj = "shit"
-  Body() {
-    div(`this is ${this.jjj}`)
-    CompView2()
-  }
-}
-const JJJView = JJJ as Pretty as Typed
+// @View
+// class JJJ {
+//   @Prop jjj = "shit"
+//   Body() {
+//     div(`this is ${this.jjj}`)
+//     CompView2()
+//   }
+// }
+// const JJJView = JJJ as Pretty as Typed
 
-@View
-class COOO {
-  Body() {
-    JJJView()
-  }
-}
-const COOOView = COOO as Pretty as Typed
+// @View
+// class COOO {
+//   Body() {
+//     JJJView()
+//   }
+// }
+// const COOOView = COOO as Pretty as Typed
 
 @View
 class App {
@@ -76,23 +76,26 @@ class App {
       .onclick(() => {
         this.count++
       })
-    // for (const [idx, i] of this.jj.entries()) {
-    //   div(`${idx}`)
-    //     .onclick((i) => {
-    //       console.log(i)
-    //     })
-    // }
+
+    for (const [idx, i] of this.jj.entries()) {
+      div(`${idx}`)
+        .onclick((i) => {
+          console.log(i)
+        })
+    }
     button(`toggle ${this.toggle}`)
       .onclick(() => {
         this.toggle = !this.toggle
       })
-    "fae";
-    `fsfsf`
-    // if (this.toggle) {
-    //   CompView()
-    // } else {
-    //   CompView3()
-    // }
+    "fae"
+    if (this.toggle) {
+      div("okkk")
+    } else {
+      div("not ok")
+        .style({
+          color: "red"
+        })
+    }
     // COOOView()
   }
 }
