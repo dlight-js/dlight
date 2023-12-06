@@ -1,19 +1,9 @@
 import { type types as t, type NodePath } from "@babel/core"
-import { type HTMLTags, type IdentifierToDepNode } from "./types"
+import { type PropertyContainer, type HTMLTags, type IdentifierToDepNode } from "./types"
 import { minimatch } from "minimatch"
 import { parseView } from "./viewParser"
 import { isAssignmentExpressionLeft, isAssignmentExpressionRight, isMemberInEscapeFunction, isMemberInManualFunction } from "./utils/depChecker"
 import { generateView } from "./viewGenerator"
-
-type PropertyContainer = Record<string, {
-  node: t.ClassProperty | t.ClassMethod
-  deps: string[]
-  isStatic?: boolean
-  isContent?: boolean
-  isChildren?: boolean
-  isWatcher?: boolean
-  isPropOrEnv?: "Prop" | "Env"
-}>
 
 const devMode = process.env.NODE_ENV !== "production"
 
@@ -83,7 +73,7 @@ export class PluginProvider {
    * @brief Initialize DLight Node Level variables when entering a class
    * @param path
    */
-  initNode(path: NodePath<t.ClassDeclaration | t.ClassExpression>) {
+  initNode(path: NodePath<t.ClassDeclaration | t.ClassExpression>): void {
     this.classRootPath = path
     const node: t.ClassDeclaration | t.ClassExpression = path.node
     this.classDeclarationNode = node
@@ -132,8 +122,13 @@ export class PluginProvider {
     }
   }
 
-  transformDLightClass() {
-    const usedProperties = this.handleView(Object.keys(this.propertiesContainer))
+  /**
+   * @brief Transform the whole DLight class when exiting the class
+   *  1. Alter all the state properties
+   *  2. Transform Body and SubViews with DLight syntax
+   */
+  transformDLightClass(): void {
+    const usedProperties = this.handleView()
     const propertyArr = Object.entries(this.propertiesContainer).reverse()
 
     for (const [key, { node, deps, isStatic, isChildren, isPropOrEnv, isWatcher, isContent }] of propertyArr) {
@@ -159,7 +154,11 @@ export class PluginProvider {
   }
 
   /* ---- DLight Class View Handlers ---- */
-  handleView(deps: string[]) {
+  /**
+   * @brief Transform Body and SubViews with DLight syntax
+   * @returns used properties
+   */
+  handleView(): string[] {
     if (!this.classBodyNode) return []
     const usedProperties: string[] = []
     let body: undefined | t.ClassMethod
@@ -195,15 +194,19 @@ export class PluginProvider {
     const subViewNames = subViewNodes.map(v => (v.key as t.Identifier).name)
 
     subViewNodes.forEach(viewNode => {
-      usedProperties.push(...this.alterView(viewNode, deps, subViewNames, true))
+      usedProperties.push(...this.alterView(viewNode, subViewNames, true))
     })
 
-    body && usedProperties.push(...this.alterView(body, deps, subViewNames))
+    body && usedProperties.push(...this.alterView(body, subViewNames))
 
     return usedProperties
   }
 
-  alterSubViewProps(view: t.ClassMethod) {
+  /**
+   * @brief Turn Subview's props into { value, deps } object
+   * @param view
+   */
+  alterSubViewProps(view: t.ClassMethod): void {
     const param = view.params[0]
     // ---- SubView only accept one object parameter, e.g. MyView({ count, flag }) {}
     if (!param || !this.t.isObjectPattern(param)) return
@@ -263,9 +266,18 @@ export class PluginProvider {
       })
   }
 
-  alterView(viewNode: t.ClassMethod, deps: string[], subViewNames: string[], isSubView = false) {
+  /**
+   * @brief Transform Views with DLight syntax
+   * @param viewNode
+   * @param subViewNames
+   * @param isSubView
+   * @returns Used properties
+   */
+  alterView(viewNode: t.ClassMethod, subViewNames: string[], isSubView = false): string[] {
     let identifierToDepsMap: Record<string, IdentifierToDepNode[]> = {}
     if (isSubView && this.t.isObjectPattern(viewNode.params[0])) {
+      // ---- If it's a subview, the first parameter is an object,
+      //      we need have a map of these object prop identifiers to dependencies
       const propNames: string[] = viewNode.params[0].properties
         .filter(p => this.t.isObjectProperty(p) && this.t.isIdentifier(p.key))
         .map(p => ((p as t.ObjectProperty).key as t.Identifier).name)
@@ -308,7 +320,12 @@ export class PluginProvider {
     return usedProperties
   }
 
-  pushDerivedPair(name: string, deps: string[]) {
+  /**
+   * @brief Add a key-value pair to _$derivedPairs
+   * @param name
+   * @param deps
+   */
+  pushDerivedPair(name: string, deps: string[]): void {
     if (!this.classBodyNode) return
     if (!this.derivedPairNode) return
     (this.derivedPairNode.value as t.ObjectExpression).properties.unshift(

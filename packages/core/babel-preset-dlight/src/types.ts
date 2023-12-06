@@ -18,11 +18,25 @@ export interface DLightOption {
    */
   enableDevTools?: boolean
   /**
-   * Custom HTML tags
+   * Custom HTML tags.
+   * Accepts 2 types:
+   *  1. string[], e.g. ["div", "span"]
+   *     if contains "*", then all default tags will be included
+   *  2. (defaultHtmlTags: string[]) => string[]
    * @default defaultHtmlTags => defaultHtmlTags
    */
   htmlTags?: HTMLTags
 }
+
+export type PropertyContainer = Record<string, {
+  node: t.ClassProperty | t.ClassMethod
+  deps: string[]
+  isStatic?: boolean
+  isContent?: boolean
+  isChildren?: boolean
+  isWatcher?: boolean
+  isPropOrEnv?: "Prop" | "Env"
+}>
 
 export interface ViewParserProp {
   value: t.Expression
