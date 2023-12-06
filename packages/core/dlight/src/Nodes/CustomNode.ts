@@ -100,8 +100,8 @@ export class CustomNode extends DLNode {
     addDLProp(this, "prop", key, propFunc, dlScope, listenDeps)
   }
 
-  _$addDefaultProp(key: string, propFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]) {
-    addDLProp(this, "prop", (this as any)._$defaultProp ?? "_$content", propFunc, dlScope, listenDeps)
+  _$addContentProp(propFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]) {
+    addDLProp(this, "prop", (this as any)._$contentProp ?? "_$content", propFunc, dlScope, listenDeps)
   }
 
   // ---- lifecycles
@@ -128,7 +128,6 @@ export class CustomNode extends DLNode {
   }
 
   render(idOrEl: string | HTMLElement) {
-    // ----
     if (typeof idOrEl === "string") {
       idOrEl = document.getElementById(idOrEl)!
     }

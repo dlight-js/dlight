@@ -1,4 +1,4 @@
-import { View } from "@dlightjs/dlight"
+import { View, render } from "@dlightjs/dlight"
 
 let idCounter = 1
 
@@ -24,7 +24,7 @@ export default class Main {
   rows = []
   selectIdx = -1
   addRows() {
-    this.rows = buildData(10)
+    this.rows = buildData(1000)
   }
 
   swapRows() {
@@ -44,7 +44,7 @@ export default class Main {
   deleteRow(id) {
     return () => {
       const idx = this.rows.findIndex(row => row.id === id)
-      this.rows = this.rows.filter(row => row.id !== id)
+      this.rows = [...this.rows.slice(0, idx), ...this.rows.slice(idx + 1)]
     }
   }
 
@@ -69,7 +69,11 @@ export default class Main {
       .className("col-sm-6 smallpad")
     {
       button(content)
-        .onclick(onclick)
+        .onclick(() => {
+          console.log("shit")
+          onclick()
+          console.log(onclick)
+        })
         .id(id)
         .className("btn btn-primary btn-block")
     }
@@ -131,7 +135,7 @@ export default class Main {
           tbody()
           {
             for (const { id, label } of this.rows) {
-              [null]
+              [id]
               tr()
                 .className(this.selectIdx === id ? "danger" : "")
               {
@@ -146,13 +150,13 @@ export default class Main {
                 td()
                   .className("col-md-1")
                 {
-                  button("delete")
+                  a()
                     .onclick(this.deleteRow(id))
-                  // {
-                  //   span()
-                  //     .className("glyphicon glyphicon-remove")
-                  //     .ariaHidden("true")
-                  // }
+                  {
+                    span()
+                      .className("glyphicon glyphicon-remove")
+                      .ariaHidden("true")
+                  }
                 }
                 td()
                   .className("col-md-6")

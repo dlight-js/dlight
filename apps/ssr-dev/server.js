@@ -8,11 +8,8 @@ const base = process.env.BASE || "/"
 
 // Cached production assets
 const templateHtml = isProduction
-  ? await fs.readFile("./dist/client/index.html", "utf-8")
+  ? await fs.readFile("./dist/server/index.html", "utf-8")
   : ""
-const ssrManifest = isProduction
-  ? await fs.readFile("./dist/client/ssr-manifest.json", "utf-8")
-  : undefined
 
 // Create http server
 const app = express()
@@ -45,18 +42,19 @@ app.use("*", async(req, res) => {
       // Always read fresh template in development
       template = await fs.readFile("./index.html", "utf-8")
       template = await vite.transformIndexHtml(url, template)
-      render = (await vite.ssrLoadModule("/src/entry-server.ts")).render
+      render = (await vite.ssrLoadModule("/src/index.ts")).render
     } else {
       template = templateHtml
-      render = (await import("./dist/server/entry-server.js")).render
+      render = (await import("./dist/server/index.js")).render
     }
 
-    const rendered = await render(url, ssrManifest)
+    const rendered = await render(url)
 
     const html = template
       .replace("<!--app-head-->", rendered.head ?? "")
       .replace("<!--app-html-->", rendered.html ?? "")
       .replace("<!--app-script-->", rendered.script ?? "")
+      // .replace("<script type=\"module\" src=\"/src/entry-client.ts\"></script>", "")
 
     res.status(200).set({ "Content-Type": "text/html" }).end(html)
   } catch (e) {
@@ -68,5 +66,5 @@ app.use("*", async(req, res) => {
 
 // Start http server
 app.listen(port, () => {
-  console.log(`Server started at http://localhost:${port}`)
+  console.log(`Server started at http://localhost:${port}, production: ${isProduction}`)
 })

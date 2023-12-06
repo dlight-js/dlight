@@ -13,7 +13,6 @@ const { document } = new JSDOM(`
   </head>
   <body>
     <div id="app"><!--app-html--></div>
-    <script type="module" src="/src/entry-client.ts"></script>
   </body>
 </html>
 `).window

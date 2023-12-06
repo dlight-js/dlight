@@ -1,8 +1,8 @@
-import { type CustomNode, View } from "@dlightjs/dlight"
-import { type Typed, button, div, required, type RequiredProp, Prop, _ } from "@dlightjs/types"
+import { View, Prop } from "@dlightjs/dlight"
+import { button, div } from "@dlightjs/types"
 class App extends View {
-  @Prop count: RequiredProp<number> = required
-  @Prop decrease: RequiredProp<() => any> = required
+  @Prop count: number = null as any
+  @Prop decrease: () => any = null as any
 
   Body() {
     div()
@@ -16,9 +16,8 @@ class App extends View {
       button("--")
         .onclick(this.decrease)
     }
-
     // `nono ${this.count}`
   }
 }
 
-export default App as any as Typed<App>
+export default App as any

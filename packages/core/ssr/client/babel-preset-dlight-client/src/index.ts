@@ -1,4 +1,4 @@
-import syntaxTypescript from "./babel-plugins/plugin-syntax-typescript"
+import syntaxTypescript from "babel-plugin-syntax-typescript-new"
 // @ts-ignore
 import syntaxDoExpressions from "@babel/plugin-syntax-do-expressions"
 // @ts-ignore

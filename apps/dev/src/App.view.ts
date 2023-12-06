@@ -3,87 +3,48 @@ import { Children, Content, Prop, View, required } from "@dlightjs/dlight"
 import { type Typed, type Pretty, div, button, p, span } from "@dlightjs/types"
 
 @View
-class Comp {
-  @Prop message = "shit"
+class COOO {
+  @Children(1)
+    hh
+
+  @Children(1)
+    hhj
 
   Body() {
-    div()
-    {
-      div(this.message)
-    }
+    this.hh
+    this.hhj
   }
 }
-const CompView = Comp as Pretty as Typed
-
-@View
-class Comp2 {
-  message = "Hello"
-
-  Body() {
-    CompView()
-      .message(this.message)
-  }
-}
-const CompView2 = Comp2 as Pretty as Typed
-
-@View
-class Comp3 {
-  Body() {
-    CompView2()
-  }
-}
-const CompView3 = Comp3 as Pretty as Typed
+const COOOView = COOO as Pretty as Typed
 
 @View
 class App {
   count = 1
   toggle = false
+  dlbCount = this.count * 2
+
   Body() {
-    div(this.count)
-    button("+")
-      .onclick(() => {
-        this.count++
-      })
-    button("toggle")
+    button(`toggle ${this.toggle}`)
       .onclick(() => {
         this.toggle = !this.toggle
       })
+    // "fae"
     if (this.toggle) {
-      CompView()
+      div("okkk")
     } else {
-      CompView3()
+      div("not ok")
+        .style({
+          color: "red"
+        })
+    }
+    this.count
+    this.dlbCount
+    COOOView()
+    {
+      div("我说shit")
+      div("nonono")
     }
   }
 }
 
 export default App as Pretty as Typed
-
-@View
-class Span {
-  @Prop if = required
-  @Prop @Content content = required
-  Body() {
-    if (this.if) {
-      this.content
-    }
-  }
-}
-
-@View
-class MyComp {
-  light = "red"
-  Body() {
-    button("Next light")
-    p(`Light is: ${this.light}`)
-    p()
-    {
-      "You must"
-      Span("STOP")
-        .if(this.light === "red")
-      Span("SLOW DOWN")
-        .if(this.light === "orange")
-      Span("GO")
-        .if(this.light === "greed")
-    }
-  }
-}

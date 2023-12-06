@@ -1,13 +1,15 @@
 import { classPathMap, onEvents } from "./dom"
 
+const isProduction = process.env.NODE_ENV === "production"
+
 export function getScript() {
   const classPath = Object.fromEntries(
     Object.entries(classPathMap)
       .map(([key, value]) => {
+        key = key.replace("server", "client")
+          .replace(".ts", isProduction ? ".js" : "?import")
         return [
-          key
-            .replace("server", "client")
-            .replace(".ts", "") + "?import",
+          key,
           value
         ]
       })

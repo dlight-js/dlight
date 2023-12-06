@@ -9,9 +9,11 @@ export class CustomNode extends DLight.CustomNode {
     this._$id = geneId.call(this)
     const loopFunc = (node: any) => {
       if (node._$nodeType === DLNodeType.HTML) {
-        node._$el.setAttribute("comp-id", this._$id)
-      } else if (node._$nodeType === DLNodeType.Custom) {
-        return false
+        if (!window.elementMap) window.elementMap = {}
+        if (!window.elementMap[this._$id!]) window.elementMap[this._$id!] = []
+        window.elementMap[this._$id!].push(node._$el)
+        if (!window.elementIdMap) window.elementIdMap = new Map()
+        if (!window.elementIdMap.get(node._$el)) window.elementIdMap.set(node._$el, this._$id!)
       }
     }
     loopNodes(this._$nodes, loopFunc)
