@@ -1,5 +1,5 @@
 import { type types as t, type NodePath } from "@babel/core"
-import { type IdentifierToDepNode } from "./types"
+import { type HTMLTags, type IdentifierToDepNode } from "./types"
 import { minimatch } from "minimatch"
 import { parseView } from "./viewParser"
 import { isAssignmentExpressionLeft, isAssignmentExpressionRight, isMemberInEscapeFunction, isMemberInManualFunction } from "./utils/depChecker"
@@ -19,6 +19,7 @@ const devMode = process.env.NODE_ENV !== "production"
 
 export class PluginProvider {
   // ---- Const Level
+  private readonly defaultHTMLTags = ["a", "abbr", "address", "area", "article", "aside", "audio", "b", "base", "bdi", "bdo", "blockquote", "body", "br", "button", "canvas", "caption", "cite", "code", "col", "colgroup", "data", "datalist", "dd", "del", "details", "dfn", "dialog", "div", "dl", "dt", "em", "embed", "fieldset", "figcaption", "figure", "footer", "form", "h1", "h2", "h3", "h4", "h5", "h6", "head", "header", "hgroup", "hr", "html", "i", "iframe", "img", "input", "ins", "kbd", "label", "legend", "li", "link", "main", "map", "mark", "menu", "meta", "meter", "nav", "noscript", "object", "ol", "optgroup", "option", "output", "p", "picture", "pre", "progress", "q", "rp", "rt", "ruby", "s", "samp", "script", "section", "select", "slot", "small", "source", "span", "strong", "style", "sub", "summary", "sup", "table", "tbody", "td", "template", "textarea", "tfoot", "th", "thead", "time", "title", "tr", "track", "u", "ul", "var", "video", "wbr", "acronym", "applet", "basefont", "bgsound", "big", "blink", "center", "dir", "font", "frame", "frameset", "isindex", "keygen", "listing", "marquee", "menuitem", "multicol", "nextid", "nobr", "noembed", "noframes", "param", "plaintext", "rb", "rtc", "spacer", "strike", "tt", "xmp", "animate", "animateMotion", "animateTransform", "circle", "clipPath", "defs", "desc", "ellipse", "feBlend", "feColorMatrix", "feComponentTransfer", "feComposite", "feConvolveMatrix", "feDiffuseLighting", "feDisplacementMap", "feDistantLight", "feDropShadow", "feFlood", "feFuncA", "feFuncB", "feFuncG", "feFuncR", "feGaussianBlur", "feImage", "feMerge", "feMergeNode", "feMorphology", "feOffset", "fePointLight", "feSpecularLighting", "feSpotLight", "feTile", "feTurbulence", "filter", "foreignObject", "g", "image", "line", "linearGradient", "marker", "mask", "metadata", "mpath", "path", "pattern", "polygon", "polyline", "radialGradient", "rect", "set", "stop", "svg", "switch", "symbol", "text", "textPath", "tspan", "use", "view"]
   private readonly availableDecoNames = ["Static", "Prop", "Env", "Content", "Children"]
   private readonly dlightDefaultImportName = "@dlightjs/dlight"
   private readonly dlightImportName = this.dlightDefaultImportName
@@ -28,12 +29,24 @@ export class PluginProvider {
   private readonly enableDevTools: boolean
   private readonly includes: string[]
   private readonly excludes: string[]
+  private readonly htmlTags: string[]
 
-  constructor(types: typeof t, includes: string[], excludes: string[], enableDevTools: boolean) {
+  constructor(
+    types: typeof t,
+    includes: string[],
+    excludes: string[],
+    enableDevTools: boolean,
+    htmlTags: HTMLTags
+  ) {
     this.t = types
     this.includes = includes
     this.excludes = excludes
     this.enableDevTools = devMode && enableDevTools
+    this.htmlTags = typeof htmlTags === "function"
+      ? htmlTags(this.defaultHTMLTags)
+      : htmlTags.includes("*")
+        ? [...new Set([...this.defaultHTMLTags, ...htmlTags])].filter(tag => tag !== "*")
+        : htmlTags
   }
 
   // ---- DLight class Level
@@ -284,7 +297,7 @@ export class PluginProvider {
 
     const [code, usedProperties] = generateView(
       this.t,
-      parseView(this.t, this.classRootPath!, viewStatements),
+      parseView(this.t, this.classRootPath!, viewStatements, this.htmlTags),
       this.classRootPath!,
       this.fullDepMap,
       subViewNames,

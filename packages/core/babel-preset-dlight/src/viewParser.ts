@@ -3,20 +3,34 @@ import { type IfCondition, type ViewParserProp, type ViewParserUnit } from "./ty
 import { uid } from "./utils/utils"
 
 export class ViewParser {
-  private readonly htmlTags = ["a", "abbr", "address", "area", "article", "aside", "audio", "b", "base", "bdi", "bdo", "blockquote", "body", "br", "button", "canvas", "caption", "cite", "code", "col", "colgroup", "data", "datalist", "dd", "del", "details", "dfn", "dialog", "div", "dl", "dt", "em", "embed", "fieldset", "figcaption", "figure", "footer", "form", "h1", "h2", "h3", "h4", "h5", "h6", "head", "header", "hgroup", "hr", "html", "i", "iframe", "img", "input", "ins", "kbd", "label", "legend", "li", "link", "main", "map", "mark", "menu", "meta", "meter", "nav", "noscript", "object", "ol", "optgroup", "option", "output", "p", "picture", "pre", "progress", "q", "rp", "rt", "ruby", "s", "samp", "script", "section", "select", "slot", "small", "source", "span", "strong", "style", "sub", "summary", "sup", "table", "tbody", "td", "template", "textarea", "tfoot", "th", "thead", "time", "title", "tr", "track", "u", "ul", "var", "video", "wbr", "acronym", "applet", "basefont", "bgsound", "big", "blink", "center", "dir", "font", "frame", "frameset", "isindex", "keygen", "listing", "marquee", "menuitem", "multicol", "nextid", "nobr", "noembed", "noframes", "param", "plaintext", "rb", "rtc", "spacer", "strike", "tt", "xmp", "animate", "animateMotion", "animateTransform", "circle", "clipPath", "defs", "desc", "ellipse", "feBlend", "feColorMatrix", "feComponentTransfer", "feComposite", "feConvolveMatrix", "feDiffuseLighting", "feDisplacementMap", "feDistantLight", "feDropShadow", "feFlood", "feFuncA", "feFuncB", "feFuncG", "feFuncR", "feGaussianBlur", "feImage", "feMerge", "feMergeNode", "feMorphology", "feOffset", "fePointLight", "feSpecularLighting", "feSpotLight", "feTile", "feTurbulence", "filter", "foreignObject", "g", "image", "line", "linearGradient", "marker", "mask", "metadata", "mpath", "path", "pattern", "polygon", "polyline", "radialGradient", "rect", "set", "stop", "svg", "switch", "symbol", "text", "textPath", "tspan", "use", "view"]
   private readonly tagNameSymbol = "tag"
   private readonly htmlTagSymbol = "htmlTag"
   private readonly environmentTagSymbol = "env"
   private readonly expressionTagSymbol = "_"
+
+  private readonly t: typeof t
   private readonly classRootPath: NodePath<t.ClassDeclaration | t.ClassExpression>
   private readonly statements: Array<t.Statement | t.Directive>
-  private readonly viewParserResult: ViewParserUnit[] = []
-  private readonly t: typeof t
+  private readonly htmlTags: string[]
 
-  constructor(types: typeof t, classRootPath: NodePath<t.ClassDeclaration | t.ClassExpression>, statements: Array<t.Statement | t.Directive>) {
+  private readonly viewParserResult: ViewParserUnit[] = []
+
+  /**
+   * @param types types from Babel
+   * @param classRootPath the root path of the class to be parsed
+   * @param statements view statements to be parsed
+   * @param htmlTags allowed html tags
+   */
+  constructor(
+    types: typeof t,
+    classRootPath: NodePath<t.ClassDeclaration | t.ClassExpression>,
+    statements: Array<t.Statement | t.Directive>,
+    htmlTags: string[]
+  ) {
     this.t = types
     this.classRootPath = classRootPath
     this.statements = statements
+    this.htmlTags = htmlTags
   }
 
   /**
@@ -42,7 +56,7 @@ export class ViewParser {
       const lastViewParserUnit = this.viewParserResult[this.viewParserResult.length - 1]
       const type = lastViewParserUnit?.type
       if (!(type === "custom" || type === "html" || type === "env")) return
-      lastViewParserUnit.children = parseView(this.t, this.classRootPath, statement.body)
+      lastViewParserUnit.children = this.parseView(statement.body)
     }
   }
 
@@ -72,13 +86,13 @@ export class ViewParser {
    * @param node
    * @returns
    */
-  parseIfConditions(node: t.IfStatement): IfCondition[] {
+  private parseIfConditions(node: t.IfStatement): IfCondition[] {
     const conditions: IfCondition[] = []
     const condition = node.test
     const ifBody = this.t.isBlockStatement(node.consequent) ? node.consequent.body : [node.consequent]
     conditions.push({
       condition,
-      body: parseView(this.t, this.classRootPath, ifBody)
+      body: this.parseView(ifBody)
     })
 
     // ---- If the alternate is an if statement, parse it recursively
@@ -88,7 +102,7 @@ export class ViewParser {
       const altBody = this.t.isBlockStatement(node.alternate) ? node.alternate.body : [node.alternate]
       conditions.push({
         condition: this.t.booleanLiteral(true),
-        body: parseView(this.t, this.classRootPath, altBody)
+        body: this.parseView(altBody)
       })
     }
 
@@ -100,7 +114,7 @@ export class ViewParser {
    * @param node
    * @returns
    */
-  parseIf(node: t.IfStatement): void {
+  private parseIf(node: t.IfStatement): void {
     this.viewParserResult.push({
       type: "if",
       conditions: this.parseIfConditions(node)
@@ -124,7 +138,7 @@ export class ViewParser {
    *          key will be "item"
    * @param node
    */
-  parseFor(node: t.ForOfStatement): void {
+  private parseFor(node: t.ForOfStatement): void {
     const left = node.left
     if (!this.t.isVariableDeclaration(left)) {
       throw new Error(
@@ -178,7 +192,7 @@ export class ViewParser {
       item,
       array,
       key,
-      children: parseView(this.t, this.classRootPath, forBodyStatements)
+      children: this.parseView(forBodyStatements)
     })
   }
 
@@ -248,7 +262,7 @@ export class ViewParser {
         const node = innerPath.node
         const id = uid()
         // ---- Parse the body of do expression as a new ViewParser
-        dlViewPropResult[id] = parseView(this.t, this.classRootPath, node.body.body)
+        dlViewPropResult[id] = this.parseView(node.body.body)
         // ---- Replace the do expression with a id string literal
         const newNode = this.t.stringLiteral(id)
         if (node === propNode) {
@@ -395,13 +409,39 @@ export class ViewParser {
   private valueWrapper(node: t.Expression): t.VariableDeclaration {
     return this.t.variableDeclaration("const", [this.t.variableDeclarator(this.t.identifier("_"), node)])
   }
+
+  /**
+   * @brief Parse the view by duplicating current parser's classRootPath, statements and htmlTags
+   * @param statements
+   * @returns ViewParserUnit[]
+   */
+  private parseView(statements: Array<t.Statement | t.Directive>): ViewParserUnit[] {
+    return parseView(this.t, this.classRootPath, statements, this.htmlTags)
+  }
 }
 
+/**
+ * @brief Change the ViewParser class with its subclass
+ * @param newClass
+ */
 let ViewParserClass = ViewParser
-export function changeViewParserClass(newClass: typeof ViewParserClass) {
+export function changeViewParserClass(newClass: typeof ViewParserClass): void {
   ViewParserClass = newClass
 }
 
-export function parseView(types: typeof t, classRootPath: NodePath<t.ClassDeclaration | t.ClassExpression>, statements: Array<t.Statement | t.Directive>): ViewParserUnit[] {
-  return new ViewParserClass(types, classRootPath, statements).parse()
+/**
+ * @brief Parse the view
+ * @param types
+ * @param classRootPath
+ * @param statements
+ * @param htmlTags
+ * @returns ViewParserUnit[]
+ */
+export function parseView(
+  types: typeof t,
+  classRootPath: NodePath<t.ClassDeclaration | t.ClassExpression>,
+  statements: Array<t.Statement | t.Directive>,
+  htmlTags: string[]
+): ViewParserUnit[] {
+  return new ViewParserClass(types, classRootPath, statements, htmlTags).parse()
 }

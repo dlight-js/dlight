@@ -7,14 +7,16 @@ export default function(api: ConfigAPI & { types: typeof t }, options: DLightOpt
   const {
     files = "**/*.{js,jsx,ts,tsx}",
     excludeFiles = "**/{dist,node_modules,lib}/*.{js,ts}",
-    enableDevTools = false
+    enableDevTools = false,
+    htmlTags = defaultHtmlTags => defaultHtmlTags
   } = options
 
   const pluginProvider = new PluginProvider(
     types,
     Array.isArray(files) ? files : [files],
     Array.isArray(excludeFiles) ? excludeFiles : [excludeFiles],
-    enableDevTools
+    enableDevTools,
+    htmlTags
   )
 
   return {

@@ -1,5 +1,6 @@
 import { type types as t } from "@babel/core"
 
+export type HTMLTags = string[] | ((defaultHtmlTags: string[]) => string[])
 export interface DLightOption {
   /**
    * Files that will be included
@@ -16,6 +17,11 @@ export interface DLightOption {
    * @default false
    */
   enableDevTools?: boolean
+  /**
+   * Custom HTML tags
+   * @default defaultHtmlTags => defaultHtmlTags
+   */
+  htmlTags?: HTMLTags
 }
 
 export interface ViewParserProp {
