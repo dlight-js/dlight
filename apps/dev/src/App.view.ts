@@ -110,7 +110,7 @@ class App {
           color: "red"
         })
     }
-
+    this.count
     COOOView()
   }
 }

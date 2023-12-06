@@ -5,7 +5,7 @@ import Main from "./benchmark-keyed.view"
 import * as babel from "@babel/standalone"
 import dlight from "babel-preset-dlight"
 
-render("app", Main)
+render("app", App)
 
 export default function transformDLight(code: string) {
   return babel.transform(code, {

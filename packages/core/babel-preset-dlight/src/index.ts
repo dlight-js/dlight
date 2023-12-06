@@ -1,14 +1,11 @@
 import syntaxTypescript from "babel-plugin-syntax-typescript-new"
-// @ts-ignore
 import syntaxDoExpressions from "@babel/plugin-syntax-do-expressions"
-// @ts-ignore
 import syntaxDecorators from "@babel/plugin-syntax-decorators"
 import dlight from "./plugin"
 import { type DLightOption } from "./types"
-import { type ConfigAPI } from "@babel/core"
+import { type ConfigAPI, type TransformOptions } from "@babel/core"
 
-export { type DLightOption }
-export default function(_: ConfigAPI, options: DLightOption) {
+export default function(_: ConfigAPI, options: DLightOption): TransformOptions {
   return {
     plugins: [
       syntaxTypescript,
@@ -18,3 +15,10 @@ export default function(_: ConfigAPI, options: DLightOption) {
     ]
   }
 }
+
+export { type DLightOption }
+
+export * from "./types"
+export { PluginProvider, changePluginProviderClass } from "./pluginProvider"
+export { ViewParser, changeViewParserClass } from "./viewParser"
+export { ViewGenerator, changeViewGeneratorClass } from "./viewGenerator"

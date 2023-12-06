@@ -810,3 +810,11 @@ export class PluginProvider {
     node.value = this.t.arrowFunctionExpression([], node.value)
   }
 }
+
+/**
+ * @brief Change the PluginProvider class for class inheritance
+ */
+export let PluginProviderClass = PluginProvider
+export function changePluginProviderClass(cls: typeof PluginProvider) {
+  PluginProviderClass = cls
+}

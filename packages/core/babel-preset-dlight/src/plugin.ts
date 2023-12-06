@@ -1,5 +1,5 @@
 import { type PluginObj, type ConfigAPI, type types as t } from "@babel/core"
-import { PluginProvider } from "./pluginProvider"
+import { PluginProviderClass } from "./pluginProvider"
 import { type DLightOption } from "./types"
 
 export default function(api: ConfigAPI & { types: typeof t }, options: DLightOption): PluginObj {
@@ -11,7 +11,7 @@ export default function(api: ConfigAPI & { types: typeof t }, options: DLightOpt
     htmlTags = defaultHtmlTags => defaultHtmlTags
   } = options
 
-  const pluginProvider = new PluginProvider(
+  const pluginProvider = new PluginProviderClass(
     types,
     Array.isArray(files) ? files : [files],
     Array.isArray(excludeFiles) ? excludeFiles : [excludeFiles],

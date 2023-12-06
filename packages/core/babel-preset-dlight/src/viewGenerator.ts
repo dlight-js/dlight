@@ -2089,6 +2089,14 @@ export class ViewGenerator {
 }
 
 /**
+ * @brief Offer generator changing for inheriting usage
+ */
+let ViewGeneratorClass = ViewGenerator
+export function changeViewGeneratorClass(newClass: typeof ViewGenerator) {
+  ViewGeneratorClass = newClass
+}
+
+/**
  * @brief Generate a view body by duplicating this's parameters
  * @param types
  * @param viewParserResult
@@ -2106,7 +2114,7 @@ export function generateView(
   subViewNames: string[],
   identifierToDepsMap: Record<string, IdentifierToDepNode[]>
 ): [t.BlockStatement, string[]] {
-  const viewGenerator = new ViewGenerator(
+  const viewGenerator = new ViewGeneratorClass(
     types,
     viewParserResult,
     classRootPath,
