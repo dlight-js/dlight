@@ -12,7 +12,7 @@ export class ViewGenerator {
   private readonly viewParserResult: ViewParserUnit[]
   private readonly classRootPath: NodePath<t.ClassDeclaration | t.ClassExpression>
   private readonly fullDepMap: Record<string, string[]>
-  private readonly availableDeps: string[]
+  private readonly availableProperties: string[]
   private readonly subViewNames: string[]
   private readonly identifierToDepsMap: Record<string, IdentifierToDepNode[]>
 
@@ -26,6 +26,7 @@ export class ViewGenerator {
    * @param viewParserResult View parsed unit list from view parser
    * @param classRootPath Root path of the DLight class to be transformed
    * @param fullDepMap Full dependency map from dep parser
+   * @param availableProperties Available properties to become deps
    * @param subViewNames Sub view names, use this to check if a Custom node is a sub view
    * @param identifierToDepsMap Identifier name to class dependencies map, e.g., { itemInForLoop: ["count"] }
    */
@@ -34,6 +35,7 @@ export class ViewGenerator {
     viewParserResult: ViewParserUnit[],
     classRootPath: NodePath<t.ClassDeclaration | t.ClassExpression>,
     fullDepMap: Record<string, string[]>,
+    availableProperties: string[],
     subViewNames: string[],
     identifierToDepsMap: Record<string, IdentifierToDepNode[]>
   ) {
@@ -41,7 +43,7 @@ export class ViewGenerator {
     this.viewParserResult = viewParserResult
     this.classRootPath = classRootPath
     this.fullDepMap = fullDepMap
-    this.availableDeps = Object.keys(fullDepMap)
+    this.availableProperties = availableProperties
     this.subViewNames = subViewNames
     this.identifierToDepsMap = identifierToDepsMap
   }
@@ -1841,7 +1843,7 @@ export class ViewGenerator {
         if (!this.t.isIdentifier(innerPath.node.property)) return
         const propertyKey = innerPath.node.property.name
         if (
-          this.availableDeps.includes(propertyKey) &&
+          this.availableProperties.includes(propertyKey) &&
           this.t.isThisExpression(innerPath.node.object) &&
           !isMemberInEscapeFunction(innerPath, this.classRootPath.node, this.t) &&
           !isMemberInManualFunction(innerPath, this.classRootPath.node, this.t) &&
@@ -1849,7 +1851,7 @@ export class ViewGenerator {
           !isAssignmentExpressionRight(innerPath, this.classRootPath.node, this.t)
         ) {
           deps.add(propertyKey)
-          this.fullDepMap[propertyKey].forEach(deps.add.bind(deps))
+          this.fullDepMap[propertyKey]?.forEach(deps.add.bind(deps))
         }
       }
     })
@@ -1982,6 +1984,7 @@ export class ViewGenerator {
       viewParserResult,
       this.classRootPath,
       this.fullDepMap,
+      this.availableProperties,
       this.subViewNames,
       identifierToDepsMap ?? this.identifierToDepsMap
     )
@@ -2111,6 +2114,7 @@ export function generateView(
   viewParserResult: ViewParserUnit[],
   classRootPath: NodePath<t.ClassDeclaration | t.ClassExpression>,
   fullDepMap: Record<string, string[]>,
+  availableProperties: string[],
   subViewNames: string[],
   identifierToDepsMap: Record<string, IdentifierToDepNode[]>
 ): [t.BlockStatement, string[]] {
@@ -2119,6 +2123,7 @@ export function generateView(
     viewParserResult,
     classRootPath,
     fullDepMap,
+    availableProperties,
     subViewNames,
     identifierToDepsMap
   )

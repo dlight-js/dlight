@@ -33,7 +33,7 @@ export type PropertyContainer = Record<string, {
   deps: string[]
   isStatic?: boolean
   isContent?: boolean
-  isChildren?: boolean
+  isChildren?: boolean | number
   isWatcher?: boolean
   isPropOrEnv?: "Prop" | "Env"
 }>

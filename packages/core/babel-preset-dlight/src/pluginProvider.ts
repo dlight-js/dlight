@@ -4,6 +4,7 @@ import { minimatch } from "minimatch"
 import { parseView } from "./viewParser"
 import { isAssignmentExpressionLeft, isAssignmentExpressionRight, isMemberInEscapeFunction, isMemberInManualFunction } from "./utils/depChecker"
 import { generateView } from "./viewGenerator"
+import { uid } from "./utils/utils"
 
 const devMode = process.env.NODE_ENV !== "production"
 
@@ -69,6 +70,17 @@ export class PluginProvider {
     this.didAlterImports = false
   }
 
+  private get availableProperties(): string[] {
+    return Object.entries(this.propertiesContainer)
+      .filter(([key, { isWatcher, isStatic, isChildren }]) => (
+        key !== "_$compName" &&
+        !isWatcher &&
+        !isStatic &&
+        !isChildren
+      ))
+      .map(([key]) => key)
+  }
+
   /**
    * @brief Initialize DLight Node Level variables when entering a class
    * @param path
@@ -88,7 +100,7 @@ export class PluginProvider {
       this.classBodyNode.body.unshift(
         this.t.classProperty(
           this.t.identifier("_$compName"),
-          this.t.stringLiteral(node.id?.name ?? `Anonymous_${this.randomId()}`)
+          this.t.stringLiteral(node.id?.name ?? `Anonymous_${uid()}`)
         )
       )
     }
@@ -133,7 +145,7 @@ export class PluginProvider {
 
     for (const [key, { node, deps, isStatic, isChildren, isPropOrEnv, isWatcher, isContent }] of propertyArr) {
       if (isChildren) {
-        this.resolveChildrenDecorator(node as t.ClassProperty)
+        this.resolveChildrenDecorator(node as t.ClassProperty, isChildren)
         continue
       }
       if (deps.length > 0) {
@@ -166,7 +178,7 @@ export class PluginProvider {
     for (let viewNode of this.classBodyNode.body) {
       if (!this.t.isClassProperty(viewNode) && !this.t.isClassMethod(viewNode)) continue
       if (!this.t.isIdentifier(viewNode.key)) continue
-      const isSubView = this.getDecoratorNames(viewNode.decorators).includes("View")
+      const isSubView = this.findDecoratorByName(viewNode.decorators, "View")
       const isBody = viewNode.key.name === "Body"
       if (!isSubView && !isBody) continue
 
@@ -312,6 +324,7 @@ export class PluginProvider {
       parseView(this.t, this.classRootPath!, viewStatements, this.htmlTags),
       this.classRootPath!,
       this.fullDepMap,
+      this.availableProperties,
       subViewNames,
       identifierToDepsMap
     )
@@ -379,7 +392,7 @@ export class PluginProvider {
     const key = (node.key as t.Identifier).name
     if (key === "Body") return
     this.bindMethod(key)
-    const isSubView = this.getDecoratorNames(node.decorators).includes("View")
+    const isSubView = this.findDecoratorByName(node.decorators, "SubView")
     if (isSubView) return
 
     // ---- Handle watcher
@@ -387,27 +400,17 @@ export class PluginProvider {
     // ---- Watcher auto collect deps:
     //       @Watch
     //       watcher() { myFunc() }
-    const isWatcher = (d: t.Decorator) => (
-      this.t.isIdentifier(d.expression) &&
-      d.expression.name === "Watch"
-    )
-    const watcher = node.decorators?.find(isWatcher)
     // ---- Watcher function manual set deps:
     //       @Watch(["count", "flag"])
     //       watcherFunc() { myFunc() }
-    const isWatcherFunc = (d: t.Decorator) => (
-      this.t.isCallExpression(d.expression) &&
-      this.t.isIdentifier(d.expression.callee) &&
-      d.expression.callee.name === "Watch"
-    )
-    const watcherFunc = node.decorators?.find(isWatcherFunc)
-    if (!watcher && !watcherFunc) return
+    const watchDeco = this.findDecoratorByName(node.decorators, "Watch")
+    if (!watchDeco) return
     // ---- Get dependencies from watcher decorator or watcher function decorator
     let deps: string[] = []
-    if (watcher) {
+    if (this.t.isIdentifier(watchDeco)) {
       deps = this.getDependencies(path)
     } else {
-      const listenDeps = (watcherFunc!.expression as t.CallExpression).arguments[0]
+      const listenDeps = watchDeco.arguments[0]
       if (this.t.isArrayExpression(listenDeps)) {
         deps = listenDeps.elements
           .filter(arg => this.t.isStringLiteral(arg))
@@ -421,7 +424,7 @@ export class PluginProvider {
       deps,
       isWatcher: true
     }
-    node.decorators = node.decorators?.filter(d => !isWatcher(d) && !isWatcherFunc(d))
+    node.decorators = this.removeDecorators(node.decorators, ["Watch"])
 
     this.visitClassMethod(path)
   }
@@ -433,29 +436,40 @@ export class PluginProvider {
     if (!this.t.isIdentifier(node.key)) return
     const key = node.key.name
     if (key === "Body") return
-    const decoNames = this.getDecoratorNames(node.decorators)
-    const isSubView = decoNames.includes("SubView")
+    const decorators = node.decorators
+    const isSubView = this.findDecoratorByName(decorators, "SubView")
     if (isSubView) return
-    const isProp = decoNames.includes("Prop")
-    const isEnv = decoNames.includes("Env")
-    const deps = isProp || isEnv
-      ? []
-      : this.getDependencies(path)
+    const isProp = !!this.findDecoratorByName(decorators, "Prop")
+    const isEnv = !!this.findDecoratorByName(decorators, "Env")
+
+    const childrenDeco = this.findDecoratorByName(node.decorators, "Children")
+    let isChildren: boolean | number = false
+    if (childrenDeco) {
+      if (
+        this.t.isIdentifier(childrenDeco) ||
+        !this.t.isNumericLiteral(childrenDeco.arguments[0])
+      ) {
+        isChildren = true
+      } else {
+        // ---- Avoid childrenNum = 0
+        isChildren = childrenDeco.arguments[0].value + 1
+      }
+    }
+
+    const deps = !isChildren
+      ? this.getDependencies(path)
+      : []
 
     this.propertiesContainer[key] = {
       node,
       deps,
-      isStatic: decoNames.includes("Static"),
-      isContent: decoNames.includes("Content"),
-      isChildren: decoNames.includes("Children"),
+      isStatic: !!this.findDecoratorByName(decorators, "Static"),
+      isContent: !!this.findDecoratorByName(decorators, "Content"),
+      isChildren,
       isPropOrEnv: isProp ? "Prop" : (isEnv ? "Env" : undefined)
     }
 
-    node.decorators = node.decorators?.filter(d => !(
-      this.t.isIdentifier(d.expression) &&
-      this.availableDecoNames.includes(d.expression.name)
-    ))
-
+    node.decorators = this.removeDecorators(decorators, this.availableDecoNames)
     this.visitClassProperty(path)
   }
 
@@ -482,25 +496,35 @@ export class PluginProvider {
    * @brief Decorator resolver: Children
    * Add:
    * get ${propertyName}() {
-   *  return this._$childrenFuncs()
+   *  return this._$childrenFuncs()[n]
    * }
    * @param node
    */
-  resolveChildrenDecorator(node: t.ClassProperty) {
+  resolveChildrenDecorator(node: t.ClassProperty, childNum: true | number) {
     if (!this.classBodyNode) return
     if (!this.t.isIdentifier(node.key)) return
     const key = node.key.name
     const propertyIdx = this.classBodyNode.body.indexOf(node)
 
+    const childrenFuncCallNode = (
+      this.t.callExpression(
+        this.t.memberExpression(
+          this.t.thisExpression(),
+          this.t.identifier("_$childrenFuncs")
+        ), []
+      )
+    )
+
     const getterNode = this.t.classMethod("get", this.t.identifier(key), [],
       this.t.blockStatement([
         this.t.returnStatement(
-          this.t.callExpression(
-            this.t.memberExpression(
-              this.t.thisExpression(),
-              this.t.identifier("_$childrenFuncs")
-            ), []
-          )
+          childNum === true
+            ? childrenFuncCallNode
+            : this.t.memberExpression(
+              childrenFuncCallNode,
+              this.t.numericLiteral(childNum - 1),
+              true
+            )
         )
       ])
     )
@@ -641,24 +665,36 @@ export class PluginProvider {
   }
 
   /**
-   * @brief Get decorator names as string array
+   * @brief Remove decorators by name
+   *  Only search for Identifier and CallExpression, e.g, @Ok, @Ok()
    * @param decorators
-   * @returns decorator names
+   * @param names
+   * @returns new decorators
    */
-  private getDecoratorNames(decorators: t.Decorator[] | undefined | null): string[] {
+  private removeDecorators(decorators: t.Decorator[] | undefined | null, names: string[]): t.Decorator[] {
     if (!decorators) return []
-    return decorators
-      .filter(deco => this.t.isIdentifier(deco.expression))
-      .map(deco => (deco.expression as t.Identifier).name)
+    return decorators.filter(d => !(
+      (this.t.isIdentifier(d.expression) &&
+      names.includes(d.expression.name)) ||
+      (this.t.isCallExpression(d.expression) &&
+      this.t.isIdentifier(d.expression.callee) &&
+      names.includes(d.expression.callee.name))
+    ))
   }
 
   /**
-   * @brief Generate random id
-   * @param length
-   * @returns random id
+   * @brief Find decorator by name,
+   *  Only search for Identifier and CallExpression, e.g, @Ok, @Ok()
+   * @param decorators
+   * @param name
+   * @returns Identifier or CallExpression or nothing
    */
-  private randomId(length = 4): string {
-    return Math.random().toString(36).slice(2).substring(length)
+  private findDecoratorByName(decorators: t.Decorator[] | undefined | null, name: string): t.Identifier | t.CallExpression | undefined {
+    if (!decorators) return
+    return decorators.find(deco => (
+      this.t.isIdentifier(deco.expression, { name }) ||
+      (this.t.isCallExpression(deco.expression) && this.t.isIdentifier(deco.expression.callee, { name }))
+    ))?.expression as t.Identifier | t.CallExpression | undefined
   }
 
   /**
@@ -714,9 +750,6 @@ export class PluginProvider {
     const node = path.node
     if (!this.t.isIdentifier(node.key)) return []
 
-    const availableProperties = Object.entries(this.propertiesContainer)
-      .filter(([, { isWatcher, isStatic }]) => !isWatcher && !isStatic)
-      .map(([key]) => key)
     // ---- Deps: console.log(this.count)
     const deps = new Set<string>()
     // ---- Assign deps: this.count = 1 / this.count++
@@ -728,14 +761,14 @@ export class PluginProvider {
         if (isAssignmentExpressionLeft(innerPath, this.t)) {
           assignDeps.add(propertyKey)
         } else if (
-          availableProperties.includes(propertyKey) &&
+          this.availableProperties.includes(propertyKey) &&
           this.t.isThisExpression(innerPath.node.object) &&
           !isMemberInEscapeFunction(innerPath, this.classDeclarationNode!, this.t) &&
           !isMemberInManualFunction(innerPath, this.classDeclarationNode!, this.t) &&
           !isAssignmentExpressionRight(innerPath, this.classDeclarationNode!, this.t)
         ) {
           deps.add(propertyKey)
-          this.fullDepMap[propertyKey].forEach(deps.add.bind(deps))
+          this.fullDepMap[propertyKey]?.forEach(deps.add.bind(deps))
         }
       }
     })
@@ -748,9 +781,12 @@ export class PluginProvider {
 
     // ---- Add deps to fullDepMap
     const propertyKey = node.key.name
-    this.fullDepMap[propertyKey] = [...deps]
+    const depArr = [...deps]
+    if (deps.size > 0) {
+      this.fullDepMap[propertyKey] = depArr
+    }
 
-    return this.fullDepMap[propertyKey]
+    return depArr
   }
 
   /**
