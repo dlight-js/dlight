@@ -1,5 +1,4 @@
-import { type BabelPath } from "../types"
-import * as t from "@babel/types"
+import { type NodePath, type types as t } from "@babel/core"
 
 export const escapeNamings = ["escape", "$"]
 
@@ -8,11 +7,12 @@ export const escapeNamings = ["escape", "$"]
  * @param innerPath
  * @returns is left side of an assignment expression
  */
-export function isAssignmentExpressionLeft(innerPath: BabelPath): boolean {
-  const parentNode = innerPath.parentPath.node
+export function isAssignmentExpressionLeft(innerPath: NodePath, T: typeof t): boolean {
+  const parentNode = innerPath.parentPath?.node
+
   return (
-    (t.isAssignmentExpression(parentNode) && parentNode.left === innerPath.node) ||
-    t.isUpdateExpression(parentNode)
+    (T.isAssignmentExpression(parentNode) && parentNode.left === innerPath.node) ||
+    T.isUpdateExpression(parentNode)
   )
 }
 
@@ -22,15 +22,16 @@ export function isAssignmentExpressionLeft(innerPath: BabelPath): boolean {
  * @param innerPath
  * @returns is the right side of an assignment expression
  */
-export function isAssignmentExpressionRight(innerPath: BabelPath, classDeclarationNode?: t.ClassDeclaration | t.ClassExpression): boolean {
+export function isAssignmentExpressionRight(innerPath: NodePath<t.MemberExpression>, classDeclarationNode: t.ClassDeclaration | t.ClassExpression, T: typeof t): boolean {
   const currNode = innerPath.node
+
   let isRightExp = false
-  let reversePath = innerPath.parentPath
+  let reversePath: NodePath<t.Node> | null = innerPath.parentPath
   while (reversePath && reversePath.node !== classDeclarationNode) {
-    if (t.isAssignmentExpression(reversePath.node)) {
-      const leftNode = reversePath.node.left
+    if (T.isAssignmentExpression(reversePath.node)) {
+      const leftNode = reversePath.node.left as t.MemberExpression
       const typeEqual = currNode.type === leftNode.type
-      const identifierEqual = currNode.property.name === leftNode.property.name
+      const identifierEqual = (currNode.property as t.Identifier).name === (leftNode.property as t.Identifier).name
       isRightExp = typeEqual && identifierEqual
     }
     reversePath = reversePath.parentPath
@@ -47,14 +48,14 @@ export function isAssignmentExpressionRight(innerPath: BabelPath, classDeclarati
  * @param classDeclarationNode
  * @returns is in escape function
  */
-export function isMemberInEscapeFunction(innerPath: BabelPath, classDeclarationNode?: t.ClassDeclaration | t.ClassExpression): boolean {
+export function isMemberInEscapeFunction(innerPath: NodePath, classDeclarationNode: t.ClassDeclaration | t.ClassExpression, T: typeof t): boolean {
   let isInFunction = false
   let reversePath = innerPath.parentPath
   while (reversePath && reversePath.node !== classDeclarationNode) {
     const node = reversePath.node
     if (
-      t.isCallExpression(node) &&
-      t.isIdentifier(node.callee) &&
+      T.isCallExpression(node) &&
+      T.isIdentifier(node.callee) &&
       escapeNamings.includes(node.callee.name)
     ) {
       isInFunction = true
@@ -74,16 +75,16 @@ export function isMemberInEscapeFunction(innerPath: BabelPath, classDeclarationN
  * @param classDeclarationNode
  * @returns is in manual function
  */
-export function isMemberInManualFunction(innerPath: BabelPath, classDeclarationNode?: t.ClassDeclaration | t.ClassExpression): boolean {
+export function isMemberInManualFunction(innerPath: NodePath, classDeclarationNode: t.ClassDeclaration | t.ClassExpression, T: typeof t): boolean {
   let isInFunction = false
   let reversePath = innerPath.parentPath
   while (reversePath && reversePath.node !== classDeclarationNode) {
     const node = reversePath.node
     const parentNode = reversePath.parentPath?.node
-    const isFunction = t.isFunctionExpression(node) || t.isArrowFunctionExpression(node)
+    const isFunction = T.isFunctionExpression(node) || T.isArrowFunctionExpression(node)
     const isManual = (
-      t.isCallExpression(parentNode) &&
-      t.isIdentifier(parentNode.callee) &&
+      T.isCallExpression(parentNode) &&
+      T.isIdentifier(parentNode.callee) &&
       parentNode.callee.name === "manual"
     )
     if (isFunction && isManual) {

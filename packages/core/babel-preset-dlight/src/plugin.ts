@@ -1,24 +1,9 @@
+import { type PluginObj, type ConfigAPI, type types as t } from "@babel/core"
 import { PluginProvider } from "./pluginProvider"
+import { type DLightOption } from "./types"
 
-export interface DLightOption {
-  /**
-   * Files that will be included
-   * @default ** /*.{js,jsx,ts,tsx}
-   */
-  files?: string | string[]
-  /**
-   * Files that will be excludes
-   * @default ** /{dist,node_modules,lib}/*.{js,ts}
-   */
-  excludeFiles?: string | string[]
-  /**
-   * Enable devtools
-   * @default false
-   */
-  enableDevTools?: boolean
-}
-
-export default function(api: any, options: DLightOption) {
+export default function(api: ConfigAPI & { types: typeof t }, options: DLightOption): PluginObj {
+  const { types } = api
   const {
     files = "**/*.{js,jsx,ts,tsx}",
     excludeFiles = "**/{dist,node_modules,lib}/*.{js,ts}",
@@ -26,6 +11,7 @@ export default function(api: any, options: DLightOption) {
   } = options
 
   const pluginProvider = new PluginProvider(
+    types,
     Array.isArray(files) ? files : [files],
     Array.isArray(excludeFiles) ? excludeFiles : [excludeFiles],
     enableDevTools
@@ -33,7 +19,9 @@ export default function(api: any, options: DLightOption) {
 
   return {
     visitor: {
-      Program: pluginProvider.programVisitor.bind(pluginProvider),
+      Program(path, { filename }) {
+        return pluginProvider.programVisitor(path, filename)
+      },
       ClassDeclaration: {
         enter: pluginProvider.classEnter.bind(pluginProvider),
         exit: pluginProvider.classExit.bind(pluginProvider)

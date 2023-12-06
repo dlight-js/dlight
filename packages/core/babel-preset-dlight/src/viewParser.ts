@@ -1,72 +1,6 @@
-import * as t from "@babel/types"
-import { type BabelPath } from "./types"
-import { valueWrapper } from "./utils/babelNode"
-import { uid } from "./generatorHelper"
-
-export interface ViewParserProp {
-  value: t.Expression
-  nodes: Record<string, ViewParserUnit[]>
-}
-
-export interface TextViewParserUnit {
-  type: "text"
-  content: t.Expression
-}
-
-export interface HTMLViewParserUnit {
-  type: "html"
-  tag: t.Expression
-  content?: ViewParserProp
-  props?: Record<string, ViewParserProp>
-  children?: ViewParserUnit[]
-}
-
-export interface CustomViewParserUnit {
-  type: "custom"
-  tag: t.Expression
-  content?: ViewParserProp
-  props?: Record<string, ViewParserProp>
-  children?: ViewParserUnit[]
-}
-
-export interface IfViewParserUnit {
-  type: "if"
-  conditions: IfCondition[]
-}
-
-export interface ForViewParserUnit {
-  type: "for"
-  item: t.LVal
-  array: t.Expression
-  key?: t.Expression
-  children: ViewParserUnit[]
-}
-
-export interface ExpViewParserUnit {
-  type: "exp"
-  content: ViewParserProp
-  props?: Record<string, ViewParserProp>
-}
-
-export interface EnvViewParserUnit {
-  type: "env"
-  props: Record<string, ViewParserProp>
-  children?: ViewParserUnit[]
-}
-
-export type ViewParserUnit =
-  TextViewParserUnit
-  | HTMLViewParserUnit
-  | IfViewParserUnit
-  | ForViewParserUnit
-  | ExpViewParserUnit
-  | EnvViewParserUnit
-  | CustomViewParserUnit
-
-export interface IfCondition {
-  condition: t.Expression
-  body: ViewParserUnit[]
-}
+import { type types as t, type NodePath } from "@babel/core"
+import { type IfCondition, type ViewParserProp, type ViewParserUnit } from "./types"
+import { uid } from "./utils/utils"
 
 export class ViewParser {
   private readonly htmlTags = ["a", "abbr", "address", "area", "article", "aside", "audio", "b", "base", "bdi", "bdo", "blockquote", "body", "br", "button", "canvas", "caption", "cite", "code", "col", "colgroup", "data", "datalist", "dd", "del", "details", "dfn", "dialog", "div", "dl", "dt", "em", "embed", "fieldset", "figcaption", "figure", "footer", "form", "h1", "h2", "h3", "h4", "h5", "h6", "head", "header", "hgroup", "hr", "html", "i", "iframe", "img", "input", "ins", "kbd", "label", "legend", "li", "link", "main", "map", "mark", "menu", "meta", "meter", "nav", "noscript", "object", "ol", "optgroup", "option", "output", "p", "picture", "pre", "progress", "q", "rp", "rt", "ruby", "s", "samp", "script", "section", "select", "slot", "small", "source", "span", "strong", "style", "sub", "summary", "sup", "table", "tbody", "td", "template", "textarea", "tfoot", "th", "thead", "time", "title", "tr", "track", "u", "ul", "var", "video", "wbr", "acronym", "applet", "basefont", "bgsound", "big", "blink", "center", "dir", "font", "frame", "frameset", "isindex", "keygen", "listing", "marquee", "menuitem", "multicol", "nextid", "nobr", "noembed", "noframes", "param", "plaintext", "rb", "rtc", "spacer", "strike", "tt", "xmp", "animate", "animateMotion", "animateTransform", "circle", "clipPath", "defs", "desc", "ellipse", "feBlend", "feColorMatrix", "feComponentTransfer", "feComposite", "feConvolveMatrix", "feDiffuseLighting", "feDisplacementMap", "feDistantLight", "feDropShadow", "feFlood", "feFuncA", "feFuncB", "feFuncG", "feFuncR", "feGaussianBlur", "feImage", "feMerge", "feMergeNode", "feMorphology", "feOffset", "fePointLight", "feSpecularLighting", "feSpotLight", "feTile", "feTurbulence", "filter", "foreignObject", "g", "image", "line", "linearGradient", "marker", "mask", "metadata", "mpath", "path", "pattern", "polygon", "polyline", "radialGradient", "rect", "set", "stop", "svg", "switch", "symbol", "text", "textPath", "tspan", "use", "view"]
@@ -74,11 +8,13 @@ export class ViewParser {
   private readonly htmlTagSymbol = "htmlTag"
   private readonly environmentTagSymbol = "env"
   private readonly expressionTagSymbol = "_"
-  private readonly classRootPath: BabelPath
+  private readonly classRootPath: NodePath<t.ClassDeclaration | t.ClassExpression>
   private readonly statements: Array<t.Statement | t.Directive>
   private readonly viewParserResult: ViewParserUnit[] = []
+  private readonly t: typeof t
 
-  constructor(classRootPath: BabelPath, statements: Array<t.Statement | t.Directive>) {
+  constructor(types: typeof t, classRootPath: NodePath<t.ClassDeclaration | t.ClassExpression>, statements: Array<t.Statement | t.Directive>) {
+    this.t = types
     this.classRootPath = classRootPath
     this.statements = statements
   }
@@ -97,16 +33,16 @@ export class ViewParser {
    * @returns
    */
   private parseStatement(statement: t.Statement | t.Directive): void {
-    if (t.isExpressionStatement(statement)) return this.parseExpression(statement.expression)
-    if (t.isForOfStatement(statement)) return this.parseFor(statement)
-    if (t.isIfStatement(statement)) return this.parseIf(statement)
-    if (t.isDirective(statement)) return this.parseText(statement.value)
-    if (t.isBlockStatement(statement)) {
+    if (this.t.isExpressionStatement(statement)) return this.parseExpression(statement.expression)
+    if (this.t.isForOfStatement(statement)) return this.parseFor(statement)
+    if (this.t.isIfStatement(statement)) return this.parseIf(statement)
+    if (this.t.isDirective(statement)) return this.parseText(statement.value)
+    if (this.t.isBlockStatement(statement)) {
       // ---- If the statement is a block statement, treat it as last unit's children
       const lastViewParserUnit = this.viewParserResult[this.viewParserResult.length - 1]
       const type = lastViewParserUnit?.type
       if (!(type === "custom" || type === "html" || type === "env")) return
-      lastViewParserUnit.children = parseView(this.classRootPath, statement.body)
+      lastViewParserUnit.children = parseView(this.t, this.classRootPath, statement.body)
     }
   }
 
@@ -119,9 +55,9 @@ export class ViewParser {
    * @returns
    */
   private parseExpression(expression: t.Expression): void {
-    if (t.isCallExpression(expression)) return this.parseTag(expression)
-    if (t.isStringLiteral(expression) || t.isTemplateLiteral(expression)) return this.parseText(expression)
-    if (t.isTaggedTemplateExpression(expression)) return this.parseTaggedTemplate(expression)
+    if (this.t.isCallExpression(expression)) return this.parseTag(expression)
+    if (this.t.isStringLiteral(expression) || this.t.isTemplateLiteral(expression)) return this.parseText(expression)
+    if (this.t.isTaggedTemplateExpression(expression)) return this.parseTaggedTemplate(expression)
 
     // ---- Default ExpressionTag
     //      e.g. this.count -> _(this.count)
@@ -139,20 +75,20 @@ export class ViewParser {
   parseIfConditions(node: t.IfStatement): IfCondition[] {
     const conditions: IfCondition[] = []
     const condition = node.test
-    const ifBody = t.isBlockStatement(node.consequent) ? node.consequent.body : [node.consequent]
+    const ifBody = this.t.isBlockStatement(node.consequent) ? node.consequent.body : [node.consequent]
     conditions.push({
       condition,
-      body: parseView(this.classRootPath, ifBody)
+      body: parseView(this.t, this.classRootPath, ifBody)
     })
 
     // ---- If the alternate is an if statement, parse it recursively
-    if (t.isIfStatement(node.alternate)) {
+    if (this.t.isIfStatement(node.alternate)) {
       conditions.push(...this.parseIfConditions(node.alternate))
     } else if (node.alternate) {
-      const altBody = t.isBlockStatement(node.alternate) ? node.alternate.body : [node.alternate]
+      const altBody = this.t.isBlockStatement(node.alternate) ? node.alternate.body : [node.alternate]
       conditions.push({
-        condition: t.booleanLiteral(true),
-        body: parseView(this.classRootPath, altBody)
+        condition: this.t.booleanLiteral(true),
+        body: parseView(this.t, this.classRootPath, altBody)
       })
     }
 
@@ -190,7 +126,7 @@ export class ViewParser {
    */
   parseFor(node: t.ForOfStatement): void {
     const left = node.left
-    if (!t.isVariableDeclaration(left)) {
+    if (!this.t.isVariableDeclaration(left)) {
       throw new Error(
         "Invalid syntax in DLight's View, only accepts variable declaration in for of loop"
       )
@@ -200,24 +136,24 @@ export class ViewParser {
     let key: t.Expression | undefined
     const forBody = node.body
     let forBodyStatements: Array<t.Statement | t.Directive>
-    if (t.isExpressionStatement(forBody)) {
+    if (this.t.isExpressionStatement(forBody)) {
       // ---- If the for body is an expression statement, treat it as the only statement
-      forBodyStatements = [forBody as t.Statement]
-    } else if (t.isBlockStatement(forBody)) {
+      forBodyStatements = [forBody]
+    } else if (this.t.isBlockStatement(forBody)) {
       const childNodes = forBody.body
       if (childNodes.length === 0) return
       const firstStatement = childNodes[0]
       if (
-        t.isExpressionStatement(firstStatement) &&
-        t.isArrayExpression(firstStatement.expression)
+        this.t.isExpressionStatement(firstStatement) &&
+        this.t.isArrayExpression(firstStatement.expression)
       ) {
         // ---- Treat the first array element inside the block statement as the key
         const keyNode = firstStatement.expression.elements[0]
         // ---- If the key is undefined or null, treat it as no key
         if (
-          t.isExpression(keyNode) &&
-          !(t.isNullLiteral(keyNode) ||
-          (t.isIdentifier(keyNode) && keyNode.name === "undefined"))
+          this.t.isExpression(keyNode) &&
+          !(this.t.isNullLiteral(keyNode) ||
+          (this.t.isIdentifier(keyNode) && keyNode.name === "undefined"))
         ) {
           key = keyNode
         }
@@ -242,7 +178,7 @@ export class ViewParser {
       item,
       array,
       key,
-      children: parseView(this.classRootPath, forBodyStatements)
+      children: parseView(this.t, this.classRootPath, forBodyStatements)
     })
   }
 
@@ -253,7 +189,7 @@ export class ViewParser {
    * @param node
    */
   private parseText(node: t.StringLiteral | t.TemplateLiteral | t.DirectiveLiteral): void {
-    if (t.isDirectiveLiteral(node)) node = t.stringLiteral(node.value)
+    if (this.t.isDirectiveLiteral(node)) node = this.t.stringLiteral(node.value)
 
     this.viewParserResult.push({
       type: "text",
@@ -297,33 +233,31 @@ export class ViewParser {
    * @returns ViewParserProp
    */
   private parseProp(propNode: t.Node | undefined): ViewParserProp {
-    if (!t.isExpression(propNode)) {
+    if (!this.t.isExpression(propNode)) {
       throw new Error(
         "Invalid syntax in DLight's View, only accepts expression as props"
       )
     }
     // ---- If there is no propNode, set the default prop as true
-    if (!propNode) return { value: t.booleanLiteral(true), nodes: {} }
+    if (!propNode) return { value: this.t.booleanLiteral(true), nodes: {} }
 
     // ---- Collect do expression nodes as DLProp
     const dlViewPropResult: Record<string, ViewParserUnit[]> = {}
-    this.classRootPath.scope.traverse(
-      valueWrapper(propNode), {
-        DoExpression: (innerPath: BabelPath) => {
-          const node = innerPath.node
-          const id = uid()
-          // ---- Parse the body of do expression as a new ViewParser
-          dlViewPropResult[id] = parseView(innerPath, node.body.body)
-          // ---- Replace the do expression with a id string literal
-          const newNode = t.stringLiteral(id)
-          if (node === propNode) {
-            propNode = newNode
-          }
-          innerPath.replaceWith(newNode)
-          innerPath.skip()
+    this.classRootPath.scope.traverse(this.valueWrapper(propNode), {
+      DoExpression: innerPath => {
+        const node = innerPath.node
+        const id = uid()
+        // ---- Parse the body of do expression as a new ViewParser
+        dlViewPropResult[id] = parseView(this.t, this.classRootPath, node.body.body)
+        // ---- Replace the do expression with a id string literal
+        const newNode = this.t.stringLiteral(id)
+        if (node === propNode) {
+          propNode = newNode
         }
+        innerPath.replaceWith(newNode)
+        innerPath.skip()
       }
-    )
+    })
 
     return {
       value: propNode,
@@ -336,19 +270,19 @@ export class ViewParser {
    * @param node
    */
   private parseTag(node: t.CallExpression): void {
-    const props: Record<string, any> = {}
+    const props: Record<string, ViewParserProp> = {}
 
     // ---- Keep iterating until the node has no call expression
     let n = node
     while (
-      t.isMemberExpression(n?.callee) &&
+      this.t.isMemberExpression(n?.callee) &&
       n?.callee?.object &&
-      !this.isPureMemberExpression(n)
+      !this.isPureMemberExpression(n.callee)
     ) {
       const property = n.callee.property
       if (
-        !t.isIdentifier(property) ||
-        !t.isCallExpression(n.callee.object)
+        !this.t.isIdentifier(property) ||
+        !this.t.isCallExpression(n.callee.object)
       ) {
         throw new Error(
           "Invalid syntax in DLight's View, only accepts dot chain call expression"
@@ -368,7 +302,7 @@ export class ViewParser {
       contentProp = this.parseProp(n.arguments[0])
     }
 
-    if (t.isIdentifier(n.callee)) {
+    if (this.t.isIdentifier(n.callee)) {
       // ---- Special cases for expression type
       const tagName = n.callee.name
       if (tagName === this.expressionTagSymbol && contentProp) {
@@ -386,12 +320,20 @@ export class ViewParser {
       } else if (this.htmlTags.includes(tagName)) {
         this.viewParserResult.push({
           type: "html",
-          tag: t.stringLiteral(tagName),
+          tag: this.t.stringLiteral(tagName),
+          content: contentProp,
+          props
+        })
+      } else {
+        // ---- Custom tag
+        this.viewParserResult.push({
+          type: "custom",
+          tag: this.t.identifier(tagName),
           content: contentProp,
           props
         })
       }
-    } else if (t.isExpression(n.callee)) {
+    } else if (this.t.isExpression(n.callee)) {
       // ---- 1. Custom tag
       //      2. htmlTag(xxx)
       //      3. tag(xxx)
@@ -410,14 +352,14 @@ export class ViewParser {
    * @brief Test if the node is a pure member expression without call expression
    * @param node
    */
-  private isPureMemberExpression(node: any) {
-    while (node) {
-      node = node.callee?.object
-      if (t.isCallExpression(node)) {
-        return false
+  private isPureMemberExpression(node: t.Expression) {
+    let isPure = true
+    this.classRootPath.scope.traverse(node, {
+      CallExpression: () => {
+        isPure = false
       }
-    }
-    return true
+    })
+    return isPure
   }
 
   /**
@@ -425,8 +367,8 @@ export class ViewParser {
    * @param viewParserUnit
    * @returns
    */
-  alterTagType(tag: t.Expression): ["html" | "custom", t.Expression] {
-    if (t.isCallExpression(tag) && t.isIdentifier(tag.callee)) {
+  private alterTagType(tag: t.Expression): ["html" | "custom", t.Expression] {
+    if (this.t.isCallExpression(tag) && this.t.isIdentifier(tag.callee)) {
       const tagName = tag.callee.name
       const tagType = tagName === this.htmlTagSymbol
         ? "html"
@@ -435,13 +377,23 @@ export class ViewParser {
           : undefined
       if (tagType) {
         const tagTarget = tag.arguments[0]
-        if (!t.isExpression(tagTarget)) {
+        if (!this.t.isExpression(tagTarget)) {
           throw new Error(`First argument of ${tagName}() must be an expression`)
         }
         return [tagType, tagTarget]
       }
     }
     return ["custom", tag]
+  }
+
+  /**
+   * @brief Wrap the value with a variable declaration
+   * const _ = ${value}
+   * @param node
+   * @returns wrapped value
+   */
+  private valueWrapper(node: t.Expression): t.VariableDeclaration {
+    return this.t.variableDeclaration("const", [this.t.variableDeclarator(this.t.identifier("_"), node)])
   }
 }
 
@@ -450,6 +402,6 @@ export function changeViewParserClass(newClass: typeof ViewParserClass) {
   ViewParserClass = newClass
 }
 
-export function parseView(classRootPath: BabelPath, statements: Array<t.Statement | t.Directive>): ViewParserUnit[] {
-  return new ViewParserClass(classRootPath, statements).parse()
+export function parseView(types: typeof t, classRootPath: NodePath<t.ClassDeclaration | t.ClassExpression>, statements: Array<t.Statement | t.Directive>): ViewParserUnit[] {
+  return new ViewParserClass(types, classRootPath, statements).parse()
 }

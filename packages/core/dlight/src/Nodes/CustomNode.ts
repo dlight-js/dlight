@@ -100,7 +100,7 @@ export class CustomNode extends DLNode {
     addDLProp(this, "prop", key, propFunc, dlScope, listenDeps)
   }
 
-  _$addContentProp(key: string, propFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]) {
+  _$addContentProp(propFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]) {
     addDLProp(this, "prop", (this as any)._$contentProp ?? "_$content", propFunc, dlScope, listenDeps)
   }
 
