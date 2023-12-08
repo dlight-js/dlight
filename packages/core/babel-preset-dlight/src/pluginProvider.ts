@@ -12,8 +12,9 @@ export class PluginProvider {
   // ---- Const Level
   private readonly defaultHTMLTags = ["a", "abbr", "address", "area", "article", "aside", "audio", "b", "base", "bdi", "bdo", "blockquote", "body", "br", "button", "canvas", "caption", "cite", "code", "col", "colgroup", "data", "datalist", "dd", "del", "details", "dfn", "dialog", "div", "dl", "dt", "em", "embed", "fieldset", "figcaption", "figure", "footer", "form", "h1", "h2", "h3", "h4", "h5", "h6", "head", "header", "hgroup", "hr", "html", "i", "iframe", "img", "input", "ins", "kbd", "label", "legend", "li", "link", "main", "map", "mark", "menu", "meta", "meter", "nav", "noscript", "object", "ol", "optgroup", "option", "output", "p", "picture", "pre", "progress", "q", "rp", "rt", "ruby", "s", "samp", "script", "section", "select", "slot", "small", "source", "span", "strong", "style", "sub", "summary", "sup", "table", "tbody", "td", "template", "textarea", "tfoot", "th", "thead", "time", "title", "tr", "track", "u", "ul", "var", "video", "wbr", "acronym", "applet", "basefont", "bgsound", "big", "blink", "center", "dir", "font", "frame", "frameset", "isindex", "keygen", "listing", "marquee", "menuitem", "multicol", "nextid", "nobr", "noembed", "noframes", "param", "plaintext", "rb", "rtc", "spacer", "strike", "tt", "xmp", "animate", "animateMotion", "animateTransform", "circle", "clipPath", "defs", "desc", "ellipse", "feBlend", "feColorMatrix", "feComponentTransfer", "feComposite", "feConvolveMatrix", "feDiffuseLighting", "feDisplacementMap", "feDistantLight", "feDropShadow", "feFlood", "feFuncA", "feFuncB", "feFuncG", "feFuncR", "feGaussianBlur", "feImage", "feMerge", "feMergeNode", "feMorphology", "feOffset", "fePointLight", "feSpecularLighting", "feSpotLight", "feTile", "feTurbulence", "filter", "foreignObject", "g", "image", "line", "linearGradient", "marker", "mask", "metadata", "mpath", "path", "pattern", "polygon", "polyline", "radialGradient", "rect", "set", "stop", "svg", "switch", "symbol", "text", "textPath", "tspan", "use", "view"]
   private readonly availableDecoNames = ["Static", "Prop", "Env", "Content", "Children"]
-  private readonly dlightDefaultImportName = "@dlightjs/dlight"
-  private readonly dlightImportName = this.dlightDefaultImportName
+  private readonly dlightDefaultPackageName = "@dlightjs/dlight"
+  private readonly dlightPackageName = this.dlightDefaultPackageName
+  private readonly dlightImportName = "$d"
 
   // ---- Plugin Level
   private readonly t: typeof t
@@ -108,28 +109,21 @@ export class PluginProvider {
     //      Only do this when enter the first dlight class
     if (!this.didAlterImports) {
       // ---- Get DLight imports
-      const dlightImports = this.allImports.filter(n => n.source.value === this.dlightDefaultImportName)
+      const dlightImports = this.allImports.filter(n => n.source.value === this.dlightDefaultPackageName)
       // ---- Alter import name, e.g. "@dlight/dlight-client"
-      if (this.dlightImportName !== this.dlightDefaultImportName) {
+      if (this.dlightPackageName !== this.dlightDefaultPackageName) {
         dlightImports.forEach(i => {
-          i.source.value = this.dlightImportName
+          i.source.value = this.dlightPackageName
         })
       }
-      const alreadyImported = dlightImports.some(n => (
-        n.specifiers.some(s => (
-          this.t.isImportDefaultSpecifier(s) &&
-          s.local.name === "DLight"
-        ))
-      ))
-      if (!alreadyImported && this.programNode) {
-        // ---- Add a new default import to the head of file
-        this.programNode.body.unshift(
-          this.t.importDeclaration(
-            [this.t.importDefaultSpecifier(this.t.identifier("DLight"))],
-            this.t.stringLiteral(this.dlightImportName)
-          )
+
+      // ---- Add a new default import to the head of file
+      this.programNode!.body.unshift(
+        this.t.importDeclaration(
+          [this.t.importDefaultSpecifier(this.t.identifier(this.dlightImportName))],
+          this.t.stringLiteral(this.dlightPackageName)
         )
-      }
+      )
       this.didAlterImports = true
     }
   }
@@ -142,27 +136,41 @@ export class PluginProvider {
   transformDLightClass(): void {
     const usedProperties = this.handleView()
     const propertyArr = Object.entries(this.propertiesContainer).reverse()
+    const states: string[] = []
 
     for (const [key, { node, deps, isStatic, isChildren, isPropOrEnv, isWatcher, isContent }] of propertyArr) {
       if (isChildren) {
-        this.resolveChildrenDecorator(node as t.ClassProperty, isChildren)
+        this.resolveChildrenDecorator(node, isChildren)
         continue
       }
       if (deps.length > 0) {
         usedProperties.push(...deps)
         this.pushDerivedPair(key, deps)
-        if (isWatcher) this.resolveWatcherDecorator(node as t.ClassMethod)
-        else this.valueWithArrowFunc(node as t.ClassProperty)
+        if (isWatcher) this.resolveWatcherDecorator(node)
+        else this.handleDerivedProperty(node)
       }
       if (isPropOrEnv) {
-        this.resolvePropDecorator(node as t.ClassProperty, isPropOrEnv)
-        if (isContent) this.resolveContentDecorator(node as t.ClassProperty)
+        this.resolvePropDecorator(node, isPropOrEnv)
+        if (isContent) this.resolveContentDecorator(node)
       }
       if (isStatic) continue
       if (usedProperties.includes(key)) {
-        this.resolveStateDecorator(node as t.ClassProperty)
+        this.resolveStateDecorator(node)
+        states.push(key)
       }
     }
+
+    this.addStateDepArrNode(states)
+  }
+
+  addStateDepArrNode(states: string[]) {
+    if (states.length === 0) return
+    this.classBodyNode?.body.unshift(
+      this.t.classProperty(
+        this.t.identifier("_$stateDepArr"),
+        this.t.arrayExpression(states.map(s => this.t.stringLiteral(`$${s}Deps`)))
+      )
+    )
   }
 
   /* ---- DLight Class View Handlers ---- */
@@ -172,7 +180,7 @@ export class PluginProvider {
    */
   handleView(): string[] {
     if (!this.classBodyNode) return []
-    const usedProperties: string[] = []
+    const usedPropertyDeps: string[] = []
     let body: undefined | t.ClassMethod
     const subViewNodes: t.ClassMethod[] = []
     for (let viewNode of this.classBodyNode.body) {
@@ -206,11 +214,12 @@ export class PluginProvider {
     const subViewNames = subViewNodes.map(v => (v.key as t.Identifier).name)
 
     subViewNodes.forEach(viewNode => {
-      usedProperties.push(...this.alterView(viewNode, subViewNames, true))
+      usedPropertyDeps.push(...this.alterView(viewNode, subViewNames, true))
     })
 
-    body && usedProperties.push(...this.alterView(body, subViewNames))
+    body && usedPropertyDeps.push(...this.alterView(body, subViewNames))
 
+    const usedProperties = usedPropertyDeps.map(dep => dep.slice(1, -4))
     return usedProperties
   }
 
@@ -230,18 +239,9 @@ export class PluginProvider {
       propNames.add(property.key.name)
       // ---- When the prop is assigned a default value, e.g. { a = 1 },
       //      turn this prop into a standard dlight subview prop,
-      //      e.g. { a: { value: 1, deps: [] } }
+      //      e.g. { a: [1] }
       if (this.t.isAssignmentPattern(property.value)) {
-        property.value.right = this.t.objectExpression([
-          this.t.objectProperty(
-            this.t.identifier("value"),
-            property.value.right
-          ),
-          this.t.objectProperty(
-            this.t.identifier("deps"),
-            this.t.arrayExpression()
-          )
-        ])
+        property.value.right = this.t.arrayExpression([property.value.right])
       }
     }
     // ---- Traverse all identifiers in the subview and replace them with .value,
@@ -264,12 +264,12 @@ export class PluginProvider {
             this.isMemberExpressionProperty(parentNode, currentNode) ||
             this.isObjectKey(parentNode, currentNode)
           ) return
-          // ---- Replace the identifier with .value
+          // ---- Replace the identifier with [0]
           innerPath.replaceWith(
             this.t.optionalMemberExpression(
               this.t.identifier(currentNode.name),
-              this.t.identifier("value"),
-              false,
+              this.t.numericLiteral(0),
+              true,
               true
             )
           )
@@ -294,7 +294,7 @@ export class PluginProvider {
         .filter(p => this.t.isObjectProperty(p) && this.t.isIdentifier(p.key))
         .map(p => ((p as t.ObjectProperty).key as t.Identifier).name)
       identifierToDepsMap = propNames.reduce<Record<string, IdentifierToDepNode[]>>((acc, propName) => {
-        // ---- ...(${propName}?.deps ?? [])
+        // ---- ...(${propName}?.[1] ?? [])
         acc[propName] = [
           this.t.arrayExpression([
             this.t.spreadElement(
@@ -302,8 +302,8 @@ export class PluginProvider {
                 "??",
                 this.t.optionalMemberExpression(
                   this.t.identifier(propName),
-                  this.t.identifier("deps"),
-                  false,
+                  this.t.numericLiteral(1),
+                  true,
                   true
                 ),
                 this.t.arrayExpression()
@@ -326,7 +326,8 @@ export class PluginProvider {
       this.fullDepMap,
       this.availableProperties,
       subViewNames,
-      identifierToDepsMap
+      identifierToDepsMap,
+      this.dlightImportName
     )
     viewNode.body = code
 
@@ -344,7 +345,7 @@ export class PluginProvider {
     (this.derivedPairNode.value as t.ObjectExpression).properties.unshift(
       this.t.objectProperty(
         this.t.identifier(name),
-        this.t.arrayExpression(deps.map(dep => this.t.stringLiteral(dep)))
+        this.t.arrayExpression(deps.map(dep => this.t.stringLiteral(`$${dep}Deps`)))
       )
     )
     if (!this.classBodyNode.body.includes(this.derivedPairNode)) {
@@ -358,7 +359,7 @@ export class PluginProvider {
     this.enter = this.fileAllowed(filename)
     if (!this.enter) return
     this.allImports = path.node.body.filter(n => this.t.isImportDeclaration(n)) as t.ImportDeclaration[]
-    const dlightImports = this.allImports.filter(n => n.source.value === this.dlightDefaultImportName)
+    const dlightImports = this.allImports.filter(n => n.source.value === this.dlightDefaultPackageName)
     if (dlightImports.length === 0) {
       this.enter = false
       return
@@ -388,12 +389,13 @@ export class PluginProvider {
   classMethodVisitor(path: NodePath<t.ClassMethod>): void {
     if (!this.enter) return
     if (!this.t.isIdentifier(path.node.key)) return
-    const node: t.ClassMethod = path.node
-    const key = (node.key as t.Identifier).name
+    const key = path.node.key.name
     if (key === "Body") return
-    this.bindMethod(key)
-    const isSubView = this.findDecoratorByName(node.decorators, "SubView")
+
+    const isSubView = this.findDecoratorByName(path.node.decorators, "View")
     if (isSubView) return
+
+    const node = this.methodToBindFunction(path.node)
 
     // ---- Handle watcher
     // ---- Get watcher decorator or watcher function decorator
@@ -437,7 +439,7 @@ export class PluginProvider {
     const key = node.key.name
     if (key === "Body") return
     const decorators = node.decorators
-    const isSubView = this.findDecoratorByName(decorators, "SubView")
+    const isSubView = this.findDecoratorByName(decorators, "View")
     if (isSubView) return
     const isProp = !!this.findDecoratorByName(decorators, "Prop")
     const isEnv = !!this.findDecoratorByName(decorators, "Env")
@@ -477,26 +479,25 @@ export class PluginProvider {
   /**
    * @brief Decorator resolver: Watcher
    * Add:
-   * _$$${propertyName} = "Watcher"
+   * $${key}Watcher = true
    * @param node
    */
-  resolveWatcherDecorator(node: t.ClassMethod): void {
-    if (!this.classBodyNode) return
+  resolveWatcherDecorator(node: t.ClassProperty): void {
     if (!this.t.isIdentifier(node.key)) return
     const key = node.key.name
-    const propertyIdx = this.classBodyNode.body.indexOf(node)
+    const propertyIdx = this.classBodyNode!.body.indexOf(node)
     const watcherNode = this.t.classProperty(
-      this.t.identifier(`_$$${key}`),
-      this.t.stringLiteral("Watcher")
+      this.t.identifier(`$${key}Watcher`),
+      this.t.booleanLiteral(true)
     )
-    this.classBodyNode.body.splice(propertyIdx, 0, watcherNode)
+    this.classBodyNode!.body.splice(propertyIdx, 0, watcherNode)
   }
 
   /**
    * @brief Decorator resolver: Children
    * Add:
-   * get ${propertyName}() {
-   *  return this._$childrenFuncs()[n]
+   * get ${key}() {
+   *  return (this._$childrenFunc?.())?.[n]
    * }
    * @param node
    */
@@ -507,11 +508,11 @@ export class PluginProvider {
     const propertyIdx = this.classBodyNode.body.indexOf(node)
 
     const childrenFuncCallNode = (
-      this.t.callExpression(
+      this.t.optionalCallExpression(
         this.t.memberExpression(
           this.t.thisExpression(),
-          this.t.identifier("_$childrenFuncs")
-        ), []
+          this.t.identifier("_$childrenFunc")
+        ), [], true
       )
     )
 
@@ -520,9 +521,10 @@ export class PluginProvider {
         this.t.returnStatement(
           childNum === true
             ? childrenFuncCallNode
-            : this.t.memberExpression(
+            : this.t.optionalMemberExpression(
               childrenFuncCallNode,
               this.t.numericLiteral(childNum - 1),
+              true,
               true
             )
         )
@@ -534,7 +536,7 @@ export class PluginProvider {
   /**
    * @brief Decorator resolver: Content
    * Add:
-   * _$contentProp = "propertyName"
+   * _$contentProp = "key"
    * @param node
    */
   resolveContentDecorator(node: t.ClassProperty) {
@@ -559,7 +561,7 @@ export class PluginProvider {
   /**
    * @brief Decorator resolver: Prop/Env
    * Add:
-   * _$$$${propertyName} = ${decoratorName}
+   * $$${key} = ${decoratorName}
    * @param node
    */
   resolvePropDecorator(node: t.ClassProperty, decoratorName: "Prop" | "Env") {
@@ -570,7 +572,7 @@ export class PluginProvider {
     const tag: string = decoratorName.toLowerCase()
 
     const derivedStatusKey = this.t.classProperty(
-      this.t.identifier(`_$$$${key}`),
+      this.t.identifier(`$$${key}`),
       this.t.stringLiteral(tag)
     )
     this.classBodyNode.body.splice(propertyIdx, 0, derivedStatusKey)
@@ -579,12 +581,14 @@ export class PluginProvider {
   /**
    * @brief Decorator resolver: State
    * Add:
-   *  _$${propertyName}Deps = new Set()
-   *  get ${propertyName}() {
-   *    return this._$$${propertyName}
+   *  $${key}Deps = new Set()
+   *  get ${key}() {
+   *    return this.$${key}
    *  }
-   *  set ${propertyName}(value) {
-   *    this._$updateProperty("${propertyName}", value)
+   *  set ${key}(value) {
+   *    if (this[`$${key}`] === value) return
+   *    this[`$${key}`] = value
+   *    this[`$${key}Deps`].forEach(dep => dep())
    *  }
    * @param node
    */
@@ -592,11 +596,11 @@ export class PluginProvider {
     if (!this.classBodyNode) return
     if (!this.t.isIdentifier(node.key)) return
     const key = node.key.name
-    node.key.name = `_$$${key}`
+    node.key.name = `$${key}`
     const propertyIdx = this.classBodyNode.body.indexOf(node)
 
     const depsNode = this.t.classProperty(
-      this.t.identifier(`_$$${key}Deps`),
+      this.t.identifier(`$${key}Deps`),
       this.t.newExpression(this.t.identifier("Set"), [])
     )
 
@@ -605,7 +609,7 @@ export class PluginProvider {
         this.t.returnStatement(
           this.t.memberExpression(
             this.t.thisExpression(),
-            this.t.identifier(`_$$${key}`)
+            this.t.identifier(`$${key}`)
           )
         )
       ])
@@ -615,14 +619,50 @@ export class PluginProvider {
       this.t.identifier("value")
     ],
     this.t.blockStatement([
+      this.t.ifStatement(
+        this.t.binaryExpression(
+          "===",
+          this.t.memberExpression(
+            this.t.thisExpression(),
+            this.t.identifier(`$${key}`)
+          ),
+          this.t.identifier("value")
+        ),
+        this.t.blockStatement([
+          this.t.returnStatement()
+        ])
+      ),
+      this.t.expressionStatement(
+        this.t.assignmentExpression(
+          "=",
+          this.t.memberExpression(
+            this.t.thisExpression(),
+            this.t.identifier(`$${key}`)
+          ),
+          this.t.identifier("value")
+        )
+      ),
       this.t.expressionStatement(
         this.t.callExpression(
           this.t.memberExpression(
-            this.t.thisExpression(),
-            this.t.identifier("_$updateProperty")
-          ), [
-            this.t.stringLiteral(key),
-            this.t.identifier("value")
+            this.t.memberExpression(
+              this.t.thisExpression(),
+              this.t.identifier(`$${key}Deps`)
+            ),
+            this.t.identifier("forEach")
+          ),
+          [
+            this.t.arrowFunctionExpression(
+              [this.t.identifier("dep")],
+              this.t.blockStatement([
+                this.t.expressionStatement(
+                  this.t.callExpression(
+                    this.t.identifier("dep"),
+                    []
+                  )
+                )
+              ])
+            )
           ]
         )
       )
@@ -698,47 +738,55 @@ export class PluginProvider {
   }
 
   /**
-   * @brief Bind method's this to the class
+   * @brief Turn method into auto bind function
+   *  e.g. method() { console.log(this.count) }
+   *    => method = function()  { console.log(this.count) }.bind(this)
    * @param methodName
    */
-  private bindMethod(methodName: string): void {
-    if (!this.classBodyNode) return
-    let constructorNode: t.ClassMethod | undefined = this.classBodyNode.body
-      .find(n => this.t.isClassMethod(n) && this.t.isIdentifier(n.key) && n.key.name === "constructor") as t.ClassMethod | undefined
-    // ---- Add constructor if not exists
-    if (!constructorNode) {
-      constructorNode = this.t.classMethod(
-        "constructor",
-        this.t.identifier("constructor"),
-        [],
-        this.t.blockStatement([
-          this.t.expressionStatement(this.t.callExpression(this.t.super(), []))
-        ])
-      )
-      this.classBodyNode.body.unshift(constructorNode)
-    }
-    // ---- Add method binding to constructor, e.g. this.methodName = this.methodName.bind(this)
-    constructorNode.body.body.push(
-      this.t.expressionStatement(
-        this.t.assignmentExpression(
-          "=",
-          this.t.memberExpression(
-            this.t.thisExpression(),
-            this.t.identifier(methodName)
+  private methodToBindFunction(node: t.ClassMethod): t.ClassProperty {
+    const methodIdx = this.classBodyNode!.body.indexOf(node)
+    const args = node.params
+      .filter(p => !this.t.isTSParameterProperty(p))
+    const arrowFuncNode = this.t.classProperty(
+      this.t.identifier((node.key as t.Identifier).name),
+      this.t.callExpression(
+        this.t.memberExpression(
+          this.t.functionExpression(
+            null,
+            args as Array<t.Identifier | t.Pattern | t.RestElement>,
+            this.t.blockStatement(node.body.body)
           ),
-          this.t.callExpression(
-            this.t.memberExpression(
-              this.t.memberExpression(
-                this.t.thisExpression(),
-                this.t.identifier(methodName)
-              ),
-              this.t.identifier("bind")
-            ),
-            [this.t.thisExpression()]
-          )
-        )
+          this.t.identifier("bind")
+        ), [
+          this.t.thisExpression()
+        ]
       )
     )
+    this.classBodyNode!.body.splice(methodIdx, 1, arrowFuncNode)
+
+    return arrowFuncNode
+  }
+
+  /**
+   * ${key} = undefined
+   * get $${key}Func() {
+   *  return ${value}
+   * }
+   */
+  handleDerivedProperty(node: t.ClassProperty) {
+    if (!this.t.isIdentifier(node.key)) return
+    const key = node.key.name
+    const value = node.value
+    const propertyIdx = this.classBodyNode!.body.indexOf(node)
+    node.value = this.t.identifier("undefined")
+    const getterNode = this.t.classMethod(
+      "get",
+      this.t.identifier(`$${key}Func`), [],
+      this.t.blockStatement([
+        this.t.returnStatement(value)
+      ])
+    )
+    this.classBodyNode!.body.splice(propertyIdx + 1, 0, getterNode)
   }
 
   /**

@@ -2,41 +2,42 @@ import { type CustomNode } from "./CustomNode"
 import { type DLNode, DLNodeType } from "./DLNode"
 import { type HtmlNode } from "./HtmlNode"
 import { loopEls, loopNodes } from "../utils/nodes"
+import { type AnyDLNode } from "./type"
+import { TextNode } from "./TextNode"
 
 export function appendEls(htmlNode: HtmlNode, nodes: DLNode[]) {
-  for (const node of nodes) {
+  nodes.forEach((node: DLNode) => {
     switch (node._$nodeType) {
       case DLNodeType.Text:
         htmlNode._$el.appendChild(node._$el)
         break
       case DLNodeType.HTML:
-        (node as any).willAppear && (node as any).willAppear(node._$el, node as HtmlNode)
+        (node as any).willAppear?.(node._$el, node as HtmlNode)
         htmlNode._$el.appendChild(node._$el)
-        ;(node as any).didAppear && (node as any).didAppear(node._$el, node as HtmlNode)
+        ;(node as any).didAppear?.(node._$el, node as HtmlNode)
         break
       default:
         appendEls(htmlNode, node._$nodes)
         break
     }
-  }
+  })
 }
 
 /**
- * 把nodes对应的elements从dom上移除
- * @param nodes
+ * Remove nodes' elements from DOM
  */
 export function removeNodes(parentEl: HTMLElement, nodes: DLNode[]) {
-  willUnmountDlightNodes(nodes)
+  runDLightNodesWillLifecycle(nodes)
   loopEls(nodes, (el: HTMLElement, node: HtmlNode) => {
-    if (node._$nodeType === DLNodeType.HTML && (node as any).willDisappear) {
-      (node as any).willDisappear(el, node)
+    if (node._$nodeType === DLNodeType.HTML) {
+      (node as AnyDLNode).willDisappear?.(el, node)
     }
     parentEl.removeChild(el)
-    if (node._$nodeType === DLNodeType.HTML && (node as any).didDisappear) {
-      (node as any).didDisappear(el, node)
+    if (node._$nodeType === DLNodeType.HTML) {
+      (node as AnyDLNode).didDisappear?.(el, node)
     }
   }, false)
-  didUnmountDlightNodes(nodes)
+  runDLightNodesDidLifecycle(nodes)
 }
 
 /**
@@ -45,15 +46,19 @@ export function removeNodes(parentEl: HTMLElement, nodes: DLNode[]) {
  * @param dlScope
  */
 export function deleteNodesDeps(nodes: DLNode[], dlScope: CustomNode) {
+  const depArr = (dlScope as AnyDLNode)._$stateDepArr
+  if (!depArr) return
+  const cleanUpDepFuncs: Array<() => void> = []
   loopNodes(nodes, (node: DLNode) => {
-    if ((node as any)._$cleanUps) {
-      for (const cleanUp of (node as any)._$cleanUps) {
-        cleanUp()
-      }
-    }
-    if (node._$nodeType === DLNodeType.Custom) {
-      deleteNodesDeps((node as CustomNode)._$children, dlScope)
-    }
+    const cleanUps = (node as AnyDLNode)._$cleanUps
+    if (!cleanUps) return
+    cleanUpDepFuncs.push(...cleanUps)
+  })
+
+  depArr.forEach((dep: string) => {
+    cleanUpDepFuncs.forEach(func => {
+      (dlScope as AnyDLNode)[dep].delete(func)
+    })
   })
 }
 
@@ -70,17 +75,17 @@ export function deleteNodesDeps(nodes: DLNode[], dlScope: CustomNode) {
 export function appendNodesWithIndex(nodes: DLNode[], index: number, parentEl: HTMLElement, lengthIn?: number, alreadyInDOM?: boolean): [number, number] {
   let length = lengthIn ?? parentEl.childNodes.length
   loopEls(nodes, (el: HTMLElement, node: HtmlNode) => {
-    if (DLNodeType.HTML === node._$nodeType && !alreadyInDOM && (node as any).willAppear) {
+    if (node._$nodeType === DLNodeType.HTML && !alreadyInDOM) {
       // ---- 不在DOM上
-      (node as any).willAppear(node._$el, node)
+      (node as any).willAppear?.(node._$el, node)
     }
     if (index === length) {
       parentEl.appendChild(el)
     } else {
       parentEl.insertBefore(el, parentEl.childNodes[index] as any)
     }
-    if (DLNodeType.HTML === node._$nodeType && !alreadyInDOM && (node as any).didAppear) {
-      (node as any).didAppear(node._$el, node)
+    if (node._$nodeType === DLNodeType.HTML && !alreadyInDOM) {
+      (node as any).didAppear?.(node._$el, node)
     }
     index++
     length++
@@ -111,7 +116,7 @@ function getFlowIndexFromNodesTillId(nodes: DLNode[], stopNode: DLNode) {
       stop = true
       return false
     }
-    if ([DLNodeType.Text, DLNodeType.HTML].includes(node._$nodeType)) {
+    if (node._$nodeType === DLNodeType.HTML || node._$nodeType === DLNodeType.Text) {
       index++
       return false
     }
@@ -120,32 +125,26 @@ function getFlowIndexFromNodesTillId(nodes: DLNode[], stopNode: DLNode) {
   return index
 }
 
-/**
- * 四个生命周期
- * @param nodes
- */
-function runDlightNodesLifecycle(nodes: DLNode[], lifecysle: "willMount" | "didMount" | "willUnmount" | "didUnmount") {
+function runDLightNodesWillLifecycle(nodes: DLNode[]) {
   loopNodes(nodes, (node: DLNode) => {
-    if ([DLNodeType.Custom].includes(node._$nodeType)) {
-      (node as any)[lifecysle](node)
+    if (node._$nodeType === DLNodeType.Custom) {
+      (node as AnyDLNode).willUnmount?.(node)
+    }
+    if (node._$nodeType === DLNodeType.HTML) {
+      (node as AnyDLNode).willDisappear?.(node._$el, node)
     }
   })
 }
 
-export function willMountDlightNodes(nodes: DLNode[]) {
-  runDlightNodesLifecycle(nodes, "willMount")
-}
-
-export function didMountDlightNodes(nodes: DLNode[]) {
-  runDlightNodesLifecycle(nodes, "didMount")
-}
-
-export function willUnmountDlightNodes(nodes: DLNode[]) {
-  runDlightNodesLifecycle(nodes, "willUnmount")
-}
-
-export function didUnmountDlightNodes(nodes: DLNode[]) {
-  runDlightNodesLifecycle(nodes, "didUnmount")
+function runDLightNodesDidLifecycle(nodes: DLNode[]) {
+  loopNodes(nodes, (node: DLNode) => {
+    if (node._$nodeType === DLNodeType.Custom) {
+      (node as AnyDLNode).didUnmount?.(node)
+    }
+    if (node._$nodeType === DLNodeType.HTML) {
+      (node as AnyDLNode).didDisappear?.(node._$el, node)
+    }
+  })
 }
 
 export function arraysEqual(a: any[], b: any[]) {
@@ -163,6 +162,18 @@ export function arraysEqual(a: any[], b: any[]) {
   return true
 }
 
-export function classNameJoin(classNames: string | string[]) {
-  return Array.isArray(classNames) ? classNames.filter(Boolean).join(" ") : classNames || ""
+export function formatNodes(nodes: AnyDLNode) {
+  if (!Array.isArray(nodes)) nodes = [nodes]
+  return nodes
+    .map((node: any) => {
+      if (typeof node === "function") return node()
+      return node
+    })
+    .flat(1)
+    .filter((node: AnyDLNode) => (
+      node !== undefined && node !== null && typeof node !== "boolean"
+    )).map((node: any) => {
+      if (node._$nodeType !== undefined) return node
+      return new TextNode(node)
+    })
 }

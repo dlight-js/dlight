@@ -173,15 +173,6 @@ export class ViewParser {
         }
         forBodyStatements = childNodes.slice(1)
       } else {
-        // ---- If there's no specified key, use the item as the key
-        key = JSON.parse(
-          // ---- Object and Array in declaration and expression have different types
-          //      declaration: ObjectPattern | ArrayPattern
-          //      expression: ObjectExpression | ArrayExpression
-          JSON.stringify(item)
-            .replace(/ObjectPattern/g, "ObjectExpression")
-            .replace(/ArrayPattern/g, "ArrayExpression")
-        )
         forBodyStatements = childNodes
       }
     } else return

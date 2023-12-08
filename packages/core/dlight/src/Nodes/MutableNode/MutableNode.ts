@@ -22,7 +22,7 @@ export class MutableNode extends DLNode {
 
   _$bindNewNodes(nodes: DLNode[]) {
     bindParentNode(nodes, this)
-    this._$beforeInitSubNodes(nodes)
+    this._$collectEnv(nodes)
     initNodes(nodes)
     this.afterUpdateNewNodes(nodes)
   }

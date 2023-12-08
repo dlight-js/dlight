@@ -1,4 +1,5 @@
-import { CustomNode } from "../Nodes"
+import { CustomNode, HtmlNode } from "../Nodes"
+import { type AnyDLNode } from "../Nodes/type"
 
 export function manual(callback: () => any, _deps?: any[]) {
   return callback()
@@ -11,13 +12,28 @@ export const $ = escape
 
 export const View = CustomNode as typeof CustomNode & ((...args: any) => any)
 
-export function render(idOrEl: string | HTMLElement, DL: (typeof View) | Function) {
-  new (DL as any)().render(idOrEl)
+export function render(
+  idOrEl: string | HTMLElement,
+  DL: (typeof View) | Function
+) {
+  let el: HTMLElement = idOrEl as HTMLElement
+  if (typeof idOrEl === "string") {
+    const elFound = document.getElementById(idOrEl)
+    if (elFound) el = elFound
+    else {
+      throw new Error(`Element with id ${idOrEl} not found`)
+    }
+  }
+  el.innerHTML = ""
+  const appNode = new HtmlNode("div")
+  appNode._$el = el
+  appNode._$nodes = [new (DL as AnyDLNode)()]
+  appNode._$init()
 }
 
 export function renderToString(DL: typeof View | Function) {
   const newEl = document.createElement("div")
-  new (DL as any)().render(newEl)
+  render(newEl, DL)
   return newEl.innerHTML
 }
 

@@ -1,161 +1,170 @@
-import { type EnvNode } from "./EnvNode"
 import { DLNode, DLNodeType } from "./DLNode"
 import { addDLProp } from "../utils/prop"
-import { HtmlNode } from "../Nodes"
+import { type ValueOrFunc, type AnyDLNode, type AnyValue } from "./type"
+import { type HtmlNode } from "./HtmlNode"
 
 export class CustomNode extends DLNode {
-  _$envNodes?: EnvNode[]
-  _$derivedPairs?: Record<string, string[]>
-
   constructor() {
     super(DLNodeType.Custom)
   }
 
-  get _$children(): DLNode[] {
-    return this._$childrenFuncs()
+  /**
+   * @brief Initialize the CustomNode
+   */
+  _$init(): void {
+    this._$initDecorators()
+    ;(this as AnyDLNode).willMount?.call(this)
+    this._$nodes = (this as AnyDLNode).Body?.call(this) ?? []
+    this._$bindNodes()
+    ;(this as AnyDLNode).didMount?.call(this)
   }
 
-  _$childrenFuncs: () => DLNode[] = () => []
-
-  _$addChildren(dlNodeFuncs: () => DLNode[]) {
-    this._$childrenFuncs = dlNodeFuncs
-  }
-
-  // ---- dep
+  /**
+   * @brief Handle derived values and their dependencies
+   * @derivedPairs Holds the derived keys and their dependencies,
+   *  basically a map that do the dep-chain
+   *  e.g.
+   *  ```js
+   *  class A {
+   *    count = 1
+   *    doubleCount = this.count * 2
+   *    description = `The count is ${this.count}`
+   *  }
+   *  ```
+   *  -> _$derivedPairs = { doubleCount: ["count"], description: ["count"] }
+   * @key
+   *  1. key: getter: return $key
+   *          setter: set $key and update dependencies
+   *  2. $key: private property key
+   *  3. $$key: "prop" / "env"
+   *  4. $keyFunc: derived value func
+   *  5. $keyDeps: contains to-run dependency functions
+   *  6. $keyWatcher: if this property is a watcher
+   *  e.g.
+   *  ```js
+   *  class A {
+   *    count = 1
+   *    doubleCount = this.count * 2
+   *  }
+   *  =>
+   *  class A {
+   *    $count = 1;
+   *    $countDeps = new Set();
+   *    get count() { return this.$count; }
+   *    set count(value) {
+   *      if (this.$count === value) return
+   *      this.$count = value;
+   *      this.$countDeps.forEach((dep) => { dep(); });
+   *    }
+   *    doubleCount = undefined;
+   *    get $$doubleCountFunc() { return this.count * 2; }
+   *  }
+   * ```
+   */
   _$initDecorators() {
-    if (this._$derivedPairs) {
-      // ---- traverse _$derivedPairs, derived变量监听的变量的change函数挂载到被监听变量上
-      for (const [propertyKey, listenDeps] of Object.entries(this._$derivedPairs)) {
-        const key = `_$$${propertyKey}` in this ? `_$$${propertyKey}` : propertyKey
-        const func = (this as any)[key]
-        if (func === "Watcher") {
-          const watcher = (this as any)[propertyKey]
-          watcher()
-          this._$addDeps(listenDeps, watcher)
-          continue
-        }
+    const derivedPairs: Record<string, string[]> = (this as AnyDLNode)._$derivedPairs
+    if (!derivedPairs) return
 
-        const isDerived = typeof func === "function"
-        if (!isDerived) {
-          (this as any)[key] = func
-          continue
-        }
-        (this as any)[key] = func()
-
-        let prevValue = (this as any)[propertyKey]
-        this._$addDeps(listenDeps, () => {
-          const newValue = func()
-          if (newValue === prevValue) return
-          ;(this as any)[`_$$${propertyKey}`] = newValue
-          prevValue = newValue
-        })
+    // ---- Traverse _$derivedPairs and add derived value funcs
+    Object.entries(derivedPairs).forEach(([key, listenDeps]) => {
+      if ((this as AnyDLNode)[`$${key}Watcher`]) {
+        // ---- If it's a watcher, just add the watcher as the update func
+        (this as AnyDLNode)[key]()
+        this._$addDeps(listenDeps, (this as AnyDLNode)[key].bind(this))
+        return
       }
-    }
-  }
 
-  _$updateProperty(key: string, value: any) {
-    if ((this as any)[`_$$${key}`] === value) return
-    (this as any)[`_$$${key}`] = value
-    this._$runDeps(key)
-  }
-
-  _$runDeps(key: string) {
-    for (const func of (this as any)[`_$$${key}Deps`]) {
-      func()
-    }
-  }
-
-  _$addDeps(deps: string[], func: (newValue?: any) => any, dlNode?: DLNode) {
-    for (const dep of deps) {
-      (this as any)[`_$$${dep}Deps`].add(func)
-    }
-    if (dlNode) this._$deleteDeps(deps, func, dlNode)
-  }
-
-  _$deleteDeps(deps: string[], func: (newValue?: any) => any, dlNode: any) {
-    if (!dlNode._$cleanUps) dlNode._$cleanUps = []
-    dlNode._$cleanUps.push(() => {
-      for (const dep of deps) {
-        (this as any)[`_$$${dep}Deps`].delete(func)
-      }
+      // ---- The derived value func is stored in $${key}Func
+      const funcName = `$${key}Func`
+      ;(this as AnyDLNode)[key] = (this as AnyDLNode)[funcName]
+      this._$addDeps(listenDeps, this._$addFuncDep.bind(this, key, funcName))
     })
   }
 
-  _$resetDeps() {
-    for (const key of Object.getOwnPropertyNames(this)) {
-      if (!(key.startsWith("_$$") && key.endsWith("Deps"))) continue
-      ;(this as any)[key] = new Set()
-    }
+  /**
+   * @brief Used in this._$addDeps
+   *  Declared as method instead of arrow function to reduce compiled code size
+   * @param key Property key
+   * @param funcName Property key + "$xxxFunc", declared outside and bind to this to reduce string template call
+   */
+  _$addFuncDep(key: string, funcName: string) {
+    const newValue = (this as AnyDLNode)[funcName]
+    if (newValue === (this as AnyDLNode)[key]) return
+    ;(this as AnyDLNode)[`$${key}`] = newValue
   }
 
-  _$init() {
-    this._$initDecorators()
-    this.willMount(this._$el, this)
-    this._$nodes = ((this as any).Body.bind(this) ?? (() => []))()
-    this._$bindNodes()
-    this.didMount(this._$el, this)
+  /**
+   * @brief Add dependency functions according to dependencies and add clean up functions if dlNode is provided
+   *  Two scenarios that dlNode is not provided:
+   *    1. In initDecorators
+   *     Because when "this" is deleted, the dependency functions should be deleted too, no need to add clean up functions
+   *    2. Separate addDep and addCleanUpDep
+   *     Manually add clean up functions by calling addCleanUpDep in order to keep dependency removal in order
+   *     Used in forNode's updateFunc
+   * @param deps Dependencies
+   * @param func Dependency function
+   * @param dlNode DLNode
+   */
+  _$addDeps(deps: string[], func: <T>(newValue?: T) => void, dlNode?: DLNode) {
+    deps.forEach(dep => (this as AnyDLNode)[dep].add(func))
+    dlNode && this._$addCleanUpDep(func, dlNode)
   }
 
-  _$addProp(key: string, propFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]) {
+  /**
+   * @brief Add clean up functions to dlNode, to be cleaned up when dlNode is deleted
+   * @param func Same function as the one added to dep set
+   * @param dlNode Associated DLNode
+   */
+  _$addCleanUpDep(func: () => void, dlNode: DLNode) {
+    if (!(dlNode as AnyDLNode)._$cleanUps) (dlNode as AnyDLNode)._$cleanUps = []
+    ;(dlNode as AnyDLNode)._$cleanUps.push(func)
+  }
+
+  /**
+   * @brief Add a prop to this CustomNode by simply calling addDLProp and pass "prop" as the type
+   * @param key Property key
+   * @param propFunc Property function
+   * @param dlScope DLNode
+   * @param listenDeps Dependencies
+   */
+  _$addProp(key: string, propFunc: ValueOrFunc, dlScope?: CustomNode, listenDeps?: string[]) {
     addDLProp(this, "prop", key, propFunc, dlScope, listenDeps)
   }
 
-  _$addContentProp(propFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]) {
-    addDLProp(this, "prop", (this as any)._$contentProp ?? "_$content", propFunc, dlScope, listenDeps)
-  }
-
-  // ---- lifecycles
-  willMount(_els: HTMLElement[], _node: CustomNode) { }
-  didMount(_els: HTMLElement[], _node: CustomNode) { }
-  willUnmount(_els: HTMLElement[], _node: CustomNode) { }
-  didUnmount(_els: HTMLElement[], _node: CustomNode) { }
-
-  _$addLifeCycle(func: (_els: HTMLElement[], _node: CustomNode) => any, lifeCycleName: "willMount" | "didMount" | "willUnmount" | "didUnmount") {
-    const preLifeCycle = this[lifeCycleName]
-    if (["willMount", "willUnmount"].includes(lifeCycleName)) {
-      // ---- outside in
-      this[lifeCycleName] = function(_els: HTMLElement[], _node: CustomNode) {
-        func.call(this, this._$el, this)
-        preLifeCycle.call(this, this._$el, this)
-      }
-    } else {
-      this[lifeCycleName] = function(_els: HTMLElement[], _node: CustomNode) {
-        // ---- inside out
-        preLifeCycle.call(this, this._$el, this)
-        func.call(this, this._$el, this)
-      }
-    }
-  }
-
-  render(idOrEl: string | HTMLElement) {
-    if (typeof idOrEl === "string") {
-      idOrEl = document.getElementById(idOrEl)!
-    }
-    idOrEl.innerHTML = ""
-    const appNode = new HtmlNode(idOrEl)
-    appNode._$addNodes([this])
-    appNode._$init()
-  }
-
-  _$forwardProps = false
+  /**
+   * @TODO
+   */
   forwardProps(dlNode: CustomNode | HtmlNode) {
     const members = [...new Set(
       Object.getOwnPropertyNames(this)
-        .filter(m => (this as any)[m] === "prop")
-        .map(m => m.replace(/^_\$\$\$*/, ""))
+        .filter(m => (this as AnyDLNode)[m] === "prop")
+        .map(m => m.replace(/^\$*/, ""))
     )]
-    for (const member of members) {
+    ;(this as AnyDLNode)._$stateDepArr = members.map(m => `$${m}Func`)
+    for (let i = 0; i < members.length; i++) {
+      const member = members[i]
+      const dependencies = (this as AnyDLNode)._$stateDepArr[i]
       if (dlNode._$nodeType === DLNodeType.HTML) {
-        (dlNode as HtmlNode)._$addAnyProp(member, () => (this as any)[member], this, [member])
+        (dlNode as HtmlNode).addAnyValue(member, () => (this as AnyDLNode)[member], this, dependencies)
       } else {
-        dlNode._$addProp(member, () => (this as any)[member], this, [member])
+        (dlNode as CustomNode)._$addProp(member, () => (this as AnyDLNode)[member], this, dependencies)
       }
     }
 
     if (dlNode._$nodeType === DLNodeType.Custom) {
-      (dlNode as CustomNode)._$childrenFuncs = this._$childrenFuncs
+      (dlNode as AnyDLNode)._$childrenFunc = (this as AnyDLNode)._$childrenFunc
     } else {
-      (dlNode as HtmlNode)._$nodes = this._$children
+      (dlNode as HtmlNode)._$nodes = (this as AnyDLNode)._$childrenFunc?.() ?? []
     }
+  }
+
+  /**
+   * @brief Used in SubView _$addDeps
+   *  Declared as method instead of arrow function to reduce compiled code size
+   * @param container
+   * @param value
+   */
+  _$updateSubView(container: [AnyValue, string[]], value: AnyValue) {
+    container[0] = value
   }
 }

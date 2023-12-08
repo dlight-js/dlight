@@ -1,4 +1,4 @@
-import { View, render } from "@dlightjs/dlight"
+import { View, render, $ } from "@dlightjs/dlight"
 
 let idCounter = 1
 
@@ -20,16 +20,20 @@ function buildData(count) {
 }
 
 @View
-export default class Main {
+class Main {
   rows = []
+
   selectIdx = -1
   addRows() {
     this.rows = buildData(1000)
   }
 
   swapRows() {
-    if (this.rows.length > 999) {
-      this.rows = [this.rows[0], this.rows[998], ...this.rows.slice(2, 998), this.rows[1], this.rows[999]]
+    if(this.rows.length > 998) {
+      const tmp = this.rows[1]
+      this.rows[1] = this.rows[998]
+      this.rows[998] = tmp
+      this.rows = [...this.rows]
     }
   }
 
@@ -38,14 +42,11 @@ export default class Main {
   }
 
   selectRow(idx) {
-    return () => { this.selectIdx = idx }
+    this.selectIdx = idx
   }
 
   deleteRow(id) {
-    return () => {
-      const idx = this.rows.findIndex(row => row.id === id)
-      this.rows = [...this.rows.slice(0, idx), ...this.rows.slice(idx + 1)]
-    }
+    this.rows = [...this.rows.filter(row => row.id !== id)]
   }
 
   addBig() {
@@ -69,11 +70,7 @@ export default class Main {
       .className("col-sm-6 smallpad")
     {
       button(content)
-        .onclick(() => {
-          console.log("shit")
-          onclick()
-          console.log(onclick)
-        })
+        .onclick(onclick)
         .id(id)
         .className("btn btn-primary btn-block")
     }
@@ -145,13 +142,13 @@ export default class Main {
                   .className("col-md-4")
                 {
                   a(label)
-                    .onclick(this.selectRow(id))
+                    .onclick(this.selectRow.bind(this, id))
                 }
                 td()
                   .className("col-md-1")
                 {
                   a()
-                    .onclick(this.deleteRow(id))
+                    .onclick(this.deleteRow.bind(this, id))
                   {
                     span()
                       .className("glyphicon glyphicon-remove")
@@ -171,3 +168,5 @@ export default class Main {
     }
   }
 }
+
+render("main", Main)

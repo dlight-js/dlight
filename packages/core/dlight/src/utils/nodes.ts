@@ -29,7 +29,7 @@ export function loopNodes(nodes: DLNode[], runFunc: (node: DLNode) => (boolean |
 
 export function loopEls(nodes: DLNode[], runFunc: (el: HTMLElement, node: HtmlNode) => void, deep = true) {
   for (const node of nodes) {
-    if ([DLNodeType.HTML, DLNodeType.Text].includes(node._$nodeType)) {
+    if (node._$nodeType === DLNodeType.HTML || node._$nodeType === DLNodeType.Text) {
       runFunc(node._$el, node as HtmlNode)
       if (deep) loopEls(node._$nodes, runFunc)
     } else {

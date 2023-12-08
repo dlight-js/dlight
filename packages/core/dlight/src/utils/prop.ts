@@ -1,48 +1,69 @@
-import { type CustomNode, type EnvNode } from "../Nodes"
+import { type CustomNode } from "../Nodes"
+import { type AnyDLNode } from "../Nodes/type"
 
-function addToDepChain(dlNode: CustomNode, key: string, defaultValue: any) {
-  (dlNode as any)[`_$$${key}`] = defaultValue
+function addToDep(dlNode: CustomNode, key: string, defaultValue: any) {
+  const implicitKey = `$${key}`
+  // ---- Skip if already added
+  if (implicitKey in (dlNode as AnyDLNode)) return
+
+  const depKey = `${implicitKey}Deps`
+  ;(dlNode as AnyDLNode)[implicitKey] = defaultValue
   Object.defineProperty(dlNode, key, {
     get() {
-      return this[`_$$${key}`]
+      return this[implicitKey]
     },
     set(value: any) {
-      this._$updateProperty(key, value)
+      if (this[implicitKey] === value) return
+      this[implicitKey] = value
+      this[depKey].forEach((dep: any) => dep())
     }
   })
-  ;(dlNode as any)[`_$$${key}Deps`] = new Set()
+  ;(dlNode as AnyDLNode)[depKey] = new Set()
 }
 
-export function addDLProp(dlNode: CustomNode, tag: "env" | "prop", key: string, propFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]) {
-  if (dlNode?._$forwardProps && tag === "prop") {
-    forwardDLProp(dlNode, key, propFunc, dlScope, listenDeps)
-    return
-  }
-  if (!(key in dlNode)) return
-  if (!listenDeps) {
-    (dlNode as any)[key] = propFunc
+export function addDLProp(
+  dlNode: CustomNode,
+  tag: "env" | "prop",
+  key: string,
+  propValueOrFunc: any | (() => any),
+  dlScope?: CustomNode,
+  dependencies?: string[]
+) {
+  // ---- Forward all props
+  if ((dlNode as AnyDLNode)._$forwardProps && tag === "prop") {
+    forwardDLProp(dlNode, key, propValueOrFunc, dlScope, dependencies)
     return
   }
 
-  if ((dlNode as any)[`_$$$${key}`] !== tag) {
-    // ---- 不是prop或env，或者不匹配
+  // ---- No valid Prop or Env Receiver
+  if ((dlNode as AnyDLNode)[`$$${key}`] !== tag) return
+
+  // ---- No dependencies, just add the prop
+  if (!dependencies || !dlScope) {
+    (dlNode as AnyDLNode)[key] = propValueOrFunc
     return
   }
 
-  addOneWayDLProp(dlScope!, dlNode, key, propFunc, listenDeps)
+  // ---- Add prop and listeners
+  (dlNode as AnyDLNode)[key] = propValueOrFunc()
+  dlScope._$addDeps(dependencies, assignFuncDep.bind(dlNode, key, propValueOrFunc))
 }
 
-export function forwardDLProp(dlNode: CustomNode, key: string, propFunc: any | (() => any), dlScope?: CustomNode, listenDeps?: string[]) {
-  (dlNode as any)[`_$$$${key}`] = "prop"
-  addToDepChain(dlNode, key, listenDeps ? propFunc() : propFunc)
-  if (listenDeps) {
-    addOneWayDLProp(dlScope!, dlNode, key, propFunc, listenDeps)
-  }
+export function forwardDLProp(
+  dlNode: CustomNode,
+  key: string,
+  propOrFunc: any | (() => any),
+  dlScope?: CustomNode,
+  dependencies?: string[]
+) {
+  (dlNode as any)[`$$${key}`] = "prop"
+  const hasDeps = dependencies && dlScope
+  addToDep(dlNode, key, hasDeps ? propOrFunc() : propOrFunc)
+  if (!hasDeps) return
+  ;(dlNode as AnyDLNode)[key] = propOrFunc()
+  dlScope._$addDeps(dependencies, assignFuncDep.bind(dlNode, key, propOrFunc))
 }
 
-export function addOneWayDLProp(dlScope: CustomNode, dlNode: CustomNode | EnvNode, key: string, propFunc: () => any, listenDeps: string[]) {
-  ;(dlNode as any)[key] = propFunc()
-  dlScope._$addDeps(listenDeps, () => {
-    (dlNode as any)[key] = propFunc()
-  }, dlNode)
+function assignFuncDep(key: string, propFunc: () => any) {
+  this[key] = propFunc()
 }

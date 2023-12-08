@@ -3,7 +3,8 @@ import { type CustomNode } from "../CustomNode"
 import { type DLNode, DLNodeType } from "../DLNode"
 import { type HtmlNode } from "../HtmlNode"
 import { TextNode } from "../TextNode"
-import { appendNodesWithIndex, deleteNodesDeps, getFlowIndexFromParentNode, removeNodes } from "../utils"
+import { AnyDLNode } from "../type"
+import { appendNodesWithIndex, deleteNodesDeps, formatNodes, getFlowIndexFromParentNode, removeNodes } from "../utils"
 import { MutableNode } from "./MutableNode"
 
 type ExpressionNodeType = DLNode | DLNode[]
@@ -18,13 +19,13 @@ export class ExpressionNode extends MutableNode {
   constructor(nodeOrFunc: ExpressionNodeType | (() => ExpressionNodeType), dlScope?: CustomNode, listenDeps?: string[]) {
     super(DLNodeType.Expression)
     if (!listenDeps) {
-      this._$nodes = this.formatNodes(nodeOrFunc)
+      this._$nodes = formatNodes(nodeOrFunc)
       return
     }
     this.nodeOrFunc = nodeOrFunc as () => ExpressionNodeType
     this.listenDeps = listenDeps
     this.dlScope = dlScope
-    this._$nodes = this.formatNodes(this.nodeOrFunc())
+    this._$nodes = formatNodes(this.nodeOrFunc())
   }
 
   _$onUpdateNodes(func: () => any) {
@@ -38,11 +39,11 @@ export class ExpressionNode extends MutableNode {
     // TODO 太复杂，要简化
     const addHtmlNodeProp = (node: HtmlNode) => {
       if (["willAppear", "didAppear", "willDisappear", "didDisappear"].includes(key)) {
-        node._$addLifeCycle(valueOrFunc, key as any)
+        node.l(dlScope ? valueOrFunc() : valueOrFunc, key as any)
         return
       }
       // ---- 不覆盖其他，排除className
-      if (key === "className") (node)._$addClassName(valueOrFunc, dlScope, listenDeps)
+      if (key === "className") (node).c(valueOrFunc, dlScope, listenDeps)
     }
     this.propFuncs.push(() => {
       for (const node of this._$nodes) {
@@ -71,27 +72,8 @@ export class ExpressionNode extends MutableNode {
     })
   }
 
-  formatNodes(nodes: any) {
-    if (!Array.isArray(nodes)) {
-      nodes = [nodes]
-    }
-    nodes = nodes.map((node: any) => {
-      if (typeof node === "function") return node()
-      return node
-    })
-    nodes = nodes.flat(1)
-    nodes = nodes.filter((node: any) => (
-      node !== undefined && node !== null && typeof node !== "boolean"
-    )).map((node: any) => {
-      if (node._$nodeType !== undefined) return node
-      // TODO 其他 Array 什么的不处理？默认传成text？
-      return new TextNode(node)
-    })
-    return nodes
-  }
-
   _$init() {
-    if (this.listenDeps === undefined) {
+    if (!this.listenDeps) {
       this._$bindNodes()
       for (const func of this.propFuncs) {
         func()
@@ -123,7 +105,7 @@ export class ExpressionNode extends MutableNode {
     removeNodes(parentNode._$el, this._$nodes)
 
     // ---- 创建新的
-    this._$nodes = this.formatNodes(this.nodeOrFunc!())
+    this._$nodes = formatNodes(this.nodeOrFunc!())
     this._$bindNewNodes(this._$nodes)
 
     // ---- 添加新的

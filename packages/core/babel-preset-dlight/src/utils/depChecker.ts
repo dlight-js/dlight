@@ -22,12 +22,12 @@ export function isAssignmentExpressionLeft(innerPath: NodePath, T: typeof t): bo
  * @param innerPath
  * @returns is the right side of an assignment expression
  */
-export function isAssignmentExpressionRight(innerPath: NodePath<t.MemberExpression>, classDeclarationNode: t.ClassDeclaration | t.ClassExpression, T: typeof t): boolean {
+export function isAssignmentExpressionRight(innerPath: NodePath<t.MemberExpression>, stopNode: t.Node, T: typeof t): boolean {
   const currNode = innerPath.node
 
   let isRightExp = false
   let reversePath: NodePath<t.Node> | null = innerPath.parentPath
-  while (reversePath && reversePath.node !== classDeclarationNode) {
+  while (reversePath && reversePath.node !== stopNode) {
     if (T.isAssignmentExpression(reversePath.node)) {
       const leftNode = reversePath.node.left as t.MemberExpression
       const typeEqual = currNode.type === leftNode.type
@@ -48,10 +48,10 @@ export function isAssignmentExpressionRight(innerPath: NodePath<t.MemberExpressi
  * @param classDeclarationNode
  * @returns is in escape function
  */
-export function isMemberInEscapeFunction(innerPath: NodePath, classDeclarationNode: t.ClassDeclaration | t.ClassExpression, T: typeof t): boolean {
+export function isMemberInEscapeFunction(innerPath: NodePath, stopNode: t.Node, T: typeof t): boolean {
   let isInFunction = false
   let reversePath = innerPath.parentPath
-  while (reversePath && reversePath.node !== classDeclarationNode) {
+  while (reversePath && reversePath.node !== stopNode) {
     const node = reversePath.node
     if (
       T.isCallExpression(node) &&
@@ -63,7 +63,6 @@ export function isMemberInEscapeFunction(innerPath: NodePath, classDeclarationNo
     }
     reversePath = reversePath.parentPath
   }
-
   return isInFunction
 }
 
@@ -75,10 +74,10 @@ export function isMemberInEscapeFunction(innerPath: NodePath, classDeclarationNo
  * @param classDeclarationNode
  * @returns is in manual function
  */
-export function isMemberInManualFunction(innerPath: NodePath, classDeclarationNode: t.ClassDeclaration | t.ClassExpression, T: typeof t): boolean {
+export function isMemberInManualFunction(innerPath: NodePath, stopNode: t.Node, T: typeof t): boolean {
   let isInFunction = false
   let reversePath = innerPath.parentPath
-  while (reversePath && reversePath.node !== classDeclarationNode) {
+  while (reversePath && reversePath.node !== stopNode) {
     const node = reversePath.node
     const parentNode = reversePath.parentPath?.node
     const isFunction = T.isFunctionExpression(node) || T.isArrowFunctionExpression(node)

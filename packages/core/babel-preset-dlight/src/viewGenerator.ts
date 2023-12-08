@@ -5,7 +5,7 @@ import { isMemberInEscapeFunction, isMemberInManualFunction, isAssignmentExpress
 
 export class ViewGenerator {
   // ---- Const ----
-  private readonly nodeNamePrefix = "_$node"
+  private readonly nodeNamePrefix = "$n"
 
   // ---- Prop ----
   private readonly t: typeof t
@@ -15,6 +15,7 @@ export class ViewGenerator {
   private readonly availableProperties: string[]
   private readonly subViewNames: string[]
   private readonly identifierToDepsMap: Record<string, IdentifierToDepNode[]>
+  private readonly dlightImportName
 
   // ---- Data ----
   readonly usedProperties = new Set<string>()
@@ -37,7 +38,8 @@ export class ViewGenerator {
     fullDepMap: Record<string, string[]>,
     availableProperties: string[],
     subViewNames: string[],
-    identifierToDepsMap: Record<string, IdentifierToDepNode[]>
+    identifierToDepsMap: Record<string, IdentifierToDepNode[]>,
+    dlightImportName = "DLight"
   ) {
     this.t = types
     this.viewParserResult = viewParserResult
@@ -46,6 +48,7 @@ export class ViewGenerator {
     this.availableProperties = availableProperties
     this.subViewNames = subViewNames
     this.identifierToDepsMap = identifierToDepsMap
+    this.dlightImportName = dlightImportName
   }
 
   /**
@@ -98,9 +101,9 @@ export class ViewGenerator {
             // ---- Special case for sub view, e.g. _$node2 is a sub view
             //      [_$node1, ..._$node2, _$node3]
             if (viewParserUnit.type === "custom" && viewParserUnit.isSubView) {
-              return this.t.spreadElement(this.t.identifier(`_$node${idx}`))
+              return this.t.spreadElement(this.t.identifier(`${this.nodeNamePrefix}${idx}`))
             }
-            return this.t.identifier(`_$node${idx}`)
+            return this.t.identifier(`${this.nodeNamePrefix}${idx}`)
           })
         )
       )
@@ -129,7 +132,7 @@ export class ViewGenerator {
    */
   private declareTextNodeWithDep(nodeName: string, value: t.Expression, dependencies: IdentifierToDepNode[]): t.Statement[] {
     return [
-      this.declareDLNode(nodeName, this.t.identifier("TextNode"), [
+      this.declareDLNode(nodeName, this.t.identifier("t"), [
         this.t.arrowFunctionExpression([], value),
         this.t.thisExpression(),
         this.t.arrayExpression(dependencies)
@@ -142,7 +145,7 @@ export class ViewGenerator {
    */
   private declareTextNodeWithoutDep(nodeName: string, value: t.Expression): t.Statement[] {
     return [
-      this.declareDLNode(nodeName, this.t.identifier("TextNode"), [
+      this.declareDLNode(nodeName, this.t.identifier("t"), [
         value
       ])
     ]
@@ -168,7 +171,7 @@ export class ViewGenerator {
       if (key === "do") return collect(this.resolveHTMLDoSomething(nodeName, value))
       if (key === "forwardProps") return collect(this.resolveHTMLForwardProp(nodeName))
       if (["willAppear", "didAppear", "willDisappear", "didDisappear"].includes(key)) {
-        return collect(this.resolveHTMLLifeCycle(nodeName, key, value))
+        return collect(this.resolveHTMLLifecycle(nodeName, key, value))
       }
       const dependencies = this.generateDependencyNodes(value)
       if (key === "element") {
@@ -181,24 +184,25 @@ export class ViewGenerator {
         if (dependencies.length > 0) collect(this.addHTMLElementDeps(nodeName, dependencies))
         return
       }
-      if (key === "addEvents") {
+      if (key === "events") {
         if (dependencies.length > 0) return collect(this.resolveHTMLAddEventsWithDep(nodeName, value, dependencies))
         return collect(this.resolveHTMLAddEventsWithoutDep(nodeName, value))
       }
-      if (key === "addAttributes") {
+      if (key === "attributes") {
         if (dependencies.length > 0) return collect(this.resolveHTMLAddAttributesWithDep(nodeName, value, dependencies))
         return collect(this.resolveHTMLAddAttributesWithoutDep(nodeName, value))
       }
-      if (key === "addStyle") {
+      if (key === "style") {
         if (dependencies.length > 0) return collect(this.resolveHTMLAddStyleWithDep(nodeName, value, dependencies))
         return collect(this.resolveHTMLAddStyleWithoutDep(nodeName, value))
       }
-      if (key === "addClassName") {
+      if (key === "class") {
         if (dependencies.length > 0) return collect(this.resolveHTMLAddClassNameWithDep(nodeName, value, dependencies))
         return collect(this.resolveHTMLAddClassNameWithoutDep(nodeName, value))
       }
       if (key.startsWith("on")) {
-        key = key.slice(2)
+        // ---- e.g. onClick -> click
+        key = key.slice(2).toLowerCase()
         if (dependencies.length > 0) return collect(this.resolveHTMLAddEventWithDep(nodeName, key, value, dependencies))
         return collect(this.resolveHTMLAddEventWithoutDep(nodeName, key, value))
       }
@@ -220,7 +224,7 @@ export class ViewGenerator {
    */
   private declareHTMLNode(nodeName: string, tag: t.Expression): t.Statement[] {
     return [
-      this.declareDLNode(nodeName, this.t.identifier("HtmlNode"), [
+      this.declareDLNode(nodeName, this.t.identifier("h"), [
         tag
       ])
     ]
@@ -256,16 +260,16 @@ export class ViewGenerator {
   }
 
   /**
-   * ${nodeName}._$addLifeCycle(${value}, "${lifeCycleName}");
+   * ${nodeName}._$addLifecycle(${value}, "${lifecycleName}");
    */
-  private resolveHTMLLifeCycle(nodeName: string, lifeCycleName: string, value: t.Expression): t.Statement[] {
+  private resolveHTMLLifecycle(nodeName: string, lifecycleName: string, value: t.Expression): t.Statement[] {
     return [
       this.t.expressionStatement(
         this.t.callExpression(
           this.t.memberExpression(
             this.t.identifier(nodeName),
-            this.t.identifier("_$addLifeCycle")
-          ), [value, this.t.stringLiteral(lifeCycleName)]
+            this.t.identifier("l")
+          ), [value, this.t.stringLiteral(lifecycleName)]
         )
       )
     ]
@@ -426,42 +430,42 @@ export class ViewGenerator {
    * ${nodeName}._$addAttributes(() => ${value}, this, ${dependencies});
    */
   private resolveHTMLAddAttributesWithDep(nodeName: string, value: t.Expression, dependencies: IdentifierToDepNode[]): t.Statement[] {
-    return this.resolveHTMLSpecificFuncWithDep(nodeName, "_$addAttributes", value, dependencies)
+    return this.resolveHTMLSpecificFuncWithDep(nodeName, "a", value, dependencies)
   }
 
   /**
-   * ${nodeName}._$addAttributes(value);
+   * ${nodeName}.a(value);
    */
   private resolveHTMLAddAttributesWithoutDep(nodeName: string, value: t.Expression): t.Statement[] {
-    return this.resolveHTMLSpecificFuncWithoutDep(nodeName, "_$addAttributes", value)
+    return this.resolveHTMLSpecificFuncWithoutDep(nodeName, "a", value)
   }
 
   /**
    * ${nodeName}._$addStyle(() => ${value}, this, ${dependencies});
    */
   private resolveHTMLAddStyleWithDep(nodeName: string, value: t.Expression, dependencies: IdentifierToDepNode[]): t.Statement[] {
-    return this.resolveHTMLSpecificFuncWithDep(nodeName, "_$addStyle", value, dependencies)
+    return this.resolveHTMLSpecificFuncWithDep(nodeName, "s", value, dependencies)
   }
 
   /**
    * ${nodeName}._$addStyle(value);
    */
   private resolveHTMLAddStyleWithoutDep(nodeName: string, value: t.Expression): t.Statement[] {
-    return this.resolveHTMLSpecificFuncWithoutDep(nodeName, "_$addStyle", value)
+    return this.resolveHTMLSpecificFuncWithoutDep(nodeName, "s", value)
   }
 
   /**
    * ${nodeName}._$addClassName(() => ${value}, this, ${dependencies});
    */
   private resolveHTMLAddClassNameWithDep(nodeName: string, value: t.Expression, dependencies: IdentifierToDepNode[]): t.Statement[] {
-    return this.resolveHTMLSpecificFuncWithDep(nodeName, "_$addClassName", value, dependencies)
+    return this.resolveHTMLSpecificFuncWithDep(nodeName, "c", value, dependencies)
   }
 
   /**
    * ${nodeName}._$addClassName(value);
    */
   private resolveHTMLAddClassNameWithoutDep(nodeName: string, value: t.Expression): t.Statement[] {
-    return this.resolveHTMLSpecificFuncWithoutDep(nodeName, "_$addClassName", value)
+    return this.resolveHTMLSpecificFuncWithoutDep(nodeName, "c", value)
   }
 
   /**
@@ -505,51 +509,51 @@ export class ViewGenerator {
   }
 
   /**
-   * ${nodeName}._$addEvent("${key}", () => ${value}, this, ${dependencies});
+   * ${nodeName}.e("${key}", () => ${value}, this, ${dependencies});
    */
   private resolveHTMLAddEventWithDep(nodeName: string, key: string, value: t.Expression, dependencies: IdentifierToDepNode[]): t.Statement[] {
-    return this.resolveHTMLSpecificFuncKeyWithDep(nodeName, key, "_$addEvent", value, dependencies)
+    return this.resolveHTMLSpecificFuncKeyWithDep(nodeName, key, "e", value, dependencies)
   }
 
   /**
-   * ${nodeName}._$addEvent("${key}", value);
+   * ${nodeName}.e("${key}", value);
    */
   private resolveHTMLAddEventWithoutDep(nodeName: string, key: string, value: t.Expression): t.Statement[] {
-    return this.resolveHTMLSpecificFuncKeyWithoutDep(nodeName, key, "_$addEvent", value)
+    return this.resolveHTMLSpecificFuncKeyWithoutDep(nodeName, key, "e", value)
   }
 
   /**
-   * ${nodeName}._$addProp("${key}", () => ${value}, this, ${dependencies});
+   * ${nodeName}.p("${key}", () => ${value}, this, ${dependencies});
    */
   private resolveHTMLAddPropWithDep(nodeName: string, key: string, value: t.Expression, dependencies: IdentifierToDepNode[]): t.Statement[] {
-    return this.resolveHTMLSpecificFuncKeyWithDep(nodeName, key, "_$addProp", value, dependencies)
+    return this.resolveHTMLSpecificFuncKeyWithDep(nodeName, key, "p", value, dependencies)
   }
 
   /**
-   * ${nodeName}._$addProp("${key}", value);
+   * ${nodeName}.p("${key}", value);
    */
   private resolveHTMLAddPropWithoutDep(nodeName: string, key: string, value: t.Expression): t.Statement[] {
-    return this.resolveHTMLSpecificFuncKeyWithoutDep(nodeName, key, "_$addProp", value)
+    return this.resolveHTMLSpecificFuncKeyWithoutDep(nodeName, key, "p", value)
   }
 
   /**
-   * ${nodeName}._$addNodes((() => {
+   * ${nodeName}._$nodes = (() => {
    *  ${children}
    * })())
    */
   private resolveHTMLChildren(nodeName: string, children: ViewParserUnit[]): t.Statement[] {
     return [
       this.t.expressionStatement(
-        this.t.callExpression(
+        this.t.assignmentExpression(
+          "=",
           this.t.memberExpression(
             this.t.identifier(nodeName),
-            this.t.identifier("_$addNodes")
-          ), [
-            this.t.callExpression(
-              this.t.arrowFunctionExpression([], this.generateView(children)),
-              []
-            )
-          ]
+            this.t.identifier("_$nodes")
+          ),
+          this.t.callExpression(
+            this.t.arrowFunctionExpression([], this.generateView(children)),
+            []
+          )
         )
       )
     ]
@@ -584,7 +588,7 @@ export class ViewGenerator {
    */
   private declareIfNode(nodeName: string): t.Statement[] {
     return [
-      this.declareDLNode(nodeName, this.t.identifier("IfNode"), [])
+      this.declareDLNode(nodeName, this.t.identifier("i"), [])
     ]
   }
 
@@ -646,6 +650,7 @@ export class ViewGenerator {
     const array = viewParserUnit.array
     const item = viewParserUnit.item
     const key = viewParserUnit.key
+
     const dependencies = this.generateDependencyNodes(array)
 
     // ---- Item
@@ -655,25 +660,36 @@ export class ViewGenerator {
       //      e.g. for (const item of array) {}
       //           then every item should be updated when array is updated
       const identifierInItem = this.getIdentifiers(item)
+      let keyDepNotToInclude: string | undefined
+      if (this.t.isIdentifier(key)) {
+        // ---- Remove key from dependencies,
+        //      because when key is updated, the for loop will be updated.
+        //      so no need to update items.
+        keyDepNotToInclude = key.name
+      }
       const identifierToDepsMap = {
         ...this.identifierToDepsMap,
-        ...identifierInItem.reduce((acc, id) => ({
-          ...acc,
-          [id]: dependencies
-        }), {})
+        ...identifierInItem.reduce((acc, id) => (
+          keyDepNotToInclude === id
+            ? acc
+            : {
+                ...acc,
+                [id]: dependencies
+              }), {})
       }
+
       const forBody = this.generateView(viewParserUnit.children, identifierToDepsMap)
       const itemStatements = this.t.isIdentifier(item)
         ? this.resolveForItemUpdateSimpleIdentifier(item)
-        : this.resolveForItemUpdateComplexObject(item, forBody)
+        : this.resolveForItemUpdateComplexObject(item)
 
       // ---- _$addNodeFunc
       collect(
-        this.resolveForMainNodeFuncWithDep(nodeName, itemStatements, forBody, dependencies)
+        this.resolveForMainNodeFuncWithDep(nodeName, item, itemStatements, forBody, dependencies)
       )
 
       // ---- _$addKeyFunc
-      if (key) collect(this.resolveForKeyFunc(nodeName, array, item, key))
+      if (key) collect(this.resolveForKeyFunc(nodeName, item, key))
 
       // ---- _$addArrayFunc
       collect(this.resolveForArrayFunc(nodeName, array, dependencies))
@@ -691,53 +707,39 @@ export class ViewGenerator {
    */
   private declareForNode(nodeName: string): t.Statement[] {
     return [
-      this.declareDLNode(nodeName, this.t.identifier("ForNode"), [])
+      this.declareDLNode(nodeName, this.t.identifier("f"), [])
     ]
   }
 
   /**
-   * let ${item} = node_for._$getItem(_$key, _$idx);
-   * const updateFunc = () => (
-   *  ${item} = node_for._$getItem(_$key, _$idx)
-   * )
+   * const $uf = () => {
+   *  ${item} = nodeFor.i($k, $i);
+   * }
    */
   private resolveForItemUpdateSimpleIdentifier(item: t.Identifier): t.Statement[] {
     return [
       this.t.variableDeclaration(
-        "let", [
-          this.t.variableDeclarator(
-            item,
-            this.t.callExpression(
-              this.t.memberExpression(
-                this.t.identifier("node_for"),
-                this.t.identifier("_$getItem")
-              ), [
-                this.t.identifier("_$key"),
-                this.t.identifier("_$idx")
-              ]
-            )
-          )
-        ]
-      ),
-      this.t.variableDeclaration(
         "const", [
           this.t.variableDeclarator(
-            this.t.identifier("updateFunc"),
-            this.t.arrowFunctionExpression(
-              [],
-              this.t.assignmentExpression(
-                "=",
-                item,
-                this.t.callExpression(
-                  this.t.memberExpression(
-                    this.t.identifier("node_for"),
-                    this.t.identifier("_$getItem")
-                  ), [
-                    this.t.identifier("_$key"),
-                    this.t.identifier("_$idx")
-                  ]
+            this.t.identifier("$uf"),
+            this.t.arrowFunctionExpression([],
+              this.t.blockStatement([
+                this.t.expressionStatement(
+                  this.t.assignmentExpression(
+                    "=",
+                    item,
+                    this.t.callExpression(
+                      this.t.memberExpression(
+                        this.t.identifier(`${this.nodeNamePrefix}For`),
+                        this.t.identifier("i")
+                      ), [
+                        this.t.identifier("$k"),
+                        this.t.identifier("$i")
+                      ]
+                    )
+                  )
                 )
-              )
+              ])
             )
           )
         ]
@@ -746,66 +748,61 @@ export class ViewGenerator {
   }
 
   /**
-   * const ${item} = node_for._$getItem(_$key, _$idx);
-   * const ${itemObjName} = { ...${item} };
-   * const updateFunc = () => {
-   *  const ${item} = node_for._$getItem(_$key, _$idx)
-   *  ${itemObjName}.${each} = ${each in item};
+   * const $uf = () => {
+   *  const $v = (() => {
+   *    const {item} = nodeFor.i($k, $i);
+   *    return { {each in item.keys }: item[each]}
+   *  })()
+   *  ${each} = ${each in $v};
    * }
    */
-  private resolveForItemUpdateComplexObject(item: t.LVal, forBody: t.BlockStatement): t.Statement[] {
-    const itemObjName = `_itemObj${uid()}`
+  private resolveForItemUpdateComplexObject(item: t.LVal): t.Statement[] {
     const identifiersInItem = this.getIdentifiers(item)
 
-    const statements = [
+    return [
       this.t.variableDeclaration(
         "const", [
           this.t.variableDeclarator(
-            item,
-            this.t.callExpression(
-              this.t.memberExpression(
-                this.t.identifier("node_for"),
-                this.t.identifier("_$getItem")
-              ), [
-                this.t.identifier("_$key"),
-                this.t.identifier("_$idx")
-              ]
-            )
-          )
-        ]
-      ),
-      this.t.variableDeclaration(
-        "const", [
-          this.t.variableDeclarator(
-            this.t.identifier(itemObjName),
-            this.t.objectExpression(
-              identifiersInItem.map(i => this.t.objectProperty(
-                this.t.identifier(i),
-                this.t.identifier(i)
-              ))
-            )
-          )
-        ]
-      ),
-      this.t.variableDeclaration(
-        "const", [
-          this.t.variableDeclarator(
-            this.t.identifier("updateFunc"),
-            this.t.arrowFunctionExpression(
-              [],
+            this.t.identifier("$uf"),
+            this.t.arrowFunctionExpression([],
               this.t.blockStatement([
                 this.t.variableDeclaration(
                   "const", [
                     this.t.variableDeclarator(
-                      item,
+                      this.t.identifier("$v"),
                       this.t.callExpression(
-                        this.t.memberExpression(
-                          this.t.identifier("node_for"),
-                          this.t.identifier("_$getItem")
-                        ), [
-                          this.t.identifier("_$key"),
-                          this.t.identifier("_$idx")
-                        ]
+                        this.t.arrowFunctionExpression([],
+                          this.t.blockStatement([
+                            this.t.variableDeclaration(
+                              "const", [
+                                this.t.variableDeclarator(
+                                  item,
+                                  this.t.callExpression(
+                                    this.t.memberExpression(
+                                      this.t.identifier(`${this.nodeNamePrefix}For`),
+                                      this.t.identifier("i")
+                                    ), [
+                                      this.t.identifier("$k"),
+                                      this.t.identifier("$i")
+                                    ]
+                                  )
+                                )
+                              ]
+                            ),
+                            this.t.returnStatement(
+                              this.t.objectExpression(
+                                identifiersInItem.map(id => (
+                                  this.t.objectProperty(
+                                    this.t.identifier(id),
+                                    this.t.identifier(id),
+                                    false,
+                                    true
+                                  )
+                                ))
+                              )
+                            )
+                          ])
+                        ), []
                       )
                     )
                   ]
@@ -814,11 +811,11 @@ export class ViewGenerator {
                   this.t.expressionStatement(
                     this.t.assignmentExpression(
                       "=",
+                      this.t.identifier(idName),
                       this.t.memberExpression(
-                        this.t.identifier(itemObjName),
+                        this.t.identifier("$v"),
                         this.t.identifier(idName)
-                      ),
-                      this.t.identifier(idName)
+                      )
                     )
                   )
                 ))
@@ -828,243 +825,209 @@ export class ViewGenerator {
         ]
       )
     ]
-
-    // ---- Replace all identifiers in item with itemObjName.item
-    const forBodyFunction = this.functionWrapper(forBody)
-    this.classRootPath.scope.traverse(forBodyFunction, {
-      Identifier: innerPath => {
-        const currentNode = innerPath.node
-        const parentNode = innerPath.parentPath?.node
-        // ----- 1. Identifier name must be in item
-        //       2. Must not be a member expression property like xxx.name
-        //          but can be a member expression like name.xxx or xxx[name]
-        //       3. Must not be an object key like { xxx: ANY }
-        //       4. Must not be parameters from function
-        if (
-          !identifiersInItem.includes(currentNode.name) ||
-          (
-            this.t.isMemberExpression(parentNode) &&
-            !parentNode.computed &&
-            parentNode.property === currentNode
-          ) ||
-          (
-            this.t.isObjectProperty(parentNode) &&
-            parentNode.key === currentNode
-          ) ||
-          this.isAttrFromFunction(innerPath, currentNode.name, forBodyFunction)
-        ) return
-        // ---- Replace identifier with itemObjName.item
-        const valueNode = this.t.memberExpression(
-          this.t.identifier(itemObjName),
-          this.t.identifier(innerPath.node.name)
-        )
-        innerPath.replaceWith(valueNode)
-        innerPath.skip()
-      }
-    })
-
-    return statements
   }
 
   /**
-   * ${nodeName}._$addNodeFunc((_$key, _$idx, node_for) => {
+   * ${nodeName}.nodeFunc = (${item}, $i, $k, nodeFor) => {
    *  ${itemStatements}
    *  this._$addDeps(${dependencies}, updateFunc)
    *  ${forBody.body}
-   *  this._$deleteDeps(${dependencies}, updateFunc, Array.isArray(_$node0) ? _$node0[0] : _$node0);
-   * })
+   *  this._$addCleanUpDep($uf, Array.isArray(_$node0) ? _$node0[0] : _$node0)
+   * }
    */
-  private resolveForMainNodeFuncWithDep(nodeName: string, itemBody: t.Statement[], forBody: t.BlockStatement, dependencies: IdentifierToDepNode[]): t.Statement[] {
+  private resolveForMainNodeFuncWithDep(nodeName: string, item: t.LVal, itemBody: t.Statement[], forBody: t.BlockStatement, dependencies: IdentifierToDepNode[]): t.Statement[] {
+    if (this.leftValCheck(item)) return []
+    // ---- If no nodes in forBody, return "return []"
+    if (forBody.body.length === 0) {
+      return [
+        this.t.returnStatement(
+          this.t.arrayExpression()
+        )
+      ]
+    }
     // ---- The reason to split add and delete deps is to make the dep order right
     //      because we need the updateFunc to be called before the forBody
     //      but to be removed after the forBody
     return [
       this.t.expressionStatement(
-        this.t.callExpression(
+        this.t.assignmentExpression(
+          "=",
           this.t.memberExpression(
             this.t.identifier(nodeName),
-            this.t.identifier("_$addNodeFunc")
-          ), [
-            this.t.arrowFunctionExpression([
-              this.t.identifier("_$key"),
-              this.t.identifier("_$idx"),
-              this.t.identifier("node_for")
-            ], this.t.blockStatement([
-              ...itemBody,
-              this.t.expressionStatement(
-                this.t.callExpression(
-                  this.t.memberExpression(
-                    this.t.thisExpression(),
-                    this.t.identifier("_$addDeps")
-                  ), [
-                    this.t.arrayExpression(dependencies),
-                    this.t.identifier("updateFunc")
-                  ]
-                )
-              ),
-              // ---- Non-return statements
-              ...forBody.body.slice(0, -1),
-              this.t.expressionStatement(
-                this.t.callExpression(
-                  this.t.memberExpression(
-                    this.t.thisExpression(),
-                    this.t.identifier("_$deleteDeps")
-                  ), [
-                    this.t.arrayExpression(dependencies),
-                    this.t.identifier("updateFunc"),
-                    this.t.conditionalExpression(
-                      this.t.callExpression(
-                        this.t.memberExpression(this.t.identifier("Array"), this.t.identifier("isArray")), [
-                          this.t.identifier("_$node0")
-                        ]
-                      ),
+            this.t.identifier("nodeFunc")
+          ),
+          this.t.arrowFunctionExpression([
+            item,
+            this.t.identifier("$i"),
+            this.t.identifier("$k"),
+            this.t.identifier(`${this.nodeNamePrefix}For`)
+          ], this.t.blockStatement([
+            ...itemBody,
+            this.t.expressionStatement(
+              this.t.callExpression(
+                this.t.memberExpression(
+                  this.t.thisExpression(),
+                  this.t.identifier("_$addDeps")
+                ), [
+                  this.t.arrayExpression(dependencies),
+                  this.t.identifier("$uf")
+                ]
+              )
+            ),
+            // ---- Non-return statements
+            ...forBody.body.slice(0, -1),
+            // ---- Cleanup deps
+            this.t.expressionStatement(
+              this.t.callExpression(
+                this.t.memberExpression(
+                  this.t.thisExpression(),
+                  this.t.identifier("_$addCleanUpDep")
+                ), [
+                  this.t.identifier("$uf"),
+                  this.t.conditionalExpression(
+                    this.t.callExpression(
                       this.t.memberExpression(
-                        this.t.identifier("_$node0"),
-                        this.t.numericLiteral(0),
-                        true
-                      ),
-                      this.t.identifier("_$node0")
-                    )
-                  ]
-                )
-              ),
-              // ---- Return statement
-              forBody.body[forBody.body.length - 1]
-            ]))
-          ]
+                        this.t.identifier("Array"),
+                        this.t.identifier("isArray")
+                      ), [
+                        this.t.identifier(`${this.nodeNamePrefix}0`)
+                      ]
+                    ),
+                    this.t.memberExpression(
+                      this.t.identifier(`${this.nodeNamePrefix}0`),
+                      this.t.numericLiteral(0),
+                      true
+                    ),
+                    this.t.identifier(`${this.nodeNamePrefix}0`)
+                  )
+                ]
+              )
+            ),
+            // ---- Return statement
+            forBody.body[forBody.body.length - 1]
+          ])
+          )
         )
       )
     ]
   }
 
   /**
-   * ${nodeName}._$addKeyFunc(() => {
-   *   const keys = []
-   *   for (const ${item} of ${array}) {
-   *     keys.push(${key});
-   *   }
-   *   return keys
-   * })
+   * ${nodeName}.keyFunc = arr => (
+   *   arr.map(${item} => ${key})
+   * )
    */
-  private resolveForKeyFunc(nodeName: string, array: t.Expression, item: t.LVal, key: t.Expression): t.Statement[] {
+  private resolveForKeyFunc(nodeName: string, item: t.LVal, key: t.Expression): t.Statement[] {
+    if (this.leftValCheck(item)) return []
+
     return [
       this.t.expressionStatement(
-        this.t.callExpression(
+        this.t.assignmentExpression(
+          "=",
           this.t.memberExpression(
             this.t.identifier(nodeName),
-            this.t.identifier("_$addKeyFunc")
-          ), [
-            this.t.arrowFunctionExpression(
-              [],
-              this.t.blockStatement([
-                this.t.variableDeclaration(
-                  "const", [
-                    this.t.variableDeclarator(
-                      this.t.identifier("keys"),
-                      this.t.arrayExpression()
-                    )
-                  ]
-                ),
-                this.t.forOfStatement(
-                  this.t.variableDeclaration(
-                    "const", [
-                      this.t.variableDeclarator(item)
-                    ]
-                  ),
-                  array,
-                  this.t.blockStatement([
-                    this.t.expressionStatement(
-                      this.t.callExpression(
-                        this.t.memberExpression(
-                          this.t.identifier("keys"),
-                          this.t.identifier("push")
-                        ), [key]
-                      )
-                    )
-                  ])
-                ),
-                this.t.returnStatement(this.t.identifier("keys"))
-              ])
+            this.t.identifier("keyFunc")
+          ),
+          this.t.arrowFunctionExpression([
+            this.t.identifier("arr")
+          ], this.t.blockStatement([
+            this.t.returnStatement(
+              this.t.callExpression(
+                this.t.memberExpression(
+                  this.t.identifier("arr"),
+                  this.t.identifier("map")
+                ), [
+                  this.t.arrowFunctionExpression([item], key)
+                ]
+              )
             )
-          ]
+          ])
+          )
         )
       )
     ]
   }
 
   /**
-   * ${nodeName}._$addArrayFunc(this, () => (${array}), ${dependencies});
+   * ${nodeName}.arrayFunc = () => (${array})
+   * ${nodeName}.dlScope = this
+   * ${nodeName}.dependencies = ${dependencies});
    */
   private resolveForArrayFunc(nodeName: string, array: t.Expression, dependencies: IdentifierToDepNode[]): t.Statement[] {
     return [
       this.t.expressionStatement(
-        this.t.callExpression(
+        this.t.assignmentExpression(
+          "=",
           this.t.memberExpression(
             this.t.identifier(nodeName),
-            this.t.identifier("_$addArrayFunc")
-          ), [
-            this.t.thisExpression(),
-            this.t.arrowFunctionExpression([], array),
-            this.t.arrayExpression(dependencies)
-          ]
+            this.t.identifier("dlScope")
+          ),
+          this.t.thisExpression()
+        )
+      ),
+      this.t.expressionStatement(
+        this.t.assignmentExpression(
+          "=",
+          this.t.memberExpression(
+            this.t.identifier(nodeName),
+            this.t.identifier("arrayFunc")
+          ),
+          this.t.arrowFunctionExpression([], array)
+        )
+      ),
+      this.t.expressionStatement(
+        this.t.assignmentExpression(
+          "=",
+          this.t.memberExpression(
+            this.t.identifier(nodeName),
+            this.t.identifier("dependencies")
+          ),
+          this.t.arrayExpression(dependencies)
         )
       )
     ]
   }
 
   /**
-   * ${nodeName}._$addNodess(() => (
-   *  Array.from(${array}).map((${item}) => (() => {
+   * this._$nodes = ${array}.map(${item} => {
    *    ${children}
-   *  })())
-   * ));
+   *  }).flat(1)
    */
   private resolveForMainNodeFuncWithoutDep(nodeName: string, array: t.Expression, item: t.LVal, forBody: t.BlockStatement): t.Statement[] {
-    if (
-      this.t.isMemberExpression(item) ||
-      this.t.isArrayExpression(item) ||
-      this.t.isBinaryExpression(item) ||
-      this.t.isTSAsExpression(item) ||
-      this.t.isTSTypeAssertion(item) ||
-      this.t.isTSSatisfiesExpression(item) ||
-      this.t.isTSNonNullExpression(item) ||
-      this.t.isTSParameterProperty(item)
-    ) {
-      throw new Error("This'll never happen, or IanDx to blame")
-    }
+    if (this.leftValCheck(item)) return []
     return [
       this.t.expressionStatement(
-        this.t.callExpression(
+        this.t.assignmentExpression(
+          "=",
           this.t.memberExpression(
             this.t.identifier(nodeName),
-            this.t.identifier("_$addNodess")
-          ), [
-            this.t.arrowFunctionExpression(
-              [],
+            this.t.identifier("_$nodes")
+          ),
+          this.t.callExpression(
+            this.t.memberExpression(
               this.t.callExpression(
                 this.t.memberExpression(
-                  this.t.callExpression(
-                    this.t.memberExpression(
-                      this.t.identifier("Array"),
-                      this.t.identifier("from")
-                    ), [array]
-                  ),
+                  array,
                   this.t.identifier("map")
                 ), [
-                  this.t.arrowFunctionExpression(
-                    [item],
-                    forBody
-                  )
+                  this.t.arrowFunctionExpression([item], forBody)
                 ]
-              )
+              ),
+              this.t.identifier("flat")
             )
-          ]
+            , [this.t.numericLiteral(1)]
+          )
         )
       )
     ]
   }
 
   /* ---- Expression Unit ---- */
+  /**
+   * @Exp
+   * @param viewParserUnit
+   * @returns
+   */
   private resolveExp(viewParserUnit: ExpViewParserUnit): t.Statement[] {
     const [statements, collect] = statementsCollector()
     const nodeName = this.generateDLNodeName()
@@ -1095,7 +1058,7 @@ export class ViewGenerator {
    */
   private declareExpNodeWithDep(nodeName: string, value: t.Expression, dependencies: IdentifierToDepNode[]): t.Statement[] {
     return [
-      this.declareDLNode(nodeName, this.t.identifier("ExpressionNode"), [
+      this.declareDLNode(nodeName, this.t.identifier("e"), [
         this.t.arrowFunctionExpression([], value),
         this.t.thisExpression(),
         this.t.arrayExpression(dependencies)
@@ -1202,35 +1165,35 @@ export class ViewGenerator {
    */
   private declareEnvNode(nodeName: string): t.Statement[] {
     return [
-      this.declareDLNode(nodeName, this.t.identifier("EnvNode"), [])
+      this.declareDLNode(nodeName, this.t.identifier("v"), [])
     ]
   }
 
   /**
-   * ${nodeName}._$addNodes((() => {
+   * ${nodeName}._$nodes = ((() => {
    *  ${children}
    * }())
    */
   private resolveEnvChildren(nodeName: string, children: ViewParserUnit[]): t.Statement[] {
     return [
       this.t.expressionStatement(
-        this.t.callExpression(
+        this.t.assignmentExpression(
+          "=",
           this.t.memberExpression(
             this.t.identifier(nodeName),
-            this.t.identifier("_$addNodes")
-          ), [
-            this.t.callExpression(
-              this.t.arrowFunctionExpression([], this.generateView(children)),
-              []
-            )
-          ]
+            this.t.identifier("_$nodes")
+          ),
+          this.t.callExpression(
+            this.t.arrowFunctionExpression([], this.generateView(children)),
+            []
+          )
         )
       )
     ]
   }
 
   /**
-   * ${nodeName}._$addProp("${key}", () => (${value}), this, ${dependencies});
+   * ${nodeName}.p("${key}", () => (${value}), this, ${dependencies});
    */
   private resolveEnvAddPropWithDep(nodeName: string, key: string, value: t.Expression, dependencies: IdentifierToDepNode[]): t.Statement[] {
     return [
@@ -1238,7 +1201,7 @@ export class ViewGenerator {
         this.t.callExpression(
           this.t.memberExpression(
             this.t.identifier(nodeName),
-            this.t.identifier("_$addProp")
+            this.t.identifier("p")
           ), [
             this.t.stringLiteral(key),
             this.t.arrowFunctionExpression([], value),
@@ -1251,7 +1214,7 @@ export class ViewGenerator {
   }
 
   /**
-   * ${nodeName}._$addProp("${key}", ${value});
+   * ${nodeName}.p("${key}", ${value});
    */
   private resolveEnvAddPropWithoutDep(nodeName: string, key: string, value: t.Expression): t.Statement[] {
     return [
@@ -1259,7 +1222,7 @@ export class ViewGenerator {
         this.t.callExpression(
           this.t.memberExpression(
             this.t.identifier(nodeName),
-            this.t.identifier("_$addProp")
+            this.t.identifier("p")
           ), [
             this.t.stringLiteral(key),
             value
@@ -1271,7 +1234,7 @@ export class ViewGenerator {
 
   /* ---- Subview ---- */
   /**
-   * @SubView
+   * @Subview
    * @param viewParserUnit
    * @returns
    */
@@ -1303,7 +1266,7 @@ export class ViewGenerator {
     // ---- Delete deps
     passProps.forEach(({ key, dependencies }) => {
       if (dependencies.length > 0) {
-        collect(this.deleteSubViewDeps(key, dependencies, nodeName))
+        collect(this.cleanUpSubViewDeps(key, nodeName))
       }
     })
 
@@ -1311,25 +1274,24 @@ export class ViewGenerator {
   }
 
   /**
-   * const ${key}_${id} = {value: ${value}, deps: ${dependencies}};
+   * const ${key}$${id} = [${value}, ${dependencies}];
    */
   private resolveSubViewRedeclareProp(id: string, key: string, value: t.Expression, dependencies: IdentifierToDepNode[]): t.Statement[] {
-    const objNodes = [this.t.objectProperty(
-      this.t.identifier("value"),
-      value
-    )]
+    const dependencyNode: t.Expression[] = []
     if (dependencies.length > 0) {
-      objNodes.push(this.t.objectProperty(
-        this.t.identifier("deps"),
+      dependencyNode.push(
         this.t.arrayExpression(dependencies)
-      ))
+      )
     }
     return [
       this.t.variableDeclaration(
         "const", [
           this.t.variableDeclarator(
-            this.t.identifier(`${key}_${id}`),
-            this.t.objectExpression(objNodes)
+            this.t.identifier(`${key}$${id}`),
+            this.t.arrayExpression([
+              value,
+              ...dependencyNode
+            ])
           )
         ]
       )
@@ -1337,29 +1299,10 @@ export class ViewGenerator {
   }
 
   /**
-   * const ${key}UpdateFunc${this.currentUnitIdx} = () => ${keyWithId}.value = value
-   * this._$addDeps(depsStr, ${key}UpdateFunc${this.currentUnitIdx});
+   * this._$addDeps(dependencies, this._$updateSubview.bind(this, ${key}_${id}, ${value}));
    */
   private addSubViewDeps(id: string, key: string, value: t.Expression, dependencies: IdentifierToDepNode[]): t.Statement[] {
     return [
-      this.t.variableDeclaration(
-        "const", [
-          this.t.variableDeclarator(
-            this.t.identifier(`${key}UpdateFunc${this.currentUnitIdx}`),
-            this.t.arrowFunctionExpression(
-              [],
-              this.t.assignmentExpression(
-                "=",
-                this.t.memberExpression(
-                  this.t.identifier(`${key}_${id}`),
-                  this.t.identifier("value")
-                ),
-                value
-              )
-            )
-          )
-        ]
-      ),
       this.t.expressionStatement(
         this.t.callExpression(
           this.t.memberExpression(
@@ -1367,7 +1310,19 @@ export class ViewGenerator {
             this.t.identifier("_$addDeps")
           ), [
             this.t.arrayExpression(dependencies),
-            this.t.identifier(`${key}UpdateFunc${this.currentUnitIdx}`)
+            this.t.callExpression(
+              this.t.memberExpression(
+                this.t.memberExpression(
+                  this.t.thisExpression(),
+                  this.t.identifier("_$updateSubview")
+                ),
+                this.t.identifier("bind")
+              ), [
+                this.t.thisExpression(),
+                this.t.identifier(`${key}_${id}`),
+                value
+              ]
+            )
           ]
         )
       )
@@ -1375,7 +1330,7 @@ export class ViewGenerator {
   }
 
   /**
-   * const nodeName = ${subView}({ [${key}: ${keyWithId}] })
+   * const nodeName = ${subView}({ [${key}: ${key}$${id}] })
    */
   private callSubView(id: string, nodeName: string, tag: t.Expression, props: Array<[string, t.Expression]>): t.Statement[] {
     return [
@@ -1388,7 +1343,7 @@ export class ViewGenerator {
                 this.t.objectExpression(props.map(([key]) => (
                   this.t.objectProperty(
                     this.t.identifier(key),
-                    this.t.identifier(`${key}_${id}`)
+                    this.t.identifier(`${key}$${id}`)
                   )
                 )))
               ]
@@ -1400,17 +1355,16 @@ export class ViewGenerator {
   }
 
   /**
-   * this._$deleteDeps(${dependencies}, ${key}UpdateFunc${this.currentUnitIdx}, ${nodeName}[0]);
+   * this._$addCleanUpDep(${key}UpdateFunc${this.currentUnitIdx}, ${nodeName}[0]);
    */
-  private deleteSubViewDeps(key: string, dependencies: IdentifierToDepNode[], nodeName: string): t.Statement[] {
+  private cleanUpSubViewDeps(key: string, nodeName: string): t.Statement[] {
     return [
       this.t.expressionStatement(
         this.t.callExpression(
           this.t.memberExpression(
             this.t.thisExpression(),
-            this.t.identifier("_$deleteDeps")
+            this.t.identifier("_$addCleanUpDep")
           ), [
-            this.t.arrayExpression(dependencies),
             this.t.identifier(`${key}UpdateFunc${this.currentUnitIdx}`),
             this.t.memberExpression(
               this.t.identifier(nodeName),
@@ -1441,9 +1395,9 @@ export class ViewGenerator {
       const content = this.resolveViewInProp(viewParserUnit.content)
       const dependencies = this.generateDependencyNodes(content)
       if (dependencies.length > 0) {
-        collect(this.resolveCustomAddContentPropWithDep(nodeName, content, dependencies))
+        collect(this.resolveCustomAddPropWithDep(nodeName, null, content, dependencies))
       } else {
-        collect(this.resolveCustomAddContentPropWithoutDep(nodeName, content))
+        collect(this.resolveCustomAddPropWithoutDep(nodeName, null, content))
       }
     }
 
@@ -1451,9 +1405,6 @@ export class ViewGenerator {
     this.preHandleProps(viewParserUnit.props).forEach(([key, value]) => {
       if (key === "do") return collect(this.resolveCustomDo(nodeName, value))
       if (key === "forwardProps") return collect(this.resolveCustomForwardProps(nodeName))
-      if (["willMount", "didMount", "willUnmount", "didUnmount"].includes(key)) {
-        return collect(this.resolveCustomLifecycle(nodeName, key, value))
-      }
       const dependencies = this.generateDependencyNodes(value)
       if (key === "element") {
         if (this.isOnlyMemberExpression(value)) {
@@ -1518,25 +1469,6 @@ export class ViewGenerator {
             this.t.thisExpression(),
             this.t.identifier("forwardProps")
           ), [this.t.identifier(nodeName)]
-        )
-      )
-    ]
-  }
-
-  /**
-   * ${nodeName}._$addLifeCycle(${value}, "${key}");
-   */
-  private resolveCustomLifecycle(nodeName: string, key: string, value: t.Expression): t.Statement[] {
-    return [
-      this.t.expressionStatement(
-        this.t.callExpression(
-          this.t.memberExpression(
-            this.t.identifier(nodeName),
-            this.t.identifier("_$addLifeCycle")
-          ), [
-            value,
-            this.t.stringLiteral(key)
-          ]
         )
       )
     ]
@@ -1641,8 +1573,10 @@ export class ViewGenerator {
 
   /**
    * ${nodeName}._$addProp("${key}", () => (${value}), this, ${dependencies})
+   *  or
+   * ${nodeName}._$addProp(this._$contentProp ?? "_$content", ${value}, () => (${value}), this, ${dependencies});
    */
-  private resolveCustomAddPropWithDep(nodeName: string, key: string, value: t.Expression, dependencies: IdentifierToDepNode[]): t.Statement[] {
+  private resolveCustomAddPropWithDep(nodeName: string, key: string | null, value: t.Expression, dependencies: IdentifierToDepNode[]): t.Statement[] {
     return [
       this.t.expressionStatement(
         this.t.callExpression(
@@ -1650,7 +1584,15 @@ export class ViewGenerator {
             this.t.identifier(nodeName),
             this.t.identifier("_$addProp")
           ), [
-            this.t.stringLiteral(key),
+            key
+              ? this.t.stringLiteral(key)
+              : this.t.logicalExpression("??",
+                this.t.memberExpression(
+                  this.t.thisExpression(),
+                  this.t.identifier("_$contentProp")
+                ),
+                this.t.stringLiteral("_$content")
+              ),
             this.t.arrowFunctionExpression([], value),
             this.t.thisExpression(),
             this.t.arrayExpression(dependencies)
@@ -1662,8 +1604,10 @@ export class ViewGenerator {
 
   /**
    * ${nodeName}._$addProp("${key}", ${value});
+   *  or
+   * ${nodeName}._$addProp(this._$contentProp, ${value});
    */
-  private resolveCustomAddPropWithoutDep(nodeName: string, key: string, value: t.Expression): t.Statement[] {
+  private resolveCustomAddPropWithoutDep(nodeName: string, key: string | null, value: t.Expression): t.Statement[] {
     return [
       this.t.expressionStatement(
         this.t.callExpression(
@@ -1671,7 +1615,12 @@ export class ViewGenerator {
             this.t.identifier(nodeName),
             this.t.identifier("_$addProp")
           ), [
-            this.t.stringLiteral(key),
+            key
+              ? this.t.stringLiteral(key)
+              : this.t.memberExpression(
+                this.t.thisExpression(),
+                this.t.identifier("_$contentProp")
+              ),
             value
           ]
         )
@@ -1680,59 +1629,18 @@ export class ViewGenerator {
   }
 
   /**
-   * ${nodeName}._$addProp(() => (${value}), this, ${dependencies})
-   */
-  private resolveCustomAddContentPropWithDep(nodeName: string, value: t.Expression, dependencies: IdentifierToDepNode[]): t.Statement[] {
-    return [
-      this.t.expressionStatement(
-        this.t.callExpression(
-          this.t.memberExpression(
-            this.t.identifier(nodeName),
-            this.t.identifier("_$addContentProp")
-          ), [
-            this.t.arrowFunctionExpression([], value),
-            this.t.thisExpression(),
-            this.t.arrayExpression(dependencies)
-          ]
-        )
-      )
-    ]
-  }
-
-  /**
-   * ${nodeName}._$addContentProp(${value});
-   */
-  private resolveCustomAddContentPropWithoutDep(nodeName: string, value: t.Expression): t.Statement[] {
-    return [
-      this.t.expressionStatement(
-        this.t.callExpression(
-          this.t.memberExpression(
-            this.t.identifier(nodeName),
-            this.t.identifier("_$addContentProp")
-          ), [value]
-        )
-      )
-    ]
-  }
-
-  /**
-   * ${nodeName}._$addChildren(() => {
-   *  ${children}
-   * })
+   * ${nodeName}._$childrenFunc = () => ${children}
    */
   private resolveCustomChildren(nodeName: string, children: ViewParserUnit[]): t.Statement[] {
     return [
       this.t.expressionStatement(
-        this.t.callExpression(
+        this.t.assignmentExpression(
+          "=",
           this.t.memberExpression(
             this.t.identifier(nodeName),
-            this.t.identifier("_$addChildren")
-          ), [
-            this.t.arrowFunctionExpression(
-              [],
-              this.generateView(children)
-            )
-          ]
+            this.t.identifier("_$childrenFunc")
+          ),
+          this.t.arrowFunctionExpression([], this.generateView(children))
         )
       )
     ]
@@ -1838,17 +1746,18 @@ export class ViewGenerator {
   private getDependencyStringNodes(node: t.Expression): t.StringLiteral[] {
     const deps = new Set<string>()
 
-    this.classRootPath.scope.traverse(this.valueWrapper(node), {
+    const wrappedNode = this.valueWrapper(node)
+    this.classRootPath.scope.traverse(wrappedNode, {
       MemberExpression: innerPath => {
         if (!this.t.isIdentifier(innerPath.node.property)) return
         const propertyKey = innerPath.node.property.name
         if (
           this.availableProperties.includes(propertyKey) &&
           this.t.isThisExpression(innerPath.node.object) &&
-          !isMemberInEscapeFunction(innerPath, this.classRootPath.node, this.t) &&
-          !isMemberInManualFunction(innerPath, this.classRootPath.node, this.t) &&
+          !isMemberInEscapeFunction(innerPath, wrappedNode, this.t) &&
+          !isMemberInManualFunction(innerPath, wrappedNode, this.t) &&
           !isAssignmentExpressionLeft(innerPath, this.t) &&
-          !isAssignmentExpressionRight(innerPath, this.classRootPath.node, this.t)
+          !isAssignmentExpressionRight(innerPath, wrappedNode, this.t)
         ) {
           deps.add(propertyKey)
           this.fullDepMap[propertyKey]?.forEach(deps.add.bind(deps))
@@ -1856,7 +1765,7 @@ export class ViewGenerator {
       }
     })
 
-    return [...deps].map(this.t.stringLiteral.bind(this.t))
+    return [...deps].map(dep => this.t.stringLiteral(`$${dep}Deps`))
   }
 
   /**
@@ -1867,14 +1776,20 @@ export class ViewGenerator {
   private getIdentifierDependencyNodes(node: t.Expression): IdentifierToDepNode[] {
     const deps = new Set<IdentifierToDepNode>()
 
-    this.classRootPath.scope.traverse(this.valueWrapper(node), {
+    const wrappedNode = this.valueWrapper(node)
+    this.classRootPath.scope.traverse(wrappedNode, {
       Identifier: innerPath => {
         const identifier = innerPath.node
         const idName = identifier.name
         if (this.isAttrFromFunction(this.classRootPath, idName, node)) return
         const depsArray = this.identifierToDepsMap[idName]
         if (!depsArray) return
-        depsArray.forEach(deps.add.bind(deps))
+        if (
+          !isMemberInEscapeFunction(innerPath, wrappedNode, this.t) &&
+          !isMemberInManualFunction(innerPath, wrappedNode, this.t)
+        ) {
+          depsArray.forEach(deps.add.bind(deps))
+        }
       }
     })
 
@@ -1897,7 +1812,7 @@ export class ViewGenerator {
           this.t.identifier(dlNodeName),
           this.t.newExpression(
             this.t.memberExpression(
-              this.t.identifier("DLight"),
+              this.t.identifier(this.dlightImportName),
               dlNodeType
             ), args
           )
@@ -1986,7 +1901,8 @@ export class ViewGenerator {
       this.fullDepMap,
       this.availableProperties,
       this.subViewNames,
-      identifierToDepsMap ?? this.identifierToDepsMap
+      identifierToDepsMap ?? this.identifierToDepsMap,
+      this.dlightImportName
     )
     usedProperties.forEach(this.usedProperties.add.bind(this.usedProperties))
 
@@ -2089,6 +2005,33 @@ export class ViewGenerator {
   private valueWrapper(node: t.Expression): t.VariableDeclaration {
     return this.t.variableDeclaration("const", [this.t.variableDeclarator(this.t.identifier("_"), node)])
   }
+
+  /**
+   * This function should never return true, or IanDx to blame
+   * @param node
+   * @returns
+   */
+  private leftValCheck(node: t.Node): node is (
+    t.MemberExpression
+    | t.ArrayExpression
+    | t.BinaryExpression
+    | t.TSAsExpression
+    | t.TSTypeAssertion
+    | t.TSSatisfiesExpression
+    | t.TSNonNullExpression
+    | t.TSParameterProperty
+  ) {
+    return (
+      this.t.isMemberExpression(node) ||
+      this.t.isArrayExpression(node) ||
+      this.t.isBinaryExpression(node) ||
+      this.t.isTSAsExpression(node) ||
+      this.t.isTSTypeAssertion(node) ||
+      this.t.isTSSatisfiesExpression(node) ||
+      this.t.isTSNonNullExpression(node) ||
+      this.t.isTSParameterProperty(node)
+    )
+  }
 }
 
 /**
@@ -2116,7 +2059,8 @@ export function generateView(
   fullDepMap: Record<string, string[]>,
   availableProperties: string[],
   subViewNames: string[],
-  identifierToDepsMap: Record<string, IdentifierToDepNode[]>
+  identifierToDepsMap: Record<string, IdentifierToDepNode[]>,
+  dlImportName = "DLight"
 ): [t.BlockStatement, string[]] {
   const viewGenerator = new ViewGeneratorClass(
     types,
@@ -2125,7 +2069,8 @@ export function generateView(
     fullDepMap,
     availableProperties,
     subViewNames,
-    identifierToDepsMap
+    identifierToDepsMap,
+    dlImportName
   )
   return [viewGenerator.generate(), [...viewGenerator.usedProperties]]
 }

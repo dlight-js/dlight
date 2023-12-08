@@ -16,7 +16,7 @@
   ],
   "type": "module",
   "main": "dist/index.cjs",
-  "module": "dist/index.js",
+  "module": "src/index.ts",
   "typings": "dist/index.d.ts",
   "scripts": {
     "build": "tsup --sourcemap",
