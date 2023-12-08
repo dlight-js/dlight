@@ -79,6 +79,9 @@ export class CustomNode extends DLNode {
       ;(this as AnyDLNode)[key] = (this as AnyDLNode)[funcName]
       this._$addDeps(listenDeps, this._$addFuncDep.bind(this, key, funcName))
     })
+
+    // ---- Free _$derivedPairs to reduce array size
+    delete (this as AnyDLNode)._$derivedPairs
   }
 
   /**

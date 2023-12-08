@@ -12,9 +12,11 @@ export function appendEls(htmlNode: HtmlNode, nodes: DLNode[]) {
         htmlNode._$el.appendChild(node._$el)
         break
       case DLNodeType.HTML:
-        (node as any).willAppear?.(node._$el, node as HtmlNode)
+        (node as AnyDLNode).willAppear?.(node._$el, node)
+        delete (node as AnyDLNode).willAppear
         htmlNode._$el.appendChild(node._$el)
-        ;(node as any).didAppear?.(node._$el, node as HtmlNode)
+        ;(node as AnyDLNode).didAppear?.(node._$el, node)
+        delete (node as AnyDLNode).didAppear
         break
       default:
         appendEls(htmlNode, node._$nodes)
@@ -75,7 +77,7 @@ export function deleteNodesDeps(nodes: DLNode[], dlScope: CustomNode) {
 export function appendNodesWithIndex(nodes: DLNode[], index: number, parentEl: HTMLElement, lengthIn?: number, alreadyInDOM?: boolean): [number, number] {
   let length = lengthIn ?? parentEl.childNodes.length
   loopEls(nodes, (el: HTMLElement, node: HtmlNode) => {
-    if (node._$nodeType === DLNodeType.HTML && !alreadyInDOM) {
+    if (node._$nodeType === DLNodeType.HTML) {
       // ---- 不在DOM上
       (node as any).willAppear?.(node._$el, node)
     }
@@ -84,7 +86,7 @@ export function appendNodesWithIndex(nodes: DLNode[], index: number, parentEl: H
     } else {
       parentEl.insertBefore(el, parentEl.childNodes[index] as any)
     }
-    if (node._$nodeType === DLNodeType.HTML && !alreadyInDOM) {
+    if (node._$nodeType === DLNodeType.HTML) {
       (node as any).didAppear?.(node._$el, node)
     }
     index++

@@ -166,7 +166,7 @@ export class ViewGenerator {
     // ---- Props
     const props: Record<string, ViewParserProp> = viewParserUnit.props ?? {}
     // ---- Add content prop as innerText
-    if (viewParserUnit.content) props.innerText = viewParserUnit.content
+    if (viewParserUnit.content) props.textContent = viewParserUnit.content
     this.preHandleProps(props).forEach(([key, value]) => {
       if (key === "do") return collect(this.resolveHTMLDoSomething(nodeName, value))
       if (key === "forwardProps") return collect(this.resolveHTMLForwardProp(nodeName))

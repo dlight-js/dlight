@@ -135,7 +135,7 @@ export class ForNode extends MutableNode {
   }
 
   updateWithKey(parentNode: HtmlNode) {
-    // ---- If the key is provided, the only purpose is to ensure that
+    // ---- If the key is provided, the only purpose here is to ensure that
     //      the reference of the element does not change, which will slow down
     const parentEl = parentNode._$el
     const flowIndex = getFlowIndexFromParentNode(parentNode, this)
