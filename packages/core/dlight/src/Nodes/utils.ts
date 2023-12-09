@@ -5,39 +5,15 @@ import { loopEls, loopNodes } from "../utils/nodes"
 import { type AnyDLNode } from "./type"
 import { TextNode } from "./TextNode"
 
-export function appendEls(htmlNode: HtmlNode, nodes: DLNode[]) {
-  nodes.forEach((node: DLNode) => {
-    switch (node._$nodeType) {
-      case DLNodeType.Text:
-        htmlNode._$el.appendChild(node._$el)
-        break
-      case DLNodeType.HTML:
-        (node as AnyDLNode).willAppear?.(node._$el, node)
-        delete (node as AnyDLNode).willAppear
-        htmlNode._$el.appendChild(node._$el)
-        ;(node as AnyDLNode).didAppear?.(node._$el, node)
-        delete (node as AnyDLNode).didAppear
-        break
-      default:
-        appendEls(htmlNode, node._$nodes)
-        break
-    }
-  })
-}
-
 /**
  * Remove nodes' elements from DOM
  */
 export function removeNodes(parentEl: HTMLElement, nodes: DLNode[]) {
   runDLightNodesWillLifecycle(nodes)
   loopEls(nodes, (el: HTMLElement, node: HtmlNode) => {
-    if (node._$nodeType === DLNodeType.HTML) {
-      (node as AnyDLNode).willDisappear?.(el, node)
-    }
+    ;(node as AnyDLNode).willDisappear?.(el, node)
     parentEl.removeChild(el)
-    if (node._$nodeType === DLNodeType.HTML) {
-      (node as AnyDLNode).didDisappear?.(el, node)
-    }
+    ;(node as AnyDLNode).didDisappear?.(el, node)
   }, false)
   runDLightNodesDidLifecycle(nodes)
 }
@@ -74,27 +50,43 @@ export function deleteNodesDeps(nodes: DLNode[], dlScope: CustomNode) {
  * @param lengthIn - 调用parentEl.childNodes.length会浪费时间，从外面传入会省很多时间
  * @returns
  */
-export function appendNodesWithIndex(nodes: DLNode[], index: number, parentEl: HTMLElement, lengthIn?: number, alreadyInDOM?: boolean): [number, number] {
-  let length = lengthIn ?? parentEl.childNodes.length
+export function appendNodesWithIndex(nodes: DLNode[], index: number, parentEl: HTMLElement, length: number): [number, number] {
   loopEls(nodes, (el: HTMLElement, node: HtmlNode) => {
-    if (node._$nodeType === DLNodeType.HTML) {
-      // ---- 不在DOM上
-      (node as any).willAppear?.(node._$el, node)
-    }
-    if (index === length) {
-      parentEl.appendChild(el)
+    (node as AnyDLNode).willAppear?.(node._$el, node)
+    if (length !== index) {
+      parentEl.insertBefore(el, parentEl.childNodes[index])
     } else {
-      parentEl.insertBefore(el, parentEl.childNodes[index] as any)
+      parentEl.appendChild(el)
     }
-    if (node._$nodeType === DLNodeType.HTML) {
-      (node as any).didAppear?.(node._$el, node)
-    }
+    (node as AnyDLNode).didAppear?.(node._$el, node)
     index++
     length++
   }, false)
   return [index, length]
 }
 
+export function appendNodes(nodes: DLNode[], parentEl: HTMLElement) {
+  loopEls(nodes, (el: HTMLElement, node: HtmlNode) => {
+    (node as AnyDLNode).willAppear?.(node._$el, node)
+    delete (node as AnyDLNode).willAppear
+    parentEl.appendChild(el)
+    ;(node as AnyDLNode).didAppear?.(node._$el, node)
+    delete (node as AnyDLNode).didAppear
+  }, false)
+}
+
+export function appendNodesWithFragment(nodes: DLNode[], fragment: DocumentFragment, length: number): number {
+  loopEls(nodes, (el: HTMLElement, node: HtmlNode) => {
+    (node as AnyDLNode).willAppear?.(node._$el, node)
+    delete (node as AnyDLNode).willAppear
+    fragment.appendChild(el)
+    ;(node as AnyDLNode).didAppear?.(node._$el, node)
+    delete (node as AnyDLNode).didAppear
+    length++
+  }, false)
+
+  return length
+}
 /**
  * flowCursor相关，index表明前面有n个普通HTMLElement
  * flowNodes是flow相关的节点，element个数不定，每次插入都要重新计算，但是这个节点的reference是固定的
@@ -129,23 +121,15 @@ function getFlowIndexFromNodesTillId(nodes: DLNode[], stopNode: DLNode) {
 
 function runDLightNodesWillLifecycle(nodes: DLNode[]) {
   loopNodes(nodes, (node: DLNode) => {
-    if (node._$nodeType === DLNodeType.Custom) {
-      (node as AnyDLNode).willUnmount?.(node)
-    }
-    if (node._$nodeType === DLNodeType.HTML) {
-      (node as AnyDLNode).willDisappear?.(node._$el, node)
-    }
+    (node as AnyDLNode).willUnmount?.(node)
+    ;(node as AnyDLNode).willDisappear?.(node._$el, node)
   })
 }
 
 function runDLightNodesDidLifecycle(nodes: DLNode[]) {
   loopNodes(nodes, (node: DLNode) => {
-    if (node._$nodeType === DLNodeType.Custom) {
-      (node as AnyDLNode).didUnmount?.(node)
-    }
-    if (node._$nodeType === DLNodeType.HTML) {
-      (node as AnyDLNode).didDisappear?.(node._$el, node)
-    }
+    (node as AnyDLNode).didUnmount?.(node)
+    ;(node as AnyDLNode).didDisappear?.(node._$el, node)
   })
 }
 
