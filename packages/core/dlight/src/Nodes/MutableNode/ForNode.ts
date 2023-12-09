@@ -139,20 +139,43 @@ export class ForNode extends MutableNode {
     //      the reference of the element does not change, which will slow down
     const parentEl = parentNode._$el
     const flowIndex = getFlowIndexFromParentNode(parentNode, this)
-    let prevKeys = this.keys
+    const prevKeys = this.keys
     const prevAllNodes = this._$nodess
     const prevNodes = this._$nodes
 
     this.renewKeyAndArray()
     if (arraysEqual(prevKeys, this.keys)) return
 
-    const newPrevKeys = []
+    if (prevKeys.length === 0) {
+      let length = parentEl.childNodes.length
+      let newFlowIndex = flowIndex
+      for (let idx = 0; idx < this.keys.length; idx++) {
+        const newNodes = this.getNewNodes(idx)
+        ;[newFlowIndex, length] = appendNodesWithIndex(newNodes, newFlowIndex, parentEl, length)
+        this._$nodess.push(newNodes)
+      }
+      this._$nodes = this._$nodess.flat(1)
+      return
+    }
+
+    if (this.keys.length === 0) {
+      for (let prevIdx = 0; prevIdx < prevKeys.length; prevIdx++) {
+        deleteNodesDeps(prevAllNodes[prevIdx], this.dlScope!)
+        removeNodes(parentNode._$el, prevAllNodes[prevIdx])
+      }
+      this._$nodess = []
+      this._$nodes = []
+      return
+    }
+
+    const shuffleKeys = []
     const newDlNodes = []
 
     // ---- 1. Delete the nodes that are no longer in the array
-    for (const [prevIdx, prevKey] of prevKeys.entries()) {
+    for (let prevIdx = 0; prevIdx < prevKeys.length; prevIdx++) {
+      const prevKey = prevKeys[prevIdx]
       if (this.keys.includes(prevKey)) {
-        newPrevKeys.push(prevKey)
+        shuffleKeys.push(prevKey)
         newDlNodes.push(prevAllNodes[prevIdx])
         continue
       }
@@ -160,44 +183,45 @@ export class ForNode extends MutableNode {
       removeNodes(parentNode._$el, prevAllNodes[prevIdx])
     }
 
-    prevKeys = newPrevKeys
-
     // ---- 2. Add the nodes that are not in the array but in the new array
-    let newFlowIndex = flowIndex
     // ---- Calling parentEl.childNodes.length is time-consuming,
     //      so we use a length variable to store the length
     let length = parentEl.childNodes.length
-    for (const [idx, key] of this.keys.entries()) {
-      if (prevKeys.includes(key)) {
+    let newFlowIndex = flowIndex
+    for (let idx = 0; idx < this.keys.length; idx++) {
+      const key = this.keys[idx]
+      if (shuffleKeys.includes(key)) {
         // ---- These nodes have been replaced,
         //      but we need to keep track of their flowIndex
-        newFlowIndex += getFlowIndexFromNodes(newDlNodes[prevKeys.indexOf(key)])
+        newFlowIndex += getFlowIndexFromNodes(newDlNodes[shuffleKeys.indexOf(key)])
         continue
       }
       const newNodes = this.getNewNodes(idx)
       ;[newFlowIndex, length] = appendNodesWithIndex(newNodes, newFlowIndex, parentEl, length)
       newDlNodes.splice(idx, 0, newNodes)
-      prevKeys.splice(idx, 0, key)
+      shuffleKeys.splice(idx, 0, key)
     }
 
     newFlowIndex = flowIndex
 
     const bufferNodes = []
     // ---- 3. Replace the nodes in the same position using Fisher-Yates shuffle algorithm
-    for (const [idx, key] of this.keys.entries()) {
-      const prevIdx = prevKeys.indexOf(key)
+    for (let idx = 0; idx < this.keys.length; idx++) {
+      const key = this.keys[idx]
+      const prevIdx = shuffleKeys.indexOf(key)
       if (bufferNodes[idx]) {
         const bufferedNode = bufferNodes[idx]
-        ;[newFlowIndex, length] = appendNodesWithIndex(bufferedNode, newFlowIndex + getFlowIndexFromNodes(bufferedNode), parentEl, length, true)
+        ;[newFlowIndex, length] = appendNodesWithIndex(bufferedNode, newFlowIndex + getFlowIndexFromNodes(bufferedNode), parentEl, length)
         delete bufferNodes[idx]
       } else if (prevIdx === idx) {
         newFlowIndex += getFlowIndexFromNodes(newDlNodes[idx])
+        continue
       } else {
-        bufferNodes[this.keys.indexOf(prevKeys[idx])] = newDlNodes[idx]
-        ;[newFlowIndex, length] = appendNodesWithIndex(newDlNodes[prevIdx], newFlowIndex, parentEl, length, true)
+        bufferNodes[this.keys.indexOf(shuffleKeys[idx])] = newDlNodes[idx]
+        ;[newFlowIndex, length] = appendNodesWithIndex(newDlNodes[prevIdx], newFlowIndex, parentEl, length)
       }
       ;[newDlNodes[idx], newDlNodes[prevIdx]] = [newDlNodes[prevIdx], newDlNodes[idx]]
-      ;[prevKeys[idx], prevKeys[prevIdx]] = [prevKeys[prevIdx], prevKeys[idx]]
+      ;[shuffleKeys[idx], shuffleKeys[prevIdx]] = [shuffleKeys[prevIdx], shuffleKeys[idx]]
     }
 
     this._$nodess = newDlNodes

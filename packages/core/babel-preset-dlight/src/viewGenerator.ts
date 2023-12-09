@@ -15,7 +15,6 @@ export class ViewGenerator {
   private readonly availableProperties: string[]
   private readonly subViewNames: string[]
   private readonly identifierToDepsMap: Record<string, IdentifierToDepNode[]>
-  private readonly dlightImportName
 
   // ---- Data ----
   readonly usedProperties = new Set<string>()
@@ -38,8 +37,7 @@ export class ViewGenerator {
     fullDepMap: Record<string, string[]>,
     availableProperties: string[],
     subViewNames: string[],
-    identifierToDepsMap: Record<string, IdentifierToDepNode[]>,
-    dlightImportName = "DLight"
+    identifierToDepsMap: Record<string, IdentifierToDepNode[]>
   ) {
     this.t = types
     this.viewParserResult = viewParserResult
@@ -48,7 +46,6 @@ export class ViewGenerator {
     this.availableProperties = availableProperties
     this.subViewNames = subViewNames
     this.identifierToDepsMap = identifierToDepsMap
-    this.dlightImportName = dlightImportName
   }
 
   /**
@@ -117,37 +114,53 @@ export class ViewGenerator {
    * @returns
    */
   private resolveText(viewParserUnit: TextViewParserUnit): t.Statement[] {
+    const [statements, collect] = statementsCollector()
     const value = viewParserUnit.content
     const dependencies = this.generateDependencyNodes(value)
     const nodeName = this.generateDLNodeName()
+    collect(this.declareDLNode(nodeName, "t"))
 
     if (dependencies.length > 0) {
-      return this.declareTextNodeWithDep(nodeName, value, dependencies)
+      collect(this.resolveTextWithDep(nodeName, value, dependencies))
+    } else {
+      collect(this.resolveTextWithoutDep(nodeName, value))
     }
-    return this.declareTextNodeWithoutDep(nodeName, value)
+    return statements
   }
 
   /**
-   * const ${nodeName} = new DLight.TextNode(() => ${value}, this, ${geneDepsStr(dependencies)});
+   * ${nodeName}.t (() => ${value}, this, ${geneDepsStr(dependencies)});
    */
-  private declareTextNodeWithDep(nodeName: string, value: t.Expression, dependencies: IdentifierToDepNode[]): t.Statement[] {
+  private resolveTextWithDep(nodeName: string, value: t.Expression, dependencies: IdentifierToDepNode[]): t.Statement[] {
     return [
-      this.declareDLNode(nodeName, this.t.identifier("t"), [
-        this.t.arrowFunctionExpression([], value),
-        this.t.thisExpression(),
-        this.t.arrayExpression(dependencies)
-      ])
+      this.t.expressionStatement(
+        this.t.callExpression(
+          this.t.memberExpression(
+            this.t.identifier(nodeName),
+            this.t.identifier("t")
+          ), [
+            this.t.arrowFunctionExpression([], value),
+            this.t.thisExpression(),
+            this.t.arrayExpression(dependencies)
+          ]
+        )
+      )
     ]
   }
 
   /**
-   * const ${nodeName} = new DLight.TextNode(${value});
+   * ${nodeName}.t($value});
    */
-  private declareTextNodeWithoutDep(nodeName: string, value: t.Expression): t.Statement[] {
+  private resolveTextWithoutDep(nodeName: string, value: t.Expression): t.Statement[] {
     return [
-      this.declareDLNode(nodeName, this.t.identifier("t"), [
-        value
-      ])
+      this.t.expressionStatement(
+        this.t.callExpression(
+          this.t.memberExpression(
+            this.t.identifier(nodeName),
+            this.t.identifier("t")
+          ), [value]
+        )
+      )
     ]
   }
 
@@ -161,7 +174,8 @@ export class ViewGenerator {
     const [statements, collect] = statementsCollector()
     const tag = viewParserUnit.tag
     const nodeName = this.generateDLNodeName()
-    statements.push(...this.declareHTMLNode(nodeName, tag))
+    collect(this.declareDLNode(nodeName, "h"))
+    collect(this.resolveHTMLAddTag(nodeName, tag))
 
     // ---- Props
     const props: Record<string, ViewParserProp> = viewParserUnit.props ?? {}
@@ -220,13 +234,18 @@ export class ViewGenerator {
   }
 
   /**
-   * const ${nodeName} = new DLight.HtmlNode(${tag})
+   * ${nodeName}.t(${tag});
    */
-  private declareHTMLNode(nodeName: string, tag: t.Expression): t.Statement[] {
+  private resolveHTMLAddTag(nodeName: string, tag: t.Expression): t.Statement[] {
     return [
-      this.declareDLNode(nodeName, this.t.identifier("h"), [
-        tag
-      ])
+      this.t.expressionStatement(
+        this.t.callExpression(
+          this.t.memberExpression(
+            this.t.identifier(nodeName),
+            this.t.identifier("t")
+          ), [tag]
+        )
+      )
     ]
   }
 
@@ -568,7 +587,7 @@ export class ViewGenerator {
   private resolveIf(viewParserUnit: IfViewParserUnit): t.Statement[] {
     const [statements, collect] = statementsCollector()
     const nodeName = this.generateDLNodeName()
-    collect(this.declareIfNode(nodeName))
+    collect(this.declareDLNode(nodeName, "i"))
 
     // ---- Condition
     const conditions = viewParserUnit.conditions
@@ -581,15 +600,6 @@ export class ViewGenerator {
     })
 
     return statements
-  }
-
-  /**
-   * const ${nodeName} = new DLight.IfNode();
-   */
-  private declareIfNode(nodeName: string): t.Statement[] {
-    return [
-      this.declareDLNode(nodeName, this.t.identifier("i"), [])
-    ]
   }
 
   /**
@@ -645,7 +655,7 @@ export class ViewGenerator {
   private resolveFor(viewParserUnit: ForViewParserUnit): t.Statement[] {
     const [statements, collect] = statementsCollector()
     const nodeName = this.generateDLNodeName()
-    collect(this.declareForNode(nodeName))
+    collect(this.declareDLNode(nodeName, "f"))
 
     const array = viewParserUnit.array
     const item = viewParserUnit.item
@@ -700,15 +710,6 @@ export class ViewGenerator {
     }
 
     return statements
-  }
-
-  /**
-   * const ${nodeName} = new DLight.ForNode();
-   */
-  private declareForNode(nodeName: string): t.Statement[] {
-    return [
-      this.declareDLNode(nodeName, this.t.identifier("f"), [])
-    ]
   }
 
   /**
@@ -1143,7 +1144,7 @@ export class ViewGenerator {
     const [statements, collect] = statementsCollector()
     const nodeName = this.generateDLNodeName()
 
-    collect(this.declareEnvNode(nodeName))
+    collect(this.declareDLNode(nodeName, "v"))
     // ---- Add children first
     const children = viewParserUnit.children
     if (children && children.length > 0) {
@@ -1158,15 +1159,6 @@ export class ViewGenerator {
     })
 
     return statements
-  }
-
-  /**
-   * const ${nodeName} = new DLight.EnvNode()
-   */
-  private declareEnvNode(nodeName: string): t.Statement[] {
-    return [
-      this.declareDLNode(nodeName, this.t.identifier("v"), [])
-    ]
   }
 
   /**
@@ -1247,26 +1239,24 @@ export class ViewGenerator {
     if (viewParserUnit.content) rawProps.content = viewParserUnit.content
     const props = this.preHandleProps(rawProps)
     const keyId = uid()
-    const passProps: Array<{ key: string, dependencies: IdentifierToDepNode[] }> = []
+    const passProps: Array<{ key: string, dependencies: IdentifierToDepNode[], value: t.Expression }> = []
 
     // ---- Props
     props.forEach(([key, value]) => {
       const dependencies = this.generateDependencyNodes(value)
-      collect(this.resolveSubViewRedeclareProp(keyId, key, value, dependencies))
       if (dependencies.length > 0) {
-        // ---- Add deps
         collect(this.addSubViewDeps(keyId, key, value, dependencies))
       }
-      passProps.push({ key, dependencies })
+      passProps.push({ key, dependencies, value })
     })
 
     // ---- Call sub view
-    collect(this.callSubView(keyId, nodeName, viewParserUnit.tag, props))
+    collect(this.callSubView(keyId, nodeName, viewParserUnit.tag, passProps))
 
     // ---- Delete deps
     passProps.forEach(({ key, dependencies }) => {
       if (dependencies.length > 0) {
-        collect(this.cleanUpSubViewDeps(key, nodeName))
+        collect(this.cleanUpSubViewDeps(keyId, key, nodeName))
       }
     })
 
@@ -1275,14 +1265,10 @@ export class ViewGenerator {
 
   /**
    * const ${key}$${id} = [${value}, ${dependencies}];
+   * const $suf$${key}$${id} = this._$updateSubview.bind(this, ${key}$${id}, () => ${value})
+   * this._$addDeps(${key}$${id}[1], $suf);
    */
-  private resolveSubViewRedeclareProp(id: string, key: string, value: t.Expression, dependencies: IdentifierToDepNode[]): t.Statement[] {
-    const dependencyNode: t.Expression[] = []
-    if (dependencies.length > 0) {
-      dependencyNode.push(
-        this.t.arrayExpression(dependencies)
-      )
-    }
+  private addSubViewDeps(id: string, key: string, value: t.Expression, dependencies: IdentifierToDepNode[]): t.Statement[] {
     return [
       this.t.variableDeclaration(
         "const", [
@@ -1290,26 +1276,15 @@ export class ViewGenerator {
             this.t.identifier(`${key}$${id}`),
             this.t.arrayExpression([
               value,
-              ...dependencyNode
+              this.t.arrayExpression(dependencies)
             ])
           )
         ]
-      )
-    ]
-  }
-
-  /**
-   * this._$addDeps(dependencies, this._$updateSubview.bind(this, ${key}_${id}, ${value}));
-   */
-  private addSubViewDeps(id: string, key: string, value: t.Expression, dependencies: IdentifierToDepNode[]): t.Statement[] {
-    return [
-      this.t.expressionStatement(
-        this.t.callExpression(
-          this.t.memberExpression(
-            this.t.thisExpression(),
-            this.t.identifier("_$addDeps")
-          ), [
-            this.t.arrayExpression(dependencies),
+      ),
+      this.t.variableDeclaration(
+        "const", [
+          this.t.variableDeclarator(
+            this.t.identifier(`$suf$${key}$${id}`),
             this.t.callExpression(
               this.t.memberExpression(
                 this.t.memberExpression(
@@ -1319,10 +1294,25 @@ export class ViewGenerator {
                 this.t.identifier("bind")
               ), [
                 this.t.thisExpression(),
-                this.t.identifier(`${key}_${id}`),
-                value
+                this.t.identifier(`${key}$${id}`),
+                this.t.arrowFunctionExpression([], value)
               ]
             )
+          )
+        ]
+      ),
+      this.t.expressionStatement(
+        this.t.callExpression(
+          this.t.memberExpression(
+            this.t.thisExpression(),
+            this.t.identifier("_$addDeps")
+          ), [
+            this.t.memberExpression(
+              this.t.identifier(`${key}$${id}`),
+              this.t.numericLiteral(1),
+              true
+            ),
+            this.t.identifier(`$suf$${key}$${id}`)
           ]
         )
       )
@@ -1332,7 +1322,7 @@ export class ViewGenerator {
   /**
    * const nodeName = ${subView}({ [${key}: ${key}$${id}] })
    */
-  private callSubView(id: string, nodeName: string, tag: t.Expression, props: Array<[string, t.Expression]>): t.Statement[] {
+  private callSubView(id: string, nodeName: string, tag: t.Expression, props: Array<{ key: string, dependencies: IdentifierToDepNode[], value: t.Expression }>): t.Statement[] {
     return [
       this.t.variableDeclaration(
         "const", [
@@ -1340,10 +1330,12 @@ export class ViewGenerator {
             this.t.identifier(nodeName),
             this.t.callExpression(
               tag, [
-                this.t.objectExpression(props.map(([key]) => (
+                this.t.objectExpression(props.map(({ key, dependencies, value }) => (
                   this.t.objectProperty(
                     this.t.identifier(key),
-                    this.t.identifier(`${key}$${id}`)
+                    dependencies.length > 0
+                      ? this.t.identifier(`${key}$${id}`)
+                      : this.t.arrayExpression([value])
                   )
                 )))
               ]
@@ -1355,9 +1347,9 @@ export class ViewGenerator {
   }
 
   /**
-   * this._$addCleanUpDep(${key}UpdateFunc${this.currentUnitIdx}, ${nodeName}[0]);
+   * this._$addCleanUpDep($suf$${key}$${id}, ${nodeName}[0]);
    */
-  private cleanUpSubViewDeps(key: string, nodeName: string): t.Statement[] {
+  private cleanUpSubViewDeps(id: string, key: string, nodeName: string): t.Statement[] {
     return [
       this.t.expressionStatement(
         this.t.callExpression(
@@ -1365,7 +1357,7 @@ export class ViewGenerator {
             this.t.thisExpression(),
             this.t.identifier("_$addCleanUpDep")
           ), [
-            this.t.identifier(`${key}UpdateFunc${this.currentUnitIdx}`),
+            this.t.identifier(`$suf$${key}$${id}`),
             this.t.memberExpression(
               this.t.identifier(nodeName),
               this.t.numericLiteral(0),
@@ -1799,22 +1791,18 @@ export class ViewGenerator {
   /* ---- Helper Functions ---- */
   /**
    * @brief Declare a DLNode
-   *  const ${dlNodeId} = new DLight.${dlNodeType}(...args)
+   *  const ${dlNodeId} = new $${nodeName}()
    * @param dlNodeId
-   * @param dlNodeType
-   * @param args
+   * @param nodeName
    * @returns
    */
-  private declareDLNode(dlNodeName: string, dlNodeType: t.Expression, args: Array<t.ArgumentPlaceholder | t.SpreadElement | t.Expression>) {
+  private declareDLNode(dlNodeName: string, nodeName: string) {
     return this.t.variableDeclaration(
       "const", [
         this.t.variableDeclarator(
           this.t.identifier(dlNodeName),
           this.t.newExpression(
-            this.t.memberExpression(
-              this.t.identifier(this.dlightImportName),
-              dlNodeType
-            ), args
+            this.t.identifier(`$${nodeName}`), []
           )
         )
       ]
@@ -1901,8 +1889,7 @@ export class ViewGenerator {
       this.fullDepMap,
       this.availableProperties,
       this.subViewNames,
-      identifierToDepsMap ?? this.identifierToDepsMap,
-      this.dlightImportName
+      identifierToDepsMap ?? this.identifierToDepsMap
     )
     usedProperties.forEach(this.usedProperties.add.bind(this.usedProperties))
 
@@ -2059,8 +2046,7 @@ export function generateView(
   fullDepMap: Record<string, string[]>,
   availableProperties: string[],
   subViewNames: string[],
-  identifierToDepsMap: Record<string, IdentifierToDepNode[]>,
-  dlImportName = "DLight"
+  identifierToDepsMap: Record<string, IdentifierToDepNode[]>
 ): [t.BlockStatement, string[]] {
   const viewGenerator = new ViewGeneratorClass(
     types,
@@ -2069,8 +2055,7 @@ export function generateView(
     fullDepMap,
     availableProperties,
     subViewNames,
-    identifierToDepsMap,
-    dlImportName
+    identifierToDepsMap
   )
   return [viewGenerator.generate(), [...viewGenerator.usedProperties]]
 }

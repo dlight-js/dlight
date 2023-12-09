@@ -14,7 +14,6 @@ export class PluginProvider {
   private readonly availableDecoNames = ["Static", "Prop", "Env", "Content", "Children"]
   private readonly dlightDefaultPackageName = "@dlightjs/dlight"
   private readonly dlightPackageName = this.dlightDefaultPackageName
-  private readonly dlightImportName = "$d"
 
   // ---- Plugin Level
   private readonly t: typeof t
@@ -117,11 +116,42 @@ export class PluginProvider {
         })
       }
 
-      // ---- Add a new default import to the head of file
+      // ---- Add nodes import to the head of file
+      //      {
+      //        $h: HtmlNode,
+      //        $t: TextNode,
+      //        $f: ForNode,
+      //        $i: IfNode,
+      //        $e: ExpressionNode,
+      //        $v: EnvNode
+      //      }
       this.programNode!.body.unshift(
-        this.t.importDeclaration(
-          [this.t.importDefaultSpecifier(this.t.identifier(this.dlightImportName))],
-          this.t.stringLiteral(this.dlightPackageName)
+        this.t.importDeclaration([
+          this.t.importSpecifier(
+            this.t.identifier("$h"),
+            this.t.identifier("HtmlNode")
+          ),
+          this.t.importSpecifier(
+            this.t.identifier("$t"),
+            this.t.identifier("TextNode")
+          ),
+          this.t.importSpecifier(
+            this.t.identifier("$f"),
+            this.t.identifier("ForNode")
+          ),
+          this.t.importSpecifier(
+            this.t.identifier("$i"),
+            this.t.identifier("IfNode")
+          ),
+          this.t.importSpecifier(
+            this.t.identifier("$e"),
+            this.t.identifier("ExpressionNode")
+          ),
+          this.t.importSpecifier(
+            this.t.identifier("$v"),
+            this.t.identifier("EnvNode")
+          )
+        ], this.t.stringLiteral(this.dlightPackageName)
         )
       )
       this.didAlterImports = true
@@ -326,8 +356,7 @@ export class PluginProvider {
       this.fullDepMap,
       this.availableProperties,
       subViewNames,
-      identifierToDepsMap,
-      this.dlightImportName
+      identifierToDepsMap
     )
     viewNode.body = code
 

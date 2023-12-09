@@ -75,18 +75,6 @@ export function appendNodes(nodes: DLNode[], parentEl: HTMLElement) {
   }, false)
 }
 
-export function appendNodesWithFragment(nodes: DLNode[], fragment: DocumentFragment, length: number): number {
-  loopEls(nodes, (el: HTMLElement, node: HtmlNode) => {
-    (node as AnyDLNode).willAppear?.(node._$el, node)
-    delete (node as AnyDLNode).willAppear
-    fragment.appendChild(el)
-    ;(node as AnyDLNode).didAppear?.(node._$el, node)
-    delete (node as AnyDLNode).didAppear
-    length++
-  }, false)
-
-  return length
-}
 /**
  * flowCursor相关，index表明前面有n个普通HTMLElement
  * flowNodes是flow相关的节点，element个数不定，每次插入都要重新计算，但是这个节点的reference是固定的
@@ -160,6 +148,8 @@ export function formatNodes(nodes: AnyDLNode) {
       node !== undefined && node !== null && typeof node !== "boolean"
     )).map((node: any) => {
       if (node._$nodeType !== undefined) return node
-      return new TextNode(node)
+      const textNode = new TextNode()
+      textNode.t(node)
+      return textNode
     })
 }

@@ -167,7 +167,7 @@ export class CustomNode extends DLNode {
    * @param container
    * @param value
    */
-  _$updateSubView(container: [AnyValue, string[]], value: AnyValue) {
-    container[0] = value
+  _$updateSubview(container: [AnyValue, string[]], value: AnyValue) {
+    container[0] = value()
   }
 }

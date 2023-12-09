@@ -1,12 +1,11 @@
 import { type CustomNode } from "./CustomNode"
 import { DLNode, DLNodeType } from "./DLNode"
 import { type ValueOrFunc, type AnyDLNode, type AnyValue } from "./type"
-import { appendEls } from "./utils"
+import { appendNodes } from "./utils"
 
 export class HtmlNode extends DLNode {
-  constructor(tag: string) {
+  constructor() {
     super(DLNodeType.HTML)
-    this._$el = document.createElement(tag)
   }
 
   /**
@@ -14,7 +13,15 @@ export class HtmlNode extends DLNode {
    */
   _$init(): void {
     this._$bindNodes()
-    appendEls(this, this._$nodes)
+    appendNodes(this._$nodes, this._$el)
+  }
+
+  /**
+   * @brief Create html element
+   * @param tag
+   */
+  t(tag: string) {
+    this._$el = document.createElement(tag)
   }
 
   /**
@@ -38,10 +45,6 @@ export class HtmlNode extends DLNode {
     if (!dependencies || !dlScope || dependencies.length === 0) {
       if (dependencies?.length === 0) valueOrFunc = valueOrFunc()
       this._$el[key] = valueOrFunc
-      return
-    }
-    if (dependencies.length === 0) {
-      this._$el[key] = valueOrFunc()
       return
     }
     const preValueName = this.preValueName

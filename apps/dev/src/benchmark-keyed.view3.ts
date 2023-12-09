@@ -21,6 +21,41 @@ function buildData(count) {
 }
 
 @View
+class Row {
+  @Prop id
+  @Prop label
+  @Prop selectIdx
+  @Prop selectRow
+  @Prop deleteRow
+
+  Body() {
+    tr()
+      .className(this.selectIdx === this.id ? "danger" : "")
+    {
+      td(this.id)
+        .className("col-md-1")
+      td()
+        .className("col-md-4")
+      {
+        a(this.label)
+          .onclick($(this.selectRow))
+      }
+      td()
+        .className("col-md-1")
+      {
+        a()
+          .onclick($(this.deleteRow))
+        {
+          span()
+            .className("glyphicon glyphicon-remove")
+            .ariaHidden("true")
+        }
+      }
+      td()
+        .className("col-md-6")
+    }
+  }
+}
 
 @View
 class Main {
@@ -96,8 +131,7 @@ class Main {
           .className("col-md-6")
         {
           div()
-            .className("row")
-          {
+            .className("row"); {
             this.Button("Create 1,000 rows")
               .onclick(this.addRows)
               .id("run")
@@ -122,35 +156,6 @@ class Main {
     }
   }
 
-  @View
-  Row({ id, label }) {
-    tr()
-      .className(this.selectIdx === id ? "danger" : "")
-    {
-      td(id)
-        .className("col-md-1")
-      td()
-        .className("col-md-4")
-      {
-        a(label)
-          .onclick(this.selectRow.bind(this, id))
-      }
-      td()
-        .className("col-md-1")
-      {
-        a()
-          .onclick(this.deleteRow.bind(this, id))
-        {
-          span()
-            .className("glyphicon glyphicon-remove")
-            .ariaHidden("true")
-        }
-      }
-      td()
-        .className("col-md-6")
-    }
-  }
-
   Body() {
     div()
       .className("container")
@@ -165,9 +170,12 @@ class Main {
           {
             for (const { id, label } of this.rows) {
               [id]
-              this.Row()
+              Row()
                 .id(id)
                 .label(label)
+                .selectIdx(this.selectIdx)
+                .selectRow(this.selectRow.bind(this, id))
+                .deleteRow(this.deleteRow.bind(this, id))
             }
           }
         }

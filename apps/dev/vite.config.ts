@@ -8,5 +8,9 @@ export default defineConfig({
   base: "",
   plugins: [
     dlight({ files: "**/*.view.ts", enableDevTools: true })
-  ]
+  ],
+  // don't minify
+  // build: {
+  //   minify: false
+  // }
 })

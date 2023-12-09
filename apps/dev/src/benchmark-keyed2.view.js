@@ -1,5 +1,4 @@
-import { View, render, $ } from "@dlightjs/dlight"
-import { Prop } from "@dlightjs/dlight-dev"
+import { View, render } from "@dlightjs/dlight"
 
 let idCounter = 1
 
@@ -21,12 +20,10 @@ function buildData(count) {
 }
 
 @View
-
-@View
 class Main {
   rows = []
-
   selectIdx = -1
+
   addRows() {
     this.rows = buildData(1000)
   }
@@ -69,9 +66,7 @@ class Main {
 
   @View
   Button({ content, id, onclick }) {
-    div()
-      .className("col-sm-6 smallpad")
-    {
+    div().className("col-sm-6 smallpad"); {
       button(content)
         .onclick(onclick)
         .id(id)
@@ -81,23 +76,13 @@ class Main {
 
   @View
   Jumbotron() {
-    div()
-      .className("jumbotron")
-    {
-      div()
-        .className("row")
-      {
-        div()
-          .className("col-sm-6")
-        {
+    div().className("jumbotron"); {
+      div().className("row"); {
+        div().className("col-sm-6"); {
           h1("DLight.js (keyed)")
         }
-        div()
-          .className("col-md-6")
-        {
-          div()
-            .className("row")
-          {
+        div().className("col-md-6"); {
+          div().className("row"); {
             this.Button("Create 1,000 rows")
               .onclick(this.addRows)
               .id("run")
@@ -122,52 +107,27 @@ class Main {
     }
   }
 
-  @View
-  Row({ id, label }) {
-    tr()
-      .className(this.selectIdx === id ? "danger" : "")
-    {
-      td(id)
-        .className("col-md-1")
-      td()
-        .className("col-md-4")
-      {
-        a(label)
-          .onclick(this.selectRow.bind(this, id))
-      }
-      td()
-        .className("col-md-1")
-      {
-        a()
-          .onclick(this.deleteRow.bind(this, id))
-        {
-          span()
-            .className("glyphicon glyphicon-remove")
-            .ariaHidden("true")
-        }
-      }
-      td()
-        .className("col-md-6")
-    }
-  }
-
   Body() {
-    div()
-      .className("container")
-    {
+    div().className("container"); {
       this.Jumbotron()
-      div()
-      {
-        table()
-          .className("table table-hover table-striped test-data")
-        {
-          tbody()
-          {
-            for (const { id, label } of this.rows) {
-              [id]
-              this.Row()
-                .id(id)
-                .label(label)
+      div(); {
+        table().className("table table-hover table-striped test-data"); {
+          tbody(); {
+            for (const { id, label } of this.rows) { [id]
+              tr().className(this.selectIdx === id ? "danger" : ""); {
+                td(id).className("col-md-1")
+                td().className("col-md-4"); {
+                  a(label).onclick(this.selectRow.bind(this, id))
+                }
+                td().className("col-md-1"); {
+                  a().onclick(this.deleteRow.bind(this, id)); {
+                    span()
+                      .className("glyphicon glyphicon-remove")
+                      .ariaHidden("true")
+                  }
+                }
+                td().className("col-md-6")
+              }
             }
           }
         }

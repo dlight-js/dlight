@@ -1,7 +1,29 @@
 import { type CustomNode } from "./CustomNode"
 import { DLNode, DLNodeType } from "./DLNode"
+import { type ValueOrFunc } from "./type"
 
 export class TextNode extends DLNode {
+  constructor() {
+    super(DLNodeType.Text)
+  }
+
+  /**
+   * @brief Add text to text node
+   * @param valueOrFunc
+   * @param dlScope
+   * @param dependencies
+   * @returns
+   */
+  t(valueOrFunc: ValueOrFunc, dlScope?: CustomNode, dependencies?: string[]) {
+    if (!dependencies || !dlScope || dependencies.length === 0) {
+      if (dependencies?.length === 0) valueOrFunc = valueOrFunc()
+      this._$el.nodeValue = valueOrFunc
+      return
+    }
+    this._$el.nodeValue = valueOrFunc()
+    dlScope._$addDeps(dependencies, this.addTextDep.bind(this, valueOrFunc), this)
+  }
+
   /**
    * @brief Used in addDeps to update text
    * @param textFunc
@@ -12,19 +34,5 @@ export class TextNode extends DLNode {
     // ---- Checking value difference will save 70% time if value is the same
     if (this._$el.nodeValue === newValue) return
     this._$el.nodeValue = newValue
-  }
-
-  constructor(textOrFunc: string | (() => string), dlScope?: CustomNode, dependencies?: string[]) {
-    super(DLNodeType.Text)
-    if (!dependencies || !dlScope || dependencies.length === 0) {
-      if (dependencies?.length === 0) textOrFunc = (textOrFunc as (() => string))()
-      this._$el = document.createTextNode(textOrFunc as string)
-      return
-    }
-
-    textOrFunc = textOrFunc as (() => string)
-    this._$el = document.createTextNode(textOrFunc())
-    const updateFunc = this.addTextDep.bind(this, textOrFunc)
-    dlScope._$addDeps(dependencies, updateFunc, this)
   }
 }
