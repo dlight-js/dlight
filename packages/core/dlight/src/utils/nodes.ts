@@ -38,6 +38,16 @@ export function loopEls(nodes: DLNode[], runFunc: (el: HTMLElement, node: HtmlNo
   }
 }
 
+export function loopShallowEls(nodes: DLNode[], runFunc: (el: HTMLElement, node: HtmlNode) => void) {
+  for (const node of nodes) {
+    if (node._$nodeType === DLNodeType.HTML || node._$nodeType === DLNodeType.Text) {
+      runFunc(node._$el, node as HtmlNode)
+    } else {
+      loopShallowEls(node._$nodes, runFunc)
+    }
+  }
+}
+
 export function toEls(nodes: DLNode[]) {
   const els: HTMLElement[] = []
   loopEls(nodes, (el, node) => {

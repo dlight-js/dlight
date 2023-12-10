@@ -1,5 +1,5 @@
 import { bindParentNode, initNodes, toEls } from "../utils/nodes"
-import { type AnyDLNode, type ToBeSolvedAny } from "./type"
+import { type AnyValue, type AnyDLNode, type ToBeSolvedAny } from "./type"
 
 export enum DLNodeType {
   HTML, Text, Custom, For, If, Env, Expression
@@ -49,7 +49,10 @@ export class DLNode {
    *  to make sure that every time a new node is added, we add envs to it
    */
   _$collectEnv(nodes: DLNode[]) {
-    this._$collectEnvFuncs.forEach(([envNode, avoidKeys]) => (
+    if (!(this as AnyDLNode)._$collectEnvFuncs) {
+      (this as AnyDLNode)._$collectEnvFuncs = []
+    }
+    (this as AnyDLNode)._$collectEnvFuncs.forEach(([envNode, avoidKeys]: AnyValue) => (
       envNode.addEnvsToNodes(nodes, avoidKeys)
     ))
     if (
@@ -59,11 +62,9 @@ export class DLNode {
     ) {
       // ---- No new nodes will be added for these nodes,
       //      so we can clear the collectEnvFuncs
-      this._$collectEnvFuncs = []
+      (this as AnyDLNode)._$collectEnvFuncs = []
     }
   }
-
-  _$collectEnvFuncs: Array<[AnyDLNode, string[]]> = []
 
   /**
    * @brief Bind nodes and recursively init nodes

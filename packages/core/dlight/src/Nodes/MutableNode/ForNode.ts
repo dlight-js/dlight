@@ -5,14 +5,15 @@ import {
   removeNodes,
   getFlowIndexFromNodes,
   getFlowIndexFromParentNode,
-  arraysEqual
+  arraysEqual,
+  appendNodesWithSibling
 } from "../utils"
 import { type CustomNode } from "../CustomNode"
 import { type HtmlNode } from "../HtmlNode"
 import { MutableNode } from "./MutableNode"
 
 export class ForNode extends MutableNode {
-  duplicatedOrNoKey = false
+  dupOrNoKey = false
   keys: any[] = []
   array: any[] = []
 
@@ -30,7 +31,7 @@ export class ForNode extends MutableNode {
   renewKeyAndArray() {
     this.array = this.arrayFunc!()
     if (!this.keyFunc) {
-      this.duplicatedOrNoKey = true
+      this.dupOrNoKey = true
       return
     }
     const newKeys = this.keyFunc(this.array)
@@ -39,7 +40,7 @@ export class ForNode extends MutableNode {
       this.keys = [...Array(this.array.length).keys()]
       // TODO warning
       console.warn("Duplicated Key")
-      this.duplicatedOrNoKey = true
+      this.dupOrNoKey = true
       return
     }
 
@@ -54,7 +55,7 @@ export class ForNode extends MutableNode {
    */
   i(key: any, idx: number) {
     // ---- If duplicated key, use index instead
-    const index = this.duplicatedOrNoKey ? idx : this.keys.indexOf(key)
+    const index = this.dupOrNoKey ? idx : this.keys.indexOf(key)
     return this.array[index]
   }
 
@@ -83,6 +84,9 @@ export class ForNode extends MutableNode {
 
     this._$nodes = this._$nodess.flat(1)
     this._$bindNodes()
+
+    // ---- Remove future useless properties
+    delete this.dependencies
   }
 
   getNewNodes(idx: number) {
@@ -92,34 +96,26 @@ export class ForNode extends MutableNode {
   }
 
   updateFunc(parentNode: HtmlNode) {
-    if (this.duplicatedOrNoKey) {
-      this.updateWithOutKey(parentNode)
-    } else {
-      this.updateWithKey(parentNode)
-    }
+    if (this.dupOrNoKey) return this.updateWithOutKey(parentNode)
+    return this.updateWithKey(parentNode)
   }
 
   updateWithOutKey(parentNode: HtmlNode) {
-    const parentEl = parentNode._$el
     const preLength = this.array.length
-
     this.renewKeyAndArray()
     const currLength = this.array.length
     if (preLength === currLength) return
+
+    const parentEl = parentNode._$el
     // ---- If the new array is longer, add new nodes directly
     if (preLength < currLength) {
-      let newFlowIndex = getFlowIndexFromParentNode(parentNode, this)
+      const flowIndex = getFlowIndexFromParentNode(parentNode, this)
+      const nextSibling = parentEl.childNodes[flowIndex]
       // ---- Calling parentEl.childNodes.length is time-consuming,
       //      so we use a length variable to store the length
-      let length = parentEl.childNodes.length
-      for (let idx = 0; idx < currLength; idx++) {
-        if (idx < preLength) {
-          // ---- For the nodes that already exist, just update the flowIndex
-          newFlowIndex += getFlowIndexFromNodes(this._$nodess[idx])
-          continue
-        }
+      for (let idx = preLength; idx < currLength; idx++) {
         const newNodes = this.getNewNodes(idx)
-        ;[newFlowIndex, length] = appendNodesWithIndex(newNodes, newFlowIndex, parentEl, length)
+        appendNodesWithSibling(newNodes, parentEl, nextSibling)
         this._$nodess.push(newNodes)
       }
       this._$nodes = this._$nodess.flat(1)
@@ -128,59 +124,67 @@ export class ForNode extends MutableNode {
 
     for (let idx = currLength; idx < preLength; idx++) {
       deleteNodesDeps(this._$nodess[idx], this.dlScope!)
-      removeNodes(parentNode._$el, this._$nodess[idx])
+      removeNodes(parentEl, this._$nodess[idx])
     }
     this._$nodess = this._$nodess.slice(0, currLength)
     this._$nodes = this._$nodess.flat(1)
   }
 
+  /**
+   * @brief Update nodes with key
+   *  If the key is provided, the only purpose here is to ensure that
+   *  the reference of the element does not change, which will slow down
+   * @param parentNode
+   * @returns
+   */
   updateWithKey(parentNode: HtmlNode) {
-    // ---- If the key is provided, the only purpose here is to ensure that
-    //      the reference of the element does not change, which will slow down
-    const parentEl = parentNode._$el
-    const flowIndex = getFlowIndexFromParentNode(parentNode, this)
     const prevKeys = this.keys
-    const prevAllNodes = this._$nodess
-    const prevNodes = this._$nodes
-
     this.renewKeyAndArray()
+
+    // ---- No need to update at all
     if (arraysEqual(prevKeys, this.keys)) return
 
+    const prevNodess = this._$nodess
+    const parentEl = parentNode._$el
+
+    // ---- No nodes after, delete all nodes
+    if (this.keys.length === 0) {
+      for (let prevIdx = 0; prevIdx < prevKeys.length; prevIdx++) {
+        deleteNodesDeps(prevNodess[prevIdx], this.dlScope!)
+        removeNodes(parentEl, prevNodess[prevIdx])
+      }
+      this.nodesUpdate([])
+      return
+    }
+
+    // ---- Record how many nodes are before this ForNode with the same parentNode
+    const flowIndex = getFlowIndexFromParentNode(parentNode, this)
+
+    // ---- No nodes before, append all nodes
     if (prevKeys.length === 0) {
-      let length = parentEl.childNodes.length
-      let newFlowIndex = flowIndex
+      const nextSibling = parentEl.childNodes[flowIndex]
       for (let idx = 0; idx < this.keys.length; idx++) {
         const newNodes = this.getNewNodes(idx)
-        ;[newFlowIndex, length] = appendNodesWithIndex(newNodes, newFlowIndex, parentEl, length)
+        appendNodesWithSibling(newNodes, parentEl, nextSibling)
         this._$nodess.push(newNodes)
       }
       this._$nodes = this._$nodess.flat(1)
       return
     }
 
-    if (this.keys.length === 0) {
-      for (let prevIdx = 0; prevIdx < prevKeys.length; prevIdx++) {
-        deleteNodesDeps(prevAllNodes[prevIdx], this.dlScope!)
-        removeNodes(parentNode._$el, prevAllNodes[prevIdx])
-      }
-      this._$nodess = []
-      this._$nodes = []
-      return
-    }
-
     const shuffleKeys = []
-    const newDlNodes = []
+    const newNodess = []
 
     // ---- 1. Delete the nodes that are no longer in the array
     for (let prevIdx = 0; prevIdx < prevKeys.length; prevIdx++) {
       const prevKey = prevKeys[prevIdx]
       if (this.keys.includes(prevKey)) {
         shuffleKeys.push(prevKey)
-        newDlNodes.push(prevAllNodes[prevIdx])
+        newNodess.push(prevNodess[prevIdx])
         continue
       }
-      deleteNodesDeps(prevAllNodes[prevIdx], this.dlScope!)
-      removeNodes(parentNode._$el, prevAllNodes[prevIdx])
+      deleteNodesDeps(prevNodess[prevIdx], this.dlScope!)
+      removeNodes(parentEl, prevNodess[prevIdx])
     }
 
     // ---- 2. Add the nodes that are not in the array but in the new array
@@ -193,17 +197,24 @@ export class ForNode extends MutableNode {
       if (shuffleKeys.includes(key)) {
         // ---- These nodes have been replaced,
         //      but we need to keep track of their flowIndex
-        newFlowIndex += getFlowIndexFromNodes(newDlNodes[shuffleKeys.indexOf(key)])
+        newFlowIndex += getFlowIndexFromNodes(newNodess[shuffleKeys.indexOf(key)])
         continue
       }
       const newNodes = this.getNewNodes(idx)
-      ;[newFlowIndex, length] = appendNodesWithIndex(newNodes, newFlowIndex, parentEl, length)
-      newDlNodes.splice(idx, 0, newNodes)
+      const addedElNum = appendNodesWithIndex(newNodes, parentEl, newFlowIndex, length)
+      newFlowIndex += addedElNum
+      length += addedElNum
+      newNodess.splice(idx, 0, newNodes)
       shuffleKeys.splice(idx, 0, key)
     }
 
-    newFlowIndex = flowIndex
+    // ---- No need to shuffle
+    if (arraysEqual(this.keys, shuffleKeys)) {
+      this.nodesUpdate(newNodess)
+      return
+    }
 
+    newFlowIndex = flowIndex
     const bufferNodes = []
     // ---- 3. Replace the nodes in the same position using Fisher-Yates shuffle algorithm
     for (let idx = 0; idx < this.keys.length; idx++) {
@@ -211,22 +222,30 @@ export class ForNode extends MutableNode {
       const prevIdx = shuffleKeys.indexOf(key)
       if (bufferNodes[idx]) {
         const bufferedNode = bufferNodes[idx]
-        ;[newFlowIndex, length] = appendNodesWithIndex(bufferedNode, newFlowIndex + getFlowIndexFromNodes(bufferedNode), parentEl, length)
+        const addedElNum = appendNodesWithIndex(bufferedNode, parentEl, newFlowIndex + getFlowIndexFromNodes(bufferedNode), length)
+        newFlowIndex += addedElNum
+        length += addedElNum
         delete bufferNodes[idx]
       } else if (prevIdx === idx) {
-        newFlowIndex += getFlowIndexFromNodes(newDlNodes[idx])
+        newFlowIndex += getFlowIndexFromNodes(newNodess[idx])
         continue
       } else {
-        bufferNodes[this.keys.indexOf(shuffleKeys[idx])] = newDlNodes[idx]
-        ;[newFlowIndex, length] = appendNodesWithIndex(newDlNodes[prevIdx], newFlowIndex, parentEl, length)
+        bufferNodes[this.keys.indexOf(shuffleKeys[idx])] = newNodess[idx]
+        const addedElNum = appendNodesWithIndex(newNodess[prevIdx], parentEl, newFlowIndex, length)
+        newFlowIndex += addedElNum
+        length += addedElNum
       }
-      ;[newDlNodes[idx], newDlNodes[prevIdx]] = [newDlNodes[prevIdx], newDlNodes[idx]]
+      ;[newNodess[idx], newNodess[prevIdx]] = [newNodess[prevIdx], newNodess[idx]]
       ;[shuffleKeys[idx], shuffleKeys[prevIdx]] = [shuffleKeys[prevIdx], shuffleKeys[idx]]
     }
 
-    this._$nodess = newDlNodes
-    this._$nodes = this._$nodess.flat(1)
+    this.nodesUpdate(newNodess)
+  }
 
-    this.onUpdateNodes(prevNodes, this._$nodes)
+  nodesUpdate(nodess: DLNode[][]) {
+    // const prevNodes = this._$nodes
+    this._$nodess = nodess
+    this._$nodes = this._$nodess.flat(1)
+    // this.onUpdateNodes(prevNodes, this._$nodes)
   }
 }

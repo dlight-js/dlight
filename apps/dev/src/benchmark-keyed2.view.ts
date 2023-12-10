@@ -113,7 +113,8 @@ class Main {
       div(); {
         table().className("table table-hover table-striped test-data"); {
           tbody(); {
-            for (const { id, label } of this.rows) { [id]
+            for (const { id, label } of this.rows) {
+              [id]
               tr().className(this.selectIdx === id ? "danger" : ""); {
                 td(id).className("col-md-1")
                 td().className("col-md-4"); {

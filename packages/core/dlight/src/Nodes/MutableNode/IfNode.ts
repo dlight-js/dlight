@@ -91,7 +91,7 @@ export class IfNode extends MutableNode {
     const flowIndex = getFlowIndexFromParentNode(parentNode, this)
 
     const parentEl = parentNode._$el
-    appendNodesWithIndex(this._$nodes, flowIndex, parentEl, parentEl.childNodes.length)
+    appendNodesWithIndex(this._$nodes, parentEl, flowIndex, parentEl.childNodes.length)
 
     this.onUpdateNodes(prevNodes, this._$nodes)
   }

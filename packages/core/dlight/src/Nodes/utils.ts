@@ -1,7 +1,7 @@
 import { type CustomNode } from "./CustomNode"
 import { type DLNode, DLNodeType } from "./DLNode"
 import { type HtmlNode } from "./HtmlNode"
-import { loopEls, loopNodes } from "../utils/nodes"
+import { loopNodes, loopShallowEls } from "../utils/nodes"
 import { type AnyDLNode } from "./type"
 import { TextNode } from "./TextNode"
 
@@ -10,11 +10,11 @@ import { TextNode } from "./TextNode"
  */
 export function removeNodes(parentEl: HTMLElement, nodes: DLNode[]) {
   runDLightNodesWillLifecycle(nodes)
-  loopEls(nodes, (el: HTMLElement, node: HtmlNode) => {
+  loopShallowEls(nodes, (el: HTMLElement, node: HtmlNode) => {
     ;(node as AnyDLNode).willDisappear?.(el, node)
     parentEl.removeChild(el)
     ;(node as AnyDLNode).didDisappear?.(el, node)
-  }, false)
+  })
   runDLightNodesDidLifecycle(nodes)
 }
 
@@ -50,29 +50,59 @@ export function deleteNodesDeps(nodes: DLNode[], dlScope: CustomNode) {
  * @param lengthIn - 调用parentEl.childNodes.length会浪费时间，从外面传入会省很多时间
  * @returns
  */
-export function appendNodesWithIndex(nodes: DLNode[], index: number, parentEl: HTMLElement, length: number): [number, number] {
-  loopEls(nodes, (el: HTMLElement, node: HtmlNode) => {
-    (node as AnyDLNode).willAppear?.(node._$el, node)
-    if (length !== index) {
+export function appendNodesWithIndex(nodes: DLNode[], parentEl: HTMLElement, index: number, length: number) {
+  const indexIn = index
+  const notLast = length !== index
+  loopShallowEls(nodes, (el: HTMLElement, node: HtmlNode) => {
+    if ((node as AnyDLNode).willAppear) {
+      (node as AnyDLNode).willAppear?.(node._$el, node)
+      delete (node as AnyDLNode).willAppear
+    }
+    if (notLast) {
       parentEl.insertBefore(el, parentEl.childNodes[index])
     } else {
       parentEl.appendChild(el)
     }
-    (node as AnyDLNode).didAppear?.(node._$el, node)
+    if ((node as AnyDLNode).willAppear) {
+      (node as AnyDLNode).didAppear?.(node._$el, node)
+      delete (node as AnyDLNode).didAppear
+    }
     index++
-    length++
-  }, false)
-  return [index, length]
+  })
+  return index - indexIn
+}
+
+export function appendNodesWithSibling(nodes: DLNode[], parentEl: HTMLElement, nextSibling: HTMLElement) {
+  if (nextSibling) return insertNodesBefore(nodes, parentEl, nextSibling)
+  appendNodes(nodes, parentEl)
+}
+
+export function insertNodesBefore(nodes: DLNode[], parentEl: HTMLElement, nextSibling: HTMLElement) {
+  loopShallowEls(nodes, (el: HTMLElement, node: HtmlNode) => {
+    if ((node as AnyDLNode).willAppear) {
+      (node as AnyDLNode).willAppear?.(node._$el, node)
+      delete (node as AnyDLNode).willAppear
+    }
+    parentEl.insertBefore(el, nextSibling)
+    if ((node as AnyDLNode).willAppear) {
+      (node as AnyDLNode).didAppear?.(node._$el, node)
+      delete (node as AnyDLNode).didAppear
+    }
+  })
 }
 
 export function appendNodes(nodes: DLNode[], parentEl: HTMLElement) {
-  loopEls(nodes, (el: HTMLElement, node: HtmlNode) => {
-    (node as AnyDLNode).willAppear?.(node._$el, node)
-    delete (node as AnyDLNode).willAppear
+  loopShallowEls(nodes, (el: HTMLElement, node: HtmlNode) => {
+    if ((node as AnyDLNode).willAppear) {
+      (node as AnyDLNode).willAppear?.(node._$el, node)
+      delete (node as AnyDLNode).willAppear
+    }
     parentEl.appendChild(el)
-    ;(node as AnyDLNode).didAppear?.(node._$el, node)
-    delete (node as AnyDLNode).didAppear
-  }, false)
+    if ((node as AnyDLNode).willAppear) {
+      (node as AnyDLNode).didAppear?.(node._$el, node)
+      delete (node as AnyDLNode).didAppear
+    }
+  })
 }
 
 /**
@@ -110,14 +140,12 @@ function getFlowIndexFromNodesTillId(nodes: DLNode[], stopNode: DLNode) {
 function runDLightNodesWillLifecycle(nodes: DLNode[]) {
   loopNodes(nodes, (node: DLNode) => {
     (node as AnyDLNode).willUnmount?.(node)
-    ;(node as AnyDLNode).willDisappear?.(node._$el, node)
   })
 }
 
 function runDLightNodesDidLifecycle(nodes: DLNode[]) {
   loopNodes(nodes, (node: DLNode) => {
     (node as AnyDLNode).didUnmount?.(node)
-    ;(node as AnyDLNode).didDisappear?.(node._$el, node)
   })
 }
 
