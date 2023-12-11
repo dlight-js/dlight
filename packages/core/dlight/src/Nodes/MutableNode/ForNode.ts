@@ -130,6 +130,7 @@ export class ForNode extends MutableNode {
     this._$nodes = this._$nodess.flat(1)
   }
 
+  lastFlowIndex?: number
   /**
    * @brief Update nodes with key
    *  If the key is provided, the only purpose here is to ensure that
@@ -147,28 +148,39 @@ export class ForNode extends MutableNode {
     const prevNodess = this._$nodess
     const parentEl = parentNode._$el
 
-    // ---- No nodes after, delete all nodes
-    if (this.keys.length === 0) {
-      for (let prevIdx = 0; prevIdx < prevKeys.length; prevIdx++) {
-        deleteNodesDeps(prevNodess[prevIdx], this.dlScope!)
-        removeNodes(parentEl, prevNodess[prevIdx])
-      }
-      this.nodesUpdate([])
-      return
-    }
-
     // ---- Record how many nodes are before this ForNode with the same parentNode
     const flowIndex = getFlowIndexFromParentNode(parentNode, this)
 
+    // ---- No nodes after, delete all nodes
+    if (this.keys.length === 0) {
+      if (parentEl.childNodes.length === this.lastFlowIndex) {
+        for (let prevIdx = 0; prevIdx < prevKeys.length; prevIdx++) {
+          deleteNodesDeps(prevNodess[prevIdx], this.dlScope!)
+        }
+        parentEl.innerHTML = ""
+      } else {
+        for (let prevIdx = 0; prevIdx < prevKeys.length; prevIdx++) {
+          deleteNodesDeps(prevNodess[prevIdx], this.dlScope!)
+          removeNodes(parentEl, prevNodess[prevIdx])
+        }
+      }
+
+      this.nodesUpdate([])
+      this.lastFlowIndex = flowIndex
+      return
+    }
+
     // ---- No nodes before, append all nodes
     if (prevKeys.length === 0) {
+      let count = 0
       const nextSibling = parentEl.childNodes[flowIndex]
       for (let idx = 0; idx < this.keys.length; idx++) {
         const newNodes = this.getNewNodes(idx)
-        appendNodesWithSibling(newNodes, parentEl, nextSibling)
+        count += appendNodesWithSibling(newNodes, parentEl, nextSibling)
         this._$nodess.push(newNodes)
       }
       this._$nodes = this._$nodess.flat(1)
+      this.lastFlowIndex = flowIndex + count
       return
     }
 
@@ -211,6 +223,7 @@ export class ForNode extends MutableNode {
     // ---- No need to shuffle
     if (arraysEqual(this.keys, shuffleKeys)) {
       this.nodesUpdate(newNodess)
+      this.lastFlowIndex = newFlowIndex
       return
     }
 
@@ -240,6 +253,7 @@ export class ForNode extends MutableNode {
     }
 
     this.nodesUpdate(newNodess)
+    this.lastFlowIndex = newFlowIndex
   }
 
   nodesUpdate(nodess: DLNode[][]) {

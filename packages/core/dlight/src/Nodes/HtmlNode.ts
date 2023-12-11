@@ -148,10 +148,13 @@ export class HtmlNode extends DLNode {
     if (!dependencies || !dlScope || dependencies.length === 0) {
       if (dependencies?.length === 0) valueOrFunc = valueOrFunc()
       this._$el.addEventListener(eventName, valueOrFunc)
+      // this._$el[`on${eventName}`] = (this as AnyDLNode)[valueOrFunc]
+      // console.log(this._$el[`on${eventName}`], `on${eventName}`)
       return
     }
     const preValueName = this.preValueName
     ;(this as AnyDLNode)[preValueName] = valueOrFunc()
+    // this._$el[`on${eventName}`] = (this as AnyDLNode)[preValueName]
     this._$el.addEventListener(eventName, (this as AnyDLNode)[preValueName])
     const updateFunc = this.addEventDep.bind(this, eventName, valueOrFunc, preValueName)
     dlScope._$addDeps(dependencies, updateFunc, this)

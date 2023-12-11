@@ -72,37 +72,43 @@ export function appendNodesWithIndex(nodes: DLNode[], parentEl: HTMLElement, ind
   return index - indexIn
 }
 
-export function appendNodesWithSibling(nodes: DLNode[], parentEl: HTMLElement, nextSibling: HTMLElement) {
+export function appendNodesWithSibling(nodes: DLNode[], parentEl: HTMLElement, nextSibling: HTMLElement): number {
   if (nextSibling) return insertNodesBefore(nodes, parentEl, nextSibling)
-  appendNodes(nodes, parentEl)
+  return appendNodes(nodes, parentEl)
 }
 
 export function insertNodesBefore(nodes: DLNode[], parentEl: HTMLElement, nextSibling: HTMLElement) {
+  let count = 0
   loopShallowEls(nodes, (el: HTMLElement, node: HtmlNode) => {
     if ((node as AnyDLNode).willAppear) {
       (node as AnyDLNode).willAppear?.(node._$el, node)
       delete (node as AnyDLNode).willAppear
     }
     parentEl.insertBefore(el, nextSibling)
+    count++
     if ((node as AnyDLNode).willAppear) {
       (node as AnyDLNode).didAppear?.(node._$el, node)
       delete (node as AnyDLNode).didAppear
     }
   })
+  return count
 }
 
 export function appendNodes(nodes: DLNode[], parentEl: HTMLElement) {
+  let count = 0
   loopShallowEls(nodes, (el: HTMLElement, node: HtmlNode) => {
     if ((node as AnyDLNode).willAppear) {
       (node as AnyDLNode).willAppear?.(node._$el, node)
       delete (node as AnyDLNode).willAppear
     }
     parentEl.appendChild(el)
+    count++
     if ((node as AnyDLNode).willAppear) {
       (node as AnyDLNode).didAppear?.(node._$el, node)
       delete (node as AnyDLNode).didAppear
     }
   })
+  return count
 }
 
 /**
