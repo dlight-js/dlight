@@ -1,0 +1,27 @@
+{
+  "name": "@dlightjs/error-handler",
+  "version": "0.0.1",
+  "description": "DLight transpiler for babel",
+  "author": {
+    "name": "IanDx",
+    "email": "iandxssxx@gmail.com"
+  },
+  "keywords": [
+    "dlight.js"
+  ],
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup --sourcemap"
+  },
+  "devDependencies": {
+    "tsup": "^6.7.0",
+    "typescript": "^5.3.2"
+  }
+}
