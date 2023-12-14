@@ -212,17 +212,39 @@ class Main extends View {
           $n04.t("tbody")
           const $n05 = new $f()
           $n05.nodeFunc = ({ id }) => {
-            const $n06 = Main.$t0.cloneNode(true)
+            const $n06 = document.createElement("tr")
             $n06.className = this.selectIdx === id ? "danger" : ""
-            const $n07 = $n06.firstChild
-            $n07.textContent = id
-            const $n13 = $n07.nextSibling
-            const $n081 = $n13.firstChild
-            $n081.onclick = this.selectRow.bind(this, id)
+            const $n07 = document.createElement("td")
 
-            const $n2 = $n13.nextSibling
-            const $n08 = $n2.firstChild
+            $n07.textContent = id
+            $n07.className = "col-md-1"
+            $n06.appendChild($n07)
+
+            const $n13 = document.createElement("td")
+            $n13.className = "col-md-4"
+            const $n081 = document.createElement("a")
+            $n081.onclick = this.selectRow.bind(this, id)
+            $n13.appendChild($n081)
+            $n06.appendChild($n13)
+
+            const $n2 = document.createElement("td")
+            $n2.className = "col-md-1"
+
+            const $n08 = document.createElement("a")
             $n08.onclick = this.deleteRow.bind(this, id)
+            $n2.appendChild($n08)
+
+            const $n09 = document.createElement("span")
+            $n09.className = "glyphicon glyphicon-remove"
+            $n09.setAttribute("aria-hidden", "true")
+
+            $n08.appendChild($n09)
+
+            $n06.appendChild($n2)
+
+            const $n3 = document.createElement("td")
+            $n3.className = "col-md-6"
+            $n06.appendChild($n3)
 
             const t = new $h()
             t._$el = $n06
@@ -286,7 +308,7 @@ function getNode(node, ...path) {
 }
 render("main", Main)
 
-const t1 = performance.now()
+// const t1 = performance.now()
 // const a = document.createElement("hhh")
 // a.appendChild(document.createElement("div"))
 // a.appendChild(document.createElement("div"))
@@ -295,14 +317,9 @@ const t1 = performance.now()
 // a.appendChild(document.createElement("div"))
 // a.appendChild(document.createElement("div"))
 // a.appendChild(document.createElement("div"))
-class A {
-  jj = 1
-}
-for (let i = 0; i < 100000; i++) {
-  // const c = a.firstChild.nextSibling.nextSibling.nextSibling
-  // const c = a.childNodes[3]
-  // const a = new A()
-  // const a = { jj: 1 }
-}
-const t2 = performance.now()
-console.log(t2 - t1)
+// for (let i = 0; i < 100000; i++) {
+//   // const c = a.firstChild.nextSibling.nextSibling.nextSibling
+//   const c = a.childNodes[3]
+// }
+// const t2 = performance.now()
+// console.log(t2 - t1)

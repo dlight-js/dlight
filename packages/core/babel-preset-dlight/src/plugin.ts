@@ -2,8 +2,9 @@ import { type PluginObj, type ConfigAPI, type types as t } from "@babel/core"
 import { PluginProviderClass } from "./pluginProvider"
 import { type DLightOption } from "./types"
 
-export default function(api: ConfigAPI & { types: typeof t }, options: DLightOption): PluginObj {
-  const { types } = api
+export default function(api: ConfigAPI & { types: typeof t, traverse: any }, options: DLightOption): PluginObj {
+  const { types, traverse } = api
+  console.log("fucl", traverse)
   const {
     files = "**/*.{js,jsx,ts,tsx}",
     excludeFiles = "**/{dist,node_modules,lib}/*.{js,ts}",

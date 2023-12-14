@@ -1,5 +1,5 @@
 import { type types as t, type NodePath } from "@babel/core"
-import { type IfCondition, type ViewParserProp, type ViewParserUnit } from "./types"
+import { type ViewProp, type IfCondition, type ViewHTMLProp, type ViewUnit } from "./types"
 import { uid } from "./utils/utils"
 
 export class ViewParser {
@@ -11,9 +11,10 @@ export class ViewParser {
   private readonly t: typeof t
   private readonly classRootPath: NodePath<t.ClassDeclaration | t.ClassExpression>
   private readonly statements: Array<t.Statement | t.Directive>
+  private readonly subviewNames: string[]
   private readonly htmlTags: string[]
 
-  private readonly viewParserResult: ViewParserUnit[] = []
+  private readonly viewResult: ViewUnit[] = []
 
   /**
    * @param types types from Babel
@@ -25,11 +26,13 @@ export class ViewParser {
     types: typeof t,
     classRootPath: NodePath<t.ClassDeclaration | t.ClassExpression>,
     statements: Array<t.Statement | t.Directive>,
+    subviewNames: string[],
     htmlTags: string[]
   ) {
     this.t = types
     this.classRootPath = classRootPath
     this.statements = statements
+    this.subviewNames = subviewNames
     this.htmlTags = htmlTags
   }
 
@@ -37,9 +40,9 @@ export class ViewParser {
    * @brief Parse the statements
    * @returns
    */
-  parse(): ViewParserUnit[] {
+  parse(): ViewUnit[] {
     this.statements.forEach(this.parseStatement.bind(this))
-    return this.viewParserResult
+    return this.viewResult
   }
 
   /**
@@ -53,10 +56,10 @@ export class ViewParser {
     if (this.t.isDirective(statement)) return this.parseText(statement.value)
     if (this.t.isBlockStatement(statement)) {
       // ---- If the statement is a block statement, treat it as last unit's children
-      const lastViewParserUnit = this.viewParserResult[this.viewParserResult.length - 1]
-      const type = lastViewParserUnit?.type
+      const lastViewUnit = this.viewResult[this.viewResult.length - 1]
+      const type = lastViewUnit?.type
       if (!(type === "custom" || type === "html" || type === "env")) return
-      lastViewParserUnit.children = this.parseView(statement.body)
+      lastViewUnit.children = this.parseView(statement.body)
     }
   }
 
@@ -75,7 +78,7 @@ export class ViewParser {
 
     // ---- Default ExpressionTag
     //      e.g. this.count -> _(this.count)
-    this.viewParserResult.push({
+    this.viewResult.push({
       type: "exp",
       content: this.parseProp(expression)
     })
@@ -115,7 +118,7 @@ export class ViewParser {
    * @returns
    */
   private parseIf(node: t.IfStatement): void {
-    this.viewParserResult.push({
+    this.viewResult.push({
       type: "if",
       conditions: this.parseIfConditions(node)
     })
@@ -178,7 +181,7 @@ export class ViewParser {
     } else return
 
     // ---- Parse the for body statements
-    this.viewParserResult.push({
+    this.viewResult.push({
       type: "for",
       item,
       array,
@@ -196,9 +199,17 @@ export class ViewParser {
   private parseText(node: t.StringLiteral | t.TemplateLiteral | t.DirectiveLiteral): void {
     if (this.t.isDirectiveLiteral(node)) node = this.t.stringLiteral(node.value)
 
-    this.viewParserResult.push({
+    if (this.isStaticProp(node)) {
+      this.viewResult.push({
+        type: "text",
+        content: node.value
+      })
+      return
+    }
+    this.viewResult.push({
       type: "text",
-      content: node
+      content: node,
+      computed: true
     })
   }
 
@@ -217,7 +228,7 @@ export class ViewParser {
   private parseTaggedTemplate(node: t.TaggedTemplateExpression): void {
     if (this.isPureMemberExpression(node.tag)) {
       // ---- Case 1
-      this.viewParserResult.push({
+      this.viewResult.push({
         type: "exp",
         content: this.parseProp(node)
       })
@@ -226,33 +237,39 @@ export class ViewParser {
 
     // ---- Case 2
     this.parseExpression(node.tag)
-    this.viewParserResult.push({
+    this.viewResult.push({
       type: "text",
-      content: node.quasi
+      content: node.quasi,
+      computed: true
     })
   }
 
   /**
    * @brief Parse props in the type node
    * @param propNode
-   * @returns ViewParserProp
+   * @returns ViewProp
    */
-  private parseProp(propNode: t.Node | undefined): ViewParserProp {
+  private parseProp(propNode: t.Node | undefined): ViewProp {
     if (!this.t.isExpression(propNode)) {
       throw new Error(
         "Invalid syntax in DLight's View, only accepts expression as props"
       )
     }
     // ---- If there is no propNode, set the default prop as true
-    if (!propNode) return { value: this.t.booleanLiteral(true), nodes: {} }
+    if (!propNode) {
+      return {
+        value: this.t.booleanLiteral(true),
+        nodes: {}
+      }
+    }
 
     // ---- Collect do expression nodes as DLProp
-    const dlViewPropResult: Record<string, ViewParserUnit[]> = {}
+    const dlViewPropResult: Record<string, ViewUnit[]> = {}
     this.classRootPath.scope.traverse(this.valueWrapper(propNode), {
       DoExpression: innerPath => {
         const node = innerPath.node
         const id = uid()
-        // ---- Parse the body of do expression as a new ViewParser
+        // ---- Parse the body of do expression as a new View
         dlViewPropResult[id] = this.parseView(node.body.body)
         // ---- Replace the do expression with a id string literal
         const newNode = this.t.stringLiteral(id)
@@ -270,12 +287,28 @@ export class ViewParser {
     }
   }
 
+  private toHTMLProps(prop: Record<string, ViewProp>): Record<string, ViewHTMLProp> {
+    const toHTMLProp = (prop: ViewProp): ViewHTMLProp => {
+      if (this.isStaticProp(prop.value)) {
+        return {
+          value: prop.value.value
+        }
+      }
+      return {
+        computed: true,
+        value: prop.value,
+        nodes: prop.nodes
+      }
+    }
+    return Object.fromEntries(Object.entries(prop).map(([key, prop]) => [key, toHTMLProp(prop)]))
+  }
+
   /**
    * @brief Parse the type node
    * @param node
    */
   private parseTag(node: t.CallExpression): void {
-    const props: Record<string, ViewParserProp> = {}
+    const props: Record<string, ViewProp> = {}
 
     // ---- Keep iterating until the node has no call expression
     let n = node
@@ -299,7 +332,7 @@ export class ViewParser {
       n = n.callee.object
     }
 
-    let contentProp: ViewParserProp | undefined
+    let contentProp: ViewProp | undefined
     if (n.arguments.length > 0) {
       // ---- The last argument is the content prop of the type,
       //      so only parse prop when it exists instead of
@@ -312,43 +345,66 @@ export class ViewParser {
       const tagName = n.callee.name
       if (tagName === this.expressionTagSymbol && contentProp) {
         // ---- Must have content prop or else just ignore it
-        this.viewParserResult.push({
+        this.viewResult.push({
           type: "exp",
           content: contentProp,
           props
         })
       } else if (tagName === this.environmentTagSymbol) {
-        this.viewParserResult.push({
+        this.viewResult.push({
           type: "env",
           props
         })
       } else if (this.htmlTags.includes(tagName)) {
-        this.viewParserResult.push({
+        if (contentProp) props.textContent = contentProp
+        this.viewResult.push({
           type: "html",
-          tag: this.t.stringLiteral(tagName),
-          content: contentProp,
-          props
+          tag: tagName,
+          props: this.toHTMLProps(props)
         })
-      } else {
+      } else if (this.subviewNames) {
         // ---- Custom tag
-        this.viewParserResult.push({
+        this.viewResult.push({
           type: "custom",
           tag: this.t.identifier(tagName),
           content: contentProp,
           props
         })
       }
+    } else if (
+      this.t.isMemberExpression(n.callee) &&
+      this.t.isThisExpression(n.callee.object) &&
+      this.t.isIdentifier(n.callee.property) &&
+      this.subviewNames.includes(n.callee.property.name)
+    ) {
+      // ---- Subview
+      this.viewResult.push({
+        type: "subview",
+        tag: n.callee.property.name,
+        props
+      })
     } else if (this.t.isExpression(n.callee)) {
       // ---- 1. Custom tag
       //      2. htmlTag(xxx)
       //      3. tag(xxx)
       const [tagType, tag] = this.alterTagType(n.callee)
-      this.viewParserResult.push({
-        type: tagType,
-        tag,
-        content: contentProp,
-        props
-      })
+      if (tagType === "html") {
+        if (contentProp) props.textContent = contentProp
+        this.viewResult.push({
+          type: "html",
+          tag,
+          props: this.toHTMLProps(props),
+          computed: true
+        }
+        )
+      } else {
+        this.viewResult.push({
+          type: tagType,
+          tag,
+          content: contentProp,
+          props
+        })
+      }
     }
   }
 
@@ -369,7 +425,7 @@ export class ViewParser {
 
   /**
    * @brief Alter the tag type
-   * @param viewParserUnit
+   * @param viewUnit
    * @returns
    */
   private alterTagType(tag: t.Expression): ["html" | "custom", t.Expression] {
@@ -404,15 +460,23 @@ export class ViewParser {
   /**
    * @brief Parse the view by duplicating current parser's classRootPath, statements and htmlTags
    * @param statements
-   * @returns ViewParserUnit[]
+   * @returns ViewUnit[]
    */
-  private parseView(statements: Array<t.Statement | t.Directive>): ViewParserUnit[] {
-    return parseView(this.t, this.classRootPath, statements, this.htmlTags)
+  private parseView(statements: Array<t.Statement | t.Directive>): ViewUnit[] {
+    return parseView(this.t, this.classRootPath, statements, this.subviewNames, this.htmlTags)
+  }
+
+  private isStaticProp(propNode: t.Node): propNode is t.StringLiteral | t.NumericLiteral | t.BooleanLiteral {
+    return (
+      this.t.isStringLiteral(propNode) ||
+      this.t.isNumericLiteral(propNode) ||
+      this.t.isBooleanLiteral(propNode)
+    )
   }
 }
 
 /**
- * @brief Change the ViewParser class with its subclass
+ * @brief Change the View class with its subclass
  * @param newClass
  */
 let ViewParserClass = ViewParser
@@ -426,13 +490,14 @@ export function changeViewParserClass(newClass: typeof ViewParserClass): void {
  * @param classRootPath
  * @param statements
  * @param htmlTags
- * @returns ViewParserUnit[]
+ * @returns ViewUnit[]
  */
 export function parseView(
   types: typeof t,
   classRootPath: NodePath<t.ClassDeclaration | t.ClassExpression>,
   statements: Array<t.Statement | t.Directive>,
+  subviewNames: string[],
   htmlTags: string[]
-): ViewParserUnit[] {
-  return new ViewParserClass(types, classRootPath, statements, htmlTags).parse()
+): ViewUnit[] {
+  return new ViewParserClass(types, classRootPath, statements, subviewNames, htmlTags).parse()
 }

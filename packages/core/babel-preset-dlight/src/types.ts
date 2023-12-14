@@ -38,70 +38,102 @@ export type PropertyContainer = Record<string, {
   isPropOrEnv?: "Prop" | "Env"
 }>
 
-export interface ViewParserProp {
+export interface ViewHTMLPropStatic {
+  value: string | number | boolean
+}
+export interface ViewHTMLPropDynamic {
+  computed: true
   value: t.Expression
-  nodes: Record<string, ViewParserUnit[]>
+  nodes: Record<string, ViewUnit[]>
+}
+export interface ViewProp {
+  value: t.Expression
+  nodes: Record<string, ViewUnit[]>
 }
 
-export interface TextViewParserUnit {
+export type ViewHTMLProp = ViewHTMLPropStatic | ViewHTMLPropDynamic
+
+export interface TextViewUnitStatic {
+  type: "text"
+  content: string | number | boolean
+}
+export interface TextViewUnitDynamic {
   type: "text"
   content: t.Expression
+  computed: true
 }
 
-export interface HTMLViewParserUnit {
+export type TextViewUnit = TextViewUnitStatic | TextViewUnitDynamic
+
+export interface HTMLViewUnitStatic {
+  type: "html"
+  tag: string
+  props?: Record<string, ViewHTMLProp>
+  children?: ViewUnit[]
+}
+
+export interface HTMLViewUnitDynamic {
   type: "html"
   tag: t.Expression
-  content?: ViewParserProp
-  props?: Record<string, ViewParserProp>
-  children?: ViewParserUnit[]
+  props?: Record<string, ViewHTMLProp>
+  children?: ViewUnit[]
+  computed: true
 }
+export type HTMLViewUnit = HTMLViewUnitStatic | HTMLViewUnitDynamic
 
-export interface CustomViewParserUnit {
+export interface CustomViewUnit {
   type: "custom"
   tag: t.Expression
-  content?: ViewParserProp
-  props?: Record<string, ViewParserProp>
-  children?: ViewParserUnit[]
-  isSubView?: boolean
+  content?: ViewProp
+  props?: Record<string, ViewProp>
+  children?: ViewUnit[]
 }
 
-export interface IfViewParserUnit {
+export interface SubviewUnit {
+  type: "subview"
+  tag: string
+  props?: Record<string, ViewProp>
+  children?: ViewUnit[]
+}
+
+export interface IfViewUnit {
   type: "if"
   conditions: IfCondition[]
 }
 
-export interface ForViewParserUnit {
+export interface ForViewUnit {
   type: "for"
   item: t.LVal
   array: t.Expression
   key?: t.Expression
-  children: ViewParserUnit[]
+  children: ViewUnit[]
 }
 
 export type IdentifierToDepNode = t.SpreadElement | t.Expression
 
-export interface ExpViewParserUnit {
+export interface ExpViewUnit {
   type: "exp"
-  content: ViewParserProp
-  props?: Record<string, ViewParserProp>
+  content: ViewProp
+  props?: Record<string, ViewProp>
 }
 
-export interface EnvViewParserUnit {
+export interface EnvViewUnit {
   type: "env"
-  props: Record<string, ViewParserProp>
-  children?: ViewParserUnit[]
+  props: Record<string, ViewProp>
+  children?: ViewUnit[]
 }
 
-export type ViewParserUnit =
-  TextViewParserUnit
-  | HTMLViewParserUnit
-  | IfViewParserUnit
-  | ForViewParserUnit
-  | ExpViewParserUnit
-  | EnvViewParserUnit
-  | CustomViewParserUnit
+export type ViewUnit =
+  TextViewUnit
+  | HTMLViewUnit
+  | IfViewUnit
+  | ForViewUnit
+  | ExpViewUnit
+  | EnvViewUnit
+  | CustomViewUnit
+  | SubviewUnit
 
 export interface IfCondition {
   condition: t.Expression
-  body: ViewParserUnit[]
+  body: ViewUnit[]
 }

@@ -5,6 +5,7 @@ import { parseView } from "./viewParser"
 import { isAssignmentExpressionLeft, isAssignmentExpressionRight, isMemberInEscapeFunction, isMemberInManualFunction } from "./utils/depChecker"
 import { generateView } from "./viewGenerator"
 import { uid } from "./utils/utils"
+import { generateDLNode } from "./templateGenerator"
 
 const devMode = process.env.NODE_ENV !== "production"
 
@@ -14,6 +15,17 @@ export class PluginProvider {
   private readonly availableDecoNames = ["Static", "Prop", "Env", "Content", "Children"]
   private readonly dlightDefaultPackageName = "@dlightjs/dlight"
   private readonly dlightPackageName = this.dlightDefaultPackageName
+  private readonly importMap = {
+    template: "$template",
+    getEl: "$getEl",
+    setProp: "$setProp",
+    setEvent: "$setEvent",
+    setDLProp: "$setDLProp",
+    changeDLProp: "$changeDLProp",
+    setDLContent: "$setDLContent",
+    changeDLContent: "$changeDLContent",
+    insertNode: "$insertNode"
+  }
 
   // ---- Plugin Level
   private readonly t: typeof t
@@ -117,41 +129,15 @@ export class PluginProvider {
       }
 
       // ---- Add nodes import to the head of file
-      //      {
-      //        $h: HtmlNode,
-      //        $t: TextNode,
-      //        $f: ForNode,
-      //        $i: IfNode,
-      //        $e: ExpressionNode,
-      //        $v: EnvNode
-      //      }
       this.programNode!.body.unshift(
-        this.t.importDeclaration([
-          this.t.importSpecifier(
-            this.t.identifier("$h"),
-            this.t.identifier("HtmlNode")
-          ),
-          this.t.importSpecifier(
-            this.t.identifier("$t"),
-            this.t.identifier("TextNode")
-          ),
-          this.t.importSpecifier(
-            this.t.identifier("$f"),
-            this.t.identifier("ForNode")
-          ),
-          this.t.importSpecifier(
-            this.t.identifier("$i"),
-            this.t.identifier("IfNode")
-          ),
-          this.t.importSpecifier(
-            this.t.identifier("$e"),
-            this.t.identifier("ExpressionNode")
-          ),
-          this.t.importSpecifier(
-            this.t.identifier("$v"),
-            this.t.identifier("EnvNode")
-          )
-        ], this.t.stringLiteral(this.dlightPackageName)
+        this.t.importDeclaration(
+          Object.entries(this.importMap).map(([key, value]) => (
+            this.t.importSpecifier(
+              this.t.identifier(value),
+              this.t.identifier(key)
+            )
+          ))
+          , this.t.stringLiteral(this.dlightPackageName)
         )
       )
       this.didAlterImports = true
@@ -167,7 +153,7 @@ export class PluginProvider {
     const usedProperties = this.handleView()
     const propertyArr = Object.entries(this.propertiesContainer).reverse()
     const states: string[] = []
-
+    console.log(usedProperties)
     for (const [key, { node, deps, isStatic, isChildren, isPropOrEnv, isWatcher, isContent }] of propertyArr) {
       if (isChildren) {
         this.resolveChildrenDecorator(node, isChildren)
@@ -185,7 +171,7 @@ export class PluginProvider {
       }
       if (isStatic) continue
       if (usedProperties.includes(key)) {
-        this.resolveStateDecorator(node)
+        this.resolveStateDecorator(node, usedProperties.indexOf(key))
         states.push(key)
       }
     }
@@ -210,7 +196,7 @@ export class PluginProvider {
    */
   handleView(): string[] {
     if (!this.classBodyNode) return []
-    const usedPropertyDeps: string[] = []
+    const usedPropertySet = new Set<string>()
     let body: undefined | t.ClassMethod
     const subViewNodes: t.ClassMethod[] = []
     for (let viewNode of this.classBodyNode.body) {
@@ -244,12 +230,16 @@ export class PluginProvider {
     const subViewNames = subViewNodes.map(v => (v.key as t.Identifier).name)
 
     subViewNodes.forEach(viewNode => {
-      usedPropertyDeps.push(...this.alterView(viewNode, subViewNames, true))
+      this.alterView(viewNode, subViewNames, true).forEach(usedPropertySet.add.bind(usedPropertySet))
     })
 
-    body && usedPropertyDeps.push(...this.alterView(body, subViewNames))
+    body && this.alterView(body, subViewNames).forEach(usedPropertySet.add.bind(usedPropertySet))
 
-    const usedProperties = usedPropertyDeps.map(dep => dep.slice(1, -4))
+    const usedProperties: string[] = []
+    this.availableProperties.forEach(p => {
+      if (usedPropertySet.has(p)) usedProperties.push(p)
+    })
+    // const usedProperties = usedPropertyDeps.map(dep => dep.slice(1, -4))
     return usedProperties
   }
 
@@ -315,52 +305,29 @@ export class PluginProvider {
    * @param isSubView
    * @returns Used properties
    */
-  alterView(viewNode: t.ClassMethod, subViewNames: string[], isSubView = false): string[] {
-    let identifierToDepsMap: Record<string, IdentifierToDepNode[]> = {}
-    if (isSubView && this.t.isObjectPattern(viewNode.params[0])) {
-      // ---- If it's a subview, the first parameter is an object,
-      //      we need have a map of these object prop identifiers to dependencies
-      const propNames: string[] = viewNode.params[0].properties
-        .filter(p => this.t.isObjectProperty(p) && this.t.isIdentifier(p.key))
-        .map(p => ((p as t.ObjectProperty).key as t.Identifier).name)
-      identifierToDepsMap = propNames.reduce<Record<string, IdentifierToDepNode[]>>((acc, propName) => {
-        // ---- ...(${propName}?.[1] ?? [])
-        acc[propName] = [
-          this.t.arrayExpression([
-            this.t.spreadElement(
-              this.t.logicalExpression(
-                "??",
-                this.t.optionalMemberExpression(
-                  this.t.identifier(propName),
-                  this.t.numericLiteral(1),
-                  true,
-                  true
-                ),
-                this.t.arrayExpression()
-              )
-            )
-          ]).elements[0]!
-        ]
-        return acc
-      }, {})
-    }
-
+  alterView(viewNode: t.ClassMethod, subViewNames: string[], isSubView = false): Set<string> {
     // ---- First string literal in a statement block is directives
     //      but in DLight it's still TextNode, so put them and all the body nodes into viewStatements
     const viewStatements = [...viewNode.body.directives, ...viewNode.body.body]
 
-    const [code, usedProperties] = generateView(
+    const viewUnits = parseView(this.t, this.classRootPath!, viewStatements, subViewNames, this.htmlTags)
+    const [templateUnits, usedPropertySet] = generateDLNode(
       this.t,
-      parseView(this.t, this.classRootPath!, viewStatements, this.htmlTags),
+      viewUnits,
       this.classRootPath!,
       this.fullDepMap,
-      this.availableProperties,
-      subViewNames,
-      identifierToDepsMap
+      this.availableProperties
+    )
+
+    const code = generateView(
+      this.t,
+      templateUnits,
+      this.classRootPath!,
+      this.importMap
     )
     viewNode.body = code
 
-    return usedProperties
+    return usedPropertySet
   }
 
   /**
@@ -618,10 +585,11 @@ export class PluginProvider {
    *    if (this[`$${key}`] === value) return
    *    this[`$${key}`] = value
    *    this[`$${key}Deps`].forEach(dep => dep())
+   *    this._$update(idx)
    *  }
    * @param node
    */
-  resolveStateDecorator(node: t.ClassProperty) {
+  resolveStateDecorator(node: t.ClassProperty, idx: number) {
     if (!this.classBodyNode) return
     if (!this.t.isIdentifier(node.key)) return
     const key = node.key.name
@@ -692,6 +660,17 @@ export class PluginProvider {
                 )
               ])
             )
+          ]
+        )
+      ),
+      this.t.expressionStatement(
+        this.t.callExpression(
+          this.t.memberExpression(
+            this.t.thisExpression(),
+            this.t.identifier("_$update")
+          ),
+          [
+            this.t.numericLiteral(1 << idx)
           ]
         )
       )
