@@ -1,7 +1,7 @@
 
 type DLightErrMap = Record<number, string>
 type ErrorMethod<T extends DLightErrMap, G extends string> = {
-  [K in keyof T as `${G}${K & number}`]: (...args: string[]) => void
+  [K in keyof T as `${G}${K & number}`]: (...args: string[]) => any
 }
 
 export function createErrorHandler<A extends DLightErrMap, B extends DLightErrMap, C extends DLightErrMap>(
@@ -13,7 +13,7 @@ export function createErrorHandler<A extends DLightErrMap, B extends DLightErrMa
   // @ts-expect-error
   warningMap: C = {}
 ) {
-  function handleError(map: DLightErrMap, type: string, func: (msg: string) => void) {
+  function handleError(map: DLightErrMap, type: string, func: (msg: string) => any) {
     return Object.fromEntries(
       Object.entries(map).map(([code, msg]) => [`${type}${code}`, (...args: string[]) => {
         args.forEach((arg, i) => {
