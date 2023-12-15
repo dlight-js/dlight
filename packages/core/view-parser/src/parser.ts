@@ -179,21 +179,28 @@ export class ViewParser {
       forBodyStatements = [forBody]
     } else if (this.t.isBlockStatement(forBody)) {
       const childNodes = forBody.body
-      if (childNodes.length === 0) return
+      if (childNodes.length === 0) return DLError.error5()
       const firstStatement = childNodes[0]
       if (
-        this.t.isExpressionStatement(firstStatement) &&
-        this.t.isArrayExpression(firstStatement.expression)
+        this.t.isLabeledStatement(firstStatement) &&
+        this.t.isIdentifier(firstStatement.label)
       ) {
-        // ---- Treat the first array element inside the block statement as the key
-        const keyNode = firstStatement.expression.elements[0]
-        // ---- If the key is undefined or null, treat it as no key
         if (
-          this.t.isExpression(keyNode) &&
+          firstStatement.label.name !== "key" ||
+          !this.t.isExpressionStatement(firstStatement.body)
+        ) {
+          DLError.error4()
+        } else {
+          // ---- Treat the first array element labeled by key as the key
+          const keyNode = firstStatement.body.expression
+          // ---- If the key is undefined or null, treat it as no key
+          if (
+            this.t.isExpression(keyNode) &&
           !(this.t.isNullLiteral(keyNode) ||
           (this.t.isIdentifier(keyNode) && keyNode.name === "undefined"))
-        ) {
-          key = keyNode
+          ) {
+            key = keyNode
+          }
         }
         forBodyStatements = childNodes.slice(1)
       } else {

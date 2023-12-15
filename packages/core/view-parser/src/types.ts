@@ -65,14 +65,14 @@ export interface SubviewUnit {
 }
 
 export type ViewUnit =
-TextUnit
-| HTMLUnit
-| CompUnit
-| IfUnit
-| ForUnit
-| EnvUnit
-| ExpUnit
-| SubviewUnit
+  | TextUnit
+  | HTMLUnit
+  | CompUnit
+  | IfUnit
+  | ForUnit
+  | EnvUnit
+  | ExpUnit
+  | SubviewUnit
 
 export interface ViewParserConfig {
   babelApi: typeof Babel

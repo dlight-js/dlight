@@ -1,14 +1,13 @@
 {
   "name": "@dlightjs/view-parser",
-  "version": "0.10.6",
+  "version": "0.0.1",
   "description": "DLight transpiler for babel",
   "author": {
     "name": "IanDx",
     "email": "iandxssxx@gmail.com"
   },
   "keywords": [
-    "dlight.js",
-    "babel-preset"
+    "dlight.js"
   ],
   "license": "MIT",
   "files": [

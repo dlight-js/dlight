@@ -62,9 +62,15 @@ describe("ForUnit", () => {
 
   // ---- Key
   it("should correctly parse the key of a for-of statement", () => {
-    const viewUnits = parse("for (const item of array) { [item]; div() }")
+    const viewUnits = parse("for (const item of array) { key: item; div() }")
     const forUnit = viewUnits[0] as ForUnit
     expect(t.isIdentifier(forUnit.key, { name: "item" })).toBeTruthy()
+  })
+
+  it("should throw the error when key is not labeled by 'key: ' in a for-of statement", () => {
+    const viewUnits = parse("for (const item of array) { fuck: item; div() }")
+    const forUnit = viewUnits[0] as ForUnit
+    expect(forUnit.key).toBeUndefined()
   })
 
   it("should drop the key of a for-of statement if it's not an identifier", () => {
