@@ -292,7 +292,7 @@ export class ViewParser {
         if (node.params.length === 0) return
         const firstParam = node.params[0]
         if (
-          !this.t.isIdentifier(firstParam, { name: "View" }) ||
+          !this.t.isIdentifier(firstParam, { name: "View" }) &&
           !this.t.isIdentifier(firstParam, { name: "_View" })
         ) return
         const body = this.t.isBlockStatement(node.body)
