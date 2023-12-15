@@ -42,8 +42,8 @@ describe("ExpUnit", () => {
     expect(content?.value).toBe(originalExpression)
   })
 
-  it("should correctly parse do expression as view props", () => {
-    const statement = parseCode("_(do { div() })")
+  it("should correctly parse the View => {} as view props", () => {
+    const statement = parseCode("_(View => { div() })")
     const viewUnits = parseView(statement)
 
     const content = (viewUnits[0] as ExpUnit).content
@@ -87,8 +87,8 @@ describe("ExpUnit", () => {
     expect(Object.keys(props).length).toBe(5)
   })
 
-  it("should correctly parse props with do expression as view units as ViewUnits stored in props.viewPropMap", () => {
-    const statement = parseCode("_(this.flag).anyProp(do { div() })")
+  it("should correctly parse props with the View => {} as view units as ViewUnits stored in props.viewPropMap", () => {
+    const statement = parseCode("_(this.flag).anyProp(View => { div() })")
     const viewUnits = parseView(statement)
 
     const props = (viewUnits[0] as ExpUnit).props!

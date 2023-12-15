@@ -284,15 +284,24 @@ export class ViewParser {
       }
     }
 
-    // ---- Collect do expression nodes as DLProp
+    // ---- Collect View => {} nodes as DLProp
     const dlViewPropResult: Record<string, ViewUnit[]> = {}
     this.traverse(this.valueWrapper(propNode), {
-      DoExpression: innerPath => {
+      ArrowFunctionExpression: innerPath => {
         const node = innerPath.node
+        if (node.params.length === 0) return
+        const firstParam = node.params[0]
+        if (
+          !this.t.isIdentifier(firstParam, { name: "View" }) ||
+          !this.t.isIdentifier(firstParam, { name: "_View" })
+        ) return
+        const body = this.t.isBlockStatement(node.body)
+          ? node.body
+          : this.t.blockStatement([this.t.expressionStatement(node.body)])
         const id = this.uid()
-        // ---- Parse the body of do expression as a new View
-        dlViewPropResult[id] = this.parseView(node.body)
-        // ---- Replace the do expression with a id string literal
+        // ---- Parse the body of View => {} as a new View
+        dlViewPropResult[id] = this.parseView(body)
+        // ---- Replace the View => {} with a id string literal
         const newNode = this.t.stringLiteral(id)
         if (node === propNode) {
           propNode = newNode

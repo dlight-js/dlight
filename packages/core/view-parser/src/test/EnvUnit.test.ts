@@ -33,8 +33,8 @@ describe("EnvUnit", () => {
     expect(envUnit.props.count.value).toBe(originalExpression)
   })
 
-  it("should correctly parse the do expression as view props", () => {
-    const statement = parseCode("env().comp(do { div() }); { div() }")
+  it("should correctly parse the View => {} as view props", () => {
+    const statement = parseCode("env().comp(View => { div() }); { div() }")
     const viewUnits = parseView(statement)
 
     const props = (viewUnits[0] as EnvUnit).props

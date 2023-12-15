@@ -61,8 +61,8 @@ describe("CompUnit", () => {
     expect(content).toBe(originalExpression)
   })
 
-  it("should correctly parse content with do expression as view units as its value", () => {
-    const statement = parseCode("Comp(do { div(); span() })")
+  it("should correctly parse content with the View => {} as view units as its value", () => {
+    const statement = parseCode("Comp(View => { div(); span() })")
     const viewUnits = parseView(statement)
 
     const content = (viewUnits[0] as HTMLUnit).content!
@@ -108,8 +108,8 @@ describe("CompUnit", () => {
     expect(Object.keys(props).length).toBe(5)
   })
 
-  it("should correctly parse props with do expression as their values", () => {
-    const statement = parseCode("Comp().internalComp(do { div() })")
+  it("should correctly parse props with the View => {} as their values", () => {
+    const statement = parseCode("Comp().internalComp(View => { div() })")
     const viewUnits = parseView(statement)
     const props = (viewUnits[0] as HTMLUnit).props!
     const viewPropMap = props.internalComp.viewPropMap!

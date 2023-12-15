@@ -87,8 +87,8 @@ describe("HTMLUnit", () => {
     expect(Object.keys(props).length).toBe(5)
   })
 
-  it("should parse do expression as props' nested view as ViewUnits stored in props.viewPropMap", () => {
-    const statement = parseCode("div().anyProp(do { span() })")
+  it("should parse the View => {} as props' nested view as ViewUnits stored in props.viewPropMap", () => {
+    const statement = parseCode("div().anyProp(View => { span() })")
     const viewUnits = parseView(statement)
 
     const props = (viewUnits[0] as HTMLUnit).props!

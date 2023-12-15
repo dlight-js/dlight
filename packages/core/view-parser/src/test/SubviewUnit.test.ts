@@ -68,8 +68,8 @@ describe("SubviewUnit", () => {
     expect(content?.value).toBe(originalExpression)
   })
 
-  it("should correctly parse props with do expression as view units as its value", () => {
-    const statement = parseCode("this.MySubview(do { div() })")
+  it("should correctly parse props with the View => {} as view units as its value", () => {
+    const statement = parseCode("this.MySubview(View => { div() })")
     const viewUnits = parseView(statement)
 
     const props = (viewUnits[0] as SubviewUnit).props!
