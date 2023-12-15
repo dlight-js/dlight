@@ -14,7 +14,7 @@ export function parseView(
   config: ViewParserConfig,
   options?: ViewParserOption
 ): ViewUnit[] {
-  return new ViewParser(statement, config, options).viewUnits
+  return new ViewParser(statement, config, options).parse()
 }
 
 export type * from "./types"

@@ -49,8 +49,11 @@ export class ViewParser {
     options?.htmlTagWrapper && (this.htmlTagWrapper = options.htmlTagWrapper)
     options?.compWrapper && (this.compWrapper = options.compWrapper)
     options?.subviewWrapper && (this.subviewWrapper = options.subviewWrapper)
+  }
 
+  parse() {
     this.statements.forEach(this.parseStatement.bind(this))
+    return this.viewUnits
   }
 
   /**
@@ -498,7 +501,7 @@ export class ViewParser {
    * @returns ViewUnit[]
    */
   private parseView(statement: t.BlockStatement): ViewUnit[] {
-    return new ViewParser(statement, this.config, this.options).viewUnits
+    return new ViewParser(statement, this.config, this.options).parse()
   }
 
   /**

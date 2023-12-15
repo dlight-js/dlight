@@ -31,6 +31,7 @@
         "@typescript-eslint/no-dynamic-delete": "off",
         "no-lone-blocks": "off",
         "no-fallthrough": "off",
+        "no-labels": "off",
         "multiline-ternary": ["error", "always-multiline"],
         "quotes": ["error", "double"],
         "semi": ["error", "never"],
