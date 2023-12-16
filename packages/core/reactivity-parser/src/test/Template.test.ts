@@ -24,7 +24,6 @@ describe("TemplateUnit", () => {
   it("should correctly parse a nested HTMLUnit's structure into a template string with props", () => {
     const viewParticles = parse("div().class(\"ok\"); {div()}")
     const template = (viewParticles[0] as any).template
-    console.log(template)
     expect(template).toBe("<div class=\"ok\"><div></div></div>")
   })
 
