@@ -43,8 +43,8 @@ export interface HTMLParticle {
 }
 
 export interface CompParticle {
-  type: "custom"
-  tag: t.Expression
+  type: "comp"
+  tag: DependencyValue<t.Expression>
   content?: DependencyProp
   props?: Record<string, DependencyProp>
   children?: DLParticle[]

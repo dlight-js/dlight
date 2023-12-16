@@ -52,9 +52,7 @@ export class ReactivityParser {
    * @returns
    */
   private parseViewUnit(viewUnit: ViewUnit): DLParticle {
-    if (viewUnit.type === "html" && this.t.isStringLiteral(viewUnit.tag)) {
-      return this.parseTemplate(viewUnit)
-    }
+    if (this.isHTMLTemplate(viewUnit)) return this.parseTemplate(viewUnit as HTMLUnit)
     if (viewUnit.type === "text") return this.parseText(viewUnit)
     if (viewUnit.type === "html") return this.parseHTML(viewUnit)
     if (viewUnit.type === "comp") return this.parseComp(viewUnit)
@@ -80,7 +78,7 @@ export class ReactivityParser {
       type: "template",
       template: this.generateTemplateString(htmlUnit),
       props: this.parseTemplateProps(htmlUnit),
-      mutableParticles: this.generateMutableNodes(htmlUnit)
+      mutableParticles: this.generateMutableParticles(htmlUnit)
     }
   }
 
@@ -95,18 +93,21 @@ export class ReactivityParser {
     let templateString = ""
     const generateString = (unit: HTMLUnit) => {
       const tagName = (unit.tag as t.StringLiteral).value
-      const staticProps = Object.entries(unit.props ?? [])
-        .filter(([, { value, viewPropMap }]) => (
-          !viewPropMap && this.t.isLiteral(value) && !this.t.isNullLiteral(value)
-        ))
-        .map(([key, { value }]) => (
+      const staticProps = this.filterTemplateProps(
+        Object.entries(unit.props ?? [])
+          .filter(([, { value, viewPropMap }]) => (
+            !Object.keys(viewPropMap ?? {}).length && (this.t.isStringLiteral(value) || this.t.isNumericLiteral(value) || this.t.isBooleanLiteral(value))
+          ))
+          .map<[string, string]>(([key, { value }]) => (
           [key, (value as t.StringLiteral).value]
-        ))
+        )
+        )
+      )
 
       const propString = staticProps.map(([key, value]) => ` ${key}="${value}"`).join("")
       templateString += `<${tagName}${propString}>`
 
-      // ---- ChildNodes
+      // ---- ChildParticles
       if (unit.content) {
         if (
           !unit.content.viewPropMap &&
@@ -140,7 +141,7 @@ export class ReactivityParser {
    * @param htmlUnit
    * @returns
    */
-  private generateMutableNodes(htmlUnit: HTMLUnit): mutableParticle[] {
+  private generateMutableParticles(htmlUnit: HTMLUnit): mutableParticle[] {
     const mutableParticles: mutableParticle[] = []
     const generateMutableUnit = (unit: HTMLUnit, path: number[]) => {
       unit.children?.forEach((child, idx) => {
@@ -149,7 +150,7 @@ export class ReactivityParser {
         } else if (child.type !== "text") {
           mutableParticles.push({
             path: [...path, idx],
-            ...this.parseDLParticle(unit)
+            ...this.parseDLParticle(child)
           })
         }
       })
@@ -171,7 +172,7 @@ export class ReactivityParser {
     const generateVariableProp = (unit: HTMLUnit, path: number[]) => {
       Object.entries(unit.props ?? [])
         .filter(([, { value, viewPropMap }]) => (
-          !!viewPropMap || !this.t.isLiteral(value) || this.t.isNullLiteral(value)
+          !(!viewPropMap && (this.t.isStringLiteral(value) || this.t.isNumericLiteral(value) || this.t.isBooleanLiteral(value)))
         ))
         .forEach(([key, prop]) => {
           const dependencies = this.getDependencies(prop.value)
@@ -229,11 +230,13 @@ export class ReactivityParser {
    * @returns
    */
   private parseHTML(htmlUnit: HTMLUnit): ExpParticle | HTMLParticle {
+    const tagDependencies = this.getDependencies(htmlUnit.tag)
+
     const innerHTMLParticle: HTMLParticle = {
       type: "html",
       tag: {
         value: htmlUnit.tag,
-        dependencies: this.getDependencies(htmlUnit.tag)
+        dependencyIndexArr: tagDependencies
       }
     }
     if (htmlUnit.content) {
@@ -247,8 +250,6 @@ export class ReactivityParser {
     if (htmlUnit.children) {
       innerHTMLParticle.children = htmlUnit.children.map(this.parseDLParticle.bind(this))
     }
-
-    const tagDependencies = this.getDependencies(htmlUnit.tag)
 
     // ---- Not a dynamic tag
     if (tagDependencies.length === 0) return innerHTMLParticle
@@ -275,9 +276,14 @@ export class ReactivityParser {
    * @returns
    */
   private parseComp(compUnit: CompUnit): CompParticle | ExpParticle {
+    const tagDependencies = this.getDependencies(compUnit.tag)
+
     const compParticle: CompParticle = {
-      type: "custom",
-      tag: compUnit.tag
+      type: "comp",
+      tag: {
+        value: compUnit.tag,
+        dependencyIndexArr: tagDependencies
+      }
     }
 
     if (compUnit.content) {
@@ -292,15 +298,15 @@ export class ReactivityParser {
       compParticle.children = compUnit.children.map(this.parseDLParticle.bind(this))
     }
 
-    const tagDependencies = this.getDependencies(compUnit.tag)
     if (tagDependencies.length === 0) return compParticle
 
+    const id = this.uid()
     return {
       type: "exp",
       content: {
-        value: compUnit.tag,
+        value: this.t.stringLiteral(id),
         viewPropMap: {
-          [this.uid()]: [compParticle]
+          [id]: [compParticle]
         }
       }
     }
@@ -394,12 +400,13 @@ export class ReactivityParser {
    * @param subviewUnit
    * @returns
    */
-  private parseSubview(subviewUnit: SubviewUnit): SubviewParticle {
+  private parseSubview(subviewUnit: SubviewUnit): SubviewParticle | ExpParticle {
+    const tagDependencies = this.getDependencies(subviewUnit.tag)
     const subviewParticle: SubviewParticle = {
       type: "subview",
       tag: {
         value: subviewUnit.tag,
-        dependencies: this.getDependencies(subviewUnit.tag)
+        dependencyIndexArr: tagDependencies
       }
     }
     if (subviewUnit.props) {
@@ -410,7 +417,18 @@ export class ReactivityParser {
     if (subviewUnit.children) {
       subviewParticle.children = subviewUnit.children.map(this.parseDLParticle.bind(this))
     }
-    return subviewParticle
+
+    if (tagDependencies.length === 0) return subviewParticle
+    const id = this.uid()
+    return {
+      type: "exp",
+      content: {
+        value: this.t.stringLiteral(id),
+        viewPropMap: {
+          [id]: [subviewParticle]
+        }
+      }
+    }
   }
 
   // ---- Dependencies ----
@@ -486,6 +504,38 @@ export class ReactivityParser {
 
   // ---- Utils ----
   /**
+   * @brief Check if a ViewUnit is a static HTMLUnit that can be parsed into a template
+   *  Must satisfy:
+   *  1. type is html
+   *  2. tag is a string literal, i.e., non-dynamic tag
+   *  3. has at least one child that is a static HTMLUnit,
+   *     or else just call a createElement function, no need for template clone
+   * @param viewUnit
+   * @returns
+   */
+  private isHTMLTemplate(viewUnit: ViewUnit): boolean {
+    return (
+      viewUnit.type === "html" &&
+      this.t.isStringLiteral(viewUnit.tag) &&
+      !!viewUnit.children?.some(child => (
+        child.type === "html" && this.t.isStringLiteral(child.tag)
+      ))
+    )
+  }
+
+  private filterTemplateProps(props: Array<[string, string]>): Array<[string, string]> {
+    return props
+      // ---- Filter out event listeners
+      .filter(([key]) => (
+        !key.startsWith("on")
+      ))
+      // ---- Filter out specific props
+      .filter(([key]) => (
+        !["element", "innerHTML", "prop", "attr"].includes(key)
+      ))
+  }
+
+  /**
    * @brief Wrap the value in a file
    * @param node
    * @returns wrapped value
@@ -551,8 +601,8 @@ export class ReactivityParser {
       const node = reversePath.node
       if (
         this.t.isCallExpression(node) &&
-      this.t.isIdentifier(node.callee) &&
-      this.escapeNamings.includes(node.callee.name)
+        this.t.isIdentifier(node.callee) &&
+        this.escapeNamings.includes(node.callee.name)
       ) {
         isInFunction = true
         break
@@ -573,16 +623,20 @@ export class ReactivityParser {
   private isMemberInManualFunction(innerPath: NodePath): boolean {
     let isInFunction = false
     let reversePath = innerPath.parentPath
+
     while (reversePath) {
       const node = reversePath.node
       const parentNode = reversePath.parentPath?.node
-      const isFunction = this.t.isFunctionExpression(node) || this.t.isArrowFunctionExpression(node)
       const isManual = (
         this.t.isCallExpression(parentNode) &&
-      this.t.isIdentifier(parentNode.callee) &&
-      parentNode.callee.name === "manual"
+        this.t.isIdentifier(parentNode.callee) &&
+        parentNode.callee.name === "manual"
       )
-      if (isFunction && isManual) {
+      const isFirstParam = (
+        this.t.isCallExpression(parentNode) &&
+        parentNode.arguments[0] === node
+      )
+      if (isManual && isFirstParam) {
         isInFunction = true
         break
       }
