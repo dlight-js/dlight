@@ -8,7 +8,7 @@ export interface DependencyValue<T> {
 
 export interface DependencyProp {
   value: t.Expression
-  viewPropMap?: Record<string, DLParticle[]>
+  viewPropMap?: Record<string, ViewParticle[]>
   dependencyIndexArr?: number[]
 }
 
@@ -16,11 +16,11 @@ export interface TemplateProp {
   key: string
   path: number[]
   value: t.Expression
-  viewPropMap?: Record<string, DLParticle[]>
+  viewPropMap?: Record<string, ViewParticle[]>
   dependencyIndexArr?: number[]
 }
 
-export type mutableParticle = DLParticle & { path: number[] }
+export type mutableParticle = ViewParticle & { path: number[] }
 
 export interface TemplateParticle {
   type: "template"
@@ -39,7 +39,7 @@ export interface HTMLParticle {
   tag: DependencyValue<t.Expression>
   content?: DependencyProp
   props?: Record<string, DependencyProp>
-  children?: DLParticle[]
+  children?: ViewParticle[]
 }
 
 export interface CompParticle {
@@ -47,7 +47,7 @@ export interface CompParticle {
   tag: DependencyValue<t.Expression>
   content?: DependencyProp
   props?: Record<string, DependencyProp>
-  children?: DLParticle[]
+  children?: ViewParticle[]
 }
 
 export interface ForParticle {
@@ -55,12 +55,12 @@ export interface ForParticle {
   item: DependencyValue<t.LVal>
   array: DependencyValue<t.Expression>
   key?: t.Expression
-  children: DLParticle[]
+  children: ViewParticle[]
 }
 
 export interface IfCondition {
   condition: DependencyValue<t.Expression>
-  children: DLParticle[]
+  children: ViewParticle[]
 }
 
 export interface IfParticle {
@@ -71,7 +71,7 @@ export interface IfParticle {
 export interface EnvParticle {
   type: "env"
   props: Record<string, DependencyProp>
-  children: DLParticle[]
+  children: ViewParticle[]
 }
 
 export interface ExpParticle {
@@ -84,10 +84,10 @@ export interface SubviewParticle {
   type: "subview"
   tag: DependencyValue<t.Expression>
   props?: Record<string, DependencyProp>
-  children?: DLParticle[]
+  children?: ViewParticle[]
 }
 
-export type DLParticle =
+export type ViewParticle =
   | TemplateParticle
   | TextParticle
   | HTMLParticle

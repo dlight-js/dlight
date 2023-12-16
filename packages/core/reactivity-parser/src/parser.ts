@@ -1,4 +1,4 @@
-import { type TemplateProp, type ReactivityParserConfig, type ReactivityParserOption, type mutableParticle, type DLParticle, type TemplateParticle, type TextParticle, type HTMLParticle, type DependencyProp, type ExpParticle, type CompParticle, type ForParticle, type IfParticle, type EnvParticle, type SubviewParticle } from "./types"
+import { type TemplateProp, type ReactivityParserConfig, type ReactivityParserOption, type mutableParticle, type ViewParticle, type TemplateParticle, type TextParticle, type HTMLParticle, type DependencyProp, type ExpParticle, type CompParticle, type ForParticle, type IfParticle, type EnvParticle, type SubviewParticle } from "./types"
 import { type NodePath, type types as t, type traverse } from "@babel/core"
 import { type TextUnit, type HTMLUnit, type ViewUnit, type CompUnit, type ViewProp, type ForUnit, type IfUnit, type EnvUnit, type ExpUnit, type SubviewUnit } from "@dlightjs/view-parser"
 import { DLError } from "./error"
@@ -39,19 +39,19 @@ export class ReactivityParser {
   }
 
   /**
-   * @brief Parse the ViewUnit into a DLParticle
+   * @brief Parse the ViewUnit into a ViewParticle
    * @returns
    */
-  parse(): DLParticle {
+  parse(): ViewParticle {
     return this.parseViewUnit(this.viewUnit)
   }
 
   /**
-   * @brief Parse a ViewUnit into a DLParticle
+   * @brief Parse a ViewUnit into a ViewParticle
    * @param viewUnit
    * @returns
    */
-  private parseViewUnit(viewUnit: ViewUnit): DLParticle {
+  private parseViewUnit(viewUnit: ViewUnit): ViewParticle {
     if (this.isHTMLTemplate(viewUnit)) return this.parseTemplate(viewUnit as HTMLUnit)
     if (viewUnit.type === "text") return this.parseText(viewUnit)
     if (viewUnit.type === "html") return this.parseHTML(viewUnit)
@@ -95,9 +95,7 @@ export class ReactivityParser {
       const tagName = (unit.tag as t.StringLiteral).value
       const staticProps = this.filterTemplateProps(
         Object.entries(unit.props ?? [])
-          .filter(([, { value, viewPropMap }]) => (
-            !Object.keys(viewPropMap ?? {}).length && (this.t.isStringLiteral(value) || this.t.isNumericLiteral(value) || this.t.isBooleanLiteral(value))
-          ))
+          .filter(([, prop]) => this.isStaticProp(prop))
           .map<[string, string]>(([key, { value }]) => (
           [key, (value as t.StringLiteral).value]
         )
@@ -109,11 +107,7 @@ export class ReactivityParser {
 
       // ---- ChildParticles
       if (unit.content) {
-        if (
-          !unit.content.viewPropMap &&
-          this.t.isLiteral(unit.content.value) &&
-          !this.t.isNullLiteral(unit.content.value)
-        ) {
+        if (this.isStaticProp(unit.content)) {
           templateString += (unit.content.value as t.StringLiteral).value
         }
       }
@@ -150,7 +144,7 @@ export class ReactivityParser {
         } else if (child.type !== "text") {
           mutableParticles.push({
             path: [...path, idx],
-            ...this.parseDLParticle(child)
+            ...this.parseViewParticle(child)
           })
         }
       })
@@ -171,9 +165,7 @@ export class ReactivityParser {
     const templateProps: TemplateProp[] = []
     const generateVariableProp = (unit: HTMLUnit, path: number[]) => {
       Object.entries(unit.props ?? [])
-        .filter(([, { value, viewPropMap }]) => (
-          !(!viewPropMap && (this.t.isStringLiteral(value) || this.t.isNumericLiteral(value) || this.t.isBooleanLiteral(value)))
-        ))
+        .filter(([, prop]) => !this.isStaticProp(prop))
         .forEach(([key, prop]) => {
           const dependencies = this.getDependencies(prop.value)
           templateProps.push({
@@ -248,7 +240,7 @@ export class ReactivityParser {
       )
     }
     if (htmlUnit.children) {
-      innerHTMLParticle.children = htmlUnit.children.map(this.parseDLParticle.bind(this))
+      innerHTMLParticle.children = htmlUnit.children.map(this.parseViewParticle.bind(this))
     }
 
     // ---- Not a dynamic tag
@@ -295,7 +287,7 @@ export class ReactivityParser {
       )
     }
     if (compUnit.children) {
-      compParticle.children = compUnit.children.map(this.parseDLParticle.bind(this))
+      compParticle.children = compUnit.children.map(this.parseViewParticle.bind(this))
     }
 
     if (tagDependencies.length === 0) return compParticle
@@ -332,7 +324,7 @@ export class ReactivityParser {
         value: forUnit.array,
         dependencies: this.getDependencies(forUnit.array)
       },
-      children: forUnit.children.map(this.parseDLParticle.bind(this))
+      children: forUnit.children.map(this.parseViewParticle.bind(this))
     }
     if (forUnit.key) {
       forParticle.key = forUnit.key
@@ -354,7 +346,7 @@ export class ReactivityParser {
           value: branch.condition,
           dependencies: this.getDependencies(branch.condition)
         },
-        children: branch.children.map(this.parseDLParticle.bind(this))
+        children: branch.children.map(this.parseViewParticle.bind(this))
       }))
     }
   }
@@ -371,7 +363,7 @@ export class ReactivityParser {
       props: Object.fromEntries(
         Object.entries(envUnit.props).map(([key, prop]) => [key, this.generateDependencyProp(prop)])
       ),
-      children: envUnit.children.map(this.parseDLParticle.bind(this))
+      children: envUnit.children.map(this.parseViewParticle.bind(this))
     }
   }
 
@@ -415,7 +407,7 @@ export class ReactivityParser {
       )
     }
     if (subviewUnit.children) {
-      subviewParticle.children = subviewUnit.children.map(this.parseDLParticle.bind(this))
+      subviewParticle.children = subviewUnit.children.map(this.parseViewParticle.bind(this))
     }
 
     if (tagDependencies.length === 0) return subviewParticle
@@ -446,7 +438,7 @@ export class ReactivityParser {
       dependencyProp.viewPropMap = Object.fromEntries(
         Object.entries(prop.viewPropMap).map(([key, units]) => [
           key,
-          units.map(this.parseDLParticle.bind(this))
+          units.map(this.parseViewParticle.bind(this))
         ])
       )
     }
@@ -491,11 +483,11 @@ export class ReactivityParser {
   }
 
   /**
-   * @brief Parse a ViewUnit into a DLParticle by new-ing a ReactivityParser
+   * @brief Parse a ViewUnit into a ViewParticle by new-ing a ReactivityParser
    * @param viewUnit
    * @returns
    */
-  private parseDLParticle(viewUnit: ViewUnit) {
+  private parseViewParticle(viewUnit: ViewUnit) {
     const parser = new ReactivityParser(viewUnit, this.config, this.options)
     const parsedUnit = parser.parse()
     parser.usedProperties.forEach(this.usedProperties.add.bind(this.usedProperties))
@@ -523,6 +515,19 @@ export class ReactivityParser {
     )
   }
 
+  private isStaticProp(prop: ViewProp): boolean {
+    const { value, viewPropMap } = prop
+    return (
+      (!viewPropMap || Object.keys(viewPropMap).length === 0) &&
+      (this.t.isStringLiteral(value) || this.t.isNumericLiteral(value) || this.t.isBooleanLiteral(value))
+    )
+  }
+
+  /**
+   * @brief Filter out some props that are not needed in the template
+   * @param props
+   * @returns
+   */
   private filterTemplateProps(props: Array<[string, string]>): Array<[string, string]> {
     return props
       // ---- Filter out event listeners

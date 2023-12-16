@@ -1,12 +1,12 @@
 import { type ViewUnit } from "@dlightjs/view-parser"
 import { ReactivityParser } from "./parser"
-import { type DLParticle, type ReactivityParserConfig, type ReactivityParserOption } from "./types"
+import { type ViewParticle, type ReactivityParserConfig, type ReactivityParserOption } from "./types"
 
 export function parseReactivity(
   viewUnits: ViewUnit[],
   config: ReactivityParserConfig,
   options?: ReactivityParserOption
-): [DLParticle[], Set<string>] {
+): [ViewParticle[], Set<string>] {
   const usedProperties = new Set<string>()
   const dlParticles = viewUnits.map(viewUnit => {
     const parser = new ReactivityParser(viewUnit, config, options)
@@ -16,3 +16,5 @@ export function parseReactivity(
   })
   return [dlParticles, usedProperties]
 }
+
+export type * from "./types"

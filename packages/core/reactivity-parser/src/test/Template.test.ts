@@ -28,9 +28,9 @@ describe("TemplateUnit", () => {
   })
 
   it("should correctly parse the path of TemplateParticle's dynamic props in root element", () => {
-    const viewParticles = parse("div().class(this.flag); {div()}")
+    const viewParticles = parse("div().class(this.flag); {div(\"ok\")}")
     const template = (viewParticles[0] as TemplateParticle).template
-    expect(template).toBe("<div><div></div></div>")
+    expect(template).toBe("<div><div>ok</div></div>")
 
     const dynamicProps = (viewParticles[0] as TemplateParticle).props
     expect(dynamicProps).toHaveLength(1)
