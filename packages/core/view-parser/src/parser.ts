@@ -277,7 +277,7 @@ export class ViewParser {
    * @returns ViewProp
    */
   private parseProp(propNode: t.Node | undefined): ViewProp {
-    if (!this.t.isExpression(propNode)) DLError.throw3()
+    if (propNode && !this.t.isExpression(propNode)) DLError.throw3()
     propNode = propNode as t.Expression
     // ---- If there is no propNode, set the default prop as true
     if (!propNode) {

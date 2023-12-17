@@ -62,6 +62,14 @@ describe("HTMLUnit", () => {
     expect(t.isStringLiteral(props?.class?.value, { value: "class" })).toBeTruthy()
   })
 
+  it("should correctly parse empty prop as true", () => {
+    const viewUnits = parse("div().id()")
+    const props = (viewUnits[0] as HTMLUnit).props
+    expect(props).toBeTruthy()
+
+    expect(t.isBooleanLiteral(props?.id?.value, { value: true })).toBeTruthy()
+  })
+
   it("should correctly parse props with any expression as their values", () => {
     const statement = parseCode("div().onclick(() => {console.log(\"hello\")})")
     const viewUnits = parseView(statement)
