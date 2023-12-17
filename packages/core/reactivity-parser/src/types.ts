@@ -13,6 +13,7 @@ export interface DependencyProp {
 }
 
 export interface TemplateProp {
+  tag: string
   key: string
   path: number[]
   value: t.Expression
@@ -37,7 +38,6 @@ export interface TextParticle {
 export interface HTMLParticle {
   type: "html"
   tag: DependencyValue<t.Expression>
-  content?: DependencyProp
   props?: Record<string, DependencyProp>
   children?: ViewParticle[]
 }

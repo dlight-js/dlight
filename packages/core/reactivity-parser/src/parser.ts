@@ -2,6 +2,7 @@ import { type TemplateProp, type ReactivityParserConfig, type ReactivityParserOp
 import { type NodePath, type types as t, type traverse } from "@babel/core"
 import { type TextUnit, type HTMLUnit, type ViewUnit, type CompUnit, type ViewProp, type ForUnit, type IfUnit, type EnvUnit, type ExpUnit, type SubviewUnit } from "@dlightjs/view-parser"
 import { DLError } from "./error"
+import { recoverHTMLAttrName } from "./attr"
 
 export class ReactivityParser {
   private readonly viewUnit: ViewUnit
@@ -95,14 +96,21 @@ export class ReactivityParser {
       const tagName = (unit.tag as t.StringLiteral).value
       const staticProps = this.filterTemplateProps(
         Object.entries(unit.props ?? [])
-          .filter(([, prop]) => this.isStaticProp(prop))
-          .map<[string, string]>(([key, { value }]) => (
-          [key, (value as t.StringLiteral).value]
-        )
-        )
+          .filter(([, prop]) => (
+            this.isStaticProp(prop) &&
+            // ---- Filter out props with false values
+            !(this.t.isBooleanLiteral(prop.value) && !prop.value.value)
+          ))
+          .map<[string, string | boolean]>(([key, { value }]) => (
+          [recoverHTMLAttrName(key), (value as t.StringLiteral).value]
+        ))
       )
 
-      const propString = staticProps.map(([key, value]) => ` ${key}="${value}"`).join("")
+      const propString = staticProps
+        .map(([key, value]) => (value === true
+          ? ` ${key}`
+          : ` ${key}="${value}"`)
+        ).join("")
       templateString += `<${tagName}${propString}>`
 
       // ---- ChildParticles
@@ -164,11 +172,12 @@ export class ReactivityParser {
   private parseTemplateProps(htmlUnit: HTMLUnit): TemplateProp[] {
     const templateProps: TemplateProp[] = []
     const generateVariableProp = (unit: HTMLUnit, path: number[]) => {
-      Object.entries(unit.props ?? [])
+      Object.entries({ ...unit.props ?? {}, ...(unit.content ? { textContent: unit.content } : {}) })
         .filter(([, prop]) => !this.isStaticProp(prop))
         .forEach(([key, prop]) => {
           const dependencies = this.getDependencies(prop.value)
           templateProps.push({
+            tag: (unit.tag as t.StringLiteral).value,
             key,
             path,
             value: prop.value,
@@ -181,7 +190,8 @@ export class ReactivityParser {
         } else if (child.type === "text") {
           const dependencies = this.getDependencies(child.content)
           templateProps.push({
-            key: "textContent",
+            tag: "text",
+            key: "value",
             path: [...path, idx],
             value: child.content,
             dependencies
@@ -231,10 +241,11 @@ export class ReactivityParser {
         dependencyIndexArr: tagDependencies
       }
     }
-    if (htmlUnit.content) {
-      innerHTMLParticle.content = this.generateDependencyProp(htmlUnit.content)
-    }
+
     if (htmlUnit.props) {
+      if (htmlUnit.content) {
+        htmlUnit.props.textContent = htmlUnit.content
+      }
       innerHTMLParticle.props = Object.fromEntries(
         Object.entries(htmlUnit.props).map(([key, prop]) => ([key, this.generateDependencyProp(prop)]))
       )
@@ -457,6 +468,12 @@ export class ReactivityParser {
    * @returns
    */
   private getDependencies(node: t.Expression | t.Statement): number[] {
+    // ---- If it's a function, we don't need to collect dependencies
+    if (
+      this.t.isFunctionExpression(node) ||
+      this.t.isArrowFunctionExpression(node)
+    ) return []
+
     const deps = new Set<string>()
 
     const wrappedNode = this.valueWrapper(node)
@@ -528,7 +545,7 @@ export class ReactivityParser {
    * @param props
    * @returns
    */
-  private filterTemplateProps(props: Array<[string, string]>): Array<[string, string]> {
+  private filterTemplateProps<T>(props: Array<[string, T]>): Array<[string, T]> {
     return props
       // ---- Filter out event listeners
       .filter(([key]) => (
@@ -536,7 +553,7 @@ export class ReactivityParser {
       ))
       // ---- Filter out specific props
       .filter(([key]) => (
-        !["element", "innerHTML", "prop", "attr"].includes(key)
+        !["element", "innerHTML", "prop", "attr", "dataset"].includes(key)
       ))
   }
 

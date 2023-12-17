@@ -27,6 +27,24 @@ describe("TemplateUnit", () => {
     expect(template).toBe("<div class=\"ok\"><div></div></div>")
   })
 
+  it("should correctly parse a nested HTMLUnit's structure into a template string with props as true", () => {
+    const viewParticles = parse("div().ok(true); {div()}")
+    const template = (viewParticles[0] as any).template
+    expect(template).toBe("<div ok><div></div></div>")
+  })
+
+  it("should correctly parse a nested HTMLUnit's structure into a template string with props as false", () => {
+    const viewParticles = parse("div().ok(false); {div()}")
+    const template = (viewParticles[0] as any).template
+    expect(template).toBe("<div><div></div></div>")
+  })
+
+  it("should correctly parse a nested HTMLUnit's structure into a template string with different style props", () => {
+    const viewParticles = parse("div().rowSpan(1); {div()}")
+    const template = (viewParticles[0] as any).template
+    expect(template).toBe("<div rowspan=\"1\"><div></div></div>")
+  })
+
   it("should correctly parse the path of TemplateParticle's dynamic props in root element", () => {
     const viewParticles = parse("div().class(this.flag); {div(\"ok\")}")
     const template = (viewParticles[0] as TemplateParticle).template

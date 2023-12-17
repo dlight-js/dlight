@@ -65,4 +65,10 @@ describe("Dependency", () => {
     const content = (viewParticles[0] as CompParticle).content
     expect(content?.dependencyIndexArr).toHaveLength(0)
   })
+
+  it("should not collect the dependency if the member expression is in a function", () => {
+    const viewParticles = parse("Comp(() => this.flag)")
+    const content = (viewParticles[0] as CompParticle).content
+    expect(content?.dependencyIndexArr).toHaveLength(0)
+  })
 })
