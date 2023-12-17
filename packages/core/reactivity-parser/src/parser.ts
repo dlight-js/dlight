@@ -325,12 +325,7 @@ export class ReactivityParser {
   private parseFor(forUnit: ForUnit): ForParticle {
     const forParticle: ForParticle = {
       type: "for",
-      item: {
-        value: forUnit.item,
-        dependencyIndexArr: this.getDependencies(
-          this.t.variableDeclaration("const", [this.t.variableDeclarator(forUnit.item)])
-        )
-      },
+      item: forUnit.item,
       array: {
         value: forUnit.array,
         dependencyIndexArr: this.getDependencies(forUnit.array)

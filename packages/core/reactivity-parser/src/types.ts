@@ -52,7 +52,7 @@ export interface CompParticle {
 
 export interface ForParticle {
   type: "for"
-  item: DependencyValue<t.LVal>
+  item: t.LVal
   array: DependencyValue<t.Expression>
   key?: t.Expression
   children: ViewParticle[]
