@@ -175,26 +175,26 @@ export class ReactivityParser {
       Object.entries({ ...unit.props ?? {}, ...(unit.content ? { textContent: unit.content } : {}) })
         .filter(([, prop]) => !this.isStaticProp(prop))
         .forEach(([key, prop]) => {
-          const dependencies = this.getDependencies(prop.value)
+          const dependencyIndexArr = this.getDependencies(prop.value)
           templateProps.push({
             tag: (unit.tag as t.StringLiteral).value,
             key,
             path,
             value: prop.value,
-            dependencies
+            dependencyIndexArr
           })
         })
       unit.children?.forEach((child, idx) => {
         if (child.type === "html" && this.t.isStringLiteral(child.tag)) {
           generateVariableProp(child, [...path, idx])
         } else if (child.type === "text") {
-          const dependencies = this.getDependencies(child.content)
+          const dependencyIndexArr = this.getDependencies(child.content)
           templateProps.push({
             tag: "text",
             key: "value",
             path: [...path, idx],
             value: child.content,
-            dependencies
+            dependencyIndexArr
           })
         }
       })
@@ -216,7 +216,7 @@ export class ReactivityParser {
       type: "text",
       content: {
         value: textUnit.content,
-        dependencies: this.getDependencies(textUnit.content)
+        dependencyIndexArr: this.getDependencies(textUnit.content)
       }
     }
   }
@@ -327,13 +327,13 @@ export class ReactivityParser {
       type: "for",
       item: {
         value: forUnit.item,
-        dependencies: this.getDependencies(
+        dependencyIndexArr: this.getDependencies(
           this.t.variableDeclaration("const", [this.t.variableDeclarator(forUnit.item)])
         )
       },
       array: {
         value: forUnit.array,
-        dependencies: this.getDependencies(forUnit.array)
+        dependencyIndexArr: this.getDependencies(forUnit.array)
       },
       children: forUnit.children.map(this.parseViewParticle.bind(this))
     }
@@ -355,7 +355,7 @@ export class ReactivityParser {
       conditions: ifUnit.branches.map(branch => ({
         condition: {
           value: branch.condition,
-          dependencies: this.getDependencies(branch.condition)
+          dependencyIndexArr: this.getDependencies(branch.condition)
         },
         children: branch.children.map(this.parseViewParticle.bind(this))
       }))
