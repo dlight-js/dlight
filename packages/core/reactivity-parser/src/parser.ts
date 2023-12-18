@@ -184,20 +184,25 @@ export class ReactivityParser {
             dependencyIndexArr
           })
         })
-      unit.children?.forEach((child, idx) => {
-        if (child.type === "html" && this.t.isStringLiteral(child.tag)) {
-          generateVariableProp(child, [...path, idx])
-        } else if (child.type === "text") {
-          const dependencyIndexArr = this.getDependencies(child.content)
-          templateProps.push({
-            tag: "text",
-            key: "value",
-            path: [...path, idx],
-            value: child.content,
-            dependencyIndexArr
-          })
-        }
-      })
+      unit.children
+        ?.filter(child => (
+          (child.type === "html" && this.t.isStringLiteral(child.tag)) ||
+          (child.type === "text")
+        ))
+        .forEach((child, idx) => {
+          if (child.type === "html") {
+            generateVariableProp(child, [...path, idx])
+          } else if (child.type === "text") {
+            const dependencyIndexArr = this.getDependencies(child.content)
+            templateProps.push({
+              tag: "text",
+              key: "value",
+              path: [...path, idx],
+              value: child.content,
+              dependencyIndexArr
+            })
+          }
+        })
     }
     generateVariableProp(htmlUnit, [])
 

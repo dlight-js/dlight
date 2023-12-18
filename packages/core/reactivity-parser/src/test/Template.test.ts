@@ -70,6 +70,19 @@ describe("TemplateUnit", () => {
     expect(prop.path[0]).toBe(0)
   })
 
+  it("should correctly parse the path of TemplateParticle's dynamic props with mutable particles ahead", () => {
+    const viewParticles = parse("div(); { Comp(); div().class(this.flag)}")
+    const template = (viewParticles[0] as TemplateParticle).template
+    expect(template).toBe("<div><div></div></div>")
+
+    const dynamicProps = (viewParticles[0] as TemplateParticle).props
+    expect(dynamicProps).toHaveLength(1)
+    const prop = dynamicProps[0]
+    // ---- Path will be [0] because it's the first child of the root element
+    expect(prop.path).toHaveLength(1)
+    expect(prop.path[0]).toBe(0)
+  })
+
   it("should correctly parse the path of TemplateParticle's mutableParticles", () => {
     const viewParticles = parse("div(); {div(); Comp(); div();}")
     const mutableParticles = (viewParticles[0] as TemplateParticle).mutableParticles
