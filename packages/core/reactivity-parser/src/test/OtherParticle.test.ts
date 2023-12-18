@@ -35,6 +35,19 @@ describe("OtherParticle", () => {
     expect(divDependency).toContain(3)
   })
 
+  it("should correctly parse ForUnit's deconstruct item dependencies from array", () => {
+    console.log("this")
+    const viewParticles = parse("for(const { idx, item } of this.array[this.count]) { div(item) }")
+    expect(viewParticles.length).toBe(1)
+    expect(viewParticles[0].type).toBe("for")
+
+    const divParticle = (viewParticles[0] as ForParticle).children[0] as HTMLParticle
+    const divDependency = divParticle.props?.textContent?.dependencyIndexArr
+    expect(divDependency).toContain(0)
+    expect(divDependency).toContain(1)
+    expect(divDependency).toContain(3)
+  })
+
   it("should parse a EnvUnit as a EnvParticle", () => {
     const viewParticles = parse("env().count(2); { div() }")
     expect(viewParticles.length).toBe(1)

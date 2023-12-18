@@ -333,7 +333,9 @@ export class ReactivityParser {
     const dependencyIndexArr = this.getDependencies(forUnit.array)
     const prevIdentifierDepMap = this.config.identifierDepMap
     this.config.identifierDepMap = Object.fromEntries(
-      this.getIdentifiers(forUnit.item).map(id => [id, dependencyIndexArr.map(n => this.availableProperties[n])])
+      this.getIdentifiers(
+        this.t.assignmentExpression("=", forUnit.item, this.t.identifier("temp"))
+      ).map(id => [id, dependencyIndexArr.map(n => this.availableProperties[n])])
     )
     const forParticle: ForParticle = {
       type: "for",
