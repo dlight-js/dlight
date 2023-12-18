@@ -1,5 +1,7 @@
 import { expect, describe, it } from "vitest"
 import { parse } from "./mock"
+import { type ForParticle } from "../../dist"
+import { type HTMLParticle } from "../types"
 
 describe("OtherParticle", () => {
   it("should parse a TextUnit as a TextParticle", () => {
@@ -18,6 +20,19 @@ describe("OtherParticle", () => {
     const viewParticles = parse("for(const item of this.items) { div() }")
     expect(viewParticles.length).toBe(1)
     expect(viewParticles[0].type).toBe("for")
+  })
+
+  it("should correctly parse ForUnit's item dependencies from array", () => {
+    console.log("this")
+    const viewParticles = parse("for(const item of this.array[this.count]) { div(item) }")
+    expect(viewParticles.length).toBe(1)
+    expect(viewParticles[0].type).toBe("for")
+
+    const divParticle = (viewParticles[0] as ForParticle).children[0] as HTMLParticle
+    const divDependency = divParticle.props?.textContent?.dependencyIndexArr
+    expect(divDependency).toContain(0)
+    expect(divDependency).toContain(1)
+    expect(divDependency).toContain(3)
   })
 
   it("should parse a EnvUnit as a EnvParticle", () => {

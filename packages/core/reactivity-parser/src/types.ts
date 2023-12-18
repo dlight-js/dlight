@@ -102,6 +102,7 @@ export interface ReactivityParserConfig {
   babelApi: typeof Babel
   availableProperties: string[]
   dependencyMap: Record<string, string[]>
+  identifierDepMap?: Record<string, string[]>
 }
 
 export interface ReactivityParserOption {

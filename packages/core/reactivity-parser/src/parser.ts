@@ -13,6 +13,7 @@ export class ReactivityParser {
   private readonly traverse: typeof traverse
   private readonly availableProperties: string[]
   private readonly dependencyMap: Record<string, string[]>
+  private readonly identifierDepMap: Record<string, string[]>
 
   private readonly escapeNamings = ["escape", "$"]
 
@@ -36,6 +37,7 @@ export class ReactivityParser {
     this.traverse = config.babelApi.traverse
     this.availableProperties = config.availableProperties
     this.dependencyMap = config.dependencyMap
+    this.identifierDepMap = config.identifierDepMap ?? {}
     options?.escapeNamings && (this.escapeNamings = options.escapeNamings)
   }
 
@@ -328,18 +330,22 @@ export class ReactivityParser {
    * @returns
    */
   private parseFor(forUnit: ForUnit): ForParticle {
+    const dependencyIndexArr = this.getDependencies(forUnit.array)
+    const prevIdentifierDepMap = this.config.identifierDepMap
+    this.config.identifierDepMap = Object.fromEntries(
+      this.getIdentifiers(forUnit.item).map(id => [id, dependencyIndexArr.map(n => this.availableProperties[n])])
+    )
     const forParticle: ForParticle = {
       type: "for",
       item: forUnit.item,
       array: {
         value: forUnit.array,
-        dependencyIndexArr: this.getDependencies(forUnit.array)
+        dependencyIndexArr
       },
-      children: forUnit.children.map(this.parseViewParticle.bind(this))
+      children: forUnit.children.map(this.parseViewParticle.bind(this)),
+      key: forUnit.key
     }
-    if (forUnit.key) {
-      forParticle.key = forUnit.key
-    }
+    this.config.identifierDepMap = prevIdentifierDepMap
     return forParticle
   }
 
@@ -456,6 +462,10 @@ export class ReactivityParser {
     return dependencyProp
   }
 
+  private getDependencies(node: t.Expression | t.Statement): number[] {
+    return [...new Set([...this.getDirectDependencies(node), ...this.getIdentifierDependencies(node)])]
+  }
+
   /**
    * @brief Get all the dependencies of a node if a member expression is a valid dependency as
    *  1. the property is in the availableProperties
@@ -467,7 +477,7 @@ export class ReactivityParser {
    * @param node
    * @returns
    */
-  private getDependencies(node: t.Expression | t.Statement): number[] {
+  private getDirectDependencies(node: t.Expression | t.Statement): number[] {
     // ---- If it's a function, we don't need to collect dependencies
     if (
       this.t.isFunctionExpression(node) ||
@@ -491,6 +501,36 @@ export class ReactivityParser {
         ) {
           deps.add(propertyKey)
           this.dependencyMap[propertyKey]?.forEach(deps.add.bind(deps))
+        }
+      }
+    })
+
+    deps.forEach(this.usedProperties.add.bind(this.usedProperties))
+    return [...deps].map(dep => this.availableProperties.indexOf(dep))
+  }
+
+  private getIdentifierDependencies(node: t.Expression | t.Statement): number[] {
+    // ---- If it's a function, we don't need to collect dependencies
+    if (
+      this.t.isFunctionExpression(node) ||
+      this.t.isArrowFunctionExpression(node)
+    ) return []
+    const deps = new Set<string>()
+
+    const wrappedNode = this.valueWrapper(node)
+    this.traverse(wrappedNode, {
+      Identifier: innerPath => {
+        const identifier = innerPath.node
+        const idName = identifier.name
+        if (this.isAttrFromFunction(innerPath, idName, node)) return
+        const depsArray = this.identifierDepMap[idName]
+
+        if (!depsArray) return
+        if (
+          !this.isMemberInEscapeFunction(innerPath) &&
+          !this.isMemberInManualFunction(innerPath)
+        ) {
+          depsArray.forEach(deps.add.bind(deps))
         }
       }
     })
@@ -568,6 +608,81 @@ export class ReactivityParser {
         ? node
         : this.t.expressionStatement(node)
     ]))
+  }
+
+  /**
+   * @brief Get all identifiers as strings in a node
+   * @param node
+   * @returns identifiers
+   */
+  private getIdentifiers(node: t.Node): string[] {
+    if (this.t.isIdentifier(node)) return [node.name]
+    const identifierKeys = new Set<string>()
+    this.traverse(this.valueWrapper(node as any), {
+      Identifier: innerPath => {
+        if (this.t.isObjectProperty(innerPath.parentPath.node)) return
+        if (!this.t.isIdentifier(innerPath.node)) return
+        identifierKeys.add(innerPath.node.name)
+      },
+      ObjectProperty: innerPath => {
+        if (!this.t.isIdentifier(innerPath.node.value)) return
+        identifierKeys.add(innerPath.node.value.name)
+      }
+    })
+    return [...identifierKeys]
+  }
+
+  /**
+   * @brief check if the identifier is from a function param till the stopNode
+   *  e.g:
+   *  function myFunc1(ok) { // stopNode = functionBody
+   *     const myFunc2 = ok => ok // from function param
+   *     console.log(ok) // not from function param
+   *  }
+   */
+  private isAttrFromFunction(path: NodePath, idName: string, stopNode: t.Node) {
+    let reversePath = path.parentPath
+
+    const checkParam: (param: t.Node) => boolean = (param: t.Node) => {
+    // ---- 3 general types:
+    //      * represent allow nesting
+    // ---0 Identifier: (a)
+    // ---1 RestElement: (...a)   *
+    // ---1 Pattern: 3 sub Pattern
+    // -----0   AssignmentPattern: (a=1)   *
+    // -----1   ArrayPattern: ([a, b])   *
+    // -----2   ObjectPattern: ({a, b})
+      if (this.t.isIdentifier(param)) return param.name === idName
+      if (this.t.isAssignmentPattern(param)) return checkParam(param.left)
+      if (this.t.isArrayPattern(param)) {
+        return param.elements.filter(Boolean).map((el) => checkParam(el!)).includes(true)
+      }
+      if (this.t.isObjectPattern(param)) {
+        return (param.properties
+          .filter(prop => this.t.isObjectProperty(prop) && this.t.isIdentifier(prop.key)) as t.ObjectProperty[])
+          .map(prop => (prop.key as t.Identifier).name)
+          .includes(idName)
+      }
+      if (this.t.isRestElement(param)) return checkParam(param.argument)
+
+      return false
+    }
+
+    while (reversePath && reversePath.node !== stopNode) {
+      const node = reversePath.node
+      if (this.t.isArrowFunctionExpression(node) || this.t.isFunctionDeclaration(node)) {
+        for (const param of node.params) {
+          if (checkParam(param)) return true
+        }
+      }
+      reversePath = reversePath.parentPath
+    }
+    if (this.t.isClassMethod(stopNode)) {
+      for (const param of stopNode.params) {
+        if (checkParam(param)) return true
+      }
+    }
+    return false
   }
 
   /**
