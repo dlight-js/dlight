@@ -58,14 +58,14 @@ export interface ForParticle {
   children: ViewParticle[]
 }
 
-export interface IfCondition {
+export interface IfBranch {
   condition: DependencyValue<t.Expression>
   children: ViewParticle[]
 }
 
 export interface IfParticle {
   type: "if"
-  conditions: IfCondition[]
+  branches: IfBranch[]
 }
 
 export interface EnvParticle {

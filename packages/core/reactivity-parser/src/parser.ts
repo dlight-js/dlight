@@ -337,8 +337,8 @@ export class ReactivityParser {
       this.getIdentifiers(
         this.t.assignmentExpression("=", forUnit.item, this.t.identifier("temp"))
       )
-      .filter(id => !keyDep || id !== keyDep)
-      .map(id => [id, dependencyIndexArr.map(n => this.availableProperties[n])])
+        .filter(id => !keyDep || id !== keyDep)
+        .map(id => [id, dependencyIndexArr.map(n => this.availableProperties[n])])
     )
     const forParticle: ForParticle = {
       type: "for",
@@ -363,7 +363,7 @@ export class ReactivityParser {
   private parseIf(ifUnit: IfUnit): IfParticle {
     return {
       type: "if",
-      conditions: ifUnit.branches.map(branch => ({
+      branches: ifUnit.branches.map(branch => ({
         condition: {
           value: branch.condition,
           dependencyIndexArr: this.getDependencies(branch.condition)
