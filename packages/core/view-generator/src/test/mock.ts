@@ -34,7 +34,8 @@ const importMap = {
   insertNode: "insertNode",
   setDLProp: "setDLProp",
   setDLContent: "setDLContent",
-  ForNode: "ForNode"
+  ForNode: "ForNode",
+  IfNode: "IfNode"
 }
 
 const viewConfig: ViewParserConfig = {

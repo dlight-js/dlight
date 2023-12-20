@@ -1,5 +1,5 @@
 import { type types as t, type traverse } from "@babel/core"
-import { type ViewParticle, type TemplateParticle, type HTMLParticle, type CompParticle, type ForParticle } from "@dlightjs/reactivity-parser"
+import { type ViewParticle, type TemplateParticle, type HTMLParticle, type CompParticle, type ForParticle, type IfParticle, type IfBranch } from "@dlightjs/reactivity-parser"
 import { type ViewGeneratorConfig, type ViewGeneratorOption } from "./types"
 import { isInternalAttribute } from "./attr"
 
@@ -60,10 +60,10 @@ export class ViewGenerator {
     )
   }
 
-  private updateFuncInitd = false
   private readonly updateStatements: Record<number, t.Statement[]> = {}
   private addUpdateStatements(dependencies: number[] | undefined, statement: t.Statement[]) {
     if (!dependencies || dependencies.length === 0) return
+    dependencies = [...new Set(dependencies)]
     const depNum = this.calcDependencyNum(dependencies)
     if (!this.updateStatements[depNum]) this.updateStatements[depNum] = []
     this.updateStatements[depNum].push(...statement)
@@ -74,44 +74,34 @@ export class ViewGenerator {
     this.updateStatements[0].push(...statement)
   }
 
-  /**
-   * const $update = (changed) => {
-   *  if (changed & ${depNum}) {
-   *   ${statements}
-   *  }
-   * ${statements}
-   * }
-   */
-  private generateUpdateFunction() {
-    if (Object.keys(this.updateStatements).length === 0) return []
-    this.updateFuncInitd = true
-    return [
-      this.t.variableDeclaration("const", [
-        this.t.variableDeclarator(
-          this.t.identifier("$update"),
-          this.t.arrowFunctionExpression(
-            [this.t.identifier("changed")],
-            this.t.blockStatement([
-              ...Object.entries(this.updateStatements)
-                .filter(([depNum]) => depNum !== "0")
-                .map(([depNum, statements]) => {
-                  return (
-                    this.t.ifStatement(
-                      this.t.binaryExpression(
-                        "&",
-                        this.t.identifier("changed"),
-                        this.t.numericLiteral(Number(depNum))
-                      ),
-                      this.t.blockStatement(statements)
-                    )
-                  )
-                }),
-              ...this.updateStatements[0] ?? []
-            ])
-          )
-        )
+  private geneReturnStatement(topLevelNodes: string[]) {
+    return (
+      this.t.returnStatement(
+        this.t.arrayExpression(topLevelNodes.map(name => this.t.identifier(name)))
+      )
+    )
+  }
+
+  private geneUpdateBody(updateStatements: Record<number, t.Statement[]>): t.BlockStatement {
+    return (
+      this.t.blockStatement([
+        ...Object.entries(updateStatements)
+          .filter(([depNum]) => depNum !== "0")
+          .map(([depNum, statements]) => {
+            return (
+              this.t.ifStatement(
+                this.t.binaryExpression(
+                  "&",
+                  this.t.identifier("changed"),
+                  this.t.numericLiteral(Number(depNum))
+                ),
+                this.t.blockStatement(statements)
+              )
+            )
+          }),
+        ...updateStatements[0] ?? []
       ])
-    ]
+    )
   }
 
   /**
@@ -120,7 +110,7 @@ export class ViewGenerator {
    */
   private generateReturnStatement() {
     const statements = []
-    if (this.updateFuncInitd) {
+    if (Object.keys(this.updateStatements).length > 0) {
       statements.push(
         this.t.expressionStatement(
           this.t.assignmentExpression(
@@ -129,16 +119,17 @@ export class ViewGenerator {
               this.t.thisExpression(),
               this.t.identifier("_$update")
             ),
-            this.t.identifier("$update")
+            this.t.arrowFunctionExpression(
+              [this.t.identifier("changed")],
+              this.geneUpdateBody(this.updateStatements)
+            )
           )
         )
       )
     }
     return [
       ...statements,
-      this.t.returnStatement(
-        this.t.arrayExpression(this.topLevelNodes.map(name => this.t.identifier(name)))
-      )
+      this.geneReturnStatement(this.topLevelNodes)
     ]
   }
 
@@ -152,19 +143,18 @@ export class ViewGenerator {
 
   generate(): [t.BlockStatement, t.ClassProperty[]] {
     const bodyStatements = this.generateTillReturn()[0]
-    const updateBlock = this.generateUpdateFunction()
     const returnStatement = this.generateReturnStatement()
 
-    const bodyBlock = this.t.blockStatement([...bodyStatements, ...updateBlock, ...returnStatement])
+    const bodyBlock = this.t.blockStatement([...bodyStatements, ...returnStatement])
     return [bodyBlock, this.classProperties]
   }
-
 
   private resolveParticle(particle: ViewParticle): t.Statement[] {
     if (particle.type === "template") return this.resolveTemplate(particle)
     if (particle.type === "html") return this.resolveHTML(particle)
     if (particle.type === "comp") return this.resolveComp(particle)
     if (particle.type === "for") return this.resolveFor(particle)
+    if (particle.type === "if") return this.resolveIf(particle)
     return []
   }
 
@@ -315,7 +305,6 @@ export class ViewGenerator {
     return [statements, pathNameMap]
   }
 
-
   /**
    * 1. Event listener
    *  - ${dlNodeName}.addEventListener(${key}, ${value})
@@ -379,7 +368,6 @@ export class ViewGenerator {
       )
     )
   }
-
 
   /**
    * 1. Event listener
@@ -705,8 +693,6 @@ export class ViewGenerator {
 
   /**
    * ${array}.map(${item} => ${key})
-   *  or
-   * ${array}
    */
   private getForKeyStatement(dlNodeName: string, array: t.Expression, item: t.LVal, key?: t.Expression) {
     if (key) {
@@ -852,6 +838,176 @@ export class ViewGenerator {
     return new ViewGenerator(viewParticles, this.config, this.options)
   }
 
+  // ---- @If ----
+  private resolveIf(ifParticle: IfParticle): t.Statement[] {
+    const [statements, collect] = this.statementsCollector()
+
+    // ---- declareIfNode
+    const dlNodeName = this.generateNodeName()
+    collect(this.declareIfNode(dlNodeName, ifParticle.branches))
+
+    const deps = ifParticle.branches.flatMap(({ condition }) => condition.dependencyIndexArr ?? [])
+    this.addUpdateStatements(deps, [this.updateIfNodeCond(dlNodeName)])
+    this.addUpdateStatementsWithoutDep([this.updateIfNode(dlNodeName)])
+
+    return statements
+  }
+
+  private geneUpdateFunc(firstNode: string, updateStatements: Record<number, t.Statement[]>) {
+    return (
+      this.t.expressionStatement(
+        this.t.assignmentExpression(
+          "=",
+          this.t.memberExpression(
+            this.t.identifier(firstNode),
+            this.t.identifier("_$updateFunc")
+          ),
+          this.t.arrowFunctionExpression(
+            [this.t.identifier("changed")],
+            this.geneUpdateBody(updateStatements)
+          )
+        )
+      )
+    )
+  }
+
+  /**
+   * ${firstNode}._$cond = ${idx}
+   */
+  private geneCondIdx(firstNode: string, idx: number) {
+    return (
+      this.t.expressionStatement(
+        this.t.assignmentExpression(
+          "=",
+          this.t.memberExpression(
+            this.t.identifier(firstNode),
+            this.t.identifier("cond")
+          ),
+          this.t.numericLiteral(idx)
+        )
+      )
+    )
+  }
+
+  private geneCondCheck(idx: number) {
+    return (
+      this.t.ifStatement(
+        this.t.binaryExpression(
+          "===",
+          this.t.memberExpression(
+            this.t.identifier("$thisIf"),
+            this.t.identifier("cond")
+          ),
+          this.t.numericLiteral(idx)
+        ),
+        this.t.returnStatement()
+      )
+    )
+  }
+
+  geneIfStatement(test: t.Expression, body: t.Statement[], alternate: t.Statement) {
+    return this.t.ifStatement(test, this.t.blockStatement(body), alternate)
+  }
+
+  /**
+   * const ${dlNodeName} = new IfNode(($thisIf) => {
+   *   if (cond1) {
+   *    if ($thisIf.cond === 0) return
+   *    ${children}
+   *    thisIf.cond = 0
+   *    node0.update = () => {}
+   *    return [nodes]
+   *   } else if (cond2) {
+   *    if ($thisIf.cond === 1) return
+   *    ${children}
+   *    thisIf.cond = 1
+   *    return [nodes]
+   *   }
+   * })
+   */
+  private declareIfNode(dlNodeName: string, branches: IfBranch[]) {
+    const ifStatement = branches.toReversed().reduce((acc, { condition, children }, idx) => {
+      // ---- Generate children
+      const newGenerator = this.newGenerator(children)
+      newGenerator.templateIdx = this.templateIdx
+      const [childStatements, childProperties] = newGenerator.generateTillReturn()
+      this.classProperties.push(...childProperties)
+      const topLevelNodes = newGenerator.topLevelNodes
+
+      // ---- Check cond statement
+      childStatements.unshift(this.geneCondCheck(branches.length - idx - 1))
+
+      // ---- Update func
+      const updateStatements = newGenerator.updateStatements
+      if (Object.keys(updateStatements).length > 0) {
+        childStatements.push(this.geneUpdateFunc(topLevelNodes[0], updateStatements))
+      }
+
+      // ---- Cond idx (reverse order)
+      childStatements.push(this.geneCondIdx("$thisIf", branches.length - idx - 1))
+
+      // ---- Return statement
+      childStatements.push(this.geneReturnStatement(topLevelNodes))
+
+      if (idx === 0 && this.t.isBooleanLiteral(condition.value, { value: true })) {
+        // ---- else statement
+        return this.t.blockStatement(childStatements)
+      }
+
+      return this.geneIfStatement(condition.value, childStatements, acc)
+    }, undefined)
+
+    return (
+      this.t.variableDeclaration("const", [
+        this.t.variableDeclarator(
+          this.t.identifier(dlNodeName),
+          this.t.newExpression(
+            this.t.identifier(this.importMap.IfNode), [
+              this.t.arrowFunctionExpression(
+                [this.t.identifier("$thisIf")],
+                this.t.blockStatement([ifStatement])
+              )
+            ]
+          )
+        )
+      ])
+    )
+  }
+
+  /**
+   *  ${dlNodeName}.updateCond()
+   */
+  private updateIfNodeCond(dlNodeName: string) {
+    return (
+      this.t.expressionStatement(
+        this.t.callExpression(
+          this.t.memberExpression(
+            this.t.identifier(dlNodeName),
+            this.t.identifier("updateCond")
+          ),
+          []
+        )
+      )
+    )
+  }
+
+  /**
+   *  ${dlNodeName}.update(changed)
+   */
+  private updateIfNode(dlNodeName: string) {
+    return (
+      this.t.expressionStatement(
+        this.t.callExpression(
+          this.t.memberExpression(
+            this.t.identifier(dlNodeName),
+            this.t.identifier("update")
+          ),
+          [this.t.identifier("changed")]
+        )
+      )
+    )
+  }
+
   // ---- Utils ----
   /**
    *
@@ -860,7 +1016,7 @@ export class ViewGenerator {
    */
   private calcDependencyNum(dependencies: number[] | undefined): number {
     if (!dependencies || dependencies.length === 0) return 0
-    return dependencies.reduce((acc, dep) => acc + 1 << dep, 0)
+    return dependencies.reduce((acc, dep) => acc + (1 << dep), 0)
   }
 
   private findBestNodeAndPath(nameMap: Record<string, number[]>, path: number[], defaultName: string): [string, number[]] {
