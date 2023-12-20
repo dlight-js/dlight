@@ -3,6 +3,7 @@ import { insertNode } from "./HTMLNode"
 export * from "./HTMLNode"
 export * from "./CustomNode"
 export * from "./ForNode"
+export * from "./IfNode"
 
 export function render(
   idOrEl: string | HTMLElement,
