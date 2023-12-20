@@ -20,7 +20,6 @@ function buildData(count) {
   return data
 }
 
-@View
 
 @View
 class Main {

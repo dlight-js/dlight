@@ -147,7 +147,9 @@ importers:
     specifiers:
       '@babel/helper-plugin-utils': ^7.22.5
       '@babel/plugin-syntax-decorators': ^7.23.3
-      '@babel/plugin-syntax-do-expressions': ^7.23.3
+      '@dlightjs/reactivity-parser': workspace:*
+      '@dlightjs/view-generator': workspace:*
+      '@dlightjs/view-parser': workspace:*
       '@types/babel__core': ^7.20.5
       babel-plugin-syntax-typescript-new: workspace:*
       minimatch: ^9.0.3
@@ -156,7 +158,9 @@ importers:
     dependencies:
       '@babel/helper-plugin-utils': 7.22.5
       '@babel/plugin-syntax-decorators': 7.23.3
-      '@babel/plugin-syntax-do-expressions': 7.23.3
+      '@dlightjs/reactivity-parser': link:../reactivity-parser
+      '@dlightjs/view-generator': link:../view-generator
+      '@dlightjs/view-parser': link:../view-parser
       babel-plugin-syntax-typescript-new: link:../../tools/babel-plugin-syntax-typescript-new
       minimatch: 9.0.3
     devDependencies:
@@ -317,6 +321,33 @@ importers:
     devDependencies:
       tsup: 6.7.0_typescript@4.9.5
       typescript: 4.9.5
+
+  packages/core/view-generator:
+    specifiers:
+      '@babel/core': ^7.20.12
+      '@babel/generator': ^7.23.6
+      '@dlightjs/error-handler': workspace:*
+      '@dlightjs/reactivity-parser': workspace:*
+      '@dlightjs/view-parser': workspace:*
+      '@types/babel__core': ^7.20.5
+      '@types/babel__generator': ^7.6.8
+      '@vitest/ui': ^0.34.5
+      tsup: ^6.7.0
+      typescript: ^5.3.2
+      vitest: ^0.34.5
+    dependencies:
+      '@dlightjs/error-handler': link:../error-handler
+      '@dlightjs/reactivity-parser': link:../reactivity-parser
+      '@dlightjs/view-parser': link:../view-parser
+    devDependencies:
+      '@babel/core': 7.22.8
+      '@babel/generator': 7.23.6
+      '@types/babel__core': 7.20.5
+      '@types/babel__generator': 7.6.8
+      '@vitest/ui': 0.34.5_vitest@0.34.5
+      tsup: 6.7.0_typescript@5.3.2
+      typescript: 5.3.2
+      vitest: 0.34.5_@vitest+ui@0.34.5
 
   packages/core/view-parser:
     specifiers:
@@ -729,15 +760,6 @@ packages:
 
   /@babel/plugin-syntax-do-expressions/7.22.5:
     resolution: {integrity: sha512-60pOTgQGY00/Kiozrtu286Aqg50IxDy/jIHhlMzXjYTs1Q8lbeOgqC9NLidtqfBNwdX6bZCT6FJ2i5xzt+JKzw==}
-    engines: {node: '>=6.9.0'}
-    peerDependencies:
-      '@babel/core': ^7.0.0-0
-    dependencies:
-      '@babel/helper-plugin-utils': 7.22.5
-    dev: false
-
-  /@babel/plugin-syntax-do-expressions/7.23.3:
-    resolution: {integrity: sha512-GBmwXqthSDjlXzwF19qZjFBeHtigX9/0g670FSv8gKEjbD4k+BuRBPlpDQdr/+ts0UlimhJUd/oPilMFqyHq+w==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
       '@babel/core': ^7.0.0-0
@@ -2015,13 +2037,13 @@ packages:
     dependencies:
       '@babel/parser': 7.23.5
       '@babel/types': 7.23.6
-      '@types/babel__generator': 7.6.7
+      '@types/babel__generator': 7.6.8
       '@types/babel__template': 7.4.4
       '@types/babel__traverse': 7.20.4
     dev: true
 
-  /@types/babel__generator/7.6.7:
-    resolution: {integrity: sha512-6Sfsq+EaaLrw4RmdFWE9Onp63TOUue71AWb4Gpa6JxzgTYtimbM086WnYTy2U67AofR++QKCo08ZP6pwx8YFHQ==}
+  /@types/babel__generator/7.6.8:
+    resolution: {integrity: sha512-ASsj+tpEDsEiFr1arWrlN6V3mdfjRMZt6LtK/Vp/kreFLnr5QH5+DhvD5nINYZXzwJvXeGq+05iUXcAzVrqWtw==}
     dependencies:
       '@babel/types': 7.23.6
     dev: true

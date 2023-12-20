@@ -14,6 +14,9 @@ function $e(element, eventName, callback) {
 class Main {
   View() {
     div(this.count)
+      .hh(View => {
+
+      })
       .onClick(() => {
         this.count ++
       })

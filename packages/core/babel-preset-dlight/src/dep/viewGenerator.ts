@@ -1,7 +1,7 @@
-import { type CustomViewUnit, type EnvViewUnit, type ExpViewUnit, type ForViewUnit, type HTMLViewUnit, type IdentifierToDepNode, type IfViewUnit, type TextViewUnit, type ViewProp, type ViewUnit } from "./types"
+import { type CustomViewUnit, type EnvViewUnit, type ExpViewUnit, type ForViewUnit, type HTMLViewUnit, type IdentifierToDepNode, type IfViewUnit, type TextViewUnit, type ViewProp, type ViewUnit } from "../types"
 import { type types as t, type NodePath } from "@babel/core"
-import { uid } from "./utils/utils"
-import { isMemberInEscapeFunction, isMemberInManualFunction, isAssignmentExpressionLeft, isAssignmentExpressionRight } from "./utils/depChecker"
+import { uid } from "../utils/utils"
+import { isMemberInEscapeFunction, isMemberInManualFunction, isAssignmentExpressionLeft, isAssignmentExpressionRight } from "../utils/depChecker"
 import { type ElementUnit, type DLNodeUnit, type CustomUnit } from "./templateGenerator"
 
 export class ViewGenerator {
@@ -202,43 +202,6 @@ export class ViewGenerator {
     })
     if (!bestMatchName) return [defaultName, path]
     return [bestMatchName, path.slice(bestMatchCount)]
-  }
-
-  /**
-   * static ${templateName} = $template(${templateString})
-   */
-  declareDLNodes(template: string) {
-    const templateName = this.generateTemplateName()
-    this.addClassProperty(templateName, this.t.callExpression(
-      this.t.identifier(this.importMap.template), [this.t.stringLiteral(template)]
-    ), true)
-
-    return templateName
-  }
-
-  /**
-   * const ${dlNodeName} = ${nodeName}.${templateName}.cloneNode(true)
-   */
-  declareElement(dlNodeName: string, templateName: string) {
-    return (
-      this.t.variableDeclaration(
-        "const", [
-          this.t.variableDeclarator(
-            this.t.identifier(dlNodeName),
-            this.t.callExpression(
-              this.t.memberExpression(
-                this.t.memberExpression(
-                  this.t.identifier(this.className),
-                  this.t.identifier(templateName)
-                ),
-                this.t.identifier("cloneNode")
-              ),
-              [this.t.booleanLiteral(true)]
-            )
-          )
-        ]
-      )
-    )
   }
 
   /**

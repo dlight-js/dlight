@@ -332,10 +332,13 @@ export class ReactivityParser {
   private parseFor(forUnit: ForUnit): ForParticle {
     const dependencyIndexArr = this.getDependencies(forUnit.array)
     const prevIdentifierDepMap = this.config.identifierDepMap
+    const keyDep = this.t.isIdentifier(forUnit.key) && forUnit.key.name
     this.config.identifierDepMap = Object.fromEntries(
       this.getIdentifiers(
         this.t.assignmentExpression("=", forUnit.item, this.t.identifier("temp"))
-      ).map(id => [id, dependencyIndexArr.map(n => this.availableProperties[n])])
+      )
+      .filter(id => !keyDep || id !== keyDep)
+      .map(id => [id, dependencyIndexArr.map(n => this.availableProperties[n])])
     )
     const forParticle: ForParticle = {
       type: "for",
@@ -480,12 +483,6 @@ export class ReactivityParser {
    * @returns
    */
   private getDirectDependencies(node: t.Expression | t.Statement): number[] {
-    // ---- If it's a function, we don't need to collect dependencies
-    if (
-      this.t.isFunctionExpression(node) ||
-      this.t.isArrowFunctionExpression(node)
-    ) return []
-
     const deps = new Set<string>()
 
     const wrappedNode = this.valueWrapper(node)
@@ -512,11 +509,6 @@ export class ReactivityParser {
   }
 
   private getIdentifierDependencies(node: t.Expression | t.Statement): number[] {
-    // ---- If it's a function, we don't need to collect dependencies
-    if (
-      this.t.isFunctionExpression(node) ||
-      this.t.isArrowFunctionExpression(node)
-    ) return []
     const deps = new Set<string>()
 
     const wrappedNode = this.valueWrapper(node)

@@ -1,62 +1,59 @@
 // @ts-ignore
-import { Children, Content, Prop, View, Watch, required } from "@dlightjs/dlight"
-import { type Typed, type Pretty, div, button, p, span } from "@dlightjs/types"
+import { Children, Content, Prop, View, required } from "@dlightjs/dlight"
+import { type Typed, type Pretty, button, p, span } from "@dlightjs/types"
+
+
+
+const a = Array.from({ length: 10000 }, (_, i) => i+1)
+const b = Array.from({ length: 10000 }, (_, i) => i+1)
+const t1 = performance.now()
+
+for (const key of a) {
+  b.indexOf(key)
+}
+console.log(performance.now() - t1)
+
+
+const t2 = performance.now()
+const m2 = new Map()
+for (const [idx, key] of b.entries()) {
+  m2.set(key, idx)
+}
+for (const key of a) {
+  m2.get(key)
+}
+console.log(performance.now() - t2)
+
+
 
 @View
-class JJ {
-  @Prop count = 1
+class No {
+  @Prop fruit
 
+  willUnmount() {
+    console.log("unmount", this.fruit)
+  }
   Body() {
-    button("+++")
-      .onclick(() => {
-        this.count ++
-      })
-    div(); {
-      p(this.count)
-    }
+    h1(this.fruit)
   }
 }
-
 @View
 class App {
-  count = 1
-  jj = 2
+
+  fruits = ["apple", "banana", "apple"]
 
   Body() {
-    button("+")
-      .onclick(() => {
-        this.count++
-      })
-    div(); {
-      div(); {
-        span(this.count)
-          .className(this.jj)
-        div(); {
-          a(this.jj)
-        }
-      }
-      JJ()
-      .count(this.count)
-      h1("hello")
-        .id("shit")
-
-    // for (const i of this.arr) {
-    //   span(`This is ${i}`)
-    // }
+    for (const fruit of this.fruits) {
+      button(fruit)
+        .onclick(() => {
+          console.log(fruit)
+          this.fruits = [...this.fruits.slice(1)]
+        })
+      No().fruit(fruit)
     }
     
+
   }
 }
 
 export default App as Pretty as Typed
-
-// const a = document.createElement("div")
-// a.textContent = "hh"
-// const prev = "hh"
-// const t1 = performance.now()
-// for (let i = 0; i < 100000; i++) {
-//   if (prev !== "hh") {
-//     a.textContent = "hh"
-//   }
-// }
-// console.log(performance.now() - t1)

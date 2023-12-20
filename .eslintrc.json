@@ -35,7 +35,7 @@
         "multiline-ternary": ["error", "always-multiline"],
         "quotes": ["error", "double"],
         "semi": ["error", "never"],
-        "no-unused-vars": ["error", { "argsIgnorePattern": "^(_)?View" }]
+        "no-unused-vars": ["error", { "argsIgnorePattern": "^_?|View" }]
     },
     "plugins": ["dlight"]
 }

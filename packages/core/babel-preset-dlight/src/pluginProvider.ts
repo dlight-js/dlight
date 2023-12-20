@@ -1,33 +1,30 @@
+import type babel from "@babel/core"
 import { type types as t, type NodePath } from "@babel/core"
-import { type PropertyContainer, type HTMLTags, type IdentifierToDepNode } from "./types"
+import { type PropertyContainer, type HTMLTags } from "./types"
 import { minimatch } from "minimatch"
-import { parseView } from "./viewParser"
+import { parseView } from "@dlightjs/view-parser"
 import { isAssignmentExpressionLeft, isAssignmentExpressionRight, isMemberInEscapeFunction, isMemberInManualFunction } from "./utils/depChecker"
-import { generateView } from "./viewGenerator"
 import { uid } from "./utils/utils"
-import { generateDLNode } from "./templateGenerator"
+import { parseReactivity } from "@dlightjs/reactivity-parser"
+import { generateView } from "@dlightjs/view-generator"
 
-const devMode = process.env.NODE_ENV !== "production"
+const devMode = process.env.NODE_ENV === "development"
 
 export class PluginProvider {
   // ---- Const Level
-  private readonly defaultHTMLTags = ["a", "abbr", "address", "area", "article", "aside", "audio", "b", "base", "bdi", "bdo", "blockquote", "body", "br", "button", "canvas", "caption", "cite", "code", "col", "colgroup", "data", "datalist", "dd", "del", "details", "dfn", "dialog", "div", "dl", "dt", "em", "embed", "fieldset", "figcaption", "figure", "footer", "form", "h1", "h2", "h3", "h4", "h5", "h6", "head", "header", "hgroup", "hr", "html", "i", "iframe", "img", "input", "ins", "kbd", "label", "legend", "li", "link", "main", "map", "mark", "menu", "meta", "meter", "nav", "noscript", "object", "ol", "optgroup", "option", "output", "p", "picture", "pre", "progress", "q", "rp", "rt", "ruby", "s", "samp", "script", "section", "select", "slot", "small", "source", "span", "strong", "style", "sub", "summary", "sup", "table", "tbody", "td", "template", "textarea", "tfoot", "th", "thead", "time", "title", "tr", "track", "u", "ul", "var", "video", "wbr", "acronym", "applet", "basefont", "bgsound", "big", "blink", "center", "dir", "font", "frame", "frameset", "isindex", "keygen", "listing", "marquee", "menuitem", "multicol", "nextid", "nobr", "noembed", "noframes", "param", "plaintext", "rb", "rtc", "spacer", "strike", "tt", "xmp", "animate", "animateMotion", "animateTransform", "circle", "clipPath", "defs", "desc", "ellipse", "feBlend", "feColorMatrix", "feComponentTransfer", "feComposite", "feConvolveMatrix", "feDiffuseLighting", "feDisplacementMap", "feDistantLight", "feDropShadow", "feFlood", "feFuncA", "feFuncB", "feFuncG", "feFuncR", "feGaussianBlur", "feImage", "feMerge", "feMergeNode", "feMorphology", "feOffset", "fePointLight", "feSpecularLighting", "feSpotLight", "feTile", "feTurbulence", "filter", "foreignObject", "g", "image", "line", "linearGradient", "marker", "mask", "metadata", "mpath", "path", "pattern", "polygon", "polyline", "radialGradient", "rect", "set", "stop", "svg", "switch", "symbol", "text", "textPath", "tspan", "use", "view"]
-  private readonly availableDecoNames = ["Static", "Prop", "Env", "Content", "Children"]
-  private readonly dlightDefaultPackageName = "@dlightjs/dlight"
-  private readonly dlightPackageName = this.dlightDefaultPackageName
-  private readonly importMap = {
-    template: "$template",
-    getEl: "$getEl",
-    setProp: "$setProp",
-    setEvent: "$setEvent",
-    setDLProp: "$setDLProp",
-    changeDLProp: "$changeDLProp",
-    setDLContent: "$setDLContent",
-    changeDLContent: "$changeDLContent",
-    insertNode: "$insertNode"
-  }
+  static defaultHTMLTags = ["a", "abbr", "address", "area", "article", "aside", "audio", "b", "base", "bdi", "bdo", "blockquote", "body", "br", "button", "canvas", "caption", "cite", "code", "col", "colgroup", "data", "datalist", "dd", "del", "details", "dfn", "dialog", "div", "dl", "dt", "em", "embed", "fieldset", "figcaption", "figure", "footer", "form", "h1", "h2", "h3", "h4", "h5", "h6", "head", "header", "hgroup", "hr", "html", "i", "iframe", "img", "input", "ins", "kbd", "label", "legend", "li", "link", "main", "map", "mark", "menu", "meta", "meter", "nav", "noscript", "object", "ol", "optgroup", "option", "output", "p", "picture", "pre", "progress", "q", "rp", "rt", "ruby", "s", "samp", "script", "section", "select", "slot", "small", "source", "span", "strong", "style", "sub", "summary", "sup", "table", "tbody", "td", "template", "textarea", "tfoot", "th", "thead", "time", "title", "tr", "track", "u", "ul", "var", "video", "wbr", "acronym", "applet", "basefont", "bgsound", "big", "blink", "center", "dir", "font", "frame", "frameset", "isindex", "keygen", "listing", "marquee", "menuitem", "multicol", "nextid", "nobr", "noembed", "noframes", "param", "plaintext", "rb", "rtc", "spacer", "strike", "tt", "xmp", "animate", "animateMotion", "animateTransform", "circle", "clipPath", "defs", "desc", "ellipse", "feBlend", "feColorMatrix", "feComponentTransfer", "feComposite", "feConvolveMatrix", "feDiffuseLighting", "feDisplacementMap", "feDistantLight", "feDropShadow", "feFlood", "feFuncA", "feFuncB", "feFuncG", "feFuncR", "feGaussianBlur", "feImage", "feMerge", "feMergeNode", "feMorphology", "feOffset", "fePointLight", "feSpecularLighting", "feSpotLight", "feTile", "feTurbulence", "filter", "foreignObject", "g", "image", "line", "linearGradient", "marker", "mask", "metadata", "mpath", "path", "pattern", "polygon", "polyline", "radialGradient", "rect", "set", "stop", "svg", "switch", "symbol", "text", "textPath", "tspan", "use", "view"]
+  static availableDecoNames = ["Static", "Prop", "Env", "Content", "Children"]
+  static dlightDefaultPackageName = "@dlightjs/dlight"
+  private readonly importMap = Object.fromEntries((
+    ["initStore", "getChildElementByPath", "createElement", "createTemplate", "setMemorizedProp", "setStyle", "setMemorizedAttr", "setMemorizedEvent", "insertNode", "setDLProp", "setDLContent", "ForNode", "updateDLProp"]
+  ).map((funcName, idx) => (
+    devMode ? [funcName, funcName] : [funcName, `$${idx}$`]
+  )))
+
+  private readonly dlightPackageName = PluginProvider.dlightDefaultPackageName
 
   // ---- Plugin Level
+  private readonly babelApi: typeof babel
   private readonly t: typeof t
   private readonly enableDevTools: boolean
   private readonly includes: string[]
@@ -35,20 +32,22 @@ export class PluginProvider {
   private readonly htmlTags: string[]
 
   constructor(
+    babelApi: typeof babel,
     types: typeof t,
     includes: string[],
     excludes: string[],
     enableDevTools: boolean,
     htmlTags: HTMLTags
   ) {
+    this.babelApi = babelApi
     this.t = types
     this.includes = includes
     this.excludes = excludes
     this.enableDevTools = devMode && enableDevTools
     this.htmlTags = typeof htmlTags === "function"
-      ? htmlTags(this.defaultHTMLTags)
+      ? htmlTags(PluginProvider.defaultHTMLTags)
       : htmlTags.includes("*")
-        ? [...new Set([...this.defaultHTMLTags, ...htmlTags])].filter(tag => tag !== "*")
+        ? [...new Set([...PluginProvider.defaultHTMLTags, ...htmlTags])].filter(tag => tag !== "*")
         : htmlTags
   }
 
@@ -56,10 +55,10 @@ export class PluginProvider {
   private classRootPath?: NodePath<t.ClassDeclaration | t.ClassExpression>
   private classDeclarationNode?: t.ClassDeclaration | t.ClassExpression
   private classBodyNode?: t.ClassBody
-  private derivedPairNode?: t.ClassProperty
   private propertiesContainer: PropertyContainer = {}
-  private fullDepMap: Record<string, string[]> = {}
+  private dependencyMap: Record<string, string[]> = {}
   private enter = true
+  private enterClassNode = false
 
   // ---- File Level
   private programNode?: t.Program
@@ -74,10 +73,10 @@ export class PluginProvider {
     this.classRootPath = undefined
     this.classDeclarationNode = undefined
     this.classBodyNode = undefined
-    this.derivedPairNode = undefined
     this.propertiesContainer = {}
-    this.fullDepMap = {}
+    this.dependencyMap = {}
     this.enter = true
+    this.enterClassNode = false
     this.allImports = []
     this.didAlterImports = false
   }
@@ -102,10 +101,6 @@ export class PluginProvider {
     const node: t.ClassDeclaration | t.ClassExpression = path.node
     this.classDeclarationNode = node
     this.classBodyNode = node.body
-    this.derivedPairNode = this.t.classProperty(
-      this.t.identifier("_$derivedPairs"),
-      this.t.objectExpression([])
-    )
     this.propertiesContainer = {}
     // ---- If devtools is enabled, add _$compName property to the class
     if (this.enableDevTools) {
@@ -120,9 +115,9 @@ export class PluginProvider {
     //      Only do this when enter the first dlight class
     if (!this.didAlterImports) {
       // ---- Get DLight imports
-      const dlightImports = this.allImports.filter(n => n.source.value === this.dlightDefaultPackageName)
+      const dlightImports = this.allImports.filter(n => n.source.value === PluginProvider.dlightDefaultPackageName)
       // ---- Alter import name, e.g. "@dlight/dlight-client"
-      if (this.dlightPackageName !== this.dlightDefaultPackageName) {
+      if (this.dlightPackageName !== PluginProvider.dlightDefaultPackageName) {
         dlightImports.forEach(i => {
           i.source.value = this.dlightPackageName
         })
@@ -152,8 +147,8 @@ export class PluginProvider {
   transformDLightClass(): void {
     const usedProperties = this.handleView()
     const propertyArr = Object.entries(this.propertiesContainer).reverse()
-    const states: string[] = []
-    console.log(usedProperties)
+    const depReversedMap = this.dependencyMapReversed()
+
     for (const [key, { node, deps, isStatic, isChildren, isPropOrEnv, isWatcher, isContent }] of propertyArr) {
       if (isChildren) {
         this.resolveChildrenDecorator(node, isChildren)
@@ -161,7 +156,6 @@ export class PluginProvider {
       }
       if (deps.length > 0) {
         usedProperties.push(...deps)
-        this.pushDerivedPair(key, deps)
         if (isWatcher) this.resolveWatcherDecorator(node)
         else this.handleDerivedProperty(node)
       }
@@ -171,22 +165,9 @@ export class PluginProvider {
       }
       if (isStatic) continue
       if (usedProperties.includes(key)) {
-        this.resolveStateDecorator(node, usedProperties.indexOf(key))
-        states.push(key)
+        this.resolveStateDecorator(node, this.availableProperties.indexOf(key), depReversedMap[key])
       }
     }
-
-    this.addStateDepArrNode(states)
-  }
-
-  addStateDepArrNode(states: string[]) {
-    if (states.length === 0) return
-    this.classBodyNode?.body.unshift(
-      this.t.classProperty(
-        this.t.identifier("_$stateDepArr"),
-        this.t.arrayExpression(states.map(s => this.t.stringLiteral(`$${s}Deps`)))
-      )
-    )
   }
 
   /* ---- DLight Class View Handlers ---- */
@@ -225,12 +206,11 @@ export class PluginProvider {
         body = viewNode
       }
     }
-    subViewNodes.forEach(this.alterSubViewProps.bind(this))
 
     const subViewNames = subViewNodes.map(v => (v.key as t.Identifier).name)
 
     subViewNodes.forEach(viewNode => {
-      this.alterView(viewNode, subViewNames, true).forEach(usedPropertySet.add.bind(usedPropertySet))
+      this.alterView(viewNode, subViewNames).forEach(usedPropertySet.add.bind(usedPropertySet))
     })
 
     body && this.alterView(body, subViewNames).forEach(usedPropertySet.add.bind(usedPropertySet))
@@ -244,109 +224,36 @@ export class PluginProvider {
   }
 
   /**
-   * @brief Turn Subview's props into { value, deps } object
-   * @param view
-   */
-  alterSubViewProps(view: t.ClassMethod): void {
-    const param = view.params[0]
-    // ---- SubView only accept one object parameter, e.g. MyView({ count, flag }) {}
-    if (!param || !this.t.isObjectPattern(param)) return
-
-    const propNames = new Set<string>()
-    for (const property of param.properties) {
-      if (this.t.isRestElement(property)) continue
-      if (!this.t.isIdentifier(property.key)) continue
-      propNames.add(property.key.name)
-      // ---- When the prop is assigned a default value, e.g. { a = 1 },
-      //      turn this prop into a standard dlight subview prop,
-      //      e.g. { a: [1] }
-      if (this.t.isAssignmentPattern(property.value)) {
-        property.value.right = this.t.arrayExpression([property.value.right])
-      }
-    }
-    // ---- Traverse all identifiers in the subview and replace them with .value,
-    //      e.g. count => count.value
-    // ---- Because we cannot traverse BlockStatement directly,
-    //      and we cannot traverse this method with parameters(we need to keep the parameters),
-    //      so we wrap the method with a function and traverse the function
-    this.classRootPath!.scope.traverse(
-      this.t.functionDeclaration(null, [], view.body),
-      {
-        Identifier: innerPath => {
-          const currentNode = innerPath.node
-          const parentNode = innerPath.parentPath.node
-          // ---- Skip if
-          //      1. it's not a prop of the subview
-          //      2. it's a property of a member expression, e.g. my.count
-          //      3. it's a key of an object, e.g. { count: 1 }
-          if (
-            !propNames.has(currentNode.name) ||
-            this.isMemberExpressionProperty(parentNode, currentNode) ||
-            this.isObjectKey(parentNode, currentNode)
-          ) return
-          // ---- Replace the identifier with [0]
-          innerPath.replaceWith(
-            this.t.optionalMemberExpression(
-              this.t.identifier(currentNode.name),
-              this.t.numericLiteral(0),
-              true,
-              true
-            )
-          )
-          innerPath.skip()
-        }
-      })
-  }
-
-  /**
    * @brief Transform Views with DLight syntax
    * @param viewNode
    * @param subViewNames
    * @param isSubView
    * @returns Used properties
    */
-  alterView(viewNode: t.ClassMethod, subViewNames: string[], isSubView = false): Set<string> {
-    // ---- First string literal in a statement block is directives
-    //      but in DLight it's still TextNode, so put them and all the body nodes into viewStatements
-    const viewStatements = [...viewNode.body.directives, ...viewNode.body.body]
+  alterView(viewNode: t.ClassMethod, subViewNames: string[]): Set<string> {
+    const viewUnits = parseView(viewNode.body, {
+      babelApi: this.babelApi,
+      subviewNames: subViewNames,
+      htmlTags: this.htmlTags
+    })
+    const [templateUnits, usedPropertySet] = parseReactivity(viewUnits, {
+      babelApi: this.babelApi,
+      availableProperties: this.availableProperties,
+      dependencyMap: this.dependencyMap
+    })
 
-    const viewUnits = parseView(this.t, this.classRootPath!, viewStatements, subViewNames, this.htmlTags)
-    const [templateUnits, usedPropertySet] = generateDLNode(
-      this.t,
-      viewUnits,
-      this.classRootPath!,
-      this.fullDepMap,
-      this.availableProperties
-    )
-
-    const code = generateView(
-      this.t,
+    const [body, classProperties] = generateView(
       templateUnits,
-      this.classRootPath!,
-      this.importMap
+      {
+        babelApi: this.babelApi,
+        className: this.classDeclarationNode?.id?.name ?? `Anonymous_${uid()}`,
+        importMap: this.importMap
+      }
     )
-    viewNode.body = code
+    viewNode.body = body
+    this.classBodyNode?.body.push(...classProperties)
 
     return usedPropertySet
-  }
-
-  /**
-   * @brief Add a key-value pair to _$derivedPairs
-   * @param name
-   * @param deps
-   */
-  pushDerivedPair(name: string, deps: string[]): void {
-    if (!this.classBodyNode) return
-    if (!this.derivedPairNode) return
-    (this.derivedPairNode.value as t.ObjectExpression).properties.unshift(
-      this.t.objectProperty(
-        this.t.identifier(name),
-        this.t.arrayExpression(deps.map(dep => this.t.stringLiteral(`$${dep}Deps`)))
-      )
-    )
-    if (!this.classBodyNode.body.includes(this.derivedPairNode)) {
-      this.classBodyNode.body.unshift(this.derivedPairNode)
-    }
   }
 
   /* ---- Babel Visitors ---- */
@@ -355,7 +262,7 @@ export class PluginProvider {
     this.enter = this.fileAllowed(filename)
     if (!this.enter) return
     this.allImports = path.node.body.filter(n => this.t.isImportDeclaration(n)) as t.ImportDeclaration[]
-    const dlightImports = this.allImports.filter(n => n.source.value === this.dlightDefaultPackageName)
+    const dlightImports = this.allImports.filter(n => n.source.value === PluginProvider.dlightDefaultPackageName)
     if (dlightImports.length === 0) {
       this.enter = false
       return
@@ -367,7 +274,8 @@ export class PluginProvider {
   private enterClass(_path: NodePath<t.ClassDeclaration | t.ClassExpression>): void {}
   classEnter(path: NodePath<t.ClassDeclaration | t.ClassExpression>): void {
     if (!this.enter) return
-    if (!this.isDLightView(path)) return
+    this.enterClassNode = this.isDLightView(path)
+    if (!this.enterClass) return
     this.initNode(path)
     this.enterClass(path)
   }
@@ -375,22 +283,22 @@ export class PluginProvider {
   private exitClass(_path: NodePath<t.ClassDeclaration | t.ClassExpression>): void {}
   classExit(path: NodePath<t.ClassDeclaration | t.ClassExpression>): void {
     if (!this.enter) return
-    if (!this.isDLightView(path)) return
+    if (!this.enterClassNode) return
     this.transformDLightClass()
     this.exitClass(path)
     this.clearNode()
+    this.enterClassNode = false
   }
 
   private visitClassMethod(_path: NodePath<t.ClassMethod>): void {}
   classMethodVisitor(path: NodePath<t.ClassMethod>): void {
-    if (!this.enter) return
+    if (!this.enterClassNode) return
     if (!this.t.isIdentifier(path.node.key)) return
     const key = path.node.key.name
     if (key === "Body") return
 
     const isSubView = this.findDecoratorByName(path.node.decorators, "View")
     if (isSubView) return
-
     const node = this.methodToBindFunction(path.node)
 
     // ---- Handle watcher
@@ -429,7 +337,7 @@ export class PluginProvider {
 
   private visitClassProperty(_path: NodePath<t.ClassProperty>): void {}
   classPropertyVisitor(path: NodePath<t.ClassProperty>): void {
-    if (!this.enter) return
+    if (!this.enterClassNode) return
     const node = path.node
     if (!this.t.isIdentifier(node.key)) return
     const key = node.key.name
@@ -467,7 +375,7 @@ export class PluginProvider {
       isPropOrEnv: isProp ? "Prop" : (isEnv ? "Env" : undefined)
     }
 
-    node.decorators = this.removeDecorators(decorators, this.availableDecoNames)
+    node.decorators = this.removeDecorators(decorators, PluginProvider.availableDecoNames)
     this.visitClassProperty(path)
   }
 
@@ -475,7 +383,7 @@ export class PluginProvider {
   /**
    * @brief Decorator resolver: Watcher
    * Add:
-   * $${key}Watcher = true
+   * $wW${key}
    * @param node
    */
   resolveWatcherDecorator(node: t.ClassProperty): void {
@@ -483,8 +391,7 @@ export class PluginProvider {
     const key = node.key.name
     const propertyIdx = this.classBodyNode!.body.indexOf(node)
     const watcherNode = this.t.classProperty(
-      this.t.identifier(`$${key}Watcher`),
-      this.t.booleanLiteral(true)
+      this.t.identifier(`$w$${key}`)
     )
     this.classBodyNode!.body.splice(propertyIdx, 0, watcherNode)
   }
@@ -557,7 +464,7 @@ export class PluginProvider {
   /**
    * @brief Decorator resolver: Prop/Env
    * Add:
-   * $$${key} = ${decoratorName}
+   * $t$${key} = ${decoratorName}
    * @param node
    */
   resolvePropDecorator(node: t.ClassProperty, decoratorName: "Prop" | "Env") {
@@ -568,7 +475,7 @@ export class PluginProvider {
     const tag: string = decoratorName.toLowerCase()
 
     const derivedStatusKey = this.t.classProperty(
-      this.t.identifier(`$$${key}`),
+      this.t.identifier(`$t$${key}`),
       this.t.stringLiteral(tag)
     )
     this.classBodyNode.body.splice(propertyIdx, 0, derivedStatusKey)
@@ -577,29 +484,35 @@ export class PluginProvider {
   /**
    * @brief Decorator resolver: State
    * Add:
-   *  $${key}Deps = new Set()
+   *  $${key} = ${value}
+   *  $$${key} = ${depIdx}
+   *  $sub$${key} = [${reversedDeps}]
    *  get ${key}() {
    *    return this.$${key}
    *  }
    *  set ${key}(value) {
-   *    if (this[`$${key}`] === value) return
-   *    this[`$${key}`] = value
-   *    this[`$${key}Deps`].forEach(dep => dep())
-   *    this._$update(idx)
+   *    updateDLProp(this, "${key}", value)
    *  }
    * @param node
    */
-  resolveStateDecorator(node: t.ClassProperty, idx: number) {
+  resolveStateDecorator(node: t.ClassProperty, idx: number, reverseDeps: Set<string> | undefined) {
     if (!this.classBodyNode) return
     if (!this.t.isIdentifier(node.key)) return
     const key = node.key.name
     node.key.name = `$${key}`
     const propertyIdx = this.classBodyNode.body.indexOf(node)
 
-    const depsNode = this.t.classProperty(
-      this.t.identifier(`$${key}Deps`),
-      this.t.newExpression(this.t.identifier("Set"), [])
+    const idxNode = this.t.classProperty(
+      this.t.identifier(`$$${key}`),
+      this.t.numericLiteral(1 << idx)
     )
+
+    const depsNode = reverseDeps
+      ? [this.t.classProperty(
+          this.t.identifier(`$s$${key}`),
+          this.t.arrayExpression([...reverseDeps].map(d => this.t.stringLiteral(d)))
+        )]
+      : []
 
     const getterNode = this.t.classMethod("get", this.t.identifier(key), [],
       this.t.blockStatement([
@@ -616,68 +529,20 @@ export class PluginProvider {
       this.t.identifier("value")
     ],
     this.t.blockStatement([
-      this.t.ifStatement(
-        this.t.binaryExpression(
-          "===",
-          this.t.memberExpression(
-            this.t.thisExpression(),
-            this.t.identifier(`$${key}`)
-          ),
-          this.t.identifier("value")
-        ),
-        this.t.blockStatement([
-          this.t.returnStatement()
-        ])
-      ),
-      this.t.expressionStatement(
-        this.t.assignmentExpression(
-          "=",
-          this.t.memberExpression(
-            this.t.thisExpression(),
-            this.t.identifier(`$${key}`)
-          ),
-          this.t.identifier("value")
-        )
-      ),
       this.t.expressionStatement(
         this.t.callExpression(
-          this.t.memberExpression(
-            this.t.memberExpression(
-              this.t.thisExpression(),
-              this.t.identifier(`$${key}Deps`)
-            ),
-            this.t.identifier("forEach")
-          ),
+          this.t.identifier(this.importMap.updateDLProp),
           [
-            this.t.arrowFunctionExpression(
-              [this.t.identifier("dep")],
-              this.t.blockStatement([
-                this.t.expressionStatement(
-                  this.t.callExpression(
-                    this.t.identifier("dep"),
-                    []
-                  )
-                )
-              ])
-            )
-          ]
-        )
-      ),
-      this.t.expressionStatement(
-        this.t.callExpression(
-          this.t.memberExpression(
             this.t.thisExpression(),
-            this.t.identifier("_$update")
-          ),
-          [
-            this.t.numericLiteral(1 << idx)
+            this.t.stringLiteral(key),
+            this.t.identifier("value")
           ]
         )
       )
     ])
     )
 
-    this.classBodyNode.body.splice(propertyIdx + 1, 0, depsNode, getterNode, setterNode)
+    this.classBodyNode.body.splice(propertyIdx + 1, 0, idxNode, ...depsNode, getterNode, setterNode)
   }
 
   /* ---- Helper Functions ---- */
@@ -752,11 +617,12 @@ export class PluginProvider {
    * @param methodName
    */
   private methodToBindFunction(node: t.ClassMethod): t.ClassProperty {
+    if (this.t.isIdentifier(node.key, { name: "constructor" })) return node as any
     const methodIdx = this.classBodyNode!.body.indexOf(node)
     const args = node.params
       .filter(p => !this.t.isTSParameterProperty(p))
     const arrowFuncNode = this.t.classProperty(
-      this.t.identifier((node.key as t.Identifier).name),
+      this.t.identifier((node.key as any).name),
       this.t.callExpression(
         this.t.memberExpression(
           this.t.functionExpression(
@@ -768,7 +634,7 @@ export class PluginProvider {
         ), [
           this.t.thisExpression()
         ]
-      )
+      ), null, node.decorators
     )
     this.classBodyNode!.body.splice(methodIdx, 1, arrowFuncNode)
 
@@ -776,8 +642,8 @@ export class PluginProvider {
   }
 
   /**
-   * ${key} = undefined
-   * get $${key}Func() {
+   * ${key} = ${value}
+   * get $f$${key}() {
    *  return ${value}
    * }
    */
@@ -786,10 +652,9 @@ export class PluginProvider {
     const key = node.key.name
     const value = node.value
     const propertyIdx = this.classBodyNode!.body.indexOf(node)
-    node.value = this.t.identifier("undefined")
     const getterNode = this.t.classMethod(
       "get",
-      this.t.identifier(`$${key}Func`), [],
+      this.t.identifier(`$f$${key}`), [],
       this.t.blockStatement([
         this.t.returnStatement(value)
       ])
@@ -824,7 +689,7 @@ export class PluginProvider {
           !isAssignmentExpressionRight(innerPath, this.classDeclarationNode!, this.t)
         ) {
           deps.add(propertyKey)
-          this.fullDepMap[propertyKey]?.forEach(deps.add.bind(deps))
+          this.dependencyMap[propertyKey]?.forEach(deps.add.bind(deps))
         }
       }
     })
@@ -835,14 +700,26 @@ export class PluginProvider {
     //      so we eliminate "count" from deps
     assignDeps.forEach(deps.delete.bind(deps))
 
-    // ---- Add deps to fullDepMap
+    // ---- Add deps to dependencyMap
     const propertyKey = node.key.name
     const depArr = [...deps]
     if (deps.size > 0) {
-      this.fullDepMap[propertyKey] = depArr
+      this.dependencyMap[propertyKey] = depArr
     }
 
     return depArr
+  }
+
+  private dependencyMapReversed() {
+    const reversedMap: Record<string, Set<string>> = {}
+    Object.entries(this.dependencyMap).forEach(([key, deps]) => {
+      deps.forEach(dep => {
+        if (!reversedMap[dep]) reversedMap[dep] = new Set()
+        reversedMap[dep].add(key)
+      })
+    })
+
+    return reversedMap
   }
 
   /**

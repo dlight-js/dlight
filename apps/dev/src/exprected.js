@@ -306,3 +306,36 @@ for (let i = 0; i < 100000; i++) {
 }
 const t2 = performance.now()
 console.log(t2 - t1)
+
+
+
+Compo()
+  .SubComp(do {
+    div()
+    span()
+  })
+
+  Compo()
+  .SubComp(("faefaefa"))
+
+  {
+    faefaefa: do {
+      div()
+      span()
+    }
+  }
+
+  @View
+  class {
+    @View
+    fuck() {
+
+    }
+    shit = MyComp
+
+    Body() {
+      this.shit()
+      this.fuck()
+    }
+
+  }

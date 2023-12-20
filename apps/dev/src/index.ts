@@ -5,7 +5,27 @@ import Main from "./benchmark-keyed.view"
 import * as babel from "@babel/standalone"
 import dlight from "babel-preset-dlight"
 import { TransitionTest } from "./transition.view"
-// render("main", App)
+// console.log(1)
+// const a = document.createElement("div")
+// const j = 100000
+// const t1 = performance.now()
+// for (let i = 0; i < j; i++) {
+//   a.setAttribute("class", "nono")
+//   a.className = ""
+// }
+// console.log(performance.now() - t1)
+// const t2 = performance.now()
+// for (let i = 0; i < j; i++) {
+//   a.className = "nono"
+//   a.className = ""
+// }
+// console.log(performance.now() - t2)
+// a.setAttribute("nono", "shit")
+// a.form = 1
+
+// console.log(Object.getOwnPropertyNames(Object.getPrototypeOf(a)))
+
+render("main", App)
 
 // function testPerf(func: () => void) {
 //   // multiple times to get average

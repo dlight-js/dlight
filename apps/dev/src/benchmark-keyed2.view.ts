@@ -128,6 +128,7 @@ class Main {
                   }
                 }
                 td().className("col-md-6")
+                MyComp()
               }
             }
           }

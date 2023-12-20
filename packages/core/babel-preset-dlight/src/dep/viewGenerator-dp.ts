@@ -1,7 +1,7 @@
-import { type CustomViewParserUnit, type EnvViewParserUnit, type ExpViewParserUnit, type ForViewParserUnit, type HTMLViewParserUnit, type IdentifierToDepNode, type IfViewParserUnit, type TextViewParserUnit, type ViewParserProp, type ViewParserUnit } from "./types"
+import { type CustomViewParserUnit, type EnvViewParserUnit, type ExpViewParserUnit, type ForViewParserUnit, type HTMLViewParserUnit, type IdentifierToDepNode, type IfViewParserUnit, type TextViewParserUnit, type ViewParserProp, type ViewParserUnit } from "../types"
 import { type types as t, type NodePath } from "@babel/core"
-import { uid } from "./utils/utils"
-import { isMemberInEscapeFunction, isMemberInManualFunction, isAssignmentExpressionLeft, isAssignmentExpressionRight } from "./utils/depChecker"
+import { uid } from "../utils/utils"
+import { isMemberInEscapeFunction, isMemberInManualFunction, isAssignmentExpressionLeft, isAssignmentExpressionRight } from "../utils/depChecker"
 
 export class ViewGenerator {
   // ---- Const ----

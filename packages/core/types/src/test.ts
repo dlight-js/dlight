@@ -1,6 +1,7 @@
 import { View } from "@dlightjs/dlight"
-import {SubTyped, type div, type Pretty, type Typed, type UnTyped, ContentProp } from "./index"
+import {SubTyped, type div, type Pretty, type Typed, type UnTyped, ContentProp, body, td, form, meta, button, img, textarea, a } from "./index"
 
+a().autocapitalize
 const VV = View as any as (typeof View & ((...args: any) => any))
 /**
  * @content kk
