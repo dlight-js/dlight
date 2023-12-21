@@ -1,8 +1,9 @@
-import { appendNodesWithIndex, appendNodesWithSibling, getFlowIndexFromNodes, removeNodes } from "./flowIndex"
-import { initNodes } from "./nodes"
+import { DLNodeType } from "../DLNode"
+import { type AnyDLNode } from "../types"
+import { arrayEqual } from "../utils"
+import { MutableNode } from "./MutableNode"
 
-export class ForNode {
-  _$dlNodeType = "For"
+export class ForNode<T, G> extends MutableNode {
   array
   keys
   depNum
@@ -10,7 +11,8 @@ export class ForNode {
   _$nodes
   nodess
 
-  constructor(array: any[], nodeFunc: (item: any) => any[], depNum: number, keys: any[]) {
+  constructor(array: T[], nodeFunc: (item: T) => AnyDLNode[], depNum: number, keys: G[]) {
+    super(DLNodeType.For)
     this.array = array
     this.nodeFunc = nodeFunc
     this.depNum = depNum
@@ -18,10 +20,6 @@ export class ForNode {
 
     this.nodess = this.array.map(item => nodeFunc(item))
     this._$nodes = this.nodess.flat(1)
-  }
-
-  _$init() {
-    this.nodess.forEach(nodes => initNodes(nodes, (this as any)._$parentEl))
   }
 
   update(changed: number) {
@@ -34,12 +32,10 @@ export class ForNode {
   }
 
   getNewNodes(idx: number) {
-    const newNodes = this.nodeFunc(this.array[idx])
-    initNodes(newNodes, (this as any)._$parentEl)
-    return newNodes
+    return this.geneNewNodesInEnv(() => this.nodeFunc(this.array[idx]))
   }
 
-  updateArray(newArray: any[], newKeys: any[]) {
+  updateArray(newArray: T[], newKeys: G[]) {
     const prevKeys = this.keys
     const prevArrays = this.array
 
@@ -57,7 +53,7 @@ export class ForNode {
       return
     }
 
-    const parentEl = (this as any)._$parentEl
+    const parentEl = (this as AnyDLNode)._$parentEl
     const prevNodess = this.nodess
 
     // ---- No nodes after, delete all nodes
@@ -68,7 +64,7 @@ export class ForNode {
         parentEl.innerHTML = ""
       } else {
         for (let prevIdx = 0; prevIdx < prevKeys.length; prevIdx++) {
-          removeNodes(parentEl, prevNodess[prevIdx])
+          this.removeNodes(prevNodess[prevIdx])
         }
       }
       this.nodess = []
@@ -77,21 +73,21 @@ export class ForNode {
     }
 
     // ---- Record how many nodes are before this ForNode with the same parentNode
-    const flowIndex = getFlowIndexFromNodes(parentEl._$nodes, this)
+    const flowIndex = MutableNode.getFlowIndexFromNodes(parentEl._$nodes, this)
 
     // ---- No nodes before, append all nodes
     if (prevKeys.length === 0) {
       const nextSibling = parentEl.childNodes[flowIndex]
       for (let idx = 0; idx < this.keys.length; idx++) {
         const newNodes = this.getNewNodes(idx)
-        appendNodesWithSibling(newNodes, parentEl, nextSibling)
+        MutableNode.appendNodesWithSibling(newNodes, parentEl, nextSibling)
         this.nodess.push(newNodes)
       }
       this._$nodes = this.nodess.flat(1)
       return
     }
 
-    const shuffleKeys = []
+    const shuffleKeys: G[] = []
     const newNodess = []
     const arrToUpdate = []
 
@@ -104,7 +100,7 @@ export class ForNode {
         arrToUpdate.push(prevArrays[prevIdx])
         continue
       }
-      removeNodes(parentEl, prevNodess[prevIdx])
+      this.removeNodes(prevNodess[prevIdx])
     }
 
     // ---- 2. Add the nodes that are not in the array but in the new array
@@ -118,7 +114,7 @@ export class ForNode {
       if (prevIdx !== -1) {
         // ---- These nodes have been replaced,
         //      but we need to keep track of their flowIndex
-        newFlowIndex += getFlowIndexFromNodes(newNodess[prevIdx])
+        newFlowIndex += MutableNode.getFlowIndexFromNodes(newNodess[prevIdx])
         // ---- We also need to update them
         const currentItem = this.array[idx]
         const prevItem = arrToUpdate[prevIdx]
@@ -128,7 +124,7 @@ export class ForNode {
         continue
       }
       const newNodes = this.getNewNodes(idx)
-      const count = appendNodesWithIndex(newNodes, parentEl, newFlowIndex, length)
+      const count = MutableNode.appendNodesWithIndex(newNodes, parentEl, newFlowIndex, length)
       newFlowIndex += count
       length += count
       newNodess.splice(idx, 0, newNodes)
@@ -146,26 +142,31 @@ export class ForNode {
     // ---- 3. Replace the nodes in the same position using Fisher-Yates shuffle algorithm
     for (let idx = 0; idx < this.keys.length; idx++) {
       const key = this.keys[idx]
-      const prevIdx: any = shuffleKeys.indexOf(key)
+      const prevIdx = shuffleKeys.indexOf(key)
       if (bufferNodes[idx]) {
         const bufferedNode = bufferNodes[idx]
-        const addedElNum = appendNodesWithIndex(bufferedNode, parentEl, newFlowIndex + getFlowIndexFromNodes(bufferedNode), length)
+        const addedElNum = MutableNode.appendNodesWithIndex(
+          bufferedNode,
+          parentEl,
+          newFlowIndex + MutableNode.getFlowIndexFromNodes(bufferedNode),
+          length
+        )
         newFlowIndex += addedElNum
         length += addedElNum
         delete bufferNodes[idx]
       } else if (prevIdx === idx) {
-        newFlowIndex += getFlowIndexFromNodes(newNodess[idx])
+        newFlowIndex += MutableNode.getFlowIndexFromNodes(newNodess[idx])
         continue
       } else {
         bufferNodes[this.keys.indexOf(shuffleKeys[idx])] = newNodess[idx]
-        const addedElNum = appendNodesWithIndex(newNodess[prevIdx], parentEl, newFlowIndex, length)
+        const addedElNum = MutableNode.appendNodesWithIndex(newNodess[prevIdx], parentEl, newFlowIndex, length)
         newFlowIndex += addedElNum
         length += addedElNum
       }
-      const tempNewNodes: any = newNodess[idx]
+      const tempNewNodes: AnyDLNode[] = newNodess[idx]
       newNodess[idx] = newNodess[prevIdx]
       newNodess[prevIdx] = tempNewNodes
-      const tempKey: any = shuffleKeys[idx]
+      const tempKey = shuffleKeys[idx]
       shuffleKeys[idx] = shuffleKeys[prevIdx]
       shuffleKeys[prevIdx] = tempKey
     }
@@ -173,9 +174,4 @@ export class ForNode {
     this.nodess = newNodess
     this._$nodes = this.nodess.flat(1)
   }
-}
-
-function arrayEqual(arr1: any[], arr2: any[]) {
-  if (arr1.length !== arr2.length) return false
-  return arr1.every((item, idx) => item === arr2[idx])
 }

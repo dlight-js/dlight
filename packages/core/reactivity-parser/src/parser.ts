@@ -243,10 +243,7 @@ export class ReactivityParser {
 
     const innerHTMLParticle: HTMLParticle = {
       type: "html",
-      tag: {
-        value: htmlUnit.tag,
-        dependencyIndexArr: tagDependencies
-      }
+      tag: htmlUnit.tag
     }
 
     if (htmlUnit.props) {
@@ -290,10 +287,7 @@ export class ReactivityParser {
 
     const compParticle: CompParticle = {
       type: "comp",
-      tag: {
-        value: compUnit.tag,
-        dependencyIndexArr: tagDependencies
-      }
+      tag: compUnit.tag
     }
 
     if (compUnit.content) {
@@ -587,7 +581,7 @@ export class ReactivityParser {
       ))
       // ---- Filter out specific props
       .filter(([key]) => (
-        !["element", "innerHTML", "prop", "attr", "dataset"].includes(key)
+        !["element", "innerHTML", "prop", "attr", "dataset", "forwardProp", "textContent"].includes(key)
       ))
   }
 

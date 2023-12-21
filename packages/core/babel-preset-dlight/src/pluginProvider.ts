@@ -15,9 +15,21 @@ export class PluginProvider {
   static defaultHTMLTags = ["a", "abbr", "address", "area", "article", "aside", "audio", "b", "base", "bdi", "bdo", "blockquote", "body", "br", "button", "canvas", "caption", "cite", "code", "col", "colgroup", "data", "datalist", "dd", "del", "details", "dfn", "dialog", "div", "dl", "dt", "em", "embed", "fieldset", "figcaption", "figure", "footer", "form", "h1", "h2", "h3", "h4", "h5", "h6", "head", "header", "hgroup", "hr", "html", "i", "iframe", "img", "input", "ins", "kbd", "label", "legend", "li", "link", "main", "map", "mark", "menu", "meta", "meter", "nav", "noscript", "object", "ol", "optgroup", "option", "output", "p", "picture", "pre", "progress", "q", "rp", "rt", "ruby", "s", "samp", "script", "section", "select", "slot", "small", "source", "span", "strong", "style", "sub", "summary", "sup", "table", "tbody", "td", "template", "textarea", "tfoot", "th", "thead", "time", "title", "tr", "track", "u", "ul", "var", "video", "wbr", "acronym", "applet", "basefont", "bgsound", "big", "blink", "center", "dir", "font", "frame", "frameset", "isindex", "keygen", "listing", "marquee", "menuitem", "multicol", "nextid", "nobr", "noembed", "noframes", "param", "plaintext", "rb", "rtc", "spacer", "strike", "tt", "xmp", "animate", "animateMotion", "animateTransform", "circle", "clipPath", "defs", "desc", "ellipse", "feBlend", "feColorMatrix", "feComponentTransfer", "feComposite", "feConvolveMatrix", "feDiffuseLighting", "feDisplacementMap", "feDistantLight", "feDropShadow", "feFlood", "feFuncA", "feFuncB", "feFuncG", "feFuncR", "feGaussianBlur", "feImage", "feMerge", "feMergeNode", "feMorphology", "feOffset", "fePointLight", "feSpecularLighting", "feSpotLight", "feTile", "feTurbulence", "filter", "foreignObject", "g", "image", "line", "linearGradient", "marker", "mask", "metadata", "mpath", "path", "pattern", "polygon", "polyline", "radialGradient", "rect", "set", "stop", "svg", "switch", "symbol", "text", "textPath", "tspan", "use", "view"]
   static availableDecoNames = ["Static", "Prop", "Env", "Content", "Children"]
   static dlightDefaultPackageName = "@dlightjs/dlight"
-  private readonly importMap = Object.fromEntries((
-    ["initStore", "getChildElementByPath", "createElement", "createTemplate", "setMemorizedProp", "setStyle", "setMemorizedAttr", "setMemorizedEvent", "insertNode", "setDLProp", "setDLContent", "ForNode", "updateDLProp"]
-  ).map((funcName, idx) => (
+  static importMap = Object.fromEntries(([
+    "createTemplate",
+    "setStyle",
+    "setDataset",
+    "setMemorizedEvent",
+    "setHTMLProp",
+    "setHTMLAttr",
+    "setHTMLProps",
+    "setHTMLAttrs",
+    "insertNode",
+    "createElement",
+    "ForNode",
+    "IfNode",
+    "EnvNode"
+  ]).map((funcName, idx) => (
     devMode ? [funcName, funcName] : [funcName, `$${idx}$`]
   )))
 
@@ -126,7 +138,7 @@ export class PluginProvider {
       // ---- Add nodes import to the head of file
       this.programNode!.body.unshift(
         this.t.importDeclaration(
-          Object.entries(this.importMap).map(([key, value]) => (
+          Object.entries(PluginProvider.importMap).map(([key, value]) => (
             this.t.importSpecifier(
               this.t.identifier(value),
               this.t.identifier(key)
@@ -247,7 +259,7 @@ export class PluginProvider {
       {
         babelApi: this.babelApi,
         className: this.classDeclarationNode?.id?.name ?? `Anonymous_${uid()}`,
-        importMap: this.importMap
+        importMap: PluginProvider.importMap
       }
     )
     viewNode.body = body
@@ -285,9 +297,49 @@ export class PluginProvider {
     if (!this.enter) return
     if (!this.enterClassNode) return
     this.transformDLightClass()
+    this.addConstructor()
     this.exitClass(path)
     this.clearNode()
     this.enterClassNode = false
+  }
+
+  /**
+   * constructor(props, content, children) {
+   *  super()
+   *  this._$init()
+   * }
+   *
+   */
+  addConstructor() {
+    if (!this.classBodyNode) return
+    let constructor = this.classBodyNode.body.find(n => this.t.isClassMethod(n, { kind: "constructor" })) as t.ClassMethod
+    if (constructor) throw new Error("DLight class should not have constructor")
+
+    constructor = (
+      this.t.classMethod("constructor", this.t.identifier("constructor"), [
+        this.t.identifier("props"),
+        this.t.identifier("content"),
+        this.t.identifier("children")
+      ], this.t.blockStatement([]))
+    )
+    this.classBodyNode.body.unshift(constructor)
+    constructor.body.body.unshift(
+      this.t.expressionStatement(
+        this.t.callExpression(
+          this.t.super(),
+          []
+        )
+      ),
+      this.t.expressionStatement(
+        this.t.callExpression(
+          this.t.memberExpression(
+            this.t.thisExpression(),
+            this.t.identifier("_$init")
+          ),
+          [this.t.identifier("props"), this.t.identifier("content"), this.t.identifier("children")]
+        )
+      )
+    )
   }
 
   private visitClassMethod(_path: NodePath<t.ClassMethod>): void {}
@@ -439,23 +491,23 @@ export class PluginProvider {
   /**
    * @brief Decorator resolver: Content
    * Add:
-   * _$contentProp = "key"
+   * _$contentKey = "key"
    * @param node
    */
   resolveContentDecorator(node: t.ClassProperty) {
     if (!this.classBodyNode) return
     if (!this.t.isIdentifier(node.key)) return
 
-    // ---- Already has _$contentProp
+    // ---- Already has _$contentKey
     if (this.classBodyNode.body.some(n => (
       this.t.isClassProperty(n) &&
-      (n.key as t.Identifier).name === "_$contentProp")
+      (n.key as t.Identifier).name === "_$contentKey")
     )) return
     const key = node.key.name
     const propertyIdx = this.classBodyNode.body.indexOf(node)
 
     const derivedStatusKey = this.t.classProperty(
-      this.t.identifier("_$contentProp"),
+      this.t.identifier("_$contentKey"),
       this.t.stringLiteral(key)
     )
     this.classBodyNode.body.splice(propertyIdx, 0, derivedStatusKey)
@@ -464,7 +516,7 @@ export class PluginProvider {
   /**
    * @brief Decorator resolver: Prop/Env
    * Add:
-   * $t$${key} = ${decoratorName}
+   * $p/e$${key}
    * @param node
    */
   resolvePropDecorator(node: t.ClassProperty, decoratorName: "Prop" | "Env") {
@@ -472,11 +524,9 @@ export class PluginProvider {
     if (!this.t.isIdentifier(node.key)) return
     const key = node.key.name
     const propertyIdx = this.classBodyNode.body.indexOf(node)
-    const tag: string = decoratorName.toLowerCase()
-
+    const tag = decoratorName.toLowerCase() === "prop" ? "p" : "e"
     const derivedStatusKey = this.t.classProperty(
-      this.t.identifier(`$t$${key}`),
-      this.t.stringLiteral(tag)
+      this.t.identifier(`$${tag}$${key}`)
     )
     this.classBodyNode.body.splice(propertyIdx, 0, derivedStatusKey)
   }
@@ -491,7 +541,7 @@ export class PluginProvider {
    *    return this.$${key}
    *  }
    *  set ${key}(value) {
-   *    updateDLProp(this, "${key}", value)
+   *    this._$updateProp("${key}", value)
    *  }
    * @param node
    */
@@ -531,9 +581,10 @@ export class PluginProvider {
     this.t.blockStatement([
       this.t.expressionStatement(
         this.t.callExpression(
-          this.t.identifier(this.importMap.updateDLProp),
-          [
+          this.t.memberExpression(
             this.t.thisExpression(),
+            this.t.identifier("_$updateProp")
+          ), [
             this.t.stringLiteral(key),
             this.t.identifier("value")
           ]

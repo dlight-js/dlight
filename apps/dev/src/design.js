@@ -88,3 +88,63 @@ class Main extends View {
     this._$nodes = [$0, $1]
   }
 }
+
+
+@View
+class Main {
+  View() {
+    if (this.hh) {
+      ok()
+    } else {
+      NOTOK()
+    }
+  }
+}
+
+class Main extends View {
+
+  View() {
+    const node = new IfNode()
+    if (this.hh) {
+      const update = () => {
+
+      }
+      return [ok()]
+    }
+
+    this.update = () => {
+      
+    }
+    return [node0]
+  }
+}
+
+
+
+@View
+class Main {
+  View() {
+    env(); {
+      ok()
+    }
+  }
+}
+
+class Main extends View {
+
+  View() {
+    const node = new IfNode()
+    if (this.hh) {
+      const update = () => {
+
+      }
+      return [ok()]
+    }
+
+    this.update = () => {
+      
+    }
+    return [node0]
+  }
+}
+

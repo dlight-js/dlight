@@ -60,7 +60,7 @@ class Main {
   update() {
     const newRows = [...this.rows]
     for (let i = 0; i < this.rows.length; i += 10) {
-      newRows[i] = { ...newRows[i], label: newRows[i].label + " !!!" }
+      newRows[i] = { id: newRows[i].id, label: newRows[i].label + " !!!" }
     }
     this.rows = newRows
   }
@@ -146,19 +146,3 @@ class Main {
 }
 
 render("main", Main)
-
-const a = document.createElement("div")
-const t1 = performance.now()
-for (let i = 0; i < 100000; i++) {
-  const $update2 = (changed, { id: id2, label: label2 }) => {
-    if (changed & 1) {
-      setMemorizedProp($n42, "textContent", label2)
-    }
-    if (changed & 2) {
-      setMemorizedProp($n02, "className", this.selectIdx === id2 ? "danger" : "")
-    }
-  }
-  a.update = $update2
-}
-
-console.log(performance.now() - t1)

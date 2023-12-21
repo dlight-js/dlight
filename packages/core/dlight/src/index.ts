@@ -1,9 +1,10 @@
 import { insertNode } from "./HTMLNode"
 
 export * from "./HTMLNode"
-export * from "./CustomNode"
-export * from "./ForNode"
-export * from "./IfNode"
+export * from "./CompNode"
+export * from "./MutableNode/ForNode"
+export * from "./MutableNode/IfNode"
+export * from "./EnvNode"
 
 export function render(
   idOrEl: string | HTMLElement,

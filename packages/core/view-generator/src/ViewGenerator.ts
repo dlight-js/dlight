@@ -7,6 +7,7 @@ import HTMLGenerator from "./HTMLGenerator"
 import TemplateGenerator from "./TemplateGenerator"
 import ForGenerator from "./ForGenerator"
 import IfGenerator from "./IfGenerator"
+import EnvGenerator from "./EnvGenerator"
 
 export default class ViewGenerator {
   config: ViewGeneratorConfig
@@ -28,7 +29,8 @@ export default class ViewGenerator {
     html: HTMLGenerator,
     template: TemplateGenerator,
     for: ForGenerator,
-    if: IfGenerator
+    if: IfGenerator,
+    env: EnvGenerator
   }
 
   generate(viewParticles: ViewParticle[]): [t.BlockStatement, t.ClassProperty[]] {

@@ -37,14 +37,14 @@ export interface TextParticle {
 
 export interface HTMLParticle {
   type: "html"
-  tag: DependencyValue<t.Expression>
+  tag: t.Expression
   props?: Record<string, DependencyProp>
   children?: ViewParticle[]
 }
 
 export interface CompParticle {
   type: "comp"
-  tag: DependencyValue<t.Expression>
+  tag: t.Expression
   content?: DependencyProp
   props?: Record<string, DependencyProp>
   children?: ViewParticle[]

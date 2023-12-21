@@ -5,6 +5,19 @@ import Main from "./benchmark-keyed.view"
 import * as babel from "@babel/standalone"
 import dlight from "babel-preset-dlight"
 import { TransitionTest } from "./transition.view"
+
+// function a() {
+//   console.log("shit")
+// }
+
+// class JJ {
+//   static jj() {}
+// }
+// const aa = []
+// for (let i = 0; i < 1000000; i++) {
+//   aa.push(new JJ())
+// }
+// console.log(aa)
 // console.log(1)
 // const a = document.createElement("div")
 // const j = 100000
