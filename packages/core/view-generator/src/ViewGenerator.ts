@@ -8,6 +8,7 @@ import TemplateGenerator from "./TemplateGenerator"
 import ForGenerator from "./ForGenerator"
 import IfGenerator from "./IfGenerator"
 import EnvGenerator from "./EnvGenerator"
+import TextGenerator from "./TextGenerator"
 
 export default class ViewGenerator {
   config: ViewGeneratorConfig
@@ -30,7 +31,8 @@ export default class ViewGenerator {
     template: TemplateGenerator,
     for: ForGenerator,
     if: IfGenerator,
-    env: EnvGenerator
+    env: EnvGenerator,
+    text: TextGenerator
   }
 
   generate(viewParticles: ViewParticle[]): [t.BlockStatement, t.ClassProperty[]] {

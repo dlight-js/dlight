@@ -35,7 +35,9 @@ const importMap = Object.fromEntries(([
   "createElement",
   "ForNode",
   "IfNode",
-  "EnvNode"
+  "EnvNode",
+  "createTextNode",
+  "updateText"
 ]).map((funcName, idx) => (
   [funcName, funcName]
 )))

@@ -94,6 +94,9 @@ class App {
         Test()
       }
     }
+    "okkk";
+    `shitwhat happend ${this.count}`
+
   }
 }
 

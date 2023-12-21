@@ -5,6 +5,7 @@ export * from "./CompNode"
 export * from "./MutableNode/ForNode"
 export * from "./MutableNode/IfNode"
 export * from "./EnvNode"
+export * from "./TextNode"
 
 export function render(
   idOrEl: string | HTMLElement,

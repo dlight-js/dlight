@@ -28,7 +28,9 @@ export class PluginProvider {
     "createElement",
     "ForNode",
     "IfNode",
-    "EnvNode"
+    "EnvNode",
+    "createTextNode",
+    "updateText"
   ]).map((funcName, idx) => (
     devMode ? [funcName, funcName] : [funcName, `$${idx}$`]
   )))
