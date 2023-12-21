@@ -5,11 +5,12 @@ import DoGenerator from "./DoGenerator"
 export default class ElementGenerator extends DoGenerator {
   setElement(dlNodeName: string, value: t.Expression, el = false) {
     const elNode = el
-      ? this.t.identifier(dlNodeName)
-      : this.t.memberExpression(
+      ? this.t.memberExpression(
         this.t.identifier(dlNodeName),
         this.t.identifier("_$el")
       )
+      : this.t.identifier(dlNodeName)
+
     return this.isOnlyMemberExpression(value)
       ? this.assignHTMLElement(elNode, value as t.MemberExpression)
       : this.assignHTMLFunctionElement(elNode, value)
@@ -52,7 +53,7 @@ export default class ElementGenerator extends DoGenerator {
   }
 
   /**
-   * ${value}(changed, ${elNode})
+   * ${value}(${elNode})
    */
   private assignHTMLFunctionElement(elNode: t.Expression, value: t.Expression) {
     if (!this.t.isFunctionExpression(value) && !this.t.isArrowFunctionExpression(value)) {
@@ -61,9 +62,7 @@ export default class ElementGenerator extends DoGenerator {
     return (
       this.t.expressionStatement(
         this.t.callExpression(
-          value,
-          [
-            this.t.identifier("changed"),
+          value, [
             elNode
           ]
         )

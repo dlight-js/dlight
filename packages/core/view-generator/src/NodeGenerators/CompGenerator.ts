@@ -22,6 +22,18 @@ export default class CompGenerator extends ElementGenerator {
     // ---- Resolve props
     if (props) {
       Object.entries(props).forEach(([key, { value, dependencyIndexArr }]) => {
+        if (key === "do") {
+          const statement = this.addDo(dlNodeName, value)
+          this.addInitStatement(statement)
+          this.addUpdateStatements(dependencyIndexArr, [statement])
+          return
+        }
+        if (key === "element") {
+          const statement = this.setElement(dlNodeName, value, true)
+          this.addInitStatement(statement)
+          this.addUpdateStatements(dependencyIndexArr, [statement])
+          return
+        }
         if (dependencyIndexArr && dependencyIndexArr.length > 0) {
           this.addUpdateStatements(dependencyIndexArr, [this.setCompProp(dlNodeName, key, value)])
         }
@@ -54,8 +66,13 @@ export default class CompGenerator extends ElementGenerator {
    * const ${dlNodeName} = new ${tag}(props, content, children)
    */
   private declareCompNode(dlNodeName: string, compParticle: CompParticle) {
-    const { tag, content, props, children } = compParticle
+    let { tag, content, props, children } = compParticle
 
+    if (props) {
+      props = Object.fromEntries(
+        Object.entries(props).filter(([key]) => ["do", "element"].includes(key))
+      )
+    }
     return (
       this.t.variableDeclaration("const", [
         this.t.variableDeclarator(
