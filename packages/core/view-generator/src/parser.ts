@@ -1,8 +1,9 @@
 import { type types as t, type traverse } from "@babel/core"
-import { type ViewParticle, type TemplateParticle, type HTMLParticle, type CompParticle, type ForParticle, type IfParticle, type IfBranch, type EnvParticle } from "@dlightjs/reactivity-parser"
+import { type ViewParticle, type TemplateParticle, type HTMLParticle, type CompParticle, type ForParticle, type IfParticle, type IfBranch, type EnvParticle, type DependencyProp } from "@dlightjs/reactivity-parser"
 import { type ViewGeneratorConfig, type ViewGeneratorOption } from "./types"
 import { isInternalAttribute } from "./attr"
 import { DLError } from "./error"
+import { R } from "vitest/dist/reporters-5f784f42"
 
 const isDev = process.env.NODE_ENV === "development"
 
@@ -420,7 +421,7 @@ export class ViewGenerator {
     return (
       this.t.expressionStatement(
         this.t.callExpression(
-          this.t.identifier(this.importMap.setMemorizedProp),
+          this.t.identifier(this.importMap.setHTMLProp),
           [this.t.identifier(dlNodeName), this.t.stringLiteral(key), value]
         )
       )
@@ -434,7 +435,7 @@ export class ViewGenerator {
     return (
       this.t.expressionStatement(
         this.t.callExpression(
-          this.t.identifier(this.importMap.setMemorizedAttr),
+          this.t.identifier(this.importMap.setHTMLAttr),
           [this.t.identifier(dlNodeName), this.t.stringLiteral(key), value]
         )
       )
@@ -649,10 +650,10 @@ export class ViewGenerator {
     const { tag, props, children } = htmlParticle
 
     const dlNodeName = this.generateNodeName()
-    collect(this.declareHTMLNode(dlNodeName, tag.value))
+    collect(this.declareHTMLNode(dlNodeName, tag))
 
-    const tagName = this.t.isStringLiteral(tag.value)
-      ? tag.value.value
+    const tagName = this.t.isStringLiteral(tag)
+      ? tag.value
       : "ANY"
     // ---- Resolve props
     if (props) {
@@ -734,17 +735,14 @@ export class ViewGenerator {
     const [statements, collect] = this.statementsCollector()
     const dlNodeName = this.generateNodeName()
 
-    collect(this.declareCompNode(dlNodeName, compParticle.tag.value))
+    collect(this.declareCompNode(dlNodeName, compParticle))
 
     const { content, props, children } = compParticle
     // ---- Resolve content
     if (content) {
       const { value, dependencyIndexArr } = content
-      const setDynamicDLPropStatement = this.setDLContent(dlNodeName, value)
-      collect(setDynamicDLPropStatement)
-
       if (dependencyIndexArr && dependencyIndexArr.length > 0) {
-        this.addUpdateStatements(dependencyIndexArr, [setDynamicDLPropStatement])
+        this.addUpdateStatements(dependencyIndexArr, [this.setCompContent(dlNodeName, value)])
       }
     }
 
@@ -752,11 +750,7 @@ export class ViewGenerator {
     if (props) {
       Object.entries(props).forEach(([key, { value, dependencyIndexArr }]) => {
         if (dependencyIndexArr && dependencyIndexArr.length > 0) {
-          const setDynamicDLPropStatement = this.setDLProp(dlNodeName, key, value)
-          collect(setDynamicDLPropStatement)
-          this.addUpdateStatements(dependencyIndexArr, [setDynamicDLPropStatement])
-        } else {
-          collect(this.setDLProp(dlNodeName, key, value))
+          this.addUpdateStatements(dependencyIndexArr, [this.setCompProp(dlNodeName, key, value)])
         }
       })
     }
@@ -764,46 +758,74 @@ export class ViewGenerator {
     return statements
   }
 
+  private generateCompProps(props?: Record<string, DependencyProp>) {
+    if (!props || Object.keys(props).length === 0) return this.t.nullLiteral()
+    return (
+      this.t.objectExpression(
+        Object.entries(props).map(([key, { value }]) => (
+          this.t.objectProperty(
+            this.t.identifier(key),
+            value
+          )
+        ))
+      )
+    )
+  }
+
+  private generateCompContent(content?: DependencyProp) {
+    if (!content) return this.t.nullLiteral()
+    return content.value
+  }
+
   /**
-   * const ${dlNodeName} = new ${tag}()
+   * const ${dlNodeName} = new ${tag}(props, content, children)
    */
-  private declareCompNode(dlNodeName: string, tag: t.Expression) {
+  private declareCompNode(dlNodeName: string, compParticle: CompParticle) {
+    const { tag, content, props, children } = compParticle
+
     return (
       this.t.variableDeclaration("const", [
         this.t.variableDeclarator(
           this.t.identifier(dlNodeName),
           this.t.newExpression(
-            tag,
-            []
-          )
+            tag, [
+              this.generateCompProps(props),
+              this.generateCompContent(content),
+            ])
         )
       ])
     )
   }
 
   /**
-   * setDLContent(${dlNodeName}, ${value})
+   * ${dlNodeName}._$setContent(${value})
    */
-  private setDLContent(dlNodeName: string, value: t.Expression) {
+  private setCompContent(dlNodeName: string, value: t.Expression) {
     return (
       this.t.expressionStatement(
         this.t.callExpression(
-          this.t.identifier(this.importMap.setDLContent),
-          [this.t.identifier(dlNodeName), value]
+          this.t.memberExpression(
+            this.t.identifier(dlNodeName),
+            this.t.identifier("_$setContent")
+          ),
+          [value]
         )
       )
     )
   }
 
   /**
-   * setDLProp(${dlNodeName}, ${key}, ${value})
+   * ${dlNodeName}._$setProp(${key}, ${value})
    */
-  private setDLProp(dlNodeName: string, key: string, value: t.Expression) {
+  private setCompProp(dlNodeName: string, key: string, value: t.Expression) {
     return (
       this.t.expressionStatement(
         this.t.callExpression(
-          this.t.identifier(this.importMap.setDLProp),
-          [this.t.identifier(dlNodeName), this.t.stringLiteral(key), value]
+          this.t.memberExpression(
+            this.t.identifier(dlNodeName),
+            this.t.identifier("_$setProp")
+          ),
+          [this.t.stringLiteral(key), value]
         )
       )
     )

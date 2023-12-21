@@ -22,21 +22,23 @@ const dependencyMap = {
 
 const className = "MyComp"
 
-const importMap = {
-  initStore: "initStore",
-  getChildElementByPath: "getChildElementByPath",
-  createElement: "createElement",
-  createTemplate: "createTemplate",
-  setMemorizedProp: "setMemorizedProp",
-  setStyle: "setStyle",
-  setMemorizedAttr: "setMemorizedAttr",
-  setMemorizedEvent: "setMemorizedEvent",
-  insertNode: "insertNode",
-  setDLProp: "setDLProp",
-  setDLContent: "setDLContent",
-  ForNode: "ForNode",
-  IfNode: "IfNode"
-}
+const importMap = Object.fromEntries(([
+  "createTemplate",
+  "setStyle",
+  "setDataset",
+  "setMemorizedEvent",
+  "setHTMLProp",
+  "setHTMLAttr",
+  "setHTMLProps",
+  "setHTMLAttrs",
+  "insertNode",
+  "createElement",
+  "ForNode",
+  "IfNode",
+  "EnvNode"
+]).map((funcName, idx) => (
+  [funcName, funcName]
+)))
 
 const viewConfig: ViewParserConfig = {
   babelApi,

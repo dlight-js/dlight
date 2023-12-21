@@ -7,6 +7,10 @@ describe("HTML", () => {
       div()
         .innerHTML(this.html)
         .element(this.count[i])
+      {
+        Comp()
+      }
+      div("shit")
     `)
 
     expectBlock(blockStatement, "")
