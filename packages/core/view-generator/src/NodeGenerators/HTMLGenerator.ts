@@ -1,6 +1,6 @@
 import { type types as t } from "@babel/core"
 import { type HTMLParticle } from "@dlightjs/reactivity-parser"
-import HTMLPropGenerator from "./HTMLPropGenerator"
+import HTMLPropGenerator from "../HelperGenerators/HTMLPropGenerator"
 
 export default class HTMLGenerator extends HTMLPropGenerator {
   run() {

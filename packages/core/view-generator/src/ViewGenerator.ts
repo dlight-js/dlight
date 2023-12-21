@@ -1,14 +1,15 @@
 import { type types as t } from "@babel/core"
 import { type ViewParticle } from "@dlightjs/reactivity-parser"
 import { type ViewGeneratorConfig, type ViewGeneratorOption } from "./types"
-import type BaseGenerator from "./BaseGenerator"
-import CompGenerator from "./CompGenerator"
-import HTMLGenerator from "./HTMLGenerator"
-import TemplateGenerator from "./TemplateGenerator"
-import ForGenerator from "./ForGenerator"
-import IfGenerator from "./IfGenerator"
-import EnvGenerator from "./EnvGenerator"
-import TextGenerator from "./TextGenerator"
+import type BaseGenerator from "./HelperGenerators/BaseGenerator"
+import CompGenerator from "./NodeGenerators/CompGenerator"
+import HTMLGenerator from "./NodeGenerators/HTMLGenerator"
+import TemplateGenerator from "./NodeGenerators/TemplateGenerator"
+import ForGenerator from "./NodeGenerators/ForGenerator"
+import IfGenerator from "./NodeGenerators/IfGenerator"
+import EnvGenerator from "./NodeGenerators/EnvGenerator"
+import TextGenerator from "./NodeGenerators/TextGenerator"
+import ExpGenerator from "./NodeGenerators/ExpGenerator"
 
 export default class ViewGenerator {
   config: ViewGeneratorConfig
@@ -32,7 +33,8 @@ export default class ViewGenerator {
     for: ForGenerator,
     if: IfGenerator,
     env: EnvGenerator,
-    text: TextGenerator
+    text: TextGenerator,
+    exp: ExpGenerator
   }
 
   generate(viewParticles: ViewParticle[]): [t.BlockStatement, t.ClassProperty[]] {

@@ -4,8 +4,10 @@ export * from "./HTMLNode"
 export * from "./CompNode"
 export * from "./MutableNode/ForNode"
 export * from "./MutableNode/IfNode"
+export * from "./MutableNode/ExpNode"
 export * from "./EnvNode"
 export * from "./TextNode"
+
 
 export function render(
   idOrEl: string | HTMLElement,

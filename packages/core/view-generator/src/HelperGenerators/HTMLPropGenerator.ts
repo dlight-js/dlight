@@ -1,9 +1,9 @@
 import { type types as t } from "@babel/core"
-import BaseGenerator from "./BaseGenerator"
-import { DLError } from "./error"
-import { isInternalAttribute } from "./attr"
+import { DLError } from "../error"
+import { isInternalAttribute } from "../attr"
+import ElementGenerator from "./ElementGenerator"
 
-export default class HTMLPropGenerator extends BaseGenerator {
+export default class HTMLPropGenerator extends ElementGenerator {
   addHTMLProp(name: string, tag: string, key: string, value: t.Expression, dependencyIndexArr: number[] | undefined) {
     if (dependencyIndexArr && dependencyIndexArr.length > 0) {
       this.addUpdateStatements(dependencyIndexArr, [this.setDynamicHTMLProp(name, tag, key, value)])
@@ -154,62 +154,6 @@ export default class HTMLPropGenerator extends BaseGenerator {
   }
 
   /**
-   * if (typeof ${value} === "function") {
-   *  ${value}(${dlNodeName})
-   * } else {
-   *  ${value} = ${dlNodeName}
-   * }
-   */
-  private assignHTMLElement(dlNodeName: string, value: t.MemberExpression) {
-    return (
-      this.t.ifStatement(
-        this.t.binaryExpression(
-          "===",
-          this.t.unaryExpression(
-            "typeof",
-            value,
-            true
-          ),
-          this.t.stringLiteral("function")
-        ),
-        this.t.expressionStatement(
-          this.t.callExpression(
-            value,
-            [this.t.identifier(dlNodeName)]
-          )
-        ),
-        this.t.expressionStatement(
-          this.t.assignmentExpression(
-            "=",
-            value,
-            this.t.identifier(dlNodeName)
-          )
-        )
-      )
-    )
-  }
-
-  /**
-   * ${value}(changed, ${dlNodeName})
-   */
-  private assignHTMLFunctionElement(dlNodeName: string, value: t.Expression) {
-    if (!this.t.isFunctionExpression(value) && !this.t.isArrowFunctionExpression(value)) {
-      return DLError.throw1()
-    }
-    return (
-      this.t.expressionStatement(
-        this.t.callExpression(
-          value,
-          [
-            this.t.identifier("changed"),
-            this.t.identifier(dlNodeName)
-          ]
-        )
-      )
-    )
-  }
-
-  /**
    * ${setHTMLProps}(${dlNodeName}, ${value})
    */
   private setHTMLPropObject(dlNodeName: string, value: t.Expression) {
@@ -261,10 +205,7 @@ export default class HTMLPropGenerator extends BaseGenerator {
   private addCommonHTMLProp(dlNodeName: string, attrName: string, value: t.Expression) {
     if (attrName === "style") return this.setHTMLStyle(dlNodeName, value)
     if (attrName === "dataset") return this.setHTMLDataset(dlNodeName, value)
-    if (attrName === "element") {
-      if (this.isOnlyMemberExpression(value)) return this.assignHTMLElement(dlNodeName, value as t.MemberExpression)
-      return this.assignHTMLFunctionElement(dlNodeName, value)
-    }
+    if (attrName === "element") return this.setElement(dlNodeName, value)
     if (attrName === "prop") return this.setHTMLPropObject(dlNodeName, value)
     if (attrName === "attr") return this.setHTMLAttrObject(dlNodeName, value)
     if (attrName === "forwardProp") return this.forwardHTMLProp(dlNodeName)
@@ -335,18 +276,5 @@ export default class HTMLPropGenerator extends BaseGenerator {
       return this.setCachedProp(dlNodeName, attrName, value)
     }
     return this.setCachedAttr(dlNodeName, attrName, value)
-  }
-
-  // --- Utils
-  private isOnlyMemberExpression(value: t.Expression): boolean {
-    if (!this.t.isMemberExpression(value)) return false
-    while (value.property) {
-      if (this.t.isMemberExpression(value.property)) {
-        value = value.property
-        continue
-      } else if (this.t.isIdentifier(value.property)) break
-      else return false
-    }
-    return true
   }
 }

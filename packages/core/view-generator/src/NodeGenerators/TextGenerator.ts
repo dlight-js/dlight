@@ -1,6 +1,6 @@
 import { type types as t } from "@babel/core"
 import { type TextParticle } from "@dlightjs/reactivity-parser"
-import BaseGenerator from "./BaseGenerator"
+import BaseGenerator from "../HelperGenerators/BaseGenerator"
 
 export default class TextGenerator extends BaseGenerator {
   run() {

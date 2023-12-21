@@ -1,14 +1,14 @@
 import { type types as t, type traverse } from "@babel/core"
 import { type ViewParticle } from "@dlightjs/reactivity-parser"
-import { type ViewGeneratorConfig, type ViewGeneratorOption } from "./types"
-import ViewGenerator from "./ViewGenerator"
+import { type ViewGeneratorConfig, type ViewGeneratorOption } from "../types"
+import ViewGenerator from "../ViewGenerator"
 
-const isDev = process.env.NODE_ENV === "development"
+const devMode = process.env.NODE_ENV === "development"
 
 export default class BaseGenerator {
-  static readonly prefixMap = isDev
-    ? { template: "$t", node: "$n" }
-    : { template: "template", node: "node" }
+  static readonly prefixMap = devMode
+    ? { template: "$template", node: "$node" }
+    : { template: "$t", node: "$n" }
 
   readonly viewParticle: ViewParticle
   readonly config: ViewGeneratorConfig

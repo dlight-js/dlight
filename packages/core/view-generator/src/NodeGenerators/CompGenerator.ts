@@ -1,8 +1,8 @@
 import { type types as t } from "@babel/core"
 import { type DependencyProp, type CompParticle } from "@dlightjs/reactivity-parser"
-import BaseGenerator from "./BaseGenerator"
+import ElementGenerator from "../HelperGenerators/ElementGenerator"
 
-export default class CompGenerator extends BaseGenerator {
+export default class CompGenerator extends ElementGenerator {
   run() {
     const compParticle = this.viewParticle as CompParticle
 

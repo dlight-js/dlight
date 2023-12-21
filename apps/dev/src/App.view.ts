@@ -68,7 +68,7 @@ class Test {
 }
 @View
 class App {
-  count = 200
+  count = 0
   arr = Array.from({ length: 2 }, (_, i) => i + 1)
 
   Body() {
@@ -81,21 +81,26 @@ class App {
       .onClick(() => {
         this.count++
       })
-    button("add item")
-      .onClick(() => {
-        this.arr.push(this.arr.length + 1)
-        this.arr = [...this.arr]
+    // button("add item")
+    //   .onClick(() => {
+    //     this.arr.push(this.arr.length + 1)
+    //     this.arr = [...this.arr]
+    //   })
+    // env()
+    //   .ok(this.count)
+    // {
+    //   for (const i of this.arr) {
+    //     key: i
+    //     Test()
+    //   }
+    // }
+    // "okkk";
+    // `shitwhat happend ${this.count}`
+      this.count
+    _(this.count > 5 ? "happy" : "sad")
+      .do(node => {
+        console.log(node)
       })
-    env()
-      .ok(this.count)
-    {
-      for (const i of this.arr) {
-        key: i
-        Test()
-      }
-    }
-    "okkk";
-    `shitwhat happend ${this.count}`
 
   }
 }

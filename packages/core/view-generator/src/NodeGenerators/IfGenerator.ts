@@ -1,5 +1,5 @@
 import { type types as t } from "@babel/core"
-import BaseGenerator from "./BaseGenerator"
+import BaseGenerator from "../HelperGenerators/BaseGenerator"
 import { type IfParticle, type IfBranch } from "@dlightjs/reactivity-parser"
 
 export default class IfGenerator extends BaseGenerator {

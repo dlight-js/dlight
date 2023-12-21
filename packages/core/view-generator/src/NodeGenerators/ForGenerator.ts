@@ -1,5 +1,5 @@
 import { type types as t } from "@babel/core"
-import BaseGenerator from "./BaseGenerator"
+import BaseGenerator from "../HelperGenerators/BaseGenerator"
 import { type ForParticle, type ViewParticle } from "@dlightjs/reactivity-parser"
 
 export default class ForGenerator extends BaseGenerator {
