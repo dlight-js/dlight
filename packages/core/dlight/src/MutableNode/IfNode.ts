@@ -24,7 +24,6 @@ export class IfNode extends MutableNode {
       return
     }
 
-
     // ---- Add new nodes
     const parentEl = (this as AnyDLNode)._$parentEl
     const flowIndex = MutableNode.getFlowIndexFromNodes(parentEl._$nodes, this)

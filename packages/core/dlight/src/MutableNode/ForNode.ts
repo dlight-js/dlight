@@ -1,19 +1,18 @@
 import { DLNodeType } from "../DLNode"
 import { type AnyDLNode } from "../types"
-import { arrayEqual } from "../utils"
 import { MutableNode } from "./MutableNode"
 
 export class ForNode<T, G> extends MutableNode {
   array
-  keys
+  keys?
   depNum
   nodeFunc
   _$nodes
   nodess
 
-  constructor(array: T[], nodeFunc: (item: T) => AnyDLNode[], depNum: number, keys: G[]) {
+  constructor(array: T[], nodeFunc: (item: T) => AnyDLNode[], depNum: number, keys?: G[]) {
     super(DLNodeType.For)
-    this.array = array
+    this.array = [...array]
     this.nodeFunc = nodeFunc
     this.depNum = depNum
     this.keys = keys
@@ -35,19 +34,61 @@ export class ForNode<T, G> extends MutableNode {
     return this.geneNewNodesInEnv(() => this.nodeFunc(this.array[idx]))
   }
 
-  updateArray(newArray: T[], newKeys: G[]) {
-    const prevKeys = this.keys
+  updateArray(newArray: T[], newKeys?: G[]) {
+    if (newKeys) {
+      this.updateWithKey(newArray, newKeys)
+    } else {
+      this.updateWithOutKey(newArray)
+    }
+  }
+
+  updateWithOutKey(newArray: T[]) {
+    const preLength = this.array.length
+    const currLength = newArray.length
+
+    if (preLength === currLength) return
+    this.array = [...newArray]
+
+    const parentEl = (this as AnyDLNode)._$parentEl
+    // ---- If the new array is longer, add new nodes directly
+    if (preLength < currLength) {
+      let flowIndex = MutableNode.getFlowIndexFromNodes(parentEl._$nodes, this)
+      const length = parentEl.childNodes.length
+      // ---- Calling parentEl.childNodes.length is time-consuming,
+      //      so we use a length variable to store the length
+      for (let idx = 0; idx < currLength; idx++) {
+        if (idx < preLength) {
+          flowIndex += MutableNode.getFlowIndexFromNodes(this.nodess[idx])
+          continue
+        }
+        const newNodes = this.getNewNodes(idx)
+        MutableNode.appendNodesWithIndex(newNodes, parentEl, flowIndex, length)
+        this.nodess.push(newNodes)
+      }
+      this._$nodes = this.nodess.flat(1)
+      return
+    }
+
+    for (let idx = currLength; idx < preLength; idx++) {
+      this.removeNodes(this.nodess[idx])
+    }
+    this.nodess = this.nodess.slice(0, currLength)
+    this._$nodes = this.nodess.flat(1)
+  }
+
+  updateWithKey(newArray: T[], newKeys: G[]) {
+    const prevKeys = this.keys!
     const prevArrays = this.array
 
-    this.array = newArray
+    this.array = [...newArray]
     this.keys = newKeys
 
-    if (arrayEqual(prevKeys, this.keys)) {
+    if (ForNode.arrayEqual(prevKeys, this.keys)) {
       // ---- If the keys are the same, we only need to update the nodes
       for (let idx = 0; idx < this.array.length; idx++) {
         const currentItem = this.array[idx]
         const prevItem = prevArrays[idx]
-        if (currentItem === prevItem) continue
+        if (ForNode.deepEqual(prevItem, currentItem)) continue
         this.nodess[idx][0]._$updateFunc?.(this.depNum, currentItem)
       }
       return
@@ -118,7 +159,7 @@ export class ForNode<T, G> extends MutableNode {
         // ---- We also need to update them
         const currentItem = this.array[idx]
         const prevItem = arrToUpdate[prevIdx]
-        if (currentItem !== prevItem) {
+        if (!ForNode.deepEqual(prevItem, currentItem)) {
           newNodess[prevIdx][0]._$updateFunc?.(this.depNum, currentItem)
         }
         continue
@@ -131,7 +172,7 @@ export class ForNode<T, G> extends MutableNode {
       shuffleKeys.splice(idx, 0, key)
     }
 
-    if (arrayEqual(this.keys, shuffleKeys)) {
+    if (ForNode.arrayEqual(this.keys, shuffleKeys)) {
       this.nodess = newNodess
       this._$nodes = this.nodess.flat(1)
       return
@@ -173,5 +214,31 @@ export class ForNode<T, G> extends MutableNode {
 
     this.nodess = newNodess
     this._$nodes = this.nodess.flat(1)
+  }
+
+  private static deepEqual(obj1: any, obj2: any): boolean {
+    if (obj1 === obj2) return true
+    if (
+      typeof obj1 !== "object" || typeof obj2 !== "object" ||
+      obj1 == null || obj2 == null
+    ) return false
+
+    const keys1 = Object.keys(obj1)
+    const keys2 = Object.keys(obj2)
+
+    if (keys1.length !== keys2.length) return false
+
+    for (const key of keys1) {
+      if (!keys2.includes(key) || !this.deepEqual(obj1[key], obj2[key])) {
+        return false
+      }
+    }
+
+    return true
+  }
+
+  private static arrayEqual<T>(arr1: T[], arr2: T[]) {
+    if (arr1.length !== arr2.length) return false
+    return arr1.every((item, idx) => item === arr2[idx])
   }
 }

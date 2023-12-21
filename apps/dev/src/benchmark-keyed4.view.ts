@@ -58,11 +58,15 @@ class Main {
   }
 
   update() {
-    const newRows = [...this.rows]
+    // const newRows = [...this.rows]
+    // for (let i = 0; i < this.rows.length; i += 10) {
+    //   newRows[i] = { id: newRows[i].id, label: newRows[i].label + " !!!" }
+    // }
+    // this.rows = newRows
     for (let i = 0; i < this.rows.length; i += 10) {
-      newRows[i] = { id: newRows[i].id, label: newRows[i].label + " !!!" }
+      this.rows[i] = { id: this.rows[i].id, label: this.rows[i].label + " !!!" }
     }
-    this.rows = newRows
+    this.rows = [...this.rows]
   }
 
   Body() {

@@ -77,7 +77,7 @@ export default class ForGenerator extends BaseGenerator {
                 this.t.blockStatement(childStatements)
               ),
               this.t.numericLiteral(depNum),
-              this.getForKeyStatement(dlNodeName, array, item, key)
+              ...this.getForKeyStatement(dlNodeName, array, item, key)
             ]
           )
         )
@@ -90,7 +90,7 @@ export default class ForGenerator extends BaseGenerator {
    */
   private getForKeyStatement(dlNodeName: string, array: t.Expression, item: t.LVal, key?: t.Expression) {
     if (key) {
-      return (
+      return [
         this.t.callExpression(
           this.t.memberExpression(
             array,
@@ -98,11 +98,9 @@ export default class ForGenerator extends BaseGenerator {
           ),
           [this.t.arrowFunctionExpression([item as any], key)]
         )
-      )
+      ]
     }
-    return (
-      array
-    )
+    return []
   }
 
   /**
@@ -118,7 +116,7 @@ export default class ForGenerator extends BaseGenerator {
           ),
           [
             array,
-            this.getForKeyStatement(dlNodeName, array, item, key)
+            ...this.getForKeyStatement(dlNodeName, array, item, key)
           ]
         )
       )

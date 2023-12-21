@@ -9,7 +9,6 @@ export class ExpNode extends MutableNode {
 
     this.nodesFunc = nodesFunc
     this._$nodes = ExpNode.formatNodes(nodesFunc())
-    console.log(this._$nodes)
   }
 
   update() {
