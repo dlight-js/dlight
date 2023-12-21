@@ -82,7 +82,7 @@ export interface ExpParticle {
 
 export interface SubviewParticle {
   type: "subview"
-  tag: DependencyValue<t.Expression>
+  tag: string
   props?: Record<string, DependencyProp>
   children?: ViewParticle[]
 }
@@ -103,6 +103,7 @@ export interface ReactivityParserConfig {
   availableProperties: string[]
   dependencyMap: Record<string, string[]>
   identifierDepMap?: Record<string, string[]>
+  dependencyParseType?: "property" | "identifier"
 }
 
 export interface ReactivityParserOption {

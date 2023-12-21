@@ -1,12 +1,12 @@
 import type babel from "@babel/core"
 import { type types as t, type NodePath } from "@babel/core"
-import { type PropertyContainer, type HTMLTags } from "./types"
+import { type PropertyContainer, type HTMLTags, type SubViewPropSubDepMap } from "./types"
 import { minimatch } from "minimatch"
 import { parseView } from "@dlightjs/view-parser"
 import { isAssignmentExpressionLeft, isAssignmentExpressionRight, isMemberInEscapeFunction, isMemberInManualFunction } from "./utils/depChecker"
 import { uid } from "./utils/utils"
 import { parseReactivity } from "@dlightjs/reactivity-parser"
-import { generateView } from "@dlightjs/view-generator"
+import { generateSubView, generateView } from "@dlightjs/view-generator"
 
 const devMode = process.env.NODE_ENV === "development"
 
@@ -41,6 +41,7 @@ export class PluginProvider {
   // ---- Plugin Level
   private readonly babelApi: typeof babel
   private readonly t: typeof t
+  private readonly traverse: typeof babel.traverse
   private readonly enableDevTools: boolean
   private readonly includes: string[]
   private readonly excludes: string[]
@@ -56,6 +57,7 @@ export class PluginProvider {
   ) {
     this.babelApi = babelApi
     this.t = types
+    this.traverse = babelApi.traverse
     this.includes = includes
     this.excludes = excludes
     this.enableDevTools = devMode && enableDevTools
@@ -74,6 +76,7 @@ export class PluginProvider {
   private dependencyMap: Record<string, string[]> = {}
   private enter = true
   private enterClassNode = false
+  private className?: string
 
   // ---- File Level
   private programNode?: t.Program
@@ -94,6 +97,7 @@ export class PluginProvider {
     this.enterClassNode = false
     this.allImports = []
     this.didAlterImports = false
+    this.className = undefined
   }
 
   private get availableProperties(): string[] {
@@ -117,12 +121,18 @@ export class PluginProvider {
     this.classDeclarationNode = node
     this.classBodyNode = node.body
     this.propertiesContainer = {}
+
+    if (!node.id?.name) {
+      node.id = this.t.identifier(`Anonymous_${uid()}`)
+    }
+    this.className = node.id?.name
+
     // ---- If devtools is enabled, add _$compName property to the class
     if (this.enableDevTools) {
       this.classBodyNode.body.unshift(
         this.t.classProperty(
           this.t.identifier("_$compName"),
-          this.t.stringLiteral(node.id?.name ?? `Anonymous_${uid()}`)
+          this.t.stringLiteral(this.className)
         )
       )
     }
@@ -223,12 +233,38 @@ export class PluginProvider {
     }
 
     const subViewNames = subViewNodes.map(v => (v.key as t.Identifier).name)
+    const subViewPropSubDepMap: SubViewPropSubDepMap = Object.fromEntries(
+      subViewNodes.map(v => {
+        const prop = v.params[0]
+        if (!prop || !this.t.isObjectPattern(prop)) return ["-", null as any]
+        const props = Object.fromEntries(prop.properties.map((p) => {
+          if (!this.t.isObjectProperty(p)) return ["-", null]
+          const key = (p.key as t.Identifier).name
+          // ---- Get identifiers that depend on this prop
+          const subDeps = this.getIdentifiers(
+            this.t.assignmentExpression(
+              "=",
+              this.t.objectPattern([this.t.objectProperty(this.t.numericLiteral(0), p.value)]),
+              this.t.numericLiteral(0)
+            )
+          ).filter(v => v !== key)
+          return [key, subDeps]
+        }).filter(([_, props]) => props))
+        return [(v.key as t.Identifier).name, props]
+      }).filter(([_, props]) => props)
+    )
+    let templateIdx = -1
+    if (body) {
+      let usedProperties;
+      [usedProperties, templateIdx] = this.alterView(body, subViewNames, subViewPropSubDepMap)
+      usedProperties.forEach(usedPropertySet.add.bind(usedPropertySet))
+    }
 
     subViewNodes.forEach(viewNode => {
-      this.alterView(viewNode, subViewNames).forEach(usedPropertySet.add.bind(usedPropertySet))
+      let usedProperties;
+      [usedProperties, templateIdx] = this.alterSubView(viewNode, subViewNames, subViewPropSubDepMap, templateIdx)
+      usedProperties.forEach(usedPropertySet.add.bind(usedPropertySet))
     })
-
-    body && this.alterView(body, subViewNames).forEach(usedPropertySet.add.bind(usedPropertySet))
 
     const usedProperties: string[] = []
     this.availableProperties.forEach(p => {
@@ -245,30 +281,86 @@ export class PluginProvider {
    * @param isSubView
    * @returns Used properties
    */
-  alterView(viewNode: t.ClassMethod, subViewNames: string[]): Set<string> {
+  alterView(viewNode: t.ClassMethod, subViewNames: string[], subViewPropSubDepMap: SubViewPropSubDepMap): [Set<string>, number] {
     const viewUnits = parseView(viewNode.body, {
       babelApi: this.babelApi,
       subviewNames: subViewNames,
       htmlTags: this.htmlTags
     })
-    const [templateUnits, usedPropertySet] = parseReactivity(viewUnits, {
+
+    const [viewParticles, usedPropertySet] = parseReactivity(viewUnits, {
       babelApi: this.babelApi,
       availableProperties: this.availableProperties,
       dependencyMap: this.dependencyMap
     })
 
-    const [body, classProperties] = generateView(
-      templateUnits,
+    const [body, classProperties, templateIdx] = generateView(
+      viewParticles,
       {
         babelApi: this.babelApi,
-        className: this.classDeclarationNode?.id?.name ?? `Anonymous_${uid()}`,
-        importMap: PluginProvider.importMap
+        className: this.className!,
+        importMap: PluginProvider.importMap,
+        subViewPropMap: Object.fromEntries(
+          Object.entries(subViewPropSubDepMap)
+            .map(([key, props]) => [key, Object.keys(props)])
+        ),
+        templateIdx: -1
       }
     )
     viewNode.body = body
     this.classBodyNode?.body.push(...classProperties)
 
-    return usedPropertySet
+    return [usedPropertySet, templateIdx]
+  }
+
+  alterSubView(viewNode: t.ClassMethod, subViewNames: string[], subViewPropSubDepMap: SubViewPropSubDepMap, templateIdx: number): [Set<string>, number] {
+    const viewUnits = parseView(viewNode.body, {
+      babelApi: this.babelApi,
+      subviewNames: subViewNames,
+      htmlTags: this.htmlTags
+    })
+    const [viewParticlesProperty, usedPropertySet] = parseReactivity(viewUnits, {
+      babelApi: this.babelApi,
+      availableProperties: this.availableProperties,
+      dependencyMap: this.dependencyMap
+    })
+
+    const subViewProp = subViewPropSubDepMap[(viewNode.key as t.Identifier).name] ?? []
+    const identifierDepMap: Record<string, string[]> = {}
+    Object.entries(subViewProp).forEach(([key, subDeps]) => {
+      subDeps.forEach(dep => {
+        identifierDepMap[dep] = [key]
+      })
+    })
+
+    const [viewParticlesIdentifier] = parseReactivity(viewUnits, {
+      babelApi: this.babelApi,
+      availableProperties: Object.keys(subViewProp),
+      dependencyMap: this.dependencyMap,
+      dependencyParseType: "identifier",
+      identifierDepMap
+    })
+
+    const subViewPropMap = Object.fromEntries(
+      Object.entries(subViewPropSubDepMap)
+        .map(([key, props]) => [key, Object.keys(props)])
+    )
+    const [body, classProperties, newTemplateIdx] = generateSubView(
+      viewParticlesProperty,
+      viewParticlesIdentifier,
+      viewNode.params[0] as t.ObjectPattern,
+      {
+        babelApi: this.babelApi,
+        className: this.className!,
+        importMap: PluginProvider.importMap,
+        subViewPropMap,
+        templateIdx
+      }
+    )
+    viewNode.body = body
+    this.classBodyNode?.body.push(...classProperties)
+
+    return [usedPropertySet, newTemplateIdx]
   }
 
   /* ---- Babel Visitors ---- */
@@ -831,6 +923,112 @@ export class PluginProvider {
       node.value = this.t.identifier("undefined")
     }
     node.value = this.t.arrowFunctionExpression([], node.value)
+  }
+
+  /**
+   * @brief Wrap the value in a file
+   * @param node
+   * @returns wrapped value
+   */
+  private valueWrapper(node: t.Expression | t.Statement): t.File {
+    return this.t.file(this.t.program([
+      this.t.isStatement(node)
+        ? node
+        : this.t.expressionStatement(node)
+    ]))
+  }
+
+  /**
+   * @brief check if the identifier is from a function param till the stopNode
+   *  e.g:
+   *  function myFunc1(ok) { // stopNode = functionBody
+   *     const myFunc2 = ok => ok // from function param
+   *     console.log(ok) // not from function param
+   *  }
+   */
+  private isAttrFromFunction(path: NodePath, idName: string) {
+    let reversePath = path.parentPath
+
+    const checkParam: (param: t.Node) => boolean = (param: t.Node) => {
+    // ---- 3 general types:
+    //      * represent allow nesting
+    // ---0 Identifier: (a)
+    // ---1 RestElement: (...a)   *
+    // ---1 Pattern: 3 sub Pattern
+    // -----0   AssignmentPattern: (a=1)   *
+    // -----1   ArrayPattern: ([a, b])   *
+    // -----2   ObjectPattern: ({a, b})
+      if (this.t.isIdentifier(param)) return param.name === idName
+      if (this.t.isAssignmentPattern(param)) return checkParam(param.left)
+      if (this.t.isArrayPattern(param)) {
+        return param.elements.filter(Boolean).map((el) => checkParam(el!)).includes(true)
+      }
+      if (this.t.isObjectPattern(param)) {
+        return (param.properties
+          .filter(prop => this.t.isObjectProperty(prop) && this.t.isIdentifier(prop.key)) as t.ObjectProperty[])
+          .map(prop => (prop.key as t.Identifier).name)
+          .includes(idName)
+      }
+      if (this.t.isRestElement(param)) return checkParam(param.argument)
+
+      return false
+    }
+
+    while (reversePath) {
+      const node = reversePath.node
+      if (this.t.isArrowFunctionExpression(node) || this.t.isFunctionDeclaration(node)) {
+        for (const param of node.params) {
+          if (checkParam(param)) return true
+        }
+      }
+      reversePath = reversePath.parentPath
+    }
+
+    return false
+  }
+
+  /**
+   * @brief Check if an identifier is a simple identifier, i.e., not a member expression, or a function param
+   * @param path
+   *  1. not a member expression
+   *  2. not a function param
+   *  3. not in a declaration
+   *  4. not as object property's not computed key
+   */
+  private isStandAloneIdentifier(path: NodePath<t.Identifier>) {
+    const node = path.node
+    const parentNode = path.parentPath?.node
+    const isMemberExpression = this.t.isMemberExpression(parentNode) && parentNode.property === node
+    if (isMemberExpression) return false
+    const isFunctionParam = this.isAttrFromFunction(path, node.name)
+    if (isFunctionParam) return false
+    while (path.parentPath) {
+      if (this.t.isVariableDeclarator(path.parentPath.node)) return false
+      if (
+        this.t.isObjectProperty(path.parentPath.node) &&
+        path.parentPath.node.key === path.node &&
+        !path.parentPath.node.computed
+      ) return false
+      path = path.parentPath as any
+    }
+    return true
+  }
+
+  /**
+   * @brief Get all identifiers as strings in a node
+   * @param node
+   * @returns identifiers
+   */
+  private getIdentifiers(node: t.Node): string[] {
+    if (this.t.isIdentifier(node)) return [node.name]
+    const identifierKeys = new Set<string>()
+    this.traverse(this.valueWrapper(node as any), {
+      Identifier: innerPath => {
+        if (!this.isStandAloneIdentifier(innerPath)) return
+        identifierKeys.add(innerPath.node.name)
+      }
+    })
+    return [...identifierKeys]
   }
 }
 

@@ -24,7 +24,7 @@ const viewConfig: ViewParserConfig = {
   subviewNames
 }
 
-const reactivityConfig: ReactivityParserConfig = {
+export const reactivityConfig: ReactivityParserConfig = {
   babelApi,
   availableProperties,
   dependencyMap

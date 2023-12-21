@@ -11,7 +11,6 @@ import { DLError } from "./error"
 export class ViewParser {
   private readonly compWrapper: string = "comp"
   private readonly htmlTagWrapper: string = "tag"
-  private readonly subviewWrapper: string = "subview"
   private readonly environmentTagName: string = "env"
   private readonly expressionTagName: string = "_"
 
@@ -48,7 +47,6 @@ export class ViewParser {
     options?.expressionTagName && (this.expressionTagName = options.expressionTagName)
     options?.htmlTagWrapper && (this.htmlTagWrapper = options.htmlTagWrapper)
     options?.compWrapper && (this.compWrapper = options.compWrapper)
-    options?.subviewWrapper && (this.subviewWrapper = options.subviewWrapper)
   }
 
   parse() {
@@ -90,7 +88,6 @@ export class ViewParser {
         if (childViewUnits.length > 0) {
           lastViewUnit.children = childViewUnits
         } else {
-          console.log(childViewUnits)
           this.viewUnits.pop()
           DLError.error2()
         }
@@ -418,9 +415,14 @@ export class ViewParser {
     ) {
       // ---- Subview
       if (contentProp) props.content = contentProp
+      if (!(
+        this.t.isMemberExpression(n.callee) &&
+        this.t.isThisExpression(n.callee.object) &&
+        this.t.isIdentifier(n.callee.property)
+      )) return DLError.throw4()
       this.viewUnits.push({
         type: "subview",
-        tag: n.callee,
+        tag: n.callee.property.name,
         props
       })
       return
@@ -459,16 +461,14 @@ export class ViewParser {
    * @param viewUnit
    * @returns
    */
-  private alterTagType(tag: t.Expression): ["html" | "comp" | "subview", t.Expression] {
+  private alterTagType(tag: t.Expression): ["html" | "comp", t.Expression] {
     if (this.t.isCallExpression(tag) && this.t.isIdentifier(tag.callee)) {
       const tagName = tag.callee.name
       const tagType = tagName === this.htmlTagWrapper
         ? "html"
         : tagName === this.compWrapper
           ? "comp"
-          : tagName === this.subviewWrapper
-            ? "subview"
-            : undefined
+          : undefined
       if (tagType) {
         const tagTarget = tag.arguments[0]
         if (!this.t.isExpression(tagTarget)) DLError.throw2(tagName)

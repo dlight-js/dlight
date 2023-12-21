@@ -14,6 +14,7 @@ export class ReactivityParser {
   private readonly availableProperties: string[]
   private readonly dependencyMap: Record<string, string[]>
   private readonly identifierDepMap: Record<string, string[]>
+  private readonly dependencyParseType
 
   private readonly escapeNamings = ["escape", "$"]
 
@@ -38,6 +39,7 @@ export class ReactivityParser {
     this.availableProperties = config.availableProperties
     this.dependencyMap = config.dependencyMap
     this.identifierDepMap = config.identifierDepMap ?? {}
+    this.dependencyParseType = config.dependencyParseType ?? "property"
     options?.escapeNamings && (this.escapeNamings = options.escapeNamings)
   }
 
@@ -148,16 +150,25 @@ export class ReactivityParser {
   private generateMutableParticles(htmlUnit: HTMLUnit): mutableParticle[] {
     const mutableParticles: mutableParticle[] = []
     const generateMutableUnit = (unit: HTMLUnit, path: number[]) => {
-      unit.children?.forEach((child, idx) => {
-        if (child.type === "html" && this.t.isStringLiteral(child.tag)) {
+      unit.children
+        ?.filter((child) => (
+          (child.type === "html" && this.t.isStringLiteral(child.tag))
+        ))
+        .forEach((child, idx) => {
           generateMutableUnit(child, [...path, idx])
-        } else if (child.type !== "text") {
-          mutableParticles.push({
-            path: [...path, idx],
-            ...this.parseViewParticle(child)
-          })
-        }
-      })
+        })
+      unit.children
+        ?.forEach((child, idx) => {
+          if (
+            (child.type !== "html" || !this.t.isStringLiteral(child.tag)) &&
+            child.type !== "text"
+          ) {
+            mutableParticles.push({
+              path: [...path, idx],
+              ...this.parseViewParticle(child)
+            })
+          }
+        })
     }
     generateMutableUnit(htmlUnit, [])
 
@@ -408,14 +419,10 @@ export class ReactivityParser {
    * @param subviewUnit
    * @returns
    */
-  private parseSubview(subviewUnit: SubviewUnit): SubviewParticle | ExpParticle {
-    const tagDependencies = this.getDependencies(subviewUnit.tag)
+  private parseSubview(subviewUnit: SubviewUnit): SubviewParticle {
     const subviewParticle: SubviewParticle = {
       type: "subview",
-      tag: {
-        value: subviewUnit.tag,
-        dependencyIndexArr: tagDependencies
-      }
+      tag: subviewUnit.tag
     }
     if (subviewUnit.props) {
       subviewParticle.props = Object.fromEntries(
@@ -426,17 +433,7 @@ export class ReactivityParser {
       subviewParticle.children = subviewUnit.children.map(this.parseViewParticle.bind(this))
     }
 
-    if (tagDependencies.length === 0) return subviewParticle
-    const id = this.uid()
-    return {
-      type: "exp",
-      content: {
-        value: this.t.stringLiteral(id),
-        viewPropMap: {
-          [id]: [subviewParticle]
-        }
-      }
-    }
+    return subviewParticle
   }
 
   // ---- Dependencies ----
@@ -462,7 +459,48 @@ export class ReactivityParser {
   }
 
   private getDependencies(node: t.Expression | t.Statement): number[] {
-    return [...new Set([...this.getDirectDependencies(node), ...this.getIdentifierDependencies(node)])]
+    const directDependencies = this.dependencyParseType === "identifier"
+      ? this.getIdentifierDependencies(node)
+      : this.getPropertyDependencies(node)
+
+    return [...new Set([...directDependencies, ...this.getIdentifierMapDependencies(node)])]
+  }
+
+  /**
+   * @brief Get all the dependencies of a node if a member expression is a valid dependency as
+   *  1. the identifier is in the availableProperties
+   *  2. the identifier is a stand alone identifier
+   *  3. the identifier is not in an escape function
+   *  4. the identifier is not in a manual function
+   *  5. the identifier is not the left side of an assignment expression, which is an assignment expression
+   *  6. the identifier is not the right side of an assignment expression, which is an update expression
+   * @param node
+   * @returns
+   */
+  private getIdentifierDependencies(node: t.Expression | t.Statement): number[] {
+    const deps = new Set<string>()
+
+    const wrappedNode = this.valueWrapper(node)
+    this.traverse(wrappedNode, {
+      Identifier: innerPath => {
+        const identifier = innerPath.node
+        const idName = identifier.name
+        if (
+          this.availableProperties.includes(idName) &&
+          this.isStandAloneIdentifier(innerPath) &&
+          !this.isMemberInEscapeFunction(innerPath) &&
+          !this.isMemberInManualFunction(innerPath) &&
+          !this.isAssignmentExpressionLeft(innerPath) &&
+          !this.isAssignmentIdentifierExpressionRight(innerPath)
+        ) {
+          deps.add(idName)
+          this.dependencyMap[idName]?.forEach(deps.add.bind(deps))
+        }
+      }
+    })
+
+    deps.forEach(this.usedProperties.add.bind(this.usedProperties))
+    return [...deps].map(dep => this.availableProperties.indexOf(dep))
   }
 
   /**
@@ -476,7 +514,7 @@ export class ReactivityParser {
    * @param node
    * @returns
    */
-  private getDirectDependencies(node: t.Expression | t.Statement): number[] {
+  private getPropertyDependencies(node: t.Expression | t.Statement): number[] {
     const deps = new Set<string>()
 
     const wrappedNode = this.valueWrapper(node)
@@ -490,7 +528,7 @@ export class ReactivityParser {
           !this.isMemberInEscapeFunction(innerPath) &&
           !this.isMemberInManualFunction(innerPath) &&
           !this.isAssignmentExpressionLeft(innerPath) &&
-          !this.isAssignmentExpressionRight(innerPath)
+          !this.isAssignmentPropertyExpressionRight(innerPath)
         ) {
           deps.add(propertyKey)
           this.dependencyMap[propertyKey]?.forEach(deps.add.bind(deps))
@@ -502,7 +540,7 @@ export class ReactivityParser {
     return [...deps].map(dep => this.availableProperties.indexOf(dep))
   }
 
-  private getIdentifierDependencies(node: t.Expression | t.Statement): number[] {
+  private getIdentifierMapDependencies(node: t.Expression | t.Statement): number[] {
     const deps = new Set<string>()
 
     const wrappedNode = this.valueWrapper(node)
@@ -510,7 +548,7 @@ export class ReactivityParser {
       Identifier: innerPath => {
         const identifier = innerPath.node
         const idName = identifier.name
-        if (this.isAttrFromFunction(innerPath, idName, node)) return
+        if (this.isAttrFromFunction(innerPath, idName)) return
         const depsArray = this.identifierDepMap[idName]
 
         if (!depsArray) return
@@ -599,6 +637,33 @@ export class ReactivityParser {
   }
 
   /**
+   * @brief Check if an identifier is a simple identifier, i.e., not a member expression, or a function param
+   * @param path
+   *  1. not a member expression
+   *  2. not a function param
+   *  3. not in a declaration
+   *  4. not as object property's not computed key
+   */
+  private isStandAloneIdentifier(path: NodePath<t.Identifier>) {
+    const node = path.node
+    const parentNode = path.parentPath?.node
+    const isMemberExpression = this.t.isMemberExpression(parentNode) && parentNode.property === node
+    if (isMemberExpression) return false
+    const isFunctionParam = this.isAttrFromFunction(path, node.name)
+    if (isFunctionParam) return false
+    while (path.parentPath) {
+      if (this.t.isVariableDeclarator(path.parentPath.node)) return false
+      if (
+        this.t.isObjectProperty(path.parentPath.node) &&
+        path.parentPath.node.key === path.node &&
+        !path.parentPath.node.computed
+      ) return false
+      path = path.parentPath as any
+    }
+    return true
+  }
+
+  /**
    * @brief Get all identifiers as strings in a node
    * @param node
    * @returns identifiers
@@ -608,13 +673,8 @@ export class ReactivityParser {
     const identifierKeys = new Set<string>()
     this.traverse(this.valueWrapper(node as any), {
       Identifier: innerPath => {
-        if (this.t.isObjectProperty(innerPath.parentPath.node)) return
-        if (!this.t.isIdentifier(innerPath.node)) return
+        if (!this.isStandAloneIdentifier(innerPath)) return
         identifierKeys.add(innerPath.node.name)
-      },
-      ObjectProperty: innerPath => {
-        if (!this.t.isIdentifier(innerPath.node.value)) return
-        identifierKeys.add(innerPath.node.value.name)
       }
     })
     return [...identifierKeys]
@@ -628,7 +688,7 @@ export class ReactivityParser {
    *     console.log(ok) // not from function param
    *  }
    */
-  private isAttrFromFunction(path: NodePath, idName: string, stopNode: t.Node) {
+  private isAttrFromFunction(path: NodePath, idName: string) {
     let reversePath = path.parentPath
 
     const checkParam: (param: t.Node) => boolean = (param: t.Node) => {
@@ -656,7 +716,7 @@ export class ReactivityParser {
       return false
     }
 
-    while (reversePath && reversePath.node !== stopNode) {
+    while (reversePath) {
       const node = reversePath.node
       if (this.t.isArrowFunctionExpression(node) || this.t.isFunctionDeclaration(node)) {
         for (const param of node.params) {
@@ -665,11 +725,7 @@ export class ReactivityParser {
       }
       reversePath = reversePath.parentPath
     }
-    if (this.t.isClassMethod(stopNode)) {
-      for (const param of stopNode.params) {
-        if (checkParam(param)) return true
-      }
-    }
+
     return false
   }
 
@@ -693,7 +749,7 @@ export class ReactivityParser {
    * @param innerPath
    * @returns is the right side of an assignment expression
    */
-  private isAssignmentExpressionRight(innerPath: NodePath<t.MemberExpression>): boolean {
+  private isAssignmentPropertyExpressionRight(innerPath: NodePath<t.MemberExpression>): boolean {
     const currNode = innerPath.node
 
     let isRightExp = false
@@ -703,6 +759,30 @@ export class ReactivityParser {
         const leftNode = reversePath.node.left as t.MemberExpression
         const typeEqual = currNode.type === leftNode.type
         const identifierEqual = (currNode.property as t.Identifier).name === (leftNode.property as t.Identifier).name
+        isRightExp = typeEqual && identifierEqual
+      }
+      reversePath = reversePath.parentPath
+    }
+
+    return isRightExp
+  }
+
+  /**
+   * @brief Check if an identifier is the right side of an assignment expression
+   *   e.g. count = count + 1
+   * @param innerPath
+   * @returns is the right side of an assignment expression
+   */
+  private isAssignmentIdentifierExpressionRight(innerPath: NodePath<t.Identifier>): boolean {
+    const currNode = innerPath.node
+
+    let isRightExp = false
+    let reversePath: NodePath<t.Node> | null = innerPath.parentPath
+    while (reversePath) {
+      if (this.t.isAssignmentExpression(reversePath.node)) {
+        const leftNode = reversePath.node.left as t.Identifier
+        const typeEqual = currNode.type === leftNode.type
+        const identifierEqual = currNode.name === leftNode.name
         isRightExp = typeEqual && identifierEqual
       }
       reversePath = reversePath.parentPath

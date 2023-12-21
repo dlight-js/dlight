@@ -17,31 +17,12 @@ describe("SubviewUnit", () => {
     expect(viewUnits[0].type).not.toBe("subview")
   })
 
-  it("should identify an expression inside subview function call as an SubviewUnit", () => {
-    const viewUnits = parse("subview(function IWillDoAnything(){return \"MySubview\"}.call())()")
-    expect(viewUnits.length).toBe(1)
-    expect(viewUnits[0].type).toBe("subview")
-  })
-
   // ---- Tag
   it("should correctly parse the tag of an SubviewUnit of the type of function call", () => {
-    const statement = parseCode("this.MySubview()")
-    const viewUnits = parseView(statement)
-    const originalExpression = ((statement.body[0] as t.ExpressionStatement).expression as t.CallExpression).callee
+    const viewUnits = parse("this.MySubview()")
     const tag = (viewUnits[0] as HTMLUnit).tag
 
-    expect(tag).toBe(originalExpression)
-  })
-
-  it("should correctly parse the tag of an SubviewUnit of the type of any expression inside subview function call to be original expression", () => {
-    const statement = parseCode("subview(function IWillDoAnything(){return \"MySubview\"}.call())()")
-    const viewUnits = parseView(statement)
-
-    const originalExpression = (((statement.body[0] as t.ExpressionStatement)
-      .expression as t.CallExpression).callee as t.CallExpression).arguments[0]
-
-    const tag = (viewUnits[0] as HTMLUnit).tag
-    expect(tag).toBe(originalExpression)
+    expect(tag).toBe("MySubview")
   })
 
   // ---- Props

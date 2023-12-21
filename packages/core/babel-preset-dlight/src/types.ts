@@ -137,3 +137,5 @@ export interface IfCondition {
   condition: t.Expression
   body: ViewUnit[]
 }
+
+export type SubViewPropSubDepMap = Record<string, Record<string, string[]>>

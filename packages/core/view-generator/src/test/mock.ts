@@ -2,7 +2,7 @@ import babelApi, { parseSync, types as t } from "@babel/core"
 import { parseView, type ViewParserConfig } from "@dlightjs/view-parser"
 import { parseReactivity, type ReactivityParserConfig } from "@dlightjs/reactivity-parser"
 import { type ViewGeneratorConfig } from "../types"
-import { generateView } from ".."
+import { generateSubView, generateView } from ".."
 import generate from "@babel/generator"
 import { expect } from "vitest"
 
@@ -68,6 +68,16 @@ export function parse(code: string) {
   return generateView(reactivityUnits, viewGeneratorConfig)
 }
 
+export function parseSub(code: string) {
+  const statements = (parseSync(`function code() {${code}}`)!.program.body[0] as t.FunctionDeclaration).body
+  const viewUnits = parseView(statements, viewConfig)
+  const reactivityUnits0 = parseReactivity(viewUnits, reactivityConfig)[0]
+  reactivityConfig.dependencyParseType = "identifier"
+  const reactivityUnits1 = parseReactivity(viewUnits, reactivityConfig)[0]
+
+  return generateSubView(reactivityUnits0, reactivityUnits1, viewGeneratorConfig)
+}
+
 export function expectCompare(block: t.Node, target: string) {
   return expect(
     generate(babelApi.parse(generate(block).code)!).code
@@ -75,6 +85,14 @@ export function expectCompare(block: t.Node, target: string) {
 }
 
 export function expectBlock(block: t.BlockStatement, target: string) {
+  return expect(
+    generate(babelApi.parse(
+      generate(t.functionDeclaration(t.identifier("temp"), [], block)).code
+    )!).code
+  ).toBe(generate(babelApi.parse(`function temp() { ${target} }`)!).code)
+}
+
+export function expectSubBlock(block: t.BlockStatement, target: string) {
   return expect(
     generate(babelApi.parse(
       generate(t.functionDeclaration(t.identifier("temp"), [], block)).code

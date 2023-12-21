@@ -59,7 +59,7 @@ export interface ExpUnit {
 
 export interface SubviewUnit {
   type: "subview"
-  tag: t.Expression
+  tag: string
   props?: Record<string, ViewProp>
   children?: ViewUnit[]
 }
@@ -83,7 +83,6 @@ export interface ViewParserConfig {
 export interface ViewParserOption {
   compWrapper?: string
   htmlTagWrapper?: string
-  subviewWrapper?: string
   environmentTagName?: string
   expressionTagName?: string
 }

@@ -1,7 +1,7 @@
 import { type AnyDLNode } from "./types"
 
 export enum DLNodeType {
-  Comp, For, If, Env, Exp
+  Comp = 0, For, If, Env, Exp, Subview
 }
 
 export class DLNode {

@@ -1,5 +1,5 @@
 import { expect, describe, it } from "vitest"
-import { availableProperties, parse } from "./mock"
+import { availableProperties, parse, reactivityConfig } from "./mock"
 import { type CompParticle } from "../types"
 
 describe("Dependency", () => {
@@ -66,9 +66,12 @@ describe("Dependency", () => {
     expect(content?.dependencyIndexArr).toHaveLength(0)
   })
 
-  it("should not collect the dependency if the member expression is in a function", () => {
-    const viewParticles = parse("Comp(() => this.flag)")
+  it("should parse the dependency as identifiers", () => {
+    reactivityConfig.dependencyParseType = "identifier"
+    const viewParticles = parse("Comp(flag + count)")
     const content = (viewParticles[0] as CompParticle).content
-    expect(content?.dependencyIndexArr).toHaveLength(0)
+    expect(content?.dependencyIndexArr).toContain(availableProperties.indexOf("flag"))
+    expect(content?.dependencyIndexArr).toContain(availableProperties.indexOf("count"))
+    reactivityConfig.dependencyParseType = "property"
   })
 })

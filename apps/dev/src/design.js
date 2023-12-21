@@ -123,26 +123,37 @@ class Main extends View {
 
 @View
 class Main {
+  @View
+  ok({prop1, prop2=2}) {
+    div(prop1)
+  }
+
   View() {
-    env(); {
-      ok()
-    }
+    this.ok()
+      .prop1()
   }
 }
 
 class Main extends View {
 
-  View() {
-    const node = new IfNode()
-    if (this.hh) {
-      const update = () => {
+  @View
+  ok(props) {
+    const {prop1, prop2=2} = props
+    div(prop1)
 
+    node.update0 = (changed) => {
+      if (changed & 0x1) {
+        node.prop1 = prop1
       }
-      return [ok()]
     }
+    return node
+  }
+  View() {
 
     this.update = () => {
-      
+      if (changed & 0x1) {
+        
+      }
     }
     return [node0]
   }

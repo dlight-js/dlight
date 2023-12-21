@@ -1,11 +1,12 @@
 import { describe, it } from "vitest"
-import { expectBlock, parse } from "./mock"
+import { expectBlock, parse, parseSub } from "./mock"
 
 describe("Comp", () => {
   it("should generate a Comp", () => {
-    const [blockStatement] = parse(`
+    const [blockStatement] = parseSub(`
       MyComp()
         .flag(this.flag)
+        .tt(count)
     `)
     expectBlock(blockStatement, "")
   })
@@ -13,7 +14,7 @@ describe("Comp", () => {
   //   const [blockStatement] = parse("MyComp()")
   //   expectBlock(blockStatement, `
   //     const node0 = new MyComp()
-      
+
   //     return [node0]
   //   `)
   // })
@@ -23,7 +24,7 @@ describe("Comp", () => {
   //   expectBlock(blockStatement, `
   //     const node0 = new MyComp()
   //     setDLProp(node0, "flag", true)
-      
+
   //     return [node0]
   //   `)
   // })
@@ -33,7 +34,7 @@ describe("Comp", () => {
   //   expectBlock(blockStatement, `
   //     const node0 = new MyComp()
   //     setDLContent(node0, "ok")
-      
+
   //     return [node0]
   //   `)
   // })
