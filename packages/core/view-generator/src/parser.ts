@@ -1,7 +1,8 @@
 import { type types as t, type traverse } from "@babel/core"
-import { type ViewParticle, type TemplateParticle, type HTMLParticle, type CompParticle, type ForParticle, type IfParticle, type IfBranch } from "@dlightjs/reactivity-parser"
+import { type ViewParticle, type TemplateParticle, type HTMLParticle, type CompParticle, type ForParticle, type IfParticle, type IfBranch, type EnvParticle } from "@dlightjs/reactivity-parser"
 import { type ViewGeneratorConfig, type ViewGeneratorOption } from "./types"
 import { isInternalAttribute } from "./attr"
+import { DLError } from "./error"
 
 const isDev = process.env.NODE_ENV === "development"
 
@@ -178,13 +179,7 @@ export class ViewGenerator {
     // ---- Resolve props
     props.forEach(({ tag, path, key, value, dependencyIndexArr }) => {
       const name = pathNameMap[path.join(".")]
-      // ---- init dynamic prop store
-      if (dependencyIndexArr && dependencyIndexArr.length > 0) {
-        collect(this.initStaticHTMLProp(name, tag, key, value))
-        this.addUpdateStatements(dependencyIndexArr, [this.setDynamicHTMLProp(name, tag, key, value)])
-      } else {
-        collect(this.setStaticHTMLProp(name, tag, key, value))
-      }
+      collect(this.addHTMLProp(name, tag, key, value, dependencyIndexArr))
     })
 
     // ---- Resolve mutable particles
@@ -232,10 +227,7 @@ export class ViewGenerator {
     )
   }
 
-  /**
-   * const ${dlNodeName} = ${getChildElementByPath}(${dlNodeName}, ...${path})
-   */
-  private insertElement(dlNodeName: string, path: number[]) {
+  private insertElement(dlNodeName: string, path: number[], offset: number) {
     const newNodeName = this.generateNodeName()
     const addFirstChild = (object: t.Expression) => (
       // ---- ${object}.firstChild
@@ -269,11 +261,21 @@ export class ViewGenerator {
         true
       )
     )
+    const addNextSibling = (object: t.Expression) => (
+      // ---- ${object}.nextSibling
+      this.t.memberExpression(
+        object,
+        this.t.identifier("nextSibling")
+      )
+    )
     return (
       this.t.variableDeclaration("const", [
         this.t.variableDeclarator(
           this.t.identifier(newNodeName),
-          path.reduce((acc: t.Expression, cur: number) => {
+          path.reduce((acc: t.Expression, cur: number, idx) => {
+            if (idx === 0 && offset > 0) {
+              for (let i = 0; i < offset; i++) acc = addNextSibling(acc)
+            }
             if (cur === 0) return addFirstChild(acc)
             if (cur === 1) return addSecondChild(acc)
             if (cur === 2) return addThirdChild(acc)
@@ -290,9 +292,9 @@ export class ViewGenerator {
 
     const commonPrefixPaths = this.pathWithCommonPrefix(paths)
     commonPrefixPaths.forEach((path) => {
-      let [name, pat] = this.findBestNodeAndPath(nameMap, path, dlNodeName)
+      let [name, pat, offset] = this.findBestNodeAndPath(nameMap, path, dlNodeName)
       if (pat.length !== 0) {
-        collect(this.insertElement(name, pat))
+        collect(this.insertElement(name, pat, offset))
         name = this.generateNodeName(this.nodeIdx)
         nameMap[name] = path
       }
@@ -305,183 +307,322 @@ export class ViewGenerator {
     return [statements, pathNameMap]
   }
 
+  private addHTMLProp(name: string, tag: string, key: string, value: t.Expression, dependencyIndexArr: number[] | undefined) {
+    const [statements, collect] = this.statementsCollector()
+    if (dependencyIndexArr && dependencyIndexArr.length > 0) {
+      collect(this.initStaticHTMLProp(name, tag, key, value))
+      this.addUpdateStatements(dependencyIndexArr, [this.setDynamicHTMLProp(name, tag, key, value)])
+    } else {
+      collect(this.setStaticHTMLProp(name, tag, key, value))
+    }
+
+    return statements
+  }
+
+  /**
+   * setStyle(${dlNodeName}, ${value})
+   */
+  private setHTMLStyle(dlNodeName: string, value: t.Expression) {
+    return (
+      this.t.expressionStatement(
+        this.t.callExpression(
+          this.t.identifier(this.importMap.setStyle),
+          [this.t.identifier(dlNodeName), value]
+        )
+      )
+    )
+  }
+
+  /**
+   * setStyle(${dlNodeName}, ${value})
+   */
+  private setHTMLDataset(dlNodeName: string, value: t.Expression) {
+    return (
+      this.t.expressionStatement(
+        this.t.callExpression(
+          this.t.identifier(this.importMap.setDataset),
+          [this.t.identifier(dlNodeName), value]
+        )
+      )
+    )
+  }
+
+  /**
+   * ${dlNodeName}.${key} = ${value}
+   */
+  private setHTMLProp(dlNodeName: string, key: string, value: t.Expression) {
+    return (
+      this.t.expressionStatement(
+        this.t.assignmentExpression(
+          "=",
+          this.t.memberExpression(
+            this.t.identifier(dlNodeName),
+            this.t.identifier(key)
+          ),
+          value
+        )
+      )
+    )
+  }
+
+  /**
+   * ${dlNodeName}.setAttribute(${key}, ${value})
+   */
+  private setHTMLAttr(dlNodeName: string, key: string, value: t.Expression) {
+    return (
+      this.t.expressionStatement(
+        this.t.callExpression(
+          this.t.memberExpression(
+            this.t.identifier(dlNodeName),
+            this.t.identifier("setAttribute")
+          ),
+          [this.t.stringLiteral(key), value]
+        )
+      )
+    )
+  }
+
+  /**
+   * ${dlNodeName}.addEventListener(${key}, ${value})
+   */
+  private setHTMLEvent(dlNodeName: string, key: string, value: t.Expression) {
+    return (
+      this.t.expressionStatement(
+        this.t.callExpression(
+          this.t.memberExpression(
+            this.t.identifier(dlNodeName),
+            this.t.identifier("addEventListener")
+          ),
+          [this.t.stringLiteral(key), value]
+        )
+      )
+    )
+  }
+
+  /**
+   * setMemorizedEvent(${dlNodeName}, ${key}, ${value})
+   */
+  private setMemorizedEvent(dlNodeName: string, key: string, value: t.Expression) {
+    return (
+      this.t.expressionStatement(
+        this.t.callExpression(
+          this.t.identifier(this.importMap.setMemorizedEvent),
+          [this.t.identifier(dlNodeName), this.t.stringLiteral(key), value]
+        )
+      )
+    )
+  }
+
+  /**
+   * setHTMLProp(${dlNodeName}, ${key}, ${value})
+   */
+  private setCachedProp(dlNodeName: string, key: string, value: t.Expression) {
+    return (
+      this.t.expressionStatement(
+        this.t.callExpression(
+          this.t.identifier(this.importMap.setMemorizedProp),
+          [this.t.identifier(dlNodeName), this.t.stringLiteral(key), value]
+        )
+      )
+    )
+  }
+
+  /**
+   * setHTMLAttr(${dlNodeName}, ${key}, ${value})
+   */
+  private setCachedAttr(dlNodeName: string, key: string, value: t.Expression) {
+    return (
+      this.t.expressionStatement(
+        this.t.callExpression(
+          this.t.identifier(this.importMap.setMemorizedAttr),
+          [this.t.identifier(dlNodeName), this.t.stringLiteral(key), value]
+        )
+      )
+    )
+  }
+
+  /**
+   * if (typeof ${value} === "function") {
+   *  ${value}(${dlNodeName})
+   * } else {
+   *  ${value} = ${dlNodeName}
+   * }
+   */
+  private assignHTMLElement(dlNodeName: string, value: t.MemberExpression) {
+    return (
+      this.t.ifStatement(
+        this.t.binaryExpression(
+          "===",
+          this.t.unaryExpression(
+            "typeof",
+            value,
+            true
+          ),
+          this.t.stringLiteral("function")
+        ),
+        this.t.expressionStatement(
+          this.t.callExpression(
+            value,
+            [this.t.identifier(dlNodeName)]
+          )
+        ),
+        this.t.expressionStatement(
+          this.t.assignmentExpression(
+            "=",
+            value,
+            this.t.identifier(dlNodeName)
+          )
+        )
+      )
+    )
+  }
+
+  /**
+   * ${value}(changed, ${dlNodeName})
+   */
+  private assignHTMLFunctionElement(dlNodeName: string, value: t.Expression) {
+    if (!this.t.isFunctionExpression(value) && !this.t.isArrowFunctionExpression(value)) {
+      return DLError.throw1()
+    }
+    return (
+      this.t.expressionStatement(
+        this.t.callExpression(
+          value,
+          [
+            this.t.identifier("changed"),
+            this.t.identifier(dlNodeName)
+          ]
+        )
+      )
+    )
+  }
+
+  /**
+   * ${setHTMLProps}(${dlNodeName}, ${value})
+   */
+  private setHTMLPropObject(dlNodeName: string, value: t.Expression) {
+    return (
+      this.t.expressionStatement(
+        this.t.callExpression(
+          this.t.identifier(this.importMap.setHTMLProps),
+          [this.t.identifier(dlNodeName), value]
+        )
+      )
+    )
+  }
+
+  /**
+   * ${setHTMLAttrs}(${dlNodeName}, ${value})
+   */
+  private setHTMLAttrObject(dlNodeName: string, value: t.Expression) {
+    return (
+      this.t.expressionStatement(
+        this.t.callExpression(
+          this.t.identifier(this.importMap.setHTMLAttrs),
+          [this.t.identifier(dlNodeName), value]
+        )
+      )
+    )
+  }
+
+  /**
+   * this._$forwardHTMLProp(${dlNodeName})
+   */
+  private forwardHTMLProp(dlNodeName: string) {
+    return (
+      this.t.expressionStatement(
+        this.t.callExpression(
+          this.t.memberExpression(
+            this.t.thisExpression(),
+            this.t.identifier("_$forwardHTMLProp")
+          ),
+          [this.t.identifier(dlNodeName)]
+        )
+      )
+    )
+  }
+
+  private readonly commonHTMLPropKeys = ["style", "dataset", "element", "prop", "attr", "forwardProp"]
+  /**
+   * For style/dataset/element/attr/prop
+   */
+  private addCommonHTMLProp(dlNodeName: string, attrName: string, value: t.Expression) {
+    if (attrName === "style") return this.setHTMLStyle(dlNodeName, value)
+    if (attrName === "dataset") return this.setHTMLDataset(dlNodeName, value)
+    if (attrName === "element") {
+      if (this.isOnlyMemberExpression(value)) return this.assignHTMLElement(dlNodeName, value as t.MemberExpression)
+      return this.assignHTMLFunctionElement(dlNodeName, value)
+    }
+    if (attrName === "prop") return this.setHTMLPropObject(dlNodeName, value)
+    if (attrName === "attr") return this.setHTMLAttrObject(dlNodeName, value)
+    if (attrName === "forwardProp") return this.forwardHTMLProp(dlNodeName)
+    return DLError.throw2()
+  }
+
   /**
    * 1. Event listener
    *  - ${dlNodeName}.addEventListener(${key}, ${value})
-   * 2. Style
-   *  - ${setStyle}.(${dlNodeName}, ${value})
    * 2. HTML internal attribute -> DOM property
    *  - ${dlNodeName}.${key} = ${value}
    * 3. HTML custom attribute
    *  - ${dlNodeName}.setAttribute(${key}, ${value})
    */
   private setStaticHTMLProp(dlNodeName: string, tag: string, attrName: string, value: t.Expression) {
+    if (this.commonHTMLPropKeys.includes(attrName)) return this.addCommonHTMLProp(dlNodeName, attrName, value)
     if (attrName.startsWith("on")) {
       const eventName = attrName.slice(2).toLowerCase()
-      return (
-        this.t.expressionStatement(
-          this.t.callExpression(
-            this.t.memberExpression(
-              this.t.identifier(dlNodeName),
-              this.t.identifier("addEventListener")
-            ),
-            [this.t.stringLiteral(eventName), value]
-          )
-        )
-      )
-    }
-    if (attrName === "style") {
-      return (
-        this.t.expressionStatement(
-          this.t.callExpression(
-            this.t.identifier(this.importMap.setStyle),
-            [this.t.identifier(dlNodeName), value]
-          )
-        )
-      )
+      return this.setHTMLEvent(dlNodeName, eventName, value)
     }
     if (isInternalAttribute(tag, attrName)) {
       if (attrName === "class") attrName = "className"
       else if (attrName === "for") attrName = "htmlFor"
-      return (
-        this.t.expressionStatement(
-          this.t.assignmentExpression(
-            "=",
-            this.t.memberExpression(
-              this.t.identifier(dlNodeName),
-              this.t.identifier(attrName)
-            ),
-            value
-          )
-        )
-      )
+      return this.setHTMLProp(dlNodeName, attrName, value)
     }
-    return (
-      this.t.expressionStatement(
-        this.t.callExpression(
-          this.t.memberExpression(
-            this.t.identifier(dlNodeName),
-            this.t.identifier("setAttribute")
-          ),
-          [this.t.stringLiteral(attrName), value]
-        )
-      )
-    )
+    return this.setHTMLAttr(dlNodeName, attrName, value)
   }
 
   /**
    * 1. Event listener
    *  - ${setMemorizedEvent}(${dlNodeName}, ${key}, ${value})
-   * 2. Style
-   *  - ${setStyle}(${dlNodeName}, ${value})
    * 2. HTML internal attribute -> DOM property
    *  - ${dlNodeName}.${key} = ${value}
    * 3. HTML custom attribute
    *  - ${dlNodeName}.setAttribute(${key}, ${value})
    */
   private initStaticHTMLProp(dlNodeName: string, tag: string, attrName: string, value: t.Expression) {
+    if (this.commonHTMLPropKeys.includes(attrName)) return this.addCommonHTMLProp(dlNodeName, attrName, value)
     if (attrName.startsWith("on")) {
       const eventName = attrName.slice(2).toLowerCase()
-      return (
-        this.t.expressionStatement(
-          this.t.callExpression(
-            this.t.identifier(this.importMap.setMemorizedEvent),
-            [this.t.identifier(dlNodeName), this.t.stringLiteral(eventName), value]
-          )
-        )
-      )
-    }
-    if (attrName === "style") {
-      return (
-        this.t.expressionStatement(
-          this.t.callExpression(
-            this.t.identifier(this.importMap.setStyle),
-            [this.t.identifier(dlNodeName), value]
-          )
-        )
-      )
+      return this.setMemorizedEvent(dlNodeName, eventName, value)
     }
     if (isInternalAttribute(tag, attrName)) {
       if (attrName === "class") attrName = "className"
       else if (attrName === "for") attrName = "htmlFor"
-      return (
-        this.t.expressionStatement(
-          this.t.assignmentExpression(
-            "=",
-            this.t.memberExpression(
-              this.t.identifier(dlNodeName),
-              this.t.identifier(attrName)
-            ),
-            value
-          )
-        )
-      )
+      return this.setHTMLProp(dlNodeName, attrName, value)
     }
-    return (
-      this.t.expressionStatement(
-        this.t.callExpression(
-          this.t.memberExpression(
-            this.t.identifier(dlNodeName),
-            this.t.identifier("setAttribute")
-          ),
-          [this.t.stringLiteral(attrName), value]
-        )
-      )
-    )
+    return this.setHTMLAttr(dlNodeName, attrName, value)
   }
 
   /**
    * 1. Event listener
    *  - ${setMemorizedEvent}(${dlNodeName}, ${key}, ${value})
-   * 2. Style
-   *  - ${setStyle}(${dlNodeName}, ${value})
-   * 3. HTML internal attribute -> DOM property
-   *  - ${setMemorizedProp}(${dlNodeName}, ${key}, ${value})
-   * 4. HTML custom attribute
-   *  - ${setMemorizedAttr}(${dlNodeName}, ${key}, ${value})
+   * 2. HTML internal attribute -> DOM property
+   *  - ${setHTMLProp}(${dlNodeName}, ${key}, ${value})
+   * 3. HTML custom attribute
+   *  - ${setHTMLAttr}(${dlNodeName}, ${key}, ${value})
    */
   private setDynamicHTMLProp(dlNodeName: string, tag: string, attrName: string, value: t.Expression) {
+    if (this.commonHTMLPropKeys.includes(attrName)) return this.addCommonHTMLProp(dlNodeName, attrName, value)
     if (attrName.startsWith("on")) {
       const eventName = attrName.slice(2).toLowerCase()
-      return (
-        this.t.expressionStatement(
-          this.t.callExpression(
-            this.t.identifier(this.importMap.setMemorizedEvent),
-            [this.t.identifier(dlNodeName), this.t.stringLiteral(eventName), value]
-          )
-        )
-      )
-    }
-    if (attrName === "style") {
-      return (
-        this.t.expressionStatement(
-          this.t.callExpression(
-            this.t.identifier(this.importMap.setStyle),
-            [this.t.identifier(dlNodeName), value]
-          )
-        )
-      )
+      return this.setMemorizedEvent(dlNodeName, eventName, value)
     }
     if (isInternalAttribute(tag, attrName)) {
       if (attrName === "class") attrName = "className"
       else if (attrName === "for") attrName = "htmlFor"
-      return (
-        this.t.expressionStatement(
-          this.t.callExpression(
-            this.t.identifier(this.importMap.setMemorizedProp),
-            [this.t.identifier(dlNodeName), this.t.stringLiteral(attrName), value]
-          )
-        )
-      )
+      return this.setCachedProp(dlNodeName, attrName, value)
     }
-    return (
-      this.t.expressionStatement(
-        this.t.callExpression(
-          this.t.identifier(this.importMap.setMemorizedAttr),
-          [this.t.identifier(dlNodeName), this.t.stringLiteral(attrName), value]
-        )
-      )
-    )
+    return this.setCachedAttr(dlNodeName, attrName, value)
   }
 
   /**
@@ -516,13 +657,7 @@ export class ViewGenerator {
     // ---- Resolve props
     if (props) {
       Object.entries(props).forEach(([key, { value, dependencyIndexArr }]) => {
-        if (dependencyIndexArr && dependencyIndexArr.length > 0) {
-          const setDynamicHTMLPropStatement = this.setDynamicHTMLProp(dlNodeName, tagName, key, value)
-          collect(setDynamicHTMLPropStatement)
-          this.addUpdateStatements(dependencyIndexArr, [setDynamicHTMLPropStatement])
-        } else {
-          collect(this.setStaticHTMLProp(dlNodeName, tagName, key, value))
-        }
+        collect(this.addHTMLProp(dlNodeName, tagName, key, value, dependencyIndexArr))
       })
     }
 
@@ -1008,6 +1143,14 @@ export class ViewGenerator {
     )
   }
 
+  // ---- @Env ----
+  private resolveEnv(envParticle: EnvParticle): t.Statement[] {
+    const [statements, collect] = this.statementsCollector()
+    const { key, value } = envParticle
+
+    return statements
+  }
+
   // ---- Utils ----
   /**
    *
@@ -1019,13 +1162,21 @@ export class ViewGenerator {
     return dependencies.reduce((acc, dep) => acc + (1 << dep), 0)
   }
 
-  private findBestNodeAndPath(nameMap: Record<string, number[]>, path: number[], defaultName: string): [string, number[]] {
+  private findBestNodeAndPath(nameMap: Record<string, number[]>, path: number[], defaultName: string): [string, number[], number] {
     let bestMatchCount = 0
     let bestMatchName: string | undefined
+    let bestHalfMatch: [string, number, number] | undefined
     Object.entries(nameMap).forEach(([name, pat]) => {
       let matchCount = 0
-      for (let i = 0; i < pat.length; i++) {
+      const pathLength = pat.length
+      for (let i = 0; i < pathLength; i++) {
         if (pat[i] === path[i]) matchCount++
+      }
+      if (matchCount === pathLength - 1) {
+        const offset = path[pathLength - 1] - pat[pathLength - 1]
+        if (offset > 0 && offset <= 2) {
+          bestHalfMatch = [name, matchCount, offset]
+        }
       }
       if (matchCount !== pat.length) return
       if (matchCount > bestMatchCount) {
@@ -1033,27 +1184,58 @@ export class ViewGenerator {
         bestMatchCount = matchCount
       }
     })
-    if (!bestMatchName) return [defaultName, path]
-    return [bestMatchName, path.slice(bestMatchCount)]
+    if (!bestMatchName) {
+      if (bestHalfMatch) {
+        return [bestHalfMatch[0], path.slice(bestHalfMatch[1] + 1), bestHalfMatch[2]]
+      }
+      return [defaultName, path, 0]
+    }
+    return [bestMatchName, path.slice(bestMatchCount), 0]
+  }
+
+  /**
+   * @brief Check if the value is a member expression only node like this.xxx.bb.cc
+   * @param value
+   * @returns true if the value is a member expression only node
+   */
+  private isOnlyMemberExpression(value: t.Expression): boolean {
+    if (!this.t.isMemberExpression(value)) return false
+    while (value.property) {
+      if (this.t.isMemberExpression(value.property)) {
+        value = value.property
+        continue
+      } else if (this.t.isIdentifier(value.property)) break
+      else return false
+    }
+    return true
   }
 
   private pathWithCommonPrefix(paths: number[][]) {
     const allPaths = [...paths]
     paths.forEach(path0 => {
       paths.forEach(path1 => {
+        if (path0 === path1) return
         for (let i = 0; i < path0.length; i++) {
-          if (path0[i] !== path1[i] && i !== 0) {
-            allPaths.push(path0.slice(0, i))
+          if (path0[i] !== path1[i]) {
+            if (i !== 0) {
+              allPaths.push(path0.slice(0, i))
+            }
             break
           }
         }
       })
     })
 
-    return allPaths.sort((a, b) => {
+    const sortedPaths = allPaths.sort((a, b) => {
       if (a.length !== b.length) return a.length - b.length
       return a[0] - b[0]
     })
+
+    const deduplicatedPaths = [...new Set(
+      sortedPaths.map(path => path.join("."))
+    )].map(path => path.split(".").filter(Boolean).map(Number))
+
+    return deduplicatedPaths
   }
 
   private statementsCollector(): [t.Statement[], (...statements: t.Statement[] | t.Statement[][]) => void] {

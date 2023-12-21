@@ -1,6 +1,7 @@
 const attributeMap = {
   // ---- Other property as attribute
   textContent: ["*"],
+  innerHTML: ["*"],
   // ---- Source: https://developer.mozilla.org/zh-CN/docs/Web/HTML/Attributes
   accept: ["form", "input"],
   // ---- Original: accept-charset
