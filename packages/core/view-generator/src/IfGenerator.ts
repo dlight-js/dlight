@@ -86,10 +86,10 @@ export default class IfGenerator extends BaseGenerator {
    *    thisIf.cond = 1
    *    return [nodes]
    *   }
-   *  return []
    * })
    */
   private declareIfNode(dlNodeName: string, branches: IfBranch[]) {
+    let hasElseStatement = false
     const ifStatement = branches.toReversed().reduce<any>((acc, { condition, children }, idx) => {
       // ---- Generate children
       const [childStatements, topLevelNodes, updateStatements] = this.generateChildren(children, false)
@@ -110,11 +110,25 @@ export default class IfGenerator extends BaseGenerator {
 
       if (idx === 0 && this.t.isBooleanLiteral(condition.value, { value: true })) {
         // ---- else statement
+        hasElseStatement = true
         return this.t.blockStatement(childStatements)
       }
 
       return this.geneIfStatement(condition.value, childStatements, acc)
     }, undefined)
+
+    if (!hasElseStatement) {
+      /**
+       * else {
+       *  thisIf.cond = -1
+       *  return []
+       * }
+       */
+      ifStatement.alternate = this.t.blockStatement([
+        this.geneCondIdx("$thisIf", -1),
+        this.t.returnStatement(this.t.arrayExpression([]))
+      ])
+    }
 
     return (
       this.t.variableDeclaration("const", [
@@ -124,10 +138,7 @@ export default class IfGenerator extends BaseGenerator {
             this.t.identifier(this.importMap.IfNode), [
               this.t.arrowFunctionExpression(
                 [this.t.identifier("$thisIf")],
-                this.t.blockStatement([
-                  ifStatement,
-                  this.t.returnStatement(this.t.arrayExpression([]))
-                ])
+                this.t.blockStatement([ifStatement])
               )
             ]
           )
