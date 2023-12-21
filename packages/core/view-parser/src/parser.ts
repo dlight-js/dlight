@@ -53,6 +53,16 @@ export class ViewParser {
 
   parse() {
     this.statements.forEach(this.parseStatement.bind(this))
+    // ---- If the view is an empty env, throw an error
+    if (
+      this.viewUnits.length === 1 &&
+      this.viewUnits[0].type === "env" &&
+      this.viewUnits[0].children.length === 0
+    ) {
+      DLError.error2()
+      return []
+    }
+
     return this.viewUnits
   }
 
@@ -80,6 +90,7 @@ export class ViewParser {
         if (childViewUnits.length > 0) {
           lastViewUnit.children = childViewUnits
         } else {
+          console.log(childViewUnits)
           this.viewUnits.pop()
           DLError.error2()
         }
@@ -370,10 +381,6 @@ export class ViewParser {
         return
       }
       if (tagName === this.environmentTagName) {
-        if (this.statements.length === 1) {
-          DLError.error2()
-          return
-        }
         if (Object.keys(props).length === 0) {
           DLError.warn1()
           return
@@ -475,12 +482,6 @@ export class ViewParser {
     const isInvalidForStatement = this.t.isForStatement(node) && !this.t.isForOfStatement(node)
     if (isInvalidForStatement) {
       DLError.error1()
-      return true
-    }
-    const prevViewUnit = this.viewUnits[this.viewUnits.length - 1]
-    if (prevViewUnit && prevViewUnit.type === "env" && !this.t.isBlockStatement(node)) {
-      this.viewUnits.pop()
-      DLError.error2()
       return true
     }
     return false

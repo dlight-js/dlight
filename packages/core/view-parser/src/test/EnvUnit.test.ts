@@ -11,6 +11,12 @@ describe("EnvUnit", () => {
     expect(viewUnits[0].type).toBe("env")
   })
 
+  it("should identify an env statement as an EnvUnit and ignore other statements", () => {
+    const viewUnits = parse("env().prop(1); { div() }; div(text)")
+    expect(viewUnits.length).toBe(2)
+    expect(viewUnits[0].type).toBe("env")
+  })
+
   it("should skip an env statement if the block statement is empty", () => {
     const viewUnits = parse("env().prop(1)")
     expect(viewUnits.length).toBe(0)
