@@ -548,37 +548,26 @@ export class PluginProvider {
    * @brief Decorator resolver: Children
    * Add:
    * get ${key}() {
-   *  return (this._$childrenFunc?.())?.[n]
+   *  return this._$children
    * }
    * @param node
    */
-  resolveChildrenDecorator(node: t.ClassProperty, childNum: true | number) {
+  resolveChildrenDecorator(node: t.ClassProperty) {
     if (!this.classBodyNode) return
     if (!this.t.isIdentifier(node.key)) return
     const key = node.key.name
     const propertyIdx = this.classBodyNode.body.indexOf(node)
 
     const childrenFuncCallNode = (
-      this.t.optionalCallExpression(
-        this.t.memberExpression(
-          this.t.thisExpression(),
-          this.t.identifier("_$childrenFunc")
-        ), [], true
+      this.t.memberExpression(
+        this.t.thisExpression(),
+        this.t.identifier("_$children")
       )
     )
 
     const getterNode = this.t.classMethod("get", this.t.identifier(key), [],
       this.t.blockStatement([
-        this.t.returnStatement(
-          childNum === true
-            ? childrenFuncCallNode
-            : this.t.optionalMemberExpression(
-              childrenFuncCallNode,
-              this.t.numericLiteral(childNum - 1),
-              true,
-              true
-            )
-        )
+        this.t.returnStatement(childrenFuncCallNode)
       ])
     )
     this.classBodyNode.body.splice(propertyIdx, 1, getterNode)

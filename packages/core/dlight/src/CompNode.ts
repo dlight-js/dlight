@@ -15,8 +15,11 @@ export class CompNode extends DLNode {
     if (content) this._$setContent(content)
     if (props) {
       Object.entries(props).forEach(([key, value]) => {
-        this._$setProp(key, value)
+        this._$initProp(key, value)
       })
+    }
+    if (children) {
+      (this as AnyDLNode)._$children = children
     }
 
     // ---- Add envs
@@ -31,6 +34,11 @@ export class CompNode extends DLNode {
     ;(this as AnyDLNode).didMount?.()
 
     this._$initd = true
+  }
+
+  _$initProp(name: string, value: any) {
+    if (!(`$p$${name}` in this)) return
+    ;(this as AnyDLNode)[name] = value
   }
 
   _$setProp(name: string, value: any) {

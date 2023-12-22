@@ -1,5 +1,5 @@
 import { type types as t, type traverse } from "@babel/core"
-import { type TemplateProp, type DependencyProp, type ViewParticle } from "@dlightjs/reactivity-parser"
+import { type DependencyProp, type ViewParticle } from "@dlightjs/reactivity-parser"
 import { type SubViewPropMap, type ViewGeneratorConfig, type ViewGeneratorOption } from "../types"
 import ViewGenerator from "../ViewGenerator"
 
@@ -182,6 +182,64 @@ export default class BaseGenerator {
     ) as T
   }
 
+  declarePropView(viewParticles: ViewParticle[]) {
+    // ---- Generate PropView
+    const [initStatements, topLevelNodes, updateStatements] = this.generateChildren(viewParticles, false)
+    // ---- Add update function to the first node
+    if (topLevelNodes.length > 0) {
+      /**
+    * ${topLevelNodes[0]}.update = (changed) => ${updateStatements}
+    */
+      initStatements.push(
+        this.t.expressionStatement(
+          this.t.assignmentExpression(
+            "=",
+            this.t.memberExpression(
+              this.t.identifier(topLevelNodes[0]),
+              this.t.identifier("_$updateFunc")
+            ),
+            this.t.arrowFunctionExpression(
+              [this.t.identifier("changed")],
+              this.geneUpdateBody(updateStatements)
+            )
+          )
+        ),
+        this.generateReturnStatement(topLevelNodes)
+      )
+    }
+
+    // ---- Assign as a dlNode
+    const dlNodeName = this.generateNodeName()
+    const propViewNode = this.t.variableDeclaration("const", [
+      this.t.variableDeclarator(
+        this.t.identifier(dlNodeName),
+        this.t.newExpression(
+          this.t.identifier(this.importMap.PropView),
+          [this.t.arrowFunctionExpression([], this.t.blockStatement(initStatements))]
+        )
+      )
+    ])
+    this.addInitStatement(propViewNode)
+    const propViewIdentifier = this.t.identifier(dlNodeName)
+
+    // ---- Add to update statements
+    /**
+  * ${dlNodeName}.update(changed)
+  */
+    this.addUpdateStatements(this.reverseDependencyIndexArr(updateStatements), [
+      this.t.expressionStatement(
+        this.t.callExpression(
+          this.t.memberExpression(
+            propViewIdentifier,
+            this.t.identifier("update")
+          ), [this.t.identifier("changed")]
+        )
+      )
+    ])
+
+    return dlNodeName
+  }
+
   /**
    * new PropView(() => {})
    */
@@ -195,60 +253,8 @@ export default class BaseGenerator {
         const id = innerPath.node.value
         const viewParticles = viewPropMap[id]
         if (!viewParticles) return
+        const propViewIdentifier = this.t.identifier(this.declarePropView(viewParticles))
 
-        // ---- Generate PropView
-        const [initStatements, topLevelNodes, updateStatements] = this.generateChildren(viewParticles, false)
-        // ---- Add update function to the first node
-        if (topLevelNodes.length > 0) {
-          /**
-           * ${topLevelNodes[0]}.update = (changed) => ${updateStatements}
-           */
-          initStatements.push(
-            this.t.expressionStatement(
-              this.t.assignmentExpression(
-                "=",
-                this.t.memberExpression(
-                  this.t.identifier(topLevelNodes[0]),
-                  this.t.identifier("_$updateFunc")
-                ),
-                this.t.arrowFunctionExpression(
-                  [this.t.identifier("changed")],
-                  this.geneUpdateBody(updateStatements)
-                )
-              )
-            ),
-            this.generateReturnStatement(topLevelNodes)
-          )
-        }
-
-        // ---- Assign as a dlNode
-        const dlNodeName = this.generateNodeName()
-        const propViewNode = this.t.variableDeclaration("const", [
-          this.t.variableDeclarator(
-            this.t.identifier(dlNodeName),
-            this.t.newExpression(
-              this.t.identifier(this.importMap.PropView),
-              [this.t.arrowFunctionExpression([], this.t.blockStatement(initStatements))]
-            )
-          )
-        ])
-        this.addInitStatement(propViewNode)
-        const propViewIdentifier = this.t.identifier(dlNodeName)
-
-        // ---- Add to update statements
-        /**
-         * ${dlNodeName}.update(changed)
-         */
-        this.addUpdateStatements(this.reverseDependencyIndexArr(updateStatements), [
-          this.t.expressionStatement(
-            this.t.callExpression(
-              this.t.memberExpression(
-                propViewIdentifier,
-                this.t.identifier("update")
-              ), [this.t.identifier("changed")]
-            )
-          )
-        ])
         if (value === innerPath.node) newValue = propViewIdentifier
         innerPath.replaceWith(propViewIdentifier)
         innerPath.skip()

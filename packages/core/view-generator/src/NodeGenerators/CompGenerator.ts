@@ -12,7 +12,7 @@ export default class CompGenerator extends ElementGenerator {
     content = this.alterPropView(content)
     props = this.alterPropViews(props)
 
-    this.addInitStatement(this.declareCompNode(dlNodeName, tag, content, props, children ?? []))
+    this.addInitStatement(this.declareCompNode(dlNodeName, tag, content, props, children))
     // ---- Resolve content
     if (content) {
       const { value, dependencyIndexArr } = content
@@ -81,7 +81,10 @@ export default class CompGenerator extends ElementGenerator {
           this.t.newExpression(
             tag, [
               this.generateCompProps(props),
-              this.generateCompContent(content)
+              this.generateCompContent(content),
+              children && children.length > 0
+                ? this.t.identifier(this.declarePropView(children))
+                : this.t.nullLiteral()
             ])
         )
       ])
