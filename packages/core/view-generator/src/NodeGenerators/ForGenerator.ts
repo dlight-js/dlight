@@ -8,20 +8,20 @@ export default class ForGenerator extends BaseGenerator {
 
     const dlNodeName = this.generateNodeName()
 
-    // ---- Declare for node
-    this.addInitStatement(
-      this.declareForNode(
-        dlNodeName,
-        array.value,
-        item,
-        children,
-        BaseGenerator.calcDependencyNum(array.dependencyIndexArr), key)
+    const [initStatement, dependencyIndexArr] = this.declareForNode(
+      dlNodeName,
+      array.value,
+      item,
+      children,
+      BaseGenerator.calcDependencyNum(array.dependencyIndexArr),
+      key
     )
+    // ---- Declare for node
+    this.addInitStatement(initStatement)
 
     // ---- Update statements
     this.addUpdateStatements(array.dependencyIndexArr, [this.updateForNode(dlNodeName, array.value, item, key)])
-
-    this.addUpdateStatementsWithoutDep([this.updateForNodeItem(dlNodeName)])
+    this.addUpdateStatements(dependencyIndexArr, [this.updateForNodeItem(dlNodeName)])
 
     return dlNodeName
   }
@@ -39,7 +39,7 @@ export default class ForGenerator extends BaseGenerator {
    *   return [...${topLevelNodes}]
    * }, ${depNum}, ${array}.map(${item} => ${key}))
    */
-  private declareForNode(dlNodeName: string, array: t.Expression, item: t.LVal, children: ViewParticle[], depNum: number, key?: t.Expression) {
+  private declareForNode(dlNodeName: string, array: t.Expression, item: t.LVal, children: ViewParticle[], depNum: number, key?: t.Expression): [t.VariableDeclaration, number[]] {
     // ---- NodeFunc
     const [childStatements, topLevelNodes, updateStatements] = this.generateChildren(children, false)
 
@@ -65,7 +65,7 @@ export default class ForGenerator extends BaseGenerator {
     // ---- Return statement
     childStatements.push(this.generateReturnStatement(topLevelNodes))
 
-    return (
+    return [
       this.t.variableDeclaration("const", [
         this.t.variableDeclarator(
           this.t.identifier(dlNodeName),
@@ -81,8 +81,9 @@ export default class ForGenerator extends BaseGenerator {
             ]
           )
         )
-      ])
-    )
+      ]),
+      this.reverseDependencyIndexArr(updateStatements)
+    ]
   }
 
   /**

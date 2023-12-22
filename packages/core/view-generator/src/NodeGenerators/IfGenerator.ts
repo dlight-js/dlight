@@ -7,11 +7,12 @@ export default class IfGenerator extends BaseGenerator {
     const ifParticle = this.viewParticle as IfParticle
     // ---- declareIfNode
     const dlNodeName = this.generateNodeName()
-    this.addInitStatement(this.declareIfNode(dlNodeName, ifParticle.branches))
+    const [initStatement, dependencyIndexArr] = this.declareIfNode(dlNodeName, ifParticle.branches)
+    this.addInitStatement(initStatement)
 
     const deps = ifParticle.branches.flatMap(({ condition }) => condition.dependencyIndexArr ?? [])
     this.addUpdateStatements(deps, [this.updateIfNodeCond(dlNodeName)])
-    this.addUpdateStatementsWithoutDep([this.updateIfNode(dlNodeName)])
+    this.addUpdateStatements(dependencyIndexArr, [this.updateIfNode(dlNodeName)])
 
     return dlNodeName
   }
@@ -88,12 +89,14 @@ export default class IfGenerator extends BaseGenerator {
    *   }
    * })
    */
-  private declareIfNode(dlNodeName: string, branches: IfBranch[]) {
+  private declareIfNode(dlNodeName: string, branches: IfBranch[]): [t.VariableDeclaration, number[]] {
     let hasElseStatement = false
+    const depsSet = new Set<number>()
     const ifStatement = branches.toReversed().reduce<any>((acc, { condition, children }, idx) => {
       // ---- Generate children
       const [childStatements, topLevelNodes, updateStatements] = this.generateChildren(children, false)
 
+      this.reverseDependencyIndexArr(updateStatements).forEach(dep => depsSet.add(dep))
       // ---- Check cond statement
       childStatements.unshift(this.geneCondCheck(branches.length - idx - 1))
 
@@ -130,7 +133,7 @@ export default class IfGenerator extends BaseGenerator {
       ])
     }
 
-    return (
+    return [
       this.t.variableDeclaration("const", [
         this.t.variableDeclarator(
           this.t.identifier(dlNodeName),
@@ -143,8 +146,9 @@ export default class IfGenerator extends BaseGenerator {
             ]
           )
         )
-      ])
-    )
+      ]),
+      Array.from(depsSet)
+    ]
   }
 
   /**
