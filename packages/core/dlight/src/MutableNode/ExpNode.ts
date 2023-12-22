@@ -41,7 +41,9 @@ export class ExpNode extends MutableNode {
         ) {
           return document.createTextNode(`${node}`)
         }
+        if ("_$propView" in node) return node.build()
         return node
       })
+      .flat(1)
   }
 }

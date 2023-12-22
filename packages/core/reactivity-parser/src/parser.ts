@@ -155,7 +155,7 @@ export class ReactivityParser {
           (child.type === "html" && this.t.isStringLiteral(child.tag))
         ))
         .forEach((child, idx) => {
-          generateMutableUnit(child, [...path, idx])
+          generateMutableUnit(child as HTMLUnit, [...path, idx])
         })
       unit.children
         ?.forEach((child, idx) => {

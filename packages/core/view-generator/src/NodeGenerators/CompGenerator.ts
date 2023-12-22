@@ -1,5 +1,5 @@
 import { type types as t } from "@babel/core"
-import { type DependencyProp, type CompParticle } from "@dlightjs/reactivity-parser"
+import { type DependencyProp, type CompParticle, type ViewParticle } from "@dlightjs/reactivity-parser"
 import ElementGenerator from "../HelperGenerators/ElementGenerator"
 
 export default class CompGenerator extends ElementGenerator {
@@ -8,9 +8,11 @@ export default class CompGenerator extends ElementGenerator {
 
     const dlNodeName = this.generateNodeName()
 
-    this.addInitStatement(this.declareCompNode(dlNodeName, compParticle))
+    let { tag, content, props, children } = compParticle
+    content = this.alterPropView(content)
+    props = this.alterPropViews(props)
 
-    const { content, props, children } = compParticle
+    this.addInitStatement(this.declareCompNode(dlNodeName, tag, content, props, children ?? []))
     // ---- Resolve content
     if (content) {
       const { value, dependencyIndexArr } = content
@@ -65,12 +67,11 @@ export default class CompGenerator extends ElementGenerator {
   /**
    * const ${dlNodeName} = new ${tag}(props, content, children)
    */
-  private declareCompNode(dlNodeName: string, compParticle: CompParticle) {
-    let { tag, content, props, children } = compParticle
-
+  private declareCompNode(dlNodeName: string, tag: t.Expression, content?: DependencyProp, props?: Record<string, DependencyProp>, children?: ViewParticle[]) {
     if (props) {
       props = Object.fromEntries(
-        Object.entries(props).filter(([key]) => ["do", "element"].includes(key))
+        Object.entries(props)
+          .filter(([key]) => !["do", "element"].includes(key))
       )
     }
     return (

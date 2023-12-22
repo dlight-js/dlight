@@ -1,5 +1,5 @@
 import { type types as t, type traverse } from "@babel/core"
-import { type ViewParticle } from "@dlightjs/reactivity-parser"
+import { type TemplateProp, type DependencyProp, type ViewParticle } from "@dlightjs/reactivity-parser"
 import { type SubViewPropMap, type ViewGeneratorConfig, type ViewGeneratorOption } from "../types"
 import ViewGenerator from "../ViewGenerator"
 
@@ -159,6 +159,116 @@ export default class BaseGenerator {
   }
 
   run(): string { return "" }
+
+  // ---- Dependency
+  reverseDependencyIndexArr(updateStatements: Record<number, t.Statement[]>): number[] {
+    const allDepsNum = Object.keys(updateStatements).map(Number).reduce((acc, depNum) => acc | depNum, 0)
+    const allDeps = []
+    for (let i = 0; i < String(allDepsNum).length; i++) {
+      if (allDepsNum & (1 << i)) allDeps.push(i)
+    }
+    return allDeps
+  }
+
+  // ---- Prop View
+  alterPropViews<T extends Record<string, DependencyProp> | undefined>(
+    props: T
+  ): T {
+    if (!props) return props
+    return Object.fromEntries(
+      Object.entries(props).map(([key, prop]) => {
+        return [key, this.alterPropView(prop)!]
+      })
+    ) as T
+  }
+
+  /**
+   * new PropView(() => {})
+   */
+  alterPropView<T extends DependencyProp | undefined>(prop: T): T {
+    if (!prop) return prop
+    const { value, viewPropMap } = prop
+    if (!viewPropMap) return { ...prop, value }
+    let newValue = value
+    this.traverse(this.valueWrapper(value), {
+      StringLiteral: innerPath => {
+        const id = innerPath.node.value
+        const viewParticles = viewPropMap[id]
+        if (!viewParticles) return
+
+        // ---- Generate PropView
+        const [initStatements, topLevelNodes, updateStatements] = this.generateChildren(viewParticles, false)
+        // ---- Add update function to the first node
+        if (topLevelNodes.length > 0) {
+          /**
+           * ${topLevelNodes[0]}.update = (changed) => ${updateStatements}
+           */
+          initStatements.push(
+            this.t.expressionStatement(
+              this.t.assignmentExpression(
+                "=",
+                this.t.memberExpression(
+                  this.t.identifier(topLevelNodes[0]),
+                  this.t.identifier("_$updateFunc")
+                ),
+                this.t.arrowFunctionExpression(
+                  [this.t.identifier("changed")],
+                  this.geneUpdateBody(updateStatements)
+                )
+              )
+            ),
+            this.generateReturnStatement(topLevelNodes)
+          )
+        }
+
+        // ---- Assign as a dlNode
+        const dlNodeName = this.generateNodeName()
+        const propViewNode = this.t.variableDeclaration("const", [
+          this.t.variableDeclarator(
+            this.t.identifier(dlNodeName),
+            this.t.newExpression(
+              this.t.identifier(this.importMap.PropView),
+              [this.t.arrowFunctionExpression([], this.t.blockStatement(initStatements))]
+            )
+          )
+        ])
+        this.addInitStatement(propViewNode)
+        const propViewIdentifier = this.t.identifier(dlNodeName)
+
+        // ---- Add to update statements
+        /**
+         * ${dlNodeName}.update(changed)
+         */
+        this.addUpdateStatements(this.reverseDependencyIndexArr(updateStatements), [
+          this.t.expressionStatement(
+            this.t.callExpression(
+              this.t.memberExpression(
+                propViewIdentifier,
+                this.t.identifier("update")
+              ), [this.t.identifier("changed")]
+            )
+          )
+        ])
+        if (value === innerPath.node) newValue = propViewIdentifier
+        innerPath.replaceWith(propViewIdentifier)
+        innerPath.skip()
+      }
+    })
+    return { ...prop, value: newValue }
+  }
+
+  /**
+ * @brief Wrap the value in a file
+ * @param node
+ * @returns wrapped value
+ */
+  valueWrapper(node: t.Expression | t.Statement): t.File {
+    return this.t.file(this.t.program([
+      this.t.isStatement(node)
+        ? node
+        : this.t.expressionStatement(node)
+    ]))
+  }
 
   // ---- Name ----
   nodeIdx = -1

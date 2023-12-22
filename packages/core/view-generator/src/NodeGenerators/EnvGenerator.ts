@@ -4,7 +4,8 @@ import BaseGenerator from "../HelperGenerators/BaseGenerator"
 
 export default class EnvGenerator extends BaseGenerator {
   run() {
-    const { props, children } = this.viewParticle as EnvParticle
+    let { props, children } = this.viewParticle as EnvParticle
+    props = this.alterPropViews(props)!
 
     const dlNodeName = this.generateNodeName()
 

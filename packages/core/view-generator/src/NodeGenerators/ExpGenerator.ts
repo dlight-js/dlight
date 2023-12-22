@@ -5,7 +5,9 @@ import { DLError } from "../error"
 
 export default class ExpGenerator extends ElementGenerator {
   run() {
-    const { content, props } = this.viewParticle as ExpParticle
+    let { content, props } = this.viewParticle as ExpParticle
+    content = this.alterPropView(content)!
+    props = this.alterPropViews(props)
 
     const dlNodeName = this.generateNodeName()
     this.addInitStatement(this.declareExpNode(dlNodeName, content.value))

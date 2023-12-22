@@ -31,7 +31,8 @@ export class PluginProvider {
     "EnvNode",
     "createTextNode",
     "updateText",
-    "ExpNode"
+    "ExpNode",
+    "PropView"
   ]).map((funcName, idx) => (
     devMode ? [funcName, funcName] : [funcName, `$${idx}$`]
   )))
