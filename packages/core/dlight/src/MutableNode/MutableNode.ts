@@ -20,6 +20,7 @@ export class MutableNode extends DLNode {
   geneNewNodesInEnv(newNodesFunc: () => AnyDLNode[]) {
     if (!this.savedEnvNodes) {
       const newNodes = newNodesFunc()
+      if (!newNodes) return
       this.initNewNodes(newNodes)
       return newNodes
     }
@@ -27,6 +28,7 @@ export class MutableNode extends DLNode {
     DLStore.replaceEnvNodes(this.savedEnvNodes)
     const newNodes = newNodesFunc()
     DLStore.replaceEnvNodes(currentEnvNodes)
+    if (!newNodes) return
     this.initNewNodes(newNodes)
     return newNodes
   }
