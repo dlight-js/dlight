@@ -42,12 +42,25 @@ export class ForNode<T, G> extends MutableNode {
     }
   }
 
+  updateArrayItem(prevArray: T[], currArray: T[]) {
+    for (let idx = 0; idx < currArray.length; idx++) {
+      const currentItem = currArray[idx]
+      const prevItem = prevArray[idx]
+      if (ForNode.deepEqual(prevItem, currentItem)) continue
+      this.nodess[idx][0]._$updateFunc?.(this.depNum, currentItem)
+    }
+  }
+
   updateWithOutKey(newArray: T[]) {
+    const prevArray = this.array
     const preLength = this.array.length
     const currLength = newArray.length
-
-    if (preLength === currLength) return
     this.array = [...newArray]
+
+    if (preLength === currLength) {
+      this.updateArrayItem(prevArray, this.array)
+      return
+    }
 
     const parentEl = (this as AnyDLNode)._$parentEl
     // ---- If the new array is longer, add new nodes directly
@@ -78,19 +91,14 @@ export class ForNode<T, G> extends MutableNode {
 
   updateWithKey(newArray: T[], newKeys: G[]) {
     const prevKeys = this.keys!
-    const prevArrays = this.array
+    const prevArray = this.array
 
     this.array = [...newArray]
     this.keys = newKeys
 
     if (ForNode.arrayEqual(prevKeys, this.keys)) {
       // ---- If the keys are the same, we only need to update the nodes
-      for (let idx = 0; idx < this.array.length; idx++) {
-        const currentItem = this.array[idx]
-        const prevItem = prevArrays[idx]
-        if (ForNode.deepEqual(prevItem, currentItem)) continue
-        this.nodess[idx][0]._$updateFunc?.(this.depNum, currentItem)
-      }
+      this.updateArrayItem(prevArray, this.array)
       return
     }
 
@@ -138,7 +146,7 @@ export class ForNode<T, G> extends MutableNode {
       if (this.keys.includes(prevKey)) {
         shuffleKeys.push(prevKey)
         newNodess.push(prevNodess[prevIdx])
-        arrToUpdate.push(prevArrays[prevIdx])
+        arrToUpdate.push(prevArray[prevIdx])
         continue
       }
       this.removeNodes(prevNodess[prevIdx])
