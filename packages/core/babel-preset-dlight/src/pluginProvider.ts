@@ -128,6 +128,9 @@ export class PluginProvider {
     }
     this.className = node.id?.name
 
+    // ---- Custom decorators
+    this.handleClassCustomDecorators()
+
     // ---- If devtools is enabled, add _$compName property to the class
     if (this.enableDevTools) {
       this.classBodyNode.body.unshift(
@@ -165,6 +168,37 @@ export class PluginProvider {
     }
   }
 
+  handleClassCustomDecorators() {
+    if (!this.classBodyNode) return
+    const decorators = this.classDeclarationNode?.decorators
+    if (!decorators) return
+    // ---- Forward Prop
+    const forwardPropDeco = this.findDecoratorByName(decorators, "ForwardProp")
+    /**
+     * _$forwardProp
+     * _$forwardPropMap = new Set()
+     */
+    if (forwardPropDeco) {
+      this.classBodyNode.body.unshift(
+        this.t.classProperty(
+          this.t.identifier("_$forwardProp")
+        ),
+        this.t.classProperty(
+          this.t.identifier("_$forwardPropMap"),
+          this.t.newExpression(
+            this.t.identifier("Set"),
+            []
+          )
+        ),
+        this.t.classProperty(
+          this.t.identifier("_$forwardProps"),
+          this.t.arrayExpression([])
+        )
+      )
+      this.classDeclarationNode!.decorators = this.removeDecorators(decorators, ["ForwardProp"])
+    }
+  }
+
   /**
    * @brief Transform the whole DLight class when exiting the class
    *  1. Alter all the state properties
@@ -177,7 +211,7 @@ export class PluginProvider {
 
     for (const [key, { node, deps, isStatic, isChildren, isPropOrEnv, isWatcher, isContent }] of propertyArr) {
       if (isChildren) {
-        this.resolveChildrenDecorator(node, isChildren)
+        this.resolveChildrenDecorator(node)
         continue
       }
       if (deps.length > 0) {
@@ -496,19 +530,7 @@ export class PluginProvider {
     const isProp = !!this.findDecoratorByName(decorators, "Prop")
     const isEnv = !!this.findDecoratorByName(decorators, "Env")
 
-    const childrenDeco = this.findDecoratorByName(node.decorators, "Children")
-    let isChildren: boolean | number = false
-    if (childrenDeco) {
-      if (
-        this.t.isIdentifier(childrenDeco) ||
-        !this.t.isNumericLiteral(childrenDeco.arguments[0])
-      ) {
-        isChildren = true
-      } else {
-        // ---- Avoid childrenNum = 0
-        isChildren = childrenDeco.arguments[0].value + 1
-      }
-    }
+    const isChildren = !!this.findDecoratorByName(node.decorators, "Children")
 
     const deps = !isChildren
       ? this.getDependencies(path)

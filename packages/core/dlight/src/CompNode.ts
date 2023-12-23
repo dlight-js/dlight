@@ -1,6 +1,7 @@
 import { DLNode, DLNodeType } from "./DLNode"
 import DLStore from "./DLStore"
 import { type EnvNode } from "./EnvNode"
+import { forwardHTMLProp } from "./HTMLNode"
 import { type AnyDLNode } from "./types"
 
 export class CompNode extends DLNode {
@@ -34,14 +35,52 @@ export class CompNode extends DLNode {
     ;(this as AnyDLNode).didMount?.()
 
     this._$initd = true
+
+    // ---- Remove _$forwardProps to save memory, because it's only used in _$addForwardProp phase
+    if ("_$forwardProp" in this) delete (this as AnyDLNode)._$forwardProps
+  }
+
+  _$initForwardProp(name: string, value: any) {
+    if (name in this) return
+    (this as AnyDLNode)._$forwardProps.push(name)
+    ;(this as AnyDLNode)[`$${name}`] = value
+    Object.defineProperty(this, name, {
+      get() {
+        return (this)[`$${name}`]
+      },
+      set(value) {
+        if (this[`$${name}`] === value) return
+        this[`$${name}`] = value
+        this._$setForwardProp(name, value)
+      }
+    })
+  }
+
+  _$setForwardPropMap(name: string, value: any) {
+    ;(this as AnyDLNode)._$forwardPropMap?.forEach((node: AnyDLNode) => {
+      if ("_$dlNodeType" in node) {
+        node[name] = value
+      }
+      if (node instanceof HTMLElement) {
+        forwardHTMLProp(node, name, value)
+      }
+    })
+  }
+
+  _$addForwardProp(node: AnyDLNode) {
+    (this as AnyDLNode)._$forwardPropMap.add(node)
+    const prevWillUnmount = node.willUnmount
+    node.willUnmount = () => {
+      (this as AnyDLNode)._$forwardPropMap.delete(node)
+      prevWillUnmount?.()
+    }
+    ;(this as AnyDLNode)._$forwardProps.forEach((name: string) => {
+      this._$setForwardPropMap(name, (this as AnyDLNode)[name])
+    })
   }
 
   _$initProp(name: string, value: any) {
-    if (!(`$p$${name}` in this)) return
-    ;(this as AnyDLNode)[name] = value
-  }
-
-  _$setProp(name: string, value: any) {
+    if ("_$forwardProp" in this) this._$initForwardProp(name, value)
     if (!(`$p$${name}` in this)) return
     ;(this as AnyDLNode)[name] = value
   }
@@ -82,7 +121,8 @@ export class CompNode extends DLNode {
       }
     })
     // ---- Run update function
-    ;(this as AnyDLNode)._$update?.((this as AnyDLNode)[`$$${key}`])
+    const depNum = (this as AnyDLNode)[`$d$${key}`]
+    if (depNum) (this as AnyDLNode)._$update?.(depNum)
   }
 }
 

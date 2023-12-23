@@ -66,3 +66,15 @@ export function insertNode(el: HTMLElement, node: any, position: number) {
   // ---- Insert nodes' elements
   DLNode.appendNodesWithIndex(node._$nodes, el, position)
 }
+
+export function forwardHTMLProp(el: HTMLElement, key: string, value: any) {
+  if (key === "style") return setStyle(el, value)
+  if (key === "dataset") return setDataset(el, value)
+  if (key === "element") return
+  if (key === "prop") return setHTMLProps(el, value)
+  if (key === "attr") return setHTMLAttrs(el, value)
+  if (key === "innerHTML") return setHTMLProp(el, "innerHTML", value)
+  if (key === "forwardProp") return
+  if (key.startsWith("on")) return setMemorizedEvent(el, key.slice(2).toLowerCase(), value)
+  setHTMLAttr(el, key, value)
+}

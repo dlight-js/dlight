@@ -7,7 +7,7 @@ export * from "./MutableNode/IfNode"
 export * from "./MutableNode/ExpNode"
 export * from "./EnvNode"
 export * from "./TextNode"
-
+export * from "./PropView"
 
 export function render(
   idOrEl: string | HTMLElement,

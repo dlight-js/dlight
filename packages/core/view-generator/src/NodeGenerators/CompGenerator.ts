@@ -1,8 +1,8 @@
 import { type types as t } from "@babel/core"
 import { type DependencyProp, type CompParticle, type ViewParticle } from "@dlightjs/reactivity-parser"
-import ElementGenerator from "../HelperGenerators/ElementGenerator"
+import ForwardPropGenerator from "../HelperGenerators/ForwardPropGenerator"
 
-export default class CompGenerator extends ElementGenerator {
+export default class CompGenerator extends ForwardPropGenerator {
   run() {
     const compParticle = this.viewParticle as CompParticle
 
@@ -34,6 +34,11 @@ export default class CompGenerator extends ElementGenerator {
           const statement = this.setElement(dlNodeName, value, true)
           this.addInitStatement(statement)
           this.addUpdateStatements(dependencyIndexArr, [statement])
+          return
+        }
+        if (key === "forwardProps") {
+          const statement = this.forwardProp(dlNodeName)
+          this.addInitStatement(statement)
           return
         }
         if (dependencyIndexArr && dependencyIndexArr.length > 0) {

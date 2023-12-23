@@ -1,9 +1,9 @@
 import { type types as t } from "@babel/core"
 import { DLError } from "../error"
 import { isInternalAttribute } from "../attr"
-import ElementGenerator from "./ElementGenerator"
+import ForwardPropGenerator from "./ForwardPropGenerator"
 
-export default class HTMLPropGenerator extends ElementGenerator {
+export default class HTMLPropGenerator extends ForwardPropGenerator {
   addHTMLProp(name: string, tag: string, key: string, value: t.Expression, dependencyIndexArr: number[] | undefined) {
     if (dependencyIndexArr && dependencyIndexArr.length > 0) {
       this.addUpdateStatements(dependencyIndexArr, [this.setDynamicHTMLProp(name, tag, key, value)])
@@ -181,23 +181,6 @@ export default class HTMLPropGenerator extends ElementGenerator {
     )
   }
 
-  /**
-   * this._$forwardHTMLProp(${dlNodeName})
-   */
-  private forwardHTMLProp(dlNodeName: string) {
-    return (
-      this.t.expressionStatement(
-        this.t.callExpression(
-          this.t.memberExpression(
-            this.t.thisExpression(),
-            this.t.identifier("_$forwardHTMLProp")
-          ),
-          [this.t.identifier(dlNodeName)]
-        )
-      )
-    )
-  }
-
   private readonly commonHTMLPropKeys = ["style", "dataset", "element", "prop", "attr", "forwardProp"]
   /**
    * For style/dataset/element/attr/prop
@@ -208,7 +191,7 @@ export default class HTMLPropGenerator extends ElementGenerator {
     if (attrName === "element") return this.setElement(dlNodeName, value)
     if (attrName === "prop") return this.setHTMLPropObject(dlNodeName, value)
     if (attrName === "attr") return this.setHTMLAttrObject(dlNodeName, value)
-    if (attrName === "forwardProp") return this.forwardHTMLProp(dlNodeName)
+    if (attrName === "forwardProp") return this.forwardProp(dlNodeName)
     return DLError.throw2()
   }
 
