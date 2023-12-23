@@ -5,7 +5,7 @@ import { type HTMLParticle } from "../types"
 
 describe("OtherParticle", () => {
   it("should parse a TextUnit as a TextParticle", () => {
-    const viewParticles = parse("\"Hello World\"")
+    const viewParticles = parse('"Hello World"')
     expect(viewParticles.length).toBe(1)
     expect(viewParticles[0].type).toBe("text")
   })
@@ -24,11 +24,14 @@ describe("OtherParticle", () => {
 
   it("should correctly parse ForUnit's item dependencies from array", () => {
     console.log("this")
-    const viewParticles = parse("for(const item of this.array[this.count]) { div(item) }")
+    const viewParticles = parse(
+      "for(const item of this.array[this.count]) { div(item) }"
+    )
     expect(viewParticles.length).toBe(1)
     expect(viewParticles[0].type).toBe("for")
 
-    const divParticle = (viewParticles[0] as ForParticle).children[0] as HTMLParticle
+    const divParticle = (viewParticles[0] as ForParticle)
+      .children[0] as HTMLParticle
     const divDependency = divParticle.props?.textContent?.dependencyIndexArr
     expect(divDependency).toContain(0)
     expect(divDependency).toContain(1)
@@ -36,12 +39,14 @@ describe("OtherParticle", () => {
   })
 
   it("should correctly parse ForUnit's deconstruct item dependencies from array", () => {
-    console.log("this")
-    const viewParticles = parse("for(const { idx, item } of this.array[this.count]) { div(item) }")
+    const viewParticles = parse(
+      "for(const { idx, item } of this.array[this.count]) { div(item) }"
+    )
     expect(viewParticles.length).toBe(1)
     expect(viewParticles[0].type).toBe("for")
 
-    const divParticle = (viewParticles[0] as ForParticle).children[0] as HTMLParticle
+    const divParticle = (viewParticles[0] as ForParticle)
+      .children[0] as HTMLParticle
     const divDependency = divParticle.props?.textContent?.dependencyIndexArr
     expect(divDependency).toContain(0)
     expect(divDependency).toContain(1)

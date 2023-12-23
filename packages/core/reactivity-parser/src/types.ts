@@ -107,4 +107,5 @@ export interface ReactivityParserConfig {
 
 export interface ReactivityParserOption {
   escapeNamings?: string[]
+  customHTMLProps?: string[]
 }

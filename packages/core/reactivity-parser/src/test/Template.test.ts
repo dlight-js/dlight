@@ -22,9 +22,9 @@ describe("TemplateUnit", () => {
   })
 
   it("should correctly parse a nested HTMLUnit's structure into a template string with props", () => {
-    const viewParticles = parse("div().class(\"ok\"); {div()}")
+    const viewParticles = parse('div().class("ok"); {div()}')
     const template = (viewParticles[0] as any).template
-    expect(template).toBe("<div class=\"ok\"><div></div></div>")
+    expect(template).toBe('<div class="ok"><div></div></div>')
   })
 
   it("should correctly parse a nested HTMLUnit's structure into a template string with props as true", () => {
@@ -42,11 +42,11 @@ describe("TemplateUnit", () => {
   it("should correctly parse a nested HTMLUnit's structure into a template string with different style props", () => {
     const viewParticles = parse("div().rowSpan(1); {div()}")
     const template = (viewParticles[0] as any).template
-    expect(template).toBe("<div rowspan=\"1\"><div></div></div>")
+    expect(template).toBe('<div rowspan="1"><div></div></div>')
   })
 
   it("should correctly parse the path of TemplateParticle's dynamic props in root element", () => {
-    const viewParticles = parse("div().class(this.flag); {div(\"ok\")}")
+    const viewParticles = parse('div().class(this.flag); {div("ok")}')
     const template = (viewParticles[0] as TemplateParticle).template
     expect(template).toBe("<div><div>ok</div></div>")
 
@@ -71,7 +71,7 @@ describe("TemplateUnit", () => {
   })
 
   it("should correctly parse the path of TemplateParticle's dynamic props with mutable particles ahead", () => {
-    const viewParticles = parse("div(); { Comp(); div().class(this.flag)}")
+    const viewParticles = parse("div(); { Comp(); div().class(this.flag) }")
     const template = (viewParticles[0] as TemplateParticle).template
     expect(template).toBe("<div><div></div></div>")
 
@@ -85,7 +85,8 @@ describe("TemplateUnit", () => {
 
   it("should correctly parse the path of TemplateParticle's mutableParticles", () => {
     const viewParticles = parse("div(); {div(); Comp(); div();}")
-    const mutableParticles = (viewParticles[0] as TemplateParticle).mutableParticles
+    const mutableParticles = (viewParticles[0] as TemplateParticle)
+      .mutableParticles
     expect(mutableParticles).toHaveLength(1)
 
     const mutableParticle = mutableParticles[0]

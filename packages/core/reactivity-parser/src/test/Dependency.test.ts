@@ -49,7 +49,9 @@ describe("Dependency", () => {
   })
 
   it("should parse the dependencies in manual function's second parameter", () => {
-    const viewParticles = parse("Comp(manual(() => {let a = this.count}, [this.flag]))")
+    const viewParticles = parse(
+      "Comp(manual(() => {let a = this.count}, [this.flag]))"
+    )
     const content = (viewParticles[0] as CompParticle).content
     expect(content?.dependencyIndexArr).toHaveLength(1)
   })
@@ -70,8 +72,12 @@ describe("Dependency", () => {
     reactivityConfig.dependencyParseType = "identifier"
     const viewParticles = parse("Comp(flag + count)")
     const content = (viewParticles[0] as CompParticle).content
-    expect(content?.dependencyIndexArr).toContain(availableProperties.indexOf("flag"))
-    expect(content?.dependencyIndexArr).toContain(availableProperties.indexOf("count"))
+    expect(content?.dependencyIndexArr).toContain(
+      availableProperties.indexOf("flag")
+    )
+    expect(content?.dependencyIndexArr).toContain(
+      availableProperties.indexOf("count")
+    )
     reactivityConfig.dependencyParseType = "property"
   })
 })

@@ -1,3 +1,6 @@
+/**
+ * @brief HTML attribute name map, from CamelCase to kebab-case
+ */
 export const alteredAttrMap = {
   acceptCharset: "accept-charset",
   colSpan: "colspan",
@@ -17,9 +20,14 @@ export const alteredAttrMap = {
   playsInline: "playsinline",
   referrerPolicy: "referrerpolicy",
   rowSpan: "rowspan",
-  tabIndex: "tabindex"
+  tabIndex: "tabindex",
 }
 
+/**
+ * @brief Recover HTML attribute name from CamelCase to kebab-case
+ * @param name
+ * @returns HTML attribute name
+ */
 export function recoverHTMLAttrName(name: string): string {
   return alteredAttrMap[name as keyof typeof alteredAttrMap] || name
 }
