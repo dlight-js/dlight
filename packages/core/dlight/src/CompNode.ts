@@ -71,7 +71,7 @@ export class CompNode extends DLNode {
    * @param key
    * @param value
    */
-  _$initForwardProps(key: string, value: any): void {
+  private _$initForwardProps(key: string, value: any): void {
     // ---- If the prop is already defined, don't forward it
     if (key in this) return
     ;(this as AnyDLNode)._$forwardPropsId.push(key)
@@ -133,7 +133,7 @@ export class CompNode extends DLNode {
    * @param value
    * @param envNode
    */
-  _$initEnv(key: string, value: any, envNode: EnvNode): void {
+  private _$initEnv(key: string, value: any, envNode: EnvNode): void {
     if (!(`$e$${key}` in this)) return
     ;(this as AnyDLNode)[key] = value
     ;(this as AnyDLNode)[`$en$${key}`] = envNode

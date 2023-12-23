@@ -47,7 +47,7 @@ export class DLNode {
    * @param nodes
    * @returns HTMLElement[]
    */
-  static toEls(nodes: DLNode[]): HTMLElement[] {
+  private static toEls(nodes: DLNode[]): HTMLElement[] {
     const els: HTMLElement[] = []
     this.loopShallowEls(nodes, el => {
       els.push(el)

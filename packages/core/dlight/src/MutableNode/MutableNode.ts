@@ -21,7 +21,7 @@ export class MutableNode extends DLNode {
    * @brief Initialize the new nodes, add parentEl to all nodes
    * @param nodes
    */
-  initNewNodes(nodes: AnyDLNode[]): void {
+  private initNewNodes(nodes: AnyDLNode[]): void {
     // ---- Add parentEl to all nodes
     DLNode.addParentEl(nodes, (this as AnyDLNode)._$parentEl)
   }

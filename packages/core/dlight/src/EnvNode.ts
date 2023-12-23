@@ -33,7 +33,7 @@ class EnvStoreClass {
   /**
    * @brief Merge all the envs in currentEnvNodes, inner envs override outer envs
    */
-  mergeEnvs(): void {
+  private mergeEnvs(): void {
     this.envs = {}
     this.currentEnvNodes.forEach(envNode => {
       Object.entries(envNode.envs).forEach(([key, value]) => {
