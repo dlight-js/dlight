@@ -73,6 +73,7 @@ export class PluginProvider {
   private classRootPath?: NodePath<t.ClassDeclaration | t.ClassExpression>
   private classDeclarationNode?: t.ClassDeclaration | t.ClassExpression
   private classBodyNode?: t.ClassBody
+  private constructorNode?: t.ClassMethod
   private propertiesContainer: PropertyContainer = {}
   private dependencyMap: Record<string, string[]> = {}
   private enter = true
@@ -92,6 +93,7 @@ export class PluginProvider {
     this.classRootPath = undefined
     this.classDeclarationNode = undefined
     this.classBodyNode = undefined
+    this.constructorNode = undefined
     this.propertiesContainer = {}
     this.dependencyMap = {}
     this.enter = true
@@ -140,6 +142,9 @@ export class PluginProvider {
         )
       )
     }
+
+    this.addConstructor()
+
     // ---- Add dlight import and alter import name,
     //      Only do this when enter the first dlight class
     if (!this.didAlterImports) {
@@ -212,24 +217,24 @@ export class PluginProvider {
 
     for (const [key, { node, deps, isStatic, isChildren, isPropOrEnv, isWatcher, isContent }] of propertyArr) {
       if (isChildren) {
-        this.resolveChildrenDecorator(node)
+        this.resolveChildrenDecorator(node as t.ClassProperty)
         continue
       }
       if (deps.length > 0) {
         usedProperties.push(...deps)
-        if (isWatcher) this.resolveWatcherDecorator(node)
-        else this.handleDerivedProperty(node)
+        if (isWatcher) this.resolveWatcherDecorator(node as t.ClassMethod)
+        else this.handleDerivedProperty(node as t.ClassProperty)
       }
       if (isPropOrEnv) {
-        this.resolvePropDecorator(node, isPropOrEnv)
+        this.resolvePropDecorator(node as t.ClassProperty, isPropOrEnv)
       }
       if (isContent) {
-        this.resolvePropDecorator(node, "Prop")
-        this.resolveContentDecorator(node)
+        this.resolvePropDecorator(node as t.ClassProperty, "Prop")
+        this.resolveContentDecorator(node as t.ClassProperty)
       }
       if (isStatic) continue
       if (usedProperties.includes(key)) {
-        this.resolveStateDecorator(node, this.availableProperties.indexOf(key), depReversedMap[key])
+        this.resolveStateDecorator(node as t.ClassProperty, this.availableProperties.indexOf(key), depReversedMap[key])
       }
     }
   }
@@ -431,49 +436,10 @@ export class PluginProvider {
     if (!this.enter) return
     if (!this.enterClassNode) return
     this.transformDLightClass()
-    this.addConstructor()
+    this.addInit()
     this.exitClass(path)
     this.clearNode()
     this.enterClassNode = false
-  }
-
-  /**
-   * constructor(props, content, children) {
-   *  super()
-   *  this._$init()
-   * }
-   *
-   */
-  addConstructor() {
-    if (!this.classBodyNode) return
-    let constructor = this.classBodyNode.body.find(n => this.t.isClassMethod(n, { kind: "constructor" })) as t.ClassMethod
-    if (constructor) throw new Error("DLight class should not have constructor")
-
-    constructor = (
-      this.t.classMethod("constructor", this.t.identifier("constructor"), [
-        this.t.identifier("props"),
-        this.t.identifier("content"),
-        this.t.identifier("children")
-      ], this.t.blockStatement([]))
-    )
-    this.classBodyNode.body.unshift(constructor)
-    constructor.body.body.unshift(
-      this.t.expressionStatement(
-        this.t.callExpression(
-          this.t.super(),
-          []
-        )
-      ),
-      this.t.expressionStatement(
-        this.t.callExpression(
-          this.t.memberExpression(
-            this.t.thisExpression(),
-            this.t.identifier("_$init")
-          ),
-          [this.t.identifier("props"), this.t.identifier("content"), this.t.identifier("children")]
-        )
-      )
-    )
   }
 
   private visitClassMethod(_path: NodePath<t.ClassMethod>): void {}
@@ -485,7 +451,7 @@ export class PluginProvider {
 
     const isSubView = this.findDecoratorByName(path.node.decorators, "View")
     if (isSubView) return
-    const node = this.methodToBindFunction(path.node)
+    const node = path.node
 
     // ---- Handle watcher
     // ---- Get watcher decorator or watcher function decorator
@@ -496,7 +462,11 @@ export class PluginProvider {
     //       @Watch(["count", "flag"])
     //       watcherFunc() { myFunc() }
     const watchDeco = this.findDecoratorByName(node.decorators, "Watch")
-    if (!watchDeco) return
+    if (!watchDeco) {
+      if (this.t.isIdentifier(node.key, { name: "constructor" })) return
+      this.autoBindMethods(node)
+      return
+    }
     // ---- Get dependencies from watcher decorator or watcher function decorator
     let deps: string[] = []
     if (this.t.isIdentifier(watchDeco)) {
@@ -560,7 +530,7 @@ export class PluginProvider {
    * $wW${key}
    * @param node
    */
-  resolveWatcherDecorator(node: t.ClassProperty): void {
+  resolveWatcherDecorator(node: t.ClassMethod): void {
     if (!this.t.isIdentifier(node.key)) return
     const key = node.key.name
     const propertyIdx = this.classBodyNode!.body.indexOf(node)
@@ -773,34 +743,70 @@ export class PluginProvider {
   }
 
   /**
-   * @brief Turn method into auto bind function
-   *  e.g. method() { console.log(this.count) }
-   *    => method = function()  { console.log(this.count) }.bind(this)
-   * @param methodName
+   * constructor(props, content, children) {
+   *  super()
+   * }
    */
-  private methodToBindFunction(node: t.ClassMethod): t.ClassProperty {
-    if (this.t.isIdentifier(node.key, { name: "constructor" })) return node as any
-    const methodIdx = this.classBodyNode!.body.indexOf(node)
-    const args = node.params
-      .filter(p => !this.t.isTSParameterProperty(p))
-    const arrowFuncNode = this.t.classProperty(
-      this.t.identifier((node.key as any).name),
-      this.t.callExpression(
-        this.t.memberExpression(
-          this.t.functionExpression(
-            null,
-            args as Array<t.Identifier | t.Pattern | t.RestElement>,
-            this.t.blockStatement(node.body.body)
-          ),
-          this.t.identifier("bind")
-        ), [
-          this.t.thisExpression()
-        ]
-      ), null, node.decorators
-    )
-    this.classBodyNode!.body.splice(methodIdx, 1, arrowFuncNode)
+  addConstructor() {
+    if (!this.classBodyNode) return
+    let constructor = this.classBodyNode.body.find(n => this.t.isClassMethod(n, { kind: "constructor" })) as t.ClassMethod
+    if (constructor) throw new Error("DLight class should not have constructor")
 
-    return arrowFuncNode
+    constructor = (
+      this.t.classMethod("constructor", this.t.identifier("constructor"), [
+        this.t.identifier("props"),
+        this.t.identifier("content"),
+        this.t.identifier("children")
+      ], this.t.blockStatement([
+        this.t.expressionStatement(
+          this.t.callExpression(
+            this.t.super(),
+            []
+          )
+        )
+      ]))
+    )
+    this.constructorNode = constructor
+    this.classBodyNode.body.unshift(constructor)
+  }
+
+  addInit() {
+    this.constructorNode!.body.body.push(
+      this.t.expressionStatement(
+        this.t.callExpression(
+          this.t.memberExpression(
+            this.t.thisExpression(),
+            this.t.identifier("_$init")
+          ),
+          [this.t.identifier("props"), this.t.identifier("content"), this.t.identifier("children")]
+        )
+      )
+    )
+  }
+
+  autoBindMethods(node: t.ClassMethod) {
+    this.constructorNode!.body.body.push(
+      this.t.expressionStatement(
+        this.t.assignmentExpression(
+          "=",
+          this.t.memberExpression(
+            this.t.thisExpression(),
+            node.key
+          ),
+          this.t.callExpression(
+            this.t.memberExpression(
+              this.t.memberExpression(
+                this.t.thisExpression(),
+                node.key
+              ),
+              this.t.identifier("bind")
+            ), [
+              this.t.thisExpression()
+            ]
+          )
+        )
+      )
+    )
   }
 
   /**

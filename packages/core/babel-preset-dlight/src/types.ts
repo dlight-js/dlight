@@ -29,7 +29,7 @@ export interface DLightOption {
 }
 
 export type PropertyContainer = Record<string, {
-  node: t.ClassProperty
+  node: t.ClassProperty | t.ClassMethod
   deps: string[]
   isStatic?: boolean
   isContent?: boolean
