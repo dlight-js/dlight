@@ -31,7 +31,7 @@ export class CompNode extends DLNode {
 
     // ---- init
     ;(this as AnyDLNode).willMount?.()
-    ;(this as AnyDLNode)._$nodes = (this as AnyDLNode).Body?.() ?? []
+    ;(this as AnyDLNode)._$nodes = (this as AnyDLNode).View?.() ?? []
     ;(this as AnyDLNode).didMount?.()
 
     this._$initd = true
@@ -46,7 +46,7 @@ export class CompNode extends DLNode {
     ;(this as AnyDLNode)[`$${name}`] = value
     Object.defineProperty(this, name, {
       get() {
-        return (this)[`$${name}`]
+        return this[`$${name}`]
       },
       set(value) {
         if (this[`$${name}`] === value) return
@@ -121,7 +121,7 @@ export class CompNode extends DLNode {
       }
     })
     // ---- Run update function
-    const depNum = (this as AnyDLNode)[`$d$${key}`]
+    const depNum = (this as AnyDLNode)[`$$${key}`]
     if (depNum) (this as AnyDLNode)._$update?.(depNum)
   }
 }

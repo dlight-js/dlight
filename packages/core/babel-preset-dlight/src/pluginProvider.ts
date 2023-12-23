@@ -202,7 +202,7 @@ export class PluginProvider {
   /**
    * @brief Transform the whole DLight class when exiting the class
    *  1. Alter all the state properties
-   *  2. Transform Body and SubViews with DLight syntax
+   *  2. Transform MainView and SubViews with DLight syntax
    */
   transformDLightClass(): void {
     const usedProperties = this.handleView()
@@ -238,14 +238,14 @@ export class PluginProvider {
   handleView(): string[] {
     if (!this.classBodyNode) return []
     const usedPropertySet = new Set<string>()
-    let body: undefined | t.ClassMethod
+    let mainView: undefined | t.ClassMethod
     const subViewNodes: t.ClassMethod[] = []
     for (let viewNode of this.classBodyNode.body) {
       if (!this.t.isClassProperty(viewNode) && !this.t.isClassMethod(viewNode)) continue
       if (!this.t.isIdentifier(viewNode.key)) continue
       const isSubView = this.findDecoratorByName(viewNode.decorators, "View")
-      const isBody = viewNode.key.name === "Body"
-      if (!isSubView && !isBody) continue
+      const isMainView = viewNode.key.name === "View"
+      if (!isSubView && !isMainView) continue
 
       if (this.t.isClassProperty(viewNode)) {
         // ---- Handle TSAsExpression, e.g. MyView = (() => {}) as Type1 as Type2
@@ -263,7 +263,7 @@ export class PluginProvider {
         viewNode.decorators = null
         subViewNodes.push(viewNode)
       } else {
-        body = viewNode
+        mainView = viewNode
       }
     }
 
@@ -289,9 +289,9 @@ export class PluginProvider {
       }).filter(([_, props]) => props)
     )
     let templateIdx = -1
-    if (body) {
+    if (mainView) {
       let usedProperties;
-      [usedProperties, templateIdx] = this.alterView(body, subViewNames, subViewPropSubDepMap)
+      [usedProperties, templateIdx] = this.alterMainView(mainView, subViewNames, subViewPropSubDepMap)
       usedProperties.forEach(usedPropertySet.add.bind(usedPropertySet))
     }
 
@@ -316,7 +316,7 @@ export class PluginProvider {
    * @param isSubView
    * @returns Used properties
    */
-  alterView(viewNode: t.ClassMethod, subViewNames: string[], subViewPropSubDepMap: SubViewPropSubDepMap): [Set<string>, number] {
+  alterMainView(viewNode: t.ClassMethod, subViewNames: string[], subViewPropSubDepMap: SubViewPropSubDepMap): [Set<string>, number] {
     const viewUnits = parseView(viewNode.body, {
       babelApi: this.babelApi,
       subviewNames: subViewNames,
@@ -477,7 +477,7 @@ export class PluginProvider {
     if (!this.enterClassNode) return
     if (!this.t.isIdentifier(path.node.key)) return
     const key = path.node.key.name
-    if (key === "Body") return
+    if (key === "View") return
 
     const isSubView = this.findDecoratorByName(path.node.decorators, "View")
     if (isSubView) return
@@ -523,7 +523,7 @@ export class PluginProvider {
     const node = path.node
     if (!this.t.isIdentifier(node.key)) return
     const key = node.key.name
-    if (key === "Body") return
+    if (key === "View") return
     const decorators = node.decorators
     const isSubView = this.findDecoratorByName(decorators, "View")
     if (isSubView) return

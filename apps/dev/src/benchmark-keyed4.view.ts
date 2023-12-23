@@ -42,6 +42,7 @@ class Main {
   }
 
   selectRow(idx) {
+    console.log(idx)
     this.selectIdx = idx
   }
 
@@ -146,7 +147,7 @@ class Main {
     }
   }
 
-  Body() {
+  View() {
     div().class("container"); {
       this.Jumbotron()
       this.Table()
