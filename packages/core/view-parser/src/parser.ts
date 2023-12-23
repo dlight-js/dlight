@@ -19,7 +19,6 @@ export class ViewParser {
 
   private readonly t: typeof t
   private readonly traverse: typeof tr
-  private readonly statements: Array<t.Statement | t.Directive>
   private readonly subviewNames: string[]
   private readonly htmlTags: string[]
 
@@ -32,11 +31,9 @@ export class ViewParser {
     * @param options
    */
   constructor(
-    statement: t.BlockStatement,
     config: ViewParserConfig,
     options?: ViewParserOption
   ) {
-    this.statements = [...statement.directives, ...statement.body]
     this.config = config
     this.options = options
     this.t = config.babelApi.types
@@ -49,8 +46,9 @@ export class ViewParser {
     options?.compWrapper && (this.compWrapper = options.compWrapper)
   }
 
-  parse() {
-    this.statements.forEach(this.parseStatement.bind(this))
+  parse(statement: t.BlockStatement) {
+    const statements = [...statement.directives, ...statement.body]
+    statements.forEach(this.parseStatement.bind(this))
     // ---- If the view is an empty env, throw an error
     if (
       this.viewUnits.length === 1 &&
@@ -103,7 +101,6 @@ export class ViewParser {
    *  StringLiteral/TemplateLiteral -> Text
    *  TaggedTemplateExpression -> Tag + Text / Exp
    * @param expression
-   * @returns
    */
   private parseExpression(expression: t.Expression): void {
     if (this.t.isCallExpression(expression)) return this.parseTag(expression)
@@ -121,7 +118,7 @@ export class ViewParser {
   /**
    * @brief Parse if statement conditions
    * @param node
-   * @returns
+   * @returns IfBranch[]
    */
   private parseIfBranches(node: t.IfStatement): IfBranch[] {
     const conditions: IfBranch[] = []
@@ -149,7 +146,6 @@ export class ViewParser {
   /**
    * @brief Parse if statement with else if and else
    * @param node
-   * @returns
    */
   private parseIf(node: t.IfStatement): void {
     this.viewUnits.push({
@@ -446,7 +442,7 @@ export class ViewParser {
    * @brief Test if the node is a pure member expression without call expression
    * @param node
    */
-  private isPureMemberExpression(node: t.Expression) {
+  private isPureMemberExpression(node: t.Expression): boolean {
     let isPure = true
     this.traverse(this.valueWrapper(node), {
       CallExpression: () => {
@@ -457,9 +453,9 @@ export class ViewParser {
   }
 
   /**
-   * @brief Alter the tag type
+   * @brief Alter the tag type by checking the tag name
    * @param viewUnit
-   * @returns
+   * @returns ["html" | "comp", t.Expression]
    */
   private alterTagType(tag: t.Expression): ["html" | "comp", t.Expression] {
     if (this.t.isCallExpression(tag) && this.t.isIdentifier(tag.callee)) {
@@ -478,6 +474,12 @@ export class ViewParser {
     return ["comp", tag]
   }
 
+  /**
+   * @brief Test if the expression is invalid
+   *  1. For: only accept ForOfStatement
+   * @param node
+   * @returns is this expression invalid
+   */
   private isInvalidExpression(node: t.Statement | t.Directive): boolean {
     const isInvalidForStatement = this.t.isForStatement(node) && !this.t.isForOfStatement(node)
     if (isInvalidForStatement) {
@@ -502,7 +504,7 @@ export class ViewParser {
    * @returns ViewUnit[]
    */
   private parseView(statement: t.BlockStatement): ViewUnit[] {
-    return new ViewParser(statement, this.config, this.options).parse()
+    return new ViewParser(this.config, this.options).parse(statement)
   }
 
   /**

@@ -1,7 +1,7 @@
 {
   "name": "@dlightjs/view-parser",
-  "version": "0.0.1",
-  "description": "DLight transpiler for babel",
+  "version": "1.0.0-alpha.0",
+  "description": "DLight DSL syntax parser",
   "author": {
     "name": "IanDx",
     "email": "iandxssxx@gmail.com"
@@ -19,11 +19,9 @@
   "typings": "dist/index.d.ts",
   "scripts": {
     "build": "tsup --sourcemap",
-    "test": "vitest",
-    "test-ui": "vitest --ui"
+    "test": "vitest --ui"
   },
   "devDependencies": {
-    "@babel/plugin-syntax-do-expressions": "^7.23.3",
     "@babel/core": "^7.20.12",
     "@types/babel__core": "^7.20.5",
     "@vitest/ui": "^0.34.5",
@@ -33,5 +31,12 @@
   },
   "dependencies": {
     "@dlightjs/error-handler": "workspace:*"
+  },
+  "tsup": {
+    "entry": ["src/index.ts"],
+    "format": ["cjs", "esm"],
+    "clean": true,
+    "dts": true,
+    "minify": true
   }
 }

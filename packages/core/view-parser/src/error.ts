@@ -13,7 +13,6 @@ export const DLError = createErrorHandler(
     4: "If you want to use a key in a for loop, make the first statement as a label statement like `key: item`, skipping this key for now",
     5: "ForUnit must have at least one child, skipping this statement"
   }, {
-    1: "EnvUnit must have at least one prop, skipping this statement and flattening its children",
-    999: "shit"
+    1: "EnvUnit must have at least one prop, skipping this statement and flattening its children"
   }
 )

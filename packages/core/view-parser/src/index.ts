@@ -4,17 +4,17 @@ import { type types as t } from "@babel/core"
 
 /**
  * @brief Generate view units from a babel ast
- * @param view
+ * @param statement
  * @param config
  * @param options
- * @returns
+ * @returns ViewUnit[]
  */
 export function parseView(
   statement: t.BlockStatement,
   config: ViewParserConfig,
   options?: ViewParserOption
 ): ViewUnit[] {
-  return new ViewParser(statement, config, options).parse()
+  return new ViewParser(config, options).parse(statement)
 }
 
 export type * from "./types"
