@@ -16,7 +16,7 @@ export class CompNode extends DLNode {
     if (content) this._$setContent(content)
     if (props) {
       Object.entries(props).forEach(([key, value]) => {
-        this._$initProp(key, value)
+        this._$setProp(key, value)
       })
     }
     if (children) {
@@ -79,7 +79,7 @@ export class CompNode extends DLNode {
     })
   }
 
-  _$initProp(name: string, value: any) {
+  _$setProp(name: string, value: any) {
     if ("_$forwardProp" in this) this._$initForwardProp(name, value)
     if (!(`$p$${name}` in this)) return
     ;(this as AnyDLNode)[name] = value
