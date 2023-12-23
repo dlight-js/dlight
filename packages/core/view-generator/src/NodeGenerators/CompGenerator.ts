@@ -43,11 +43,7 @@ export default class CompGenerator extends ForwardPropGenerator {
           this.addUpdateStatements(dependencyIndexArr, statement)
           return
         }
-        if (key === "forwardProps") {
-          const statement = this.forwardProps(dlNodeName)
-          this.addInitStatement(statement)
-          return
-        }
+        if (key === "forwardProps") return
         if (dependencyIndexArr && dependencyIndexArr.length > 0) {
           this.addUpdateStatements(
             dependencyIndexArr,
@@ -79,7 +75,7 @@ export default class CompGenerator extends ForwardPropGenerator {
 
   /**
    * @View
-   * const ${dlNodeName} = new ${tag}(${props}, ${content}, ${children})
+   * const ${dlNodeName} = new ${tag}(${props}, ${content}, ${children}, ${this})
    */
   private declareCompNode(
     dlNodeName: string,
@@ -88,7 +84,9 @@ export default class CompGenerator extends ForwardPropGenerator {
     props?: Record<string, DependencyProp>,
     children?: ViewParticle[]
   ): t.VariableDeclaration {
+    let willForwardProps = false
     if (props) {
+      if ("forwardProps" in props) willForwardProps = true
       props = Object.fromEntries(
         Object.entries(props).filter(
           ([key]) => !["do", "element", "forwardProps"].includes(key)
@@ -104,6 +102,7 @@ export default class CompGenerator extends ForwardPropGenerator {
           children && children.length > 0
             ? this.t.identifier(this.declarePropView(children))
             : this.t.nullLiteral(),
+          willForwardProps ? this.t.identifier("this") : this.t.nullLiteral(),
         ])
       ),
     ])
