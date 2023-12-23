@@ -743,7 +743,7 @@ export class PluginProvider {
   }
 
   /**
-   * constructor(props, content, children) {
+   * constructor(props, content, children, forwardPropsScope) {
    *  super()
    * }
    */
@@ -756,7 +756,8 @@ export class PluginProvider {
       this.t.classMethod("constructor", this.t.identifier("constructor"), [
         this.t.identifier("props"),
         this.t.identifier("content"),
-        this.t.identifier("children")
+        this.t.identifier("children"),
+        this.t.identifier("forwardPropsScope")
       ], this.t.blockStatement([
         this.t.expressionStatement(
           this.t.callExpression(
@@ -778,7 +779,7 @@ export class PluginProvider {
             this.t.thisExpression(),
             this.t.identifier("_$init")
           ),
-          [this.t.identifier("props"), this.t.identifier("content"), this.t.identifier("children")]
+          [this.t.identifier("props"), this.t.identifier("content"), this.t.identifier("children"), this.t.identifier("forwardPropsScope")]
         )
       )
     )

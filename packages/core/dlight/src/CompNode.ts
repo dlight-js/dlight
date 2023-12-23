@@ -9,10 +9,14 @@ export class CompNode extends DLNode {
     super(DLNodeType.Comp)
   }
 
-  _$initd = false
-
-  _$init(props?: Record<string, any>, content?: any, children?: AnyDLNode[]) {
+  _$init(
+    props?: Record<string, any>,
+    content?: any,
+    children?: AnyDLNode[],
+    forwardPropsScope?: CompNode
+  ) {
     // ---- Add props
+    if (forwardPropsScope) forwardPropsScope._$addForwardProps(this)
     if (content) this._$setContent(content)
     if (props) {
       Object.entries(props).forEach(([key, value]) => {
@@ -20,7 +24,7 @@ export class CompNode extends DLNode {
       })
     }
     if (children) {
-      (this as AnyDLNode)._$children = children
+      ;(this as AnyDLNode)._$children = children
     }
 
     // ---- Add envs
@@ -34,15 +38,13 @@ export class CompNode extends DLNode {
     ;(this as AnyDLNode)._$nodes = (this as AnyDLNode).View?.() ?? []
     ;(this as AnyDLNode).didMount?.()
 
-    this._$initd = true
-
     // ---- Remove _$forwardProps to save memory, because it's only used in _$addForwardProps phase
     if ("_$forwardPropsId" in this) delete (this as AnyDLNode)._$forwardPropsId
   }
 
   _$initForwardProps(name: string, value: any) {
     if (name in this) return
-    (this as AnyDLNode)._$forwardPropsId.push(name)
+    ;(this as AnyDLNode)._$forwardPropsId.push(name)
     ;(this as AnyDLNode)[`$${name}`] = value
     Object.defineProperty(this, name, {
       get() {
@@ -52,7 +54,7 @@ export class CompNode extends DLNode {
         if (this[`$${name}`] === value) return
         this[`$${name}`] = value
         this._$setForwardProp(name, value)
-      }
+      },
     })
   }
 
@@ -68,10 +70,10 @@ export class CompNode extends DLNode {
   }
 
   _$addForwardProps(node: AnyDLNode) {
-    (this as AnyDLNode)._$forwardPropsMap.add(node)
+    ;(this as AnyDLNode)._$forwardPropsMap.add(node)
     const prevWillUnmount = node.willUnmount
     node.willUnmount = () => {
-      (this as AnyDLNode)._$forwardPropsMap.delete(node)
+      ;(this as AnyDLNode)._$forwardPropsMap.delete(node)
       prevWillUnmount?.()
     }
     ;(this as AnyDLNode)._$forwardPropsId.forEach((name: string) => {
@@ -113,11 +115,11 @@ export class CompNode extends DLNode {
     ;(this as AnyDLNode)[`$s$${key}`]?.forEach((k: string) => {
       // ---- Not time consuming at all
       if (`$w$${k}` in (this as AnyDLNode)) {
-        if (!this._$initd) return
-        // ---- Watcher
-        (this as AnyDLNode)[k]()
+        // ---- Don't call the watcher before the node is mounted
+        if (!(this as AnyDLNode)._$nodes) return
+        ;(this as AnyDLNode)[k]()
       } else {
-        (this as AnyDLNode)[`$${k}`] = (this as AnyDLNode)[`$f$${k}`]
+        ;(this as AnyDLNode)[`$${k}`] = (this as AnyDLNode)[`$f$${k}`]
       }
     })
     // ---- Run update function
