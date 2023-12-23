@@ -1,9 +1,18 @@
 import type babel from "@babel/core"
 import { type types as t, type NodePath } from "@babel/core"
-import { type PropertyContainer, type HTMLTags, type SubViewPropSubDepMap } from "./types"
+import {
+  type PropertyContainer,
+  type HTMLTags,
+  type SubViewPropSubDepMap,
+} from "./types"
 import { minimatch } from "minimatch"
 import { parseView } from "@dlightjs/view-parser"
-import { isAssignmentExpressionLeft, isAssignmentExpressionRight, isMemberInEscapeFunction, isMemberInManualFunction } from "./utils/depChecker"
+import {
+  isAssignmentExpressionLeft,
+  isAssignmentExpressionRight,
+  isMemberInEscapeFunction,
+  isMemberInManualFunction,
+} from "./utils/depChecker"
 import { uid } from "./utils/utils"
 import { parseReactivity } from "@dlightjs/reactivity-parser"
 import { generateSubView, generateView } from "@dlightjs/view-generator"
@@ -12,30 +21,233 @@ const devMode = process.env.NODE_ENV === "development"
 
 export class PluginProvider {
   // ---- Const Level
-  static defaultHTMLTags = ["a", "abbr", "address", "area", "article", "aside", "audio", "b", "base", "bdi", "bdo", "blockquote", "body", "br", "button", "canvas", "caption", "cite", "code", "col", "colgroup", "data", "datalist", "dd", "del", "details", "dfn", "dialog", "div", "dl", "dt", "em", "embed", "fieldset", "figcaption", "figure", "footer", "form", "h1", "h2", "h3", "h4", "h5", "h6", "head", "header", "hgroup", "hr", "html", "i", "iframe", "img", "input", "ins", "kbd", "label", "legend", "li", "link", "main", "map", "mark", "menu", "meta", "meter", "nav", "noscript", "object", "ol", "optgroup", "option", "output", "p", "picture", "pre", "progress", "q", "rp", "rt", "ruby", "s", "samp", "script", "section", "select", "slot", "small", "source", "span", "strong", "style", "sub", "summary", "sup", "table", "tbody", "td", "template", "textarea", "tfoot", "th", "thead", "time", "title", "tr", "track", "u", "ul", "var", "video", "wbr", "acronym", "applet", "basefont", "bgsound", "big", "blink", "center", "dir", "font", "frame", "frameset", "isindex", "keygen", "listing", "marquee", "menuitem", "multicol", "nextid", "nobr", "noembed", "noframes", "param", "plaintext", "rb", "rtc", "spacer", "strike", "tt", "xmp", "animate", "animateMotion", "animateTransform", "circle", "clipPath", "defs", "desc", "ellipse", "feBlend", "feColorMatrix", "feComponentTransfer", "feComposite", "feConvolveMatrix", "feDiffuseLighting", "feDisplacementMap", "feDistantLight", "feDropShadow", "feFlood", "feFuncA", "feFuncB", "feFuncG", "feFuncR", "feGaussianBlur", "feImage", "feMerge", "feMergeNode", "feMorphology", "feOffset", "fePointLight", "feSpecularLighting", "feSpotLight", "feTile", "feTurbulence", "filter", "foreignObject", "g", "image", "line", "linearGradient", "marker", "mask", "metadata", "mpath", "path", "pattern", "polygon", "polyline", "radialGradient", "rect", "set", "stop", "svg", "switch", "symbol", "text", "textPath", "tspan", "use", "view"]
+  static defaultHTMLTags = [
+    "a",
+    "abbr",
+    "address",
+    "area",
+    "article",
+    "aside",
+    "audio",
+    "b",
+    "base",
+    "bdi",
+    "bdo",
+    "blockquote",
+    "body",
+    "br",
+    "button",
+    "canvas",
+    "caption",
+    "cite",
+    "code",
+    "col",
+    "colgroup",
+    "data",
+    "datalist",
+    "dd",
+    "del",
+    "details",
+    "dfn",
+    "dialog",
+    "div",
+    "dl",
+    "dt",
+    "em",
+    "embed",
+    "fieldset",
+    "figcaption",
+    "figure",
+    "footer",
+    "form",
+    "h1",
+    "h2",
+    "h3",
+    "h4",
+    "h5",
+    "h6",
+    "head",
+    "header",
+    "hgroup",
+    "hr",
+    "html",
+    "i",
+    "iframe",
+    "img",
+    "input",
+    "ins",
+    "kbd",
+    "label",
+    "legend",
+    "li",
+    "link",
+    "main",
+    "map",
+    "mark",
+    "menu",
+    "meta",
+    "meter",
+    "nav",
+    "noscript",
+    "object",
+    "ol",
+    "optgroup",
+    "option",
+    "output",
+    "p",
+    "picture",
+    "pre",
+    "progress",
+    "q",
+    "rp",
+    "rt",
+    "ruby",
+    "s",
+    "samp",
+    "script",
+    "section",
+    "select",
+    "slot",
+    "small",
+    "source",
+    "span",
+    "strong",
+    "style",
+    "sub",
+    "summary",
+    "sup",
+    "table",
+    "tbody",
+    "td",
+    "template",
+    "textarea",
+    "tfoot",
+    "th",
+    "thead",
+    "time",
+    "title",
+    "tr",
+    "track",
+    "u",
+    "ul",
+    "var",
+    "video",
+    "wbr",
+    "acronym",
+    "applet",
+    "basefont",
+    "bgsound",
+    "big",
+    "blink",
+    "center",
+    "dir",
+    "font",
+    "frame",
+    "frameset",
+    "isindex",
+    "keygen",
+    "listing",
+    "marquee",
+    "menuitem",
+    "multicol",
+    "nextid",
+    "nobr",
+    "noembed",
+    "noframes",
+    "param",
+    "plaintext",
+    "rb",
+    "rtc",
+    "spacer",
+    "strike",
+    "tt",
+    "xmp",
+    "animate",
+    "animateMotion",
+    "animateTransform",
+    "circle",
+    "clipPath",
+    "defs",
+    "desc",
+    "ellipse",
+    "feBlend",
+    "feColorMatrix",
+    "feComponentTransfer",
+    "feComposite",
+    "feConvolveMatrix",
+    "feDiffuseLighting",
+    "feDisplacementMap",
+    "feDistantLight",
+    "feDropShadow",
+    "feFlood",
+    "feFuncA",
+    "feFuncB",
+    "feFuncG",
+    "feFuncR",
+    "feGaussianBlur",
+    "feImage",
+    "feMerge",
+    "feMergeNode",
+    "feMorphology",
+    "feOffset",
+    "fePointLight",
+    "feSpecularLighting",
+    "feSpotLight",
+    "feTile",
+    "feTurbulence",
+    "filter",
+    "foreignObject",
+    "g",
+    "image",
+    "line",
+    "linearGradient",
+    "marker",
+    "mask",
+    "metadata",
+    "mpath",
+    "path",
+    "pattern",
+    "polygon",
+    "polyline",
+    "radialGradient",
+    "rect",
+    "set",
+    "stop",
+    "svg",
+    "switch",
+    "symbol",
+    "text",
+    "textPath",
+    "tspan",
+    "use",
+    "view",
+  ]
+
   static availableDecoNames = ["Static", "Prop", "Env", "Content", "Children"]
   static dlightDefaultPackageName = "@dlightjs/dlight"
-  static importMap = Object.fromEntries(([
-    "createTemplate",
-    "setStyle",
-    "setDataset",
-    "setMemorizedEvent",
-    "setHTMLProp",
-    "setHTMLAttr",
-    "setHTMLProps",
-    "setHTMLAttrs",
-    "insertNode",
-    "createElement",
-    "ForNode",
-    "IfNode",
-    "EnvNode",
-    "createTextNode",
-    "updateText",
-    "ExpNode",
-    "PropView"
-  ]).map((funcName, idx) => (
-    devMode ? [funcName, funcName] : [funcName, `$${idx}$`]
-  )))
+  static importMap = Object.fromEntries(
+    [
+      "createTemplate",
+      "setStyle",
+      "setDataset",
+      "setMemorizedEvent",
+      "setHTMLProp",
+      "setHTMLAttr",
+      "setHTMLProps",
+      "setHTMLAttrs",
+      "insertNode",
+      "createElement",
+      "ForNode",
+      "IfNode",
+      "EnvNode",
+      "createTextNode",
+      "updateText",
+      "ExpNode",
+      "PropView",
+    ].map((funcName, idx) =>
+      devMode ? [funcName, funcName] : [funcName, `$${idx}$`]
+    )
+  )
 
   private readonly dlightPackageName = PluginProvider.dlightDefaultPackageName
 
@@ -62,11 +274,14 @@ export class PluginProvider {
     this.includes = includes
     this.excludes = excludes
     this.enableDevTools = devMode && enableDevTools
-    this.htmlTags = typeof htmlTags === "function"
-      ? htmlTags(PluginProvider.defaultHTMLTags)
-      : htmlTags.includes("*")
-        ? [...new Set([...PluginProvider.defaultHTMLTags, ...htmlTags])].filter(tag => tag !== "*")
-        : htmlTags
+    this.htmlTags =
+      typeof htmlTags === "function"
+        ? htmlTags(PluginProvider.defaultHTMLTags)
+        : htmlTags.includes("*")
+          ? [
+              ...new Set([...PluginProvider.defaultHTMLTags, ...htmlTags]),
+            ].filter(tag => tag !== "*")
+          : htmlTags
   }
 
   // ---- DLight class Level
@@ -105,12 +320,10 @@ export class PluginProvider {
 
   private get availableProperties(): string[] {
     return Object.entries(this.propertiesContainer)
-      .filter(([key, { isWatcher, isStatic, isChildren }]) => (
-        key !== "_$compName" &&
-        !isWatcher &&
-        !isStatic &&
-        !isChildren
-      ))
+      .filter(
+        ([key, { isWatcher, isStatic, isChildren }]) =>
+          key !== "_$compName" && !isWatcher && !isStatic && !isChildren
+      )
       .map(([key]) => key)
   }
 
@@ -149,7 +362,9 @@ export class PluginProvider {
     //      Only do this when enter the first dlight class
     if (!this.didAlterImports) {
       // ---- Get DLight imports
-      const dlightImports = this.allImports.filter(n => n.source.value === PluginProvider.dlightDefaultPackageName)
+      const dlightImports = this.allImports.filter(
+        n => n.source.value === PluginProvider.dlightDefaultPackageName
+      )
       // ---- Alter import name, e.g. "@dlight/dlight-client"
       if (this.dlightPackageName !== PluginProvider.dlightDefaultPackageName) {
         dlightImports.forEach(i => {
@@ -160,13 +375,13 @@ export class PluginProvider {
       // ---- Add nodes import to the head of file
       this.programNode!.body.unshift(
         this.t.importDeclaration(
-          Object.entries(PluginProvider.importMap).map(([key, value]) => (
+          Object.entries(PluginProvider.importMap).map(([key, value]) =>
             this.t.importSpecifier(
               this.t.identifier(value),
               this.t.identifier(key)
             )
-          ))
-          , this.t.stringLiteral(this.dlightPackageName)
+          ),
+          this.t.stringLiteral(this.dlightPackageName)
         )
       )
       this.didAlterImports = true
@@ -186,22 +401,20 @@ export class PluginProvider {
      */
     if (forwardPropDeco) {
       this.classBodyNode.body.unshift(
+        this.t.classProperty(this.t.identifier("_$forwardProps")),
         this.t.classProperty(
-          this.t.identifier("_$forwardProps")
-        ),
-        this.t.classProperty(
-          this.t.identifier("_$forwardPropsMap"),
-          this.t.newExpression(
-            this.t.identifier("Set"),
-            []
-          )
+          this.t.identifier("_$forwardPropsSet"),
+          this.t.newExpression(this.t.identifier("Set"), [])
         ),
         this.t.classProperty(
           this.t.identifier("_$forwardPropsId"),
           this.t.arrayExpression([])
         )
       )
-      this.classDeclarationNode!.decorators = this.removeDecorators(decorators, ["ForwardProps"])
+      this.classDeclarationNode!.decorators = this.removeDecorators(
+        decorators,
+        ["ForwardProps"]
+      )
     }
   }
 
@@ -215,7 +428,10 @@ export class PluginProvider {
     const propertyArr = Object.entries(this.propertiesContainer).reverse()
     const depReversedMap = this.dependencyMapReversed()
 
-    for (const [key, { node, deps, isStatic, isChildren, isPropOrEnv, isWatcher, isContent }] of propertyArr) {
+    for (const [
+      key,
+      { node, deps, isStatic, isChildren, isPropOrEnv, isWatcher, isContent },
+    ] of propertyArr) {
       if (isChildren) {
         this.resolveChildrenDecorator(node as t.ClassProperty)
         continue
@@ -234,7 +450,11 @@ export class PluginProvider {
       }
       if (isStatic) continue
       if (usedProperties.includes(key)) {
-        this.resolveStateDecorator(node as t.ClassProperty, this.availableProperties.indexOf(key), depReversedMap[key])
+        this.resolveStateDecorator(
+          node as t.ClassProperty,
+          this.availableProperties.indexOf(key),
+          depReversedMap[key]
+        )
       }
     }
   }
@@ -250,7 +470,8 @@ export class PluginProvider {
     let mainView: undefined | t.ClassMethod
     const subViewNodes: t.ClassMethod[] = []
     for (let viewNode of this.classBodyNode.body) {
-      if (!this.t.isClassProperty(viewNode) && !this.t.isClassMethod(viewNode)) continue
+      if (!this.t.isClassProperty(viewNode) && !this.t.isClassMethod(viewNode))
+        continue
       if (!this.t.isIdentifier(viewNode.key)) continue
       const isSubView = this.findDecoratorByName(viewNode.decorators, "View")
       const isMainView = viewNode.key.name === "View"
@@ -278,35 +499,52 @@ export class PluginProvider {
 
     const subViewNames = subViewNodes.map(v => (v.key as t.Identifier).name)
     const subViewPropSubDepMap: SubViewPropSubDepMap = Object.fromEntries(
-      subViewNodes.map(v => {
-        const prop = v.params[0]
-        if (!prop || !this.t.isObjectPattern(prop)) return ["-", null as any]
-        const props = Object.fromEntries(prop.properties.map((p) => {
-          if (!this.t.isObjectProperty(p)) return ["-", null]
-          const key = (p.key as t.Identifier).name
-          // ---- Get identifiers that depend on this prop
-          const subDeps = this.getIdentifiers(
-            this.t.assignmentExpression(
-              "=",
-              this.t.objectPattern([this.t.objectProperty(this.t.numericLiteral(0), p.value)]),
-              this.t.numericLiteral(0)
-            )
-          ).filter(v => v !== key)
-          return [key, subDeps]
-        }).filter(([_, props]) => props))
-        return [(v.key as t.Identifier).name, props]
-      }).filter(([_, props]) => props)
+      subViewNodes
+        .map(v => {
+          const prop = v.params[0]
+          if (!prop || !this.t.isObjectPattern(prop)) return ["-", null as any]
+          const props = Object.fromEntries(
+            prop.properties
+              .map(p => {
+                if (!this.t.isObjectProperty(p)) return ["-", null]
+                const key = (p.key as t.Identifier).name
+                // ---- Get identifiers that depend on this prop
+                const subDeps = this.getIdentifiers(
+                  this.t.assignmentExpression(
+                    "=",
+                    this.t.objectPattern([
+                      this.t.objectProperty(this.t.numericLiteral(0), p.value),
+                    ]),
+                    this.t.numericLiteral(0)
+                  )
+                ).filter(v => v !== key)
+                return [key, subDeps]
+              })
+              .filter(([_, props]) => props)
+          )
+          return [(v.key as t.Identifier).name, props]
+        })
+        .filter(([_, props]) => props)
     )
     let templateIdx = -1
     if (mainView) {
-      let usedProperties;
-      [usedProperties, templateIdx] = this.alterMainView(mainView, subViewNames, subViewPropSubDepMap)
+      let usedProperties
+      ;[usedProperties, templateIdx] = this.alterMainView(
+        mainView,
+        subViewNames,
+        subViewPropSubDepMap
+      )
       usedProperties.forEach(usedPropertySet.add.bind(usedPropertySet))
     }
 
     subViewNodes.forEach(viewNode => {
-      let usedProperties;
-      [usedProperties, templateIdx] = this.alterSubView(viewNode, subViewNames, subViewPropSubDepMap, templateIdx)
+      let usedProperties
+      ;[usedProperties, templateIdx] = this.alterSubView(
+        viewNode,
+        subViewNames,
+        subViewPropSubDepMap,
+        templateIdx
+      )
       usedProperties.forEach(usedPropertySet.add.bind(usedPropertySet))
     })
 
@@ -325,51 +563,63 @@ export class PluginProvider {
    * @param isSubView
    * @returns Used properties
    */
-  alterMainView(viewNode: t.ClassMethod, subViewNames: string[], subViewPropSubDepMap: SubViewPropSubDepMap): [Set<string>, number] {
+  alterMainView(
+    viewNode: t.ClassMethod,
+    subViewNames: string[],
+    subViewPropSubDepMap: SubViewPropSubDepMap
+  ): [Set<string>, number] {
     const viewUnits = parseView(viewNode.body, {
       babelApi: this.babelApi,
       subviewNames: subViewNames,
-      htmlTags: this.htmlTags
+      htmlTags: this.htmlTags,
     })
 
     const [viewParticles, usedPropertySet] = parseReactivity(viewUnits, {
       babelApi: this.babelApi,
       availableProperties: this.availableProperties,
-      dependencyMap: this.dependencyMap
+      dependencyMap: this.dependencyMap,
     })
 
-    const [body, classProperties, templateIdx] = generateView(
-      viewParticles,
-      {
-        babelApi: this.babelApi,
-        className: this.className!,
-        importMap: PluginProvider.importMap,
-        subViewPropMap: Object.fromEntries(
-          Object.entries(subViewPropSubDepMap)
-            .map(([key, props]) => [key, Object.keys(props)])
-        ),
-        templateIdx: -1
-      }
-    )
+    const [body, classProperties, templateIdx] = generateView(viewParticles, {
+      babelApi: this.babelApi,
+      className: this.className!,
+      importMap: PluginProvider.importMap,
+      subViewPropMap: Object.fromEntries(
+        Object.entries(subViewPropSubDepMap).map(([key, props]) => [
+          key,
+          Object.keys(props),
+        ])
+      ),
+      templateIdx: -1,
+    })
     viewNode.body = body
     this.classBodyNode?.body.push(...classProperties)
 
     return [usedPropertySet, templateIdx]
   }
 
-  alterSubView(viewNode: t.ClassMethod, subViewNames: string[], subViewPropSubDepMap: SubViewPropSubDepMap, templateIdx: number): [Set<string>, number] {
+  alterSubView(
+    viewNode: t.ClassMethod,
+    subViewNames: string[],
+    subViewPropSubDepMap: SubViewPropSubDepMap,
+    templateIdx: number
+  ): [Set<string>, number] {
     const viewUnits = parseView(viewNode.body, {
       babelApi: this.babelApi,
       subviewNames: subViewNames,
-      htmlTags: this.htmlTags
+      htmlTags: this.htmlTags,
     })
-    const [viewParticlesProperty, usedPropertySet] = parseReactivity(viewUnits, {
-      babelApi: this.babelApi,
-      availableProperties: this.availableProperties,
-      dependencyMap: this.dependencyMap
-    })
+    const [viewParticlesProperty, usedPropertySet] = parseReactivity(
+      viewUnits,
+      {
+        babelApi: this.babelApi,
+        availableProperties: this.availableProperties,
+        dependencyMap: this.dependencyMap,
+      }
+    )
 
-    const subViewProp = subViewPropSubDepMap[(viewNode.key as t.Identifier).name] ?? []
+    const subViewProp =
+      subViewPropSubDepMap[(viewNode.key as t.Identifier).name] ?? []
     const identifierDepMap: Record<string, string[]> = {}
     Object.entries(subViewProp).forEach(([key, subDeps]) => {
       subDeps.forEach(dep => {
@@ -382,12 +632,14 @@ export class PluginProvider {
       availableProperties: Object.keys(subViewProp),
       dependencyMap: this.dependencyMap,
       dependencyParseType: "identifier",
-      identifierDepMap
+      identifierDepMap,
     })
 
     const subViewPropMap = Object.fromEntries(
-      Object.entries(subViewPropSubDepMap)
-        .map(([key, props]) => [key, Object.keys(props)])
+      Object.entries(subViewPropSubDepMap).map(([key, props]) => [
+        key,
+        Object.keys(props),
+      ])
     )
     const [body, classProperties, newTemplateIdx] = generateSubView(
       viewParticlesProperty,
@@ -398,7 +650,7 @@ export class PluginProvider {
         className: this.className!,
         importMap: PluginProvider.importMap,
         subViewPropMap,
-        templateIdx
+        templateIdx,
       }
     )
     viewNode.body = body
@@ -409,11 +661,18 @@ export class PluginProvider {
 
   /* ---- Babel Visitors ---- */
   private visitProgram(_path: NodePath<t.Program>): void {}
-  programVisitor(path: NodePath<t.Program>, filename: string | undefined): void {
+  programVisitor(
+    path: NodePath<t.Program>,
+    filename: string | undefined
+  ): void {
     this.enter = this.fileAllowed(filename)
     if (!this.enter) return
-    this.allImports = path.node.body.filter(n => this.t.isImportDeclaration(n)) as t.ImportDeclaration[]
-    const dlightImports = this.allImports.filter(n => n.source.value === PluginProvider.dlightDefaultPackageName)
+    this.allImports = path.node.body.filter(n =>
+      this.t.isImportDeclaration(n)
+    ) as t.ImportDeclaration[]
+    const dlightImports = this.allImports.filter(
+      n => n.source.value === PluginProvider.dlightDefaultPackageName
+    )
     if (dlightImports.length === 0) {
       this.enter = false
       return
@@ -422,7 +681,10 @@ export class PluginProvider {
     this.visitProgram(path)
   }
 
-  private enterClass(_path: NodePath<t.ClassDeclaration | t.ClassExpression>): void {}
+  private enterClass(
+    _path: NodePath<t.ClassDeclaration | t.ClassExpression>
+  ): void {}
+
   classEnter(path: NodePath<t.ClassDeclaration | t.ClassExpression>): void {
     if (!this.enter) return
     this.enterClassNode = this.isDLightView(path)
@@ -431,7 +693,10 @@ export class PluginProvider {
     this.enterClass(path)
   }
 
-  private exitClass(_path: NodePath<t.ClassDeclaration | t.ClassExpression>): void {}
+  private exitClass(
+    _path: NodePath<t.ClassDeclaration | t.ClassExpression>
+  ): void {}
+
   classExit(path: NodePath<t.ClassDeclaration | t.ClassExpression>): void {
     if (!this.enter) return
     if (!this.enterClassNode) return
@@ -484,7 +749,7 @@ export class PluginProvider {
     this.propertiesContainer[key] = {
       node,
       deps,
-      isWatcher: true
+      isWatcher: true,
     }
     node.decorators = this.removeDecorators(node.decorators, ["Watch"])
 
@@ -506,9 +771,7 @@ export class PluginProvider {
 
     const isChildren = !!this.findDecoratorByName(node.decorators, "Children")
 
-    const deps = !isChildren
-      ? this.getDependencies(path)
-      : []
+    const deps = !isChildren ? this.getDependencies(path) : []
 
     this.propertiesContainer[key] = {
       node,
@@ -516,10 +779,13 @@ export class PluginProvider {
       isStatic: !!this.findDecoratorByName(decorators, "Static"),
       isContent: !!this.findDecoratorByName(decorators, "Content"),
       isChildren,
-      isPropOrEnv: isProp ? "Prop" : (isEnv ? "Env" : undefined)
+      isPropOrEnv: isProp ? "Prop" : isEnv ? "Env" : undefined,
     }
 
-    node.decorators = this.removeDecorators(decorators, PluginProvider.availableDecoNames)
+    node.decorators = this.removeDecorators(
+      decorators,
+      PluginProvider.availableDecoNames
+    )
     this.visitClassProperty(path)
   }
 
@@ -534,9 +800,7 @@ export class PluginProvider {
     if (!this.t.isIdentifier(node.key)) return
     const key = node.key.name
     const propertyIdx = this.classBodyNode!.body.indexOf(node)
-    const watcherNode = this.t.classProperty(
-      this.t.identifier(`$w$${key}`)
-    )
+    const watcherNode = this.t.classProperty(this.t.identifier(`$w$${key}`))
     this.classBodyNode!.body.splice(propertyIdx, 0, watcherNode)
   }
 
@@ -554,17 +818,16 @@ export class PluginProvider {
     const key = node.key.name
     const propertyIdx = this.classBodyNode.body.indexOf(node)
 
-    const childrenFuncCallNode = (
-      this.t.memberExpression(
-        this.t.thisExpression(),
-        this.t.identifier("_$children")
-      )
+    const childrenFuncCallNode = this.t.memberExpression(
+      this.t.thisExpression(),
+      this.t.identifier("_$children")
     )
 
-    const getterNode = this.t.classMethod("get", this.t.identifier(key), [],
-      this.t.blockStatement([
-        this.t.returnStatement(childrenFuncCallNode)
-      ])
+    const getterNode = this.t.classMethod(
+      "get",
+      this.t.identifier(key),
+      [],
+      this.t.blockStatement([this.t.returnStatement(childrenFuncCallNode)])
     )
     this.classBodyNode.body.splice(propertyIdx, 1, getterNode)
   }
@@ -580,10 +843,14 @@ export class PluginProvider {
     if (!this.t.isIdentifier(node.key)) return
 
     // ---- Already has _$contentKey
-    if (this.classBodyNode.body.some(n => (
-      this.t.isClassProperty(n) &&
-      (n.key as t.Identifier).name === "_$contentKey")
-    )) return
+    if (
+      this.classBodyNode.body.some(
+        n =>
+          this.t.isClassProperty(n) &&
+          (n.key as t.Identifier).name === "_$contentKey"
+      )
+    )
+      return
     const key = node.key.name
     const propertyIdx = this.classBodyNode.body.indexOf(node)
 
@@ -626,7 +893,11 @@ export class PluginProvider {
    *  }
    * @param node
    */
-  resolveStateDecorator(node: t.ClassProperty, idx: number, reverseDeps: Set<string> | undefined) {
+  resolveStateDecorator(
+    node: t.ClassProperty,
+    idx: number,
+    reverseDeps: Set<string> | undefined
+  ) {
     if (!this.classBodyNode) return
     if (!this.t.isIdentifier(node.key)) return
     const key = node.key.name
@@ -639,42 +910,55 @@ export class PluginProvider {
     )
 
     const depsNode = reverseDeps
-      ? [this.t.classProperty(
-          this.t.identifier(`$s$${key}`),
-          this.t.arrayExpression([...reverseDeps].map(d => this.t.stringLiteral(d)))
-        )]
+      ? [
+          this.t.classProperty(
+            this.t.identifier(`$s$${key}`),
+            this.t.arrayExpression(
+              [...reverseDeps].map(d => this.t.stringLiteral(d))
+            )
+          ),
+        ]
       : []
 
-    const getterNode = this.t.classMethod("get", this.t.identifier(key), [],
+    const getterNode = this.t.classMethod(
+      "get",
+      this.t.identifier(key),
+      [],
       this.t.blockStatement([
         this.t.returnStatement(
           this.t.memberExpression(
             this.t.thisExpression(),
             this.t.identifier(`$${key}`)
           )
-        )
+        ),
       ])
     )
 
-    const setterNode = this.t.classMethod("set", this.t.identifier(key), [
-      this.t.identifier("value")
-    ],
-    this.t.blockStatement([
-      this.t.expressionStatement(
-        this.t.callExpression(
-          this.t.memberExpression(
-            this.t.thisExpression(),
-            this.t.identifier("_$updateProp")
-          ), [
-            this.t.stringLiteral(key),
-            this.t.identifier("value")
-          ]
-        )
-      )
-    ])
+    const setterNode = this.t.classMethod(
+      "set",
+      this.t.identifier(key),
+      [this.t.identifier("value")],
+      this.t.blockStatement([
+        this.t.expressionStatement(
+          this.t.callExpression(
+            this.t.memberExpression(
+              this.t.thisExpression(),
+              this.t.identifier("_$updateProp")
+            ),
+            [this.t.stringLiteral(key), this.t.identifier("value")]
+          )
+        ),
+      ])
     )
 
-    this.classBodyNode.body.splice(propertyIdx + 1, 0, idxNode, ...depsNode, getterNode, setterNode)
+    this.classBodyNode.body.splice(
+      propertyIdx + 1,
+      0,
+      idxNode,
+      ...depsNode,
+      getterNode,
+      setterNode
+    )
   }
 
   /* ---- Helper Functions ---- */
@@ -686,8 +970,10 @@ export class PluginProvider {
   private fileAllowed(fileName: string | undefined): boolean {
     if (this.includes.includes("*")) return true
     if (!fileName) return false
-    if (this.excludes.some(pattern => minimatch(fileName, pattern))) return false
-    if (!this.includes.some(pattern => minimatch(fileName, pattern))) return false
+    if (this.excludes.some(pattern => minimatch(fileName, pattern)))
+      return false
+    if (!this.includes.some(pattern => minimatch(fileName, pattern)))
+      return false
     return true
   }
 
@@ -696,15 +982,20 @@ export class PluginProvider {
    * @param path
    * @returns
    */
-  private isDLightView(path: NodePath<t.ClassDeclaration | t.ClassExpression>): boolean {
+  private isDLightView(
+    path: NodePath<t.ClassDeclaration | t.ClassExpression>
+  ): boolean {
     const node = path.node
     const decorators = node.decorators ?? []
-    const isDecorator = decorators.find((deco: t.Decorator) => this.t.isIdentifier(deco.expression, { name: "View" }))
+    const isDecorator = decorators.find((deco: t.Decorator) =>
+      this.t.isIdentifier(deco.expression, { name: "View" })
+    )
     if (isDecorator) {
       node.superClass = this.t.identifier("View")
-      node.decorators = node.decorators?.filter((deco: t.Decorator) => (
-        !this.t.isIdentifier(deco.expression, { name: "View" })
-      ))
+      node.decorators = node.decorators?.filter(
+        (deco: t.Decorator) =>
+          !this.t.isIdentifier(deco.expression, { name: "View" })
+      )
     }
     return this.t.isIdentifier(node.superClass, { name: "View" })
   }
@@ -716,15 +1007,21 @@ export class PluginProvider {
    * @param names
    * @returns new decorators
    */
-  private removeDecorators(decorators: t.Decorator[] | undefined | null, names: string[]): t.Decorator[] {
+  private removeDecorators(
+    decorators: t.Decorator[] | undefined | null,
+    names: string[]
+  ): t.Decorator[] {
     if (!decorators) return []
-    return decorators.filter(d => !(
-      (this.t.isIdentifier(d.expression) &&
-      names.includes(d.expression.name)) ||
-      (this.t.isCallExpression(d.expression) &&
-      this.t.isIdentifier(d.expression.callee) &&
-      names.includes(d.expression.callee.name))
-    ))
+    return decorators.filter(
+      d =>
+        !(
+          (this.t.isIdentifier(d.expression) &&
+            names.includes(d.expression.name)) ||
+          (this.t.isCallExpression(d.expression) &&
+            this.t.isIdentifier(d.expression.callee) &&
+            names.includes(d.expression.callee.name))
+        )
+    )
   }
 
   /**
@@ -734,12 +1031,17 @@ export class PluginProvider {
    * @param name
    * @returns Identifier or CallExpression or nothing
    */
-  private findDecoratorByName(decorators: t.Decorator[] | undefined | null, name: string): t.Identifier | t.CallExpression | undefined {
+  private findDecoratorByName(
+    decorators: t.Decorator[] | undefined | null,
+    name: string
+  ): t.Identifier | t.CallExpression | undefined {
     if (!decorators) return
-    return decorators.find(deco => (
-      this.t.isIdentifier(deco.expression, { name }) ||
-      (this.t.isCallExpression(deco.expression) && this.t.isIdentifier(deco.expression.callee, { name }))
-    ))?.expression as t.Identifier | t.CallExpression | undefined
+    return decorators.find(
+      deco =>
+        this.t.isIdentifier(deco.expression, { name }) ||
+        (this.t.isCallExpression(deco.expression) &&
+          this.t.isIdentifier(deco.expression.callee, { name }))
+    )?.expression as t.Identifier | t.CallExpression | undefined
   }
 
   /**
@@ -749,23 +1051,23 @@ export class PluginProvider {
    */
   addConstructor() {
     if (!this.classBodyNode) return
-    let constructor = this.classBodyNode.body.find(n => this.t.isClassMethod(n, { kind: "constructor" })) as t.ClassMethod
+    let constructor = this.classBodyNode.body.find(n =>
+      this.t.isClassMethod(n, { kind: "constructor" })
+    ) as t.ClassMethod
     if (constructor) throw new Error("DLight class should not have constructor")
 
-    constructor = (
-      this.t.classMethod("constructor", this.t.identifier("constructor"), [
+    constructor = this.t.classMethod(
+      "constructor",
+      this.t.identifier("constructor"),
+      [
         this.t.identifier("props"),
         this.t.identifier("content"),
         this.t.identifier("children"),
-        this.t.identifier("forwardPropsScope")
-      ], this.t.blockStatement([
-        this.t.expressionStatement(
-          this.t.callExpression(
-            this.t.super(),
-            []
-          )
-        )
-      ]))
+        this.t.identifier("forwardPropsScope"),
+      ],
+      this.t.blockStatement([
+        this.t.expressionStatement(this.t.callExpression(this.t.super(), [])),
+      ])
     )
     this.constructorNode = constructor
     this.classBodyNode.body.unshift(constructor)
@@ -779,7 +1081,12 @@ export class PluginProvider {
             this.t.thisExpression(),
             this.t.identifier("_$init")
           ),
-          [this.t.identifier("props"), this.t.identifier("content"), this.t.identifier("children"), this.t.identifier("forwardPropsScope")]
+          [
+            this.t.identifier("props"),
+            this.t.identifier("content"),
+            this.t.identifier("children"),
+            this.t.identifier("forwardPropsScope"),
+          ]
         )
       )
     )
@@ -790,20 +1097,13 @@ export class PluginProvider {
       this.t.expressionStatement(
         this.t.assignmentExpression(
           "=",
-          this.t.memberExpression(
-            this.t.thisExpression(),
-            node.key
-          ),
+          this.t.memberExpression(this.t.thisExpression(), node.key),
           this.t.callExpression(
             this.t.memberExpression(
-              this.t.memberExpression(
-                this.t.thisExpression(),
-                node.key
-              ),
+              this.t.memberExpression(this.t.thisExpression(), node.key),
               this.t.identifier("bind")
-            ), [
-              this.t.thisExpression()
-            ]
+            ),
+            [this.t.thisExpression()]
           )
         )
       )
@@ -823,10 +1123,9 @@ export class PluginProvider {
     const propertyIdx = this.classBodyNode!.body.indexOf(node)
     const getterNode = this.t.classMethod(
       "get",
-      this.t.identifier(`$f$${key}`), [],
-      this.t.blockStatement([
-        this.t.returnStatement(value)
-      ])
+      this.t.identifier(`$f$${key}`),
+      [],
+      this.t.blockStatement([this.t.returnStatement(value)])
     )
     this.classBodyNode!.body.splice(propertyIdx + 1, 0, getterNode)
   }
@@ -853,14 +1152,26 @@ export class PluginProvider {
         } else if (
           this.availableProperties.includes(propertyKey) &&
           this.t.isThisExpression(innerPath.node.object) &&
-          !isMemberInEscapeFunction(innerPath, this.classDeclarationNode!, this.t) &&
-          !isMemberInManualFunction(innerPath, this.classDeclarationNode!, this.t) &&
-          !isAssignmentExpressionRight(innerPath, this.classDeclarationNode!, this.t)
+          !isMemberInEscapeFunction(
+            innerPath,
+            this.classDeclarationNode!,
+            this.t
+          ) &&
+          !isMemberInManualFunction(
+            innerPath,
+            this.classDeclarationNode!,
+            this.t
+          ) &&
+          !isAssignmentExpressionRight(
+            innerPath,
+            this.classDeclarationNode!,
+            this.t
+          )
         ) {
           deps.add(propertyKey)
           this.dependencyMap[propertyKey]?.forEach(deps.add.bind(deps))
         }
-      }
+      },
     })
 
     // ---- Eliminate deps that are assigned in the same method
@@ -896,14 +1207,19 @@ export class PluginProvider {
    * @param propertyNode
    * @returns new method node
    */
-  arrowFunctionPropertyToMethod(propertyNode: t.ClassProperty): t.ClassMethod | undefined {
+  arrowFunctionPropertyToMethod(
+    propertyNode: t.ClassProperty
+  ): t.ClassMethod | undefined {
     if (this.t.isArrowFunctionExpression(propertyNode.value)) return
     let newNode: t.ClassMethod | undefined
     this.classRootPath!.scope.traverse(this.classBodyNode!, {
       ClassProperty: innerPath => {
         if (innerPath.node !== propertyNode) return
-        const propertyBody = (propertyNode.value as t.ArrowFunctionExpression).body
-        const body = this.t.isExpression(propertyBody) ? this.t.blockStatement([this.t.returnStatement(propertyBody)]) : propertyBody
+        const propertyBody = (propertyNode.value as t.ArrowFunctionExpression)
+          .body
+        const body = this.t.isExpression(propertyBody)
+          ? this.t.blockStatement([this.t.returnStatement(propertyBody)])
+          : propertyBody
         const methodNode = this.t.classMethod(
           "method",
           propertyNode.key,
@@ -912,7 +1228,7 @@ export class PluginProvider {
         )
         newNode = methodNode
         innerPath.replaceWith(methodNode)
-      }
+      },
     })
     return newNode
   }
@@ -924,7 +1240,11 @@ export class PluginProvider {
    * @returns is a property of a member expression
    */
   isMemberExpressionProperty(parentNode: t.Node, currentNode: t.Node): boolean {
-    return this.t.isMemberExpression(parentNode) && !parentNode.computed && parentNode.property === currentNode
+    return (
+      this.t.isMemberExpression(parentNode) &&
+      !parentNode.computed &&
+      parentNode.property === currentNode
+    )
   }
 
   /**
@@ -954,11 +1274,11 @@ export class PluginProvider {
    * @returns wrapped value
    */
   private valueWrapper(node: t.Expression | t.Statement): t.File {
-    return this.t.file(this.t.program([
-      this.t.isStatement(node)
-        ? node
-        : this.t.expressionStatement(node)
-    ]))
+    return this.t.file(
+      this.t.program([
+        this.t.isStatement(node) ? node : this.t.expressionStatement(node),
+      ])
+    )
   }
 
   /**
@@ -973,22 +1293,29 @@ export class PluginProvider {
     let reversePath = path.parentPath
 
     const checkParam: (param: t.Node) => boolean = (param: t.Node) => {
-    // ---- 3 general types:
-    //      * represent allow nesting
-    // ---0 Identifier: (a)
-    // ---1 RestElement: (...a)   *
-    // ---1 Pattern: 3 sub Pattern
-    // -----0   AssignmentPattern: (a=1)   *
-    // -----1   ArrayPattern: ([a, b])   *
-    // -----2   ObjectPattern: ({a, b})
+      // ---- 3 general types:
+      //      * represent allow nesting
+      // ---0 Identifier: (a)
+      // ---1 RestElement: (...a)   *
+      // ---1 Pattern: 3 sub Pattern
+      // -----0   AssignmentPattern: (a=1)   *
+      // -----1   ArrayPattern: ([a, b])   *
+      // -----2   ObjectPattern: ({a, b})
       if (this.t.isIdentifier(param)) return param.name === idName
       if (this.t.isAssignmentPattern(param)) return checkParam(param.left)
       if (this.t.isArrayPattern(param)) {
-        return param.elements.filter(Boolean).map((el) => checkParam(el!)).includes(true)
+        return param.elements
+          .filter(Boolean)
+          .map(el => checkParam(el!))
+          .includes(true)
       }
       if (this.t.isObjectPattern(param)) {
-        return (param.properties
-          .filter(prop => this.t.isObjectProperty(prop) && this.t.isIdentifier(prop.key)) as t.ObjectProperty[])
+        return (
+          param.properties.filter(
+            prop =>
+              this.t.isObjectProperty(prop) && this.t.isIdentifier(prop.key)
+          ) as t.ObjectProperty[]
+        )
           .map(prop => (prop.key as t.Identifier).name)
           .includes(idName)
       }
@@ -999,7 +1326,10 @@ export class PluginProvider {
 
     while (reversePath) {
       const node = reversePath.node
-      if (this.t.isArrowFunctionExpression(node) || this.t.isFunctionDeclaration(node)) {
+      if (
+        this.t.isArrowFunctionExpression(node) ||
+        this.t.isFunctionDeclaration(node)
+      ) {
         for (const param of node.params) {
           if (checkParam(param)) return true
         }
@@ -1021,7 +1351,8 @@ export class PluginProvider {
   private isStandAloneIdentifier(path: NodePath<t.Identifier>) {
     const node = path.node
     const parentNode = path.parentPath?.node
-    const isMemberExpression = this.t.isMemberExpression(parentNode) && parentNode.property === node
+    const isMemberExpression =
+      this.t.isMemberExpression(parentNode) && parentNode.property === node
     if (isMemberExpression) return false
     const isFunctionParam = this.isAttrFromFunction(path, node.name)
     if (isFunctionParam) return false
@@ -1031,7 +1362,8 @@ export class PluginProvider {
         this.t.isObjectProperty(path.parentPath.node) &&
         path.parentPath.node.key === path.node &&
         !path.parentPath.node.computed
-      ) return false
+      )
+        return false
       path = path.parentPath as any
     }
     return true
@@ -1049,7 +1381,7 @@ export class PluginProvider {
       Identifier: innerPath => {
         if (!this.isStandAloneIdentifier(innerPath)) return
         identifierKeys.add(innerPath.node.name)
-      }
+      },
     })
     return [...identifierKeys]
   }

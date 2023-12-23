@@ -5,6 +5,24 @@ import { forwardHTMLProp } from "./HTMLNode"
 import { type AnyDLNode } from "./types"
 
 export class CompNode extends DLNode {
+  /**
+   * @brief Constructor, Comp type
+   * @internal
+   *  * key - getter: return $key
+   *  * key - setter: set $key, update $s$key, call update function with $$key
+   *  * $key - private property key
+   *  * $$key - dependency number, e.g. 0b1, 0b10, 0b100
+   *  * $s$key - set of properties that depend on this property
+   *  * $p$key - exist if this property is a prop
+   *  * $e$key - exist if this property is an env
+   *  * $en$key - exist if this property is an env, and it's the innermost env that contains this env
+   *  * $w$key - exist if this property is a watcher
+   *  * $f$key - a function that returns the value of this property, called when the property's dependencies change
+   *  * _$children - children nodes of type PropView
+   *  * _$contentKey - the key name of the content prop
+   *  * _$forwardProps - exist if this node is forwarding props
+   *  * _$forwardPropsId - the keys of the props that this node is forwarding, collected in _$initForwardProps
+   */
   constructor() {
     super(DLNodeType.Comp)
   }
@@ -35,10 +53,10 @@ export class CompNode extends DLNode {
 
     // ---- init
     ;(this as AnyDLNode).willMount?.()
-    ;(this as AnyDLNode)._$nodes = (this as AnyDLNode).View?.() ?? []
+    this._$nodes = (this as AnyDLNode).View?.() ?? []
     ;(this as AnyDLNode).didMount?.()
 
-    // ---- Remove _$forwardProps to save memory, because it's only used in _$addForwardProps phase
+    // ---- Remove _$forwardPropsId to save memory, because it's only used in _$addForwardProps phase
     if ("_$forwardPropsId" in this) delete (this as AnyDLNode)._$forwardPropsId
   }
 
@@ -59,21 +77,17 @@ export class CompNode extends DLNode {
   }
 
   _$setForwardPropsMap(name: string, value: any) {
-    ;(this as AnyDLNode)._$forwardPropsMap?.forEach((node: AnyDLNode) => {
-      if ("_$dlNodeType" in node) {
-        node[name] = value
-      }
-      if (node instanceof HTMLElement) {
-        forwardHTMLProp(node, name, value)
-      }
+    ;(this as AnyDLNode)._$forwardPropsSet?.forEach((node: AnyDLNode) => {
+      if ("_$dlNodeType" in node) node[name] = value
+      if (node instanceof HTMLElement) forwardHTMLProp(node, name, value)
     })
   }
 
   _$addForwardProps(node: AnyDLNode) {
-    ;(this as AnyDLNode)._$forwardPropsMap.add(node)
+    ;(this as AnyDLNode)._$forwardPropsSet.add(node)
     const prevWillUnmount = node.willUnmount
     node.willUnmount = () => {
-      ;(this as AnyDLNode)._$forwardPropsMap.delete(node)
+      ;(this as AnyDLNode)._$forwardPropsSet.delete(node)
       prevWillUnmount?.()
     }
     ;(this as AnyDLNode)._$forwardPropsId.forEach((name: string) => {
