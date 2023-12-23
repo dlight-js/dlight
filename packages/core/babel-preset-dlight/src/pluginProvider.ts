@@ -221,7 +221,10 @@ export class PluginProvider {
       }
       if (isPropOrEnv) {
         this.resolvePropDecorator(node, isPropOrEnv)
-        if (isContent) this.resolveContentDecorator(node)
+      }
+      if (isContent) {
+        this.resolvePropDecorator(node, "Prop")
+        this.resolveContentDecorator(node)
       }
       if (isStatic) continue
       if (usedProperties.includes(key)) {
