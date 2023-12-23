@@ -19,21 +19,30 @@ export class CompNode extends DLNode {
    *  * $w$key - exist if this property is a watcher
    *  * $f$key - a function that returns the value of this property, called when the property's dependencies change
    *  * _$children - children nodes of type PropView
-   *  * _$contentKey - the key name of the content prop
+   *  * _$contentKey - the key key of the content prop
    *  * _$forwardProps - exist if this node is forwarding props
    *  * _$forwardPropsId - the keys of the props that this node is forwarding, collected in _$initForwardProps
+   *  * _$forwardPropsSet - contain all the nodes that are forwarding props to this node, collected with _$addForwardProps
    */
   constructor() {
     super(DLNodeType.Comp)
   }
 
+  /**
+   * @brief Init function, called explicitly in the subclass's constructor
+   * @param props
+   * @param content
+   * @param children
+   * @param forwardPropsScope
+   */
   _$init(
     props?: Record<string, any>,
     content?: any,
     children?: AnyDLNode[],
     forwardPropsScope?: CompNode
-  ) {
+  ): void {
     // ---- Add props
+    // ---- Forward props first to allow internal props to override forwarded props
     if (forwardPropsScope) forwardPropsScope._$addForwardProps(this)
     if (content) this._$setContent(content)
     if (props) {
@@ -41,12 +50,11 @@ export class CompNode extends DLNode {
         this._$setProp(key, value)
       })
     }
-    if (children) {
-      ;(this as AnyDLNode)._$children = children
-    }
+    if (children) (this as AnyDLNode)._$children = children
 
     // ---- Add envs
     Object.entries(DLStore.envs).forEach(([key, [value, envNode]]) => {
+      // ---- Add this node to every envNode's updateNodes
       envNode.updateNodes.add(this)
       this._$initEnv(key, value, envNode)
     })
@@ -60,60 +68,97 @@ export class CompNode extends DLNode {
     if ("_$forwardPropsId" in this) delete (this as AnyDLNode)._$forwardPropsId
   }
 
-  _$initForwardProps(name: string, value: any) {
-    if (name in this) return
-    ;(this as AnyDLNode)._$forwardPropsId.push(name)
-    ;(this as AnyDLNode)[`$${name}`] = value
-    Object.defineProperty(this, name, {
+  /**
+   * @brief Define forward props
+   * @param key
+   * @param value
+   */
+  _$initForwardProps(key: string, value: any): void {
+    // ---- If the prop is already defined, don't forward it
+    if (key in this) return
+    ;(this as AnyDLNode)._$forwardPropsId.push(key)
+    ;(this as AnyDLNode)[`$${key}`] = value
+    Object.defineProperty(this, key, {
       get() {
-        return this[`$${name}`]
+        return this[`$${key}`]
       },
       set(value) {
-        if (this[`$${name}`] === value) return
-        this[`$${name}`] = value
-        this._$setForwardProp(name, value)
+        if (this[`$${key}`] === value) return
+        this[`$${key}`] = value
+        // ---- Don't need to call update function because the prop is not a explicit dependency
+        this._$setForwardProp(key, value)
       },
     })
   }
 
-  _$setForwardPropsMap(name: string, value: any) {
-    ;(this as AnyDLNode)._$forwardPropsSet?.forEach((node: AnyDLNode) => {
-      if ("_$dlNodeType" in node) node[name] = value
-      if (node instanceof HTMLElement) forwardHTMLProp(node, name, value)
-    })
-  }
-
-  _$addForwardProps(node: AnyDLNode) {
+  /**
+   * @brief Add a node to the set of nodes that are forwarding props to this node and init these props, called
+   *  1. HTMLNode: explicitly in the View function
+   *  2. CompNode: passed in the node's constructor and called in _$init to make sure it's added before the node is mounted
+   * @param node
+   */
+  _$addForwardProps(node: AnyDLNode): void {
+    // ---- Add node to the set of nodes that are forwarding props to this node
     ;(this as AnyDLNode)._$forwardPropsSet.add(node)
+    // ---- Init these forwarded props
+    ;(this as AnyDLNode)._$forwardPropsId.forEach((key: string) => {
+      const value = (this as AnyDLNode)[key]
+      ;(this as AnyDLNode)._$forwardPropsSet?.forEach((node: AnyDLNode) => {
+        // ---- Directly set the prop if it's a CompNode
+        if (node._$dlNodeType === DLNodeType.Comp) node[key] = value
+        // ---- Different behavior for HTMLNode according to the key
+        if (node instanceof HTMLElement) forwardHTMLProp(node, key, value)
+      })
+    })
+    // ---- Remove current node from the set of forwarding nodes when it's unmounted
     const prevWillUnmount = node.willUnmount
     node.willUnmount = () => {
       ;(this as AnyDLNode)._$forwardPropsSet.delete(node)
       prevWillUnmount?.()
     }
-    ;(this as AnyDLNode)._$forwardPropsId.forEach((name: string) => {
-      this._$setForwardPropsMap(name, (this as AnyDLNode)[name])
-    })
   }
 
-  _$setProp(name: string, value: any) {
-    if ("_$forwardProps" in this) this._$initForwardProps(name, value)
-    if (!(`$p$${name}` in this)) return
-    ;(this as AnyDLNode)[name] = value
+  /**
+   * @brief Set a prop directly, if this is a forwarded prop, go and init forwarded props
+   * @param key
+   * @param value
+   */
+  _$setProp(key: string, value: any): void {
+    if ("_$forwardProps" in this) this._$initForwardProps(key, value)
+    if (!(`$p$${key}` in this)) return
+    ;(this as AnyDLNode)[key] = value
   }
 
-  _$initEnv(name: string, value: any, envNode: EnvNode) {
-    if (!(`$e$${name}` in this)) return
-    ;(this as AnyDLNode)[name] = value
-    ;(this as AnyDLNode)[`$en$${name}`] = envNode
+  /**
+   * @brief Init an env, put the corresponding innermost envNode in $en$key
+   * @param key
+   * @param value
+   * @param envNode
+   */
+  _$initEnv(key: string, value: any, envNode: EnvNode): void {
+    if (!(`$e$${key}` in this)) return
+    ;(this as AnyDLNode)[key] = value
+    ;(this as AnyDLNode)[`$en$${key}`] = envNode
   }
 
-  _$updateEnv(name: string, value: any, envNode: EnvNode) {
-    if (!(`$e$${name}` in this)) return
+  /**
+   * @brief Update an env, called in EnvNode._$update
+   * @param key
+   * @param value
+   * @param envNode
+   */
+  _$updateEnv(key: string, value: any, envNode: EnvNode): void {
+    if (!(`$e$${key}` in this)) return
     // ---- Make sure the envNode is the innermost envNode that contains this env
-    if (envNode !== (this as AnyDLNode)[`$en$${name}`]) return
-    ;(this as AnyDLNode)[name] = value
+    if (envNode !== (this as AnyDLNode)[`$en$${key}`]) return
+    ;(this as AnyDLNode)[key] = value
   }
 
+  /**
+   * @brief Set the content prop, the key is stored in _$contentKey
+   * @param value
+   * @returns
+   */
   _$setContent(value: any) {
     const contentKey = (this as AnyDLNode)._$contentKey
     if (!contentKey) return
@@ -121,7 +166,12 @@ export class CompNode extends DLNode {
     ;(this as AnyDLNode)[contentKey] = value
   }
 
-  _$updateProp(key: string, value: any) {
+  /**
+   * @brief Update a prop and call any related update function
+   * @param key
+   * @param value
+   */
+  _$updateProp(key: string, value: any): void {
     const valueKey = `$${key}`
     if ((this as AnyDLNode)[valueKey] === value) return
     ;(this as AnyDLNode)[valueKey] = value
@@ -142,4 +192,5 @@ export class CompNode extends DLNode {
   }
 }
 
+// ---- @View -> class Comp extends View
 export const View = CompNode as any
