@@ -1,4 +1,3 @@
-
 type DLightErrMap = Record<number, string>
 type ErrorMethod<T extends DLightErrMap, G extends string> = {
   [K in keyof T as `${G}${K & number}`]: (...args: string[]) => any
@@ -23,26 +22,41 @@ type ErrorMethod<T extends DLightErrMap, G extends string> = {
  * @param warningMap
  * @returns Error handler
  */
-export function createErrorHandler<A extends DLightErrMap, B extends DLightErrMap, C extends DLightErrMap>(
+export function createErrorHandler<
+  A extends DLightErrMap,
+  B extends DLightErrMap,
+  C extends DLightErrMap,
+>(
   errorSpace: string,
   throwMap: A = {} as any,
   errorMap: B = {} as any,
   warningMap: C = {} as any
 ) {
-  function handleError(map: DLightErrMap, type: string, func: (msg: string) => any) {
+  function handleError(
+    map: DLightErrMap,
+    type: string,
+    func: (msg: string) => any
+  ) {
     return Object.fromEntries(
-      Object.entries(map).map(([code, msg]) => [`${type}${code}`, (...args: string[]) => {
-        args.forEach((arg, i) => {
-          msg = msg.replace(`$${i}`, arg)
-        })
-        return func(`:D - ${errorSpace}[${type}${code}]: ${msg}`)
-      }])
+      Object.entries(map).map(([code, msg]) => [
+        `${type}${code}`,
+        (...args: string[]) => {
+          args.forEach((arg, i) => {
+            msg = msg.replace(`$${i}`, arg)
+          })
+          return func(`:D - ${errorSpace}[${type}${code}]: ${msg}`)
+        },
+      ])
     )
   }
-  const methods: ErrorMethod<A, "throw"> & ErrorMethod<B, "error"> & ErrorMethod<C, "warn"> = {
-    ...handleError(throwMap, "throw", (msg) => { throw new Error(msg) }),
+  const methods: ErrorMethod<A, "throw"> &
+    ErrorMethod<B, "error"> &
+    ErrorMethod<C, "warn"> = {
+    ...handleError(throwMap, "throw", msg => {
+      throw new Error(msg)
+    }),
     ...handleError(errorMap, "error", console.error),
-    ...handleError(warningMap, "warn", console.warn)
+    ...handleError(warningMap, "warn", console.warn),
   } as any
 
   function notDescribed(type: string) {
@@ -53,6 +67,6 @@ export function createErrorHandler<A extends DLightErrMap, B extends DLightErrMa
     ...methods,
     throwUnknown: notDescribed("throw"),
     errorUnknown: notDescribed("error"),
-    warnUnknown: notDescribed("warn")
+    warnUnknown: notDescribed("warn"),
   }
 }
