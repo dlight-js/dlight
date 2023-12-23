@@ -1,5 +1,5 @@
 import { DLNode } from "../DLNode"
-import DLStore from "../DLStore"
+import { EnvStore } from "../EnvNode"
 import { type AnyDLNode } from "../types"
 
 export class MutableNode extends DLNode {
@@ -7,8 +7,8 @@ export class MutableNode extends DLNode {
 
   constructor(type: number) {
     super(type)
-    if (DLStore.currentEnvNodes.length > 0) {
-      this.savedEnvNodes = [...DLStore.currentEnvNodes]
+    if (EnvStore.currentEnvNodes.length > 0) {
+      this.savedEnvNodes = [...EnvStore.currentEnvNodes]
     }
   }
 
@@ -24,10 +24,10 @@ export class MutableNode extends DLNode {
       this.initNewNodes(newNodes)
       return newNodes
     }
-    const currentEnvNodes = DLStore.currentEnvNodes
-    DLStore.replaceEnvNodes(this.savedEnvNodes)
+    const currentEnvNodes = EnvStore.currentEnvNodes
+    EnvStore.replaceEnvNodes(this.savedEnvNodes)
     const newNodes = newNodesFunc()
-    DLStore.replaceEnvNodes(currentEnvNodes)
+    EnvStore.replaceEnvNodes(currentEnvNodes)
     if (!newNodes) return
     this.initNewNodes(newNodes)
     return newNodes

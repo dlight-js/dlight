@@ -9,10 +9,7 @@ export * from "./EnvNode"
 export * from "./TextNode"
 export * from "./PropView"
 
-export function render(
-  idOrEl: string | HTMLElement,
-  DL: any
-) {
+export function render(idOrEl: string | HTMLElement, DL: any) {
   let el: HTMLElement = idOrEl as HTMLElement
   if (typeof idOrEl === "string") {
     const elFound = document.getElementById(idOrEl)
