@@ -1,6 +1,6 @@
 import { type types as t, type traverse } from "@babel/core"
-import { type DependencyProp, type ViewParticle } from "@dlightjs/reactivity-parser"
-import { type SubViewPropMap, type ViewGeneratorConfig, type ViewGeneratorOption } from "../types"
+import { type ViewParticle } from "@dlightjs/reactivity-parser"
+import { type SubViewPropMap, type ViewGeneratorConfig } from "../types"
 import ViewGenerator from "../ViewGenerator"
 
 const devMode = process.env.NODE_ENV === "development"
@@ -12,7 +12,6 @@ export default class BaseGenerator {
 
   readonly viewParticle: ViewParticle
   readonly config: ViewGeneratorConfig
-  readonly options?: ViewGeneratorOption
 
   readonly t: typeof t
   readonly traverse: typeof traverse
@@ -26,22 +25,16 @@ export default class BaseGenerator {
    * @brief Constructor
    * @param viewUnit
    * @param config
-   * @param options
    */
-  constructor(
-    viewParticle: ViewParticle,
-    config: ViewGeneratorConfig,
-    options?: ViewGeneratorOption
-  ) {
+  constructor(viewParticle: ViewParticle, config: ViewGeneratorConfig) {
     this.viewParticle = viewParticle
     this.config = config
-    this.options = options
     this.t = config.babelApi.types
     this.traverse = config.babelApi.traverse
     this.className = config.className
     this.importMap = config.importMap
     this.subViewPropMap = config.subViewPropMap
-    this.viewGenerator = new ViewGenerator(config, options)
+    this.viewGenerator = new ViewGenerator(config)
   }
 
   // ---- Init Statements
@@ -67,36 +60,54 @@ export default class BaseGenerator {
 
   // ---- Update Statements
   private readonly updateStatements: Record<number, t.Statement[]> = {}
-  addUpdateStatements(dependencies: number[] | undefined, statement: t.Statement[]) {
+  addUpdateStatements(
+    dependencies: number[] | undefined,
+    statement: t.Statement
+  ) {
     if (!dependencies || dependencies.length === 0) return
     dependencies = [...new Set(dependencies)]
     const depNum = BaseGenerator.calcDependencyNum(dependencies)
     if (!this.updateStatements[depNum]) this.updateStatements[depNum] = []
-    this.updateStatements[depNum].push(...statement)
+    this.updateStatements[depNum].push(statement)
   }
 
-  addUpdateStatementsWithoutDep(statement: t.Statement[]) {
+  addUpdateStatementsWithoutDep(statement: t.Statement) {
     if (!this.updateStatements[0]) this.updateStatements[0] = []
-    this.updateStatements[0].push(...statement)
+    this.updateStatements[0].push(statement)
   }
 
   /**
    * @returns [initStatements, updateStatements, classProperties, nodeName]
    */
-  generate(): [t.Statement[], Record<number, t.Statement[]>, t.ClassProperty[], string] {
+  generate(): [
+    t.Statement[],
+    Record<number, t.Statement[]>,
+    t.ClassProperty[],
+    string,
+  ] {
     const nodeName = this.run()
     return [
       this.initStatements,
       this.updateStatements,
       this.classProperties,
-      nodeName
+      nodeName,
     ]
   }
 
-  generateChildren(viewParticles: ViewParticle[], mergeStatements = true): [t.Statement[], string[], Record<number, t.Statement[]>] {
+  /**
+   * @brief Generate the view given the view particles, mainly used for child particles parsing
+   * @param viewParticles
+   * @param mergeStatements
+   * @returns [initStatements, topLevelNodes, updateStatements]
+   */
+  generateChildren(
+    viewParticles: ViewParticle[],
+    mergeStatements = true
+  ): [t.Statement[], string[], Record<number, t.Statement[]>] {
     this.viewGenerator.nodeIdx = this.nodeIdx
     this.viewGenerator.templateIdx = this.templateIdx
-    const [initStatements, updateStatements, classProperties, topLevelNodes] = this.viewGenerator.generateChildren(viewParticles)
+    const [initStatements, updateStatements, classProperties, topLevelNodes] =
+      this.viewGenerator.generateChildren(viewParticles)
     this.nodeIdx = this.viewGenerator.nodeIdx
     this.templateIdx = this.viewGenerator.templateIdx
     this.classProperties.push(...classProperties)
@@ -105,7 +116,11 @@ export default class BaseGenerator {
     return [initStatements, topLevelNodes, updateStatements]
   }
 
-  mergeStatements(statements: Record<number, t.Statement[]>) {
+  /**
+   * @brief Merge the update statements
+   * @param statements
+   */
+  private mergeStatements(statements: Record<number, t.Statement[]>): void {
     Object.entries(statements).forEach(([depNum, statements]) => {
       if (!this.updateStatements[Number(depNum)]) {
         this.updateStatements[Number(depNum)] = []
@@ -114,10 +129,20 @@ export default class BaseGenerator {
     })
   }
 
-  generateChild(viewParticle: ViewParticle, mergeStatements = true): [t.Statement[], string, Record<number, t.Statement[]>] {
+  /**
+   * @brief Generate the view given the view particle
+   * @param viewParticle
+   * @param mergeStatements
+   * @returns [initStatements, nodeName, updateStatements]
+   */
+  generateChild(
+    viewParticle: ViewParticle,
+    mergeStatements = true
+  ): [t.Statement[], string, Record<number, t.Statement[]>] {
     this.viewGenerator.nodeIdx = this.nodeIdx
     this.viewGenerator.templateIdx = this.templateIdx
-    const [initStatements, updateStatements, classProperties, nodeName] = this.viewGenerator.generateChild(viewParticle)
+    const [initStatements, updateStatements, classProperties, nodeName] =
+      this.viewGenerator.generateChild(viewParticle)
     this.nodeIdx = this.viewGenerator.nodeIdx
     this.templateIdx = this.viewGenerator.templateIdx
     this.classProperties.push(...classProperties)
@@ -126,174 +151,107 @@ export default class BaseGenerator {
     return [initStatements, nodeName, updateStatements]
   }
 
-  geneUpdateBody(updateStatements: Record<number, t.Statement[]>): t.BlockStatement {
-    return (
-      this.t.blockStatement([
-        ...Object.entries(updateStatements)
-          .filter(([depNum]) => depNum !== "0")
-          .map(([depNum, statements]) => {
-            return (
-              this.t.ifStatement(
-                this.t.binaryExpression(
-                  "&",
-                  this.t.identifier("changed"),
-                  this.t.numericLiteral(Number(depNum))
-                ),
-                this.t.blockStatement(statements)
-              )
-            )
-          }),
-        ...updateStatements[0] ?? []
-      ])
-    )
-  }
-
-  generateReturnStatement(topLevelNodes: string[]) {
-    return (
-      this.t.returnStatement(
-        this.t.arrayExpression(
-          topLevelNodes.map(name => this.t.identifier(name))
-        )
-      )
-    )
-  }
-
-  run(): string { return "" }
-
-  // ---- Dependency
-  reverseDependencyIndexArr(updateStatements: Record<number, t.Statement[]>): number[] {
-    const allDepsNum = Object.keys(updateStatements).map(Number).reduce((acc, depNum) => acc | depNum, 0)
-    const allDeps = []
-    for (let i = 0; i < String(allDepsNum).length; i++) {
-      if (allDepsNum & (1 << i)) allDeps.push(i)
-    }
-    return allDeps
-  }
-
-  // ---- Prop View
-  alterPropViews<T extends Record<string, DependencyProp> | undefined>(
-    props: T
-  ): T {
-    if (!props) return props
-    return Object.fromEntries(
-      Object.entries(props).map(([key, prop]) => {
-        return [key, this.alterPropView(prop)!]
-      })
-    ) as T
-  }
-
-  declarePropView(viewParticles: ViewParticle[]) {
-    // ---- Generate PropView
-    const [initStatements, topLevelNodes, updateStatements] = this.generateChildren(viewParticles, false)
-    // ---- Add update function to the first node
-    if (topLevelNodes.length > 0) {
-      /**
-    * ${topLevelNodes[0]}.update = (changed) => ${updateStatements}
-    */
-      initStatements.push(
-        this.t.expressionStatement(
-          this.t.assignmentExpression(
-            "=",
-            this.t.memberExpression(
-              this.t.identifier(topLevelNodes[0]),
-              this.t.identifier("_$updateFunc")
-            ),
-            this.t.arrowFunctionExpression(
-              [this.t.identifier("changed")],
-              this.geneUpdateBody(updateStatements)
-            )
-          )
-        ),
-        this.generateReturnStatement(topLevelNodes)
-      )
-    }
-
-    // ---- Assign as a dlNode
-    const dlNodeName = this.generateNodeName()
-    const propViewNode = this.t.variableDeclaration("const", [
-      this.t.variableDeclarator(
-        this.t.identifier(dlNodeName),
-        this.t.newExpression(
-          this.t.identifier(this.importMap.PropView),
-          [this.t.arrowFunctionExpression([], this.t.blockStatement(initStatements))]
-        )
-      )
-    ])
-    this.addInitStatement(propViewNode)
-    const propViewIdentifier = this.t.identifier(dlNodeName)
-
-    // ---- Add to update statements
-    /**
-  * ${dlNodeName}.update(changed)
-  */
-    this.addUpdateStatements(this.reverseDependencyIndexArr(updateStatements), [
-      this.t.expressionStatement(
-        this.t.callExpression(
-          this.t.memberExpression(
-            propViewIdentifier,
-            this.t.identifier("update")
-          ), [this.t.identifier("changed")]
-        )
-      )
-    ])
-
-    return dlNodeName
-  }
-
   /**
-   * new PropView(() => {})
+   * @View
+   * this._$update = (changed) => {
+   *   if (changed & 1) {
+   *     ...
+   *   }
+   *   ...
+   * }
    */
-  alterPropView<T extends DependencyProp | undefined>(prop: T): T {
-    if (!prop) return prop
-    const { value, viewPropMap } = prop
-    if (!viewPropMap) return { ...prop, value }
-    let newValue = value
-    this.traverse(this.valueWrapper(value), {
-      StringLiteral: innerPath => {
-        const id = innerPath.node.value
-        const viewParticles = viewPropMap[id]
-        if (!viewParticles) return
-        const propViewIdentifier = this.t.identifier(this.declarePropView(viewParticles))
-
-        if (value === innerPath.node) newValue = propViewIdentifier
-        innerPath.replaceWith(propViewIdentifier)
-        innerPath.skip()
-      }
-    })
-    return { ...prop, value: newValue }
+  geneUpdateBody(
+    updateStatements: Record<number, t.Statement[]>
+  ): t.BlockStatement {
+    return this.t.blockStatement([
+      ...Object.entries(updateStatements)
+        .filter(([depNum]) => depNum !== "0")
+        .map(([depNum, statements]) => {
+          return this.t.ifStatement(
+            this.t.binaryExpression(
+              "&",
+              this.t.identifier("changed"),
+              this.t.numericLiteral(Number(depNum))
+            ),
+            this.t.blockStatement(statements)
+          )
+        }),
+      ...(updateStatements[0] ?? []),
+    ])
   }
 
   /**
- * @brief Wrap the value in a file
- * @param node
- * @returns wrapped value
- */
-  valueWrapper(node: t.Expression | t.Statement): t.File {
-    return this.t.file(this.t.program([
-      this.t.isStatement(node)
-        ? node
-        : this.t.expressionStatement(node)
-    ]))
+   * @View
+   * return [${topLevelNodes}]
+   */
+  generateReturnStatement(topLevelNodes: string[]): t.ReturnStatement {
+    return this.t.returnStatement(
+      this.t.arrayExpression(topLevelNodes.map(name => this.t.identifier(name)))
+    )
+  }
+
+  /**
+   * @brief To be implemented by the subclass as the main node generation function
+   * @returns dlNodeName
+   */
+  run(): string {
+    return ""
   }
 
   // ---- Name ----
+  // ---- Used as dlNodeName for any node declaration
   nodeIdx = -1
   generateNodeName(idx?: number): string {
     return `${BaseGenerator.prefixMap.node}${idx ?? ++this.nodeIdx}`
   }
 
+  // ---- Used as template generation as class property
   templateIdx = -1
   generateTemplateName(): string {
     return `${BaseGenerator.prefixMap.template}${++this.templateIdx}`
   }
 
   // ---- @Utils -----
+  /**
+   *
+   * @param updateStatements
+   * @returns
+   */
+
+  /**
+   * @brief Calculate the dependency number from an array of dependency index
+   *  e.g.
+   *    [0, 1, 2] => 0b111 => 7
+   *    [1, 3] => 0b1010 => 10
+   * @param dependencies
+   * @returns dependency number
+   */
   static calcDependencyNum(dependencies: number[] | undefined): number {
     if (!dependencies || dependencies.length === 0) return 0
     return dependencies.reduce((acc, dep) => acc + (1 << dep), 0)
   }
 
-  static statementsCollector(): [t.Statement[], (...statements: t.Statement[] | t.Statement[][]) => void] {
+  /**
+   * @brief Wrap the value in a file
+   * @param node
+   * @returns wrapped value
+   */
+  valueWrapper(node: t.Expression | t.Statement): t.File {
+    return this.t.file(
+      this.t.program([
+        this.t.isStatement(node) ? node : this.t.expressionStatement(node),
+      ])
+    )
+  }
+
+  /**
+   * @brief Shorthand function for collecting statements in batch
+   * @returns [statements, collect]
+   */
+  static statementsCollector(): [
+    t.Statement[],
+    (...statements: t.Statement[] | t.Statement[][]) => void,
+  ] {
     const statements: t.Statement[] = []
     const collect = (...newStatements: t.Statement[] | t.Statement[][]) => {
       newStatements.forEach(s => {

@@ -1,8 +1,12 @@
 import { type types as t } from "@babel/core"
-import { type ViewParticle, type DependencyProp, type EnvParticle } from "@dlightjs/reactivity-parser"
-import BaseGenerator from "../HelperGenerators/BaseGenerator"
+import {
+  type ViewParticle,
+  type DependencyProp,
+  type EnvParticle,
+} from "@dlightjs/reactivity-parser"
+import PropViewGenerator from "../HelperGenerators/PropViewGenerator"
 
-export default class EnvGenerator extends BaseGenerator {
+export default class EnvGenerator extends PropViewGenerator {
   run() {
     let { props, children } = this.viewParticle as EnvParticle
     props = this.alterPropViews(props)!
@@ -17,77 +21,86 @@ export default class EnvGenerator extends BaseGenerator {
     // ---- Update props
     Object.entries(props).forEach(([key, { dependencyIndexArr, value }]) => {
       if (!dependencyIndexArr) return
-      this.addUpdateStatements(dependencyIndexArr, [this.updateEnvNode(dlNodeName, key, value)])
+      this.addUpdateStatements(
+        dependencyIndexArr,
+        this.updateEnvNode(dlNodeName, key, value)
+      )
     })
 
     return dlNodeName
   }
 
-  private generateEnvs(props: Record<string, DependencyProp>) {
-    return (
-      this.t.objectExpression(
-        Object.entries(props).map(([key, { value }]) => (
-          this.t.objectProperty(
-            this.t.identifier(key),
-            value
-          )
-        ))
+  /**
+   * @View
+   * { ${key}: ${value}, ... }
+   */
+  private generateEnvs(props: Record<string, DependencyProp>): t.Expression {
+    return this.t.objectExpression(
+      Object.entries(props).map(([key, { value }]) =>
+        this.t.objectProperty(this.t.identifier(key), value)
       )
     )
   }
 
   /**
+   * @View
    * const ${dlNodeName} = new EnvNode(envs)
    */
-  private declareEnvNode(dlNodeName: string, props: Record<string, DependencyProp>) {
-    return (
-      this.t.variableDeclaration("const", [
-        this.t.variableDeclarator(
-          this.t.identifier(dlNodeName),
-          this.t.newExpression(
-            this.t.identifier("EnvNode"),
-            [this.generateEnvs(props)]
-          )
-        )
-      ])
-    )
+  private declareEnvNode(
+    dlNodeName: string,
+    props: Record<string, DependencyProp>
+  ): t.VariableDeclaration {
+    return this.t.variableDeclaration("const", [
+      this.t.variableDeclarator(
+        this.t.identifier(dlNodeName),
+        this.t.newExpression(this.t.identifier("EnvNode"), [
+          this.generateEnvs(props),
+        ])
+      ),
+    ])
   }
 
   /**
+   * @View
    * ${dlNodeName}.initNodes([${childrenNames}])
    */
-  private geneEnvChildren(dlNodeName: string, children: ViewParticle[]) {
+  private geneEnvChildren(
+    dlNodeName: string,
+    children: ViewParticle[]
+  ): t.Statement {
     const [statements, childrenNames] = this.generateChildren(children)
     this.addInitStatement(...statements)
-    return (
-      this.t.expressionStatement(
-        this.t.callExpression(
-          this.t.memberExpression(
-            this.t.identifier(dlNodeName),
-            this.t.identifier("initNodes")
+    return this.t.expressionStatement(
+      this.t.callExpression(
+        this.t.memberExpression(
+          this.t.identifier(dlNodeName),
+          this.t.identifier("initNodes")
+        ),
+        [
+          this.t.arrayExpression(
+            childrenNames.map(name => this.t.identifier(name))
           ),
-          [this.t.arrayExpression(childrenNames.map(name => this.t.identifier(name)))]
-        )
+        ]
       )
     )
   }
 
   /**
+   * @View
    * ${dlNodeName}.updateEnv(${key}, ${value})
    */
-  private updateEnvNode(dlNodeName: string, key: string, value: t.Expression) {
-    return (
-      this.t.expressionStatement(
-        this.t.callExpression(
-          this.t.memberExpression(
-            this.t.identifier(dlNodeName),
-            this.t.identifier("updateEnv")
-          ),
-          [
-            this.t.stringLiteral(key),
-            value
-          ]
-        )
+  private updateEnvNode(
+    dlNodeName: string,
+    key: string,
+    value: t.Expression
+  ): t.Statement {
+    return this.t.expressionStatement(
+      this.t.callExpression(
+        this.t.memberExpression(
+          this.t.identifier(dlNodeName),
+          this.t.identifier("updateEnv")
+        ),
+        [this.t.stringLiteral(key), value]
       )
     )
   }

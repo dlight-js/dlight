@@ -1,16 +1,20 @@
-import { type DependencyProp, type SubviewParticle } from "@dlightjs/reactivity-parser"
-import BaseGenerator from "../HelperGenerators/BaseGenerator"
+import {
+  type DependencyProp,
+  type SubviewParticle,
+} from "@dlightjs/reactivity-parser"
 import type { types as t } from "@babel/core"
+import PropViewGenerator from "../HelperGenerators/PropViewGenerator"
 
-export default class SubViewGenerator extends BaseGenerator {
+export default class SubViewGenerator extends PropViewGenerator {
   run() {
-    const { tag, props } = this.viewParticle as SubviewParticle
+    let { tag, props } = this.viewParticle as SubviewParticle
+    props = this.alterPropViews(props)
 
     const dlNodeName = this.generateNodeName()
 
     this.addInitStatement(this.declareSubviewNode(dlNodeName, tag, props ?? {}))
 
-    const availableProperties = this.subViewPropMap[tag] || []
+    const availableProperties = this.subViewPropMap[tag] ?? []
 
     if (props) {
       Object.entries(props).forEach(([key, { value, dependencyIndexArr }]) => {
@@ -19,90 +23,90 @@ export default class SubViewGenerator extends BaseGenerator {
         const propChange = 1 << depIdx
         this.addUpdateStatements(
           dependencyIndexArr,
-          [this.updateProp(dlNodeName, propChange, key, value)]
+          this.updateProp(dlNodeName, propChange, key, value)
         )
       })
     }
-    this.addUpdateStatementsWithoutDep([this.updateSubView(dlNodeName)])
+    this.addUpdateStatementsWithoutDep(this.updateSubView(dlNodeName))
 
     return dlNodeName
   }
 
-  private genePropNode(props: Record<string, DependencyProp>) {
-    return (
-      this.t.objectExpression(
-        Object.entries(props).map(([key, prop]) => {
-          return (
-            this.t.objectProperty(
-              this.t.identifier(key),
-              prop.value
-            )
-          )
-        })
-      )
+  /**
+   * @View
+   * { ${key}: ${value}, ... }
+   */
+  private genePropNode(props: Record<string, DependencyProp>): t.Expression {
+    return this.t.objectExpression(
+      Object.entries(props).map(([key, prop]) => {
+        return this.t.objectProperty(this.t.identifier(key), prop.value)
+      })
     )
   }
 
   /**
+   * @View
    * const ${dlNodeName} = this.${tag}({${props}})
    */
-  private declareSubviewNode(dlNodeName: string, tag: string, props: Record<string, DependencyProp>) {
-    return (
-      this.t.variableDeclaration("const", [
-        this.t.variableDeclarator(
-          this.t.identifier(dlNodeName),
-          this.t.callExpression(
-            this.t.memberExpression(
-              this.t.thisExpression(),
-              this.t.identifier(tag)
-            ),
-            [this.genePropNode(props)]
-          )
+  private declareSubviewNode(
+    dlNodeName: string,
+    tag: string,
+    props: Record<string, DependencyProp>
+  ): t.VariableDeclaration {
+    return this.t.variableDeclaration("const", [
+      this.t.variableDeclarator(
+        this.t.identifier(dlNodeName),
+        this.t.callExpression(
+          this.t.memberExpression(
+            this.t.thisExpression(),
+            this.t.identifier(tag)
+          ),
+          [this.genePropNode(props)]
         )
-      ])
-    )
+      ),
+    ])
   }
 
   /**
+   * @View
    * ${dlNodeName}.updateProp(${propChanged}, { ${key}: ${value} })
    */
-  private updateProp(dlNodeName: string, propChanged: number, key: string, value: t.Expression) {
-    return (
-      this.t.expressionStatement(
-        this.t.optionalCallExpression(
-          this.t.memberExpression(
-            this.t.identifier(dlNodeName),
-            this.t.identifier("updateProp")
-          ),
-          [
-            this.t.numericLiteral(propChanged),
-            this.t.objectExpression([
-              this.t.objectProperty(
-                this.t.identifier(key),
-                value
-              )
-            ])
-          ],
-          true
-        )
+  private updateProp(
+    dlNodeName: string,
+    propChanged: number,
+    key: string,
+    value: t.Expression
+  ): t.Statement {
+    return this.t.expressionStatement(
+      this.t.optionalCallExpression(
+        this.t.memberExpression(
+          this.t.identifier(dlNodeName),
+          this.t.identifier("updateProp")
+        ),
+        [
+          this.t.numericLiteral(propChanged),
+          this.t.objectExpression([
+            this.t.objectProperty(this.t.identifier(key), value),
+          ]),
+        ],
+        true
       )
     )
   }
 
   /**
+   * @View
    * ${dlNodeName}?.update(changed)
    */
-  private updateSubView(dlNodeName: string) {
-    return (
-      this.t.expressionStatement(
-        this.t.optionalCallExpression(
-          this.t.memberExpression(
-            this.t.identifier(dlNodeName),
-            this.t.identifier("update")
-          ),
-          [this.t.identifier("changed")],
-          true
-        )
+  private updateSubView(dlNodeName: string): t.Statement {
+    return this.t.expressionStatement(
+      this.t.optionalCallExpression(
+        this.t.memberExpression(
+          this.t.identifier(dlNodeName),
+          this.t.identifier("update")
+        ),
+        [this.t.identifier("changed")],
+        true
       )
     )
   }

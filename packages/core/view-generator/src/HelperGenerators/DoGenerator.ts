@@ -1,22 +1,21 @@
 import { type types as t } from "@babel/core"
-import BaseGenerator from "./BaseGenerator"
 import { DLError } from "../error"
+import PropViewGenerator from "./PropViewGenerator"
 
-export default class DoGenerator extends BaseGenerator {
+export default class DoGenerator extends PropViewGenerator {
   /**
+   * @View
    * ${value}(dlNodeName)
    */
-  addDo(dlNodeName: string, value: t.Expression) {
-    if (!this.t.isFunctionExpression(value) && !this.t.isArrowFunctionExpression(value)) {
+  addDo(dlNodeName: string, value: t.Expression): t.ExpressionStatement {
+    if (
+      !this.t.isFunctionExpression(value) &&
+      !this.t.isArrowFunctionExpression(value)
+    ) {
       return DLError.throw1()
     }
-    return (
-      this.t.expressionStatement(
-        this.t.callExpression(
-          value,
-          [this.t.identifier(dlNodeName)]
-        )
-      )
+    return this.t.expressionStatement(
+      this.t.callExpression(value, [this.t.identifier(dlNodeName)])
     )
   }
 }

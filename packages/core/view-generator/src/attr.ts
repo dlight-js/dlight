@@ -1,3 +1,6 @@
+/**
+ * @brief HTML internal attribute map, can be accessed as js property
+ */
 const attributeMap = {
   // ---- Other property as attribute
   textContent: ["*"],
@@ -8,7 +11,21 @@ const attributeMap = {
   acceptCharset: ["form"],
   accesskey: ["*"],
   action: ["form"],
-  align: ["caption", "col", "colgroup", "hr", "iframe", "img", "table", "tbody", "td", "tfoot", "th", "thead", "tr"],
+  align: [
+    "caption",
+    "col",
+    "colgroup",
+    "hr",
+    "iframe",
+    "img",
+    "table",
+    "tbody",
+    "td",
+    "tfoot",
+    "th",
+    "thead",
+    "tr",
+  ],
   allow: ["iframe"],
   alt: ["area", "img", "input"],
   async: ["script"],
@@ -18,7 +35,18 @@ const attributeMap = {
   autoplay: ["audio", "video"],
   background: ["body", "table", "td", "th"],
   // ---- Original: base
-  bgColor: ["body", "col", "colgroup", "marquee", "table", "tbody", "tfoot", "td", "th", "tr"],
+  bgColor: [
+    "body",
+    "col",
+    "colgroup",
+    "marquee",
+    "table",
+    "tbody",
+    "tfoot",
+    "td",
+    "th",
+    "tr",
+  ],
   border: ["img", "object", "table"],
   buffered: ["audio", "video"],
   capture: ["input"],
@@ -46,14 +74,33 @@ const attributeMap = {
   defer: ["script"],
   dir: ["*"],
   dirname: ["input", "textarea"],
-  disabled: ["button", "fieldset", "input", "optgroup", "option", "select", "textarea"],
+  disabled: [
+    "button",
+    "fieldset",
+    "input",
+    "optgroup",
+    "option",
+    "select",
+    "textarea",
+  ],
   download: ["a", "area"],
   draggable: ["*"],
   enctype: ["form"],
   // ---- Original: enterkeyhint
   enterKeyHint: ["textarea", "contenteditable"],
   for: ["label", "output"],
-  form: ["button", "fieldset", "input", "label", "meter", "object", "output", "progress", "select", "textarea"],
+  form: [
+    "button",
+    "fieldset",
+    "input",
+    "label",
+    "meter",
+    "object",
+    "output",
+    "progress",
+    "select",
+    "textarea",
+  ],
   // ---- Original: formaction
   formAction: ["input", "button"],
   // ---- Original: formenctype
@@ -100,7 +147,20 @@ const attributeMap = {
   min: ["input", "meter"],
   multiple: ["input", "select"],
   muted: ["audio", "video"],
-  name: ["button", "form", "fieldset", "iframe", "input", "object", "output", "select", "textarea", "map", "meta", "param"],
+  name: [
+    "button",
+    "form",
+    "fieldset",
+    "iframe",
+    "input",
+    "object",
+    "output",
+    "select",
+    "textarea",
+    "map",
+    "meta",
+    "param",
+  ],
   // ---- Original: novalidate
   noValidate: ["form"],
   open: ["details", "dialog"],
@@ -132,7 +192,17 @@ const attributeMap = {
   slot: ["*"],
   span: ["col", "colgroup"],
   spellcheck: ["*"],
-  src: ["audio", "embed", "iframe", "img", "input", "script", "source", "track", "video"],
+  src: [
+    "audio",
+    "embed",
+    "iframe",
+    "img",
+    "input",
+    "script",
+    "source",
+    "track",
+    "video",
+  ],
   srcdoc: ["iframe"],
   srclang: ["track"],
   srcset: ["img", "source"],
@@ -145,24 +215,51 @@ const attributeMap = {
   target: ["a", "area", "base", "form"],
   title: ["*"],
   translate: ["*"],
-  type: ["button", "input", "embed", "object", "ol", "script", "source", "style", "menu", "link"],
+  type: [
+    "button",
+    "input",
+    "embed",
+    "object",
+    "ol",
+    "script",
+    "source",
+    "style",
+    "menu",
+    "link",
+  ],
   usemap: ["img", "input", "object"],
-  value: ["button", "data", "input", "li", "meter", "option", "progress", "param", "text"/** extra for TextNode */],
+  value: [
+    "button",
+    "data",
+    "input",
+    "li",
+    "meter",
+    "option",
+    "progress",
+    "param",
+    "text" /** extra for TextNode */,
+  ],
   width: ["canvas", "embed", "iframe", "img", "input", "object", "video"],
-  wrap: ["textarea"]
+  wrap: ["textarea"],
 }
 
-const elementAttributeMap = (
-  Object.entries(attributeMap).reduce<Record<string, string[]>>((acc, [key, elements]) => {
-    elements.forEach((element) => {
-      if (!acc[element]) acc[element] = []
-      acc[element].push(key)
-    })
-    return acc
-  }, {})
-)
+const elementAttributeMap = Object.entries(attributeMap).reduce<
+  Record<string, string[]>
+>((acc, [key, elements]) => {
+  elements.forEach(element => {
+    if (!acc[element]) acc[element] = []
+    acc[element].push(key)
+  })
+  return acc
+}, {})
 
-export function isInternalAttribute(tag: string, attribute: string) {
+/**
+ * @brief Check if the attribute is internal, i.e., can be accessed as js property
+ * @param tag
+ * @param attribute
+ * @returns true if the attribute is internal
+ */
+export function isInternalAttribute(tag: string, attribute: string): boolean {
   return (
     elementAttributeMap["*"].includes(attribute) ||
     elementAttributeMap[tag]?.includes(attribute)
