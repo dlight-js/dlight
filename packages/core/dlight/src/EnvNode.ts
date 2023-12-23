@@ -1,5 +1,4 @@
-import { DLNode, DLNodeType } from "./DLNode"
-import { type AnyDLNode } from "./types"
+import { type AnyDLNode, DLNode, DLNodeType } from "./DLNode"
 import { type CompNode } from "./CompNode"
 
 class EnvStoreClass {
@@ -9,7 +8,7 @@ class EnvStoreClass {
    * @brief Add a node to the current env and merge envs
    * @param node
    */
-  addEnvNode(node: AnyDLNode) {
+  addEnvNode(node: AnyDLNode): void {
     this.currentEnvNodes.push(node)
     this.mergeEnvs()
   }
@@ -18,7 +17,7 @@ class EnvStoreClass {
    * @brief Replace the current env with the given nodes and merge envs
    * @param nodes
    */
-  replaceEnvNodes(nodes: AnyDLNode[]) {
+  replaceEnvNodes(nodes: AnyDLNode[]): void {
     this.currentEnvNodes = nodes
     this.mergeEnvs()
   }
@@ -26,7 +25,7 @@ class EnvStoreClass {
   /**
    * @brief Remove the last node from the current env and merge envs
    */
-  removeEnvNode() {
+  removeEnvNode(): void {
     this.currentEnvNodes.pop()
     this.mergeEnvs()
   }
@@ -67,7 +66,7 @@ export class EnvNode extends DLNode {
    * @param name
    * @param value
    */
-  updateEnv(name: string, value: any) {
+  updateEnv(name: string, value: any): void {
     this.envs[name] = value
     this.updateNodes.forEach(node => {
       node._$updateEnv(name, value, this)
@@ -78,7 +77,7 @@ export class EnvNode extends DLNode {
    * @brief Set this._$nodes, and exit the current env
    * @param nodes
    */
-  initNodes(nodes: AnyDLNode[]) {
+  initNodes(nodes: AnyDLNode[]): void {
     this._$nodes = nodes
     EnvStore.removeEnvNode()
   }

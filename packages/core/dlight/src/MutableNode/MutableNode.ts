@@ -1,6 +1,5 @@
-import { DLNode } from "../DLNode"
+import { type AnyDLNode, DLNode } from "../DLNode"
 import { EnvStore } from "../EnvNode"
-import { type AnyDLNode } from "../types"
 
 export class MutableNode extends DLNode {
   savedEnvNodes

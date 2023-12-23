@@ -1,5 +1,4 @@
-import { DLNodeType } from "../DLNode"
-import { type AnyDLNode } from "../types"
+import { type AnyDLNode, DLNodeType } from "../DLNode"
 import { MutableNode } from "./MutableNode"
 
 export class ExpNode extends MutableNode {
@@ -12,10 +11,10 @@ export class ExpNode extends MutableNode {
   }
 
   update() {
-    const newNodes = this.geneNewNodesInEnv(() => (
+    const newNodes = this.geneNewNodesInEnv(() =>
       ExpNode.formatNodes(this.nodesFunc())
-    ))!
-    this.removeNodes(this._$nodes)
+    )!
+    this.removeNodes(this._$nodes!)
 
     // ---- Add new nodes
     const parentEl = (this as AnyDLNode)._$parentEl
@@ -30,9 +29,10 @@ export class ExpNode extends MutableNode {
     if (!Array.isArray(nodes)) nodes = [nodes]
     return nodes
       .flat(1)
-      .filter((node: AnyDLNode) => (
-        node !== undefined && node !== null && typeof node !== "boolean"
-      ))
+      .filter(
+        (node: AnyDLNode) =>
+          node !== undefined && node !== null && typeof node !== "boolean"
+      )
       .map((node: any) => {
         if (
           typeof node === "string" ||
@@ -41,7 +41,7 @@ export class ExpNode extends MutableNode {
         ) {
           return document.createTextNode(`${node}`)
         }
-        if ("_$propView" in node) return node.build()
+        if ("propViewFunc" in node) return node.build()
         return node
       })
       .flat(1)

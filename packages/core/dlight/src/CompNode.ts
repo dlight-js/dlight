@@ -1,7 +1,6 @@
-import { DLNode, DLNodeType } from "./DLNode"
+import { type AnyDLNode, DLNode, DLNodeType } from "./DLNode"
 import { EnvStore, type EnvNode } from "./EnvNode"
 import { forwardHTMLProp } from "./HTMLNode"
-import { type AnyDLNode } from "./types"
 
 export class CompNode extends DLNode {
   /**

@@ -1,5 +1,4 @@
-import { DLNode } from "./DLNode"
-import { type AnyDLNode } from "./types"
+import { DLNode, type AnyDLNode } from "./DLNode"
 
 /**
  * @brief Plainly set style

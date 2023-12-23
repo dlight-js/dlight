@@ -1,4 +1,4 @@
-import { type AnyDLNode } from "./types"
+export type AnyDLNode = any
 
 export enum DLNodeType {
   Comp = 0,

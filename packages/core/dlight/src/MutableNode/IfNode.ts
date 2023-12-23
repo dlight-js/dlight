@@ -1,5 +1,4 @@
-import { DLNodeType } from "../DLNode"
-import { type AnyDLNode } from "../types"
+import { type AnyDLNode, DLNodeType } from "../DLNode"
 import { MutableNode } from "./MutableNode"
 
 export class IfNode extends MutableNode {
@@ -17,7 +16,7 @@ export class IfNode extends MutableNode {
     const newNodes = this.geneNewNodesInEnv(() => this.condFunc(this))
     // ---- If the new nodes are the same as the old nodes, we don't need to update
     if (!newNodes) return
-    this.removeNodes(this._$nodes)
+    this.removeNodes(this._$nodes!)
     if (this.cond === -1) {
       // ---- No branch has been taken
       this._$nodes = []
@@ -33,6 +32,6 @@ export class IfNode extends MutableNode {
   }
 
   update(changed: number) {
-    this._$nodes[0]?._$updateFunc?.(changed)
+    this._$nodes![0]?._$updateFunc?.(changed)
   }
 }

@@ -1,5 +1,4 @@
-import { DLNodeType } from "../DLNode"
-import { type AnyDLNode } from "../types"
+import { type AnyDLNode, DLNodeType } from "../DLNode"
 import { MutableNode } from "./MutableNode"
 
 export class ForNode<T, G> extends MutableNode {
@@ -10,7 +9,12 @@ export class ForNode<T, G> extends MutableNode {
   _$nodes
   nodess
 
-  constructor(array: T[], nodeFunc: (item: T) => AnyDLNode[], depNum: number, keys?: G[]) {
+  constructor(
+    array: T[],
+    nodeFunc: (item: T) => AnyDLNode[],
+    depNum: number,
+    keys?: G[]
+  ) {
     super(DLNodeType.For)
     this.array = [...array]
     this.nodeFunc = nodeFunc
@@ -155,7 +159,7 @@ export class ForNode<T, G> extends MutableNode {
     // ---- 2. Add the nodes that are not in the array but in the new array
     // ---- Calling parentEl.childNodes.length is time-consuming,
     //      so we use a length variable to store the length
-    let length = parentEl.childNodes.length
+    let length: number = parentEl.childNodes.length
     let newFlowIndex = flowIndex
     for (let idx = 0; idx < this.keys.length; idx++) {
       const key = this.keys[idx]
@@ -173,7 +177,12 @@ export class ForNode<T, G> extends MutableNode {
         continue
       }
       const newNodes = this.getNewNodes(idx)
-      const count = MutableNode.appendNodesWithIndex(newNodes, parentEl, newFlowIndex, length)
+      const count = MutableNode.appendNodesWithIndex(
+        newNodes,
+        parentEl,
+        newFlowIndex,
+        length
+      )
       newFlowIndex += count
       length += count
       newNodess.splice(idx, 0, newNodes)
@@ -192,8 +201,8 @@ export class ForNode<T, G> extends MutableNode {
     for (let idx = 0; idx < this.keys.length; idx++) {
       const key = this.keys[idx]
       const prevIdx = shuffleKeys.indexOf(key)
-      if (bufferNodes[idx]) {
-        const bufferedNode = bufferNodes[idx]
+      const bufferedNode = bufferNodes[idx]
+      if (bufferedNode) {
         const addedElNum = MutableNode.appendNodesWithIndex(
           bufferedNode,
           parentEl,
@@ -202,13 +211,18 @@ export class ForNode<T, G> extends MutableNode {
         )
         newFlowIndex += addedElNum
         length += addedElNum
-        delete bufferNodes[idx]
+        bufferNodes[idx] = undefined
       } else if (prevIdx === idx) {
         newFlowIndex += MutableNode.getFlowIndexFromNodes(newNodess[idx])
         continue
       } else {
         bufferNodes[this.keys.indexOf(shuffleKeys[idx])] = newNodess[idx]
-        const addedElNum = MutableNode.appendNodesWithIndex(newNodess[prevIdx], parentEl, newFlowIndex, length)
+        const addedElNum = MutableNode.appendNodesWithIndex(
+          newNodess[prevIdx],
+          parentEl,
+          newFlowIndex,
+          length
+        )
         newFlowIndex += addedElNum
         length += addedElNum
       }
@@ -227,9 +241,12 @@ export class ForNode<T, G> extends MutableNode {
   private static deepEqual(obj1: any, obj2: any): boolean {
     if (obj1 === obj2) return true
     if (
-      typeof obj1 !== "object" || typeof obj2 !== "object" ||
-      obj1 == null || obj2 == null
-    ) return false
+      typeof obj1 !== "object" ||
+      typeof obj2 !== "object" ||
+      obj1 == null ||
+      obj2 == null
+    )
+      return false
 
     const keys1 = Object.keys(obj1)
     const keys2 = Object.keys(obj2)
