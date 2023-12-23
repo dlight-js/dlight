@@ -1,7 +1,7 @@
 {
   "name": "@dlightjs/reactivity-parser",
-  "version": "0.0.1",
-  "description": "DLight transpiler for babel",
+  "version": "1.0.0-alpha.0",
+  "description": "DLight reactivity parser given View Units",
   "author": {
     "name": "IanDx",
     "email": "iandxssxx@gmail.com"
@@ -19,8 +19,7 @@
   "typings": "dist/index.d.ts",
   "scripts": {
     "build": "tsup --sourcemap",
-    "test": "vitest",
-    "test-ui": "vitest --ui"
+    "test": "vitest --ui"
   },
   "devDependencies": {
     "@babel/core": "^7.20.12",
@@ -33,5 +32,12 @@
   "dependencies": {
     "@dlightjs/error-handler": "workspace:*",
     "@dlightjs/view-parser": "workspace:*"
+  },
+  "tsup": {
+    "entry": ["src/index.ts"],
+    "format": ["cjs", "esm"],
+    "clean": true,
+    "dts": true,
+    "minify": true
   }
 }

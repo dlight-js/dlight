@@ -2,6 +2,13 @@ import { type ViewUnit } from "@dlightjs/view-parser"
 import { ReactivityParser } from "./parser"
 import { type ViewParticle, type ReactivityParserConfig, type ReactivityParserOption } from "./types"
 
+/**
+ * @brief Parse view units to get used properties and view particles with reactivity
+ * @param viewUnits
+ * @param config
+ * @param options
+ * @returns [viewParticles, usedProperties]
+ */
 export function parseReactivity(
   viewUnits: ViewUnit[],
   config: ReactivityParserConfig,
