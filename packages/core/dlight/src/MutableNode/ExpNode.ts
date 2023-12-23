@@ -3,18 +3,26 @@ import { MutableNode } from "./MutableNode"
 
 export class ExpNode extends MutableNode {
   nodesFunc
+
+  /**
+   * @brief Constructor, Exp type, accept a function that returns a list of nodes
+   * @param nodesFunc
+   */
   constructor(nodesFunc: () => AnyDLNode[]) {
     super(DLNodeType.Exp)
-
     this.nodesFunc = nodesFunc
     this._$nodes = ExpNode.formatNodes(nodesFunc())
   }
 
+  /**
+   * @brief Generate new nodes and replace the old nodes
+   */
   update() {
     const newNodes = this.geneNewNodesInEnv(() =>
       ExpNode.formatNodes(this.nodesFunc())
     )!
     this.removeNodes(this._$nodes!)
+    if (newNodes.length === 0) return
 
     // ---- Add new nodes
     const parentEl = (this as AnyDLNode)._$parentEl
@@ -25,25 +33,37 @@ export class ExpNode extends MutableNode {
     this._$nodes = newNodes
   }
 
-  private static formatNodes(nodes: AnyDLNode) {
+  /**
+   * @brief Format the nodes
+   * @param nodes
+   * @returns New nodes
+   */
+  private static formatNodes(nodes: AnyDLNode | AnyDLNode[]): AnyDLNode[] {
     if (!Array.isArray(nodes)) nodes = [nodes]
-    return nodes
-      .flat(1)
-      .filter(
-        (node: AnyDLNode) =>
-          node !== undefined && node !== null && typeof node !== "boolean"
-      )
-      .map((node: any) => {
-        if (
-          typeof node === "string" ||
-          typeof node === "number" ||
-          typeof node === "bigint"
-        ) {
-          return document.createTextNode(`${node}`)
-        }
-        if ("propViewFunc" in node) return node.build()
-        return node
-      })
-      .flat(1)
+    return (
+      nodes
+        // ---- Flatten the nodes
+        .flat(1)
+        // ---- Filter out empty nodes
+        .filter(
+          (node: AnyDLNode) =>
+            node !== undefined && node !== null && typeof node !== "boolean"
+        )
+        .map((node: any) => {
+          // ---- If the node is a string, number or bigint, convert it to a text node
+          if (
+            typeof node === "string" ||
+            typeof node === "number" ||
+            typeof node === "bigint"
+          ) {
+            return document.createTextNode(`${node}`)
+          }
+          // ---- If the node has PropView, call it to get the view
+          if ("propViewFunc" in node) return node.build()
+          return node
+        })
+        // ---- Flatten the nodes again
+        .flat(1)
+    )
   }
 }
