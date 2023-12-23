@@ -619,7 +619,7 @@ export class ReactivityParser {
       ))
       // ---- Filter out specific props
       .filter(([key]) => (
-        !["element", "innerHTML", "prop", "attr", "dataset", "forwardProp", "textContent"].includes(key)
+        !["element", "innerHTML", "prop", "attr", "dataset", "forwardProps", "textContent"].includes(key)
       ))
   }
 

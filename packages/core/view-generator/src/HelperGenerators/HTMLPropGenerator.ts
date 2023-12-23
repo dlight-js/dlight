@@ -181,7 +181,7 @@ export default class HTMLPropGenerator extends ForwardPropGenerator {
     )
   }
 
-  private readonly commonHTMLPropKeys = ["style", "dataset", "element", "prop", "attr", "forwardProp"]
+  private readonly commonHTMLPropKeys = ["style", "dataset", "element", "prop", "attr", "forwardProps"]
   /**
    * For style/dataset/element/attr/prop
    */
@@ -191,7 +191,7 @@ export default class HTMLPropGenerator extends ForwardPropGenerator {
     if (attrName === "element") return this.setElement(dlNodeName, value)
     if (attrName === "prop") return this.setHTMLPropObject(dlNodeName, value)
     if (attrName === "attr") return this.setHTMLAttrObject(dlNodeName, value)
-    if (attrName === "forwardProp") return this.forwardProp(dlNodeName)
+    if (attrName === "forwardProps") return this.forwardProps(dlNodeName)
     return DLError.throw2()
   }
 

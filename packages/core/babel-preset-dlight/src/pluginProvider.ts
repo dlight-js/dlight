@@ -177,21 +177,22 @@ export class PluginProvider {
     /**
      * _$forwardProp
      * _$forwardPropMap = new Set()
+     * _$forwardPropsId = []
      */
     if (forwardPropDeco) {
       this.classBodyNode.body.unshift(
         this.t.classProperty(
-          this.t.identifier("_$forwardProp")
+          this.t.identifier("_$forwardProps")
         ),
         this.t.classProperty(
-          this.t.identifier("_$forwardPropMap"),
+          this.t.identifier("_$forwardPropsMap"),
           this.t.newExpression(
             this.t.identifier("Set"),
             []
           )
         ),
         this.t.classProperty(
-          this.t.identifier("_$forwardProps"),
+          this.t.identifier("_$forwardPropsId"),
           this.t.arrayExpression([])
         )
       )

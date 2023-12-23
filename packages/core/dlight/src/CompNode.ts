@@ -36,13 +36,13 @@ export class CompNode extends DLNode {
 
     this._$initd = true
 
-    // ---- Remove _$forwardProps to save memory, because it's only used in _$addForwardProp phase
-    if ("_$forwardProp" in this) delete (this as AnyDLNode)._$forwardProps
+    // ---- Remove _$forwardProps to save memory, because it's only used in _$addForwardProps phase
+    if ("_$forwardPropsId" in this) delete (this as AnyDLNode)._$forwardPropsId
   }
 
-  _$initForwardProp(name: string, value: any) {
+  _$initForwardProps(name: string, value: any) {
     if (name in this) return
-    (this as AnyDLNode)._$forwardProps.push(name)
+    (this as AnyDLNode)._$forwardPropsId.push(name)
     ;(this as AnyDLNode)[`$${name}`] = value
     Object.defineProperty(this, name, {
       get() {
@@ -56,8 +56,8 @@ export class CompNode extends DLNode {
     })
   }
 
-  _$setForwardPropMap(name: string, value: any) {
-    ;(this as AnyDLNode)._$forwardPropMap?.forEach((node: AnyDLNode) => {
+  _$setForwardPropsMap(name: string, value: any) {
+    ;(this as AnyDLNode)._$forwardPropsMap?.forEach((node: AnyDLNode) => {
       if ("_$dlNodeType" in node) {
         node[name] = value
       }
@@ -67,20 +67,20 @@ export class CompNode extends DLNode {
     })
   }
 
-  _$addForwardProp(node: AnyDLNode) {
-    (this as AnyDLNode)._$forwardPropMap.add(node)
+  _$addForwardProps(node: AnyDLNode) {
+    (this as AnyDLNode)._$forwardPropsMap.add(node)
     const prevWillUnmount = node.willUnmount
     node.willUnmount = () => {
-      (this as AnyDLNode)._$forwardPropMap.delete(node)
+      (this as AnyDLNode)._$forwardPropsMap.delete(node)
       prevWillUnmount?.()
     }
-    ;(this as AnyDLNode)._$forwardProps.forEach((name: string) => {
-      this._$setForwardPropMap(name, (this as AnyDLNode)[name])
+    ;(this as AnyDLNode)._$forwardPropsId.forEach((name: string) => {
+      this._$setForwardPropsMap(name, (this as AnyDLNode)[name])
     })
   }
 
   _$setProp(name: string, value: any) {
-    if ("_$forwardProp" in this) this._$initForwardProp(name, value)
+    if ("_$forwardProps" in this) this._$initForwardProps(name, value)
     if (!(`$p$${name}` in this)) return
     ;(this as AnyDLNode)[name] = value
   }

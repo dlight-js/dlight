@@ -37,7 +37,7 @@ export default class CompGenerator extends ForwardPropGenerator {
           return
         }
         if (key === "forwardProps") {
-          const statement = this.forwardProp(dlNodeName)
+          const statement = this.forwardProps(dlNodeName)
           this.addInitStatement(statement)
           return
         }
