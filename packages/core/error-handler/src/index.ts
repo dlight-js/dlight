@@ -25,13 +25,10 @@ type ErrorMethod<T extends DLightErrMap, G extends string> = {
  */
 export function createErrorHandler<A extends DLightErrMap, B extends DLightErrMap, C extends DLightErrMap>(
   errorSpace: string,
-  throwMap: A,
-  errorMap: B,
-  warningMap: C
+  throwMap: A = {} as any,
+  errorMap: B = {} as any,
+  warningMap: C = {} as any
 ) {
-  throwMap = throwMap ?? {}
-  errorMap = errorMap ?? {}
-  warningMap = warningMap ?? {}
   function handleError(map: DLightErrMap, type: string, func: (msg: string) => any) {
     return Object.fromEntries(
       Object.entries(map).map(([code, msg]) => [`${type}${code}`, (...args: string[]) => {
