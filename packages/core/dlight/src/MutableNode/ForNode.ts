@@ -31,7 +31,7 @@ export class ForNode<T, G> extends MutableNode {
   }
 
   getNewNodes(idx: number) {
-    return this.geneNewNodesInEnv(() => this.nodeFunc(this.array[idx]))
+    return this.geneNewNodesInEnv(() => this.nodeFunc(this.array[idx]))!
   }
 
   updateArray(newArray: T[], newKeys?: G[]) {

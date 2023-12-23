@@ -14,7 +14,7 @@ export class ExpNode extends MutableNode {
   update() {
     const newNodes = this.geneNewNodesInEnv(() => (
       ExpNode.formatNodes(this.nodesFunc())
-    ))
+    ))!
     this.removeNodes(this._$nodes)
 
     // ---- Add new nodes
