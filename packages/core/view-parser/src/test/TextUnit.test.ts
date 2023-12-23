@@ -7,7 +7,7 @@ describe("TextUnit", () => {
   // ---- Type
   it("should identify a string literal as a TextUnit", () => {
     // ---- Add a html unit to make it a string literal instead of a directive
-    const viewUnits = parse("div();\"Hello World\"")
+    const viewUnits = parse('div();"Hello World"')
     expect(viewUnits.length).toBe(2)
     expect(viewUnits[1].type).toBe("text")
   })
@@ -19,7 +19,7 @@ describe("TextUnit", () => {
   })
 
   it("should identify a directive as a TextUnit", () => {
-    const statement = parseCode("\"Hello World\"")
+    const statement = parseCode('"Hello World"')
     expect(statement.body.length).toBe(0)
     expect(statement.directives.length).toBe(1)
 
@@ -29,7 +29,7 @@ describe("TextUnit", () => {
   })
 
   it("should identify a tagged template literal with a string literal as its tag as two TextUnits", () => {
-    const viewUnits = parse("\"hi\"`Hello World`")
+    const viewUnits = parse('"hi"`Hello World`')
     expect(viewUnits.length).toBe(2)
 
     expect(viewUnits[0].type).toBe("text")
@@ -69,7 +69,7 @@ describe("TextUnit", () => {
 
   // ---- Content
   it("should correctly parse a string literal as its content", () => {
-    const viewUnits = parse("\"Hello World\"")
+    const viewUnits = parse('"Hello World"')
     const content = (viewUnits[0] as TextUnit).content
     expect(t.isStringLiteral(content, { value: "Hello World" })).toBeTruthy()
   })

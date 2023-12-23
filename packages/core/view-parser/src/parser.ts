@@ -4,7 +4,7 @@ import {
   type IfBranch,
   type ViewUnit,
   type ViewParserConfig,
-  type ViewParserOption
+  type ViewParserOption,
 } from "./types"
 import { DLError } from "./error"
 
@@ -25,23 +25,22 @@ export class ViewParser {
   readonly viewUnits: ViewUnit[] = []
 
   /**
-    * @brief Constructor
-    * @param statement
-    * @param config
-    * @param options
+   * @brief Constructor
+   * @param statement
+   * @param config
+   * @param options
    */
-  constructor(
-    config: ViewParserConfig,
-    options?: ViewParserOption
-  ) {
+  constructor(config: ViewParserConfig, options?: ViewParserOption) {
     this.config = config
     this.options = options
     this.t = config.babelApi.types
     this.traverse = config.babelApi.traverse
     this.subviewNames = config.subviewNames
     this.htmlTags = config.htmlTags
-    options?.environmentTagName && (this.environmentTagName = options.environmentTagName)
-    options?.expressionTagName && (this.expressionTagName = options.expressionTagName)
+    options?.environmentTagName &&
+      (this.environmentTagName = options.environmentTagName)
+    options?.expressionTagName &&
+      (this.expressionTagName = options.expressionTagName)
     options?.htmlTagWrapper && (this.htmlTagWrapper = options.htmlTagWrapper)
     options?.compWrapper && (this.compWrapper = options.compWrapper)
   }
@@ -68,10 +67,22 @@ export class ViewParser {
    */
   private parseStatement(statement: t.Statement | t.Directive): void {
     if (this.isInvalidExpression(statement)) return
-    if (this.t.isExpressionStatement(statement)) return this.parseExpression(statement.expression)
-    if (this.t.isForOfStatement(statement)) return this.parseFor(statement)
-    if (this.t.isIfStatement(statement)) return this.parseIf(statement)
-    if (this.t.isDirective(statement)) return this.parseText(statement.value)
+    if (this.t.isExpressionStatement(statement)) {
+      this.parseExpression(statement.expression)
+      return
+    }
+    if (this.t.isForOfStatement(statement)) {
+      this.parseFor(statement)
+      return
+    }
+    if (this.t.isIfStatement(statement)) {
+      this.parseIf(statement)
+      return
+    }
+    if (this.t.isDirective(statement)) {
+      this.parseText(statement.value)
+      return
+    }
     if (this.t.isBlockStatement(statement)) {
       // ---- If the statement is a block statement, treat it as last unit's children
       const lastViewUnit = this.viewUnits[this.viewUnits.length - 1]
@@ -103,15 +114,27 @@ export class ViewParser {
    * @param expression
    */
   private parseExpression(expression: t.Expression): void {
-    if (this.t.isCallExpression(expression)) return this.parseTag(expression)
-    if (this.t.isStringLiteral(expression) || this.t.isTemplateLiteral(expression)) return this.parseText(expression)
-    if (this.t.isTaggedTemplateExpression(expression)) return this.parseTaggedTemplate(expression)
+    if (this.t.isCallExpression(expression)) {
+      this.parseTag(expression)
+      return
+    }
+    if (
+      this.t.isStringLiteral(expression) ||
+      this.t.isTemplateLiteral(expression)
+    ) {
+      this.parseText(expression)
+      return
+    }
+    if (this.t.isTaggedTemplateExpression(expression)) {
+      this.parseTaggedTemplate(expression)
+      return
+    }
 
     // ---- Default ExpressionTag
     //      e.g. this.count -> _(this.count)
     this.viewUnits.push({
       type: "exp",
-      content: this.parseProp(expression)
+      content: this.parseProp(expression),
     })
   }
 
@@ -123,20 +146,24 @@ export class ViewParser {
   private parseIfBranches(node: t.IfStatement): IfBranch[] {
     const conditions: IfBranch[] = []
     const condition = node.test
-    const ifBody = this.t.isBlockStatement(node.consequent) ? node.consequent : this.t.blockStatement([node.consequent])
+    const ifBody = this.t.isBlockStatement(node.consequent)
+      ? node.consequent
+      : this.t.blockStatement([node.consequent])
     conditions.push({
       condition,
-      children: this.parseView(ifBody)
+      children: this.parseView(ifBody),
     })
 
     // ---- If the alternate is an if statement, parse it recursively
     if (this.t.isIfStatement(node.alternate)) {
       conditions.push(...this.parseIfBranches(node.alternate))
     } else if (node.alternate) {
-      const altBody = this.t.isBlockStatement(node.alternate) ? node.alternate : this.t.blockStatement([node.alternate])
+      const altBody = this.t.isBlockStatement(node.alternate)
+        ? node.alternate
+        : this.t.blockStatement([node.alternate])
       conditions.push({
         condition: this.t.booleanLiteral(true),
-        children: this.parseView(altBody)
+        children: this.parseView(altBody),
       })
     }
 
@@ -150,7 +177,7 @@ export class ViewParser {
   private parseIf(node: t.IfStatement): void {
     this.viewUnits.push({
       type: "if",
-      branches: this.parseIfBranches(node)
+      branches: this.parseIfBranches(node),
     })
   }
 
@@ -203,8 +230,10 @@ export class ViewParser {
           // ---- If the key is undefined or null, treat it as no key
           if (
             this.t.isExpression(keyNode) &&
-          !(this.t.isNullLiteral(keyNode) ||
-          (this.t.isIdentifier(keyNode) && keyNode.name === "undefined"))
+            !(
+              this.t.isNullLiteral(keyNode) ||
+              (this.t.isIdentifier(keyNode) && keyNode.name === "undefined")
+            )
           ) {
             key = keyNode
           }
@@ -215,8 +244,12 @@ export class ViewParser {
       }
     } else return
 
-    const directives = forBodyStatements.filter(s => this.t.isDirective(s)) as t.Directive[]
-    const statements = forBodyStatements.filter(s => !this.t.isDirective(s)) as t.Statement[]
+    const directives = forBodyStatements.filter(s =>
+      this.t.isDirective(s)
+    ) as t.Directive[]
+    const statements = forBodyStatements.filter(
+      s => !this.t.isDirective(s)
+    ) as t.Statement[]
     const forBodyBlockStatement = this.t.blockStatement(statements, directives)
     // ---- Parse the for body statements
     this.viewUnits.push({
@@ -224,7 +257,7 @@ export class ViewParser {
       item,
       array,
       key,
-      children: this.parseView(forBodyBlockStatement)
+      children: this.parseView(forBodyBlockStatement),
     })
   }
 
@@ -234,12 +267,14 @@ export class ViewParser {
    *  2. "text2 text2"
    * @param node
    */
-  private parseText(node: t.StringLiteral | t.TemplateLiteral | t.DirectiveLiteral): void {
+  private parseText(
+    node: t.StringLiteral | t.TemplateLiteral | t.DirectiveLiteral
+  ): void {
     if (this.t.isDirectiveLiteral(node)) node = this.t.stringLiteral(node.value)
 
     this.viewUnits.push({
       type: "text",
-      content: node
+      content: node,
     })
   }
 
@@ -256,22 +291,25 @@ export class ViewParser {
    * @param path
    */
   private parseTaggedTemplate(node: t.TaggedTemplateExpression): void {
-    if (this.t.isStringLiteral(node.tag) || this.t.isTemplateLiteral(node.tag)) {
+    if (
+      this.t.isStringLiteral(node.tag) ||
+      this.t.isTemplateLiteral(node.tag)
+    ) {
       // ---- Case 2
       this.viewUnits.push({
         type: "text",
-        content: node.tag
+        content: node.tag,
       })
       this.viewUnits.push({
         type: "text",
-        content: node.quasi
+        content: node.quasi,
       })
       return
     }
     // ---- Case 1
     this.viewUnits.push({
       type: "exp",
-      content: this.parseProp(node)
+      content: this.parseProp(node),
     })
   }
 
@@ -287,7 +325,7 @@ export class ViewParser {
     if (!propNode) {
       return {
         value: this.t.booleanLiteral(true),
-        viewPropMap: {}
+        viewPropMap: {},
       }
     }
 
@@ -301,7 +339,8 @@ export class ViewParser {
         if (
           !this.t.isIdentifier(firstParam, { name: "View" }) &&
           !this.t.isIdentifier(firstParam, { name: "_View" })
-        ) return
+        )
+          return
         const body = this.t.isBlockStatement(node.body)
           ? node.body
           : this.t.blockStatement([this.t.expressionStatement(node.body)])
@@ -315,12 +354,12 @@ export class ViewParser {
         }
         innerPath.replaceWith(newNode)
         innerPath.skip()
-      }
+      },
     })
 
     return {
       value: propNode,
-      viewPropMap: dlViewPropResult
+      viewPropMap: dlViewPropResult,
     }
   }
 
@@ -369,7 +408,7 @@ export class ViewParser {
         this.viewUnits.push({
           type: "exp",
           content: contentProp,
-          props
+          props,
         })
         return
       }
@@ -381,7 +420,7 @@ export class ViewParser {
         this.viewUnits.push({
           type: "env",
           props,
-          children: []
+          children: [],
         })
         return
       }
@@ -390,7 +429,7 @@ export class ViewParser {
           type: "html",
           tag: this.t.stringLiteral(tagName),
           content: contentProp,
-          props
+          props,
         })
         return
       }
@@ -399,7 +438,7 @@ export class ViewParser {
         type: "comp",
         tag: n.callee,
         content: contentProp,
-        props
+        props,
       })
       return
     }
@@ -411,15 +450,18 @@ export class ViewParser {
     ) {
       // ---- Subview
       if (contentProp) props.content = contentProp
-      if (!(
-        this.t.isMemberExpression(n.callee) &&
-        this.t.isThisExpression(n.callee.object) &&
-        this.t.isIdentifier(n.callee.property)
-      )) return DLError.throw4()
+      if (
+        !(
+          this.t.isMemberExpression(n.callee) &&
+          this.t.isThisExpression(n.callee.object) &&
+          this.t.isIdentifier(n.callee.property)
+        )
+      )
+        return DLError.throw4()
       this.viewUnits.push({
         type: "subview",
         tag: n.callee.property.name,
-        props
+        props,
       })
       return
     }
@@ -432,7 +474,7 @@ export class ViewParser {
         type: tagType,
         tag,
         content: contentProp,
-        props
+        props,
       })
     }
   }
@@ -447,7 +489,7 @@ export class ViewParser {
     this.traverse(this.valueWrapper(node), {
       CallExpression: () => {
         isPure = false
-      }
+      },
     })
     return isPure
   }
@@ -460,11 +502,12 @@ export class ViewParser {
   private alterTagType(tag: t.Expression): ["html" | "comp", t.Expression] {
     if (this.t.isCallExpression(tag) && this.t.isIdentifier(tag.callee)) {
       const tagName = tag.callee.name
-      const tagType = tagName === this.htmlTagWrapper
-        ? "html"
-        : tagName === this.compWrapper
-          ? "comp"
-          : undefined
+      const tagType =
+        tagName === this.htmlTagWrapper
+          ? "html"
+          : tagName === this.compWrapper
+            ? "comp"
+            : undefined
       if (tagType) {
         const tagTarget = tag.arguments[0]
         if (!this.t.isExpression(tagTarget)) DLError.throw2(tagName)
@@ -481,7 +524,8 @@ export class ViewParser {
    * @returns is this expression invalid
    */
   private isInvalidExpression(node: t.Statement | t.Directive): boolean {
-    const isInvalidForStatement = this.t.isForStatement(node) && !this.t.isForOfStatement(node)
+    const isInvalidForStatement =
+      this.t.isForStatement(node) && !this.t.isForOfStatement(node)
     if (isInvalidForStatement) {
       DLError.error1()
       return true

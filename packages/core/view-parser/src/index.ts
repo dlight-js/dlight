@@ -1,5 +1,9 @@
 import { ViewParser } from "./parser"
-import { type ViewUnit, type ViewParserConfig, type ViewParserOption } from "./types"
+import {
+  type ViewUnit,
+  type ViewParserConfig,
+  type ViewParserOption,
+} from "./types"
 import { type types as t } from "@babel/core"
 
 /**

@@ -31,7 +31,9 @@ describe("IfUnit", () => {
 
   // ---- Branch.Condition
   it("should correctly parse the count of conditions for multiple else and else if clauses", () => {
-    const viewUnits = parse("if(true) {} else if(false) {} else if(false) {} else {}")
+    const viewUnits = parse(
+      "if(true) {} else if(false) {} else if(false) {} else {}"
+    )
     const ifUnit = viewUnits[0] as IfUnit
     expect(ifUnit.branches.length).toBe(4)
   })
@@ -47,7 +49,9 @@ describe("IfUnit", () => {
   it("should correctly parse the condition of an else if statement", () => {
     const statement = parseCode("if(true) {} else if(this.flag) {}")
     const viewUnits = parseView(statement)
-    const originalExpression = ((statement.body[0] as t.IfStatement).alternate as t.IfStatement).test
+    const originalExpression = (
+      (statement.body[0] as t.IfStatement).alternate as t.IfStatement
+    ).test
     const ifUnit = viewUnits[0] as IfUnit
     expect(ifUnit.branches[1].condition).toBe(originalExpression)
   })

@@ -27,7 +27,8 @@ describe("ExpUnit", () => {
   it("should correctly parse content with any expression as its value", () => {
     const statement = parseCode("this.flag")
     const viewUnits = parseView(statement)
-    const originalExpression = (statement.body[0] as t.ExpressionStatement).expression
+    const originalExpression = (statement.body[0] as t.ExpressionStatement)
+      .expression
 
     const content = (viewUnits[0] as HTMLUnit).content
     expect(content?.value).toBe(originalExpression)
@@ -36,7 +37,10 @@ describe("ExpUnit", () => {
   it("should correctly parse content with any expression inside _ function call as its value", () => {
     const statement = parseCode("_(this.flag)")
     const viewUnits = parseView(statement)
-    const originalExpression = ((statement.body[0] as t.ExpressionStatement).expression as t.CallExpression).arguments[0]
+    const originalExpression = (
+      (statement.body[0] as t.ExpressionStatement)
+        .expression as t.CallExpression
+    ).arguments[0]
 
     const content = (viewUnits[0] as HTMLUnit).content
     expect(content?.value).toBe(originalExpression)
@@ -59,30 +63,41 @@ describe("ExpUnit", () => {
 
     expect(viewProp.length).toBe(1)
     expect(viewProp[0].type).toBe("html")
-    expect(t.isStringLiteral((viewProp[0] as HTMLUnit).tag, { value: "div" })).toBeTruthy()
+    expect(
+      t.isStringLiteral((viewProp[0] as HTMLUnit).tag, { value: "div" })
+    ).toBeTruthy()
   })
 
   // ---- Props
   it("should correctly parse chaining function as props", () => {
-    const viewUnits = parse("_(this.flag).id(\"id\").class(\"class\")")
+    const viewUnits = parse('_(this.flag).id("id").class("class")')
     const props = (viewUnits[0] as ExpUnit).props
     expect(props).toBeTruthy()
 
     expect(t.isStringLiteral(props?.id?.value, { value: "id" })).toBeTruthy()
-    expect(t.isStringLiteral(props?.class?.value, { value: "class" })).toBeTruthy()
+    expect(
+      t.isStringLiteral(props?.class?.value, { value: "class" })
+    ).toBeTruthy()
   })
 
   it("should correctly parse props with any expression as their values", () => {
-    const statement = parseCode("_(this.flag).onclick(() => {console.log(\"hello\")})")
+    const statement = parseCode(
+      '_(this.flag).onclick(() => {console.log("hello")})'
+    )
     const viewUnits = parseView(statement)
-    const originalExpression = ((statement.body[0] as t.ExpressionStatement).expression as t.CallExpression).arguments[0]
+    const originalExpression = (
+      (statement.body[0] as t.ExpressionStatement)
+        .expression as t.CallExpression
+    ).arguments[0]
 
     const props = (viewUnits[0] as ExpUnit).props!
     expect(props.onclick?.value).toBe(originalExpression)
   })
 
   it("should correctly parse the count of props", () => {
-    const viewUnits = parse("_(this.flag).id(\"id\").class(\"class\").style(\"style\").onclick(() => {}).onmouseover(() => {})")
+    const viewUnits = parse(
+      '_(this.flag).id("id").class("class").style("style").onclick(() => {}).onmouseover(() => {})'
+    )
     const props = (viewUnits[0] as ExpUnit).props!
     expect(Object.keys(props).length).toBe(5)
   })
@@ -104,7 +119,9 @@ describe("ExpUnit", () => {
 
     expect(viewProp.length).toBe(1)
     expect(viewProp[0].type).toBe("html")
-    expect(t.isStringLiteral((viewProp[0] as HTMLUnit).tag, { value: "div" })).toBeTruthy()
+    expect(
+      t.isStringLiteral((viewProp[0] as HTMLUnit).tag, { value: "div" })
+    ).toBeTruthy()
   })
 
   // ---- Children

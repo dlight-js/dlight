@@ -27,13 +27,18 @@ describe("EnvUnit", () => {
     const viewUnits = parse("env().count(2); { div() }")
 
     const envUnit = viewUnits[0] as EnvUnit
-    expect(t.isNumericLiteral(envUnit.props.count.value, { value: 2 })).toBeTruthy()
+    expect(
+      t.isNumericLiteral(envUnit.props.count.value, { value: 2 })
+    ).toBeTruthy()
   })
 
   it("should correctly parse the props of an env statement with a complex expression", () => {
     const statement = parseCode("env().count(2 + 2); { div() }")
     const viewUnits = parseView(statement)
-    const originalExpression = ((statement.body[0] as t.ExpressionStatement).expression as t.CallExpression).arguments[0]
+    const originalExpression = (
+      (statement.body[0] as t.ExpressionStatement)
+        .expression as t.CallExpression
+    ).arguments[0]
 
     const envUnit = viewUnits[0] as EnvUnit
     expect(envUnit.props.count.value).toBe(originalExpression)
@@ -56,7 +61,9 @@ describe("EnvUnit", () => {
 
     expect(viewProp.length).toBe(1)
     expect(viewProp[0].type).toBe("html")
-    expect(t.isStringLiteral((viewProp[0] as HTMLUnit).tag, { value: "div" })).toBeTruthy()
+    expect(
+      t.isStringLiteral((viewProp[0] as HTMLUnit).tag, { value: "div" })
+    ).toBeTruthy()
   })
 
   it("should be skipped if there's no props", () => {
@@ -83,7 +90,9 @@ describe("EnvUnit", () => {
   })
 
   it("should correctly parse the count of children of an env statement with multiple children", () => {
-    const viewUnits = parse("env().prop(1); { div(); div(); h1(); { h1() }; h2(); h3() }")
+    const viewUnits = parse(
+      "env().prop(1); { div(); div(); h1(); { h1() }; h2(); h3() }"
+    )
 
     const envUnit = viewUnits[0] as EnvUnit
     expect(envUnit.children.length).toBe(5)

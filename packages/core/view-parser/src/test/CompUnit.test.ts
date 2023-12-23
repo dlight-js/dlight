@@ -12,7 +12,9 @@ describe("CompUnit", () => {
   })
 
   it("should identify an expression inside tag function call as an CompUnit", () => {
-    const viewUnits = parse("comp(function IWillDoAnything(){return \"Comp\"}.call())()")
+    const viewUnits = parse(
+      'comp(function IWillDoAnything(){return "Comp"}.call())()'
+    )
     expect(viewUnits.length).toBe(1)
     expect(viewUnits[0].type).toBe("comp")
   })
@@ -27,18 +29,27 @@ describe("CompUnit", () => {
   it("should correctly parse a member expression function call as an CompUnit", () => {
     const statement = parseCode("CompList[0].MyComp.Component()")
     const viewUnits = parseView(statement)
-    const originalExpression = ((statement.body[0] as t.ExpressionStatement).expression as t.CallExpression).callee
+    const originalExpression = (
+      (statement.body[0] as t.ExpressionStatement)
+        .expression as t.CallExpression
+    ).callee
     const tag = (viewUnits[0] as HTMLUnit).tag
 
     expect(tag).toBe(originalExpression)
   })
 
   it("should correctly parse the tag of an CompUnit of the type of any expression inside tag to be original expression", () => {
-    const statement = parseCode("comp(function IWillDoAnything(){return \"Comp\"}.call())()")
+    const statement = parseCode(
+      'comp(function IWillDoAnything(){return "Comp"}.call())()'
+    )
     const viewUnits = parseView(statement)
 
-    const originalExpression = (((statement.body[0] as t.ExpressionStatement)
-      .expression as t.CallExpression).callee as t.CallExpression).arguments[0]
+    const originalExpression = (
+      (
+        (statement.body[0] as t.ExpressionStatement)
+          .expression as t.CallExpression
+      ).callee as t.CallExpression
+    ).arguments[0]
 
     const tag = (viewUnits[0] as HTMLUnit).tag
     expect(tag).toBe(originalExpression)
@@ -46,7 +57,7 @@ describe("CompUnit", () => {
 
   // ---- Content
   it("should correctly parse content for CompTag", () => {
-    const viewUnits = parse("Comp(\"hello\")")
+    const viewUnits = parse('Comp("hello")')
     const content = (viewUnits[0] as HTMLUnit).content
 
     expect(t.isStringLiteral(content?.value, { value: "hello" })).toBeTruthy()
@@ -55,7 +66,10 @@ describe("CompUnit", () => {
   it("should correctly parse content with any expression as its value", () => {
     const statement = parseCode("Comp(() => {doAnything()})")
     const viewUnits = parseView(statement)
-    const originalExpression = ((statement.body[0] as t.ExpressionStatement).expression as t.CallExpression).arguments[0]
+    const originalExpression = (
+      (statement.body[0] as t.ExpressionStatement)
+        .expression as t.CallExpression
+    ).arguments[0]
 
     const content = (viewUnits[0] as HTMLUnit).content?.value
     expect(content).toBe(originalExpression)
@@ -78,32 +92,43 @@ describe("CompUnit", () => {
 
     expect(viewProp.length).toBe(2)
     expect(viewProp[0].type).toBe("html")
-    expect(t.isStringLiteral((viewProp[0] as HTMLUnit).tag, { value: "div" })).toBeTruthy()
+    expect(
+      t.isStringLiteral((viewProp[0] as HTMLUnit).tag, { value: "div" })
+    ).toBeTruthy()
     expect(viewProp[1].type).toBe("html")
-    expect(t.isStringLiteral((viewProp[1] as HTMLUnit).tag, { value: "span" })).toBeTruthy()
+    expect(
+      t.isStringLiteral((viewProp[1] as HTMLUnit).tag, { value: "span" })
+    ).toBeTruthy()
   })
 
   // ---- Props
   it("should correctly parse chaining function as props", () => {
-    const viewUnits = parse("Comp().count(1).message(\"hello\")")
+    const viewUnits = parse('Comp().count(1).message("hello")')
     const props = (viewUnits[0] as HTMLUnit).props
     expect(props).toBeTruthy()
 
     expect(t.isNumericLiteral(props?.count?.value, { value: 1 })).toBeTruthy()
-    expect(t.isStringLiteral(props?.message?.value, { value: "hello" })).toBeTruthy()
+    expect(
+      t.isStringLiteral(props?.message?.value, { value: "hello" })
+    ).toBeTruthy()
   })
 
   it("should correctly parse props with any expression as their values", () => {
-    const statement = parseCode("Comp().onclick(() => {console.log(\"hello\")})")
+    const statement = parseCode('Comp().onclick(() => {console.log("hello")})')
     const viewUnits = parseView(statement)
-    const originalExpression = ((statement.body[0] as t.ExpressionStatement).expression as t.CallExpression).arguments[0]
+    const originalExpression = (
+      (statement.body[0] as t.ExpressionStatement)
+        .expression as t.CallExpression
+    ).arguments[0]
 
     const props = (viewUnits[0] as HTMLUnit).props!
     expect(props.onclick?.value).toBe(originalExpression)
   })
 
   it("should correctly parse the count of props", () => {
-    const viewUnits = parse("Comp().count(1).message(\"hello\").go1(1).go2(2).go3(3)")
+    const viewUnits = parse(
+      'Comp().count(1).message("hello").go1(1).go2(2).go3(3)'
+    )
     const props = (viewUnits[0] as HTMLUnit).props!
     expect(Object.keys(props).length).toBe(5)
   })
@@ -124,7 +149,9 @@ describe("CompUnit", () => {
 
     expect(viewProp.length).toBe(1)
     expect(viewProp[0].type).toBe("html")
-    expect(t.isStringLiteral((viewProp[0] as HTMLUnit).tag, { value: "div" })).toBeTruthy()
+    expect(
+      t.isStringLiteral((viewProp[0] as HTMLUnit).tag, { value: "div" })
+    ).toBeTruthy()
   })
 
   // ---- Children
@@ -134,7 +161,9 @@ describe("CompUnit", () => {
 
     expect(children?.length).toBe(1)
     expect(children?.[0].type).toBe("html")
-    expect(t.isStringLiteral((children?.[0] as HTMLUnit).tag, { value: "div" })).toBeTruthy()
+    expect(
+      t.isStringLiteral((children?.[0] as HTMLUnit).tag, { value: "div" })
+    ).toBeTruthy()
   })
 
   it("should correctly parse multiple children", () => {
@@ -143,9 +172,13 @@ describe("CompUnit", () => {
 
     expect(children?.length).toBe(2)
     expect(children?.[0].type).toBe("html")
-    expect(t.isStringLiteral((children?.[0] as HTMLUnit).tag, { value: "div" })).toBeTruthy()
+    expect(
+      t.isStringLiteral((children?.[0] as HTMLUnit).tag, { value: "div" })
+    ).toBeTruthy()
     expect(children?.[1].type).toBe("html")
-    expect(t.isStringLiteral((children?.[1] as HTMLUnit).tag, { value: "span" })).toBeTruthy()
+    expect(
+      t.isStringLiteral((children?.[1] as HTMLUnit).tag, { value: "span" })
+    ).toBeTruthy()
   })
 
   it("should correctly parse the count of children", () => {

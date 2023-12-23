@@ -34,7 +34,9 @@ describe("ForUnit", () => {
   })
 
   it("should correctly parse the item of a for-of statement with a destructuring pattern", () => {
-    const statement = parseCode("for (const [idx, {id, item}] of array) { div() }")
+    const statement = parseCode(
+      "for (const [idx, {id, item}] of array) { div() }"
+    )
     const viewUnits = parseView(statement)
     const originalExpression = (
       (statement.body[0] as t.ForOfStatement).left as t.VariableDeclaration
@@ -47,15 +49,19 @@ describe("ForUnit", () => {
   it("should correctly parse the array of a for-of statement", () => {
     const statement = parseCode("for (const item of array) { div() }")
     const viewUnits = parseView(statement)
-    const originalExpression = (statement.body[0] as t.ForOfStatement).right as t.Identifier
+    const originalExpression = (statement.body[0] as t.ForOfStatement)
+      .right as t.Identifier
     const forUnit = viewUnits[0] as ForUnit
     expect(forUnit.array).toBe(originalExpression)
   })
 
   it("should correctly parse the array of a for-of statement with a complex expression", () => {
-    const statement = parseCode("for (const item of array.map(item => item.id)) { div() }")
+    const statement = parseCode(
+      "for (const item of array.map(item => item.id)) { div() }"
+    )
     const viewUnits = parseView(statement)
-    const originalExpression = (statement.body[0] as t.ForOfStatement).right as t.CallExpression
+    const originalExpression = (statement.body[0] as t.ForOfStatement)
+      .right as t.CallExpression
     const forUnit = viewUnits[0] as ForUnit
     expect(forUnit.array).toBe(originalExpression)
   })
@@ -96,7 +102,9 @@ describe("ForUnit", () => {
   })
 
   it("should correctly parse the count of children of a for-of statement with multiple children", () => {
-    const viewUnits = parse("for (const item of array) { div(); div(); span(); { h1() } }")
+    const viewUnits = parse(
+      "for (const item of array) { div(); div(); span(); { h1() } }"
+    )
     const forUnit = viewUnits[0] as ForUnit
     expect(forUnit.children.length).toBe(3)
   })

@@ -27,23 +27,28 @@ describe("SubviewUnit", () => {
 
   // ---- Props
   it("should correctly parse content for SubviewTag", () => {
-    const viewUnits = parse("this.MySubview(\"hello\")")
+    const viewUnits = parse('this.MySubview("hello")')
     const content = (viewUnits[0] as SubviewUnit).props?.content
 
     expect(t.isStringLiteral(content?.value, { value: "hello" })).toBeTruthy()
   })
 
   it("should correctly parse props for SubviewTag", () => {
-    const viewUnits = parse("this.MySubview().id(\"id\").class(\"class\")")
+    const viewUnits = parse('this.MySubview().id("id").class("class")')
     const props = (viewUnits[0] as SubviewUnit).props
     expect(t.isStringLiteral(props?.id.value, { value: "id" })).toBeTruthy()
-    expect(t.isStringLiteral(props?.class.value, { value: "class" })).toBeTruthy()
+    expect(
+      t.isStringLiteral(props?.class.value, { value: "class" })
+    ).toBeTruthy()
   })
 
   it("should correctly parse props with any expression as its value", () => {
     const statement = parseCode("this.MySubview(() => {doAnything()})")
     const viewUnits = parseView(statement)
-    const originalExpression = ((statement.body[0] as t.ExpressionStatement).expression as t.CallExpression).arguments[0]
+    const originalExpression = (
+      (statement.body[0] as t.ExpressionStatement)
+        .expression as t.CallExpression
+    ).arguments[0]
 
     const content = (viewUnits[0] as SubviewUnit).props?.content
     expect(content?.value).toBe(originalExpression)
@@ -66,7 +71,9 @@ describe("SubviewUnit", () => {
 
     expect(viewProp.length).toBe(1)
     expect(viewProp[0].type).toBe("html")
-    expect(t.isStringLiteral((viewProp[0] as HTMLUnit).tag, { value: "div" })).toBeTruthy()
+    expect(
+      t.isStringLiteral((viewProp[0] as HTMLUnit).tag, { value: "div" })
+    ).toBeTruthy()
   })
 
   // ---- Children
@@ -88,7 +95,9 @@ describe("SubviewUnit", () => {
   })
 
   it("should correctly parse the count of children of an SubviewUnit with multiple children", () => {
-    const viewUnits = parse("this.MySubview(); { div(); div(); h1(); h2(); h3() }")
+    const viewUnits = parse(
+      "this.MySubview(); { div(); div(); h1(); h2(); h3() }"
+    )
 
     const subviewUnit = viewUnits[0] as SubviewUnit
     expect(subviewUnit.children?.length).toBe(5)
