@@ -90,7 +90,8 @@ export default class IfGenerator extends BaseGenerator {
    */
   private declareIfNode(dlNodeName: string, branches: IfBranch[]) {
     let hasElseStatement = false
-    const ifStatement = branches.toReversed().reduce<any>((acc, { condition, children }, idx) => {
+
+    const ifStatement = branches.reverse().reduce<any>((acc, { condition, children }, idx) => {
       // ---- Generate children
       const [childStatements, topLevelNodes, updateStatements] = this.generateChildren(children, false)
 
