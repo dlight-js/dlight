@@ -4,15 +4,34 @@ type ErrorMethod<T extends DLightErrMap, G extends string> = {
   [K in keyof T as `${G}${K & number}`]: (...args: string[]) => any
 }
 
+/**
+ * @brief Create error handler by given error space and error maps
+ *  e.g.
+ *  const errHandler = createErrorHandler("DLight", {
+ *    1: "Cannot find node type: $0, throw"
+ *  }, {
+ *    1: "This is an error: $0"
+ *  }, {
+ *    1: "It's a warning"
+ *  })
+ * errHandler.throw1("div") // -> throw new Error(":D - DLight[throw1]: Cannot find node type: div, throw")
+ * errHandler.error1("div") // -> console.error(":D - DLight[error1]: This is an error: div")
+ * errHandler.warn1() // -> console.warn(":D - DLight[warn1]: It's a warning")
+ * @param errorSpace
+ * @param throwMap
+ * @param errorMap
+ * @param warningMap
+ * @returns Error handler
+ */
 export function createErrorHandler<A extends DLightErrMap, B extends DLightErrMap, C extends DLightErrMap>(
   errorSpace: string,
-  // @ts-expect-error
-  throwMap: A = {},
-  // @ts-expect-error
-  errorMap: B = {},
-  // @ts-expect-error
-  warningMap: C = {}
+  throwMap: A,
+  errorMap: B,
+  warningMap: C
 ) {
+  throwMap = throwMap ?? {}
+  errorMap = errorMap ?? {}
+  warningMap = warningMap ?? {}
   function handleError(map: DLightErrMap, type: string, func: (msg: string) => any) {
     return Object.fromEntries(
       Object.entries(map).map(([code, msg]) => [`${type}${code}`, (...args: string[]) => {
