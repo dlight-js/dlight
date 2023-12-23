@@ -173,7 +173,7 @@ export class PluginProvider {
     const decorators = this.classDeclarationNode?.decorators
     if (!decorators) return
     // ---- Forward Prop
-    const forwardPropDeco = this.findDecoratorByName(decorators, "ForwardProp")
+    const forwardPropDeco = this.findDecoratorByName(decorators, "ForwardProps")
     /**
      * _$forwardProp
      * _$forwardPropMap = new Set()
@@ -196,7 +196,7 @@ export class PluginProvider {
           this.t.arrayExpression([])
         )
       )
-      this.classDeclarationNode!.decorators = this.removeDecorators(decorators, ["ForwardProp"])
+      this.classDeclarationNode!.decorators = this.removeDecorators(decorators, ["ForwardProps"])
     }
   }
 
