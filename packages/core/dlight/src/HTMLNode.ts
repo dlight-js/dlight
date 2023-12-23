@@ -1,48 +1,108 @@
 import { DLNode } from "./DLNode"
 import { type AnyDLNode } from "./types"
 
-export function setStyle(el: HTMLElement, value: CSSStyleDeclaration) {
+/**
+ * @brief Plainly set style
+ * @param el
+ * @param value
+ */
+export function setStyle(el: HTMLElement, value: CSSStyleDeclaration): void {
   Object.entries(value).forEach(([key, value]) => {
     el.style[key as any] = value
   })
 }
 
-export function setDataset(el: HTMLElement, value: Record<string, string>) {
+/**
+ * @brief Plainly set dataset
+ * @param el
+ * @param value
+ */
+export function setDataset(
+  el: HTMLElement,
+  value: Record<string, string>
+): void {
   Object.entries(value).forEach(([key, value]) => {
     el.dataset[key] = value
   })
 }
 
-export function setHTMLProp(el: HTMLElement, key: keyof HTMLElement, value: any) {
+/**
+ * @brief Set HTML property with checking value equality first
+ * @param el
+ * @param key
+ * @param value
+ */
+export function setHTMLProp(
+  el: HTMLElement,
+  key: keyof HTMLElement,
+  value: any
+): void {
   if ((el as AnyDLNode)[key] === value) return
-  (el as AnyDLNode)[key] = value
+  ;(el as AnyDLNode)[key] = value
 }
 
-export function setHTMLProps(el: HTMLElement, value: Record<string, any>) {
+/**
+ * @brief Plainly set HTML properties
+ * @param el
+ * @param value
+ */
+export function setHTMLProps(
+  el: HTMLElement,
+  value: Record<string, any>
+): void {
   Object.entries(value).forEach(([key, value]) => {
     setHTMLProp(el, key as any, value)
   })
 }
 
-export function setHTMLAttr(el: HTMLElement, key: string, value: any) {
+/**
+ * @brief Set HTML attribute with checking value equality first
+ * @param el
+ * @param key
+ * @param value
+ */
+export function setHTMLAttr(el: HTMLElement, key: string, value: any): void {
   if (el.getAttribute(key) === value) return
   el.setAttribute(key, value)
 }
 
-export function setHTMLAttrs(el: HTMLElement, value: Record<string, any>) {
+/**
+ * @brief Plainly set HTML attributes
+ * @param el
+ * @param value
+ */
+export function setHTMLAttrs(
+  el: HTMLElement,
+  value: Record<string, any>
+): void {
   Object.entries(value).forEach(([key, value]) => {
     setHTMLAttr(el, key, value)
   })
 }
 
-export function setMemorizedEvent(el: HTMLElement, key: string, value: any) {
+/**
+ * @brief Set memorized event, store the previous event in el[`$on${key}`], if it exists, remove it first
+ * @param el
+ * @param key
+ * @param value
+ */
+export function setMemorizedEvent(
+  el: HTMLElement,
+  key: string,
+  value: any
+): void {
   const prevEvent = (el as any)[`$on${key}`]
   if (prevEvent) el.removeEventListener(key, prevEvent)
   el.addEventListener(key, value)
   ;(el as any)[`$on${key}`] = value
 }
 
-export function createTemplate(templateStr: string) {
+/**
+ * @brief Create a template function, which returns a function that returns a cloned element
+ * @param templateStr
+ * @returns a function that returns a cloned element
+ */
+export function createTemplate(templateStr: string): () => HTMLElement {
   const template = document.createElement("template")
   template.innerHTML = templateStr
 
@@ -50,13 +110,29 @@ export function createTemplate(templateStr: string) {
   return () => element!.cloneNode(true) as HTMLElement
 }
 
-export function createElement(tag: string) {
+/**
+ * @brief Shortcut for document.createElement
+ * @param tag
+ * @returns HTMLElement
+ */
+export function createElement(tag: string): HTMLElement {
   return document.createElement(tag)
 }
 
-export function insertNode(el: HTMLElement, node: any, position: number) {
+/**
+ * @brief Insert any DLNode into an element, set the _$nodes and append the element to the element's children
+ * @param el
+ * @param node
+ * @param position
+ */
+export function insertNode(
+  el: HTMLElement,
+  node: AnyDLNode,
+  position: number
+): void {
   // ---- Set _$nodes
-  if (!(el as AnyDLNode)._$nodes) (el as AnyDLNode)._$nodes = Array.from(el.childNodes)
+  if (!(el as AnyDLNode)._$nodes)
+    (el as AnyDLNode)._$nodes = Array.from(el.childNodes)
   ;(el as AnyDLNode)._$nodes.splice(position, 0, node)
 
   // ---- Set parentEl
@@ -67,14 +143,42 @@ export function insertNode(el: HTMLElement, node: any, position: number) {
   DLNode.appendNodesWithIndex(node._$nodes, el, position)
 }
 
-export function forwardHTMLProp(el: HTMLElement, key: string, value: any) {
-  if (key === "style") return setStyle(el, value)
-  if (key === "dataset") return setDataset(el, value)
+/**
+ * @brief An inclusive assign prop function that accepts any type of prop
+ * @param el
+ * @param key
+ * @param value
+ */
+export function forwardHTMLProp(
+  el: HTMLElement,
+  key: string,
+  value: any
+): void {
+  if (key === "style") {
+    setStyle(el, value)
+    return
+  }
+  if (key === "dataset") {
+    setDataset(el, value)
+    return
+  }
   if (key === "element") return
-  if (key === "prop") return setHTMLProps(el, value)
-  if (key === "attr") return setHTMLAttrs(el, value)
-  if (key === "innerHTML") return setHTMLProp(el, "innerHTML", value)
+  if (key === "prop") {
+    setHTMLProps(el, value)
+    return
+  }
+  if (key === "attr") {
+    setHTMLAttrs(el, value)
+    return
+  }
+  if (key === "innerHTML") {
+    setHTMLProp(el, "innerHTML", value)
+    return
+  }
   if (key === "forwardProp") return
-  if (key.startsWith("on")) return setMemorizedEvent(el, key.slice(2).toLowerCase(), value)
+  if (key.startsWith("on")) {
+    setMemorizedEvent(el, key.slice(2).toLowerCase(), value)
+    return
+  }
   setHTMLAttr(el, key, value)
 }
