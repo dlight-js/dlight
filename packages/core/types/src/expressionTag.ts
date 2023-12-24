@@ -1,10 +1,10 @@
-import { type DLNode } from "@dlightjs/dlight"
-import { type DLightHTMLAttributesFunc } from "./htmlTag"
+import { type ExpNode } from "@dlightjs/dlight"
 
-interface ExpressionTagHook {
-  onUpdateNodes: (prevNodes: DLNode[], nodes: DLNode[]) => void
+interface ExpressionTag {
+  do: (node: ExpNode) => void
+  element: HTMLElement[] | ((holder: HTMLElement[]) => void) | undefined
 }
 
-type ExpressionTagFunc = (nodes: string | number | DLNode | DLNode[]) => DLightHTMLAttributesFunc<HTMLElement, ExpressionTagHook>
+type ExpressionTagFunc = (nodes: any) => ExpressionTag
 
 export const _: ExpressionTagFunc = null as any

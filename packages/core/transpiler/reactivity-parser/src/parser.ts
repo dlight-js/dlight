@@ -44,6 +44,7 @@ export class ReactivityParser {
 
   private readonly escapeNamings = ["escape", "$"]
   private readonly customHTMLProps = [
+    "do",
     "element",
     "innerHTML",
     "prop",

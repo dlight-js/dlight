@@ -1,6 +1,6 @@
 {
   "name": "@dlightjs/types",
-  "version": "0.10.10",
+  "version": "1.0.0-alpha.0",
   "description": "DLight types helper",
   "author": {
     "name": "IanDx",
@@ -23,10 +23,15 @@
   },
   "devDependencies": {
     "tsup": "^6.5.0",
-    "typescript": "^4.5.2"
-  },
-  "dependencies": {
+    "typescript": "^4.5.2",
     "csstype": "^3.1.1",
     "@dlightjs/dlight": "workspace:*"
+  },
+  "tsup": {
+    "entry": ["src/index.ts"],
+    "format": ["cjs", "esm"],
+    "clean": true,
+    "dts": true,
+    "minify": true
   }
 }

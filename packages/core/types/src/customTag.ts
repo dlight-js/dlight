@@ -1,4 +1,4 @@
-import { type CustomNode } from "@dlightjs/dlight"
+import { type CompNode } from "@dlightjs/dlight"
 import { type DLightHTMLAttributes } from "./htmlTag"
 
 // a very magical solution
@@ -9,22 +9,17 @@ import { type DLightHTMLAttributes } from "./htmlTag"
 // so just don't add key!
 type Useless = { [key in ""]: never }
 
-type DLightObject<T> = {
-  [K in keyof T]-?: ((value: T[K]) => DLightObject<Omit<T, K>>)
+export type DLightObject<T> = {
+  [K in keyof T]-?: (value: T[K]) => DLightObject<Omit<T, K>>
 }
 
-type CustomLifecycleFuncType = ((els?: HTMLElement[], node?: CustomNode) => void) | undefined
 interface CustomNodeProps {
-  do: (node: CustomNode) => void
-  forwardProps: true
+  do: (node: CompNode) => void
   element: HTMLElement[] | ((holder: HTMLElement[]) => void) | undefined
-  willMount: CustomLifecycleFuncType
-  didMount: CustomLifecycleFuncType
-  willUnmount: CustomLifecycleFuncType
-  didUnmount: CustomLifecycleFuncType
+  forwardProps: true | undefined
 }
 
-export type ContentProp<T={}> = T & { _$idContent: true }
+export type ContentProp<T = object> = T & { _$idContent: true }
 
 export type RemoveOptional<T> = {
   [K in keyof T]-?: T[K]
@@ -33,8 +28,12 @@ export type RemoveOptional<T> = {
 type IsAny<T> = { _$isAny: true } extends T ? true : false
 
 type ContentKeyName<T> = {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  [K in keyof T]: IsAny<T[K]> extends true ? never : (T[K] extends ContentProp<infer _> ? K : never)
+  [K in keyof T]: IsAny<T[K]> extends true
+    ? never
+    : // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      T[K] extends ContentProp<infer _>
+      ? K
+      : never
 }[keyof T]
 
 type CheckContent<T> = RemoveOptional<T>[ContentKeyName<RemoveOptional<T>>]
@@ -43,29 +42,33 @@ type CustomClassTag<T, O> = ContentKeyName<RemoveOptional<O>> extends undefined
   ? () => DLightObject<T>
   : undefined extends O[ContentKeyName<RemoveOptional<O>>]
     ? CheckContent<O> extends ContentProp<infer U>
-      ? (content?: U extends unknown ? any : unknown) => DLightObject<Omit<T, ContentKeyName<RemoveOptional<O>>>> : never
+      ? (
+          content?: U extends unknown ? any : unknown
+        ) => DLightObject<Omit<T, ContentKeyName<RemoveOptional<O>>>>
+      : never
     : CheckContent<O> extends ContentProp<infer U>
-      ? (content: U extends unknown ? any : unknown) => DLightObject<Omit<T, ContentKeyName<RemoveOptional<O>>>> : never
+      ? (
+          content: U extends unknown ? any : unknown
+        ) => DLightObject<Omit<T, ContentKeyName<RemoveOptional<O>>>>
+      : never
 
-type CustomSubViewTag<T> = T extends { "content": infer U }
+type CustomSubViewTag<T> = T extends { content: infer U }
   ? (content: U) => DLightObject<Omit<T, "content">>
-  : T extends { "content"?: infer U }
+  : T extends { content?: infer U }
     ? (content?: U) => DLightObject<Omit<T, "content">>
     : () => DLightObject<T>
 
-type CustomTagType<T, G> = CustomClassTag<T & CustomNodeProps & (keyof G extends never ? {} : DLightHTMLAttributes<G>), T> & Useless
-export type Typed<T={}, G={}> = CustomTagType<T, G> & Useless
-export type SubTyped<T={}> = CustomSubViewTag<T> & Useless
+type CustomTagType<T, G> = CustomClassTag<
+  T &
+    CustomNodeProps &
+    (keyof G extends never ? object : DLightHTMLAttributes<G>),
+  T
+> &
+  Useless
+export type Typed<T = object, G = object> = CustomTagType<T, G> & Useless
+export type SubTyped<T = object> = CustomSubViewTag<T> & Useless
 
 export type Pretty = any
 
 // ---- reverse
 export type UnTyped<T> = T extends Typed<infer U> ? U : never
-
-// ---- env
-// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-type AnyEnv = { _$anyEnv: true }
-
-export function env<T=AnyEnv>(): T extends AnyEnv ? any : DLightObject<T> {
-  return null as any
-}
