@@ -1,28 +1,44 @@
-// @ts-ignore
-import { Children, Content, Prop, View, required } from "@dlightjs/dlight"
-import { type Typed, type Pretty, button, p, span } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import {
+  type Typed,
+  type Pretty,
+  button,
+  ForwardProps,
+  Prop,
+  Watch,
+  required,
+} from "@dlightjs/types"
 
+interface SubProp {
+  name?: string
+  onClick: () => void
+}
 @View
 class Sub {
-  @Prop name
-  @Prop onClick
+  @Prop name = required
+  @Prop onClick = required
+
+  @Watch
+  watchName() {
+    console.log(this.name)
+  }
 
   View() {
-    button(this.name)
-      .onClick(this.onClick)
+    button(this.name).onClick(this.onClick)
   }
 }
 
-@ForwardProp
+const SubView = Sub as Pretty as Typed<SubProp>
+
+@ForwardProps
 @View
 class Ok {
   View() {
-    button("ok")
-      .forwardProps()
-    Sub()
-      .forwardProps()
+    button("ok").forwardProps()
+    SubView().forwardProps()
   }
 }
+const OkView = Ok as Pretty
 
 @View
 class App {
@@ -30,25 +46,17 @@ class App {
   arr = [0, 1]
 
   View() {
-    button("+").onclick(() => {
+    button("+").onClick(() => {
       this.count++
     })
-    Ok()
+    OkView()
       .style({
-        color: "red"
+        color: "red",
       })
       .onClick(() => {
         console.log(this.count)
       })
-        .name("shit")
-
-    // Ok()
-    //   .ok(View => {
-    //     div(this.count)
-    //   })
-    //   if (this.count > 0) {
-    //     div(this.count)
-    //   }
+      .name("shit")
   }
 }
 

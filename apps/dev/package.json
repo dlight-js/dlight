@@ -17,7 +17,7 @@
     "@dlightjs/material-icons": "^0.10.1",
     "@dlightjs/transpiler-standalone": "workspace:*",
     "@iandx/easy-css": "^0.10.14",
-    "babel-preset-dlight": "workspace:^0.10.6"
+    "babel-preset-dlight": "workspace:*"
   },
   "devDependencies": {
     "@dlightjs/types": "workspace:*",
