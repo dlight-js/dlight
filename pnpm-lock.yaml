@@ -304,6 +304,7 @@ importers:
       minimatch: ^9.0.3
       tsup: ^6.5.0
       typescript: ^5.3.2
+      vite: ^4.4.9
     dependencies:
       '@babel/core': 7.22.8
       babel-preset-dlight: link:../../core/babel-preset-dlight
@@ -312,6 +313,7 @@ importers:
       '@types/babel__core': 7.20.5
       tsup: 6.7.0_typescript@5.3.3
       typescript: 5.3.3
+      vite: 4.4.9
 
   packages/tools/vite-plugin-dlight-js:
     specifiers:
