@@ -306,8 +306,6 @@ export class PluginProvider {
     this.dependencyMap = {}
     this.enter = true
     this.enterClassNode = false
-    this.allImports = []
-    this.didAlterImports = false
     this.className = undefined
   }
 
@@ -653,8 +651,8 @@ export class PluginProvider {
   }
 
   /* ---- Babel Visitors ---- */
-  private visitProgram(_path: NodePath<t.Program>): void {}
-  programVisitor(
+  private enterProgram(_path: NodePath<t.Program>): void {}
+  programEnterVisitor(
     path: NodePath<t.Program>,
     filename: string | undefined
   ): void {
@@ -671,7 +669,16 @@ export class PluginProvider {
       return
     }
     this.programNode = path.node
-    this.visitProgram(path)
+    this.enterProgram(path)
+  }
+
+  private exitProgram(_path: NodePath<t.Program>): void {}
+  programExitVisitor(path: NodePath<t.Program>): void {
+    if (!this.enter) return
+    this.didAlterImports = false
+    this.allImports = []
+    this.programNode = undefined
+    this.exitProgram(path)
   }
 
   private enterClass(

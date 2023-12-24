@@ -23,8 +23,11 @@ export default function (api: typeof babel, options: DLightOption): PluginObj {
 
   return {
     visitor: {
-      Program(path, { filename }) {
-        return pluginProvider.programVisitor(path, filename)
+      Program: {
+        enter(path, { filename }) {
+          return pluginProvider.programEnterVisitor(path, filename)
+        },
+        exit: pluginProvider.programExitVisitor.bind(pluginProvider),
       },
       ClassDeclaration: {
         enter: pluginProvider.classEnter.bind(pluginProvider),
