@@ -1,6 +1,6 @@
 {
   "name": "babel-plugin-syntax-typescript-new",
-  "version": "0.9.20",
+  "version": "1.0.0",
   "description": "Babel plugin to parse ts syntax",
   "author": {
     "name": "IanDx",
@@ -12,8 +12,7 @@
   ],
   "license": "MIT",
   "files": [
-    "dist",
-    "README.md"
+    "dist"
   ],
   "type": "module",
   "main": "dist/index.cjs",
@@ -28,5 +27,16 @@
   },
   "dependencies": {
     "@babel/helper-plugin-utils": "^7.22.5"
+  },
+  "tsup": {
+    "entry": [
+      "src/index.ts"
+    ],
+    "format": [
+      "esm"
+    ],
+    "clean": true,
+    "dts": true,
+    "minify": true
   }
 }

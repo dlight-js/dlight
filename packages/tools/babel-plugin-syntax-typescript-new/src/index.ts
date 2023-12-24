@@ -1,7 +1,6 @@
 /**
  * Scoped statement blocks in official implementation
  */
-// @ts-ignore
 import { declare } from "@babel/helper-plugin-utils"
 
 function removePlugin(plugins: any[], name: string): void {
@@ -37,10 +36,7 @@ export default declare((api: any, opts: Options): any => {
       if (isTSX) {
         plugins.push("jsx")
       }
-      parserOpts.plugins.push([
-        "typescript",
-        { disallowAmbiguousJSXLike, dts }
-      ])
-    }
+      parserOpts.plugins.push(["typescript", { disallowAmbiguousJSXLike, dts }])
+    },
   }
 })

@@ -13,12 +13,11 @@
     "@dlightjs/components": "^0.10.1",
     "@dlightjs/decorators": "^0.10.1",
     "@dlightjs/dlight": "workspace:*",
-    "@dlightjs/dlight-dev": "workspace:*",
     "@dlightjs/markit": "^0.10.1",
     "@dlightjs/material-icons": "^0.10.1",
     "@dlightjs/transpiler-standalone": "workspace:*",
     "@iandx/easy-css": "^0.10.14",
-    "babel-preset-dlight": "workspace:^0.10.6"
+    "babel-preset-dlight": "workspace:*"
   },
   "devDependencies": {
     "@dlightjs/types": "workspace:*",

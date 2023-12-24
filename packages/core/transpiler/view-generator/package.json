@@ -1,0 +1,46 @@
+{
+  "name": "@dlightjs/view-generator",
+  "version": "1.0.0-alpha.1",
+  "description": "DLight View Generator given different types of reactivity units",
+  "author": {
+    "name": "IanDx",
+    "email": "iandxssxx@gmail.com"
+  },
+  "keywords": [
+    "dlight.js"
+  ],
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup --sourcemap"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.20.12",
+    "@types/babel__core": "^7.20.5",
+    "@types/node": "^20.10.5",
+    "tsup": "^6.7.0",
+    "typescript": "^5.3.2"
+  },
+  "dependencies": {
+    "@dlightjs/error-handler": "workspace:*",
+    "@dlightjs/reactivity-parser": "workspace:*"
+  },
+  "tsup": {
+    "entry": [
+      "src/index.ts"
+    ],
+    "format": [
+      "cjs",
+      "esm"
+    ],
+    "clean": true,
+    "dts": true,
+    "minify": true
+  }
+}

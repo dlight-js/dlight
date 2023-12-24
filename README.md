@@ -47,7 +47,7 @@ class MyComp {
   atNight = false
   fruits = ["🍎", "🍊", "🥑"]
 
-  Body() {
+  View() {
     h1("hello, dlight js")
     button("toggle")
       .className("toggle")
@@ -68,15 +68,11 @@ class MyComp {
 }
 ```
 
-# Documentation
-[README-dlight.md](./packages/core/dlight/README.md) 
+
 # Homepage
-
-Available at [dlight-js](https://dlight-js.com) but still under development with DLight now👨🏻‍💻
-
+We'll return in a minute....
 
 # Contributors
-
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable -->

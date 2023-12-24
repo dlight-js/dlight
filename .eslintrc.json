@@ -1,12 +1,12 @@
 {
     "env": {
         "browser": true,
+        "node": true,
         "es2021": true
     },
     "extends": [
-        "standard-with-typescript"
-    ],
-    "overrides": [
+        "plugin:@typescript-eslint/recommended",
+        "plugin:prettier/recommended"
     ],
     "parserOptions": {
         "ecmaVersion": "latest",
@@ -15,25 +15,13 @@
     },
     "ignorePatterns": ["**/dist/**", "**/lib/**"],
     "rules": {
-        "space-before-function-paren": "off",
         "@typescript-eslint/explicit-function-return-type": "off",
-        "@typescript-eslint/space-before-function-paren": ["error", "never"],
         "@typescript-eslint/strict-boolean-expressions": "off",
         "@typescript-eslint/restrict-template-expressions": "off",
         "@typescript-eslint/no-non-null-assertion": "off",
-        "@typescript-eslint/restrict-plus-operands": "off",
-        "@typescript-eslint/quotes": "off",
-        "@typescript-eslint/ban-ts-comment": "off",
-        "@typescript-eslint/no-confusing-void-expression": "off",
-        "@typescript-eslint/prefer-ts-expect-error": "off",
-        "@typescript-eslint/no-unused-expressions": "off",
-        "@typescript-eslint/ban-types": "off",
-        "@typescript-eslint/no-dynamic-delete": "off",
-        "no-lone-blocks": "off",
-        "no-fallthrough": "off",
-        "multiline-ternary": ["error", "always-multiline"],
-        "quotes": ["error", "double"],
-        "semi": ["error", "never"]
+        "@typescript-eslint/no-invalid-void-type": "off",
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }]
     },
-    "plugins": ["dlight"]
+    "plugins": ["@typescript-eslint", "prettier", "dlight"]
 }

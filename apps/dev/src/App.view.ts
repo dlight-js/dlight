@@ -1,79 +1,62 @@
-// @ts-ignore
-import { Children, Content, Prop, View, Watch, required } from "@dlightjs/dlight"
-import { type Typed, type Pretty, div, button, p, span } from "@dlightjs/types"
+import { View } from "@dlightjs/dlight"
+import {
+  type Typed,
+  type Pretty,
+  button,
+  ForwardProps,
+  Prop,
+  Watch,
+  required,
+} from "@dlightjs/types"
 
+interface SubProp {
+  name?: string
+  onClick: () => void
+}
 @View
-class COOO {
-  @Children(1)
-    hh
+class Sub {
+  @Prop name = required
+  @Prop onClick = required
 
-  @Children(1)
-    hhj
+  @Watch
+  watchName() {
+    console.log(this.name)
+  }
 
-    @Env no
-    @Env jj
-  count = 100000
-
-  Body() {
-    button("+")
-      .onclick(() => {
-        this.count ++
-      })
-    for (const i of Array.from({length: this.count})) {
-      div(this.no)
-    }
-    this.hh
-    div(this.no)
-    this.jj
-    this.hhj
+  View() {
+    button(this.name).onClick(this.onClick)
   }
 }
-const COOOView = COOO as Pretty as Typed
+
+const SubView = Sub as Pretty as Typed<SubProp>
+
+@ForwardProps
+@View
+class Ok {
+  View() {
+    button("ok").forwardProps()
+    SubView().forwardProps()
+  }
+}
+const OkView = Ok as Pretty
 
 @View
 class App {
-  count = 1
-  doubleCount = this.count * 2
+  count = 0
+  arr = [0, 1]
 
-  toggle = false
-  @Watch
-  shit() {
-    console.log(this.count)
-  }
-
-  log() {
-    console.log("hhhh")
-  }
-
-  list = [1, 2, 3]
-
-  @View
-  ok({ hello }) {
-    div(hello)
-  }
-
-  Body() {
-    button("+")
-      .onclick(() => {
-        this.count ++
+  View() {
+    button("+").onClick(() => {
+      this.count++
+    })
+    OkView()
+      .style({
+        color: "red",
       })
-    div(this.count)
-    .style({fontSize: `${this.count + 10}px`})
-    this.ok()
-      .hello("hello")
-    env()
-    .jj(1)
-      .no(200)
-      {
-
-      env()
-        .no(this.count)
-      {
-       COOO()
-      }
-    }
-    
-      
+      .onClick(() => {
+        console.log(this.count)
+      })
+      .name("shit")
   }
 }
 
