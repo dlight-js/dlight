@@ -10,9 +10,10 @@ import { type DLightHTMLAttributes } from "./htmlTag"
 type Useless = { [key in ""]: never }
 
 export type DLightObject<T> = {
-  [K in keyof T]-?: (value: T[K]) => DLightObject<Omit<T, K>>
+  [K in keyof T]-?: undefined extends T[K]
+    ? (value?: T[K]) => DLightObject<Omit<T, K>>
+    : (value: T[K]) => DLightObject<Omit<T, K>>
 }
-
 interface CustomNodeProps {
   do: (node: CompNode) => void
   element: HTMLElement[] | ((holder: HTMLElement[]) => void) | undefined
