@@ -4,17 +4,17 @@ import { countBtn, btnHover } from "./style.module.css"
 @View
 export default class Button {
   @Content content
-  onclick
+  @Prop onClick
   btnStatus = 0
 
-  Body() {
+  View() {
     button(this.content)
-      .className(this.btnStatus[index] === 1 ? `${countBtn} ${btnHover}` : countBtn)
-      .onclick(this.onclick)
-      .onmouseover(() => {
+      .class(this.btnStatus === 1 ? `${countBtn} ${btnHover}` : countBtn)
+      .onClick(this.onClick)
+      .onMouseOver(() => {
         this.btnStatus = 1
       })
-      .onmouseleave(() => {
+      .onMouseLeave(() => {
         this.btnStatus = 0
       })
   }
