@@ -1,31 +1,24 @@
-{
-  "name": "dev",
+{ 
+  "name": "example",
   "private": true,
   "version": "0.0.0",
+  "description": "DLight example",
+  "author": {
+    "name": "Xinyi Chen",
+    "email": "chenxy0404@gmail.com"
+  },
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
-  },
-  "dependencies": {
-    "@babel/standalone": "^7.22.4",
-    "@dlightjs/components": "^0.10.1",
-    "@dlightjs/decorators": "^0.10.1",
-    "@dlightjs/dlight": "workspace:*",
-    "@dlightjs/markit": "^0.10.1",
-    "@dlightjs/material-icons": "^0.10.1",
-    "@dlightjs/transpiler-standalone": "workspace:*",
-    "@iandx/easy-css": "^0.10.14",
-    "babel-preset-dlight": "workspace:*"
+    "build": "vite build"
   },
   "devDependencies": {
-    "@dlightjs/types": "workspace:*",
-    "typescript": "^5.2.2",
     "vite": "^4.4.9",
-    "vite-plugin-dlight": "workspace:*"
+    "vite-plugin-dlight": "workspace:*",
+    "vite-plugin-dlight-js": "workspace:*"
   },
-  "keywords": [
-    "dlight.js"
-  ]
+  "dependencies": {
+    "@dlightjs/dlight": "workspace:*"
+  }
 }

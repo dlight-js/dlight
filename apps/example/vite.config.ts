@@ -1,5 +1,6 @@
 import { defineConfig } from "vite"
-import dlight from "../../packages/tools/vite-plugin-dlight/dist"
+import dlightjs from "vite-plugin-dlight-js"
+import dlight from "vite-plugin-dlight"
 
 export default defineConfig({
   server: {
@@ -7,7 +8,8 @@ export default defineConfig({
   },
   base: "",
   plugins: [
-    dlight({ files: "**/*.view.ts", enableDevTools: true })
+    dlight({ files: "**/*.view.js", enableDevTools: true }),
+    // dlightjs(),
   ]
   // don't minify
   // build: {
