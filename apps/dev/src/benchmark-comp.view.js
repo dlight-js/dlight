@@ -8,7 +8,8 @@ class Button {
   @Prop onClick
 
   View() {
-    div().class("col-sm-6 smallpad"); {
+    div().class("col-sm-6 smallpad")
+    {
       button(this.text)
         .onClick(this.onClick)
         .id(this.id)
@@ -26,16 +27,18 @@ class Row {
   @Prop deleteRow
 
   View() {
-    tr().class(this.className); {
+    tr().class(this.className)
+    {
       td(this.id).class("col-md-1")
-      td().class("col-md-4"); {
+      td().class("col-md-4")
+      {
         a(this.label).onClick(this.selectRow)
       }
-      td().class("col-md-1"); {
-        a().onClick(this.deleteRow); {
-          span()
-            .class("glyphicon glyphicon-remove")
-            .ariaHidden("true")
+      td().class("col-md-1")
+      {
+        a().onClick(this.deleteRow)
+        {
+          span().class("glyphicon glyphicon-remove").ariaHidden("true")
         }
       }
       td().class("col-md-6")
@@ -89,39 +92,36 @@ class Main {
   }
 
   View() {
-    div().class("container"); {
-      div().class("jumbotron"); {
-        div().class("row"); {
-          div().class("col-sm-6"); {
+    div().class("container")
+    {
+      div().class("jumbotron")
+      {
+        div().class("row")
+        {
+          div().class("col-sm-6")
+          {
             h1("DLight.js Component (keyed)")
           }
-          div().class("col-md-6"); {
-            div().class("row"); {
-              Button("Create 1,000 rows")
-                .onClick(this.addRows)
-                .id("run")
-              Button("Create 10,000 rows")
-                .onClick(this.addBig)
-                .id("runlots")
-              Button("Append 1,000 rows")
-                .onClick(this.append)
-                .id("add")
-              Button("Update every 10th rows")
-                .onClick(this.update)
-                .id("update")
-              Button("Clear")
-                .onClick(this.clearRows)
-                .id("clear")
-              Button("Swap Rows")
-                .onClick(this.swapRows)
-                .id("swaprows")
+          div().class("col-md-6")
+          {
+            div().class("row")
+            {
+              Button("Create 1,000 rows").onClick(this.addRows).id("run")
+              Button("Create 10,000 rows").onClick(this.addBig).id("runlots")
+              Button("Append 1,000 rows").onClick(this.append).id("add")
+              Button("Update every 10th rows").onClick(this.update).id("update")
+              Button("Clear").onClick(this.clearRows).id("clear")
+              Button("Swap Rows").onClick(this.swapRows).id("swaprows")
             }
           }
         }
       }
-      div(); {
-        table().class("table table-hover table-striped test-data"); {
-          tbody(); {
+      div()
+      {
+        table().class("table table-hover table-striped test-data")
+        {
+          tbody()
+          {
             for (const { id, label } of this.rows) {
               key: id
               Row()

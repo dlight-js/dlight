@@ -47,45 +47,57 @@ class Main {
   }
 
   View() {
-    div().class("container"); {
-      div().class("jumbotron"); {
-        div().class("row"); {
-          div().class("col-sm-6"); {
-            h1("DLight.js (keyed)")
+    div().class("container")
+    {
+      div().class("jumbotron")
+      {
+        div().class("row")
+        {
+          div().class("col-sm-6")
+          {
+            h1("DLight.js (non-keyed)")
           }
-          div().class("col-md-6"); {
-            div().class("row"); {
-              div().class("col-sm-6 smallpad"); {
+          div().class("col-md-6")
+          {
+            div().class("row")
+            {
+              div().class("col-sm-6 smallpad")
+              {
                 button("Create 1,000 rows")
                   .onClick(this.addRows)
                   .id("run")
                   .class("btn btn-primary btn-block")
               }
-              div().class("col-sm-6 smallpad"); {
+              div().class("col-sm-6 smallpad")
+              {
                 button("Create 10,000 rows")
                   .onClick(this.addBig)
                   .id("runlots")
                   .class("btn btn-primary btn-block")
               }
-              div().class("col-sm-6 smallpad"); {
+              div().class("col-sm-6 smallpad")
+              {
                 button("Append 1,000 rows")
                   .onClick(this.append)
                   .id("add")
                   .class("btn btn-primary btn-block")
               }
-              div().class("col-sm-6 smallpad"); {
+              div().class("col-sm-6 smallpad")
+              {
                 button("Update every 10th row")
                   .onClick(this.update)
                   .id("update")
                   .class("btn btn-primary btn-block")
               }
-              div().class("col-sm-6 smallpad"); {
+              div().class("col-sm-6 smallpad")
+              {
                 button("Clear")
                   .onClick(this.clearRows)
                   .id("clear")
                   .class("btn btn-primary btn-block")
               }
-              div().class("col-sm-6 smallpad"); {
+              div().class("col-sm-6 smallpad")
+              {
                 button("Swap Rows")
                   .onClick(this.swapRows)
                   .id("swaprows")
@@ -95,19 +107,24 @@ class Main {
           }
         }
       }
-      div(); {
-        table().class("table table-hover table-striped test-data"); {
-          tbody(); {
+      div()
+      {
+        table().class("table table-hover table-striped test-data")
+        {
+          tbody()
+          {
             for (const { id, label } of this.rows) {
-              key: id
-              tr().class(this.selectIdx === id ? "danger" : ""); {
+              tr().class(this.selectIdx === id ? "danger" : "")
+              {
                 td(id).class("col-md-1")
-                td().class("col-md-4"); {
-                  a(label)
-                    .onClick(this.selectRow.bind(this, id))
+                td().class("col-md-4")
+                {
+                  a(label).onClick(this.selectRow.bind(this, id))
                 }
-                td().class("col-md-1"); {
-                  a().onClick(this.deleteRow.bind(this, id)); {
+                td().class("col-md-1")
+                {
+                  a().onClick(this.deleteRow.bind(this, id))
+                  {
                     span()
                       .class("glyphicon glyphicon-remove")
                       .ariaHidden("true")
