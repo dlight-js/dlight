@@ -203,31 +203,21 @@ importers:
   packages/core/transpiler/view-generator:
     specifiers:
       '@babel/core': ^7.20.12
-      '@babel/generator': ^7.23.6
       '@dlightjs/error-handler': workspace:*
       '@dlightjs/reactivity-parser': workspace:*
-      '@dlightjs/view-parser': workspace:*
       '@types/babel__core': ^7.20.5
-      '@types/babel__generator': ^7.6.8
       '@types/node': ^20.10.5
-      '@vitest/ui': ^0.34.5
       tsup: ^6.7.0
       typescript: ^5.3.2
-      vitest: ^0.34.5
     dependencies:
       '@dlightjs/error-handler': link:../../error-handler
       '@dlightjs/reactivity-parser': link:../reactivity-parser
     devDependencies:
       '@babel/core': 7.22.8
-      '@babel/generator': 7.23.6
-      '@dlightjs/view-parser': link:../view-parser
       '@types/babel__core': 7.20.5
-      '@types/babel__generator': 7.6.8
       '@types/node': 20.10.5
-      '@vitest/ui': 0.34.5_vitest@0.34.5
       tsup: 6.7.0_typescript@5.3.3
       typescript: 5.3.3
-      vitest: 0.34.5_@vitest+ui@0.34.5
 
   packages/core/transpiler/view-parser:
     specifiers:
