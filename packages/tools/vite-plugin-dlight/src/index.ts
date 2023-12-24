@@ -1,15 +1,16 @@
-// @ts-ignore
 import { transform } from "@babel/core"
 import dlight, { type DLightOption } from "babel-preset-dlight"
 import { minimatch } from "minimatch"
 
-export default function(options: DLightOption = {}) {
+export default function (options: DLightOption = {}) {
   const {
     files: preFiles = "**/*.{js,jsx,ts,tsx}",
-    excludeFiles: preExcludeFiles = "**/{dist,node_modules,lib}/*.{js,ts}"
+    excludeFiles: preExcludeFiles = "**/{dist,node_modules,lib}/*.{js,ts}",
   } = options
   const files = Array.isArray(preFiles) ? preFiles : [preFiles]
-  const excludeFiles = Array.isArray(preExcludeFiles) ? preExcludeFiles : [preExcludeFiles]
+  const excludeFiles = Array.isArray(preExcludeFiles)
+    ? preExcludeFiles
+    : [preExcludeFiles]
 
   return {
     name: "dlight",
@@ -34,8 +35,8 @@ export default function(options: DLightOption = {}) {
         configFile: false,
         presets: [[dlight, options]],
         sourceMaps: true,
-        filename: id
+        filename: id,
       })
-    }
+    },
   } as any
 }

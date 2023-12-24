@@ -22,11 +22,20 @@
     "build": "tsup --sourcemap"
   },
   "devDependencies": {
-    "tsup": "^6.5.0"
+    "typescript": "^5.3.2",
+    "tsup": "^6.5.0",
+    "@types/babel__core": "^7.20.5"
   },
   "dependencies": {
     "@babel/core": "^7.20.12",
     "babel-preset-dlight": "workspace:*",
     "minimatch": "^9.0.3"
+  },
+  "tsup": {
+    "entry": ["src/index.ts"],
+    "format": ["esm"],
+    "clean": true,
+    "dts": true,
+    "minify": true
   }
 }
