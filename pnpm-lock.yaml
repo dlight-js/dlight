@@ -275,26 +275,32 @@ importers:
   packages/tools/transpiler:
     specifiers:
       '@babel/core': ^7.20.12
+      '@types/babel__core': ^7.20.5
       babel-preset-dlight: workspace:*
       tsup: ^6.5.0
+      typescript: ^5.3.2
     dependencies:
       '@babel/core': 7.22.8
       babel-preset-dlight: link:../../core/babel-preset-dlight
     devDependencies:
-      tsup: 6.7.0
+      '@types/babel__core': 7.20.5
+      tsup: 6.7.0_typescript@5.3.3
+      typescript: 5.3.3
 
   packages/tools/transpiler-standalone:
     specifiers:
       '@babel/standalone': ^7.22.4
+      '@types/babel__standalone': ^7.1.7
       babel-preset-dlight: workspace:*
       tsup: ^6.5.0
-      typescript: ^5.2.2
+      typescript: ^5.3.2
     dependencies:
       '@babel/standalone': 7.22.8
       babel-preset-dlight: link:../../core/babel-preset-dlight
     devDependencies:
-      tsup: 6.7.0_typescript@5.2.2
-      typescript: 5.2.2
+      '@types/babel__standalone': 7.1.7
+      tsup: 6.7.0_typescript@5.3.3
+      typescript: 5.3.3
 
   packages/tools/vite-plugin-dlight:
     specifiers:
@@ -1854,6 +1860,12 @@ packages:
     resolution: {integrity: sha512-ASsj+tpEDsEiFr1arWrlN6V3mdfjRMZt6LtK/Vp/kreFLnr5QH5+DhvD5nINYZXzwJvXeGq+05iUXcAzVrqWtw==}
     dependencies:
       '@babel/types': 7.23.6
+    dev: true
+
+  /@types/babel__standalone/7.1.7:
+    resolution: {integrity: sha512-4RUJX9nWrP/emaZDzxo/+RYW8zzLJTXWJyp2k78HufG459HCz754hhmSymt3VFOU6/Wy+IZqfPvToHfLuGOr7w==}
+    dependencies:
+      '@types/babel__core': 7.20.5
     dev: true
 
   /@types/babel__template/7.4.4:
@@ -5310,42 +5322,6 @@ packages:
       sucrase: 3.32.0
       tree-kill: 1.2.2
       typescript: 4.9.5
-    transitivePeerDependencies:
-      - supports-color
-      - ts-node
-    dev: true
-
-  /tsup/6.7.0_typescript@5.2.2:
-    resolution: {integrity: sha512-L3o8hGkaHnu5TdJns+mCqFsDBo83bJ44rlK7e6VdanIvpea4ArPcU3swWGsLVbXak1PqQx/V+SSmFPujBK+zEQ==}
-    engines: {node: '>=14.18'}
-    hasBin: true
-    peerDependencies:
-      '@swc/core': ^1
-      postcss: ^8.4.12
-      typescript: '>=4.1.0'
-    peerDependenciesMeta:
-      '@swc/core':
-        optional: true
-      postcss:
-        optional: true
-      typescript:
-        optional: true
-    dependencies:
-      bundle-require: 4.0.1_esbuild@0.17.19
-      cac: 6.7.14
-      chokidar: 3.5.3
-      debug: 4.3.4
-      esbuild: 0.17.19
-      execa: 5.1.1
-      globby: 11.1.0
-      joycon: 3.1.1
-      postcss-load-config: 3.1.4
-      resolve-from: 5.0.0
-      rollup: 3.29.3
-      source-map: 0.8.0-beta.0
-      sucrase: 3.32.0
-      tree-kill: 1.2.2
-      typescript: 5.2.2
     transitivePeerDependencies:
       - supports-color
       - ts-node
