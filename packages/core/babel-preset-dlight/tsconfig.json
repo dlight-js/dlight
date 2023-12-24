@@ -1,26 +1,20 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "useDefineForClassFields": true,
     "module": "ESNext",
-    "lib": [
-      "ESNext",
-      "DOM"
-    ],
+    "lib": ["ESNext", "DOM"],
     "moduleResolution": "Node",
     "strict": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "esModuleInterop": true,
-    "noEmit": true,
-    "skipLibCheck": true,
-    "noImplicitThis": false,
-    "experimentalDecorators": true,
-    "ignoreDeprecations": "5.0",
-    "suppressExcessPropertyErrors": true,
-    "declaration": false
+    "esModuleInterop": true
   },
   "ts-node": {
     "esm": true
+  },
+  "tsup": {
+    "entry": ["src/index.ts"],
+    "format": ["cjs", "esm"],
+    "clean": true,
+    "dts": true,
+    "minify": true
   }
 }

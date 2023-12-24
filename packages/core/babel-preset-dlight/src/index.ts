@@ -4,13 +4,16 @@ import dlight from "./plugin"
 import { type DLightOption } from "./types"
 import { type ConfigAPI, type TransformOptions } from "@babel/core"
 
-export default function(_: ConfigAPI, options: DLightOption): TransformOptions {
+export default function (
+  _: ConfigAPI,
+  options: DLightOption
+): TransformOptions {
   return {
     plugins: [
       syntaxTypescript,
       [syntaxDecorators.default ?? syntaxDecorators, { legacy: true }],
-      [dlight, options]
-    ]
+      [dlight, options],
+    ],
   }
 }
 

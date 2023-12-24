@@ -28,15 +28,18 @@ export interface DLightOption {
   htmlTags?: HTMLTags
 }
 
-export type PropertyContainer = Record<string, {
-  node: t.ClassProperty | t.ClassMethod
-  deps: string[]
-  isStatic?: boolean
-  isContent?: boolean
-  isChildren?: boolean | number
-  isWatcher?: boolean
-  isPropOrEnv?: "Prop" | "Env"
-}>
+export type PropertyContainer = Record<
+  string,
+  {
+    node: t.ClassProperty | t.ClassMethod
+    deps: string[]
+    isStatic?: boolean
+    isContent?: boolean
+    isChildren?: boolean | number
+    isWatcher?: boolean
+    isPropOrEnv?: "Prop" | "Env"
+  }
+>
 
 export type IdentifierToDepNode = t.SpreadElement | t.Expression
 

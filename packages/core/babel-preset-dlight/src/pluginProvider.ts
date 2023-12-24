@@ -7,13 +7,6 @@ import {
 } from "./types"
 import { minimatch } from "minimatch"
 import { parseView } from "@dlightjs/view-parser"
-import {
-  isAssignmentExpressionLeft,
-  isAssignmentExpressionRight,
-  isMemberInEscapeFunction,
-  isMemberInManualFunction,
-} from "./utils/depChecker"
-import { uid } from "./utils/utils"
 import { parseReactivity } from "@dlightjs/reactivity-parser"
 import { generateSubView, generateView } from "@dlightjs/view-generator"
 
@@ -339,7 +332,7 @@ export class PluginProvider {
     this.propertiesContainer = {}
 
     if (!node.id?.name) {
-      node.id = this.t.identifier(`Anonymous_${uid()}`)
+      node.id = this.t.identifier(`Anonymous_${PluginProvider.uid()}`)
     }
     this.className = node.id?.name
 
@@ -1147,25 +1140,22 @@ export class PluginProvider {
       MemberExpression: innerPath => {
         if (!this.t.isIdentifier(innerPath.node.property)) return
         const propertyKey = innerPath.node.property.name
-        if (isAssignmentExpressionLeft(innerPath, this.t)) {
+        if (this.isAssignmentExpressionLeft(innerPath)) {
           assignDeps.add(propertyKey)
         } else if (
           this.availableProperties.includes(propertyKey) &&
           this.t.isThisExpression(innerPath.node.object) &&
-          !isMemberInEscapeFunction(
+          !this.isMemberInEscapeFunction(
             innerPath,
-            this.classDeclarationNode!,
-            this.t
+            this.classDeclarationNode!
           ) &&
-          !isMemberInManualFunction(
+          !this.isMemberInManualFunction(
             innerPath,
-            this.classDeclarationNode!,
-            this.t
+            this.classDeclarationNode!
           ) &&
-          !isAssignmentExpressionRight(
+          !this.isAssignmentExpressionRight(
             innerPath,
-            this.classDeclarationNode!,
-            this.t
+            this.classDeclarationNode!
           )
         ) {
           deps.add(propertyKey)
@@ -1288,6 +1278,8 @@ export class PluginProvider {
    *     const myFunc2 = ok => ok // from function param
    *     console.log(ok) // not from function param
    *  }
+   * @param path
+   * @param idName
    */
   private isAttrFromFunction(path: NodePath, idName: string) {
     let reversePath = path.parentPath
@@ -1384,6 +1376,120 @@ export class PluginProvider {
       },
     })
     return [...identifierKeys]
+  }
+
+  static escapeNamings = ["escape", "$"]
+
+  /**
+   * @brief Check if it's the left side of an assignment expression, e.g. this.count = 1
+   * @param innerPath
+   * @returns is left side of an assignment expression
+   */
+  isAssignmentExpressionLeft(innerPath: NodePath): boolean {
+    const parentNode = innerPath.parentPath?.node
+
+    return (
+      (this.t.isAssignmentExpression(parentNode) &&
+        parentNode.left === innerPath.node) ||
+      this.t.isUpdateExpression(parentNode)
+    )
+  }
+
+  /**
+   * @brief Check if a member expression is the right side of an assignment expression
+   *   e.g. this.count = this.count + 1
+   * @param innerPath
+   * @returns is the right side of an assignment expression
+   */
+  isAssignmentExpressionRight(
+    innerPath: NodePath<t.MemberExpression>,
+    stopNode: t.Node
+  ): boolean {
+    const currNode = innerPath.node
+
+    let isRightExp = false
+    let reversePath: NodePath<t.Node> | null = innerPath.parentPath
+    while (reversePath && reversePath.node !== stopNode) {
+      if (this.t.isAssignmentExpression(reversePath.node)) {
+        const leftNode = reversePath.node.left as t.MemberExpression
+        const typeEqual = currNode.type === leftNode.type
+        const identifierEqual =
+          (currNode.property as t.Identifier).name ===
+          (leftNode.property as t.Identifier).name
+        isRightExp = typeEqual && identifierEqual
+      }
+      reversePath = reversePath.parentPath
+    }
+
+    return isRightExp
+  }
+
+  /**
+   * @brief Check if it's in an "escape" function,
+   *        e.g. escape(() => { console.log(this.count) })
+   *              deps will be empty instead of ["count"]
+   * @param innerPath
+   * @param classDeclarationNode
+   * @returns is in escape function
+   */
+  isMemberInEscapeFunction(innerPath: NodePath, stopNode: t.Node): boolean {
+    let isInFunction = false
+    let reversePath = innerPath.parentPath
+    while (reversePath && reversePath.node !== stopNode) {
+      const node = reversePath.node
+      if (
+        this.t.isCallExpression(node) &&
+        this.t.isIdentifier(node.callee) &&
+        PluginProvider.escapeNamings.includes(node.callee.name)
+      ) {
+        isInFunction = true
+        break
+      }
+      reversePath = reversePath.parentPath
+    }
+    return isInFunction
+  }
+
+  /**
+   * @brief Check if it's in a "manual" function,
+   *        e.g. manual(() => { console.log(this.count) }, ["flag"])
+   *             deps will be ["flag"] instead of ["count"]
+   * @param innerPath
+   * @param classDeclarationNode
+   * @returns is in manual function
+   */
+  isMemberInManualFunction(innerPath: NodePath, stopNode: t.Node): boolean {
+    let isInFunction = false
+    let reversePath = innerPath.parentPath
+    while (reversePath && reversePath.node !== stopNode) {
+      const node = reversePath.node
+      const parentNode = reversePath.parentPath?.node
+      const isFunction =
+        this.t.isFunctionExpression(node) ||
+        this.t.isArrowFunctionExpression(node)
+      const isManual =
+        this.t.isCallExpression(parentNode) &&
+        this.t.isIdentifier(parentNode.callee) &&
+        parentNode.callee.name === "manual"
+      if (isFunction && isManual) {
+        isInFunction = true
+        break
+      }
+      reversePath = reversePath.parentPath
+    }
+
+    return isInFunction
+  }
+
+  /**
+   * @brief Generate a random string
+   * @param length
+   * @returns random string
+   */
+  private static uid(length = 4): string {
+    return Math.random()
+      .toString(32)
+      .slice(2, length + 2)
   }
 }
 

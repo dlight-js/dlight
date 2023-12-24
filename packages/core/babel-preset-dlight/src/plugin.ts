@@ -3,13 +3,13 @@ import { type PluginObj } from "@babel/core"
 import { PluginProviderClass } from "./pluginProvider"
 import { type DLightOption } from "./types"
 
-export default function(api: typeof babel, options: DLightOption): PluginObj {
+export default function (api: typeof babel, options: DLightOption): PluginObj {
   const { types } = api
   const {
     files = "**/*.{js,jsx,ts,tsx}",
     excludeFiles = "**/{dist,node_modules,lib}/*.{js,ts}",
     enableDevTools = false,
-    htmlTags = defaultHtmlTags => defaultHtmlTags
+    htmlTags = defaultHtmlTags => defaultHtmlTags,
   } = options
 
   const pluginProvider = new PluginProviderClass(
@@ -28,14 +28,14 @@ export default function(api: typeof babel, options: DLightOption): PluginObj {
       },
       ClassDeclaration: {
         enter: pluginProvider.classEnter.bind(pluginProvider),
-        exit: pluginProvider.classExit.bind(pluginProvider)
+        exit: pluginProvider.classExit.bind(pluginProvider),
       },
       ClassExpression: {
         enter: pluginProvider.classEnter.bind(pluginProvider),
-        exit: pluginProvider.classExit.bind(pluginProvider)
+        exit: pluginProvider.classExit.bind(pluginProvider),
       },
       ClassMethod: pluginProvider.classMethodVisitor.bind(pluginProvider),
-      ClassProperty: pluginProvider.classPropertyVisitor.bind(pluginProvider)
-    }
+      ClassProperty: pluginProvider.classPropertyVisitor.bind(pluginProvider),
+    },
   }
 }
