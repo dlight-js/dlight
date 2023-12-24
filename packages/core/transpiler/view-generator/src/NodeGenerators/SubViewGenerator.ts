@@ -7,8 +7,9 @@ import PropViewGenerator from "../HelperGenerators/PropViewGenerator"
 
 export default class SubViewGenerator extends PropViewGenerator {
   run() {
-    let { tag, props } = this.viewParticle as SubviewParticle
+    let { props } = this.viewParticle as SubviewParticle
     props = this.alterPropViews(props)
+    const { tag } = this.viewParticle as SubviewParticle
 
     const dlNodeName = this.generateNodeName()
 

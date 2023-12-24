@@ -8,9 +8,10 @@ import ForwardPropGenerator from "../HelperGenerators/ForwardPropGenerator"
 
 export default class CompGenerator extends ForwardPropGenerator {
   run() {
-    let { tag, content, props, children } = this.viewParticle as CompParticle
+    let { content, props } = this.viewParticle as CompParticle
     content = this.alterPropView(content)
     props = this.alterPropViews(props)
+    const { tag, children } = this.viewParticle as CompParticle
 
     const dlNodeName = this.generateNodeName()
 

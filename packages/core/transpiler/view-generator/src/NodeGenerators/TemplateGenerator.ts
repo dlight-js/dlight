@@ -172,11 +172,13 @@ export default class TemplateGenerator extends HTMLPropGenerator {
     const commonPrefixPaths = TemplateGenerator.pathWithCommonPrefix(paths)
 
     commonPrefixPaths.forEach(path => {
-      let [name, pat, offset] = TemplateGenerator.findBestNodeAndPath(
+      const res = TemplateGenerator.findBestNodeAndPath(
         nameMap,
         path,
         dlNodeName
       )
+      const [, pat, offset] = res
+      let name = res[0]
 
       if (pat.length !== 0 || offset !== 0) {
         collect(this.insertElement(name, pat, offset))

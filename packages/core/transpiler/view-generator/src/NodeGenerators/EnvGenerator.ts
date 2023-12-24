@@ -8,8 +8,9 @@ import PropViewGenerator from "../HelperGenerators/PropViewGenerator"
 
 export default class EnvGenerator extends PropViewGenerator {
   run() {
-    let { props, children } = this.viewParticle as EnvParticle
+    let { props } = this.viewParticle as EnvParticle
     props = this.alterPropViews(props)!
+    const { children } = this.viewParticle as EnvParticle
 
     const dlNodeName = this.generateNodeName()
 
@@ -53,7 +54,7 @@ export default class EnvGenerator extends PropViewGenerator {
     return this.t.variableDeclaration("const", [
       this.t.variableDeclarator(
         this.t.identifier(dlNodeName),
-        this.t.newExpression(this.t.identifier("EnvNode"), [
+        this.t.newExpression(this.t.identifier(this.importMap.EnvNode), [
           this.generateEnvs(props),
         ])
       ),
