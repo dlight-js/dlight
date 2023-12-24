@@ -5,7 +5,7 @@
         "es2021": true
     },
     "extends": [
-        "standard-with-typescript",
+        "plugin:@typescript-eslint/recommended",
         "plugin:prettier/recommended"
     ],
     "parserOptions": {
@@ -19,7 +19,9 @@
         "@typescript-eslint/strict-boolean-expressions": "off",
         "@typescript-eslint/restrict-template-expressions": "off",
         "@typescript-eslint/no-non-null-assertion": "off",
-        "@typescript-eslint/no-invalid-void-type": "off"
+        "@typescript-eslint/no-invalid-void-type": "off",
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }]
     },
-    "plugins": ["dlight", "prettier"]
+    "plugins": ["@typescript-eslint", "prettier", "dlight"]
 }
