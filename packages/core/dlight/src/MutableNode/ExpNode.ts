@@ -27,7 +27,7 @@ export class ExpNode extends MutableNode {
     // ---- Add new nodes
     const parentEl = (this as AnyDLNode)._$parentEl
     const flowIndex = MutableNode.getFlowIndexFromNodes(parentEl._$nodes, this)
-    const nextSibling = parentEl._$nodes[flowIndex]
+    const nextSibling = parentEl.childNodes[flowIndex]
     MutableNode.appendNodesWithSibling(newNodes, parentEl, nextSibling)
 
     this._$nodes = newNodes
