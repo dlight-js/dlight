@@ -1,4 +1,4 @@
-import { createErrorHandler } from "@dlightjs/error-handler"
+import { createErrorHandler } from "../../../../tools/error-handler/dist"
 
 export const DLError = createErrorHandler(
   "ViewGenerator",

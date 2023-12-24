@@ -34,7 +34,6 @@ importers:
       '@dlightjs/components': ^0.10.1
       '@dlightjs/decorators': ^0.10.1
       '@dlightjs/dlight': workspace:*
-      '@dlightjs/dlight-dev': workspace:*
       '@dlightjs/markit': ^0.10.1
       '@dlightjs/material-icons': ^0.10.1
       '@dlightjs/transpiler-standalone': workspace:*
@@ -49,7 +48,6 @@ importers:
       '@dlightjs/components': 0.10.1
       '@dlightjs/decorators': 0.10.1
       '@dlightjs/dlight': link:../../packages/core/dlight
-      '@dlightjs/dlight-dev': link:../../packages/core/dlight-dev
       '@dlightjs/markit': 0.10.1
       '@dlightjs/material-icons': 0.10.1
       '@dlightjs/transpiler-standalone': link:../../packages/tools/transpiler-standalone
@@ -67,7 +65,6 @@ importers:
       '@dlightjs/components': ^0.10.1
       '@dlightjs/decorators': ^0.10.1
       '@dlightjs/dlight': workspace:*
-      '@dlightjs/dlight-dev': workspace:*
       '@dlightjs/markit': ^0.10.1
       '@dlightjs/material-icons': ^0.10.1
       '@dlightjs/transpiler-standalone': workspace:*
@@ -82,7 +79,6 @@ importers:
       '@dlightjs/components': 0.10.1
       '@dlightjs/decorators': 0.10.1
       '@dlightjs/dlight': link:../../packages/core/dlight
-      '@dlightjs/dlight-dev': link:../../packages/core/dlight-dev
       '@dlightjs/markit': 0.10.1
       '@dlightjs/material-icons': 0.10.1
       '@dlightjs/transpiler-standalone': link:../../packages/tools/transpiler-standalone
@@ -160,25 +156,6 @@ importers:
       tsup: 6.7.0_typescript@4.9.5
       typescript: 4.9.5
 
-  packages/core/dlight-dev:
-    specifiers:
-      '@dlightjs/dlight': workspace:*
-      tsup: ^6.5.0
-      typescript: ^4.5.2
-    dependencies:
-      '@dlightjs/dlight': link:../dlight
-    devDependencies:
-      tsup: 6.7.0_typescript@4.9.5
-      typescript: 4.9.5
-
-  packages/core/error-handler:
-    specifiers:
-      tsup: ^6.7.0
-      typescript: ^5.3.2
-    devDependencies:
-      tsup: 6.7.0_typescript@5.3.2
-      typescript: 5.3.2
-
   packages/core/transpiler/reactivity-parser:
     specifiers:
       '@babel/core': ^7.20.12
@@ -190,7 +167,7 @@ importers:
       typescript: ^5.3.2
       vitest: ^0.34.5
     dependencies:
-      '@dlightjs/error-handler': link:../../error-handler
+      '@dlightjs/error-handler': link:../../../tools/error-handler
       '@dlightjs/view-parser': link:../view-parser
     devDependencies:
       '@babel/core': 7.22.8
@@ -210,7 +187,7 @@ importers:
       tsup: ^6.7.0
       typescript: ^5.3.2
     dependencies:
-      '@dlightjs/error-handler': link:../../error-handler
+      '@dlightjs/error-handler': link:../../../tools/error-handler
       '@dlightjs/reactivity-parser': link:../reactivity-parser
     devDependencies:
       '@babel/core': 7.22.8
@@ -229,7 +206,7 @@ importers:
       typescript: ^5.3.2
       vitest: ^0.34.5
     dependencies:
-      '@dlightjs/error-handler': link:../../error-handler
+      '@dlightjs/error-handler': link:../../../tools/error-handler
     devDependencies:
       '@babel/core': 7.22.8
       '@types/babel__core': 7.20.5
@@ -281,6 +258,14 @@ importers:
       node-fetch: 3.3.2
     devDependencies:
       tsup: 6.7.0
+
+  packages/tools/error-handler:
+    specifiers:
+      tsup: ^6.7.0
+      typescript: ^5.3.2
+    devDependencies:
+      tsup: 6.7.0_typescript@5.3.3
+      typescript: 5.3.3
 
   packages/tools/eslint-plugin-dlight:
     specifiers:
