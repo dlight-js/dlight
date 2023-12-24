@@ -34,5 +34,12 @@
     "@dlightjs/reactivity-parser": "workspace:*",
     "@dlightjs/view-generator": "workspace:*",
     "@dlightjs/view-parser": "workspace:*"
+  },
+  "tsup": {
+    "entry": ["src/index.ts"],
+    "format": ["cjs", "esm"],
+    "clean": true,
+    "dts": true,
+    "minify": true
   }
 }
