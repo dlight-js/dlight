@@ -5,15 +5,7 @@
     "lib": ["ESNext", "DOM"],
     "moduleResolution": "Node",
     "strict": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "esModuleInterop": true,
-    "noEmit": true,
-    "skipLibCheck": true,
-    "noImplicitThis": false,
-    "experimentalDecorators": true,
-    "declaration": false,
-    "useDefineForClassFields": true
+    "esModuleInterop": true
   },
   "ts-node": {
     "esm": true
