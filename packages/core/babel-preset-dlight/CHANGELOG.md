@@ -1,5 +1,11 @@
 # babel-preset-dlight
 
+## 1.0.0-alpha.2
+
+### Patch Changes
+
+- fix: subview property not parsed correctly
+
 ## 1.0.0-alpha.1
 
 ### Patch Changes

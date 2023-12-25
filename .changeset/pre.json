@@ -21,6 +21,7 @@
     "vite-plugin-dlight-js": "1.0.0-alpha.0"
   },
   "changesets": [
-    "fair-baboons-hang"
+    "fair-baboons-hang",
+    "old-seas-attack"
   ]
 }
