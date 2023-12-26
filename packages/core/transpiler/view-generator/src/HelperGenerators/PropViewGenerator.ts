@@ -39,22 +39,24 @@ export default class PropViewGenerator extends BaseGenerator {
       /**
        * ${topLevelNodes[0]}.update = (changed) => ${updateStatements}
        */
-      initStatements.push(
-        this.t.expressionStatement(
-          this.t.assignmentExpression(
-            "=",
-            this.t.memberExpression(
-              this.t.identifier(topLevelNodes[0]),
-              this.t.identifier("_$updateFunc")
-            ),
-            this.t.arrowFunctionExpression(
-              [this.t.identifier("changed")],
-              this.geneUpdateBody(updateStatements)
+      if (Object.keys(updateStatements).length > 0) {
+        initStatements.push(
+          this.t.expressionStatement(
+            this.t.assignmentExpression(
+              "=",
+              this.t.memberExpression(
+                this.t.identifier(topLevelNodes[0]),
+                this.t.identifier("_$updateFunc")
+              ),
+              this.t.arrowFunctionExpression(
+                [this.t.identifier("changed")],
+                this.geneUpdateBody(updateStatements)
+              )
             )
           )
-        ),
-        this.generateReturnStatement(topLevelNodes)
-      )
+        )
+      }
+      initStatements.push(this.generateReturnStatement(topLevelNodes))
     }
 
     // ---- Assign as a dlNode

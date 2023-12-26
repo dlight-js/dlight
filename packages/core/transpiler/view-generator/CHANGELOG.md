@@ -1,5 +1,11 @@
 # @dlightjs/view-generator
 
+## 1.0.0-alpha.4
+
+### Patch Changes
+
+- fix: no extra update func for PropView when the updateStatements is empty
+
 ## 1.0.0-alpha.3
 
 ### Patch Changes
