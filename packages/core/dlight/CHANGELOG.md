@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.7
+
+### Patch Changes
+
+- build
+
 ## 1.0.0-alpha.6
 
 ### Patch Changes
