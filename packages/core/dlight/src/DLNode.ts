@@ -120,7 +120,10 @@ export class DLNode {
    */
   static addParentEl(nodes: AnyDLNode[], parentEl: HTMLElement): void {
     this.loopShallowDLNodes(nodes, (node, isDL) => {
-      if (isDL) node._$parentEl = parentEl
+      if (isDL) {
+        node._$parentEl = parentEl
+        node.didMount?.()
+      }
       return true
     })
   }

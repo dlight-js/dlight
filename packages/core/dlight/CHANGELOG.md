@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.8
+
+### Patch Changes
+
+- feat: change didMount timing to after parentEl adding
+
 ## 1.0.0-alpha.7
 
 ### Patch Changes
