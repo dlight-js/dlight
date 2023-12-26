@@ -21,6 +21,7 @@
     "vite-plugin-dlight-js": "1.0.0-alpha.0"
   },
   "changesets": [
+    "calm-humans-boil",
     "fair-baboons-hang",
     "five-lamps-camp",
     "old-seas-attack",
