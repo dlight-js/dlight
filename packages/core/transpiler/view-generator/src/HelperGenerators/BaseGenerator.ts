@@ -65,7 +65,6 @@ export default class BaseGenerator {
     statement: t.Statement
   ) {
     if (!dependencies || dependencies.length === 0) return
-    dependencies = [...new Set(dependencies)]
     const depNum = BaseGenerator.calcDependencyNum(dependencies)
     if (!this.updateStatements[depNum]) this.updateStatements[depNum] = []
     this.updateStatements[depNum].push(statement)
@@ -228,6 +227,7 @@ export default class BaseGenerator {
    */
   static calcDependencyNum(dependencies: number[] | undefined): number {
     if (!dependencies || dependencies.length === 0) return 0
+    dependencies = [...new Set(dependencies)]
     return dependencies.reduce((acc, dep) => acc + (1 << dep), 0)
   }
 

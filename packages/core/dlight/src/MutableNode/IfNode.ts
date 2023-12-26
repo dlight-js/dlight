@@ -4,16 +4,18 @@ import { MutableNode } from "./MutableNode"
 export class IfNode extends MutableNode {
   condFunc
   cond
+  depNum
 
   /**
    * @brief Constructor, If type, accept a function that returns a list of nodes
    * @param condFunc
    */
-  constructor(condFunc: (thisIf: IfNode) => AnyDLNode[]) {
+  constructor(condFunc: (thisIf: IfNode) => AnyDLNode[], depNum: number) {
     super(DLNodeType.If)
     this.condFunc = condFunc
     this.cond = -1
     this._$nodes = this.condFunc(this)
+    this.depNum = depNum
   }
 
   /**
@@ -45,6 +47,7 @@ export class IfNode extends MutableNode {
    * @param changed
    */
   update(changed: number): void {
+    if (changed === this.depNum) return
     this._$nodes![0]?._$updateFunc?.(changed)
   }
 }
