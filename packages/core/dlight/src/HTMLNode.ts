@@ -36,8 +36,10 @@ export function setHTMLProp(
   key: keyof HTMLElement,
   value: any
 ): void {
-  if ((el as AnyDLNode)[key] === value) return
+  const prevKey = `$${key}`
+  if (prevKey in el && (el as AnyDLNode)[prevKey] === value) return
   ;(el as AnyDLNode)[key] = value
+  ;(el as AnyDLNode)[prevKey] = value
 }
 
 /**
@@ -61,8 +63,10 @@ export function setHTMLProps(
  * @param value
  */
 export function setHTMLAttr(el: HTMLElement, key: string, value: any): void {
-  if (el.getAttribute(key) === value) return
+  const prevKey = `$${key}`
+  if (prevKey in el && (el as AnyDLNode)[prevKey] === value) return
   el.setAttribute(key, value)
+  ;(el as AnyDLNode)[prevKey] = value
 }
 
 /**
@@ -85,11 +89,7 @@ export function setHTMLAttrs(
  * @param key
  * @param value
  */
-export function setMemorizedEvent(
-  el: HTMLElement,
-  key: string,
-  value: any
-): void {
+export function setEvent(el: HTMLElement, key: string, value: any): void {
   const prevEvent = (el as any)[`$on${key}`]
   if (prevEvent) el.removeEventListener(key, prevEvent)
   el.addEventListener(key, value)
@@ -176,7 +176,7 @@ export function forwardHTMLProp(
   }
   if (key === "forwardProp") return
   if (key.startsWith("on")) {
-    setMemorizedEvent(el, key.slice(2).toLowerCase(), value)
+    setEvent(el, key.slice(2).toLowerCase(), value)
     return
   }
   setHTMLAttr(el, key, value)

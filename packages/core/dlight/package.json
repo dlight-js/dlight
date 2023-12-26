@@ -1,6 +1,6 @@
 {
   "name": "@dlightjs/dlight",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0-alpha.2",
   "description": "DX-first UI rendering library",
   "author": {
     "name": "IanDx",
@@ -26,8 +26,13 @@
     "tsup": "^6.5.0"
   },
   "tsup": {
-    "entry": ["src/index.ts"],
-    "format": ["cjs", "esm"],
+    "entry": [
+      "src/index.ts"
+    ],
+    "format": [
+      "cjs",
+      "esm"
+    ],
     "clean": true,
     "dts": true,
     "minify": true

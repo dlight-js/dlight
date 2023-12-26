@@ -1,5 +1,13 @@
 # babel-preset-dlight
 
+## 1.0.0-alpha.3
+
+### Patch Changes
+
+- feat: add cached html prop and force for update
+- Updated dependencies
+  - @dlightjs/view-generator@1.0.0-alpha.2
+
 ## 1.0.0-alpha.2
 
 ### Patch Changes

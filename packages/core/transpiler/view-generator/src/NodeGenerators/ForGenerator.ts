@@ -13,14 +13,7 @@ export default class ForGenerator extends BaseGenerator {
 
     // ---- Declare for node
     this.addInitStatement(
-      this.declareForNode(
-        dlNodeName,
-        array.value,
-        item,
-        children,
-        BaseGenerator.calcDependencyNum(array.dependencyIndexArr),
-        key
-      )
+      this.declareForNode(dlNodeName, array.value, item, children, key)
     )
 
     // ---- Update statements
@@ -45,14 +38,13 @@ export default class ForGenerator extends BaseGenerator {
    *   }
    *   ${topLevelNodes[0])._$updateFunc = $update
    *   return [...${topLevelNodes}]
-   * }, ${depNum}, ${array}.map(${item} => ${key}))
+   * }, ${array}.map(${item} => ${key}))
    */
   private declareForNode(
     dlNodeName: string,
     array: t.Expression,
     item: t.LVal,
     children: ViewParticle[],
-    depNum: number,
     key?: t.Expression
   ): t.VariableDeclaration {
     // ---- NodeFunc
@@ -90,7 +82,6 @@ export default class ForGenerator extends BaseGenerator {
             [item as any],
             this.t.blockStatement(childStatements)
           ),
-          this.t.numericLiteral(depNum),
           ...this.getForKeyStatement(array, item, key),
         ])
       ),

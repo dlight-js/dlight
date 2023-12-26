@@ -22,11 +22,9 @@ export default class HTMLPropGenerator extends ForwardPropGenerator {
   ): t.Statement {
     // ---- Dynamic HTML prop with init and update
     if (dependencyIndexArr && dependencyIndexArr.length > 0) {
-      this.addUpdateStatements(
-        dependencyIndexArr,
-        this.setDynamicHTMLProp(name, tag, key, value)
-      )
-      return this.initDynamicHTMLProp(name, tag, key, value)
+      const statement = this.setDynamicHTMLProp(name, tag, key, value)
+      this.addUpdateStatements(dependencyIndexArr, statement)
+      return statement
     }
     // ---- Static HTML prop with init only
     return this.setStaticHTMLProp(name, tag, key, value)
@@ -139,18 +137,19 @@ export default class HTMLPropGenerator extends ForwardPropGenerator {
 
   /**
    * @View
-   * setMemorizedEvent(${dlNodeName}, ${key}, ${value})
+   * setEvent(${dlNodeName}, ${key}, ${value})
    */
-  private setMemorizedEvent(
+  private setEvent(
     dlNodeName: string,
     key: string,
     value: t.Expression
   ): t.Statement {
     return this.t.expressionStatement(
-      this.t.callExpression(
-        this.t.identifier(this.importMap.setMemorizedEvent),
-        [this.t.identifier(dlNodeName), this.t.stringLiteral(key), value]
-      )
+      this.t.callExpression(this.t.identifier(this.importMap.setEvent), [
+        this.t.identifier(dlNodeName),
+        this.t.stringLiteral(key),
+        value,
+      ])
     )
   }
 
@@ -280,36 +279,7 @@ export default class HTMLPropGenerator extends ForwardPropGenerator {
   /**
    * @View
    * 1. Event listener
-   *  - ${setMemorizedEvent}(${dlNodeName}, ${key}, ${value})
-   * 2. HTML internal attribute -> DOM property
-   *  - ${dlNodeName}.${key} = ${value}
-   * 3. HTML custom attribute
-   *  - ${dlNodeName}.setAttribute(${key}, ${value})
-   */
-  private initDynamicHTMLProp(
-    dlNodeName: string,
-    tag: string,
-    attrName: string,
-    value: t.Expression
-  ): t.Statement {
-    if (this.commonHTMLPropKeys.includes(attrName))
-      return this.addCommonHTMLProp(dlNodeName, attrName, value)
-    if (attrName.startsWith("on")) {
-      const eventName = attrName.slice(2).toLowerCase()
-      return this.setMemorizedEvent(dlNodeName, eventName, value)
-    }
-    if (isInternalAttribute(tag, attrName)) {
-      if (attrName === "class") attrName = "className"
-      else if (attrName === "for") attrName = "htmlFor"
-      return this.setHTMLProp(dlNodeName, attrName, value)
-    }
-    return this.setHTMLAttr(dlNodeName, attrName, value)
-  }
-
-  /**
-   * @View
-   * 1. Event listener
-   *  - ${setMemorizedEvent}(${dlNodeName}, ${key}, ${value})
+   *  - ${setEvent}(${dlNodeName}, ${key}, ${value})
    * 2. HTML internal attribute -> DOM property
    *  - ${setHTMLProp}(${dlNodeName}, ${key}, ${value})
    * 3. HTML custom attribute
@@ -325,7 +295,7 @@ export default class HTMLPropGenerator extends ForwardPropGenerator {
       return this.addCommonHTMLProp(dlNodeName, attrName, value)
     if (attrName.startsWith("on")) {
       const eventName = attrName.slice(2).toLowerCase()
-      return this.setMemorizedEvent(dlNodeName, eventName, value)
+      return this.setEvent(dlNodeName, eventName, value)
     }
     if (isInternalAttribute(tag, attrName)) {
       if (attrName === "class") attrName = "className"

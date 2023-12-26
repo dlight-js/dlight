@@ -223,7 +223,7 @@ export class PluginProvider {
       "createTemplate",
       "setStyle",
       "setDataset",
-      "setMemorizedEvent",
+      "setEvent",
       "setHTMLProp",
       "setHTMLAttr",
       "setHTMLProps",

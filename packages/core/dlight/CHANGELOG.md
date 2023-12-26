@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.2
+
+### Patch Changes
+
+- feat: add cached html prop and force for update
+
 ## 0.10.2
 
 ### Patch Changes
