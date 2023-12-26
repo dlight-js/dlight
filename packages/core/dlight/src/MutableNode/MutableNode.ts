@@ -62,7 +62,7 @@ export class MutableNode extends DLNode {
     DLNode.loopShallowEls(nodes, el => {
       this._$parentEl?.removeChild(el)
     })
-    DLNode.loopDLNodes(nodes, node => {
+    DLNode.loopDLNodesInsideOut(nodes, node => {
       node.didUnmount?.()
     })
   }

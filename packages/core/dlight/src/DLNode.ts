@@ -62,12 +62,25 @@ export class DLNode {
    * @param runFunc
    */
   static loopDLNodes(nodes: AnyDLNode[], runFunc: (node: AnyDLNode) => void) {
-    const stack = [...nodes]
-    while (stack.length > 0) {
-      const node = stack.shift()!
+    nodes.forEach(node => {
       runFunc(node)
-      node._$nodes && stack.unshift(...node._$nodes)
-    }
+      node._$nodes && DLNode.loopDLNodes(node._$nodes, runFunc)
+    })
+  }
+
+  /**
+   * @brief Loop all child DLNodes deeply, including all the child nodes of child nodes
+   * @param nodes
+   * @param runFunc
+   */
+  static loopDLNodesInsideOut(
+    nodes: AnyDLNode[],
+    runFunc: (node: AnyDLNode) => void
+  ) {
+    nodes.forEach(node => {
+      node._$nodes && DLNode.loopDLNodesInsideOut(node._$nodes, runFunc)
+      runFunc(node)
+    })
   }
 
   /**
@@ -80,16 +93,10 @@ export class DLNode {
     nodes: AnyDLNode[],
     runFunc: (node: AnyDLNode) => void
   ) {
-    const stack = [...nodes]
-    while (stack.length > 0) {
-      const node = stack.shift()!
-      const isDL = "_$dlNodeType" in node
-      if (!isDL) {
-        runFunc(node)
-      } else {
-        stack.unshift(...(node._$nodes ?? []))
-      }
-    }
+    nodes.forEach(node => {
+      if (!("_$dlNodeType" in node)) return runFunc(node)
+      node._$nodes && DLNode.loopShallowEls(node._$nodes, runFunc)
+    })
   }
 
   /**
@@ -108,9 +115,27 @@ export class DLNode {
       const isDL = "_$dlNodeType" in node
       if (!runFunc(node, isDL)) break
       if (isDL) {
-        stack.unshift(...(node._$nodes ?? []))
+        node._$nodes && stack.unshift(...node._$nodes)
       }
     }
+  }
+
+  /**
+   * @brief Loop all nodes shallowly and run func later
+   * @param nodes
+   * @param runFunc
+   */
+  static loopShallowDLNodesInsideOut(
+    nodes: any[],
+    runFunc: (node: any) => void
+  ): void {
+    nodes.forEach(node => {
+      if ("_$dlNodeType" in node) {
+        node._$nodes &&
+          DLNode.loopShallowDLNodesInsideOut(node._$nodes, runFunc)
+        runFunc(node)
+      }
+    })
   }
 
   /**
@@ -119,12 +144,9 @@ export class DLNode {
    * @param parentEl
    */
   static addParentEl(nodes: AnyDLNode[], parentEl: HTMLElement): void {
-    this.loopShallowDLNodes(nodes, (node, isDL) => {
-      if (isDL) {
-        node._$parentEl = parentEl
-        node.didMount?.()
-      }
-      return true
+    this.loopShallowDLNodesInsideOut(nodes, node => {
+      node._$parentEl = parentEl
+      node.didMount?.()
     })
   }
 

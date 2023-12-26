@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.9
+
+### Patch Changes
+
+- refactor: change lifecycle order: willXX outside in didXX inside out
+
 ## 1.0.0-alpha.8
 
 ### Patch Changes
