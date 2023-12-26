@@ -41,7 +41,7 @@ class Main {
 
   update() {
     for (let i = 0; i < this.rows.length; i += 10) {
-      this.rows[i] = { id: this.rows[i].id, label: this.rows[i].label + " !!!" }
+      this.rows[i].label += " !!!"
     }
     this.rows = [...this.rows]
   }
@@ -55,7 +55,7 @@ class Main {
         {
           div().class("col-sm-6")
           {
-            h1("DLight.js (keyed)")
+            h1("DLight.js (non-keyed)")
           }
           div().class("col-md-6")
           {
@@ -114,7 +114,6 @@ class Main {
           tbody()
           {
             for (const { id, label } of this.rows) {
-              key: id
               tr().class(this.selectIdx === id ? "danger" : "")
               {
                 td(id).class("col-md-1")
