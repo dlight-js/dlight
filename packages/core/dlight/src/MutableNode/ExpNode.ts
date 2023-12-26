@@ -11,7 +11,9 @@ export class ExpNode extends MutableNode {
   constructor(nodesFunc: () => AnyDLNode[]) {
     super(DLNodeType.Exp)
     this.nodesFunc = nodesFunc
-    this._$nodes = ExpNode.formatNodes(nodesFunc())
+    this._$nodes = this.geneNewNodesInEnv(() =>
+      ExpNode.formatNodes(nodesFunc())
+    )!
   }
 
   /**

@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.6
+
+### Patch Changes
+
+- fix: expnode no parentel assign in the inited phase
+
 ## 1.0.0-alpha.5
 
 ### Patch Changes

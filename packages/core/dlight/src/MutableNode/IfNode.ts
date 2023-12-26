@@ -26,7 +26,7 @@ export class IfNode extends MutableNode {
     // ---- If the new nodes are the same as the old nodes, we don't need to update
     if (!newNodes) return
     // ---- Remove old nodes
-    this.removeNodes(this._$nodes!)
+    this._$nodes && this.removeNodes(this._$nodes)
     if (this.cond === -1) {
       // ---- No branch has been taken
       this._$nodes = []
