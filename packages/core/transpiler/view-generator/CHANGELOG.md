@@ -1,5 +1,11 @@
 # @dlightjs/view-generator
 
+## 1.0.0-alpha.5
+
+### Patch Changes
+
+- fix: if generator else no statement will replace the last condition
+
 ## 1.0.0-alpha.4
 
 ### Patch Changes

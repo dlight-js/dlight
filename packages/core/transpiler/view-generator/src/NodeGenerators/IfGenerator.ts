@@ -116,8 +116,6 @@ export default class IfGenerator extends BaseGenerator {
     branches: IfBranch[],
     depNum: number
   ): t.Statement {
-    let hasElseStatement = false
-
     const ifStatement = branches
       .reverse()
       .reduce<any>((acc, { condition, children }, idx) => {
@@ -143,30 +141,28 @@ export default class IfGenerator extends BaseGenerator {
         // ---- Return statement
         childStatements.push(this.generateReturnStatement(topLevelNodes))
 
-        if (
-          idx === 0 &&
-          this.t.isBooleanLiteral(condition.value, { value: true })
-        ) {
-          // ---- else statement
-          hasElseStatement = true
-          return this.t.blockStatement(childStatements)
+        if (idx === 0) {
+          if (this.t.isBooleanLiteral(condition.value, { value: true })) {
+            // ---- else statement
+            return this.t.blockStatement(childStatements)
+          }
+          /**
+           * else {
+           *  thisIf.cond = -1
+           *  return []
+           * }
+           */
+          return this.geneIfStatement(
+            condition.value,
+            childStatements,
+            this.t.blockStatement([
+              this.geneCondIdx("$thisIf", -1),
+              this.generateReturnStatement([]),
+            ])
+          )
         }
-
         return this.geneIfStatement(condition.value, childStatements, acc)
       }, undefined)
-
-    if (!hasElseStatement) {
-      /**
-       * else {
-       *  thisIf.cond = -1
-       *  return []
-       * }
-       */
-      ifStatement.alternate = this.t.blockStatement([
-        this.geneCondIdx("$thisIf", -1),
-        this.t.returnStatement(this.t.arrayExpression([])),
-      ])
-    }
 
     return this.t.variableDeclaration("const", [
       this.t.variableDeclarator(
