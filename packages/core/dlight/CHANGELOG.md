@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.5
+
+### Patch Changes
+
+- feat: add force update function
+
 ## 1.0.0-alpha.4
 
 ### Patch Changes

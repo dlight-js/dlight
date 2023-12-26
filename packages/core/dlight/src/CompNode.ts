@@ -149,6 +149,7 @@ export class CompNode extends DLNode {
     if (!(`$e$${key}` in this)) return
     // ---- Make sure the envNode is the innermost envNode that contains this env
     if (envNode !== (this as AnyDLNode)[`$en$${key}`]) return
+    if ((this as AnyDLNode)[key] === value) return
     ;(this as AnyDLNode)[key] = value
   }
 
@@ -173,7 +174,15 @@ export class CompNode extends DLNode {
     const valueKey = `$${key}`
     if ((this as AnyDLNode)[valueKey] === value) return
     ;(this as AnyDLNode)[valueKey] = value
-    // ---- Update properties that depend on this property
+    this._$updateDerived(key)
+    this._$updateView(key)
+  }
+
+  /**
+   * @brief Update properties that depend on this property
+   * @param key
+   */
+  _$updateDerived(key: string): void {
     ;(this as AnyDLNode)[`$s$${key}`]?.forEach((k: string) => {
       // ---- Not time consuming at all
       if (`$w$${k}` in (this as AnyDLNode)) {
@@ -184,11 +193,28 @@ export class CompNode extends DLNode {
         ;(this as AnyDLNode)[`$${k}`] = (this as AnyDLNode)[`$f$${k}`]
       }
     })
-    // ---- Run update function
+  }
+
+  /**
+   * @brief Update View related update function
+   * @param key
+   */
+  _$updateView(key: string): void {
     const depNum = (this as AnyDLNode)[`$$${key}`]
-    if (depNum) (this as AnyDLNode)._$update?.(depNum)
+    if (!depNum) return // ---- Run update function
+    ;(this as AnyDLNode)._$update?.(depNum)
   }
 }
 
 // ---- @View -> class Comp extends View
 export const View = CompNode as any
+
+/**
+ * @brief Run all update functions given the key
+ * @param dlNode
+ * @param key
+ */
+export function update(dlNode: AnyDLNode, key: string): void {
+  dlNode._$updateDerived(key)
+  dlNode._$updateView(key)
+}

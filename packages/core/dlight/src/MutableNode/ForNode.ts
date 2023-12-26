@@ -41,6 +41,11 @@ export class ForNode<T, G> extends MutableNode {
     }
   }
 
+  /**
+   * @brief Update the view related to one item in the array
+   * @param nodes
+   * @param item
+   */
   private updateItem(nodes: AnyDLNode[], item: T): void {
     // ---- The update function of ForNode's childNodes is stored in the first child node
     nodes[0]._$updateFunc?.(this.depNum, item)
