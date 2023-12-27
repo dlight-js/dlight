@@ -1,5 +1,11 @@
 # @dlightjs/view-generator
 
+## 1.0.0-alpha.10
+
+### Patch Changes
+
+- fix: PropView update disappeared
+
 ## 1.0.0-alpha.9
 
 ### Patch Changes

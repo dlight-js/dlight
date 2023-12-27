@@ -79,8 +79,7 @@ export default class PropViewGenerator extends BaseGenerator {
     /**
      * ${dlNodeName}.update(changed)
      */
-    this.addUpdateStatements(
-      PropViewGenerator.reverseDependencyIndexArr(updateStatements),
+    this.addUpdateStatementsWithoutDep(
       this.t.expressionStatement(
         this.t.callExpression(
           this.t.memberExpression(
