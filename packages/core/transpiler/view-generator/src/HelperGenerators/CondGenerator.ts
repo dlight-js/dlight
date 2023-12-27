@@ -80,7 +80,7 @@ export default class CondGenerator extends BaseGenerator {
     return this.t.variableDeclaration("const", [
       this.t.variableDeclarator(
         this.t.identifier(dlNodeName),
-        this.t.newExpression(this.t.identifier("CondNode"), [
+        this.t.newExpression(this.t.identifier(this.importMap.CondNode), [
           this.t.arrowFunctionExpression(
             [this.t.identifier("$thisCond")],
             condFunc

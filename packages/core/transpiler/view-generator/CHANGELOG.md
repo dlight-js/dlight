@@ -1,5 +1,11 @@
 # @dlightjs/view-generator
 
+## 1.0.0-alpha.11
+
+### Patch Changes
+
+- fix: import node from importMap
+
 ## 1.0.0-alpha.10
 
 ### Patch Changes

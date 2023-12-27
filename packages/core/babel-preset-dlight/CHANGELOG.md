@@ -1,5 +1,12 @@
 # babel-preset-dlight
 
+## 1.0.0-alpha.13
+
+### Patch Changes
+
+- Updated dependencies
+  - @dlightjs/view-generator@1.0.0-alpha.11
+
 ## 1.0.0-alpha.12
 
 ### Patch Changes
