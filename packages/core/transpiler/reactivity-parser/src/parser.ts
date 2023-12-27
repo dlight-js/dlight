@@ -14,6 +14,7 @@ import {
   type IfParticle,
   type EnvParticle,
   type SubviewParticle,
+  SwitchParticle,
 } from "./types"
 import { type NodePath, type types as t, type traverse } from "@babel/core"
 import {
@@ -27,6 +28,7 @@ import {
   type EnvUnit,
   type ExpUnit,
   type SubviewUnit,
+  SwitchUnit,
 } from "@dlightjs/view-parser"
 import { DLError } from "./error"
 import { recoverHTMLAttrName } from "./attr"
@@ -101,6 +103,7 @@ export class ReactivityParser {
     if (viewUnit.type === "if") return this.parseIf(viewUnit)
     if (viewUnit.type === "env") return this.parseEnv(viewUnit)
     if (viewUnit.type === "exp") return this.parseExp(viewUnit)
+    if (viewUnit.type === "switch") return this.parseSwitch(viewUnit)
     if (viewUnit.type === "subview") return this.parseSubview(viewUnit)
     return DLError.throw1()
   }
@@ -340,6 +343,7 @@ export class ReactivityParser {
         viewPropMap: {
           [id]: [innerHTMLParticle],
         },
+        dependencyIndexArr: tagDependencies,
       },
     }
   }
@@ -387,6 +391,7 @@ export class ReactivityParser {
         viewPropMap: {
           [id]: [compParticle],
         },
+        dependencyIndexArr: tagDependencies,
       },
     }
   }
@@ -450,6 +455,32 @@ export class ReactivityParser {
           dependencyIndexArr: this.getDependencies(branch.condition),
         },
         children: branch.children.map(this.parseViewParticle.bind(this)),
+      })),
+    }
+  }
+
+  // ---- @Switch ----
+  /**
+   * @brief Parse a SwitchUnit into an SwitchParticle with dependencies
+   * @param switchUnit
+   * @returns SwitchParticle
+   */
+  private parseSwitch(switchUnit: SwitchUnit): SwitchParticle {
+    return {
+      type: "switch",
+      discriminant: {
+        value: switchUnit.discriminant,
+        dependencyIndexArr: this.getDependencies(switchUnit.discriminant),
+      },
+      branches: switchUnit.branches.map(branch => ({
+        case: branch.case
+          ? {
+              value: branch.case,
+              dependencyIndexArr: this.getDependencies(branch.case),
+            }
+          : null,
+        children: branch.children.map(this.parseViewParticle.bind(this)),
+        break: branch.break,
       })),
     }
   }

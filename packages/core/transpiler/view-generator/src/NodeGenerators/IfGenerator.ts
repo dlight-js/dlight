@@ -1,8 +1,8 @@
 import { type types as t } from "@babel/core"
-import BaseGenerator from "../HelperGenerators/BaseGenerator"
 import { type IfParticle, type IfBranch } from "@dlightjs/reactivity-parser"
+import CondGenerator from "../HelperGenerators/CondGenerator"
 
-export default class IfGenerator extends BaseGenerator {
+export default class IfGenerator extends CondGenerator {
   run() {
     const { branches } = this.viewParticle as IfParticle
     const deps = branches.flatMap(
@@ -12,8 +12,8 @@ export default class IfGenerator extends BaseGenerator {
     const dlNodeName = this.generateNodeName()
     this.addInitStatement(this.declareIfNode(dlNodeName, branches))
 
-    this.addUpdateStatements(deps, this.updateIfNodeCond(dlNodeName))
-    this.addUpdateStatementsWithoutDep(this.updateIfNode(dlNodeName))
+    this.addUpdateStatements(deps, this.updateCondNodeCond(dlNodeName))
+    this.addUpdateStatementsWithoutDep(this.updateCondNode(dlNodeName))
 
     return dlNodeName
   }
@@ -43,41 +43,6 @@ export default class IfGenerator extends BaseGenerator {
 
   /**
    * @View
-   * $thisIf.cond = ${idx}
-   */
-  private geneCondIdx(idx: number): t.ExpressionStatement {
-    return this.t.expressionStatement(
-      this.t.assignmentExpression(
-        "=",
-        this.t.memberExpression(
-          this.t.identifier("$thisIf"),
-          this.t.identifier("cond")
-        ),
-        this.t.numericLiteral(idx)
-      )
-    )
-  }
-
-  /**
-   * @View
-   * if ($thisIf.cond === ${idx}) return
-   */
-  private geneCondCheck(idx: number): t.IfStatement {
-    return this.t.ifStatement(
-      this.t.binaryExpression(
-        "===",
-        this.t.memberExpression(
-          this.t.identifier("$thisIf"),
-          this.t.identifier("cond")
-        ),
-        this.t.numericLiteral(idx)
-      ),
-      this.t.returnStatement()
-    )
-  }
-
-  /**
-   * @View
    * if (${test}) { ${body} } else { ${alternate} }
    */
   geneIfStatement(
@@ -90,17 +55,17 @@ export default class IfGenerator extends BaseGenerator {
 
   /**
    * @View
-   * const ${dlNodeName} = new IfNode(($thisIf) => {
+   * const ${dlNodeName} = new IfNode(($thisCond) => {
    *   if (cond1) {
-   *    if ($thisIf.cond === 0) return
+   *    if ($thisCond.cond === 0) return
    *    ${children}
-   *    $thisIf.cond = 0
+   *    $thisCond.cond = 0
    *    node0.update = () => {}
    *    return [nodes]
    *   } else if (cond2) {
-   *    if ($thisIf.cond === 1) return
+   *    if ($thisCond.cond === 1) return
    *    ${children}
-   *    $thisIf.cond = 1
+   *    $thisCond.cond = 1
    *    return [nodes]
    *   }
    * })
@@ -136,7 +101,7 @@ export default class IfGenerator extends BaseGenerator {
           }
           /**
            * else {
-           *  thisIf.cond = -1
+           *  thisCond.cond = -1
            *  return []
            * }
            */
@@ -152,48 +117,9 @@ export default class IfGenerator extends BaseGenerator {
         return this.geneIfStatement(condition.value, childStatements, acc)
       }, undefined)
 
-    return this.t.variableDeclaration("const", [
-      this.t.variableDeclarator(
-        this.t.identifier(dlNodeName),
-        this.t.newExpression(this.t.identifier(this.importMap.IfNode), [
-          this.t.arrowFunctionExpression(
-            [this.t.identifier("$thisIf")],
-            this.t.blockStatement([ifStatement])
-          ),
-        ])
-      ),
-    ])
-  }
-
-  /**
-   * @View
-   * ${dlNodeName}.updateCond()
-   */
-  private updateIfNodeCond(dlNodeName: string): t.ExpressionStatement {
-    return this.t.expressionStatement(
-      this.t.callExpression(
-        this.t.memberExpression(
-          this.t.identifier(dlNodeName),
-          this.t.identifier("updateCond")
-        ),
-        []
-      )
-    )
-  }
-
-  /**
-   * @View
-   * ${dlNodeName}.update(changed)
-   */
-  private updateIfNode(dlNodeName: string): t.ExpressionStatement {
-    return this.t.expressionStatement(
-      this.t.callExpression(
-        this.t.memberExpression(
-          this.t.identifier(dlNodeName),
-          this.t.identifier("update")
-        ),
-        [this.t.identifier("changed")]
-      )
+    return this.declareCondNode(
+      dlNodeName,
+      this.t.blockStatement([ifStatement])
     )
   }
 }

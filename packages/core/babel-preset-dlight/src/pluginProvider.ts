@@ -231,7 +231,7 @@ export class PluginProvider {
       "insertNode",
       "createElement",
       "ForNode",
-      "IfNode",
+      "CondNode",
       "EnvNode",
       "createTextNode",
       "updateText",

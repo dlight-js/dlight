@@ -11,6 +11,7 @@ import EnvGenerator from "./NodeGenerators/EnvGenerator"
 import TextGenerator from "./NodeGenerators/TextGenerator"
 import ExpGenerator from "./NodeGenerators/ExpGenerator"
 import SubViewGenerator from "./NodeGenerators/SubViewGenerator"
+import SwitchGenerator from "./NodeGenerators/SwitchGenerator"
 
 export default class ViewGenerator {
   config: ViewGeneratorConfig
@@ -35,6 +36,7 @@ export default class ViewGenerator {
     template: TemplateGenerator,
     for: ForGenerator,
     if: IfGenerator,
+    switch: SwitchGenerator,
     env: EnvGenerator,
     text: TextGenerator,
     exp: ExpGenerator,

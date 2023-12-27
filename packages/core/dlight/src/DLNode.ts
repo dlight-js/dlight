@@ -3,7 +3,7 @@ export type AnyDLNode = any
 export enum DLNodeType {
   Comp = 0,
   For,
-  If,
+  Cond,
   Env,
   Exp,
   Subview,

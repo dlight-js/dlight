@@ -1,5 +1,15 @@
 # babel-preset-dlight
 
+## 1.0.0-alpha.11
+
+### Patch Changes
+
+- feat: add switch statement support
+- Updated dependencies
+  - @dlightjs/reactivity-parser@1.0.0-alpha.2
+  - @dlightjs/view-generator@1.0.0-alpha.9
+  - @dlightjs/view-parser@1.0.0-alpha.1
+
 ## 1.0.0-alpha.10
 
 ### Patch Changes

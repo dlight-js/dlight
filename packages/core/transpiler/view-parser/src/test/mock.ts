@@ -2,7 +2,6 @@ import babel, { parseSync, type types as t } from "@babel/core"
 import { type ViewParserConfig } from "../types"
 import { parseView as pV } from ".."
 
-const plugins = ["@babel/plugin-syntax-do-expressions"]
 const htmlTags = [
   "a",
   "abbr",
@@ -214,7 +213,7 @@ export const config: ViewParserConfig = {
 
 export function parseCode(code: string) {
   return (
-    parseSync(`function code() {${code}}`, { plugins })!.program
+    parseSync(`function code() {${code}}`)!.program
       .body[0] as t.FunctionDeclaration
   ).body
 }

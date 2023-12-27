@@ -1,5 +1,13 @@
 # @dlightjs/view-generator
 
+## 1.0.0-alpha.9
+
+### Patch Changes
+
+- feat: add switch statement support
+- Updated dependencies
+  - @dlightjs/reactivity-parser@1.0.0-alpha.2
+
 ## 1.0.0-alpha.8
 
 ### Patch Changes

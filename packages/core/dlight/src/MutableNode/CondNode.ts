@@ -1,16 +1,16 @@
 import { type AnyDLNode, DLNodeType } from "../DLNode"
 import { MutableNode } from "./MutableNode"
 
-export class IfNode extends MutableNode {
+export class CondNode extends MutableNode {
   condFunc
   cond
 
   /**
    * @brief Constructor, If type, accept a function that returns a list of nodes
-   * @param condFunc
+   * @param caseFunc
    */
-  constructor(condFunc: (thisIf: IfNode) => AnyDLNode[]) {
-    super(DLNodeType.If)
+  constructor(condFunc: (thisCond: CondNode) => AnyDLNode[]) {
+    super(DLNodeType.Cond)
     this.condFunc = condFunc
     this.cond = -1
     this._$nodes = this.condFunc(this)

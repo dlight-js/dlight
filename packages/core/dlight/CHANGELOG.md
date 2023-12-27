@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.18
+
+### Patch Changes
+
+- feat: add switch statement support
+
 ## 1.0.0-alpha.17
 
 ### Patch Changes
