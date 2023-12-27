@@ -116,7 +116,11 @@ export class CompNode extends DLNode {
       const value = (this as AnyDLNode)[key]
       ;(this as AnyDLNode)._$forwardPropsSet?.forEach((node: AnyDLNode) => {
         // ---- Directly set the prop if it's a CompNode
-        if (node._$dlNodeType === DLNodeType.Comp) node[key] = value
+        if (node._$dlNodeType === DLNodeType.Comp) {
+          // ---- Pass down forwardProps
+          if ("_$forwardProps" in node) node._$forwardPropsId.push(key)
+          node[key] = value
+        }
         // ---- Different behavior for HTMLNode according to the key
         if (node instanceof HTMLElement) forwardHTMLProp(node, key, value)
       })

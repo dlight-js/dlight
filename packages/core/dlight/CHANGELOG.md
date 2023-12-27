@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.13
+
+### Patch Changes
+
+- fix: $forwardPropsId in nested forwardProps not been updated
+
 ## 1.0.0-alpha.12
 
 ### Patch Changes
