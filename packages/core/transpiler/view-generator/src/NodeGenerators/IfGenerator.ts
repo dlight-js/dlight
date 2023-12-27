@@ -124,9 +124,7 @@ export default class IfGenerator extends BaseGenerator {
         }
 
         // ---- Cond idx (reverse order)
-        childStatements.push(
-          this.geneCondIdx("$thisIf", branches.length - idx - 1)
-        )
+        childStatements.push(this.geneCondIdx(branches.length - idx - 1))
 
         // ---- Return statement
         childStatements.push(this.generateReturnStatement(topLevelNodes))
@@ -146,7 +144,7 @@ export default class IfGenerator extends BaseGenerator {
             condition.value,
             childStatements,
             this.t.blockStatement([
-              this.geneCondIdx("$thisIf", -1),
+              this.geneCondIdx(-1),
               this.generateReturnStatement([]),
             ])
           )

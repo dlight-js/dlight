@@ -1,5 +1,11 @@
 # @dlightjs/view-generator
 
+## 1.0.0-alpha.8
+
+### Patch Changes
+
+- fix: if $thisIf.cond
+
 ## 1.0.0-alpha.7
 
 ### Patch Changes
