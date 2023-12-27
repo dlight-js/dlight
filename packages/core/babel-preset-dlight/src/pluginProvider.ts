@@ -1115,7 +1115,7 @@ export class PluginProvider {
   }
 
   /**
-   * ${key} = ${value}
+   * ${key}
    * get $f$${key}() {
    *  return ${value}
    * }
@@ -1132,6 +1132,7 @@ export class PluginProvider {
       this.t.blockStatement([this.t.returnStatement(value)])
     )
     this.classBodyNode!.body.splice(propertyIdx + 1, 0, getterNode)
+    node.value = null
   }
 
   /**

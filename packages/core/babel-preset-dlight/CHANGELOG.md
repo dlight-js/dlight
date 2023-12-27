@@ -1,5 +1,11 @@
 # babel-preset-dlight
 
+## 1.0.0-alpha.7
+
+### Patch Changes
+
+- refactor: no initialized derived prop
+
 ## 1.0.0-alpha.6
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.11
+
+### Patch Changes
+
+- refactor: no initialized derived prop
+
 ## 1.0.0-alpha.10
 
 ### Patch Changes

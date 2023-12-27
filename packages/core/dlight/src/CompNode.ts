@@ -57,9 +57,24 @@ export class CompNode extends DLNode {
       this._$initEnv(key, value, envNode)
     })
 
+    // ---- Call watchers
+    this._$callWatchers()
     // ---- init
     ;(this as AnyDLNode).willMount?.()
     this._$nodes = (this as AnyDLNode).View?.() ?? []
+  }
+
+  /**
+   * @brief Call watchers manually before the node is mounted
+   */
+  private _$callWatchers(): void {
+    const watcherKeys = Object.getOwnPropertyNames(this)
+      .filter(key => key.startsWith("$w$"))
+      .map(key => key.slice(3))
+
+    watcherKeys.forEach(key => {
+      ;(this as any)[key]()
+    })
   }
 
   /**
@@ -182,7 +197,7 @@ export class CompNode extends DLNode {
     ;(this as AnyDLNode)[`$s$${key}`]?.forEach((k: string) => {
       // ---- Not time consuming at all
       if (`$w$${k}` in (this as AnyDLNode)) {
-        // ---- Don't call the watcher before the node is mounted
+        // ---- Call the watcher manually before the node is mounted, not here
         if (!(this as AnyDLNode)._$nodes) return
         ;(this as AnyDLNode)[k]()
       } else {
