@@ -37,6 +37,7 @@ export class IfNode extends MutableNode {
     const parentEl = (this as AnyDLNode)._$parentEl
     // ---- Faster append with nextSibling rather than flowIndex
     const flowIndex = MutableNode.getFlowIndexFromNodes(parentEl._$nodes, this)
+
     const nextSibling = parentEl.childNodes[flowIndex]
     MutableNode.appendNodesWithSibling(newNodes, parentEl, nextSibling)
     this._$nodes = newNodes

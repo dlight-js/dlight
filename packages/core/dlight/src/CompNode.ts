@@ -60,9 +60,6 @@ export class CompNode extends DLNode {
     // ---- init
     ;(this as AnyDLNode).willMount?.()
     this._$nodes = (this as AnyDLNode).View?.() ?? []
-
-    // ---- Remove _$forwardPropsId to save memory, because it's only used in _$addForwardProps phase
-    if ("_$forwardPropsId" in this) delete (this as AnyDLNode)._$forwardPropsId
   }
 
   /**

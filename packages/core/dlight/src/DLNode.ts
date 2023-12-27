@@ -105,19 +105,13 @@ export class DLNode {
    * @param nodes
    * @param runFunc
    */
-  static loopShallowDLNodes(
-    nodes: any[],
-    runFunc: (node: any, isDL: boolean) => boolean
-  ): void {
-    const stack = [...nodes]
-    while (stack.length > 0) {
-      const node = stack.shift()!
-      const isDL = "_$dlNodeType" in node
-      if (!runFunc(node, isDL)) break
-      if (isDL) {
-        node._$nodes && stack.unshift(...node._$nodes)
+  static loopShallowDLNodes(nodes: any[], runFunc: (node: any) => void): void {
+    nodes.forEach(node => {
+      if ("_$dlNodeType" in node) {
+        runFunc(node)
+        node._$nodes && DLNode.loopShallowDLNodes(node._$nodes, runFunc)
       }
-    }
+    })
   }
 
   /**
@@ -144,8 +138,10 @@ export class DLNode {
    * @param parentEl
    */
   static addParentEl(nodes: AnyDLNode[], parentEl: HTMLElement): void {
-    this.loopShallowDLNodesInsideOut(nodes, node => {
+    this.loopShallowDLNodes(nodes, node => {
       node._$parentEl = parentEl
+    })
+    this.loopShallowDLNodesInsideOut(nodes, node => {
       node.didMount?.()
     })
   }
@@ -162,11 +158,16 @@ export class DLNode {
     stopNode?: AnyDLNode
   ): number {
     let index = 0
-    this.loopShallowDLNodes(nodes, (node, isDL) => {
-      if (node === stopNode) return false
-      if (!isDL) index++
-      return true
-    })
+    const stack = [...nodes]
+    while (stack.length > 0) {
+      const node = stack.shift()!
+      if (node === stopNode) break
+      if ("_$dlNodeType" in node) {
+        node._$nodes && stack.unshift(...node._$nodes)
+      } else {
+        index++
+      }
+    }
     return index
   }
 

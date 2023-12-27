@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.10
+
+### Patch Changes
+
+- refactor: didMount after insert element
+
 ## 1.0.0-alpha.9
 
 ### Patch Changes

@@ -134,12 +134,10 @@ export function insertNode(
     (el as AnyDLNode)._$nodes = Array.from(el.childNodes)
   ;(el as AnyDLNode)._$nodes.splice(position, 0, node)
 
-  // ---- Set parentEl
-  node._$parentEl = el
-  DLNode.addParentEl([node], el)
-
   // ---- Insert nodes' elements
   DLNode.appendNodesWithIndex(node._$nodes, el, position)
+  // ---- Set parentEl
+  DLNode.addParentEl([node], el)
 }
 
 /**
