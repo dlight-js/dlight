@@ -1,5 +1,12 @@
 # @dlightjs/view-generator
 
+## 1.0.0-alpha.7
+
+### Patch Changes
+
+- Updated dependencies
+  - @dlightjs/reactivity-parser@1.0.0-alpha.1
+
 ## 1.0.0-alpha.6
 
 ### Patch Changes

@@ -5,6 +5,7 @@ import {
   type ViewUnit,
   type ViewParserConfig,
   type ViewParserOption,
+  SwitchBranch,
 } from "./types"
 import { DLError } from "./error"
 
@@ -77,6 +78,10 @@ export class ViewParser {
     }
     if (this.t.isIfStatement(statement)) {
       this.parseIf(statement)
+      return
+    }
+    if (this.t.isSwitchStatement(statement)) {
+      this.parseSwitch(statement)
       return
     }
     if (this.t.isDirective(statement)) {
@@ -178,6 +183,41 @@ export class ViewParser {
     this.viewUnits.push({
       type: "if",
       branches: this.parseIfBranches(node),
+    })
+  }
+
+  /**
+   * @brief Parse switch statement
+   * @param node
+   */
+  private parseSwitch(node: t.SwitchStatement) {
+    const branches: SwitchBranch[] = []
+    const switchBody = node.cases
+    switchBody.forEach(s => {
+      const caseBodyPre = s.consequent
+      const caseBody =
+        caseBodyPre.length === 1 && this.t.isBlockStatement(caseBodyPre[0])
+          ? caseBodyPre[0]
+          : this.t.blockStatement(caseBodyPre)
+      const isBreak = this.t.isBreakStatement(
+        caseBody.body[caseBody.body.length - 1]
+      )
+      if (isBreak) {
+        caseBody.body.pop()
+      }
+
+      const children = this.parseView(caseBody)
+      const branch: SwitchBranch = {
+        case: s.test,
+        children,
+        break: isBreak,
+      }
+      branches.push(branch)
+    })
+    this.viewUnits.push({
+      type: "switch",
+      discriminant: node.discriminant,
+      branches,
     })
   }
 

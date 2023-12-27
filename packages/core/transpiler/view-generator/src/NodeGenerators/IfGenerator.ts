@@ -43,14 +43,14 @@ export default class IfGenerator extends BaseGenerator {
 
   /**
    * @View
-   * ${firstNode}._$cond = ${idx}
+   * $thisIf.cond = ${idx}
    */
-  private geneCondIdx(firstNode: string, idx: number): t.ExpressionStatement {
+  private geneCondIdx(idx: number): t.ExpressionStatement {
     return this.t.expressionStatement(
       this.t.assignmentExpression(
         "=",
         this.t.memberExpression(
-          this.t.identifier(firstNode),
+          this.t.identifier("$thisIf"),
           this.t.identifier("cond")
         ),
         this.t.numericLiteral(idx)
@@ -94,13 +94,13 @@ export default class IfGenerator extends BaseGenerator {
    *   if (cond1) {
    *    if ($thisIf.cond === 0) return
    *    ${children}
-   *    thisIf.cond = 0
+   *    $thisIf.cond = 0
    *    node0.update = () => {}
    *    return [nodes]
    *   } else if (cond2) {
    *    if ($thisIf.cond === 1) return
    *    ${children}
-   *    thisIf.cond = 1
+   *    $thisIf.cond = 1
    *    return [nodes]
    *   }
    * })
