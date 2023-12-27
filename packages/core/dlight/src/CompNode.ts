@@ -34,15 +34,15 @@ export class CompNode extends DLNode {
    * @param forwardPropsScope
    */
   _$init(
-    props?: Record<string, any>,
-    content?: any,
-    children?: AnyDLNode[],
-    forwardPropsScope?: CompNode
+    props: Record<string, any> | null,
+    content: any | null,
+    children: AnyDLNode[] | null,
+    forwardPropsScope: CompNode | null
   ): void {
     // ---- Add props
     // ---- Forward props first to allow internal props to override forwarded props
     if (forwardPropsScope) forwardPropsScope._$addForwardProps(this)
-    if (content) this._$setContent(content)
+    if (content !== null) this._$setContent(content)
     if (props) {
       Object.entries(props).forEach(([key, value]) => {
         this._$setProp(key, value)

@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.15
+
+### Major Changes
+
+- fix: content check strictly don't equal null
+
 ## 1.0.0-alpha.14
 
 ### Patch Changes
