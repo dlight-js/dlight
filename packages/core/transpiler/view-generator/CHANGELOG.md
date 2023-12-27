@@ -1,5 +1,11 @@
 # @dlightjs/view-generator
 
+## 1.0.0-alpha.6
+
+### Patch Changes
+
+- fix: remove ifNode prevent dep num
+
 ## 1.0.0-alpha.5
 
 ### Patch Changes

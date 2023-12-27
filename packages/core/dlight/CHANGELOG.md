@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.16
+
+### Patch Changes
+
+- fix: remove ifNode prevent dep num
+
 ## 1.0.0-alpha.15
 
 ### Major Changes

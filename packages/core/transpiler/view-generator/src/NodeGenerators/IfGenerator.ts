@@ -10,13 +10,7 @@ export default class IfGenerator extends BaseGenerator {
     )
     // ---- declareIfNode
     const dlNodeName = this.generateNodeName()
-    this.addInitStatement(
-      this.declareIfNode(
-        dlNodeName,
-        branches,
-        BaseGenerator.calcDependencyNum(deps)
-      )
-    )
+    this.addInitStatement(this.declareIfNode(dlNodeName, branches))
 
     this.addUpdateStatements(deps, this.updateIfNodeCond(dlNodeName))
     this.addUpdateStatementsWithoutDep(this.updateIfNode(dlNodeName))
@@ -109,13 +103,9 @@ export default class IfGenerator extends BaseGenerator {
    *    thisIf.cond = 1
    *    return [nodes]
    *   }
-   * }, ${depNum})
+   * })
    */
-  private declareIfNode(
-    dlNodeName: string,
-    branches: IfBranch[],
-    depNum: number
-  ): t.Statement {
+  private declareIfNode(dlNodeName: string, branches: IfBranch[]): t.Statement {
     const ifStatement = branches
       .reverse()
       .reduce<any>((acc, { condition, children }, idx) => {
@@ -172,7 +162,6 @@ export default class IfGenerator extends BaseGenerator {
             [this.t.identifier("$thisIf")],
             this.t.blockStatement([ifStatement])
           ),
-          this.t.numericLiteral(depNum),
         ])
       ),
     ])
