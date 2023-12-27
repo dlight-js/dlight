@@ -19,7 +19,7 @@ export class CompNode extends DLNode {
    *  * _$children - children nodes of type PropView
    *  * _$contentKey - the key key of the content prop
    *  * _$forwardProps - exist if this node is forwarding props
-   *  * _$forwardPropsId - the keys of the props that this node is forwarding, collected in _$initForwardProps
+   *  * _$forwardPropsId - the keys of the props that this node is forwarding, collected in _$setForwardProp
    *  * _$forwardPropsSet - contain all the nodes that are forwarding props to this node, collected with _$addForwardProps
    */
   constructor() {
@@ -84,20 +84,29 @@ export class CompNode extends DLNode {
    * @param key
    * @param value
    */
-  private _$initForwardProps(key: string, value: any): void {
+  private _$setForwardProp(key: string, value: any): void {
     // ---- If the prop is already defined, don't forward it
-    if (key in this) return
+    if (key in this) {
+      ;(this as AnyDLNode)[key] = value
+      return
+    }
     ;(this as AnyDLNode)._$forwardPropsId.push(key)
-    ;(this as AnyDLNode)[`$${key}`] = value
+    const valueKey = `$${key}`
+    ;(this as AnyDLNode)[valueKey] = value
     Object.defineProperty(this, key, {
       get() {
-        return this[`$${key}`]
+        return this[valueKey]
       },
       set(value) {
-        if (this[`$${key}`] === value) return
-        this[`$${key}`] = value
+        if (this[valueKey] === value) return
+        this[valueKey] = value
         // ---- Don't need to call update function because the prop is not a explicit dependency
-        this._$setForwardProp(key, value)
+        ;(this as AnyDLNode)._$forwardPropsSet?.forEach((node: AnyDLNode) => {
+          // ---- Directly set the prop if it's a CompNode
+          if (node._$dlNodeType === DLNodeType.Comp) node._$setProp(key, value)
+          // ---- Different behavior for HTMLNode according to the key
+          if (node instanceof HTMLElement) forwardHTMLProp(node, key, value)
+        })
       },
     })
   }
@@ -119,7 +128,7 @@ export class CompNode extends DLNode {
         if (node._$dlNodeType === DLNodeType.Comp) {
           // ---- Pass down forwardProps
           if ("_$forwardProps" in node) node._$forwardPropsId.push(key)
-          node[key] = value
+          node._$setProp(key, value)
         }
         // ---- Different behavior for HTMLNode according to the key
         if (node instanceof HTMLElement) forwardHTMLProp(node, key, value)
@@ -139,7 +148,7 @@ export class CompNode extends DLNode {
    * @param value
    */
   _$setProp(key: string, value: any): void {
-    if ("_$forwardProps" in this) this._$initForwardProps(key, value)
+    if ("_$forwardProps" in this) this._$setForwardProp(key, value)
     if (!(`$p$${key}` in this)) return
     ;(this as AnyDLNode)[key] = value
   }
