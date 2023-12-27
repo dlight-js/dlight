@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.12
+
+### Patch Changes
+
+- feat: manual update derived props before init
+
 ## 1.0.0-alpha.11
 
 ### Patch Changes

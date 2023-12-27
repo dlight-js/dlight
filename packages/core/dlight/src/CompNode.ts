@@ -58,22 +58,24 @@ export class CompNode extends DLNode {
     })
 
     // ---- Call watchers
-    this._$callWatchers()
+    this._$callUpdatesBeforeInit()
     // ---- init
     ;(this as AnyDLNode).willMount?.()
     this._$nodes = (this as AnyDLNode).View?.() ?? []
   }
 
   /**
-   * @brief Call watchers manually before the node is mounted
+   * @brief Call updates manually before the node is mounted
    */
-  private _$callWatchers(): void {
-    const watcherKeys = Object.getOwnPropertyNames(this)
-      .filter(key => key.startsWith("$w$"))
-      .map(key => key.slice(3))
-
-    watcherKeys.forEach(key => {
-      ;(this as any)[key]()
+  private _$callUpdatesBeforeInit(): void {
+    const protoProps = Object.getOwnPropertyNames(Object.getPrototypeOf(this))
+    const ownProps = Object.getOwnPropertyNames(this)
+    const allProps = [...protoProps, ...ownProps]
+    allProps.forEach(key => {
+      if (key.startsWith("$w$")) return (this as any)[key.slice(3)]()
+      if (key.startsWith("$f$")) {
+        ;(this as any)[`$${key.slice(3)}`] = (this as any)[key]
+      }
     })
   }
 
@@ -194,11 +196,11 @@ export class CompNode extends DLNode {
    * @param key
    */
   _$updateDerived(key: string): void {
+    // ---- Call update manually before the node is mounted, not here
+    if (!(this as AnyDLNode)._$nodes) return
     ;(this as AnyDLNode)[`$s$${key}`]?.forEach((k: string) => {
       // ---- Not time consuming at all
       if (`$w$${k}` in (this as AnyDLNode)) {
-        // ---- Call the watcher manually before the node is mounted, not here
-        if (!(this as AnyDLNode)._$nodes) return
         ;(this as AnyDLNode)[k]()
       } else {
         ;(this as AnyDLNode)[`$${k}`] = (this as AnyDLNode)[`$f$${k}`]
