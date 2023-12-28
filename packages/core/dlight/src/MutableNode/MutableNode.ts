@@ -42,7 +42,6 @@ export class MutableNode extends DLNode {
       this.initNewNodes(newNodes)
       return newNodes
     }
-    console.log("inin1", this)
     // ---- Save the current environment nodes
     const currentEnvNodes = window.DLEnvStore.currentEnvNodes
     // ---- Replace the saved environment nodes

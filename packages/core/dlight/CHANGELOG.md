@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.21
+
+### Patch Changes
+
+- fix: condNode redundant update
+
 ## 1.0.0-alpha.20
 
 ### Patch Changes

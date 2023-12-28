@@ -39,6 +39,7 @@ export class CondNode extends MutableNode {
     const nextSibling = parentEl.childNodes[flowIndex]
     MutableNode.appendNodesWithSibling(newNodes, parentEl, nextSibling)
     this._$nodes = newNodes
+    ;(this as AnyDLNode).justCreated = true
   }
 
   /**
@@ -46,6 +47,10 @@ export class CondNode extends MutableNode {
    * @param changed
    */
   update(changed: number): void {
+    if ((this as AnyDLNode).justCreated) {
+      ;(this as AnyDLNode).justCreated = false
+      return
+    }
     this._$nodes![0]?._$updateFunc?.(changed)
   }
 }
