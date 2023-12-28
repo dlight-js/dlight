@@ -80,6 +80,19 @@ export class EnvNode extends DLNode {
   }
 
   /**
+   * @brief Add a node to this.updateNodes, delete the node from this.updateNodes when it unmounts
+   * @param node
+   */
+  addNode(node: AnyDLNode): void {
+    this.updateNodes.add(node)
+    const prevWillUnmount = node.willUnmount
+    node.willUnmount = () => {
+      this.updateNodes.delete(node)
+      prevWillUnmount?.()
+    }
+  }
+
+  /**
    * @brief Set this._$nodes, and exit the current env
    * @param nodes
    */

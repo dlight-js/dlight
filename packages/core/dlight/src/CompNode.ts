@@ -54,7 +54,7 @@ export class CompNode extends DLNode {
     Object.entries(window.DLEnvStore.envs).forEach(
       ([key, [value, envNode]]) => {
         // ---- Add this node to every envNode's updateNodes
-        envNode.updateNodes.add(this)
+        envNode.addNode(this)
         this._$initEnv(key, value, envNode)
       }
     )
