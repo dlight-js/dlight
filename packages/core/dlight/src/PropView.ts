@@ -1,4 +1,4 @@
-import { type AnyDLNode } from "./DLNode"
+import { DLNode, type AnyDLNode } from "./DLNode"
 
 export class PropView {
   propViewFunc
@@ -24,11 +24,10 @@ export class PropView {
     const updateNode = newNodes[0]
     this.dlUpdateNodes.add(updateNode)
     // ---- Remove the updateNode from dlUpdateNodes when it unmounts
-    const prevWillUnmount = updateNode.willUnmount
-    updateNode.willUnmount = () => {
-      this.dlUpdateNodes.delete(updateNode)
-      prevWillUnmount?.()
-    }
+    DLNode.addWillUnmount(
+      updateNode,
+      this.dlUpdateNodes.delete.bind(this.dlUpdateNodes, updateNode)
+    )
 
     return newNodes
   }

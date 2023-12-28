@@ -1,5 +1,11 @@
 # @dlightjs/view-generator
 
+## 1.0.0-alpha.13
+
+### Patch Changes
+
+- refactor: cleanup condnode and willUnmount
+
 ## 1.0.0-alpha.12
 
 ### Patch Changes

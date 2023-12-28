@@ -35,9 +35,9 @@ export class ForNode<T, G> extends MutableNode {
    * @param changed
    */
   update(changed: number): void {
-    if (changed === this.depNum) return
+    if (changed & this.depNum) return
     for (let idx = 0; idx < this.array.length; idx++) {
-      this.nodess[idx][0]._$updateFunc?.(changed, this.array[idx])
+      this.updateItem(this.nodess[idx], this.array[idx], changed)
     }
   }
 
@@ -46,9 +46,9 @@ export class ForNode<T, G> extends MutableNode {
    * @param nodes
    * @param item
    */
-  private updateItem(nodes: AnyDLNode[], item: T): void {
+  private updateItem(nodes: AnyDLNode[], item: T, changed?: number): void {
     // ---- The update function of ForNode's childNodes is stored in the first child node
-    nodes[0]._$updateFunc?.(this.depNum, item)
+    nodes[0]._$updateFunc?.(changed ?? this.depNum, item)
   }
 
   /**
@@ -68,7 +68,7 @@ export class ForNode<T, G> extends MutableNode {
    * @brief Shortcut to generate new nodes with idx
    */
   private getNewNodes(idx: number) {
-    return this.geneNewNodesInEnv(() => this.nodeFunc(this.array[idx]))!
+    return this.geneNewNodesInEnv(() => this.nodeFunc(this.array[idx]))
   }
 
   /**

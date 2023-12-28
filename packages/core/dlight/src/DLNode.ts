@@ -228,4 +228,14 @@ export class DLNode {
     })
     return count
   }
+
+  private static willUnmountFunc(currFunc: () => void, prevFunc?: () => void) {
+    currFunc()
+    prevFunc?.()
+  }
+
+  // ---- Lifecycle ----
+  static addWillUnmount(node: AnyDLNode, func: () => void) {
+    node.willUnmount = this.willUnmountFunc.bind(this, func, node.willUnmount)
+  }
 }

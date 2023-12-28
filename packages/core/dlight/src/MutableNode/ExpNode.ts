@@ -20,9 +20,12 @@ export class ExpNode extends MutableNode {
   update() {
     const newNodes = this.geneNewNodesInEnv(() =>
       ExpNode.formatNodes(this.nodesFunc())
-    )!
+    )
     this.removeNodes(this._$nodes!)
-    if (newNodes.length === 0) return
+    if (newNodes.length === 0) {
+      this._$nodes = []
+      return
+    }
 
     // ---- Add new nodes
     const parentEl = (this as AnyDLNode)._$parentEl

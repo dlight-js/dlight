@@ -85,11 +85,10 @@ export class EnvNode extends DLNode {
    */
   addNode(node: AnyDLNode): void {
     this.updateNodes.add(node)
-    const prevWillUnmount = node.willUnmount
-    node.willUnmount = () => {
-      this.updateNodes.delete(node)
-      prevWillUnmount?.()
-    }
+    DLNode.addWillUnmount(
+      node,
+      this.updateNodes.delete.bind(this.updateNodes, node)
+    )
   }
 
   /**

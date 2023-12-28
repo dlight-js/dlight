@@ -32,12 +32,11 @@ export class MutableNode extends DLNode {
    * @param newNodesFunc
    * @returns
    */
-  geneNewNodesInEnv(newNodesFunc: () => AnyDLNode[]): void | AnyDLNode[] {
+  geneNewNodesInEnv(newNodesFunc: () => AnyDLNode[]): AnyDLNode[] {
     if (!(this as AnyDLNode).savedEnvNodes) {
       // ---- No saved environment, just generate new nodes
       const newNodes = newNodesFunc()
       // ---- Only for IfNode's same condition return
-      if (!newNodes) return
       // ---- Initialize the new nodes
       this.initNewNodes(newNodes)
       return newNodes
@@ -50,21 +49,16 @@ export class MutableNode extends DLNode {
     // ---- Retrieve the current environment nodes
     window.DLEnvStore.replaceEnvNodes(currentEnvNodes)
     // ---- Only for IfNode's same condition return
-    if (!newNodes) return
     // ---- Initialize the new nodes
     this.initNewNodes(newNodes)
     return newNodes
   }
 
   removeNodes(nodes: any[]) {
-    DLNode.loopDLNodes(nodes, node => {
-      node.willUnmount?.()
-    })
+    DLNode.loopDLNodes(nodes, node => node.willUnmount?.())
     DLNode.loopShallowEls(nodes, el => {
       this._$parentEl?.removeChild(el)
     })
-    DLNode.loopDLNodesInsideOut(nodes, node => {
-      node.didUnmount?.()
-    })
+    DLNode.loopDLNodesInsideOut(nodes, node => node.didUnmount?.())
   }
 }

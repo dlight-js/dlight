@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.23
+
+### Patch Changes
+
+- refactor: cleanup condnode and willUnmount
+
 ## 1.0.0-alpha.22
 
 ### Patch Changes

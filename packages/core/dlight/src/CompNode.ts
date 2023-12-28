@@ -138,11 +138,13 @@ export class CompNode extends DLNode {
       })
     })
     // ---- Remove current node from the set of forwarding nodes when it's unmounted
-    const prevWillUnmount = node.willUnmount
-    node.willUnmount = () => {
-      ;(this as AnyDLNode)._$forwardPropsSet.delete(node)
-      prevWillUnmount?.()
-    }
+    DLNode.addWillUnmount(
+      node,
+      (this as AnyDLNode)._$forwardPropsSet.delete.bind(
+        (this as AnyDLNode)._$forwardPropsSet,
+        node
+      )
+    )
   }
 
   /**

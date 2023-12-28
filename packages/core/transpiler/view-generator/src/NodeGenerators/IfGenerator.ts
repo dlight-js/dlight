@@ -10,7 +10,7 @@ export default class IfGenerator extends CondGenerator {
     )
     // ---- declareIfNode
     const dlNodeName = this.generateNodeName()
-    this.addInitStatement(this.declareIfNode(dlNodeName, branches))
+    this.addInitStatement(this.declareIfNode(dlNodeName, branches, deps))
 
     this.addUpdateStatements(deps, this.updateCondNodeCond(dlNodeName))
     this.addUpdateStatementsWithoutDep(this.updateCondNode(dlNodeName))
@@ -70,7 +70,11 @@ export default class IfGenerator extends CondGenerator {
    *   }
    * })
    */
-  private declareIfNode(dlNodeName: string, branches: IfBranch[]): t.Statement {
+  private declareIfNode(
+    dlNodeName: string,
+    branches: IfBranch[],
+    deps: number[]
+  ): t.Statement {
     const ifStatement = branches
       .reverse()
       .reduce<any>((acc, { condition, children }, idx) => {
@@ -119,7 +123,8 @@ export default class IfGenerator extends CondGenerator {
 
     return this.declareCondNode(
       dlNodeName,
-      this.t.blockStatement([ifStatement])
+      this.t.blockStatement([ifStatement]),
+      deps
     )
   }
 }

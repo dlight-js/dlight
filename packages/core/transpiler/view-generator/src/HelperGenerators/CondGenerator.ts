@@ -21,7 +21,10 @@ export default class CondGenerator extends BaseGenerator {
 
   /**
    * @View
-   * if ($thisCond.cond === ${idx}) return
+   * if ($thisCond.cond === ${idx}) {
+   *  $thisCond.didntChange = true
+   *  return []
+   * }
    */
   geneCondCheck(idx: number): t.IfStatement {
     return this.t.ifStatement(
@@ -33,7 +36,19 @@ export default class CondGenerator extends BaseGenerator {
         ),
         this.t.numericLiteral(idx)
       ),
-      this.t.returnStatement()
+      this.t.blockStatement([
+        this.t.expressionStatement(
+          this.t.assignmentExpression(
+            "=",
+            this.t.memberExpression(
+              this.t.identifier("$thisCond"),
+              this.t.identifier("didntChange")
+            ),
+            this.t.booleanLiteral(true)
+          )
+        ),
+        this.t.returnStatement(this.t.arrayExpression([])),
+      ])
     )
   }
 
@@ -71,11 +86,12 @@ export default class CondGenerator extends BaseGenerator {
 
   /**
    * @View
-   * const ${dlNodeName} = new CondNode(($thisCond) => {})
+   * const ${dlNodeName} = new CondNode(($thisCond) => {}, ${depNum})
    */
   declareCondNode(
     dlNodeName: string,
-    condFunc: t.BlockStatement
+    condFunc: t.BlockStatement,
+    deps: number[]
   ): t.VariableDeclaration {
     return this.t.variableDeclaration("const", [
       this.t.variableDeclarator(
@@ -85,6 +101,7 @@ export default class CondGenerator extends BaseGenerator {
             [this.t.identifier("$thisCond")],
             condFunc
           ),
+          this.t.numericLiteral(CondGenerator.calcDependencyNum(deps)),
         ])
       ),
     ])

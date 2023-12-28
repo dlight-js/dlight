@@ -13,7 +13,7 @@ export default class SwitchGenerator extends CondGenerator {
     // ---- declareSwitchNode
     const dlNodeName = this.generateNodeName()
     this.addInitStatement(
-      this.declareSwitchNode(dlNodeName, discriminant.value, branches)
+      this.declareSwitchNode(dlNodeName, discriminant.value, branches, deps)
     )
 
     this.addUpdateStatements(deps, this.updateCondNodeCond(dlNodeName))
@@ -188,7 +188,8 @@ export default class SwitchGenerator extends CondGenerator {
   private declareSwitchNode(
     dlNodeName: string,
     discriminant: t.Expression,
-    branches: SwitchBranch[]
+    branches: SwitchBranch[],
+    deps: number[]
   ): t.Statement {
     let needToUpdate = false
     const switchStatements = branches.map(
@@ -226,7 +227,8 @@ export default class SwitchGenerator extends CondGenerator {
         this.t.switchStatement(discriminant, switchStatements),
         ...(needToUpdate ? [this.addUpdateToTheFirstNode()] : []),
         this.t.returnStatement(this.t.identifier("_$nodes")),
-      ])
+      ]),
+      deps
     )
   }
 }

@@ -4,14 +4,16 @@ import { MutableNode } from "./MutableNode"
 export class CondNode extends MutableNode {
   condFunc
   cond
+  depNum
 
   /**
    * @brief Constructor, If type, accept a function that returns a list of nodes
    * @param caseFunc
    */
-  constructor(condFunc: (thisCond: CondNode) => AnyDLNode[]) {
+  constructor(condFunc: (thisCond: CondNode) => AnyDLNode[], depNum: number) {
     super(DLNodeType.Cond)
     this.condFunc = condFunc
+    this.depNum = depNum
     this.cond = -1
     this._$nodes = this.condFunc(this)
   }
@@ -21,8 +23,12 @@ export class CondNode extends MutableNode {
    */
   updateCond(): void {
     const newNodes = this.geneNewNodesInEnv(() => this.condFunc(this))
-    // ---- If the new nodes are the same as the old nodes, we don't need to update
-    if (!newNodes) return
+    // ---- If the new nodes are the same as the old nodes, we only need to update  children
+    if ((this as AnyDLNode).didntChange) {
+      ;(this as AnyDLNode).didntChange = false
+      return this.updateChildren()
+    }
+
     // ---- Remove old nodes
     this._$nodes && this._$nodes.length > 0 && this.removeNodes(this._$nodes)
     if (this.cond === -1) {
@@ -38,7 +44,13 @@ export class CondNode extends MutableNode {
     const nextSibling = parentEl.childNodes[flowIndex]
     MutableNode.appendNodesWithSibling(newNodes, parentEl, nextSibling)
     this._$nodes = newNodes
-    ;(this as AnyDLNode).justCreated = true
+  }
+
+  /**
+   * @brief Update the children of IfNode
+   */
+  updateChildren(changed?: number): void {
+    this._$nodes![0]?._$updateFunc?.(changed ?? this.depNum)
   }
 
   /**
@@ -46,10 +58,7 @@ export class CondNode extends MutableNode {
    * @param changed
    */
   update(changed: number): void {
-    if ((this as AnyDLNode).justCreated) {
-      ;(this as AnyDLNode).justCreated = false
-      return
-    }
-    this._$nodes![0]?._$updateFunc?.(changed)
+    if (changed & this.depNum) return
+    this.updateChildren(changed)
   }
 }
