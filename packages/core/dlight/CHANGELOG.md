@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.22
+
+### Patch Changes
+
+- c6cd5e0: fix: remove env when node is unmounted
+
 ## 1.0.0-alpha.21
 
 ### Patch Changes
