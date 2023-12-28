@@ -1,5 +1,5 @@
 import { type AnyDLNode, DLNode, DLNodeType } from "./DLNode"
-import { EnvStore, type EnvNode } from "./EnvNode"
+import { type EnvNode } from "./EnvNode"
 import { forwardHTMLProp } from "./HTMLNode"
 
 export class CompNode extends DLNode {
@@ -51,17 +51,20 @@ export class CompNode extends DLNode {
     if (children) (this as AnyDLNode)._$children = children
 
     // ---- Add envs
-    Object.entries(EnvStore.envs).forEach(([key, [value, envNode]]) => {
-      // ---- Add this node to every envNode's updateNodes
-      envNode.updateNodes.add(this)
-      this._$initEnv(key, value, envNode)
-    })
+    Object.entries(window.DLEnvStore.envs).forEach(
+      ([key, [value, envNode]]) => {
+        // ---- Add this node to every envNode's updateNodes
+        envNode.updateNodes.add(this)
+        this._$initEnv(key, value, envNode)
+      }
+    )
 
     // ---- Call watchers
     this._$callUpdatesBeforeInit()
     // ---- init
     ;(this as AnyDLNode).willMount?.()
     this._$nodes = (this as AnyDLNode).View?.() ?? []
+    ;(this as AnyDLNode).didMount?.()
   }
 
   /**

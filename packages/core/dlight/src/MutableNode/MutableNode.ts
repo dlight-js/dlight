@@ -1,5 +1,4 @@
 import { type AnyDLNode, DLNode } from "../DLNode"
-import { EnvStore } from "../EnvNode"
 
 export class MutableNode extends DLNode {
   /**
@@ -12,8 +11,10 @@ export class MutableNode extends DLNode {
   constructor(type: number) {
     super(type)
     // ---- Save the current environment nodes, must be a new reference
-    if (EnvStore.currentEnvNodes.length > 0) {
-      ;(this as AnyDLNode).savedEnvNodes = [...EnvStore.currentEnvNodes]
+    if (window.DLEnvStore.currentEnvNodes.length > 0) {
+      ;(this as AnyDLNode).savedEnvNodes = [
+        ...window.DLEnvStore.currentEnvNodes,
+      ]
     }
   }
 
@@ -41,13 +42,14 @@ export class MutableNode extends DLNode {
       this.initNewNodes(newNodes)
       return newNodes
     }
+    console.log("inin1", this)
     // ---- Save the current environment nodes
-    const currentEnvNodes = EnvStore.currentEnvNodes
+    const currentEnvNodes = window.DLEnvStore.currentEnvNodes
     // ---- Replace the saved environment nodes
-    EnvStore.replaceEnvNodes((this as AnyDLNode).savedEnvNodes)
+    window.DLEnvStore.replaceEnvNodes((this as AnyDLNode).savedEnvNodes)
     const newNodes = newNodesFunc()
     // ---- Retrieve the current environment nodes
-    EnvStore.replaceEnvNodes(currentEnvNodes)
+    window.DLEnvStore.replaceEnvNodes(currentEnvNodes)
     // ---- Only for IfNode's same condition return
     if (!newNodes) return
     // ---- Initialize the new nodes

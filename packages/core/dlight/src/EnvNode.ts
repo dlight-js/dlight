@@ -1,6 +1,12 @@
 import { type AnyDLNode, DLNode, DLNodeType } from "./DLNode"
 import { type CompNode } from "./CompNode"
 
+declare global {
+  interface Window {
+    DLEnvStore: EnvStoreClass
+  }
+}
+
 class EnvStoreClass {
   envs: Record<string, [any, AnyDLNode]> = {}
   currentEnvNodes: EnvNode[] = []
@@ -43,22 +49,22 @@ class EnvStoreClass {
   }
 }
 
-export const EnvStore = new EnvStoreClass()
+if (!window.DLEnvStore) window.DLEnvStore = new EnvStoreClass()
 
 export class EnvNode extends DLNode {
   updateNodes = new Set<CompNode>()
   envs
 
   /**
-   * @brief Constructor, Env type, accept a record of envs, add this node to EnvStore
+   * @brief Constructor, Env type, accept a record of envs, add this node to DLEnvStore
    * @param envs
    */
   constructor(envs: Record<string, any>) {
     super(DLNodeType.Env)
-    // ---- Must set this.envs before calling EnvStore.addEnvNode,
-    //      because EnvStore.addEnvNode will read this.envs and merge it with EnvStore.envs
+    // ---- Must set this.envs before calling DLEnvStore.addEnvNode,
+    //      because DLEnvStore.addEnvNode will read this.envs and merge it with DLEnvStore.envs
     this.envs = envs
-    EnvStore.addEnvNode(this)
+    window.DLEnvStore.addEnvNode(this)
   }
 
   /**
@@ -79,6 +85,6 @@ export class EnvNode extends DLNode {
    */
   initNodes(nodes: AnyDLNode[]): void {
     this._$nodes = nodes
-    EnvStore.removeEnvNode()
+    window.DLEnvStore.removeEnvNode()
   }
 }

@@ -115,24 +115,6 @@ export class DLNode {
   }
 
   /**
-   * @brief Loop all nodes shallowly and run func later
-   * @param nodes
-   * @param runFunc
-   */
-  static loopShallowDLNodesInsideOut(
-    nodes: any[],
-    runFunc: (node: any) => void
-  ): void {
-    nodes.forEach(node => {
-      if ("_$dlNodeType" in node) {
-        node._$nodes &&
-          DLNode.loopShallowDLNodesInsideOut(node._$nodes, runFunc)
-        runFunc(node)
-      }
-    })
-  }
-
-  /**
    * @brief Add parentEl to all nodes until the first element
    * @param nodes
    * @param parentEl
@@ -140,9 +122,6 @@ export class DLNode {
   static addParentEl(nodes: AnyDLNode[], parentEl: HTMLElement): void {
     this.loopShallowDLNodes(nodes, node => {
       node._$parentEl = parentEl
-    })
-    this.loopShallowDLNodesInsideOut(nodes, node => {
-      node.didMount?.()
     })
   }
 

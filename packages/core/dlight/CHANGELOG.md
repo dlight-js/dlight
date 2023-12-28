@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.20
+
+### Patch Changes
+
+- fix: single env store in window
+
 ## 1.0.0-alpha.19
 
 ### Patch Changes
