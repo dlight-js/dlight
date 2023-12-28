@@ -30,6 +30,21 @@ importers:
       prettier: 3.1.1
       typescript: 5.3.3
 
+  apps/ToDoMVC:
+    specifiers:
+      '@dlightjs/dlight': workspace:*
+      '@dlightjs/types': workspace:*
+      typescript: ^5.2.2
+      vite: ^4.4.9
+      vite-plugin-dlight: workspace:*
+    dependencies:
+      '@dlightjs/dlight': link:../../packages/core/dlight
+    devDependencies:
+      '@dlightjs/types': link:../../packages/core/types
+      typescript: 5.3.3
+      vite: 4.4.9
+      vite-plugin-dlight: link:../../packages/tools/vite-plugin-dlight
+
   apps/dev:
     specifiers:
       '@babel/standalone': ^7.22.4
