@@ -48,8 +48,7 @@ importers:
   apps/dev:
     specifiers:
       '@babel/standalone': ^7.22.4
-      '@dlightjs/components': ^0.10.1
-      '@dlightjs/decorators': ^0.10.1
+      '@dlightjs/components': 1.0.0-alpha.12
       '@dlightjs/dlight': workspace:*
       '@dlightjs/markit': ^0.10.1
       '@dlightjs/material-icons': ^0.10.1
@@ -62,8 +61,7 @@ importers:
       vite-plugin-dlight: workspace:*
     dependencies:
       '@babel/standalone': 7.22.8
-      '@dlightjs/components': 0.10.1
-      '@dlightjs/decorators': 0.10.1
+      '@dlightjs/components': 1.0.0-alpha.12
       '@dlightjs/dlight': link:../../packages/core/dlight
       '@dlightjs/markit': 0.10.1
       '@dlightjs/material-icons': 0.10.1
@@ -1002,13 +1000,10 @@ packages:
       '@jridgewell/trace-mapping': 0.3.9
     dev: true
 
-  /@dlightjs/components/0.10.1:
-    resolution: {integrity: sha512-eIpukROb3ttU506A3vUtJ/0odLQpIepQLdDNGzlyvIneHb73D+k5HHxQ+24Dg1vrpgqLMX1iZLWvzvUVf597pQ==}
+  /@dlightjs/components/1.0.0-alpha.12:
+    resolution: {integrity: sha512-h38yS6Nt2T03Tt33WPor0DEl9BVOBWQ8wMujYZB407Yu48d5UJrqAMLjV76RpbT9/t0ej2Nsr7pCfm3FabcDZA==}
     dependencies:
-      '@dlightjs/dlight': 0.10.1
-      '@iandx/easy-css': 0.10.14
-    transitivePeerDependencies:
-      - postcss
+      '@dlightjs/dlight': 1.0.0-alpha.21
     dev: false
 
   /@dlightjs/decorators/0.10.1:
@@ -1017,6 +1012,10 @@ packages:
 
   /@dlightjs/dlight/0.10.1:
     resolution: {integrity: sha512-N2AAgF/tMMqANGrfdv0E1wGqmPJc7b+uMUPe3eSTz0N+X7nVwmBsAcfS29+cFOTFLvnndH+c3u3GeL92agZAew==}
+    dev: false
+
+  /@dlightjs/dlight/1.0.0-alpha.21:
+    resolution: {integrity: sha512-s3j8Cx8Bd4qRrNAdcrqiXW7ZyyY0nZtVsTlUIyXNT4laYCNCx1JcglqxeZzC/9CaBVr6whmvTMhD6k50bNQZQg==}
     dev: false
 
   /@dlightjs/markit/0.10.1:

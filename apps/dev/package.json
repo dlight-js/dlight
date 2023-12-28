@@ -10,8 +10,7 @@
   },
   "dependencies": {
     "@babel/standalone": "^7.22.4",
-    "@dlightjs/components": "^0.10.1",
-    "@dlightjs/decorators": "^0.10.1",
+    "@dlightjs/components": "1.0.0-alpha.12",
     "@dlightjs/dlight": "workspace:*",
     "@dlightjs/markit": "^0.10.1",
     "@dlightjs/material-icons": "^0.10.1",

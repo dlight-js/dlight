@@ -1,4 +1,4 @@
-import { View, render } from "@dlightjs/dlight"
+import { View, render, update } from "@dlightjs/dlight"
 import { buildData } from "./data"
 
 @View
@@ -12,10 +12,9 @@ class Main {
 
   swapRows() {
     if (this.rows.length > 998) {
-      const tmp = this.rows[1]
-      this.rows[1] = this.rows[998]
-      this.rows[998] = tmp
-      this.rows = [...this.rows]
+      ;[this.rows[1], this.rows[998]] = [this.rows[998], this.rows[1]]
+      update(this, "rows")
+      // this.rows = [...this.rows]
     }
   }
 
@@ -28,7 +27,11 @@ class Main {
   }
 
   deleteRow(id) {
-    this.rows = [...this.rows.filter(row => row.id !== id)]
+    this.rows.splice(
+      this.rows.findIndex(row => row.id === id),
+      1
+    )
+    // this.rows = [...this.rows.filter(row => row.id !== id)]
   }
 
   addBig() {
@@ -36,14 +39,17 @@ class Main {
   }
 
   append() {
-    this.rows = [...this.rows, ...buildData(1000)]
+    this.rows.push(...buildData(1000))
+    update(this, "rows")
+    // this.rows = [...this.rows, ...buildData(1000)]
   }
 
   update() {
     for (let i = 0; i < this.rows.length; i += 10) {
       this.rows[i].label += " !!!"
     }
-    this.rows = [...this.rows]
+    update(this, "rows")
+    // this.rows = [...this.rows]
   }
 
   View() {
