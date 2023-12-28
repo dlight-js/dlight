@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.24
+
+### Patch Changes
+
+- refactor: allow prop change before \_$nodes generated
+
 ## 1.0.0-alpha.23
 
 ### Patch Changes

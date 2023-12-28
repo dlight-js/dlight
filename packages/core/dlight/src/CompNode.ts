@@ -39,6 +39,7 @@ export class CompNode extends DLNode {
     children: AnyDLNode[] | null,
     forwardPropsScope: CompNode | null
   ): void {
+    ;(this as AnyDLNode)._$notInitd = true
     // ---- Add props
     // ---- Forward props first to allow internal props to override forwarded props
     if (forwardPropsScope) forwardPropsScope._$addForwardProps(this)
@@ -80,6 +81,7 @@ export class CompNode extends DLNode {
         ;(this as any)[`$${key.slice(3)}`] = (this as any)[key]
       }
     })
+    delete (this as AnyDLNode)._$notInitd
   }
 
   /**
@@ -215,7 +217,7 @@ export class CompNode extends DLNode {
    */
   _$updateDerived(key: string): void {
     // ---- Call update manually before the node is mounted, not here
-    if (!(this as AnyDLNode)._$nodes) return
+    if ("_$notInitd" in this) return
     ;(this as AnyDLNode)[`$s$${key}`]?.forEach((k: string) => {
       // ---- Not time consuming at all
       if (`$w$${k}` in (this as AnyDLNode)) {
