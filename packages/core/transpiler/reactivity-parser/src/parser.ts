@@ -201,8 +201,8 @@ export class ReactivityParser {
       // ---- Generate mutable particles for current HTMLUnit
       unit.children?.forEach((child, idx) => {
         if (
-          (child.type !== "html" || !this.t.isStringLiteral(child.tag)) &&
-          child.type !== "text"
+          !(child.type === "html" && this.t.isStringLiteral(child.tag)) &&
+          !(child.type === "text" && this.t.isStringLiteral(child.content))
         ) {
           mutableParticles.push({
             path: [...path, idx],
@@ -256,20 +256,18 @@ export class ReactivityParser {
         ?.filter(
           child =>
             (child.type === "html" && this.t.isStringLiteral(child.tag)) ||
-            child.type === "text"
+            (child.type === "text" && this.t.isStringLiteral(child.content))
         )
         .forEach((child, idx) => {
           if (child.type === "html") {
             generateVariableProp(child, [...path, idx])
           } else if (child.type === "text") {
             // ---- if the child is a TextUnit, we just insert the text content
-            const dependencyIndexArr = this.getDependencies(child.content)
             templateProps.push({
               tag: "text",
               key: "value",
               path: [...path, idx],
               value: child.content,
-              dependencyIndexArr,
             })
           }
         })

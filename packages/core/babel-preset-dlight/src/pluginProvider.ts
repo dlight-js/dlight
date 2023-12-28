@@ -790,9 +790,7 @@ export class PluginProvider {
         // ---- Transform arrow function property into method
         const newViewNode = this.arrowFunctionPropertyToMethod(viewNode)
         if (!newViewNode) continue
-        console.log(newViewNode)
         viewNode = newViewNode
-        console.log(viewNode)
       }
 
       if (isSubView) {

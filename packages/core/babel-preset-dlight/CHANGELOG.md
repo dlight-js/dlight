@@ -1,5 +1,13 @@
 # babel-preset-dlight
 
+## 1.0.0-alpha.14
+
+### Patch Changes
+
+- Updated dependencies
+  - @dlightjs/reactivity-parser@1.0.0-alpha.3
+  - @dlightjs/view-generator@1.0.0-alpha.12
+
 ## 1.0.0-alpha.13
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.19
+
+### Patch Changes
+
+- fix: subview + dynamic textnode + textnode insert
+
 ## 1.0.0-alpha.18
 
 ### Patch Changes

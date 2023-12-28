@@ -87,30 +87,27 @@ export default class SubViewGenerator extends ViewGenerator {
     if (propsNode) {
       args.push(this.t.identifier("$subviewProps"))
     }
+
     // ---- If update
     if (propsNode) {
-      const props = propsNode.properties.filter(prop =>
-        this.t.isObjectProperty(prop)
-      )
       /**
        * ${prop} = $subviewProps
        */
-      Object.entries(updateStatements).forEach(([key, statements]) => {
-        const depNum = Number(key)
-        props.forEach((prop, idx) => {
-          if (depNum & (1 << idx)) {
-            statements.unshift(
-              this.t.expressionStatement(
-                this.t.assignmentExpression(
-                  "=",
-                  this.t.objectPattern([prop]),
-                  this.t.identifier("$subviewProps")
-                )
+      propsNode.properties
+        .filter(prop => this.t.isObjectProperty(prop))
+        .forEach((prop, idx) => {
+          const depNum = 1 << idx
+          if (!updateStatements[depNum]) updateStatements[depNum] = []
+          updateStatements[depNum].unshift(
+            this.t.expressionStatement(
+              this.t.assignmentExpression(
+                "=",
+                this.t.objectPattern([prop]),
+                this.t.identifier("$subviewProps")
               )
             )
-          }
+          )
         })
-      })
     }
     // ---- End
     const runAllStatements = propsNode ? [] : updateStatements[0] ?? []

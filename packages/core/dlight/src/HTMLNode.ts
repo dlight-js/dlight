@@ -135,7 +135,7 @@ export function insertNode(
   ;(el as AnyDLNode)._$nodes.splice(position, 0, node)
 
   // ---- Insert nodes' elements
-  DLNode.appendNodesWithIndex(node._$nodes, el, position)
+  DLNode.appendNodesWithIndex([node], el, position)
   // ---- Set parentEl
   DLNode.addParentEl([node], el)
 }
