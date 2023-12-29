@@ -16,7 +16,7 @@ export default class CompGenerator extends ForwardPropGenerator {
     const dlNodeName = this.generateNodeName()
 
     this.addInitStatement(
-      this.declareCompNode(dlNodeName, tag, content, props, children)
+      ...this.declareCompNode(dlNodeName, tag, content, props, children)
     )
     // ---- Resolve content
     if (content) {
@@ -76,7 +76,8 @@ export default class CompGenerator extends ForwardPropGenerator {
 
   /**
    * @View
-   * ${dlNodeName} = new ${tag}(${props}, ${content}, ${children}, ${this})
+   * ${dlNodeName} = new ${tag}()
+   * ${dlNodeName}._$init(${props}, ${content}, ${children}, ${this})
    */
   private declareCompNode(
     dlNodeName: string,
@@ -84,7 +85,7 @@ export default class CompGenerator extends ForwardPropGenerator {
     content?: DependencyProp,
     props?: Record<string, DependencyProp>,
     children?: ViewParticle[]
-  ): t.Statement {
+  ): t.Statement[] {
     let willForwardProps = false
     if (props) {
       if ("forwardProps" in props) willForwardProps = true
@@ -94,20 +95,31 @@ export default class CompGenerator extends ForwardPropGenerator {
         )
       )
     }
-    return this.t.expressionStatement(
-      this.t.assignmentExpression(
-        "=",
-        this.t.identifier(dlNodeName),
-        this.t.newExpression(tag, [
-          this.generateCompProps(props),
-          content?.value ?? this.t.nullLiteral(),
-          children && children.length > 0
-            ? this.t.identifier(this.declarePropView(children))
-            : this.t.nullLiteral(),
-          willForwardProps ? this.t.identifier("this") : this.t.nullLiteral(),
-        ])
-      )
-    )
+    return [
+      this.t.expressionStatement(
+        this.t.assignmentExpression(
+          "=",
+          this.t.identifier(dlNodeName),
+          this.t.newExpression(tag, [])
+        )
+      ),
+      this.t.expressionStatement(
+        this.t.callExpression(
+          this.t.memberExpression(
+            this.t.identifier(dlNodeName),
+            this.t.identifier("_$init")
+          ),
+          [
+            this.generateCompProps(props),
+            content?.value ?? this.t.nullLiteral(),
+            children && children.length > 0
+              ? this.t.identifier(this.declarePropView(children))
+              : this.t.nullLiteral(),
+            willForwardProps ? this.t.identifier("this") : this.t.nullLiteral(),
+          ]
+        )
+      ),
+    ]
   }
 
   /**

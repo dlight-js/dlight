@@ -1,5 +1,12 @@
 # @dlightjs/transpiler-standalone
 
+## 1.0.0-alpha.18
+
+### Patch Changes
+
+- Updated dependencies
+  - babel-preset-dlight@1.0.0-alpha.18
+
 ## 1.0.0-alpha.17
 
 ### Patch Changes

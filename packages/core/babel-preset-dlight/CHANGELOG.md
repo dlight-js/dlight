@@ -1,5 +1,13 @@
 # babel-preset-dlight
 
+## 1.0.0-alpha.18
+
+### Patch Changes
+
+- feat: compNode init after constructor
+- Updated dependencies
+  - @dlightjs/view-generator@1.0.0-alpha.16
+
 ## 1.0.0-alpha.17
 
 ### Patch Changes

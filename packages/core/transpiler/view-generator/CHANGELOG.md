@@ -1,5 +1,11 @@
 # @dlightjs/view-generator
 
+## 1.0.0-alpha.16
+
+### Patch Changes
+
+- feat: compNode init after constructor
+
 ## 1.0.0-alpha.15
 
 ### Patch Changes

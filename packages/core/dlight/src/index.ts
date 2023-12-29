@@ -22,6 +22,7 @@ export function render(idOrEl: string | HTMLElement, DL: AnyDLNode) {
   }
   el.innerHTML = ""
   const dlNode = new DL()
+  dlNode._$init()
   insertNode(el, dlNode, 0)
 }
 

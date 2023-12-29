@@ -33,9 +33,11 @@ const SubView = Sub as Pretty as Typed<SubProp>
 @View
 class Ok {
   @Prop changeCount
+  @Prop count
 
   didMount() {
     this.changeCount()
+    console.log(this.count)
   }
 
   View() {
@@ -95,16 +97,13 @@ class App {
   count = 0
   arr = [1, 2, 3]
 
-  @View
-  Sub() {
-    div(this.count)
-    Ok().changeCount(() => {
-      this.count++
-    })
-  }
-
   View() {
-    this.Sub()
+    div(this.count)
+    Ok()
+      .count(this.count)
+      .changeCount(() => {
+        this.count++
+      })
     button("click").onClick(() => {
       this.count++
     })

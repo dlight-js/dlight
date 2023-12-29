@@ -279,10 +279,8 @@ export class PluginProvider {
   }
 
   // ---- DLight class Level
-  private classRootPath?: NodePath<t.ClassDeclaration | t.ClassExpression>
   private classDeclarationNode?: t.ClassDeclaration | t.ClassExpression
   private classBodyNode?: t.ClassBody
-  private constructorNode?: t.ClassMethod
   private propertiesContainer: PropertyContainer = {}
   private dependencyMap: Record<string, string[]> = {}
   private enter = true
@@ -299,10 +297,8 @@ export class PluginProvider {
    * @brief Clear all DLight Node Level variables after a class is transformed
    */
   clearNode() {
-    this.classRootPath = undefined
     this.classDeclarationNode = undefined
     this.classBodyNode = undefined
-    this.constructorNode = undefined
     this.propertiesContainer = {}
     this.dependencyMap = {}
     this.enter = true
@@ -324,7 +320,6 @@ export class PluginProvider {
    * @param path
    */
   initNode(path: NodePath<t.ClassDeclaration | t.ClassExpression>): void {
-    this.classRootPath = path
     const node: t.ClassDeclaration | t.ClassExpression = path.node
     this.classDeclarationNode = node
     this.classBodyNode = node.body
@@ -347,8 +342,6 @@ export class PluginProvider {
         )
       )
     }
-
-    this.addConstructor()
 
     // ---- Add dlight import and alter import name,
     //      Only do this when enter the first dlight class
@@ -431,7 +424,6 @@ export class PluginProvider {
     if (!this.enter) return
     if (!this.enterClassNode) return
     this.transformDLightClass()
-    this.addInit()
     this.exitClass(path)
     this.clearNode()
     this.enterClassNode = false
@@ -458,7 +450,17 @@ export class PluginProvider {
     //       watcherFunc() { myFunc() }
     const watchDeco = this.findDecoratorByName(node.decorators, "Watch")
     if (!watchDeco) {
-      if (this.t.isIdentifier(node.key, { name: "constructor" })) return
+      if (
+        this.t.isIdentifier(node.key) &&
+        [
+          "constructor",
+          "willMount",
+          "didMount",
+          "willUnmount",
+          "didUnmount",
+        ].includes(node.key.name)
+      )
+        return
       this.autoBindMethods(node)
       return
     }
@@ -1060,55 +1062,32 @@ export class PluginProvider {
   }
 
   /**
-   * constructor(props, content, children, forwardPropsScope) {
+   * constructor() {
    *  super()
    * }
    */
-  addConstructor() {
-    if (!this.classBodyNode) return
-    let constructor = this.classBodyNode.body.find(n =>
+  addConstructor(): t.ClassMethod {
+    let constructor = this.classBodyNode!.body.find(n =>
       this.t.isClassMethod(n, { kind: "constructor" })
     ) as t.ClassMethod
-    if (constructor) throw new Error("DLight class should not have constructor")
+    if (constructor) return constructor
 
     constructor = this.t.classMethod(
       "constructor",
       this.t.identifier("constructor"),
-      [
-        this.t.identifier("props"),
-        this.t.identifier("content"),
-        this.t.identifier("children"),
-        this.t.identifier("forwardPropsScope"),
-      ],
+      [],
       this.t.blockStatement([
         this.t.expressionStatement(this.t.callExpression(this.t.super(), [])),
       ])
     )
-    this.constructorNode = constructor
-    this.classBodyNode.body.unshift(constructor)
-  }
 
-  addInit() {
-    this.constructorNode!.body.body.push(
-      this.t.expressionStatement(
-        this.t.callExpression(
-          this.t.memberExpression(
-            this.t.thisExpression(),
-            this.t.identifier("_$init")
-          ),
-          [
-            this.t.identifier("props"),
-            this.t.identifier("content"),
-            this.t.identifier("children"),
-            this.t.identifier("forwardPropsScope"),
-          ]
-        )
-      )
-    )
+    this.classBodyNode!.body.unshift(constructor)
+    return constructor
   }
 
   autoBindMethods(node: t.ClassMethod) {
-    this.constructorNode!.body.body.push(
+    const constructorNode = this.addConstructor()
+    constructorNode.body.body.push(
       this.t.expressionStatement(
         this.t.assignmentExpression(
           "=",
