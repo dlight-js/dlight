@@ -89,21 +89,21 @@ export default class EnvGenerator extends PropViewGenerator {
 
   /**
    * @View
-   * ${dlNodeName}?.updateEnv(${key}, ${value})
+   * ${dlNodeName}.updateEnv(${key}, ${value})
    */
   private updateEnvNode(
     dlNodeName: string,
     key: string,
     value: t.Expression
   ): t.Statement {
-    return this.t.expressionStatement(
-      this.t.optionalCallExpression(
+    return this.optionalExpression(
+      dlNodeName,
+      this.t.callExpression(
         this.t.memberExpression(
           this.t.identifier(dlNodeName),
           this.t.identifier("updateEnv")
         ),
-        [this.t.stringLiteral(key), value],
-        true
+        [this.t.stringLiteral(key), value]
       )
     )
   }

@@ -126,21 +126,6 @@ export default class HTMLPropGenerator extends ForwardPropGenerator {
 
   /**
    * @View
-   * ${callee}?.(${args})
-   */
-  private callExpWithCheck(
-    callee: t.Expression,
-    args: t.Expression[],
-    check: boolean
-  ): t.Expression {
-    if (check) {
-      return this.t.optionalCallExpression(callee, args, true)
-    }
-    return this.t.callExpression(callee, args)
-  }
-
-  /**
-   * @View
    * ${dlNodeName}.setAttribute(${key}, ${value})
    */
   private setHTMLAttr(

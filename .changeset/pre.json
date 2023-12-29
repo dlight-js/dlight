@@ -21,6 +21,7 @@
     "vite-plugin-dlight-js": "1.0.0-alpha.0"
   },
   "changesets": [
+    "afraid-paws-protect",
     "calm-humans-boil",
     "clever-garlics-collect",
     "cuddly-islands-deliver",

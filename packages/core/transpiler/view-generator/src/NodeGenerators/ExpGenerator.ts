@@ -75,17 +75,17 @@ export default class ExpGenerator extends ElementGenerator {
 
   /**
    * @View
-   * ${dlNodeName}?.update()
+   * ${dlNodeName}.update()
    */
   private updateExpNode(dlNodeName: string): t.Statement {
-    return this.t.expressionStatement(
-      this.t.optionalCallExpression(
+    return this.optionalExpression(
+      dlNodeName,
+      this.t.callExpression(
         this.t.memberExpression(
           this.t.identifier(dlNodeName),
           this.t.identifier("update")
         ),
-        [],
-        true
+        []
       )
     )
   }

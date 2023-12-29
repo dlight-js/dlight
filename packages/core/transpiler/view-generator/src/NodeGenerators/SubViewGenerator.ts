@@ -95,9 +95,7 @@ export default class SubViewGenerator extends PropViewGenerator {
       this.t.optionalCallExpression(
         this.t.memberExpression(
           this.t.identifier(dlNodeName),
-          this.t.identifier("updateProp"),
-          undefined,
-          true
+          this.t.identifier("updateProp")
         ),
         [
           this.t.numericLiteral(propChanged),

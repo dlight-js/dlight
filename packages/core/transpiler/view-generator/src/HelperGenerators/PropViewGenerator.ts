@@ -77,14 +77,14 @@ export default class PropViewGenerator extends BaseGenerator {
      * ${dlNodeName}?.update(changed)
      */
     this.addUpdateStatementsWithoutDep(
-      this.t.expressionStatement(
-        this.t.optionalCallExpression(
+      this.optionalExpression(
+        dlNodeName,
+        this.t.callExpression(
           this.t.memberExpression(
             propViewIdentifier,
             this.t.identifier("update")
           ),
-          [this.t.identifier("changed")],
-          true
+          [this.t.identifier("changed")]
         )
       )
     )

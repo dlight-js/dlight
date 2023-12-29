@@ -1,6 +1,6 @@
 {
   "name": "@dlightjs/view-generator",
-  "version": "1.0.0-alpha.14",
+  "version": "1.0.0-alpha.15",
   "description": "DLight View Generator given different types of reactivity units",
   "author": {
     "name": "IanDx",

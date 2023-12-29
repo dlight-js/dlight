@@ -112,38 +112,38 @@ export default class CompGenerator extends ForwardPropGenerator {
 
   /**
    * @View
-   * ${dlNodeName}?._$setContent(${value})
+   * ${dlNodeName}._$setContent(${value})
    */
   private setCompContent(dlNodeName: string, value: t.Expression): t.Statement {
-    return this.t.expressionStatement(
-      this.t.optionalCallExpression(
+    return this.optionalExpression(
+      dlNodeName,
+      this.t.callExpression(
         this.t.memberExpression(
           this.t.identifier(dlNodeName),
           this.t.identifier("_$setContent")
         ),
-        [value],
-        true
+        [value]
       )
     )
   }
 
   /**
    * @View
-   * ${dlNodeName}?._$setProp(${key}, ${value})
+   * ${dlNodeName}._$setProp(${key}, ${value})
    */
   private setCompProp(
     dlNodeName: string,
     key: string,
     value: t.Expression
   ): t.Statement {
-    return this.t.expressionStatement(
-      this.t.optionalCallExpression(
+    return this.optionalExpression(
+      dlNodeName,
+      this.t.callExpression(
         this.t.memberExpression(
           this.t.identifier(dlNodeName),
           this.t.identifier("_$setProp")
         ),
-        [this.t.stringLiteral(key), value],
-        true
+        [this.t.stringLiteral(key), value]
       )
     )
   }
