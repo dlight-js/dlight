@@ -236,6 +236,10 @@ export class DLNode {
 
   // ---- Lifecycle ----
   static addWillUnmount(node: AnyDLNode, func: () => void) {
-    node.willUnmount = this.willUnmountFunc.bind(this, func, node.willUnmount)
+    node.willUnmount = this.willUnmountFunc.bind(
+      this,
+      func,
+      node.willUnmount.bind(node)
+    )
   }
 }

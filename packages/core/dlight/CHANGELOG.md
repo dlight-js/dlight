@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.29
+
+### Patch Changes
+
+- fix: add willUnmount bind this
+
 ## 1.0.0-alpha.28
 
 ### Patch Changes
