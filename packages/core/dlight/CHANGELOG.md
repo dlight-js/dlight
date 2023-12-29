@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.32
+
+### Patch Changes
+
+- fix: for updateArr not updating correctly
+
 ## 1.0.0-alpha.31
 
 ### Patch Changes

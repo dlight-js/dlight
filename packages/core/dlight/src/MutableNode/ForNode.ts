@@ -142,11 +142,9 @@ export class ForNode<T, G> extends MutableNode {
    */
   private updateWithKey(newArray: T[], newKeys: G[]): void {
     const prevKeys = this.keys!
-    const prevArray = this.array
 
     this.array = [...newArray]
     this.keys = newKeys
-    this.updateArr = this.updateArr.slice(0, this.keys.length)
 
     if (ForNode.arrayEqual(prevKeys, this.keys)) {
       // ---- If the keys are the same, we only need to update the nodes
@@ -174,6 +172,7 @@ export class ForNode<T, G> extends MutableNode {
       }
       this.nodess! = []
       this._$nodes = []
+      this.updateArr = []
       return
     }
 
@@ -194,7 +193,7 @@ export class ForNode<T, G> extends MutableNode {
 
     const shuffleKeys: G[] = []
     const newNodess = []
-    const arrToUpdate = []
+    const newUpdateArr = []
 
     // ---- 1. Delete the nodes that are no longer in the array
     for (let prevIdx = 0; prevIdx < prevKeys.length; prevIdx++) {
@@ -202,7 +201,7 @@ export class ForNode<T, G> extends MutableNode {
       if (this.keys.includes(prevKey)) {
         shuffleKeys.push(prevKey)
         newNodess.push(prevNodess[prevIdx])
-        arrToUpdate.push(prevArray[prevIdx])
+        newUpdateArr.push(this.updateArr[prevIdx])
         continue
       }
       this.removeNodes(prevNodess[prevIdx])
@@ -220,10 +219,12 @@ export class ForNode<T, G> extends MutableNode {
         // ---- These nodes are already in the parentEl,
         //      and we need to keep track of their flowIndex
         newFlowIndex += MutableNode.getFlowIndexFromNodes(newNodess[prevIdx])
-        // ---- Update the nodes
-        this.updateItem(idx)
+        // ---- Update the nodes, using old update function and new item
+        this.updateArr[prevIdx]?.(this.depNum, this.array[idx])
         continue
       }
+      // ---- Insert updateArr first because in getNewNode the updateFunc will replace this null
+      newUpdateArr.splice(idx, 0, null as any)
       const newNodes = this.getNewNodes(idx)
       const count = MutableNode.appendNodesWithIndex(
         newNodes,
@@ -287,10 +288,14 @@ export class ForNode<T, G> extends MutableNode {
       const tempKey = shuffleKeys[idx]
       shuffleKeys[idx] = shuffleKeys[prevIdx]
       shuffleKeys[prevIdx] = tempKey
+      const tempUpdateArr: any = newUpdateArr[idx]
+      newUpdateArr[idx] = newUpdateArr[prevIdx]
+      newUpdateArr[prevIdx] = tempUpdateArr
     }
 
     this.nodess! = newNodess
     this._$nodes = this.nodess!.flat(1)
+    this.updateArr = newUpdateArr
   }
 
   /**
