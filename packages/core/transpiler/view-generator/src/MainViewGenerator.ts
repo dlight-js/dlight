@@ -31,8 +31,9 @@ export default class MainViewGenerator extends ViewGenerator {
     })
 
     const viewBody = this.t.blockStatement([
-      ...allInitStatements,
+      this.declareNodes(),
       ...this.geneUpdate(allUpdateStatements),
+      ...allInitStatements,
       this.geneReturn(topLevelNodes),
     ])
 

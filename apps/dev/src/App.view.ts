@@ -30,33 +30,84 @@ class Sub {
 
 const SubView = Sub as Pretty as Typed<SubProp>
 
-@ForwardProps
 @View
 class Ok {
+  @Prop changeCount
+
+  didMount() {
+    this.changeCount()
+  }
+
   View() {
-    button("ok").forwardProps()
-    SubView().forwardProps()
+    div("change")
   }
 }
-const OkView = Ok as Pretty
 
+@View
+class Ok2 {
+  @Prop ok
+
+  View() {
+    this.ok
+  }
+}
+
+;`
+Ok2().ok(View => {
+  div(this.count)
+  Ok().changeCount(() => {
+    this.count++
+  })
+})
+
+if (this.count) {
+  div(this.count)
+  Ok().changeCount(() => {
+    this.count++
+  })
+}
+
+switch (this.count) {
+  case 1:
+    div(this.count)
+    Ok().changeCount(() => {
+      this.count++
+    })
+  case 2:
+    "ok"
+  case 3:
+    "nono"
+    break
+  default:
+    "shit"
+}
+
+for (const a of this.arr) {
+  div(this.count)
+  Ok().changeCount(() => {
+    this.count++
+  })
+}
+
+`
 @View
 class App {
   count = 0
-  arr = [0, 1]
+  arr = [1, 2, 3]
 
-  View() {
-    button("+").onClick(() => {
+  @View
+  Sub() {
+    div(this.count)
+    Ok().changeCount(() => {
       this.count++
     })
-    OkView()
-      .style({
-        color: "red",
-      })
-      .onClick(() => {
-        console.log(this.count)
-      })
-      .name("shit")
+  }
+
+  View() {
+    this.Sub()
+    button("click").onClick(() => {
+      this.count++
+    })
   }
 }
 

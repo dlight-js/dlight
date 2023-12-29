@@ -1,7 +1,7 @@
 import { type types as t } from "@babel/core"
 import { type ViewParticle } from "@dlightjs/reactivity-parser"
 import { type ViewGeneratorConfig } from "./types"
-import type BaseGenerator from "./HelperGenerators/BaseGenerator"
+import BaseGenerator from "./HelperGenerators/BaseGenerator"
 import CompGenerator from "./NodeGenerators/CompGenerator"
 import HTMLGenerator from "./NodeGenerators/HTMLGenerator"
 import TemplateGenerator from "./NodeGenerators/TemplateGenerator"
@@ -103,5 +103,21 @@ export default class ViewGenerator {
     this.nodeIdx = generator.nodeIdx
     this.templateIdx = generator.templateIdx
     return result
+  }
+
+  /**
+   * @View
+   * let node1, node2, ...
+   */
+  declareNodes(): t.VariableDeclaration {
+    return this.t.variableDeclaration(
+      "let",
+      Array.from({ length: this.nodeIdx + 1 }, (_, i) =>
+        this.t.variableDeclarator(
+          this.t.identifier(`${BaseGenerator.prefixMap.node}${i}`),
+          this.t.nullLiteral()
+        )
+      )
+    )
   }
 }

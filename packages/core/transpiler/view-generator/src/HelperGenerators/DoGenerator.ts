@@ -5,7 +5,7 @@ import PropViewGenerator from "./PropViewGenerator"
 export default class DoGenerator extends PropViewGenerator {
   /**
    * @View
-   * ${value}(dlNodeName)
+   * ${dlNodeName} && ${value}(${dlNodeName})
    */
   addDo(dlNodeName: string, value: t.Expression): t.ExpressionStatement {
     if (
@@ -15,7 +15,11 @@ export default class DoGenerator extends PropViewGenerator {
       return DLError.throw1()
     }
     return this.t.expressionStatement(
-      this.t.callExpression(value, [this.t.identifier(dlNodeName)])
+      this.t.logicalExpression(
+        "&&",
+        this.t.identifier(dlNodeName),
+        this.t.callExpression(value, [this.t.identifier(dlNodeName)])
+      )
     )
   }
 }

@@ -4,9 +4,15 @@ import { MutableNode } from "./MutableNode"
 export class ForNode<T, G> extends MutableNode {
   array
   keys?
-  nodeFunc
-  nodess
+  nodeFunc?: (
+    item: T,
+    updateArr: Array<(change: number, item: T) => void>,
+    idx: number
+  ) => AnyDLNode[]
+  nodess?: AnyDLNode[][]
   depNum
+
+  updateArr: Array<(change: number, item: T) => void> = []
 
   /**
    * @brief Constructor, For type
@@ -14,20 +20,25 @@ export class ForNode<T, G> extends MutableNode {
    * @param nodeFunc
    * @param keys
    */
-  constructor(
-    array: T[],
-    nodeFunc: (item: T) => AnyDLNode[],
-    depNum: number,
-    keys?: G[]
-  ) {
+  constructor(array: T[], depNum: number, keys?: G[]) {
     super(DLNodeType.For)
     this.array = [...array]
-    this.nodeFunc = nodeFunc
     this.keys = keys
     this.depNum = depNum
+  }
 
-    this.nodess = this.array.map(item => nodeFunc(item))
-    this._$nodes = this.nodess.flat(1)
+  addNodeFunc(
+    nodeFunc: (
+      item: T,
+      updateArr: Array<(change: number, item: T) => void>,
+      idx: number
+    ) => AnyDLNode[]
+  ) {
+    this.nodeFunc = nodeFunc
+    this.nodess = this.array.map((item, idx) =>
+      nodeFunc(item, this.updateArr, idx)
+    )
+    this._$nodes = this.nodess!.flat(1)
   }
 
   /**
@@ -37,7 +48,7 @@ export class ForNode<T, G> extends MutableNode {
   update(changed: number): void {
     if (changed & this.depNum) return
     for (let idx = 0; idx < this.array.length; idx++) {
-      this.updateItem(this.nodess[idx], this.array[idx], changed)
+      this.updateItem(idx, changed)
     }
   }
 
@@ -46,9 +57,9 @@ export class ForNode<T, G> extends MutableNode {
    * @param nodes
    * @param item
    */
-  private updateItem(nodes: AnyDLNode[], item: T, changed?: number): void {
+  private updateItem(idx: number, changed?: number): void {
     // ---- The update function of ForNode's childNodes is stored in the first child node
-    nodes[0]._$updateFunc?.(changed ?? this.depNum, item)
+    this.updateArr[idx]?.(changed ?? this.depNum, this.array[idx])
   }
 
   /**
@@ -68,7 +79,9 @@ export class ForNode<T, G> extends MutableNode {
    * @brief Shortcut to generate new nodes with idx
    */
   private getNewNodes(idx: number) {
-    return this.geneNewNodesInEnv(() => this.nodeFunc(this.array[idx]))
+    return this.geneNewNodesInEnv(() =>
+      this.nodeFunc!(this.array[idx], this.updateArr, idx)
+    )
   }
 
   /**
@@ -79,11 +92,12 @@ export class ForNode<T, G> extends MutableNode {
     const preLength = this.array.length
     const currLength = newArray.length
     this.array = [...newArray]
+    this.updateArr = this.updateArr.slice(0, currLength)
 
     if (preLength === currLength) {
       // ---- If the length is the same, we only need to update the nodes
       for (let idx = 0; idx < this.array.length; idx++) {
-        this.updateItem(this.nodess[idx], this.array[idx])
+        this.updateItem(idx)
       }
       return
     }
@@ -97,28 +111,28 @@ export class ForNode<T, G> extends MutableNode {
       const length = parentEl.childNodes.length
       for (let idx = 0; idx < currLength; idx++) {
         if (idx < preLength) {
-          flowIndex += MutableNode.getFlowIndexFromNodes(this.nodess[idx])
-          this.updateItem(this.nodess[idx], this.array[idx])
+          flowIndex += MutableNode.getFlowIndexFromNodes(this.nodess![idx])
+          this.updateItem(idx)
           continue
         }
         const newNodes = this.getNewNodes(idx)
         MutableNode.appendNodesWithIndex(newNodes, parentEl, flowIndex, length)
-        this.nodess.push(newNodes)
+        this.nodess!.push(newNodes)
       }
-      this._$nodes = this.nodess.flat(1)
+      this._$nodes = this.nodess!.flat(1)
       return
     }
 
     // ---- Update the nodes first
     for (let idx = 0; idx < currLength; idx++) {
-      this.updateItem(this.nodess[idx], this.array[idx])
+      this.updateItem(idx)
     }
     // ---- If the new array is shorter, remove the extra nodes
     for (let idx = currLength; idx < preLength; idx++) {
-      this.removeNodes(this.nodess[idx])
+      this.removeNodes(this.nodess![idx])
     }
-    this.nodess = this.nodess.slice(0, currLength)
-    this._$nodes = this.nodess.flat(1)
+    this.nodess! = this.nodess!.slice(0, currLength)
+    this._$nodes = this.nodess!.flat(1)
   }
 
   /**
@@ -132,17 +146,18 @@ export class ForNode<T, G> extends MutableNode {
 
     this.array = [...newArray]
     this.keys = newKeys
+    this.updateArr = this.updateArr.slice(0, this.keys.length)
 
     if (ForNode.arrayEqual(prevKeys, this.keys)) {
       // ---- If the keys are the same, we only need to update the nodes
       for (let idx = 0; idx < this.array.length; idx++) {
-        this.updateItem(this.nodess[idx], this.array[idx])
+        this.updateItem(idx)
       }
       return
     }
 
     const parentEl = (this as AnyDLNode)._$parentEl
-    const prevNodess = this.nodess
+    const prevNodess = this.nodess!
 
     // ---- No nodes after, delete all nodes
     if (this.keys.length === 0) {
@@ -157,7 +172,7 @@ export class ForNode<T, G> extends MutableNode {
           this.removeNodes(prevNodess[prevIdx])
         }
       }
-      this.nodess = []
+      this.nodess! = []
       this._$nodes = []
       return
     }
@@ -171,9 +186,9 @@ export class ForNode<T, G> extends MutableNode {
       for (let idx = 0; idx < this.keys.length; idx++) {
         const newNodes = this.getNewNodes(idx)
         MutableNode.appendNodesWithSibling(newNodes, parentEl, nextSibling)
-        this.nodess.push(newNodes)
+        this.nodess!.push(newNodes)
       }
-      this._$nodes = this.nodess.flat(1)
+      this._$nodes = this.nodess!.flat(1)
       return
     }
 
@@ -206,7 +221,7 @@ export class ForNode<T, G> extends MutableNode {
         //      and we need to keep track of their flowIndex
         newFlowIndex += MutableNode.getFlowIndexFromNodes(newNodess[prevIdx])
         // ---- Update the nodes
-        this.updateItem(newNodess[prevIdx], this.array[idx])
+        this.updateItem(idx)
         continue
       }
       const newNodes = this.getNewNodes(idx)
@@ -226,8 +241,8 @@ export class ForNode<T, G> extends MutableNode {
     // ---- After adding and deleting, the only thing left is to reorder the nodes,
     //      but if the keys are the same, we don't need to reorder
     if (ForNode.arrayEqual(this.keys, shuffleKeys)) {
-      this.nodess = newNodess
-      this._$nodes = this.nodess.flat(1)
+      this.nodess! = newNodess
+      this._$nodes = this.nodess!.flat(1)
       return
     }
 
@@ -274,8 +289,8 @@ export class ForNode<T, G> extends MutableNode {
       shuffleKeys[prevIdx] = tempKey
     }
 
-    this.nodess = newNodess
-    this._$nodes = this.nodess.flat(1)
+    this.nodess! = newNodess
+    this._$nodes = this.nodess!.flat(1)
   }
 
   /**

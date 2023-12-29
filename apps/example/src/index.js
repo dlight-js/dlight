@@ -30,4 +30,4 @@ import PropViewClass from "./propView/PropView.view"
 import CheckboxInput from "./inputs/CheckboxInput.view"
 import CompElement from "./element/CompElement.view"
 
-render("app", Element)
+render("app", RootComp)

@@ -22,9 +22,11 @@ export default class HTMLPropGenerator extends ForwardPropGenerator {
   ): t.Statement {
     // ---- Dynamic HTML prop with init and update
     if (dependencyIndexArr && dependencyIndexArr.length > 0) {
-      const statement = this.setDynamicHTMLProp(name, tag, key, value)
-      this.addUpdateStatements(dependencyIndexArr, statement)
-      return statement
+      this.addUpdateStatements(
+        dependencyIndexArr,
+        this.setDynamicHTMLProp(name, tag, key, value, true)
+      )
+      return this.setDynamicHTMLProp(name, tag, key, value, false)
     }
     // ---- Static HTML prop with init only
     return this.setStaticHTMLProp(name, tag, key, value)
@@ -50,14 +52,35 @@ export default class HTMLPropGenerator extends ForwardPropGenerator {
 
   /**
    * @View
+   * ${dlNodeName} && ${expression}
+   */
+  private setPropWithCheck(
+    dlNodeName: string,
+    expression: t.Expression,
+    check: boolean
+  ): t.Statement {
+    if (check) {
+      return this.optionalExpression(dlNodeName, expression)
+    }
+    return this.t.expressionStatement(expression)
+  }
+
+  /**
+   * @View
    * setStyle(${dlNodeName}, ${value})
    */
-  private setHTMLStyle(dlNodeName: string, value: t.Expression): t.Statement {
-    return this.t.expressionStatement(
+  private setHTMLStyle(
+    dlNodeName: string,
+    value: t.Expression,
+    check: boolean
+  ): t.Statement {
+    return this.setPropWithCheck(
+      dlNodeName,
       this.t.callExpression(this.t.identifier(this.importMap.setStyle), [
         this.t.identifier(dlNodeName),
         value,
-      ])
+      ]),
+      check
     )
   }
 
@@ -65,12 +88,18 @@ export default class HTMLPropGenerator extends ForwardPropGenerator {
    * @View
    * setStyle(${dlNodeName}, ${value})
    */
-  private setHTMLDataset(dlNodeName: string, value: t.Expression): t.Statement {
-    return this.t.expressionStatement(
+  private setHTMLDataset(
+    dlNodeName: string,
+    value: t.Expression,
+    check: boolean
+  ): t.Statement {
+    return this.setPropWithCheck(
+      dlNodeName,
       this.t.callExpression(this.t.identifier(this.importMap.setDataset), [
         this.t.identifier(dlNodeName),
         value,
-      ])
+      ]),
+      check
     )
   }
 
@@ -93,6 +122,21 @@ export default class HTMLPropGenerator extends ForwardPropGenerator {
         value
       )
     )
+  }
+
+  /**
+   * @View
+   * ${callee}?.(${args})
+   */
+  private callExpWithCheck(
+    callee: t.Expression,
+    args: t.Expression[],
+    check: boolean
+  ): t.Expression {
+    if (check) {
+      return this.t.optionalCallExpression(callee, args, true)
+    }
+    return this.t.callExpression(callee, args)
   }
 
   /**
@@ -142,14 +186,17 @@ export default class HTMLPropGenerator extends ForwardPropGenerator {
   private setEvent(
     dlNodeName: string,
     key: string,
-    value: t.Expression
+    value: t.Expression,
+    check: boolean
   ): t.Statement {
-    return this.t.expressionStatement(
+    return this.setPropWithCheck(
+      dlNodeName,
       this.t.callExpression(this.t.identifier(this.importMap.setEvent), [
         this.t.identifier(dlNodeName),
         this.t.stringLiteral(key),
         value,
-      ])
+      ]),
+      check
     )
   }
 
@@ -160,14 +207,17 @@ export default class HTMLPropGenerator extends ForwardPropGenerator {
   private setCachedProp(
     dlNodeName: string,
     key: string,
-    value: t.Expression
+    value: t.Expression,
+    check: boolean
   ): t.Statement {
-    return this.t.expressionStatement(
+    return this.setPropWithCheck(
+      dlNodeName,
       this.t.callExpression(this.t.identifier(this.importMap.setHTMLProp), [
         this.t.identifier(dlNodeName),
         this.t.stringLiteral(key),
         value,
-      ])
+      ]),
+      check
     )
   }
 
@@ -178,46 +228,55 @@ export default class HTMLPropGenerator extends ForwardPropGenerator {
   private setCachedAttr(
     dlNodeName: string,
     key: string,
-    value: t.Expression
+    value: t.Expression,
+    check: boolean
   ): t.Statement {
-    return this.t.expressionStatement(
+    return this.setPropWithCheck(
+      dlNodeName,
       this.t.callExpression(this.t.identifier(this.importMap.setHTMLAttr), [
         this.t.identifier(dlNodeName),
         this.t.stringLiteral(key),
         value,
-      ])
+      ]),
+      check
     )
   }
 
   /**
    * @View
-   * ${setHTMLProps}(${dlNodeName}, ${value})
+   * setHTMLProps(${dlNodeName}, ${value})
    */
   private setHTMLPropObject(
     dlNodeName: string,
-    value: t.Expression
+    value: t.Expression,
+    check: boolean
   ): t.Statement {
-    return this.t.expressionStatement(
+    return this.setPropWithCheck(
+      dlNodeName,
       this.t.callExpression(this.t.identifier(this.importMap.setHTMLProps), [
         this.t.identifier(dlNodeName),
         value,
-      ])
+      ]),
+      check
     )
   }
 
   /**
    * @View
-   * ${setHTMLAttrs}(${dlNodeName}, ${value})
+   * setHTMLAttrs(${dlNodeName}, ${value})
    */
   private setHTMLAttrObject(
     dlNodeName: string,
-    value: t.Expression
+    value: t.Expression,
+    check: boolean
   ): t.Statement {
-    return this.t.expressionStatement(
+    return this.setPropWithCheck(
+      dlNodeName,
       this.t.callExpression(this.t.identifier(this.importMap.setHTMLAttrs), [
         this.t.identifier(dlNodeName),
         value,
-      ])
+      ]),
+      check
     )
   }
 
@@ -236,13 +295,18 @@ export default class HTMLPropGenerator extends ForwardPropGenerator {
   private addCommonHTMLProp(
     dlNodeName: string,
     attrName: string,
-    value: t.Expression
+    value: t.Expression,
+    check: boolean
   ): t.Statement {
-    if (attrName === "style") return this.setHTMLStyle(dlNodeName, value)
-    if (attrName === "dataset") return this.setHTMLDataset(dlNodeName, value)
-    if (attrName === "element") return this.setElement(dlNodeName, value)
-    if (attrName === "prop") return this.setHTMLPropObject(dlNodeName, value)
-    if (attrName === "attr") return this.setHTMLAttrObject(dlNodeName, value)
+    if (attrName === "style") return this.setHTMLStyle(dlNodeName, value, check)
+    if (attrName === "dataset")
+      return this.setHTMLDataset(dlNodeName, value, check)
+    if (attrName === "element")
+      return this.setElement(dlNodeName, value, false, check)
+    if (attrName === "prop")
+      return this.setHTMLPropObject(dlNodeName, value, check)
+    if (attrName === "attr")
+      return this.setHTMLAttrObject(dlNodeName, value, check)
     if (attrName === "forwardProps") return this.forwardProps(dlNodeName)
     return DLError.throw2()
   }
@@ -263,7 +327,7 @@ export default class HTMLPropGenerator extends ForwardPropGenerator {
     value: t.Expression
   ): t.Statement {
     if (this.commonHTMLPropKeys.includes(attrName))
-      return this.addCommonHTMLProp(dlNodeName, attrName, value)
+      return this.addCommonHTMLProp(dlNodeName, attrName, value, false)
     if (attrName.startsWith("on")) {
       const eventName = attrName.slice(2).toLowerCase()
       return this.setHTMLEvent(dlNodeName, eventName, value)
@@ -289,19 +353,20 @@ export default class HTMLPropGenerator extends ForwardPropGenerator {
     dlNodeName: string,
     tag: string,
     attrName: string,
-    value: t.Expression
+    value: t.Expression,
+    check: boolean
   ): t.Statement {
     if (this.commonHTMLPropKeys.includes(attrName))
-      return this.addCommonHTMLProp(dlNodeName, attrName, value)
+      return this.addCommonHTMLProp(dlNodeName, attrName, value, check)
     if (attrName.startsWith("on")) {
       const eventName = attrName.slice(2).toLowerCase()
-      return this.setEvent(dlNodeName, eventName, value)
+      return this.setEvent(dlNodeName, eventName, value, check)
     }
     if (isInternalAttribute(tag, attrName)) {
       if (attrName === "class") attrName = "className"
       else if (attrName === "for") attrName = "htmlFor"
-      return this.setCachedProp(dlNodeName, attrName, value)
+      return this.setCachedProp(dlNodeName, attrName, value, check)
     }
-    return this.setCachedAttr(dlNodeName, attrName, value)
+    return this.setCachedAttr(dlNodeName, attrName, value, check)
   }
 }

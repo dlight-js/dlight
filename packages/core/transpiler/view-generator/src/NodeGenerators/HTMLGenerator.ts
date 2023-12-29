@@ -42,17 +42,18 @@ export default class HTMLGenerator extends HTMLPropGenerator {
 
   /**
    * @View
-   * const ${dlNodeName} = createElement(${tag})
+   * ${dlNodeName} = createElement(${tag})
    */
   private declareHTMLNode(dlNodeName: string, tag: t.Expression): t.Statement {
-    return this.t.variableDeclaration("const", [
-      this.t.variableDeclarator(
+    return this.t.expressionStatement(
+      this.t.assignmentExpression(
+        "=",
         this.t.identifier(dlNodeName),
         this.t.callExpression(this.t.identifier(this.importMap.createElement), [
           tag,
         ])
-      ),
-    ])
+      )
+    )
   }
 
   /**

@@ -54,10 +54,11 @@ export default class CondGenerator extends BaseGenerator {
 
   /**
    * @View
-   * ${dlNodeName}.updateCond()
+   * ${dlNodeName}?.updateCond()
    */
-  updateCondNodeCond(dlNodeName: string): t.ExpressionStatement {
-    return this.t.expressionStatement(
+  updateCondNodeCond(dlNodeName: string): t.Statement {
+    return this.optionalExpression(
+      dlNodeName,
       this.t.callExpression(
         this.t.memberExpression(
           this.t.identifier(dlNodeName),
@@ -70,10 +71,11 @@ export default class CondGenerator extends BaseGenerator {
 
   /**
    * @View
-   * ${dlNodeName}.update(changed)
+   * ${dlNodeName}?.update(changed)
    */
-  updateCondNode(dlNodeName: string): t.ExpressionStatement {
-    return this.t.expressionStatement(
+  updateCondNode(dlNodeName: string): t.Statement {
+    return this.optionalExpression(
+      dlNodeName,
       this.t.callExpression(
         this.t.memberExpression(
           this.t.identifier(dlNodeName),
@@ -86,24 +88,67 @@ export default class CondGenerator extends BaseGenerator {
 
   /**
    * @View
-   * const ${dlNodeName} = new CondNode(($thisCond) => {}, ${depNum})
+   * ${dlNodeName} = new CondNode(${depNum})
+   * ${dlNodeName}.addCondFunc(($thisCond) => {})
    */
   declareCondNode(
     dlNodeName: string,
     condFunc: t.BlockStatement,
     deps: number[]
-  ): t.VariableDeclaration {
-    return this.t.variableDeclaration("const", [
-      this.t.variableDeclarator(
-        this.t.identifier(dlNodeName),
-        this.t.newExpression(this.t.identifier(this.importMap.CondNode), [
-          this.t.arrowFunctionExpression(
-            [this.t.identifier("$thisCond")],
-            condFunc
-          ),
-          this.t.numericLiteral(CondGenerator.calcDependencyNum(deps)),
-        ])
+  ): t.Statement[] {
+    return [
+      this.t.expressionStatement(
+        this.t.assignmentExpression(
+          "=",
+          this.t.identifier(dlNodeName),
+          this.t.newExpression(this.t.identifier(this.importMap.CondNode), [
+            this.t.numericLiteral(CondGenerator.calcDependencyNum(deps)),
+          ])
+        )
       ),
-    ])
+      this.t.expressionStatement(
+        this.t.callExpression(
+          this.t.memberExpression(
+            this.t.identifier(dlNodeName),
+            this.t.identifier("addCondFunc")
+          ),
+          [
+            this.t.arrowFunctionExpression(
+              [this.t.identifier("$thisCond")],
+              condFunc
+            ),
+          ]
+        )
+      ),
+    ]
+  }
+
+  /**
+   * return $thisCond.cond === ${branchIdx} ? [${nodeNames}] : $thisCond.updateCond()
+   */
+  geneCondReturnStatement(nodeNames: string[], branchIdx: number): t.Statement {
+    // ---- If the returned cond is not the last one,
+    //      it means it's been altered in the childrenNodes,
+    //      so we update the cond again to get the right one
+    return this.t.returnStatement(
+      this.t.conditionalExpression(
+        this.t.binaryExpression(
+          "===",
+          this.t.memberExpression(
+            this.t.identifier("$thisCond"),
+            this.t.identifier("cond")
+          ),
+          this.t.numericLiteral(branchIdx)
+        ),
+        this.t.arrayExpression(nodeNames.map(name => this.t.identifier(name))),
+        this.t.callExpression(
+          this.t.memberExpression(
+            this.t.identifier("$thisCond"),
+            this.t.identifier("updateCond")
+          ),
+          []
+        )
+      )
+    )
   }
 }

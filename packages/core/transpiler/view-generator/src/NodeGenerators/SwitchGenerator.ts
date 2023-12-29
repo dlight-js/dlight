@@ -13,7 +13,7 @@ export default class SwitchGenerator extends CondGenerator {
     // ---- declareSwitchNode
     const dlNodeName = this.generateNodeName()
     this.addInitStatement(
-      this.declareSwitchNode(dlNodeName, discriminant.value, branches, deps)
+      ...this.declareSwitchNode(dlNodeName, discriminant.value, branches, deps)
     )
 
     this.addUpdateStatements(deps, this.updateCondNodeCond(dlNodeName))
@@ -24,152 +24,7 @@ export default class SwitchGenerator extends CondGenerator {
 
   /**
    * @View
-   * _$updates.push((changed) => { ${updateStatements} })
-   */
-  private geneUpdateFunc(
-    updateStatements: Record<number, t.Statement[]>
-  ): t.ExpressionStatement {
-    return this.t.expressionStatement(
-      this.t.callExpression(
-        this.t.memberExpression(
-          this.t.identifier("_$updates"),
-          this.t.identifier("push")
-        ),
-        [
-          this.t.arrowFunctionExpression(
-            [this.t.identifier("changed")],
-            this.geneUpdateBody(updateStatements)
-          ),
-        ]
-      )
-    )
-  }
-
-  /**
-   * @View
-   * _$nodes.push(${nodeNames})
-   */
-  private addNodes(nodeNames: string[]): t.Statement {
-    return this.t.expressionStatement(
-      this.t.callExpression(
-        this.t.memberExpression(
-          this.t.identifier("_$nodes"),
-          this.t.identifier("push")
-        ),
-        nodeNames.map(nodeName => this.t.identifier(nodeName))
-      )
-    )
-  }
-
-  /**
-   * @View
-   * if (_$notSetCond) {
-   *  $thisCond.cond = ${idx}
-   *  _$notSetCond = false
-   * }
-   */
-  private geneCaseIdx(idx: number): t.IfStatement {
-    return this.t.ifStatement(
-      this.t.identifier("_$notSetCond"),
-      this.t.blockStatement([
-        this.geneCondIdx(idx),
-        this.t.expressionStatement(
-          this.t.assignmentExpression(
-            "=",
-            this.t.identifier("_$notSetCond"),
-            this.t.booleanLiteral(false)
-          )
-        ),
-      ])
-    )
-  }
-
-  /**
-   * @View
-   * const _$nodes = []
-   * const _$updates = []
-   * let _$notSetCond = true
-   */
-  private declareSwitchVariables(needToUpdate: boolean): t.Statement[] {
-    return [
-      this.t.variableDeclaration("const", [
-        this.t.variableDeclarator(
-          this.t.identifier("_$nodes"),
-          this.t.arrayExpression([])
-        ),
-      ]),
-      ...(needToUpdate
-        ? [
-            this.t.variableDeclaration("const", [
-              this.t.variableDeclarator(
-                this.t.identifier("_$updates"),
-                this.t.arrayExpression([])
-              ),
-            ]),
-          ]
-        : []),
-      this.t.variableDeclaration("let", [
-        this.t.variableDeclarator(
-          this.t.identifier("_$notSetCond"),
-          this.t.booleanLiteral(true)
-        ),
-      ]),
-    ]
-  }
-
-  /**
-   * @View
-   *  _$nodes[0]._$updateFunc = (changed) => {
-   *    _$updates.forEach(update => update(changed))
-   *  })
-   */
-  private addUpdateToTheFirstNode(): t.Statement {
-    return this.t.expressionStatement(
-      this.t.assignmentExpression(
-        "=",
-        this.t.memberExpression(
-          this.t.memberExpression(
-            this.t.identifier("_$nodes"),
-            this.t.numericLiteral(0),
-            true
-          ),
-          this.t.identifier("_$updateFunc")
-        ),
-        this.t.arrowFunctionExpression(
-          [this.t.identifier("changed")],
-          this.t.blockStatement([
-            this.t.expressionStatement(
-              this.t.callExpression(
-                this.t.memberExpression(
-                  this.t.identifier("_$updates"),
-                  this.t.identifier("forEach")
-                ),
-                [
-                  this.t.arrowFunctionExpression(
-                    [this.t.identifier("update")],
-                    this.t.blockStatement([
-                      this.t.expressionStatement(
-                        this.t.callExpression(this.t.identifier("update"), [
-                          this.t.identifier("changed"),
-                        ])
-                      ),
-                    ])
-                  ),
-                ]
-              )
-            ),
-          ])
-        )
-      )
-    )
-  }
-
-  /**
-   * @View
    * const ${dlNodeName} = new CondNode(($thisCond) => {
-   *   const _$nodes = []
-   *   const _$updates = []
-   *   let _$notSetCond = false
    *   switch ($discriminant) {
    *    case ${case0}:
    *      if ($thisCond.case === 0) return
@@ -190,43 +45,74 @@ export default class SwitchGenerator extends CondGenerator {
     discriminant: t.Expression,
     branches: SwitchBranch[],
     deps: number[]
-  ): t.Statement {
-    let needToUpdate = false
-    const switchStatements = branches.map(
+  ): t.Statement[] {
+    // ---- Format statements, make fallthrough statements append to the previous case
+    const formattedBranches: SwitchBranch[] = branches.map(
       ({ case: _case, break: _break, children }, idx) => {
-        // ---- Generate case statements
-        const [childStatements, topLevelNodes, updateStatements] =
-          this.generateChildren(children, false)
-
-        // ---- Check did case change
-        childStatements.unshift(this.geneCondCheck(idx))
-
-        // ---- Add update statements
-        if (Object.keys(updateStatements).length > 0) {
-          childStatements.push(this.geneUpdateFunc(updateStatements))
-          needToUpdate = true
+        if (!_break) {
+          for (let i = idx + 1; i < branches.length; i++) {
+            children.push(...branches[i].children)
+            if (branches[i].break) break
+          }
         }
+        return { case: _case, break: _break, children }
+      }
+    )
+    // ---- Add default case
+    const defaultCaseIdx = formattedBranches.findIndex(
+      ({ case: _case }) => _case === null
+    )
+    if (defaultCaseIdx === -1) {
+      formattedBranches.push({
+        case: null,
+        break: true,
+        children: [],
+      })
+    }
 
-        // ---- Add nodes
-        childStatements.push(this.addNodes(topLevelNodes))
+    const switchStatements = formattedBranches.map(
+      ({ case: _case, children }, idx) => {
+        // ---- Generate case statements
+        const [childStatements, topLevelNodes, updateStatements, nodeIdx] =
+          this.generateChildren(children, false, true)
 
-        // ---- Add set case
-        childStatements.push(this.geneCaseIdx(idx))
+        // ---- Update func
+        childStatements.unshift(
+          ...this.declareNodes(nodeIdx),
+          /**
+           * $thisCond.updateFunc = (changed) => { ${updateStatements} }
+           */
+          this.t.expressionStatement(
+            this.t.assignmentExpression(
+              "=",
+              this.t.memberExpression(
+                this.t.identifier("$thisCond"),
+                this.t.identifier("updateFunc")
+              ),
+              this.t.arrowFunctionExpression(
+                [this.t.identifier("changed")],
+                this.geneUpdateBody(updateStatements)
+              )
+            )
+          )
+        )
 
-        // ---- Add break
-        if (_break) childStatements.push(this.t.breakStatement())
+        // ---- Check cond and update cond
+        childStatements.unshift(this.geneCondCheck(idx), this.geneCondIdx(idx))
 
-        return this.t.switchCase(_case ? _case.value : null, childStatements)
+        // ---- Return statement
+        childStatements.push(this.geneCondReturnStatement(topLevelNodes, idx))
+
+        return this.t.switchCase(_case ? _case.value : null, [
+          this.t.blockStatement(childStatements),
+        ])
       }
     )
 
     return this.declareCondNode(
       dlNodeName,
       this.t.blockStatement([
-        ...this.declareSwitchVariables(needToUpdate),
         this.t.switchStatement(discriminant, switchStatements),
-        ...(needToUpdate ? [this.addUpdateToTheFirstNode()] : []),
-        this.t.returnStatement(this.t.identifier("_$nodes")),
       ]),
       deps
     )

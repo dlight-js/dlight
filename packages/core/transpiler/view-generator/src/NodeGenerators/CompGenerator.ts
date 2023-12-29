@@ -76,7 +76,7 @@ export default class CompGenerator extends ForwardPropGenerator {
 
   /**
    * @View
-   * const ${dlNodeName} = new ${tag}(${props}, ${content}, ${children}, ${this})
+   * ${dlNodeName} = new ${tag}(${props}, ${content}, ${children}, ${this})
    */
   private declareCompNode(
     dlNodeName: string,
@@ -84,7 +84,7 @@ export default class CompGenerator extends ForwardPropGenerator {
     content?: DependencyProp,
     props?: Record<string, DependencyProp>,
     children?: ViewParticle[]
-  ): t.VariableDeclaration {
+  ): t.Statement {
     let willForwardProps = false
     if (props) {
       if ("forwardProps" in props) willForwardProps = true
@@ -94,8 +94,9 @@ export default class CompGenerator extends ForwardPropGenerator {
         )
       )
     }
-    return this.t.variableDeclaration("const", [
-      this.t.variableDeclarator(
+    return this.t.expressionStatement(
+      this.t.assignmentExpression(
+        "=",
         this.t.identifier(dlNodeName),
         this.t.newExpression(tag, [
           this.generateCompProps(props),
@@ -105,29 +106,30 @@ export default class CompGenerator extends ForwardPropGenerator {
             : this.t.nullLiteral(),
           willForwardProps ? this.t.identifier("this") : this.t.nullLiteral(),
         ])
-      ),
-    ])
-  }
-
-  /**
-   * @View
-   * ${dlNodeName}._$setContent(${value})
-   */
-  private setCompContent(dlNodeName: string, value: t.Expression): t.Statement {
-    return this.t.expressionStatement(
-      this.t.callExpression(
-        this.t.memberExpression(
-          this.t.identifier(dlNodeName),
-          this.t.identifier("_$setContent")
-        ),
-        [value]
       )
     )
   }
 
   /**
    * @View
-   * ${dlNodeName}._$setProp(${key}, ${value})
+   * ${dlNodeName}?._$setContent(${value})
+   */
+  private setCompContent(dlNodeName: string, value: t.Expression): t.Statement {
+    return this.t.expressionStatement(
+      this.t.optionalCallExpression(
+        this.t.memberExpression(
+          this.t.identifier(dlNodeName),
+          this.t.identifier("_$setContent")
+        ),
+        [value],
+        true
+      )
+    )
+  }
+
+  /**
+   * @View
+   * ${dlNodeName}?._$setProp(${key}, ${value})
    */
   private setCompProp(
     dlNodeName: string,
@@ -135,12 +137,13 @@ export default class CompGenerator extends ForwardPropGenerator {
     value: t.Expression
   ): t.Statement {
     return this.t.expressionStatement(
-      this.t.callExpression(
+      this.t.optionalCallExpression(
         this.t.memberExpression(
           this.t.identifier(dlNodeName),
           this.t.identifier("_$setProp")
         ),
-        [this.t.stringLiteral(key), value]
+        [this.t.stringLiteral(key), value],
+        true
       )
     )
   }

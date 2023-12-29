@@ -10,35 +10,12 @@ export default class IfGenerator extends CondGenerator {
     )
     // ---- declareIfNode
     const dlNodeName = this.generateNodeName()
-    this.addInitStatement(this.declareIfNode(dlNodeName, branches, deps))
+    this.addInitStatement(...this.declareIfNode(dlNodeName, branches, deps))
 
     this.addUpdateStatements(deps, this.updateCondNodeCond(dlNodeName))
     this.addUpdateStatementsWithoutDep(this.updateCondNode(dlNodeName))
 
     return dlNodeName
-  }
-
-  /**
-   * @View
-   * ${firstNode}._$updateFunc = (changed) => { ${updateStatements} }
-   */
-  private geneUpdateFunc(
-    firstNode: string,
-    updateStatements: Record<number, t.Statement[]>
-  ): t.ExpressionStatement {
-    return this.t.expressionStatement(
-      this.t.assignmentExpression(
-        "=",
-        this.t.memberExpression(
-          this.t.identifier(firstNode),
-          this.t.identifier("_$updateFunc")
-        ),
-        this.t.arrowFunctionExpression(
-          [this.t.identifier("changed")],
-          this.geneUpdateBody(updateStatements)
-        )
-      )
-    )
   }
 
   /**
@@ -60,7 +37,6 @@ export default class IfGenerator extends CondGenerator {
    *    if ($thisCond.cond === 0) return
    *    ${children}
    *    $thisCond.cond = 0
-   *    node0.update = () => {}
    *    return [nodes]
    *   } else if (cond2) {
    *    if ($thisCond.cond === 1) return
@@ -74,50 +50,56 @@ export default class IfGenerator extends CondGenerator {
     dlNodeName: string,
     branches: IfBranch[],
     deps: number[]
-  ): t.Statement {
+  ): t.Statement[] {
+    // ---- If no else statement, add one
+    if (
+      !this.t.isBooleanLiteral(branches[branches.length - 1].condition.value, {
+        value: true,
+      })
+    ) {
+      branches.push({
+        condition: { value: this.t.booleanLiteral(true) },
+        children: [],
+      })
+    }
     const ifStatement = branches
       .reverse()
-      .reduce<any>((acc, { condition, children }, idx) => {
+      .reduce<any>((acc, { condition, children }, i) => {
+        const idx = branches.length - i - 1
         // ---- Generate children
-        const [childStatements, topLevelNodes, updateStatements] =
-          this.generateChildren(children, false)
-
-        // ---- Check cond statement
-        childStatements.unshift(this.geneCondCheck(branches.length - idx - 1))
+        const [childStatements, topLevelNodes, updateStatements, nodeIdx] =
+          this.generateChildren(children, false, true)
 
         // ---- Update func
-        if (Object.keys(updateStatements).length > 0) {
-          childStatements.push(
-            this.geneUpdateFunc(topLevelNodes[0], updateStatements)
+        childStatements.unshift(
+          ...this.declareNodes(nodeIdx),
+          /**
+           * $thisCond.updateFunc = (changed) => { ${updateStatements} }
+           */
+          this.t.expressionStatement(
+            this.t.assignmentExpression(
+              "=",
+              this.t.memberExpression(
+                this.t.identifier("$thisCond"),
+                this.t.identifier("updateFunc")
+              ),
+              this.t.arrowFunctionExpression(
+                [this.t.identifier("changed")],
+                this.geneUpdateBody(updateStatements)
+              )
+            )
           )
-        }
+        )
 
-        // ---- Cond idx (reverse order)
-        childStatements.push(this.geneCondIdx(branches.length - idx - 1))
+        // ---- Check cond and update cond
+        childStatements.unshift(this.geneCondCheck(idx), this.geneCondIdx(idx))
 
         // ---- Return statement
-        childStatements.push(this.generateReturnStatement(topLevelNodes))
+        childStatements.push(this.geneCondReturnStatement(topLevelNodes, idx))
 
-        if (idx === 0) {
-          if (this.t.isBooleanLiteral(condition.value, { value: true })) {
-            // ---- else statement
-            return this.t.blockStatement(childStatements)
-          }
-          /**
-           * else {
-           *  thisCond.cond = -1
-           *  return []
-           * }
-           */
-          return this.geneIfStatement(
-            condition.value,
-            childStatements,
-            this.t.blockStatement([
-              this.geneCondIdx(-1),
-              this.generateReturnStatement([]),
-            ])
-          )
-        }
+        // ---- else statement
+        if (i === 0) return this.t.blockStatement(childStatements)
+
         return this.geneIfStatement(condition.value, childStatements, acc)
       }, undefined)
 

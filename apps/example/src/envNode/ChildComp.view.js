@@ -5,7 +5,7 @@ class ChildComp {
   @Env textColor = "black"
 
   View() {
-    div("I am a child component").style({ color: this.textColor })
+    div("I'm supposed to be red").style({ color: this.textColor })
   }
 }
 

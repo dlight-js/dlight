@@ -11,6 +11,9 @@ class RootComp {
       div("I am a parent component")
       ChildComp()
     }
+    button("Click me to toggle the color to blue/red").onClick(() => {
+      this.textColor = this.textColor === "red" ? "blue" : "red"
+    })
   }
 }
 

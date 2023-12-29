@@ -68,14 +68,15 @@ export default class TemplateGenerator extends HTMLPropGenerator {
 
   /**
    * @View
-   * const ${dlNodeName} = ${this.className}.${templateName}()
+   * ${dlNodeName} = ${this.className}.${templateName}()
    */
   private declareTemplateNode(
     dlNodeName: string,
     templateName: string
   ): t.Statement {
-    return this.t.variableDeclaration("const", [
-      this.t.variableDeclarator(
+    return this.t.expressionStatement(
+      this.t.assignmentExpression(
+        "=",
         this.t.identifier(dlNodeName),
         this.t.callExpression(
           this.t.memberExpression(
@@ -84,8 +85,8 @@ export default class TemplateGenerator extends HTMLPropGenerator {
           ),
           []
         )
-      ),
-    ])
+      )
+    )
   }
 
   /**
@@ -104,16 +105,17 @@ export default class TemplateGenerator extends HTMLPropGenerator {
   ): t.Statement {
     const newNodeName = this.generateNodeName()
     if (path.length === 0) {
-      return this.t.variableDeclaration("const", [
-        this.t.variableDeclarator(
+      return this.t.expressionStatement(
+        this.t.assignmentExpression(
+          "=",
           this.t.identifier(newNodeName),
           Array.from({ length: offset }).reduce(
             (acc: t.Expression) =>
               this.t.memberExpression(acc, this.t.identifier("nextSibling")),
             this.t.identifier(dlNodeName)
           )
-        ),
-      ])
+        )
+      )
     }
     const addFirstChild = (object: t.Expression) =>
       // ---- ${object}.firstChild
@@ -140,8 +142,9 @@ export default class TemplateGenerator extends HTMLPropGenerator {
     const addNextSibling = (object: t.Expression) =>
       // ---- ${object}.nextSibling
       this.t.memberExpression(object, this.t.identifier("nextSibling"))
-    return this.t.variableDeclaration("const", [
-      this.t.variableDeclarator(
+    return this.t.expressionStatement(
+      this.t.assignmentExpression(
+        "=",
         this.t.identifier(newNodeName),
         path.reduce((acc: t.Expression, cur: number, idx) => {
           if (idx === 0 && offset > 0) {
@@ -152,8 +155,8 @@ export default class TemplateGenerator extends HTMLPropGenerator {
           if (cur === 2) return addThirdChild(acc)
           return addOtherChild(acc, cur)
         }, this.t.identifier(dlNodeName))
-      ),
-    ])
+      )
+    )
   }
 
   /**

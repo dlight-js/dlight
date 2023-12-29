@@ -56,17 +56,70 @@ export default class SubViewGenerator extends ViewGenerator {
       })
     })
 
+    const hasPropertyUpdateFunc =
+      Object.keys(propertyUpdateStatements).length > 0
+    const hasIdentifierUpdateFunc =
+      Object.keys(identifierUpdateStatements).filter(n => n !== "0").length > 0
+
     const viewBody = this.t.blockStatement([
+      this.declareNodes(),
+      ...(hasPropertyUpdateFunc
+        ? [this.geneUpdateFunc("update", propertyUpdateStatements)]
+        : []),
+      ...(hasIdentifierUpdateFunc
+        ? [
+            this.geneUpdateFunc(
+              "updateProp",
+              identifierUpdateStatements,
+              propsNode
+            ),
+          ]
+        : []),
       ...allInitStatements,
-      this.geneReturn(
-        topLevelNodes,
-        propertyUpdateStatements,
-        identifierUpdateStatements,
-        propsNode
-      ),
+      this.geneAddNodes(topLevelNodes),
     ])
 
     return [viewBody, allClassProperties, this.templateIdx]
+  }
+
+  /**
+   * @View
+   * $subviewNode._$nodes = ${topLevelNodes}
+   */
+  geneAddNodes(topLevelNodes: string[]): t.Statement {
+    return this.t.expressionStatement(
+      this.t.assignmentExpression(
+        "=",
+        this.t.memberExpression(
+          this.t.identifier("$subviewNode"),
+          this.t.identifier("_$nodes")
+        ),
+        this.t.arrayExpression(
+          topLevelNodes.map(nodeName => this.t.identifier(nodeName))
+        )
+      )
+    )
+  }
+
+  /**
+   * @View
+   * $subviewNode.${name} = (changed) => { ${updateStatements} }
+   */
+  geneUpdateFunc(
+    name: string,
+    updateStatements: Record<number, t.Statement[]>,
+    propsNode?: t.ObjectPattern
+  ): t.Statement {
+    return this.t.expressionStatement(
+      this.t.assignmentExpression(
+        "=",
+        this.t.memberExpression(
+          this.t.identifier("$subviewNode"),
+          this.t.identifier(name)
+        ),
+        this.geneUpdateBody(updateStatements, propsNode)
+      )
+    )
   }
 
   /**
@@ -111,7 +164,7 @@ export default class SubViewGenerator extends ViewGenerator {
     }
     // ---- End
     const runAllStatements = propsNode ? [] : updateStatements[0] ?? []
-    // console.log(propsNode, )
+
     return this.t.arrowFunctionExpression(
       args,
       this.t.blockStatement([
@@ -128,59 +181,6 @@ export default class SubViewGenerator extends ViewGenerator {
             )
           }),
         ...runAllStatements,
-      ])
-    )
-  }
-
-  /**
-   * @View
-   * return {
-   *  _$dlNodeType: 5,
-   *  update: ${this.geneUpdateBody(propertyUpdateStatements)},
-   *  updateProp: ${this.geneUpdateBody(identifierUpdateStatements)},
-   *  nodes: [${topLevelNodes}]
-   * }
-   */
-  private geneReturn(
-    topLevelNodes: string[],
-    propertyUpdateStatements: Record<number, t.Statement[]>,
-    identifierUpdateStatements: Record<number, t.Statement[]>,
-    propsNode: t.ObjectPattern
-  ) {
-    const propertyUpdate =
-      Object.keys(propertyUpdateStatements).length > 0
-        ? [
-            this.t.objectProperty(
-              this.t.identifier("update"),
-              this.geneUpdateBody(propertyUpdateStatements)
-            ),
-          ]
-        : []
-
-    const identifierUpdate =
-      Object.keys(identifierUpdateStatements).filter(n => n !== "0").length > 0
-        ? [
-            this.t.objectProperty(
-              this.t.identifier("updateProp"),
-              this.geneUpdateBody(identifierUpdateStatements, propsNode)
-            ),
-          ]
-        : []
-
-    return this.t.returnStatement(
-      this.t.objectExpression([
-        this.t.objectProperty(
-          this.t.identifier("_$dlNodeType"),
-          this.t.numericLiteral(5)
-        ),
-        ...propertyUpdate,
-        ...identifierUpdate,
-        this.t.objectProperty(
-          this.t.identifier("_$nodes"),
-          this.t.arrayExpression(
-            topLevelNodes.map(nodeName => this.t.identifier(nodeName))
-          )
-        ),
       ])
     )
   }

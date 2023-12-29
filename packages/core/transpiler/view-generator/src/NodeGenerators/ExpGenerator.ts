@@ -59,31 +59,33 @@ export default class ExpGenerator extends ElementGenerator {
 
   /**
    * @View
-   * const ${dlNodeName} = new ExpNode(() => ${value})
+   * ${dlNodeName} = new ExpNode(() => ${value})
    */
   private declareExpNode(dlNodeName: string, value: t.Expression): t.Statement {
-    return this.t.variableDeclaration("const", [
-      this.t.variableDeclarator(
+    return this.t.expressionStatement(
+      this.t.assignmentExpression(
+        "=",
         this.t.identifier(dlNodeName),
         this.t.newExpression(this.t.identifier(this.importMap.ExpNode), [
           this.t.arrowFunctionExpression([], value),
         ])
-      ),
-    ])
+      )
+    )
   }
 
   /**
    * @View
-   * ${dlNodeName}.update()
+   * ${dlNodeName}?.update()
    */
   private updateExpNode(dlNodeName: string): t.Statement {
     return this.t.expressionStatement(
-      this.t.callExpression(
+      this.t.optionalCallExpression(
         this.t.memberExpression(
           this.t.identifier(dlNodeName),
           this.t.identifier("update")
         ),
-        []
+        [],
+        true
       )
     )
   }

@@ -11,7 +11,12 @@ export default class ElementGenerator extends DoGenerator {
    * @param el true: dlNodeName._$el, false: dlNodeName
    * @returns t.Statement
    */
-  setElement(dlNodeName: string, value: t.Expression, el = false): t.Statement {
+  setElement(
+    dlNodeName: string,
+    value: t.Expression,
+    el = false,
+    check = false
+  ): t.Statement {
     const elNode = el
       ? this.t.memberExpression(
           this.t.identifier(dlNodeName),
@@ -20,22 +25,25 @@ export default class ElementGenerator extends DoGenerator {
       : this.t.identifier(dlNodeName)
 
     return this.isOnlyMemberExpression(value)
-      ? this.assignHTMLElement(elNode, value as t.MemberExpression)
-      : this.assignHTMLFunctionElement(elNode, value)
+      ? this.assignHTMLElement(elNode, value as t.MemberExpression, check)
+      : this.assignHTMLFunctionElement(elNode, value, check)
   }
 
   /**
+   * if (${elNode}) {
    * if (typeof ${value} === "function") {
    *  ${value}(${elNode})
    * } else {
    *  ${value} = ${elNode}
    * }
+   * }
    */
   private assignHTMLElement(
     elNode: t.Expression,
-    value: t.MemberExpression
+    value: t.MemberExpression,
+    check: boolean
   ): t.IfStatement {
-    return this.t.ifStatement(
+    const statement = this.t.ifStatement(
       this.t.binaryExpression(
         "===",
         this.t.unaryExpression("typeof", value, true),
@@ -46,14 +54,17 @@ export default class ElementGenerator extends DoGenerator {
         this.t.assignmentExpression("=", value, elNode)
       )
     )
+    if (check) return this.t.ifStatement(elNode, statement)
+    return statement
   }
 
   /**
-   * ${value}(${elNode})
+   * ${elNode} && ${value}(${elNode})
    */
   private assignHTMLFunctionElement(
     elNode: t.Expression,
-    value: t.Expression
+    value: t.Expression,
+    check: boolean
   ): t.Statement {
     if (
       !this.t.isFunctionExpression(value) &&
@@ -61,7 +72,12 @@ export default class ElementGenerator extends DoGenerator {
     ) {
       return DLError.throw1()
     }
-    return this.t.expressionStatement(this.t.callExpression(value, [elNode]))
+    const statement = this.t.callExpression(value, [elNode])
+    if (check)
+      return this.t.expressionStatement(
+        this.t.logicalExpression("&&", elNode, statement)
+      )
+    return this.t.expressionStatement(statement)
   }
 
   // --- Utils

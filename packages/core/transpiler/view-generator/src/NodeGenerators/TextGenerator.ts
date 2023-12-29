@@ -22,33 +22,38 @@ export default class TextGenerator extends BaseGenerator {
 
   /**
    * @View
-   * const ${dlNodeName} = createTextNode(${value})
+   * ${dlNodeName} = createTextNode(${value})
    */
   private declareTextNode(
     dlNodeName: string,
     value: t.Expression
   ): t.Statement {
-    return this.t.variableDeclaration("const", [
-      this.t.variableDeclarator(
+    return this.t.expressionStatement(
+      this.t.assignmentExpression(
+        "=",
         this.t.identifier(dlNodeName),
         this.t.callExpression(
           this.t.identifier(this.importMap.createTextNode),
           [value]
         )
-      ),
-    ])
+      )
+    )
   }
 
   /**
    * @View
-   * updateText(${dlNodeName}, ${value})
+   * ${dlNodeName} && updateText(${dlNodeName}, ${value})
    */
   private updateTextNode(dlNodeName: string, value: t.Expression): t.Statement {
     return this.t.expressionStatement(
-      this.t.callExpression(this.t.identifier(this.importMap.updateText), [
+      this.t.logicalExpression(
+        "&&",
         this.t.identifier(dlNodeName),
-        value,
-      ])
+        this.t.callExpression(this.t.identifier(this.importMap.updateText), [
+          this.t.identifier(dlNodeName),
+          value,
+        ])
+      )
     )
   }
 }

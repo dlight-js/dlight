@@ -237,6 +237,7 @@ export class PluginProvider {
       "updateText",
       "ExpNode",
       "PropView",
+      "SubViewNode",
     ].map((funcName, idx) =>
       devMode ? [funcName, funcName] : [funcName, `$${idx}$`]
     )
@@ -909,6 +910,18 @@ export class PluginProvider {
     subViewPropSubDepMap: SubViewPropSubDepMap,
     templateIdx: number
   ): [Set<string>, number] {
+    // ---- Add prop => Sub() => Sub(_$, $subviewNode)
+    if (viewNode.params.length === 0) {
+      viewNode.params.push(
+        this.t.identifier("_$"),
+        this.t.identifier("$subviewNode")
+      )
+    } else if (viewNode.params.length === 1) {
+      viewNode.params.push(this.t.identifier("$subviewNode"))
+    } else {
+      viewNode.params[1] = this.t.identifier("$subviewNode")
+      viewNode.params.length = 2
+    }
     const viewUnits = parseView(viewNode.body, {
       babelApi: this.babelApi,
       subviewNames: subViewNames,

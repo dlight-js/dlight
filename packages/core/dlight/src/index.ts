@@ -9,6 +9,7 @@ export * from "./MutableNode/CondNode"
 export * from "./EnvNode"
 export * from "./TextNode"
 export * from "./PropView"
+export * from "./SubViewNode"
 
 export function render(idOrEl: string | HTMLElement, DL: AnyDLNode) {
   let el: HTMLElement = idOrEl as HTMLElement

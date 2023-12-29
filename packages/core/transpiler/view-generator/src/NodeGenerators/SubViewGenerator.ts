@@ -13,7 +13,9 @@ export default class SubViewGenerator extends PropViewGenerator {
 
     const dlNodeName = this.generateNodeName()
 
-    this.addInitStatement(this.declareSubviewNode(dlNodeName, tag, props ?? {}))
+    this.addInitStatement(
+      ...this.declareSubviewNode(dlNodeName, tag, props ?? {})
+    )
 
     const availableProperties = this.subViewPropMap[tag] ?? []
 
@@ -47,30 +49,40 @@ export default class SubViewGenerator extends PropViewGenerator {
 
   /**
    * @View
-   * const ${dlNodeName} = this.${tag}({${props}})
+   * ${dlNodeName} = new SubViewNode()
+   * this.${tag}({${props}}, ${dlNodeName})
    */
   private declareSubviewNode(
     dlNodeName: string,
     tag: string,
     props: Record<string, DependencyProp>
-  ): t.VariableDeclaration {
-    return this.t.variableDeclaration("const", [
-      this.t.variableDeclarator(
-        this.t.identifier(dlNodeName),
+  ): t.Statement[] {
+    return [
+      this.t.expressionStatement(
+        this.t.assignmentExpression(
+          "=",
+          this.t.identifier(dlNodeName),
+          this.t.newExpression(
+            this.t.identifier(this.importMap.SubViewNode),
+            []
+          )
+        )
+      ),
+      this.t.expressionStatement(
         this.t.callExpression(
           this.t.memberExpression(
             this.t.thisExpression(),
             this.t.identifier(tag)
           ),
-          [this.genePropNode(props)]
+          [this.genePropNode(props), this.t.identifier(dlNodeName)]
         )
       ),
-    ])
+    ]
   }
 
   /**
    * @View
-   * ${dlNodeName}.updateProp(${propChanged}, { ${key}: ${value} })
+   * ${dlNodeName}.updateProp?.(${propChanged}, { ${key}: ${value} })
    */
   private updateProp(
     dlNodeName: string,
@@ -78,11 +90,14 @@ export default class SubViewGenerator extends PropViewGenerator {
     key: string,
     value: t.Expression
   ): t.Statement {
-    return this.t.expressionStatement(
+    return this.optionalExpression(
+      dlNodeName,
       this.t.optionalCallExpression(
         this.t.memberExpression(
           this.t.identifier(dlNodeName),
-          this.t.identifier("updateProp")
+          this.t.identifier("updateProp"),
+          undefined,
+          true
         ),
         [
           this.t.numericLiteral(propChanged),
@@ -97,10 +112,11 @@ export default class SubViewGenerator extends PropViewGenerator {
 
   /**
    * @View
-   * ${dlNodeName}?.update(changed)
+   * ${dlNodeName}.update(changed)
    */
   private updateSubView(dlNodeName: string): t.Statement {
-    return this.t.expressionStatement(
+    return this.optionalExpression(
+      dlNodeName,
       this.t.optionalCallExpression(
         this.t.memberExpression(
           this.t.identifier(dlNodeName),
