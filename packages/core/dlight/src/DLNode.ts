@@ -239,7 +239,7 @@ export class DLNode {
     node.willUnmount = this.willUnmountFunc.bind(
       this,
       func,
-      node.willUnmount.bind(node)
+      node.willUnmount?.bind(node)
     )
   }
 }

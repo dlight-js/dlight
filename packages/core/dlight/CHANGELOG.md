@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.30
+
+### Patch Changes
+
+- fix: node optional bind
+
 ## 1.0.0-alpha.29
 
 ### Patch Changes
