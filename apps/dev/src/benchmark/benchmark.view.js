@@ -13,8 +13,7 @@ class Main {
   swapRows() {
     if (this.rows.length > 998) {
       ;[this.rows[1], this.rows[998]] = [this.rows[998], this.rows[1]]
-      update(this, "rows")
-      // this.rows = [...this.rows]
+      this.rows = [...this.rows]
     }
   }
 
@@ -27,11 +26,7 @@ class Main {
   }
 
   deleteRow(id) {
-    this.rows.splice(
-      this.rows.findIndex(row => row.id === id),
-      1
-    )
-    // this.rows = [...this.rows.filter(row => row.id !== id)]
+    this.rows = [...this.rows.filter(row => row.id !== id)]
   }
 
   addBig() {
@@ -40,16 +35,14 @@ class Main {
 
   append() {
     this.rows.push(...buildData(1000))
-    update(this, "rows")
-    // this.rows = [...this.rows, ...buildData(1000)]
+    this.rows = [...this.rows, ...buildData(1000)]
   }
 
   update() {
     for (let i = 0; i < this.rows.length; i += 10) {
       this.rows[i].label += " !!!"
     }
-    update(this, "rows")
-    // this.rows = [...this.rows]
+    this.rows = [...this.rows]
   }
 
   View() {

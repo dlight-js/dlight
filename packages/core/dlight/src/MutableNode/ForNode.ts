@@ -131,7 +131,7 @@ export class ForNode<T, G> extends MutableNode {
     for (let idx = currLength; idx < preLength; idx++) {
       this.removeNodes(this.nodess![idx])
     }
-    this.nodess! = this.nodess!.slice(0, currLength)
+    this.nodess = this.nodess!.slice(0, currLength)
     this._$nodes = this.nodess!.flat(1)
   }
 
@@ -170,7 +170,7 @@ export class ForNode<T, G> extends MutableNode {
           this.removeNodes(prevNodess[prevIdx])
         }
       }
-      this.nodess! = []
+      this.nodess = []
       this._$nodes = []
       this.updateArr = []
       return
@@ -242,8 +242,9 @@ export class ForNode<T, G> extends MutableNode {
     // ---- After adding and deleting, the only thing left is to reorder the nodes,
     //      but if the keys are the same, we don't need to reorder
     if (ForNode.arrayEqual(this.keys, shuffleKeys)) {
-      this.nodess! = newNodess
+      this.nodess = newNodess
       this._$nodes = this.nodess!.flat(1)
+      this.updateArr = newUpdateArr
       return
     }
 
@@ -293,7 +294,7 @@ export class ForNode<T, G> extends MutableNode {
       newUpdateArr[prevIdx] = tempUpdateArr
     }
 
-    this.nodess! = newNodess
+    this.nodess = newNodess
     this._$nodes = this.nodess!.flat(1)
     this.updateArr = newUpdateArr
   }

@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.33
+
+### Patch Changes
+
+- fix: no update arr if no shuffle
+
 ## 1.0.0-alpha.32
 
 ### Patch Changes
