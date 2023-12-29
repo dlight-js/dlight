@@ -47,10 +47,16 @@ class Ok {
 
 @View
 class Ok2 {
-  @Prop ok
+  @Env count
+
+  @Watch
+  watchCount() {
+    console.log(this.count, "jj")
+  }
 
   View() {
-    this.ok
+    // div(this.count)
+    // undefined
   }
 }
 
@@ -98,12 +104,15 @@ class App {
   arr = [1, 2, 3]
 
   View() {
-    div(this.count)
-    Ok()
-      .count(this.count)
-      .changeCount(() => {
-        this.count++
-      })
+    env().count(this.count)
+    {
+      Ok()
+        .count(this.count)
+        .changeCount(() => {
+          this.count++
+        })
+      Ok2()
+    }
     button("click").onClick(() => {
       this.count++
     })

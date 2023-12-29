@@ -62,7 +62,7 @@ export default class SubViewGenerator extends ViewGenerator {
       Object.keys(identifierUpdateStatements).filter(n => n !== "0").length > 0
 
     const viewBody = this.t.blockStatement([
-      this.declareNodes(),
+      ...this.declareNodes(),
       ...(hasPropertyUpdateFunc
         ? [this.geneUpdateFunc("update", propertyUpdateStatements)]
         : []),

@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.31
+
+### Patch Changes
+
+- fix: env need to merge new envs when still in that environment
+
 ## 1.0.0-alpha.30
 
 ### Patch Changes

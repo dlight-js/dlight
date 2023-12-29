@@ -74,6 +74,10 @@ export class EnvNode extends DLNode {
    */
   updateEnv(name: string, value: any): void {
     this.envs[name] = value
+    if (window.DLEnvStore.currentEnvNodes.includes(this)) {
+      // ---- Still in this environment, need to merge new envs
+      window.DLEnvStore.mergeEnvs()
+    }
     this.updateNodes.forEach(node => {
       node._$updateEnv(name, value, this)
     })

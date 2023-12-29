@@ -1,5 +1,11 @@
 # @dlightjs/view-generator
 
+## 1.0.0-alpha.18
+
+### Patch Changes
+
+- fix: env need to merge new envs when still in that environment
+
 ## 1.0.0-alpha.17
 
 ### Patch Changes

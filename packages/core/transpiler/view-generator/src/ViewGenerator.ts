@@ -109,15 +109,18 @@ export default class ViewGenerator {
    * @View
    * let node1, node2, ...
    */
-  declareNodes(): t.VariableDeclaration {
-    return this.t.variableDeclaration(
-      "let",
-      Array.from({ length: this.nodeIdx + 1 }, (_, i) =>
-        this.t.variableDeclarator(
-          this.t.identifier(`${BaseGenerator.prefixMap.node}${i}`),
-          this.t.nullLiteral()
+  declareNodes(): t.Statement[] {
+    if (this.nodeIdx === -1) return []
+    return [
+      this.t.variableDeclaration(
+        "let",
+        Array.from({ length: this.nodeIdx + 1 }, (_, i) =>
+          this.t.variableDeclarator(
+            this.t.identifier(`${BaseGenerator.prefixMap.node}${i}`),
+            this.t.nullLiteral()
+          )
         )
-      )
-    )
+      ),
+    ]
   }
 }
