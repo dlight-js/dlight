@@ -35,25 +35,23 @@ export default class PropViewGenerator extends BaseGenerator {
     const [initStatements, topLevelNodes, updateStatements, nodeIdx] =
       this.generateChildren(viewParticles, false, true)
     // ---- Add update function to the first node
-    if (topLevelNodes.length > 0) {
-      /**
-       * $addUpdate((changed) => { ${updateStatements} })
-       */
-      if (Object.keys(updateStatements).length > 0) {
-        initStatements.unshift(
-          ...this.declareNodes(nodeIdx),
-          this.t.expressionStatement(
-            this.t.callExpression(this.t.identifier("$addUpdate"), [
-              this.t.arrowFunctionExpression(
-                [this.t.identifier("changed")],
-                this.geneUpdateBody(updateStatements)
-              ),
-            ])
-          )
+    /**
+     * $addUpdate((changed) => { ${updateStatements} })
+     */
+    if (Object.keys(updateStatements).length > 0) {
+      initStatements.unshift(
+        this.t.expressionStatement(
+          this.t.callExpression(this.t.identifier("$addUpdate"), [
+            this.t.arrowFunctionExpression(
+              [this.t.identifier("changed")],
+              this.geneUpdateBody(updateStatements)
+            ),
+          ])
         )
-      }
-      initStatements.push(this.generateReturnStatement(topLevelNodes))
+      )
     }
+    initStatements.unshift(...this.declareNodes(nodeIdx))
+    initStatements.push(this.generateReturnStatement(topLevelNodes))
 
     // ---- Assign as a dlNode
     const dlNodeName = this.generateNodeName()

@@ -1,5 +1,11 @@
 # @dlightjs/view-generator
 
+## 1.0.0-alpha.17
+
+### Patch Changes
+
+- fix: PropView must have nodes declaration
+
 ## 1.0.0-alpha.16
 
 ### Patch Changes
