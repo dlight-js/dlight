@@ -39,10 +39,10 @@ class EnvStoreClass {
   /**
    * @brief Merge all the envs in currentEnvNodes, inner envs override outer envs
    */
-  private mergeEnvs(): void {
+  mergeEnvs(): void {
     this.envs = {}
     this.currentEnvNodes.forEach(envNode => {
-      Object.entries(envNode.envs).forEach(([key, value]) => {
+      Object.entries((envNode as AnyDLNode).envs).forEach(([key, value]) => {
         this.envs[key] = [value, envNode]
       })
     })
@@ -53,7 +53,6 @@ if (!window.DLEnvStore) window.DLEnvStore = new EnvStoreClass()
 
 export class EnvNode extends DLNode {
   updateNodes = new Set<CompNode>()
-  envs
 
   /**
    * @brief Constructor, Env type, accept a record of envs, add this node to DLEnvStore
@@ -63,8 +62,9 @@ export class EnvNode extends DLNode {
     super(DLNodeType.Env)
     // ---- Must set this.envs before calling DLEnvStore.addEnvNode,
     //      because DLEnvStore.addEnvNode will read this.envs and merge it with DLEnvStore.envs
-    this.envs = envs
+    ;(this as AnyDLNode).envs = envs
     window.DLEnvStore.addEnvNode(this)
+    delete (this as AnyDLNode).envs
   }
 
   /**
@@ -73,7 +73,6 @@ export class EnvNode extends DLNode {
    * @param value
    */
   updateEnv(name: string, value: any): void {
-    this.envs[name] = value
     this.updateNodes.forEach(node => {
       node._$updateEnv(name, value, this)
     })

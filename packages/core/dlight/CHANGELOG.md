@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.25
+
+### Patch Changes
+
+- fix: no env update before this.\_$update is initd
+
 ## 1.0.0-alpha.24
 
 ### Patch Changes

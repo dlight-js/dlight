@@ -65,6 +65,8 @@ export class CompNode extends DLNode {
     // ---- init
     ;(this as AnyDLNode).willMount?.()
     this._$nodes = (this as AnyDLNode).View?.() ?? []
+    // ---- Call prev update functions
+    this._$callPrevUpdates()
     ;(this as AnyDLNode).didMount?.()
   }
 
@@ -82,6 +84,16 @@ export class CompNode extends DLNode {
       }
     })
     delete (this as AnyDLNode)._$notInitd
+  }
+
+  /**
+   * @brief There's no _$update function yet, save the depNum and run it after the node is mounted
+   */
+  private _$callPrevUpdates(): void {
+    if (!(this as AnyDLNode)["_$prevUpdateNums"]) return
+    ;(this as AnyDLNode)["_$prevUpdateNums"].forEach((depNum: number) => {
+      ;(this as AnyDLNode)._$update?.(depNum)
+    })
   }
 
   /**
@@ -235,6 +247,13 @@ export class CompNode extends DLNode {
   _$updateView(key: string): void {
     const depNum = (this as AnyDLNode)[`$$${key}`]
     if (!depNum) return // ---- Run update function
+    if (!this._$nodes) {
+      // ---- There's no _$update function yet, save the depNum and run it later
+      if (!(this as AnyDLNode)["_$prevUpdateNums"])
+        (this as AnyDLNode)["_$prevUpdateNums"] = []
+      ;(this as AnyDLNode)["_$prevUpdateNums"].push(depNum)
+      return
+    }
     ;(this as AnyDLNode)._$update?.(depNum)
   }
 }
