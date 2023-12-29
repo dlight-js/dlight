@@ -54,6 +54,7 @@ if (!window.DLEnvStore) window.DLEnvStore = new EnvStoreClass()
 export class EnvNode extends DLNode {
   updateNodes = new Set<CompNode>()
 
+  envs
   /**
    * @brief Constructor, Env type, accept a record of envs, add this node to DLEnvStore
    * @param envs
@@ -62,9 +63,8 @@ export class EnvNode extends DLNode {
     super(DLNodeType.Env)
     // ---- Must set this.envs before calling DLEnvStore.addEnvNode,
     //      because DLEnvStore.addEnvNode will read this.envs and merge it with DLEnvStore.envs
-    ;(this as AnyDLNode).envs = envs
+    this.envs = envs
     window.DLEnvStore.addEnvNode(this)
-    delete (this as AnyDLNode).envs
   }
 
   /**
@@ -73,6 +73,7 @@ export class EnvNode extends DLNode {
    * @param value
    */
   updateEnv(name: string, value: any): void {
+    this.envs[name] = value
     this.updateNodes.forEach(node => {
       node._$updateEnv(name, value, this)
     })

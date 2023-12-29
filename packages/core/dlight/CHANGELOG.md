@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.27
+
+### Patch Changes
+
+- fix: store env
+
 ## 1.0.0-alpha.26
 
 ### Patch Changes
