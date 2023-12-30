@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.36
+
+### Patch Changes
+
+- fix: insert with index instead of mutable node postion (BIG FLAW)
+
 ## 1.0.0-alpha.35
 
 ### Patch Changes

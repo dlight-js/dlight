@@ -135,7 +135,8 @@ export function insertNode(
   ;(el as AnyDLNode)._$nodes.splice(position, 0, node)
 
   // ---- Insert nodes' elements
-  DLNode.appendNodesWithIndex([node], el, position)
+  const flowIdx = DLNode.getFlowIndexFromNodes((el as AnyDLNode)._$nodes, node)
+  DLNode.appendNodesWithIndex([node], el, flowIdx)
   // ---- Set parentEl
   DLNode.addParentEl([node], el)
 }
