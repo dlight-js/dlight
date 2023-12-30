@@ -26,7 +26,6 @@ export class PropView {
     const newNodes = this.propViewFunc(addUpdate)
     if (newNodes.length === 0) return []
     if (update) {
-      console.log(newNodes)
       // ---- Remove the updateNode from dlUpdateNodes when it unmounts
       DLNode.addWillUnmount(
         newNodes[0],

@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.35
+
+### Patch Changes
+
+- fix: delete log
+
 ## 1.0.0-alpha.34
 
 ### Patch Changes
