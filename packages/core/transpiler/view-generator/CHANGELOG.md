@@ -1,5 +1,11 @@
 # @dlightjs/view-generator
 
+## 1.0.0-alpha.19
+
+### Patch Changes
+
+- fix: update item for node generator
+
 ## 1.0.0-alpha.18
 
 ### Patch Changes

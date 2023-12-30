@@ -37,7 +37,10 @@ export default class ForGenerator extends BaseGenerator {
    * @View
    * ${dlNodeName} = new ForNode(${array}, ${depNum}, ${array}.map(${item} => ${key}))
    * ${dlNodeName}.addNodeFunc((${item}, $updateArr, idx) => {
-   *   $updateArr[idx] = (changed, ${item}) => { {$updateStatements} }
+   *   $updateArr[idx] = (changed, $item) => {
+   *      ${item} = $item
+   *      {$updateStatements}
+   *   }
    *   ${children}
    *   return [...${topLevelNodes}]
    * })
@@ -66,8 +69,17 @@ export default class ForGenerator extends BaseGenerator {
             true
           ),
           this.t.arrowFunctionExpression(
-            [this.t.identifier("changed"), item as any],
-            this.geneUpdateBody(updateStatements)
+            [this.t.identifier("changed"), this.t.identifier("$item")],
+            this.t.blockStatement([
+              this.t.expressionStatement(
+                this.t.assignmentExpression(
+                  "=",
+                  item,
+                  this.t.identifier("$item")
+                )
+              ),
+              ...this.geneUpdateBody(updateStatements).body,
+            ])
           )
         )
       )

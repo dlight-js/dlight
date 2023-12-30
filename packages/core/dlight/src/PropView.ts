@@ -19,12 +19,14 @@ export class PropView {
   build(): AnyDLNode[] {
     let update
     const addUpdate = (updateFunc: (changed: number) => void) => {
+      ;(updateFunc as any).initd = true
       update = updateFunc
       this.dlUpdateFunc.add(updateFunc)
     }
     const newNodes = this.propViewFunc(addUpdate)
     if (newNodes.length === 0) return []
     if (update) {
+      console.log(newNodes)
       // ---- Remove the updateNode from dlUpdateNodes when it unmounts
       DLNode.addWillUnmount(
         newNodes[0],
@@ -41,6 +43,10 @@ export class PropView {
    */
   update(changed: number): void {
     this.dlUpdateFunc.forEach(update => {
+      if (update.initd) {
+        delete update.initd
+        return
+      }
       update(changed)
     })
   }

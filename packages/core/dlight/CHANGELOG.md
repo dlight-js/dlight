@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.34
+
+### Patch Changes
+
+- fix: update item for node generator
+
 ## 1.0.0-alpha.33
 
 ### Patch Changes
