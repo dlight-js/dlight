@@ -1,5 +1,13 @@
 # @dlightjs/view-generator
 
+## 1.0.0-alpha.20
+
+### Patch Changes
+
+- fix: aria attributes considered as properties
+- Updated dependencies
+  - @dlightjs/reactivity-parser@1.0.0-alpha.4
+
 ## 1.0.0-alpha.19
 
 ### Patch Changes

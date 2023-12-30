@@ -1,5 +1,11 @@
 # @dlightjs/reactivity-parser
 
+## 1.0.0-alpha.4
+
+### Patch Changes
+
+- fix: aria attributes considered as properties
+
 ## 1.0.0-alpha.3
 
 ### Patch Changes
