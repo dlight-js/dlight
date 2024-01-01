@@ -4,7 +4,8 @@
     "module": "ESNext",
     "lib": ["ESNext", "DOM"],
     "moduleResolution": "Node",
-    "strict": true
+    "strict": true,
+    "esModuleInterop": true
   },
   "ts-node": {
     "esm": true

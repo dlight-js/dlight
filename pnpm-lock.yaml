@@ -115,10 +115,8 @@ importers:
   packages/core/dlight:
     specifiers:
       tsup: ^6.5.0
-      typescript: ^4.5.2
     devDependencies:
-      tsup: 6.7.0_typescript@4.9.5
-      typescript: 4.9.5
+      tsup: 6.7.0
 
   packages/core/transpiler/reactivity-parser:
     specifiers:

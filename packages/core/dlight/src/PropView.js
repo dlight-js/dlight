@@ -1,32 +1,32 @@
-import { DLNode, type AnyDLNode } from "./DLNode"
+import { DLNode } from "./DLNode"
 
 export class PropView {
   propViewFunc
-  dlUpdateFunc = new Set<AnyDLNode>()
+  dlUpdateFunc = new Set()
 
   /**
    * @brief PropView constructor, accept a function that returns a list of DLNode
-   * @param propViewFunc
+   * @param propViewFunc - A function that when called, collects and returns an array of DLNode instances
    */
-  constructor(propViewFunc: (collector: any) => AnyDLNode[]) {
+  constructor(propViewFunc) {
     this.propViewFunc = propViewFunc
   }
 
   /**
    * @brief Build the prop view by calling the propViewFunc and add every single instance of the returned DLNode to dlUpdateNodes
-   * @returns the list of DLNode returned by propViewFunc
+   * @returns An array of DLNode instances returned by propViewFunc
    */
-  build(): AnyDLNode[] {
+  build() {
     let update
-    const addUpdate = (updateFunc: (changed: number) => void) => {
-      ;(updateFunc as any).initd = true
+    const addUpdate = updateFunc => {
+      updateFunc.initd = true
       update = updateFunc
       this.dlUpdateFunc.add(updateFunc)
     }
     const newNodes = this.propViewFunc(addUpdate)
     if (newNodes.length === 0) return []
     if (update) {
-      // ---- Remove the updateNode from dlUpdateNodes when it unmounts
+      // Remove the updateNode from dlUpdateNodes when it unmounts
       DLNode.addWillUnmount(
         newNodes[0],
         this.dlUpdateFunc.delete.bind(this.dlUpdateFunc, update)
@@ -38,9 +38,9 @@ export class PropView {
 
   /**
    * @brief Update every node in dlUpdateNodes
-   * @param changed
+   * @param changed - A parameter indicating what changed to trigger the update
    */
-  update(changed: number): void {
+  update(changed) {
     this.dlUpdateFunc.forEach(update => {
       if (update.initd) {
         delete update.initd

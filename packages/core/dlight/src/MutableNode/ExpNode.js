@@ -1,4 +1,4 @@
-import { type AnyDLNode, DLNodeType } from "../DLNode"
+import { DLNodeType } from "../DLNode"
 import { MutableNode } from "./MutableNode"
 
 export class ExpNode extends MutableNode {
@@ -8,7 +8,7 @@ export class ExpNode extends MutableNode {
    * @brief Constructor, Exp type, accept a function that returns a list of nodes
    * @param nodesFunc
    */
-  constructor(nodesFunc: () => AnyDLNode[]) {
+  constructor(nodesFunc) {
     super(DLNodeType.Exp)
     this.nodesFunc = nodesFunc
     this._$nodes = ExpNode.formatNodes(nodesFunc())
@@ -21,14 +21,14 @@ export class ExpNode extends MutableNode {
     const newNodes = this.geneNewNodesInEnv(() =>
       ExpNode.formatNodes(this.nodesFunc())
     )
-    this.removeNodes(this._$nodes!)
+    this.removeNodes(this._$nodes)
     if (newNodes.length === 0) {
       this._$nodes = []
       return
     }
 
     // ---- Add new nodes
-    const parentEl = (this as AnyDLNode)._$parentEl
+    const parentEl = this._$parentEl
     const flowIndex = MutableNode.getFlowIndexFromNodes(parentEl._$nodes, this)
     const nextSibling = parentEl.childNodes[flowIndex]
     MutableNode.appendNodesWithSibling(newNodes, parentEl, nextSibling)
@@ -41,7 +41,7 @@ export class ExpNode extends MutableNode {
    * @param nodes
    * @returns New nodes
    */
-  private static formatNodes(nodes: AnyDLNode | AnyDLNode[]): AnyDLNode[] {
+  static formatNodes(nodes) {
     if (!Array.isArray(nodes)) nodes = [nodes]
     return (
       nodes
@@ -49,10 +49,10 @@ export class ExpNode extends MutableNode {
         .flat(1)
         // ---- Filter out empty nodes
         .filter(
-          (node: AnyDLNode) =>
+          node =>
             node !== undefined && node !== null && typeof node !== "boolean"
         )
-        .map((node: any) => {
+        .map(node => {
           // ---- If the node is a string, number or bigint, convert it to a text node
           if (
             typeof node === "string" ||

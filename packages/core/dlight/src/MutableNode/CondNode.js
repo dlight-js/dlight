@@ -1,21 +1,21 @@
-import { type AnyDLNode, DLNodeType } from "../DLNode"
+import { DLNodeType } from "../DLNode"
 import { MutableNode } from "./MutableNode"
 
 export class CondNode extends MutableNode {
-  condFunc?: (thisCond: CondNode) => AnyDLNode[]
-  cond?: number
+  condFunc
+  cond
   depNum
 
   /**
    * @brief Constructor, If type, accept a function that returns a list of nodes
    * @param caseFunc
    */
-  constructor(depNum: number) {
+  constructor(depNum) {
     super(DLNodeType.Cond)
     this.depNum = depNum
   }
 
-  addCondFunc(condFunc: (thisCond: CondNode) => AnyDLNode[]): void {
+  addCondFunc(condFunc) {
     this.cond = -1
     this.condFunc = condFunc
     this._$nodes = this.condFunc(this)
@@ -24,13 +24,13 @@ export class CondNode extends MutableNode {
   /**
    * @brief Update the nodes in the environment
    */
-  updateCond(): AnyDLNode[] {
-    const newNodes = this.geneNewNodesInEnv(() => this.condFunc!(this))
+  updateCond() {
+    const newNodes = this.geneNewNodesInEnv(() => this.condFunc(this))
     // ---- If the new nodes are the same as the old nodes, we only need to update  children
-    if ((this as AnyDLNode).didntChange) {
-      ;(this as AnyDLNode).didntChange = false
-      ;(this as AnyDLNode).updateFunc?.(this.depNum)
-      return this._$nodes!
+    if (this.didntChange) {
+      this.didntChange = false
+      this.updateFunc?.(this.depNum)
+      return this._$nodes
     }
 
     // ---- Remove old nodes
@@ -38,10 +38,10 @@ export class CondNode extends MutableNode {
     if (newNodes.length === 0) {
       // ---- No branch has been taken
       this._$nodes = []
-      return this._$nodes!
+      return this._$nodes
     }
     // ---- Add new nodes
-    const parentEl = (this as AnyDLNode)._$parentEl
+    const parentEl = this._$parentEl
     // ---- Faster append with nextSibling rather than flowIndex
     const flowIndex = MutableNode.getFlowIndexFromNodes(parentEl._$nodes, this)
 
@@ -49,15 +49,15 @@ export class CondNode extends MutableNode {
     MutableNode.appendNodesWithSibling(newNodes, parentEl, nextSibling)
     this._$nodes = newNodes
 
-    return this._$nodes!
+    return this._$nodes
   }
 
   /**
    * @brief The update function of IfNode's childNodes is stored in the first child node
    * @param changed
    */
-  update(changed: number): void {
+  update(changed) {
     if (changed & this.depNum) return
-    ;(this as AnyDLNode).updateFunc?.(changed)
+    this.updateFunc?.(changed)
   }
 }

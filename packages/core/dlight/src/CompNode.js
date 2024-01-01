@@ -1,5 +1,4 @@
-import { type AnyDLNode, DLNode, DLNodeType } from "./DLNode"
-import { type EnvNode } from "./EnvNode"
+import { DLNode, DLNodeType } from "./DLNode"
 import { forwardHTMLProp } from "./HTMLNode"
 
 export class CompNode extends DLNode {
@@ -28,20 +27,15 @@ export class CompNode extends DLNode {
 
   /**
    * @brief Init function, called explicitly in the subclass's constructor
-   * @param props
-   * @param content
-   * @param children
-   * @param forwardPropsScope
+   * @param props - Object containing properties
+   * @param content - Content to be used
+   * @param children - Child nodes
+   * @param forwardPropsScope - Scope for forwarding properties
    */
-  _$init(
-    props: Record<string, any> | null,
-    content: any | null,
-    children: AnyDLNode[] | null,
-    forwardPropsScope: CompNode | null
-  ): void {
-    ;(this as AnyDLNode)._$notInitd = true
-    // ---- Add props
-    // ---- Forward props first to allow internal props to override forwarded props
+  _$init(props, content, children, forwardPropsScope) {
+    this._$notInitd = true
+
+    // Forward props first to allow internal props to override forwarded props
     if (forwardPropsScope) forwardPropsScope._$addForwardProps(this)
     if (content !== null) this._$setContent(content)
     if (props) {
@@ -49,40 +43,37 @@ export class CompNode extends DLNode {
         this._$setProp(key, value)
       })
     }
-    if (children) (this as AnyDLNode)._$children = children
+    if (children) this._$children = children
 
-    // ---- Add envs
+    // Add envs
     Object.entries(window.DLEnvStore.envs).forEach(
       ([key, [value, envNode]]) => {
-        // ---- Add this node to every envNode's updateNodes
         envNode.addNode(this)
         this._$initEnv(key, value, envNode)
       }
     )
 
-    // ---- Call watchers
+    // Call watchers
     this._$callUpdatesBeforeInit()
-    // ---- init
-    ;(this as AnyDLNode).willMount?.()
-    this._$nodes = (this as AnyDLNode).View?.() ?? []
-    // ---- Call prev update functions
-    ;(this as AnyDLNode).didMount?.()
+    this.willMount?.()
+    this._$nodes = this.View?.() ?? []
+    this.didMount?.()
   }
 
   /**
    * @brief Call updates manually before the node is mounted
    */
-  private _$callUpdatesBeforeInit(): void {
+  _$callUpdatesBeforeInit() {
     const protoProps = Object.getOwnPropertyNames(Object.getPrototypeOf(this))
     const ownProps = Object.getOwnPropertyNames(this)
     const allProps = [...protoProps, ...ownProps]
     allProps.forEach(key => {
-      if (key.startsWith("$w$")) return (this as any)[key.slice(3)]()
+      if (key.startsWith("$w$")) return this[key.slice(3)]()
       if (key.startsWith("$f$")) {
-        ;(this as any)[`$${key.slice(3)}`] = (this as any)[key]
+        this[`$${key.slice(3)}`] = this[key]
       }
     })
-    delete (this as AnyDLNode)._$notInitd
+    delete this._$notInitd
   }
 
   /**
@@ -90,15 +81,14 @@ export class CompNode extends DLNode {
    * @param key
    * @param value
    */
-  private _$setForwardProp(key: string, value: any): void {
-    // ---- If the prop is already defined, don't forward it
+  _$setForwardProp(key, value) {
     if (key in this) {
-      ;(this as AnyDLNode)[key] = value
+      this[key] = value
       return
     }
-    ;(this as AnyDLNode)._$forwardPropsId.push(key)
+    this._$forwardPropsId.push(key)
     const valueKey = `$${key}`
-    ;(this as AnyDLNode)[valueKey] = value
+    this[valueKey] = value
     Object.defineProperty(this, key, {
       get() {
         return this[valueKey]
@@ -106,11 +96,8 @@ export class CompNode extends DLNode {
       set(value) {
         if (this[valueKey] === value) return
         this[valueKey] = value
-        // ---- Don't need to call update function because the prop is not a explicit dependency
-        ;(this as AnyDLNode)._$forwardPropsSet?.forEach((node: AnyDLNode) => {
-          // ---- Directly set the prop if it's a CompNode
+        this._$forwardPropsSet?.forEach(node => {
           if (node._$dlNodeType === DLNodeType.Comp) node._$setProp(key, value)
-          // ---- Different behavior for HTMLNode according to the key
           if (node instanceof HTMLElement) forwardHTMLProp(node, key, value)
         })
       },
@@ -118,35 +105,24 @@ export class CompNode extends DLNode {
   }
 
   /**
-   * @brief Add a node to the set of nodes that are forwarding props to this node and init these props, called
-   *  1. HTMLNode: explicitly in the View function
-   *  2. CompNode: passed in the node's constructor and called in _$init to make sure it's added before the node is mounted
+   * @brief Add a node to the set of nodes that are forwarding props to this node and init these props
    * @param node
    */
-  _$addForwardProps(node: AnyDLNode): void {
-    // ---- Add node to the set of nodes that are forwarding props to this node
-    ;(this as AnyDLNode)._$forwardPropsSet.add(node)
-    // ---- Init these forwarded props
-    ;(this as AnyDLNode)._$forwardPropsId.forEach((key: string) => {
-      const value = (this as AnyDLNode)[key]
-      ;(this as AnyDLNode)._$forwardPropsSet?.forEach((node: AnyDLNode) => {
-        // ---- Directly set the prop if it's a CompNode
+  _$addForwardProps(node) {
+    this._$forwardPropsSet.add(node)
+    this._$forwardPropsId.forEach(key => {
+      const value = this[key]
+      this._$forwardPropsSet?.forEach(node => {
         if (node._$dlNodeType === DLNodeType.Comp) {
-          // ---- Pass down forwardProps
           if ("_$forwardProps" in node) node._$forwardPropsId.push(key)
           node._$setProp(key, value)
         }
-        // ---- Different behavior for HTMLNode according to the key
         if (node instanceof HTMLElement) forwardHTMLProp(node, key, value)
       })
     })
-    // ---- Remove current node from the set of forwarding nodes when it's unmounted
     DLNode.addWillUnmount(
       node,
-      (this as AnyDLNode)._$forwardPropsSet.delete.bind(
-        (this as AnyDLNode)._$forwardPropsSet,
-        node
-      )
+      this._$forwardPropsSet.delete.bind(this._$forwardPropsSet, node)
     )
   }
 
@@ -155,10 +131,10 @@ export class CompNode extends DLNode {
    * @param key
    * @param value
    */
-  _$setProp(key: string, value: any): void {
+  _$setProp(key, value) {
     if ("_$forwardProps" in this) this._$setForwardProp(key, value)
     if (!(`$p$${key}` in this)) return
-    ;(this as AnyDLNode)[key] = value
+    this[key] = value
   }
 
   /**
@@ -167,10 +143,10 @@ export class CompNode extends DLNode {
    * @param value
    * @param envNode
    */
-  private _$initEnv(key: string, value: any, envNode: EnvNode): void {
+  _$initEnv(key, value, envNode) {
     if (!(`$e$${key}` in this)) return
-    ;(this as AnyDLNode)[key] = value
-    ;(this as AnyDLNode)[`$en$${key}`] = envNode
+    this[key] = value
+    this[`$en$${key}`] = envNode
   }
 
   /**
@@ -179,24 +155,22 @@ export class CompNode extends DLNode {
    * @param value
    * @param envNode
    */
-  _$updateEnv(key: string, value: any, envNode: EnvNode): void {
+  _$updateEnv(key, value, envNode) {
     if (!(`$e$${key}` in this)) return
-    // ---- Make sure the envNode is the innermost envNode that contains this env
-    if (envNode !== (this as AnyDLNode)[`$en$${key}`]) return
-    if ((this as AnyDLNode)[key] === value) return
-    ;(this as AnyDLNode)[key] = value
+    if (envNode !== this[`$en$${key}`]) return
+    if (this[key] === value) return
+    this[key] = value
   }
 
   /**
    * @brief Set the content prop, the key is stored in _$contentKey
    * @param value
-   * @returns
    */
-  _$setContent(value: any) {
-    const contentKey = (this as AnyDLNode)._$contentKey
+  _$setContent(value) {
+    const contentKey = this._$contentKey
     if (!contentKey) return
-    if ((this as AnyDLNode)[contentKey] === value) return
-    ;(this as AnyDLNode)[contentKey] = value
+    if (this[contentKey] === value) return
+    this[contentKey] = value
   }
 
   /**
@@ -204,10 +178,10 @@ export class CompNode extends DLNode {
    * @param key
    * @param value
    */
-  _$updateProp(key: string, value: any): void {
+  _$updateProp(key, value) {
     const valueKey = `$${key}`
-    if ((this as AnyDLNode)[valueKey] === value) return
-    ;(this as AnyDLNode)[valueKey] = value
+    if (this[valueKey] === value) return
+    this[valueKey] = value
     this._$updateDerived(key)
     this._$updateView(key)
   }
@@ -216,15 +190,13 @@ export class CompNode extends DLNode {
    * @brief Update properties that depend on this property
    * @param key
    */
-  _$updateDerived(key: string): void {
-    // ---- Call update manually before the node is mounted, not here
+  _$updateDerived(key) {
     if ("_$notInitd" in this) return
-    ;(this as AnyDLNode)[`$s$${key}`]?.forEach((k: string) => {
-      // ---- Not time consuming at all
-      if (`$w$${k}` in (this as AnyDLNode)) {
-        ;(this as AnyDLNode)[k]()
+    this[`$s$${key}`]?.forEach(k => {
+      if (`$w$${k}` in this) {
+        this[k]()
       } else {
-        ;(this as AnyDLNode)[`$${k}`] = (this as AnyDLNode)[`$f$${k}`]
+        this[`$${k}`] = this[`$f$${k}`]
       }
     })
   }
@@ -233,22 +205,22 @@ export class CompNode extends DLNode {
    * @brief Update View related update function
    * @param key
    */
-  _$updateView(key: string): void {
-    const depNum = (this as AnyDLNode)[`$$${key}`]
-    if (!depNum) return // ---- Run update function
-    ;(this as AnyDLNode)._$update?.(depNum)
+  _$updateView(key) {
+    const depNum = this[`$$${key}`]
+    if (!depNum) return
+    this._$update?.(depNum)
   }
 }
 
 // ---- @View -> class Comp extends View
-export const View = CompNode as any
+export const View = CompNode
 
 /**
  * @brief Run all update functions given the key
  * @param dlNode
  * @param key
  */
-export function update(dlNode: AnyDLNode, key: string): void {
+export function update(dlNode, key) {
   dlNode._$updateDerived(key)
   dlNode._$updateView(key)
 }

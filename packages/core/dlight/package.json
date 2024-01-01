@@ -19,22 +19,20 @@
   "module": "dist/index.js",
   "typings": "dist/index.d.ts",
   "scripts": {
-    "build": "tsup --sourcemap"
+    "build": "tsup --sourcemap && cp src/index.d.ts dist/index.d.ts"
   },
   "devDependencies": {
-    "typescript": "^4.5.2",
     "tsup": "^6.5.0"
   },
   "tsup": {
     "entry": [
-      "src/index.ts"
+      "src/index.js"
     ],
     "format": [
       "cjs",
       "esm"
     ],
     "clean": true,
-    "dts": true,
     "minify": true
   }
 }
