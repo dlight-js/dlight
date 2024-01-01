@@ -1,7 +1,7 @@
 /**
  * @brief Shorten document.createTextNode
- * @param value - The string value for the text node
- * @returns Text - The created text node
+ * @param value
+ * @returns Text
  */
 export function createTextNode(value) {
   return document.createTextNode(value)
@@ -9,8 +9,8 @@ export function createTextNode(value) {
 
 /**
  * @brief Update text node and check if the value is changed
- * @param node - The text node to update
- * @param value - The new string value for the text node
+ * @param node
+ * @param value
  */
 export function updateText(node, value) {
   if (node.textContent === value) return

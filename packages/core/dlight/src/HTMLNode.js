@@ -2,8 +2,8 @@ import { DLNode } from "./DLNode"
 
 /**
  * @brief Plainly set style
- * @param el - The HTML element to apply styles to
- * @param value - The CSS style declarations to set
+ * @param el
+ * @param value
  */
 export function setStyle(el, value) {
   Object.assign(el.style, value)
@@ -11,8 +11,8 @@ export function setStyle(el, value) {
 
 /**
  * @brief Plainly set dataset
- * @param el - The HTML element to set the dataset on
- * @param value - The dataset values to set
+ * @param el
+ * @param value
  */
 export function setDataset(el, value) {
   Object.assign(el.dataset, value)
@@ -20,9 +20,9 @@ export function setDataset(el, value) {
 
 /**
  * @brief Set HTML property with checking value equality first
- * @param el - The HTML element to set the property on
- * @param key - The property key
- * @param value - The value to set for the property
+ * @param el
+ * @param key
+ * @param value
  */
 export function setHTMLProp(el, key, value) {
   const prevKey = `$${key}`
@@ -33,8 +33,8 @@ export function setHTMLProp(el, key, value) {
 
 /**
  * @brief Plainly set HTML properties
- * @param el - The HTML element to set properties on
- * @param value - The properties to set
+ * @param el
+ * @param value
  */
 export function setHTMLProps(el, value) {
   Object.entries(value).forEach(([key, value]) => {
@@ -44,9 +44,9 @@ export function setHTMLProps(el, value) {
 
 /**
  * @brief Set HTML attribute with checking value equality first
- * @param el - The HTML element to set the attribute on
- * @param key - The attribute key
- * @param value - The value to set for the attribute
+ * @param el
+ * @param key
+ * @param value
  */
 export function setHTMLAttr(el, key, value) {
   const prevKey = `$${key}`
@@ -57,8 +57,8 @@ export function setHTMLAttr(el, key, value) {
 
 /**
  * @brief Plainly set HTML attributes
- * @param el - The HTML element to set attributes on
- * @param value - The attributes to set
+ * @param el
+ * @param value
  */
 export function setHTMLAttrs(el, value) {
   Object.entries(value).forEach(([key, value]) => {
@@ -68,9 +68,9 @@ export function setHTMLAttrs(el, value) {
 
 /**
  * @brief Set memorized event, store the previous event in el[`$on${key}`], if it exists, remove it first
- * @param el - The HTML element to attach the event to
- * @param key - The event type
- * @param value - The event listener function
+ * @param el
+ * @param key
+ * @param value
  */
 export function setEvent(el, key, value) {
   const prevEvent = el[`$on${key}`]
@@ -81,8 +81,8 @@ export function setEvent(el, key, value) {
 
 /**
  * @brief Create a template function, which returns a function that returns a cloned element
- * @param templateStr - The HTML string to use as a template
- * @returns A function that when called, returns a cloned element from the template
+ * @param templateStr
+ * @returns a function that returns a cloned element
  */
 export function createTemplate(templateStr) {
   const template = document.createElement("template")
@@ -94,8 +94,8 @@ export function createTemplate(templateStr) {
 
 /**
  * @brief Shortcut for document.createElement
- * @param tag - The tag name of the element to create
- * @returns The created HTMLElement
+ * @param tag
+ * @returns HTMLElement
  */
 export function createElement(tag) {
   return document.createElement(tag)
@@ -103,24 +103,27 @@ export function createElement(tag) {
 
 /**
  * @brief Insert any DLNode into an element, set the _$nodes and append the element to the element's children
- * @param el - The parent HTML element
- * @param node - The DLNode to insert
- * @param position - The position at which to insert the node
+ * @param el
+ * @param node
+ * @param position
  */
 export function insertNode(el, node, position) {
+  // ---- Set _$nodes
   if (!el._$nodes) el._$nodes = Array.from(el.childNodes)
   el._$nodes.splice(position, 0, node)
 
+  // ---- Insert nodes' elements
   const flowIdx = DLNode.getFlowIndexFromNodes(el._$nodes, node)
   DLNode.appendNodesWithIndex([node], el, flowIdx)
+  // ---- Set parentEl
   DLNode.addParentEl([node], el)
 }
 
 /**
  * @brief An inclusive assign prop function that accepts any type of prop
- * @param el - The HTML element to assign the property to
- * @param key - The property key
- * @param value - The value to assign
+ * @param el
+ * @param key
+ * @param value
  */
 export function forwardHTMLProp(el, key, value) {
   if (key === "style") {
