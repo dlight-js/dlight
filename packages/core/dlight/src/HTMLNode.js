@@ -1,14 +1,12 @@
-import { DLNode, type AnyDLNode } from "./DLNode"
+import { DLNode } from "./DLNode"
 
 /**
  * @brief Plainly set style
  * @param el
  * @param value
  */
-export function setStyle(el: HTMLElement, value: CSSStyleDeclaration): void {
-  Object.entries(value).forEach(([key, value]) => {
-    el.style[key as any] = value
-  })
+export function setStyle(el, value) {
+  Object.assign(el.style, value)
 }
 
 /**
@@ -16,13 +14,8 @@ export function setStyle(el: HTMLElement, value: CSSStyleDeclaration): void {
  * @param el
  * @param value
  */
-export function setDataset(
-  el: HTMLElement,
-  value: Record<string, string>
-): void {
-  Object.entries(value).forEach(([key, value]) => {
-    el.dataset[key] = value
-  })
+export function setDataset(el, value) {
+  Object.assign(el.dataset, value)
 }
 
 /**
@@ -31,15 +24,11 @@ export function setDataset(
  * @param key
  * @param value
  */
-export function setHTMLProp(
-  el: HTMLElement,
-  key: keyof HTMLElement,
-  value: any
-): void {
+export function setHTMLProp(el, key, value) {
   const prevKey = `$${key}`
-  if (prevKey in el && (el as AnyDLNode)[prevKey] === value) return
-  ;(el as AnyDLNode)[key] = value
-  ;(el as AnyDLNode)[prevKey] = value
+  if (prevKey in el && el[prevKey] === value) return
+  el[key] = value
+  el[prevKey] = value
 }
 
 /**
@@ -47,12 +36,9 @@ export function setHTMLProp(
  * @param el
  * @param value
  */
-export function setHTMLProps(
-  el: HTMLElement,
-  value: Record<string, any>
-): void {
+export function setHTMLProps(el, value) {
   Object.entries(value).forEach(([key, value]) => {
-    setHTMLProp(el, key as any, value)
+    setHTMLProp(el, key, value)
   })
 }
 
@@ -62,11 +48,11 @@ export function setHTMLProps(
  * @param key
  * @param value
  */
-export function setHTMLAttr(el: HTMLElement, key: string, value: any): void {
+export function setHTMLAttr(el, key, value) {
   const prevKey = `$${key}`
-  if (prevKey in el && (el as AnyDLNode)[prevKey] === value) return
+  if (prevKey in el && el[prevKey] === value) return
   el.setAttribute(key, value)
-  ;(el as AnyDLNode)[prevKey] = value
+  el[prevKey] = value
 }
 
 /**
@@ -74,10 +60,7 @@ export function setHTMLAttr(el: HTMLElement, key: string, value: any): void {
  * @param el
  * @param value
  */
-export function setHTMLAttrs(
-  el: HTMLElement,
-  value: Record<string, any>
-): void {
+export function setHTMLAttrs(el, value) {
   Object.entries(value).forEach(([key, value]) => {
     setHTMLAttr(el, key, value)
   })
@@ -89,11 +72,11 @@ export function setHTMLAttrs(
  * @param key
  * @param value
  */
-export function setEvent(el: HTMLElement, key: string, value: any): void {
-  const prevEvent = (el as any)[`$on${key}`]
+export function setEvent(el, key, value) {
+  const prevEvent = el[`$on${key}`]
   if (prevEvent) el.removeEventListener(key, prevEvent)
   el.addEventListener(key, value)
-  ;(el as any)[`$on${key}`] = value
+  el[`$on${key}`] = value
 }
 
 /**
@@ -101,12 +84,12 @@ export function setEvent(el: HTMLElement, key: string, value: any): void {
  * @param templateStr
  * @returns a function that returns a cloned element
  */
-export function createTemplate(templateStr: string): () => HTMLElement {
+export function createTemplate(templateStr) {
   const template = document.createElement("template")
   template.innerHTML = templateStr
 
   const element = template.content.firstChild
-  return () => element!.cloneNode(true) as HTMLElement
+  return () => element.cloneNode(true)
 }
 
 /**
@@ -114,7 +97,7 @@ export function createTemplate(templateStr: string): () => HTMLElement {
  * @param tag
  * @returns HTMLElement
  */
-export function createElement(tag: string): HTMLElement {
+export function createElement(tag) {
   return document.createElement(tag)
 }
 
@@ -124,18 +107,13 @@ export function createElement(tag: string): HTMLElement {
  * @param node
  * @param position
  */
-export function insertNode(
-  el: HTMLElement,
-  node: AnyDLNode,
-  position: number
-): void {
+export function insertNode(el, node, position) {
   // ---- Set _$nodes
-  if (!(el as AnyDLNode)._$nodes)
-    (el as AnyDLNode)._$nodes = Array.from(el.childNodes)
-  ;(el as AnyDLNode)._$nodes.splice(position, 0, node)
+  if (!el._$nodes) el._$nodes = Array.from(el.childNodes)
+  el._$nodes.splice(position, 0, node)
 
   // ---- Insert nodes' elements
-  const flowIdx = DLNode.getFlowIndexFromNodes((el as AnyDLNode)._$nodes, node)
+  const flowIdx = DLNode.getFlowIndexFromNodes(el._$nodes, node)
   DLNode.appendNodesWithIndex([node], el, flowIdx)
   // ---- Set parentEl
   DLNode.addParentEl([node], el)
@@ -147,11 +125,7 @@ export function insertNode(
  * @param key
  * @param value
  */
-export function forwardHTMLProp(
-  el: HTMLElement,
-  key: string,
-  value: any
-): void {
+export function forwardHTMLProp(el, key, value) {
   if (key === "style") {
     setStyle(el, value)
     return

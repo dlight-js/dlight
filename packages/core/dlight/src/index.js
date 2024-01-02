@@ -1,18 +1,17 @@
-import { type AnyDLNode } from "./DLNode"
 import { insertNode } from "./HTMLNode"
 
 export * from "./HTMLNode"
 export * from "./CompNode"
-export * from "./MutableNode/ForNode"
-export * from "./MutableNode/ExpNode"
-export * from "./MutableNode/CondNode"
 export * from "./EnvNode"
 export * from "./TextNode"
 export * from "./PropView"
 export * from "./SubViewNode"
+export * from "./MutableNode/ForNode"
+export * from "./MutableNode/ExpNode"
+export * from "./MutableNode/CondNode"
 
-export function render(idOrEl: string | HTMLElement, DL: AnyDLNode) {
-  let el: HTMLElement = idOrEl as HTMLElement
+export function render(idOrEl, DL) {
+  let el = idOrEl
   if (typeof idOrEl === "string") {
     const elFound = document.getElementById(idOrEl)
     if (elFound) el = elFound
@@ -26,10 +25,10 @@ export function render(idOrEl: string | HTMLElement, DL: AnyDLNode) {
   insertNode(el, dlNode, 0)
 }
 
-export function manual(callback: () => any, _deps?: any[]) {
+export function manual(callback, _deps) {
   return callback()
 }
-export function escape<T>(arg: T): T {
+export function escape(arg) {
   return arg
 }
 

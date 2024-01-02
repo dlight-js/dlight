@@ -1,25 +1,23 @@
-export type AnyDLNode = any
-
-export enum DLNodeType {
-  Comp = 0,
-  For,
-  Cond,
-  Env,
-  Exp,
-  Subview,
+export const DLNodeType = {
+  Comp: 0,
+  For: 1,
+  Cond: 2,
+  Env: 3,
+  Exp: 4,
+  Subview: 5,
 }
 
 export class DLNode {
   /**
    * @brief Node type: HTML, Text, Custom, For, If, Env, Expression
    */
-  _$dlNodeType: DLNodeType
+  _$dlNodeType
 
   /**
    * @brief Constructor
    * @param nodeType
    */
-  constructor(nodeType: DLNodeType) {
+  constructor(nodeType) {
     this._$dlNodeType = nodeType
   }
 
@@ -28,27 +26,27 @@ export class DLNode {
    *  Either one real element for HTMLNode and TextNode
    *  Or an array of DLNode for CustomNode, ForNode, IfNode, EnvNode, ExpNode
    */
-  get _$el(): HTMLElement[] {
-    return DLNode.toEls(this._$nodes!)
+  get _$el() {
+    return DLNode.toEls(this._$nodes)
   }
 
   /**
    * @brief Parent dom element, will be passed to child nodes
    */
-  _$parentEl?: HTMLElement
+  _$parentEl
 
   /**
    * @brief Child DLNodes
    */
-  _$nodes?: AnyDLNode[]
+  _$nodes
 
   /**
    * @brief Loop all child DLNodes to get all the child elements
    * @param nodes
    * @returns HTMLElement[]
    */
-  private static toEls(nodes: DLNode[]): HTMLElement[] {
-    const els: HTMLElement[] = []
+  static toEls(nodes) {
+    const els = []
     this.loopShallowEls(nodes, el => {
       els.push(el)
     })
@@ -61,7 +59,7 @@ export class DLNode {
    * @param nodes
    * @param runFunc
    */
-  static loopDLNodes(nodes: AnyDLNode[], runFunc: (node: AnyDLNode) => void) {
+  static loopDLNodes(nodes, runFunc) {
     nodes.forEach(node => {
       runFunc(node)
       node._$nodes && DLNode.loopDLNodes(node._$nodes, runFunc)
@@ -73,10 +71,7 @@ export class DLNode {
    * @param nodes
    * @param runFunc
    */
-  static loopDLNodesInsideOut(
-    nodes: AnyDLNode[],
-    runFunc: (node: AnyDLNode) => void
-  ) {
+  static loopDLNodesInsideOut(nodes, runFunc) {
     nodes.forEach(node => {
       node._$nodes && DLNode.loopDLNodesInsideOut(node._$nodes, runFunc)
       runFunc(node)
@@ -89,10 +84,7 @@ export class DLNode {
    * @param nodes
    * @param runFunc
    */
-  static loopShallowEls(
-    nodes: AnyDLNode[],
-    runFunc: (node: AnyDLNode) => void
-  ) {
+  static loopShallowEls(nodes, runFunc) {
     nodes.forEach(node => {
       if (!("_$dlNodeType" in node)) return runFunc(node)
       node._$nodes && DLNode.loopShallowEls(node._$nodes, runFunc)
@@ -105,7 +97,7 @@ export class DLNode {
    * @param nodes
    * @param runFunc
    */
-  static loopShallowDLNodes(nodes: any[], runFunc: (node: any) => void): void {
+  static loopShallowDLNodes(nodes, runFunc) {
     nodes.forEach(node => {
       if ("_$dlNodeType" in node) {
         runFunc(node)
@@ -119,7 +111,7 @@ export class DLNode {
    * @param nodes
    * @param parentEl
    */
-  static addParentEl(nodes: AnyDLNode[], parentEl: HTMLElement): void {
+  static addParentEl(nodes, parentEl) {
     this.loopShallowDLNodes(nodes, node => {
       node._$parentEl = parentEl
     })
@@ -132,14 +124,11 @@ export class DLNode {
    * @param stopNode
    * @returns total count of dom elements
    */
-  static getFlowIndexFromNodes(
-    nodes: AnyDLNode[],
-    stopNode?: AnyDLNode
-  ): number {
+  static getFlowIndexFromNodes(nodes, stopNode) {
     let index = 0
     const stack = [...nodes]
     while (stack.length > 0) {
-      const node = stack.shift()!
+      const node = stack.shift()
       if (node === stopNode) break
       if ("_$dlNodeType" in node) {
         node._$nodes && stack.unshift(...node._$nodes)
@@ -159,11 +148,7 @@ export class DLNode {
    * @param nextSibling
    * @returns Added element count
    */
-  static appendNodesWithSibling(
-    nodes: AnyDLNode[],
-    parentEl: HTMLElement,
-    nextSibling: HTMLElement | undefined
-  ): number {
+  static appendNodesWithSibling(nodes, parentEl, nextSibling) {
     if (nextSibling) return this.insertNodesBefore(nodes, parentEl, nextSibling)
     return this.appendNodes(nodes, parentEl)
   }
@@ -178,19 +163,10 @@ export class DLNode {
    * @param length
    * @returns Added element count
    */
-  static appendNodesWithIndex(
-    nodes: AnyDLNode[],
-    parentEl: HTMLElement,
-    index: number,
-    length?: number
-  ): number {
+  static appendNodesWithIndex(nodes, parentEl, index, length) {
     length = length ?? parentEl.childNodes.length
     if (length !== index)
-      return this.insertNodesBefore(
-        nodes,
-        parentEl,
-        parentEl.childNodes[index] as any
-      )
+      return this.insertNodesBefore(nodes, parentEl, parentEl.childNodes[index])
     return this.appendNodes(nodes, parentEl)
   }
 
@@ -201,11 +177,7 @@ export class DLNode {
    * @param nextSibling
    * @returns Added element count
    */
-  static insertNodesBefore(
-    nodes: AnyDLNode[],
-    parentEl: HTMLElement,
-    nextSibling: HTMLElement
-  ): number {
+  static insertNodesBefore(nodes, parentEl, nextSibling) {
     let count = 0
     this.loopShallowEls(nodes, el => {
       parentEl.insertBefore(el, nextSibling)
@@ -220,7 +192,7 @@ export class DLNode {
    * @param parentEl
    * @returns Added element count
    */
-  static appendNodes(nodes: any[], parentEl: HTMLElement): number {
+  static appendNodes(nodes, parentEl) {
     let count = 0
     this.loopShallowEls(nodes, el => {
       parentEl.appendChild(el)
@@ -229,13 +201,13 @@ export class DLNode {
     return count
   }
 
-  private static willUnmountFunc(currFunc: () => void, prevFunc?: () => void) {
+  // ---- Lifecycle ----
+  static willUnmountFunc(currFunc, prevFunc) {
     currFunc()
     prevFunc?.()
   }
 
-  // ---- Lifecycle ----
-  static addWillUnmount(node: AnyDLNode, func: () => void) {
+  static addWillUnmount(node, func) {
     node.willUnmount = this.willUnmountFunc.bind(
       this,
       func,

@@ -1,4 +1,4 @@
-import { type AnyDLNode, DLNode } from "../DLNode"
+import { DLNode } from "../DLNode"
 
 export class MutableNode extends DLNode {
   /**
@@ -8,13 +8,11 @@ export class MutableNode extends DLNode {
    *  3. The old nodes should be removed from the parentEl
    * @param type
    */
-  constructor(type: number) {
+  constructor(type) {
     super(type)
     // ---- Save the current environment nodes, must be a new reference
     if (window.DLEnvStore.currentEnvNodes.length > 0) {
-      ;(this as AnyDLNode).savedEnvNodes = [
-        ...window.DLEnvStore.currentEnvNodes,
-      ]
+      this.savedEnvNodes = [...window.DLEnvStore.currentEnvNodes]
     }
   }
 
@@ -22,9 +20,9 @@ export class MutableNode extends DLNode {
    * @brief Initialize the new nodes, add parentEl to all nodes
    * @param nodes
    */
-  private initNewNodes(nodes: AnyDLNode[]): void {
+  initNewNodes(nodes) {
     // ---- Add parentEl to all nodes
-    DLNode.addParentEl(nodes, (this as AnyDLNode)._$parentEl)
+    DLNode.addParentEl(nodes, this._$parentEl)
   }
 
   /**
@@ -32,8 +30,8 @@ export class MutableNode extends DLNode {
    * @param newNodesFunc
    * @returns
    */
-  geneNewNodesInEnv(newNodesFunc: () => AnyDLNode[]): AnyDLNode[] {
-    if (!(this as AnyDLNode).savedEnvNodes) {
+  geneNewNodesInEnv(newNodesFunc) {
+    if (!this.savedEnvNodes) {
       // ---- No saved environment, just generate new nodes
       const newNodes = newNodesFunc()
       // ---- Only for IfNode's same condition return
@@ -44,7 +42,7 @@ export class MutableNode extends DLNode {
     // ---- Save the current environment nodes
     const currentEnvNodes = window.DLEnvStore.currentEnvNodes
     // ---- Replace the saved environment nodes
-    window.DLEnvStore.replaceEnvNodes((this as AnyDLNode).savedEnvNodes)
+    window.DLEnvStore.replaceEnvNodes(this.savedEnvNodes)
     const newNodes = newNodesFunc()
     // ---- Retrieve the current environment nodes
     window.DLEnvStore.replaceEnvNodes(currentEnvNodes)
@@ -54,7 +52,7 @@ export class MutableNode extends DLNode {
     return newNodes
   }
 
-  removeNodes(nodes: any[]) {
+  removeNodes(nodes) {
     DLNode.loopDLNodes(nodes, node => node.willUnmount?.())
     DLNode.loopShallowEls(nodes, el => {
       this._$parentEl?.removeChild(el)

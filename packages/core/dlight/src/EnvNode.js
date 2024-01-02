@@ -1,29 +1,25 @@
-import { type AnyDLNode, DLNode, DLNodeType } from "./DLNode"
-import { type CompNode } from "./CompNode"
-
-declare global {
-  interface Window {
-    DLEnvStore: EnvStoreClass
-  }
-}
+import { DLNode } from "./DLNode"
 
 class EnvStoreClass {
-  envs: Record<string, [any, AnyDLNode]> = {}
-  currentEnvNodes: EnvNode[] = []
+  constructor() {
+    this.envs = {}
+    this.currentEnvNodes = []
+  }
+
   /**
    * @brief Add a node to the current env and merge envs
-   * @param node
+   * @param node - The node to add
    */
-  addEnvNode(node: AnyDLNode): void {
+  addEnvNode(node) {
     this.currentEnvNodes.push(node)
     this.mergeEnvs()
   }
 
   /**
    * @brief Replace the current env with the given nodes and merge envs
-   * @param nodes
+   * @param nodes - The nodes to replace the current environment with
    */
-  replaceEnvNodes(nodes: AnyDLNode[]): void {
+  replaceEnvNodes(nodes) {
     this.currentEnvNodes = nodes
     this.mergeEnvs()
   }
@@ -31,7 +27,7 @@ class EnvStoreClass {
   /**
    * @brief Remove the last node from the current env and merge envs
    */
-  removeEnvNode(): void {
+  removeEnvNode() {
     this.currentEnvNodes.pop()
     this.mergeEnvs()
   }
@@ -39,43 +35,36 @@ class EnvStoreClass {
   /**
    * @brief Merge all the envs in currentEnvNodes, inner envs override outer envs
    */
-  mergeEnvs(): void {
+  mergeEnvs() {
     this.envs = {}
     this.currentEnvNodes.forEach(envNode => {
-      Object.entries((envNode as AnyDLNode).envs).forEach(([key, value]) => {
+      Object.entries(envNode.envs).forEach(([key, value]) => {
         this.envs[key] = [value, envNode]
       })
     })
   }
 }
 
+// Declare a global variable in the window object
 if (!window.DLEnvStore) window.DLEnvStore = new EnvStoreClass()
 
 export class EnvNode extends DLNode {
-  updateNodes = new Set<CompNode>()
-
-  envs
-  /**
-   * @brief Constructor, Env type, accept a record of envs, add this node to DLEnvStore
-   * @param envs
-   */
-  constructor(envs: Record<string, any>) {
-    super(DLNodeType.Env)
-    // ---- Must set this.envs before calling DLEnvStore.addEnvNode,
-    //      because DLEnvStore.addEnvNode will read this.envs and merge it with DLEnvStore.envs
+  constructor(envs) {
+    super(DLNode.DLNodeType.Env)
     this.envs = envs
+    this.updateNodes = new Set()
+
     window.DLEnvStore.addEnvNode(this)
   }
 
   /**
    * @brief Update a specific env, and update all the comp nodes that depend on this env
-   * @param name
-   * @param value
+   * @param name - The name of the environment variable to update
+   * @param value - The new value of the environment variable
    */
-  updateEnv(name: string, value: any): void {
+  updateEnv(name, value) {
     this.envs[name] = value
     if (window.DLEnvStore.currentEnvNodes.includes(this)) {
-      // ---- Still in this environment, need to merge new envs
       window.DLEnvStore.mergeEnvs()
     }
     this.updateNodes.forEach(node => {
@@ -85,9 +74,9 @@ export class EnvNode extends DLNode {
 
   /**
    * @brief Add a node to this.updateNodes, delete the node from this.updateNodes when it unmounts
-   * @param node
+   * @param node - The node to add
    */
-  addNode(node: AnyDLNode): void {
+  addNode(node) {
     this.updateNodes.add(node)
     DLNode.addWillUnmount(
       node,
@@ -97,9 +86,9 @@ export class EnvNode extends DLNode {
 
   /**
    * @brief Set this._$nodes, and exit the current env
-   * @param nodes
+   * @param nodes - The nodes to set
    */
-  initNodes(nodes: AnyDLNode[]): void {
+  initNodes(nodes) {
     this._$nodes = nodes
     window.DLEnvStore.removeEnvNode()
   }

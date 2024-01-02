@@ -3,7 +3,7 @@
  * @param value
  * @returns Text
  */
-export function createTextNode(value: string): Text {
+export function createTextNode(value) {
   return document.createTextNode(value)
 }
 
@@ -12,7 +12,7 @@ export function createTextNode(value: string): Text {
  * @param node
  * @param value
  */
-export function updateText(node: Text, value: string): void {
+export function updateText(node, value) {
   if (node.textContent === value) return
   node.textContent = value
 }
