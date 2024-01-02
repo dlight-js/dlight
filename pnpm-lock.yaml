@@ -114,9 +114,20 @@ importers:
 
   packages/core/dlight:
     specifiers:
+      '@dlightjs/store': workspace:*
       tsup: ^6.5.0
+    dependencies:
+      '@dlightjs/store': link:../store
     devDependencies:
       tsup: 6.7.0
+
+  packages/core/store:
+    specifiers:
+      tsup: ^6.5.0
+      typescript: ^5.3.2
+    devDependencies:
+      tsup: 6.7.0_typescript@5.3.3
+      typescript: 5.3.3
 
   packages/core/transpiler/reactivity-parser:
     specifiers:

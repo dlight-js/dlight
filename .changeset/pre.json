@@ -18,7 +18,8 @@
     "@dlightjs/transpiler": "1.0.0-alpha.0",
     "@dlightjs/transpiler-standalone": "1.0.0-alpha.0",
     "vite-plugin-dlight": "1.0.0-alpha.0",
-    "vite-plugin-dlight-js": "1.0.0-alpha.0"
+    "vite-plugin-dlight-js": "1.0.0-alpha.0",
+    "@dlightjs/store": "0.0.0"
   },
   "changesets": [
     "afraid-paws-protect",
@@ -62,6 +63,7 @@
     "selfish-rules-rest",
     "silver-clouds-boil",
     "smart-ladybugs-tap",
+    "strong-wombats-promise",
     "swift-seahorses-sit",
     "ten-items-protect",
     "thick-boxes-judge",

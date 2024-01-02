@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.39
+
+### Patch Changes
+
+- feat: move store outside to get single instance
+
 ## 1.0.0-alpha.38
 
 ### Patch Changes
