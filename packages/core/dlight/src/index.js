@@ -10,10 +10,13 @@ export * from "./MutableNode/ForNode"
 export * from "./MutableNode/ExpNode"
 export * from "./MutableNode/CondNode"
 
+import { DLStore } from "./store"
+export { setGlobal, setDocument } from "./store"
+
 export function render(idOrEl, DL) {
   let el = idOrEl
   if (typeof idOrEl === "string") {
-    const elFound = document.getElementById(idOrEl)
+    const elFound = DLStore.document.getElementById(idOrEl)
     if (elFound) el = elFound
     else {
       throw new Error(`DLight: Element with id ${idOrEl} not found`)

@@ -8,7 +8,7 @@ export class ForNode extends MutableNode {
   nodess
   depNum
 
-  updateArr
+  updateArr = []
 
   /**
    * @brief Constructor, For type

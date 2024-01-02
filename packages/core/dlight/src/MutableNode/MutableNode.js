@@ -1,4 +1,5 @@
 import { DLNode } from "../DLNode"
+import { DLStore } from "../store"
 
 export class MutableNode extends DLNode {
   /**
@@ -11,8 +12,8 @@ export class MutableNode extends DLNode {
   constructor(type) {
     super(type)
     // ---- Save the current environment nodes, must be a new reference
-    if (window.DLEnvStore.currentEnvNodes.length > 0) {
-      this.savedEnvNodes = [...window.DLEnvStore.currentEnvNodes]
+    if (DLStore.global.DLEnvStore.currentEnvNodes.length > 0) {
+      this.savedEnvNodes = [...DLStore.global.DLEnvStore.currentEnvNodes]
     }
   }
 
@@ -40,12 +41,12 @@ export class MutableNode extends DLNode {
       return newNodes
     }
     // ---- Save the current environment nodes
-    const currentEnvNodes = window.DLEnvStore.currentEnvNodes
+    const currentEnvNodes = DLStore.global.DLEnvStore.currentEnvNodes
     // ---- Replace the saved environment nodes
-    window.DLEnvStore.replaceEnvNodes(this.savedEnvNodes)
+    DLStore.global.DLEnvStore.replaceEnvNodes(this.savedEnvNodes)
     const newNodes = newNodesFunc()
     // ---- Retrieve the current environment nodes
-    window.DLEnvStore.replaceEnvNodes(currentEnvNodes)
+    DLStore.global.DLEnvStore.replaceEnvNodes(currentEnvNodes)
     // ---- Only for IfNode's same condition return
     // ---- Initialize the new nodes
     this.initNewNodes(newNodes)

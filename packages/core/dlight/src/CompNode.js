@@ -1,5 +1,6 @@
 import { DLNode, DLNodeType } from "./DLNode"
 import { forwardHTMLProp } from "./HTMLNode"
+import { DLStore } from "./store"
 
 export class CompNode extends DLNode {
   /**
@@ -46,7 +47,7 @@ export class CompNode extends DLNode {
     if (children) this._$children = children
 
     // Add envs
-    Object.entries(window.DLEnvStore.envs).forEach(
+    Object.entries(DLStore.global.DLEnvStore.envs).forEach(
       ([key, [value, envNode]]) => {
         envNode.addNode(this)
         this._$initEnv(key, value, envNode)

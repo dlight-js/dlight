@@ -1,4 +1,5 @@
-import { DLNode } from "./DLNode"
+import { DLNode, DLNodeType } from "./DLNode"
+import { DLStore } from "./store"
 
 class EnvStoreClass {
   constructor() {
@@ -45,16 +46,16 @@ class EnvStoreClass {
   }
 }
 
-// Declare a global variable in the window object
-if (!window.DLEnvStore) window.DLEnvStore = new EnvStoreClass()
+// Declare a global variable to store the environment variables
+if (!DLStore.global.DLEnvStore) DLStore.global.DLEnvStore = new EnvStoreClass()
 
 export class EnvNode extends DLNode {
   constructor(envs) {
-    super(DLNode.DLNodeType.Env)
+    super(DLNodeType.Env)
     this.envs = envs
     this.updateNodes = new Set()
 
-    window.DLEnvStore.addEnvNode(this)
+    DLStore.global.DLEnvStore.addEnvNode(this)
   }
 
   /**
@@ -64,8 +65,8 @@ export class EnvNode extends DLNode {
    */
   updateEnv(name, value) {
     this.envs[name] = value
-    if (window.DLEnvStore.currentEnvNodes.includes(this)) {
-      window.DLEnvStore.mergeEnvs()
+    if (DLStore.global.DLEnvStore.currentEnvNodes.includes(this)) {
+      DLStore.global.DLEnvStore.mergeEnvs()
     }
     this.updateNodes.forEach(node => {
       node._$updateEnv(name, value, this)
@@ -90,6 +91,6 @@ export class EnvNode extends DLNode {
    */
   initNodes(nodes) {
     this._$nodes = nodes
-    window.DLEnvStore.removeEnvNode()
+    DLStore.global.DLEnvStore.removeEnvNode()
   }
 }

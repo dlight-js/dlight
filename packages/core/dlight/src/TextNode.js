@@ -1,10 +1,12 @@
+import { DLStore } from "./store"
+
 /**
  * @brief Shorten document.createTextNode
  * @param value
  * @returns Text
  */
 export function createTextNode(value) {
-  return document.createTextNode(value)
+  return DLStore.document.createTextNode(value)
 }
 
 /**

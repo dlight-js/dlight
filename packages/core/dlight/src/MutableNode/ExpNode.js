@@ -1,5 +1,6 @@
 import { DLNodeType } from "../DLNode"
 import { MutableNode } from "./MutableNode"
+import { DLStore } from "../store"
 
 export class ExpNode extends MutableNode {
   nodesFunc
@@ -59,7 +60,7 @@ export class ExpNode extends MutableNode {
             typeof node === "number" ||
             typeof node === "bigint"
           ) {
-            return document.createTextNode(`${node}`)
+            return DLStore.document.createTextNode(`${node}`)
           }
           // ---- If the node has PropView, call it to get the view
           if ("propViewFunc" in node) return node.build()

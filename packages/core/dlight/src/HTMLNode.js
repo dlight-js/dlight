@@ -1,4 +1,5 @@
 import { DLNode } from "./DLNode"
+import { DLStore } from "./store"
 
 /**
  * @brief Plainly set style
@@ -85,7 +86,7 @@ export function setEvent(el, key, value) {
  * @returns a function that returns a cloned element
  */
 export function createTemplate(templateStr) {
-  const template = document.createElement("template")
+  const template = DLStore.document.createElement("template")
   template.innerHTML = templateStr
 
   const element = template.content.firstChild
@@ -98,7 +99,7 @@ export function createTemplate(templateStr) {
  * @returns HTMLElement
  */
 export function createElement(tag) {
-  return document.createElement(tag)
+  return DLStore.document.createElement(tag)
 }
 
 /**
