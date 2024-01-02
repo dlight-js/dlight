@@ -12,7 +12,10 @@ export class MutableNode extends DLNode {
   constructor(type) {
     super(type)
     // ---- Save the current environment nodes, must be a new reference
-    if (DLStore.global.DLEnvStore.currentEnvNodes.length > 0) {
+    if (
+      DLStore.global.DLEnvStore &&
+      DLStore.global.DLEnvStore.currentEnvNodes.length > 0
+    ) {
       this.savedEnvNodes = [...DLStore.global.DLEnvStore.currentEnvNodes]
     }
   }

@@ -46,12 +46,13 @@ class EnvStoreClass {
   }
 }
 
-// Declare a global variable to store the environment variables
-if (!DLStore.global.DLEnvStore) DLStore.global.DLEnvStore = new EnvStoreClass()
-
 export class EnvNode extends DLNode {
   constructor(envs) {
     super(DLNodeType.Env)
+    // Declare a global variable to store the environment variables
+    if (!DLStore.global.DLEnvStore)
+      DLStore.global.DLEnvStore = new EnvStoreClass()
+
     this.envs = envs
     this.updateNodes = new Set()
 

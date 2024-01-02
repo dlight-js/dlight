@@ -47,12 +47,13 @@ export class CompNode extends DLNode {
     if (children) this._$children = children
 
     // Add envs
-    Object.entries(DLStore.global.DLEnvStore.envs).forEach(
-      ([key, [value, envNode]]) => {
-        envNode.addNode(this)
-        this._$initEnv(key, value, envNode)
-      }
-    )
+    DLStore.global.DLEnvStore &&
+      Object.entries(DLStore.global.DLEnvStore.envs).forEach(
+        ([key, [value, envNode]]) => {
+          envNode.addNode(this)
+          this._$initEnv(key, value, envNode)
+        }
+      )
 
     // Call watchers
     this._$callUpdatesBeforeInit()

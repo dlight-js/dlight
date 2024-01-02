@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.38
+
+### Patch Changes
+
+- refactor: delay init envstore
+
 ## 1.0.0-alpha.37
 
 ### Patch Changes

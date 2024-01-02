@@ -1,4 +1,4 @@
-import { View } from "@dlightjs/dlight"
+import { View, setGlobal } from "@dlightjs/dlight"
 import {
   type Typed,
   type Pretty,
@@ -9,6 +9,7 @@ import {
   required,
 } from "@dlightjs/types"
 
+setGlobal(window)
 interface SubProp {
   name?: string
   onClick: () => void
