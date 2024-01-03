@@ -1,5 +1,15 @@
 # babel-preset-dlight
 
+## 1.0.0-alpha.23
+
+### Patch Changes
+
+- refactor: add attrmap plugin support
+- Updated dependencies
+  - @dlightjs/view-generator@1.0.0-alpha.21
+  - @dlightjs/view-parser@1.0.0-alpha.2
+  - @dlightjs/reactivity-parser@1.0.0-alpha.5
+
 ## 1.0.0-alpha.22
 
 ### Patch Changes

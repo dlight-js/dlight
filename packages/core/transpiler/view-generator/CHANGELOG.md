@@ -1,5 +1,12 @@
 # @dlightjs/view-generator
 
+## 1.0.0-alpha.21
+
+### Patch Changes
+
+- refactor: add attrmap plugin support
+  - @dlightjs/reactivity-parser@1.0.0-alpha.5
+
 ## 1.0.0-alpha.20
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@dlightjs/dlight",
-  "version": "1.0.0-alpha.39",
+  "version": "1.0.0-alpha.40",
   "description": "DX-first UI rendering library",
   "author": {
     "name": "IanDx",
@@ -16,7 +16,7 @@
   ],
   "type": "module",
   "main": "dist/index.cjs",
-  "module": "src/index.js",
+  "module": "dist/index.ts",
   "typings": "dist/index.d.ts",
   "scripts": {
     "build": "tsup --sourcemap && cp src/index.d.ts dist/index.d.ts"
