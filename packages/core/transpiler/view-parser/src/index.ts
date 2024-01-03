@@ -1,9 +1,5 @@
 import { ViewParser } from "./parser"
-import {
-  type ViewUnit,
-  type ViewParserConfig,
-  type ViewParserOption,
-} from "./types"
+import { type ViewUnit, type ViewParserConfig } from "./types"
 import { type types as t } from "@babel/core"
 
 /**
@@ -15,10 +11,9 @@ import { type types as t } from "@babel/core"
  */
 export function parseView(
   statement: t.BlockStatement,
-  config: ViewParserConfig,
-  options?: ViewParserOption
+  config: ViewParserConfig
 ): ViewUnit[] {
-  return new ViewParser(config, options).parse(statement)
+  return new ViewParser(config).parse(statement)
 }
 
 export type * from "./types"

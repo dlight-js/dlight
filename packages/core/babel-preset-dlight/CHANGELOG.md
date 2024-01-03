@@ -1,5 +1,15 @@
 # babel-preset-dlight
 
+## 1.0.0-alpha.24
+
+### Patch Changes
+
+- feat: add willParseTemplate support
+- Updated dependencies
+  - @dlightjs/reactivity-parser@1.0.0-alpha.6
+  - @dlightjs/view-generator@1.0.0-alpha.22
+  - @dlightjs/view-parser@1.0.0-alpha.3
+
 ## 1.0.0-alpha.23
 
 ### Patch Changes

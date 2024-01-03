@@ -117,4 +117,5 @@ export interface ReactivityParserConfig {
   dependencyMap: Record<string, string[]>
   identifierDepMap?: Record<string, string[]>
   dependencyParseType?: "property" | "identifier"
+  parseTemplate?: boolean
 }

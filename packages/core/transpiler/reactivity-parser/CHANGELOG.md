@@ -1,5 +1,13 @@
 # @dlightjs/reactivity-parser
 
+## 1.0.0-alpha.6
+
+### Patch Changes
+
+- feat: add willParseTemplate support
+- Updated dependencies
+  - @dlightjs/view-parser@1.0.0-alpha.3
+
 ## 1.0.0-alpha.5
 
 ### Patch Changes

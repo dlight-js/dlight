@@ -362,7 +362,7 @@ export default class HTMLPropGenerator extends ForwardPropGenerator {
    */
   isInternalAttribute(tag: string, attribute: string): boolean {
     return (
-      this.elementAttributeMap["*"].includes(attribute) ||
+      this.elementAttributeMap["*"]?.includes(attribute) ||
       this.elementAttributeMap[tag]?.includes(attribute)
     )
   }

@@ -41,6 +41,7 @@ export class ReactivityParser {
   private readonly identifierDepMap: Record<string, string[]>
   private readonly dependencyParseType
   private readonly alteredAttrMap
+  private readonly willParseTemplate
 
   private readonly escapeNamings = ["escape", "$"]
   private readonly customHTMLProps = [
@@ -71,6 +72,7 @@ export class ReactivityParser {
     this.identifierDepMap = config.identifierDepMap ?? {}
     this.dependencyParseType = config.dependencyParseType ?? "property"
     this.alteredAttrMap = config.alteredAttrMap ?? {}
+    this.willParseTemplate = config.parseTemplate ?? true
   }
 
   /**
@@ -731,6 +733,7 @@ export class ReactivityParser {
    */
   private isHTMLTemplate(viewUnit: ViewUnit): boolean {
     return (
+      this.willParseTemplate &&
       viewUnit.type === "html" &&
       this.t.isStringLiteral(viewUnit.tag) &&
       !!viewUnit.children?.some(
@@ -1035,6 +1038,6 @@ export class ReactivityParser {
    * @returns HTML attribute name
    */
   recoverHTMLAttrName(name: string): string {
-    return this.alteredAttrMap[name as keyof typeof this.alteredAttrMap] || name
+    return this.alteredAttrMap[name as keyof typeof this.alteredAttrMap] ?? name
   }
 }

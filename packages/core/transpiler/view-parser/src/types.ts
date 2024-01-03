@@ -92,10 +92,3 @@ export interface ViewParserConfig {
   subviewNames: string[]
   htmlTags: string[]
 }
-
-export interface ViewParserOption {
-  compWrapper?: string
-  htmlTagWrapper?: string
-  environmentTagName?: string
-  expressionTagName?: string
-}

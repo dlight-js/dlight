@@ -30,6 +30,7 @@ export class PluginProvider {
   private readonly htmlTags: string[]
   private readonly attributeMap: Record<string, string[]>
   private readonly alteredAttrMap: Record<string, string>
+  private readonly parseTemplate: boolean
 
   constructor(
     babelApi: typeof babel,
@@ -39,7 +40,8 @@ export class PluginProvider {
     enableDevTools: boolean,
     htmlTags: HTMLTags,
     attributeMap: Record<string, string[]>,
-    alteredAttrMap: Record<string, string>
+    alteredAttrMap: Record<string, string>,
+    parseTemplate: boolean
   ) {
     this.babelApi = babelApi
     this.t = types
@@ -57,6 +59,7 @@ export class PluginProvider {
           : htmlTags
     this.attributeMap = attributeMap
     this.alteredAttrMap = alteredAttrMap
+    this.parseTemplate = parseTemplate
   }
 
   // ---- DLight class Level
@@ -665,6 +668,7 @@ export class PluginProvider {
       availableProperties: this.availableProperties,
       dependencyMap: this.dependencyMap,
       alteredAttrMap: this.alteredAttrMap,
+      parseTemplate: this.parseTemplate,
     })
 
     const [body, classProperties, templateIdx] = generateView(viewParticles, {

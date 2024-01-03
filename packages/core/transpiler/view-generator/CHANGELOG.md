@@ -1,5 +1,13 @@
 # @dlightjs/view-generator
 
+## 1.0.0-alpha.22
+
+### Patch Changes
+
+- feat: add willParseTemplate support
+- Updated dependencies
+  - @dlightjs/reactivity-parser@1.0.0-alpha.6
+
 ## 1.0.0-alpha.21
 
 ### Patch Changes

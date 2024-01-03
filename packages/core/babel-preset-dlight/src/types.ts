@@ -36,6 +36,10 @@ export interface DLightOption {
    * e.g. { acceptCharset: "accept-charset" }
    */
   alteredAttrMap?: Record<string, string>
+  /**
+   * Will parse nested html blocks as templates
+   */
+  parseTemplate?: boolean
 }
 
 export type PropertyContainer = Record<

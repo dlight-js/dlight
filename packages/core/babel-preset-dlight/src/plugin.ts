@@ -13,6 +13,7 @@ export default function (api: typeof babel, options: DLightOption): PluginObj {
     htmlTags = defaultHtmlTags => defaultHtmlTags,
     alteredAttrMap = defaultAlteredAttrMap,
     attributeMap = defaultAttributeMap,
+    parseTemplate = true,
   } = options
 
   const pluginProvider = new PluginProviderClass(
@@ -23,7 +24,8 @@ export default function (api: typeof babel, options: DLightOption): PluginObj {
     enableDevTools,
     htmlTags,
     attributeMap,
-    alteredAttrMap
+    alteredAttrMap,
+    parseTemplate
   )
 
   return {

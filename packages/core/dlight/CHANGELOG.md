@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.41
+
+### Patch Changes
+
+- feat: add willParseTemplate support
+
 ## 1.0.0-alpha.40
 
 ### Patch Changes

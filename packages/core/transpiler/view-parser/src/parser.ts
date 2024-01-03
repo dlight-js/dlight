@@ -4,7 +4,6 @@ import {
   type IfBranch,
   type ViewUnit,
   type ViewParserConfig,
-  type ViewParserOption,
   SwitchBranch,
 } from "./types"
 import { DLError } from "./error"
@@ -16,7 +15,6 @@ export class ViewParser {
   private readonly expressionTagName: string = "_"
 
   private readonly config: ViewParserConfig
-  private readonly options?: ViewParserOption
 
   private readonly t: typeof t
   private readonly traverse: typeof tr
@@ -31,19 +29,12 @@ export class ViewParser {
    * @param config
    * @param options
    */
-  constructor(config: ViewParserConfig, options?: ViewParserOption) {
+  constructor(config: ViewParserConfig) {
     this.config = config
-    this.options = options
     this.t = config.babelApi.types
     this.traverse = config.babelApi.traverse
     this.subviewNames = config.subviewNames
     this.htmlTags = config.htmlTags
-    options?.environmentTagName &&
-      (this.environmentTagName = options.environmentTagName)
-    options?.expressionTagName &&
-      (this.expressionTagName = options.expressionTagName)
-    options?.htmlTagWrapper && (this.htmlTagWrapper = options.htmlTagWrapper)
-    options?.compWrapper && (this.compWrapper = options.compWrapper)
   }
 
   parse(statement: t.BlockStatement) {
@@ -588,7 +579,7 @@ export class ViewParser {
    * @returns ViewUnit[]
    */
   private parseView(statement: t.BlockStatement): ViewUnit[] {
-    return new ViewParser(this.config, this.options).parse(statement)
+    return new ViewParser(this.config).parse(statement)
   }
 
   /**
