@@ -26,6 +26,16 @@ export interface DLightOption {
    * @default defaultHtmlTags => defaultHtmlTags
    */
   htmlTags?: HTMLTags
+  /**
+   * Allowed HTML tags from attributes
+   * e.g. { alt: ["area", "img", "input"] }
+   */
+  attributeMap?: Record<string, string[]>
+  /**
+   * HTML attribute name map, from CamelCase to kebab-case
+   * e.g. { acceptCharset: "accept-charset" }
+   */
+  alteredAttrMap?: Record<string, string>
 }
 
 export type PropertyContainer = Record<

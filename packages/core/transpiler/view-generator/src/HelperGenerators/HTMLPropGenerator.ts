@@ -1,6 +1,5 @@
 import { type types as t } from "@babel/core"
 import { DLError } from "../error"
-import { isInternalAttribute } from "../attr"
 import ForwardPropGenerator from "./ForwardPropGenerator"
 
 export default class HTMLPropGenerator extends ForwardPropGenerator {
@@ -317,7 +316,7 @@ export default class HTMLPropGenerator extends ForwardPropGenerator {
       const eventName = attrName.slice(2).toLowerCase()
       return this.setHTMLEvent(dlNodeName, eventName, value)
     }
-    if (isInternalAttribute(tag, attrName)) {
+    if (this.isInternalAttribute(tag, attrName)) {
       if (attrName === "class") attrName = "className"
       else if (attrName === "for") attrName = "htmlFor"
       return this.setHTMLProp(dlNodeName, attrName, value)
@@ -347,11 +346,24 @@ export default class HTMLPropGenerator extends ForwardPropGenerator {
       const eventName = attrName.slice(2).toLowerCase()
       return this.setEvent(dlNodeName, eventName, value, check)
     }
-    if (isInternalAttribute(tag, attrName)) {
+    if (this.isInternalAttribute(tag, attrName)) {
       if (attrName === "class") attrName = "className"
       else if (attrName === "for") attrName = "htmlFor"
       return this.setCachedProp(dlNodeName, attrName, value, check)
     }
     return this.setCachedAttr(dlNodeName, attrName, value, check)
+  }
+
+  /**
+   * @brief Check if the attribute is internal, i.e., can be accessed as js property
+   * @param tag
+   * @param attribute
+   * @returns true if the attribute is internal
+   */
+  isInternalAttribute(tag: string, attribute: string): boolean {
+    return (
+      this.elementAttributeMap["*"].includes(attribute) ||
+      this.elementAttributeMap[tag]?.includes(attribute)
+    )
   }
 }

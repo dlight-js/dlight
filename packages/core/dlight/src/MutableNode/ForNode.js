@@ -38,6 +38,7 @@ export class ForNode extends MutableNode {
   update(changed) {
     if (changed & this.depNum) return
     for (let idx = 0; idx < this.array.length; idx++) {
+      console.log(this.updateArr[idx])
       this.updateItem(idx, changed)
     }
   }
@@ -68,9 +69,9 @@ export class ForNode extends MutableNode {
   /**
    * @brief Shortcut to generate new nodes with idx
    */
-  getNewNodes(idx) {
+  getNewNodes(idx, updateArr) {
     return this.geneNewNodesInEnv(() =>
-      this.nodeFunc(this.array[idx], this.updateArr, idx)
+      this.nodeFunc(this.array[idx], updateArr ?? this.updateArr, idx)
     )
   }
 
@@ -215,7 +216,7 @@ export class ForNode extends MutableNode {
       }
       // ---- Insert updateArr first because in getNewNode the updateFunc will replace this null
       newUpdateArr.splice(idx, 0, null)
-      const newNodes = this.getNewNodes(idx)
+      const newNodes = this.getNewNodes(idx, newUpdateArr)
       const count = MutableNode.appendNodesWithIndex(
         newNodes,
         parentEl,

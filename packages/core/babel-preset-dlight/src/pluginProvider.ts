@@ -9,241 +9,16 @@ import { minimatch } from "minimatch"
 import { parseView } from "@dlightjs/view-parser"
 import { parseReactivity } from "@dlightjs/reactivity-parser"
 import { generateSubView, generateView } from "@dlightjs/view-generator"
-
-const devMode = process.env.NODE_ENV === "development"
+import {
+  availableDecoNames,
+  defaultHTMLTags,
+  devMode,
+  dlightDefaultPackageName,
+  importMap,
+} from "./const"
 
 export class PluginProvider {
-  // ---- Const Level
-  static defaultHTMLTags = [
-    "a",
-    "abbr",
-    "address",
-    "area",
-    "article",
-    "aside",
-    "audio",
-    "b",
-    "base",
-    "bdi",
-    "bdo",
-    "blockquote",
-    "body",
-    "br",
-    "button",
-    "canvas",
-    "caption",
-    "cite",
-    "code",
-    "col",
-    "colgroup",
-    "data",
-    "datalist",
-    "dd",
-    "del",
-    "details",
-    "dfn",
-    "dialog",
-    "div",
-    "dl",
-    "dt",
-    "em",
-    "embed",
-    "fieldset",
-    "figcaption",
-    "figure",
-    "footer",
-    "form",
-    "h1",
-    "h2",
-    "h3",
-    "h4",
-    "h5",
-    "h6",
-    "head",
-    "header",
-    "hgroup",
-    "hr",
-    "html",
-    "i",
-    "iframe",
-    "img",
-    "input",
-    "ins",
-    "kbd",
-    "label",
-    "legend",
-    "li",
-    "link",
-    "main",
-    "map",
-    "mark",
-    "menu",
-    "meta",
-    "meter",
-    "nav",
-    "noscript",
-    "object",
-    "ol",
-    "optgroup",
-    "option",
-    "output",
-    "p",
-    "picture",
-    "pre",
-    "progress",
-    "q",
-    "rp",
-    "rt",
-    "ruby",
-    "s",
-    "samp",
-    "script",
-    "section",
-    "select",
-    "slot",
-    "small",
-    "source",
-    "span",
-    "strong",
-    "style",
-    "sub",
-    "summary",
-    "sup",
-    "table",
-    "tbody",
-    "td",
-    "template",
-    "textarea",
-    "tfoot",
-    "th",
-    "thead",
-    "time",
-    "title",
-    "tr",
-    "track",
-    "u",
-    "ul",
-    "var",
-    "video",
-    "wbr",
-    "acronym",
-    "applet",
-    "basefont",
-    "bgsound",
-    "big",
-    "blink",
-    "center",
-    "dir",
-    "font",
-    "frame",
-    "frameset",
-    "isindex",
-    "keygen",
-    "listing",
-    "marquee",
-    "menuitem",
-    "multicol",
-    "nextid",
-    "nobr",
-    "noembed",
-    "noframes",
-    "param",
-    "plaintext",
-    "rb",
-    "rtc",
-    "spacer",
-    "strike",
-    "tt",
-    "xmp",
-    "animate",
-    "animateMotion",
-    "animateTransform",
-    "circle",
-    "clipPath",
-    "defs",
-    "desc",
-    "ellipse",
-    "feBlend",
-    "feColorMatrix",
-    "feComponentTransfer",
-    "feComposite",
-    "feConvolveMatrix",
-    "feDiffuseLighting",
-    "feDisplacementMap",
-    "feDistantLight",
-    "feDropShadow",
-    "feFlood",
-    "feFuncA",
-    "feFuncB",
-    "feFuncG",
-    "feFuncR",
-    "feGaussianBlur",
-    "feImage",
-    "feMerge",
-    "feMergeNode",
-    "feMorphology",
-    "feOffset",
-    "fePointLight",
-    "feSpecularLighting",
-    "feSpotLight",
-    "feTile",
-    "feTurbulence",
-    "filter",
-    "foreignObject",
-    "g",
-    "image",
-    "line",
-    "linearGradient",
-    "marker",
-    "mask",
-    "metadata",
-    "mpath",
-    "path",
-    "pattern",
-    "polygon",
-    "polyline",
-    "radialGradient",
-    "rect",
-    "set",
-    "stop",
-    "svg",
-    "switch",
-    "symbol",
-    "text",
-    "textPath",
-    "tspan",
-    "use",
-    "view",
-  ]
-
-  static availableDecoNames = ["Static", "Prop", "Env", "Content", "Children"]
-  static dlightDefaultPackageName = "@dlightjs/dlight"
-  static importMap = Object.fromEntries(
-    [
-      "createTemplate",
-      "setStyle",
-      "setDataset",
-      "setEvent",
-      "setHTMLProp",
-      "setHTMLAttr",
-      "setHTMLProps",
-      "setHTMLAttrs",
-      "insertNode",
-      "createElement",
-      "ForNode",
-      "CondNode",
-      "EnvNode",
-      "createTextNode",
-      "updateText",
-      "ExpNode",
-      "PropView",
-      "SubViewNode",
-    ].map((funcName, idx) =>
-      devMode ? [funcName, funcName] : [funcName, `$${idx}$`]
-    )
-  )
-
-  private readonly dlightPackageName = PluginProvider.dlightDefaultPackageName
+  private readonly dlightPackageName = dlightDefaultPackageName
 
   // ---- Plugin Level
   private readonly babelApi: typeof babel
@@ -253,6 +28,8 @@ export class PluginProvider {
   private readonly includes: string[]
   private readonly excludes: string[]
   private readonly htmlTags: string[]
+  private readonly attributeMap: Record<string, string[]>
+  private readonly alteredAttrMap: Record<string, string>
 
   constructor(
     babelApi: typeof babel,
@@ -260,7 +37,9 @@ export class PluginProvider {
     includes: string[],
     excludes: string[],
     enableDevTools: boolean,
-    htmlTags: HTMLTags
+    htmlTags: HTMLTags,
+    attributeMap: Record<string, string[]>,
+    alteredAttrMap: Record<string, string>
   ) {
     this.babelApi = babelApi
     this.t = types
@@ -270,12 +49,14 @@ export class PluginProvider {
     this.enableDevTools = devMode && enableDevTools
     this.htmlTags =
       typeof htmlTags === "function"
-        ? htmlTags(PluginProvider.defaultHTMLTags)
+        ? htmlTags(defaultHTMLTags)
         : htmlTags.includes("*")
-          ? [
-              ...new Set([...PluginProvider.defaultHTMLTags, ...htmlTags]),
-            ].filter(tag => tag !== "*")
+          ? [...new Set([...defaultHTMLTags, ...htmlTags])].filter(
+              tag => tag !== "*"
+            )
           : htmlTags
+    this.attributeMap = attributeMap
+    this.alteredAttrMap = alteredAttrMap
   }
 
   // ---- DLight class Level
@@ -348,10 +129,10 @@ export class PluginProvider {
     if (!this.didAlterImports) {
       // ---- Get DLight imports
       const dlightImports = this.allImports.filter(
-        n => n.source.value === PluginProvider.dlightDefaultPackageName
+        n => n.source.value === dlightDefaultPackageName
       )
       // ---- Alter import name, e.g. "@dlight/dlight-client"
-      if (this.dlightPackageName !== PluginProvider.dlightDefaultPackageName) {
+      if (this.dlightPackageName !== dlightDefaultPackageName) {
         dlightImports.forEach(i => {
           i.source.value = this.dlightPackageName
         })
@@ -360,7 +141,7 @@ export class PluginProvider {
       // ---- Add nodes import to the head of file
       this.programNode!.body.unshift(
         this.t.importDeclaration(
-          Object.entries(PluginProvider.importMap).map(([key, value]) =>
+          Object.entries(importMap).map(([key, value]) =>
             this.t.importSpecifier(
               this.t.identifier(value),
               this.t.identifier(key)
@@ -385,7 +166,7 @@ export class PluginProvider {
       this.t.isImportDeclaration(n)
     ) as t.ImportDeclaration[]
     const dlightImports = this.allImports.filter(
-      n => n.source.value === PluginProvider.dlightDefaultPackageName
+      n => n.source.value === dlightDefaultPackageName
     )
     if (dlightImports.length === 0) {
       this.enter = false
@@ -514,10 +295,7 @@ export class PluginProvider {
       isPropOrEnv: isProp ? "Prop" : isEnv ? "Env" : undefined,
     }
 
-    node.decorators = this.removeDecorators(
-      decorators,
-      PluginProvider.availableDecoNames
-    )
+    node.decorators = this.removeDecorators(decorators, availableDecoNames)
     this.visitClassProperty(path)
   }
 
@@ -886,12 +664,13 @@ export class PluginProvider {
       babelApi: this.babelApi,
       availableProperties: this.availableProperties,
       dependencyMap: this.dependencyMap,
+      alteredAttrMap: this.alteredAttrMap,
     })
 
     const [body, classProperties, templateIdx] = generateView(viewParticles, {
       babelApi: this.babelApi,
       className: this.className!,
-      importMap: PluginProvider.importMap,
+      importMap,
       subViewPropMap: Object.fromEntries(
         Object.entries(subViewPropSubDepMap).map(([key, props]) => [
           key,
@@ -899,6 +678,7 @@ export class PluginProvider {
         ])
       ),
       templateIdx: -1,
+      attributeMap: this.attributeMap,
     })
     viewNode.body = body
     this.classBodyNode?.body.push(...classProperties)
@@ -935,6 +715,7 @@ export class PluginProvider {
         babelApi: this.babelApi,
         availableProperties: this.availableProperties,
         dependencyMap: this.dependencyMap,
+        alteredAttrMap: this.alteredAttrMap,
       }
     )
 
@@ -953,6 +734,7 @@ export class PluginProvider {
       dependencyMap: this.dependencyMap,
       dependencyParseType: "identifier",
       identifierDepMap,
+      alteredAttrMap: this.alteredAttrMap,
     })
 
     const subViewPropMap = Object.fromEntries(
@@ -968,9 +750,10 @@ export class PluginProvider {
       {
         babelApi: this.babelApi,
         className: this.className!,
-        importMap: PluginProvider.importMap,
+        importMap: importMap,
         subViewPropMap,
         templateIdx,
+        attributeMap: this.attributeMap,
       }
     )
     viewNode.body = body

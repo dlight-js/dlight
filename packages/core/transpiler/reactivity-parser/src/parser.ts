@@ -1,7 +1,6 @@
 import {
   type TemplateProp,
   type ReactivityParserConfig,
-  type ReactivityParserOption,
   type mutableParticle,
   type ViewParticle,
   type TemplateParticle,
@@ -31,11 +30,9 @@ import {
   SwitchUnit,
 } from "@dlightjs/view-parser"
 import { DLError } from "./error"
-import { recoverHTMLAttrName } from "./attr"
 
 export class ReactivityParser {
   private readonly config: ReactivityParserConfig
-  private readonly options?: ReactivityParserOption
 
   private readonly t: typeof t
   private readonly traverse: typeof traverse
@@ -43,6 +40,7 @@ export class ReactivityParser {
   private readonly dependencyMap: Record<string, string[]>
   private readonly identifierDepMap: Record<string, string[]>
   private readonly dependencyParseType
+  private readonly alteredAttrMap
 
   private readonly escapeNamings = ["escape", "$"]
   private readonly customHTMLProps = [
@@ -64,20 +62,15 @@ export class ReactivityParser {
    * @param config
    * @param options
    */
-  constructor(
-    config: ReactivityParserConfig,
-    options?: ReactivityParserOption
-  ) {
+  constructor(config: ReactivityParserConfig) {
     this.config = config
-    this.options = options
     this.t = config.babelApi.types
     this.traverse = config.babelApi.traverse
     this.availableProperties = config.availableProperties
     this.dependencyMap = config.dependencyMap
     this.identifierDepMap = config.identifierDepMap ?? {}
     this.dependencyParseType = config.dependencyParseType ?? "property"
-    options?.escapeNamings && (this.escapeNamings = options.escapeNamings)
-    options?.customHTMLProps && (this.customHTMLProps = options.customHTMLProps)
+    this.alteredAttrMap = config.alteredAttrMap ?? {}
   }
 
   /**
@@ -147,7 +140,7 @@ export class ReactivityParser {
               !(this.t.isBooleanLiteral(prop.value) && !prop.value.value)
           )
           .map<[string, string | boolean]>(([key, { value }]) => [
-            recoverHTMLAttrName(key),
+            this.recoverHTMLAttrName(key),
             (value as t.StringLiteral).value,
           ])
       )
@@ -717,7 +710,7 @@ export class ReactivityParser {
    * @returns ViewParticle
    */
   private parseViewParticle(viewUnit: ViewUnit): ViewParticle {
-    const parser = new ReactivityParser(this.config, this.options)
+    const parser = new ReactivityParser(this.config)
     const parsedUnit = parser.parse(viewUnit)
     // ---- Collect used properties
     parser.usedProperties.forEach(
@@ -1034,5 +1027,14 @@ export class ReactivityParser {
    */
   private uid(): string {
     return Math.random().toString(36).slice(2)
+  }
+
+  /**
+   * @brief Recover HTML attribute name from CamelCase to kebab-case
+   * @param name
+   * @returns HTML attribute name
+   */
+  recoverHTMLAttrName(name: string): string {
+    return this.alteredAttrMap[name as keyof typeof this.alteredAttrMap] || name
   }
 }

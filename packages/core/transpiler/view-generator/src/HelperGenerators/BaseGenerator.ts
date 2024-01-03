@@ -18,6 +18,7 @@ export default class BaseGenerator {
   readonly className: string
   readonly importMap: Record<string, string>
   readonly subViewPropMap: SubViewPropMap
+  readonly elementAttributeMap
 
   readonly viewGenerator
 
@@ -35,6 +36,18 @@ export default class BaseGenerator {
     this.importMap = config.importMap
     this.subViewPropMap = config.subViewPropMap
     this.viewGenerator = new ViewGenerator(config)
+    this.elementAttributeMap = config.attributeMap
+      ? Object.entries(config.attributeMap).reduce<Record<string, string[]>>(
+          (acc, [key, elements]) => {
+            elements.forEach(element => {
+              if (!acc[element]) acc[element] = []
+              acc[element].push(key)
+            })
+            return acc
+          },
+          {}
+        )
+      : {}
   }
 
   // ---- Init Statements

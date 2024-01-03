@@ -113,12 +113,8 @@ export type ViewParticle =
 export interface ReactivityParserConfig {
   babelApi: typeof Babel
   availableProperties: string[]
+  alteredAttrMap: Record<string, string>
   dependencyMap: Record<string, string[]>
   identifierDepMap?: Record<string, string[]>
   dependencyParseType?: "property" | "identifier"
-}
-
-export interface ReactivityParserOption {
-  escapeNamings?: string[]
-  customHTMLProps?: string[]
 }

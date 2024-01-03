@@ -128,6 +128,7 @@ class ToDoMVC {
             this.removeTodo(id)
           })
       }
+      div(`${editing} ${this.editingId} ${id}`)
       if (editing) {
         input()
           .class("edit")
