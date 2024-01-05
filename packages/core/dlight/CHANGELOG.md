@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.42
+
+### Patch Changes
+
+- feat: didmount after element added to the dom
+
 ## 1.0.0-alpha.41
 
 ### Patch Changes

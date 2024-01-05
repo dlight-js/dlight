@@ -25,10 +25,18 @@ export default class HTMLPropGenerator extends ForwardPropGenerator {
         dependencyIndexArr,
         this.setDynamicHTMLProp(name, tag, key, value, true)
       )
-      return this.setDynamicHTMLProp(name, tag, key, value, false)
+      const statement = this.setDynamicHTMLProp(name, tag, key, value, false)
+      if (key === "element") {
+        return this.mountElement(statement, name)
+      }
+      return statement
     }
     // ---- Static HTML prop with init only
-    return this.setStaticHTMLProp(name, tag, key, value)
+    const statement = this.setStaticHTMLProp(name, tag, key, value)
+    if (key === "element") {
+      return this.mountElement(statement, name)
+    }
+    return statement
   }
 
   /**

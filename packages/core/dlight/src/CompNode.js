@@ -59,7 +59,6 @@ export class CompNode extends DLNode {
     this._$callUpdatesBeforeInit()
     this.willMount?.()
     this._$nodes = this.View?.() ?? []
-    this.didMount?.()
   }
 
   /**

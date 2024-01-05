@@ -4,6 +4,28 @@ import DoGenerator from "./DoGenerator"
 
 export default class ElementGenerator extends DoGenerator {
   /**
+   * @View
+   * View.addDidMount(${dlNodeName}, () => { ${elementNode} })
+   */
+  mountElement(elementNode: t.Statement, dlNodeName: string) {
+    return this.t.expressionStatement(
+      this.t.callExpression(
+        this.t.memberExpression(
+          this.t.identifier("View"),
+          this.t.identifier("addDidMount")
+        ),
+        [
+          this.t.identifier(dlNodeName),
+          this.t.arrowFunctionExpression(
+            [],
+            this.t.blockStatement([elementNode])
+          ),
+        ]
+      )
+    )
+  }
+
+  /**
    * @brief Generate a view unit for an element
    *  e.g. div().element(this.el)
    * @param dlNodeName

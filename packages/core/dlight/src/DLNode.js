@@ -107,6 +107,20 @@ export class DLNode {
   }
 
   /**
+   * @brief Did mount all nodes inside out
+   * @param nodes
+   * @param runFunc
+   */
+  static didMountInsideOut(nodes) {
+    nodes.forEach(node => {
+      if ("_$dlNodeType" in node) {
+        node._$nodes && DLNode.didMountInsideOut(node._$nodes)
+      }
+      node.didMount?.()
+    })
+  }
+
+  /**
    * @brief Add parentEl to all nodes until the first element
    * @param nodes
    * @param parentEl
@@ -115,6 +129,7 @@ export class DLNode {
     this.loopShallowDLNodes(nodes, node => {
       node._$parentEl = parentEl
     })
+    this.didMountInsideOut(nodes)
   }
 
   // ---- Flow index and add child elements ----
@@ -202,16 +217,24 @@ export class DLNode {
   }
 
   // ---- Lifecycle ----
-  static willUnmountFunc(currFunc, prevFunc) {
+  static lifecycleFunc(currFunc, prevFunc) {
     currFunc()
     prevFunc?.()
   }
 
   static addWillUnmount(node, func) {
-    node.willUnmount = this.willUnmountFunc.bind(
+    node.willUnmount = this.lifecycleFunc.bind(
       this,
       func,
       node.willUnmount?.bind(node)
+    )
+  }
+
+  static addDidMount(node, func) {
+    node.didMount = this.lifecycleFunc.bind(
+      this,
+      func,
+      node.didMount?.bind(node)
     )
   }
 }

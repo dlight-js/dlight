@@ -1,5 +1,11 @@
 # @dlightjs/view-generator
 
+## 1.0.0-alpha.23
+
+### Patch Changes
+
+- feat: didmount after element added to the dom
+
 ## 1.0.0-alpha.22
 
 ### Patch Changes
