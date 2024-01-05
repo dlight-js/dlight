@@ -1,5 +1,11 @@
 # @dlightjs/view-generator
 
+## 1.0.0-alpha.24
+
+### Patch Changes
+
+- refactor: ensure element prop only
+
 ## 1.0.0-alpha.23
 
 ### Patch Changes

@@ -9,114 +9,47 @@ import {
   required,
 } from "@dlightjs/types"
 
-setGlobal(window)
-interface SubProp {
-  name?: string
-  onClick: () => void
+@View
+class JJ {
+  didMount() {
+    console.log("jj")
+  }
+  View() {
+    button("jj").onClick(() => {
+      console.log("jj")
+    })
+  }
 }
 @View
 class Sub {
   @Prop name = required
   @Prop onClick = required
+  a
 
+  didMount() {
+    console.log(this.a.clientHeight, "shit")
+  }
   @Watch
   watchName() {
     console.log(this.name)
   }
 
   View() {
-    button(this.name).onClick(this.onClick)
+    div().element(this.a)
+    {
+      JJ().element(el => {
+        console.log(el[0].clientHeight)
+      })
+    }
   }
 }
-
-const SubView = Sub as Pretty as Typed<SubProp>
-
-@View
-class Ok {
-  @Prop changeCount
-  @Prop count
-
-  didMount() {
-    this.changeCount()
-    console.log(this.count)
-  }
-
-  View() {
-    div("change")
-  }
-}
-
-@View
-class Ok2 {
-  @Env count
-
-  @Watch
-  watchCount() {
-    console.log(this.count, "jj")
-  }
-
-  View() {
-    // div(this.count)
-    // undefined
-  }
-}
-
-;`
-Ok2().ok(View => {
-  div(this.count)
-  Ok().changeCount(() => {
-    this.count++
-  })
-})
-
-if (this.count) {
-  div(this.count)
-  Ok().changeCount(() => {
-    this.count++
-  })
-}
-
-switch (this.count) {
-  case 1:
-    div(this.count)
-    Ok().changeCount(() => {
-      this.count++
-    })
-  case 2:
-    "ok"
-  case 3:
-    "nono"
-    break
-  default:
-    "shit"
-}
-
-for (const a of this.arr) {
-  div(this.count)
-  Ok().changeCount(() => {
-    this.count++
-  })
-}
-
-`
 @View
 class App {
   count = 0
   arr = [1, 2, 3]
 
   View() {
-    env().count(this.count)
-    {
-      Ok()
-        .count(this.count)
-        .changeCount(() => {
-          this.count++
-        })
-      Ok2()
-    }
-    button("click").onClick(() => {
-      this.count++
-    })
+    Sub()
   }
 }
 

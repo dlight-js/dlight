@@ -21,15 +21,21 @@ export default class HTMLPropGenerator extends ForwardPropGenerator {
   ): t.Statement {
     // ---- Dynamic HTML prop with init and update
     if (dependencyIndexArr && dependencyIndexArr.length > 0) {
+      if (key === "element") {
+        const statement = this.setDynamicHTMLProp(name, tag, key, value, false)
+        if (this.t.isIfStatement(statement)) {
+          this.addUpdateStatements(
+            dependencyIndexArr,
+            this.setDynamicHTMLProp(name, tag, key, value, true)
+          )
+        }
+        return this.mountElement(statement, name)
+      }
       this.addUpdateStatements(
         dependencyIndexArr,
         this.setDynamicHTMLProp(name, tag, key, value, true)
       )
-      const statement = this.setDynamicHTMLProp(name, tag, key, value, false)
-      if (key === "element") {
-        return this.mountElement(statement, name)
-      }
-      return statement
+      return this.setDynamicHTMLProp(name, tag, key, value, false)
     }
     // ---- Static HTML prop with init only
     const statement = this.setStaticHTMLProp(name, tag, key, value)

@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.44
+
+### Patch Changes
+
+- refactor: ensure element prop only
+
 ## 1.0.0-alpha.43
 
 ### Patch Changes
