@@ -1,3 +1,4 @@
+import { DLNode } from "./DLNode"
 import { insertNode } from "./HTMLNode"
 
 export * from "./HTMLNode"
@@ -26,7 +27,7 @@ export function render(idOrEl, DL) {
   const dlNode = new DL()
   dlNode._$init()
   insertNode(el, dlNode, 0)
-  dlNode._$runDidMount()
+  DLNode.runDidMount(dlNode._$nodes)
 }
 
 export function manual(callback, _deps) {

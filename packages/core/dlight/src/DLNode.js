@@ -223,8 +223,8 @@ export class DLNode {
     )
   }
 
-  _$runDidMount() {
-    DLNode.loopDLNodesInsideOut(this._$nodes, node => {
+  static runDidMount(nodes) {
+    DLNode.loopDLNodesInsideOut(nodes, node => {
       node.didMount?.()
     })
   }

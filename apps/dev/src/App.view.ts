@@ -25,7 +25,7 @@ class Sub {
   @Prop name = required
   @Prop onClick = required
   a
-
+  hh = [1]
   didMount() {
     console.log(this.a.clientHeight, "shit")
   }
@@ -37,9 +37,14 @@ class Sub {
   View() {
     div().element(this.a)
     {
-      JJ().element(el => {
-        console.log(el[0].clientHeight)
+      button("+").onClick(() => {
+        this.hh = [...this.hh, this.hh.length]
       })
+      for (const i of this.hh) {
+        JJ().element(el => {
+          console.log(el[0].clientHeight, "shit fuck")
+        })
+      }
     }
   }
 }

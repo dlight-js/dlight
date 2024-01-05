@@ -33,6 +33,7 @@ export class ExpNode extends MutableNode {
     const flowIndex = MutableNode.getFlowIndexFromNodes(parentEl._$nodes, this)
     const nextSibling = parentEl.childNodes[flowIndex]
     MutableNode.appendNodesWithSibling(newNodes, parentEl, nextSibling)
+    MutableNode.runDidMount(newNodes)
 
     this._$nodes = newNodes
   }

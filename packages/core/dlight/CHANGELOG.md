@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.45
+
+### Patch Changes
+
+- fix: didmount not calling when adding mutablenodes
+
 ## 1.0.0-alpha.44
 
 ### Patch Changes

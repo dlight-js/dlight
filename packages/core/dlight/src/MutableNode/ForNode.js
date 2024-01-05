@@ -107,6 +107,7 @@ export class ForNode extends MutableNode {
         }
         const newNodes = this.getNewNodes(idx)
         MutableNode.appendNodesWithIndex(newNodes, parentEl, flowIndex, length)
+        MutableNode.runDidMount(newNodes)
         this.nodess.push(newNodes)
       }
       this._$nodes = this.nodess.flat(1)
@@ -175,6 +176,7 @@ export class ForNode extends MutableNode {
       for (let idx = 0; idx < this.keys.length; idx++) {
         const newNodes = this.getNewNodes(idx)
         MutableNode.appendNodesWithSibling(newNodes, parentEl, nextSibling)
+        MutableNode.runDidMount(newNodes)
         this.nodess.push(newNodes)
       }
       this._$nodes = this.nodess.flat(1)
@@ -222,6 +224,7 @@ export class ForNode extends MutableNode {
         newFlowIndex,
         length
       )
+      MutableNode.runDidMount(newNodes)
       newFlowIndex += count
       length += count
       // ---- Add the new nodes
