@@ -38,7 +38,6 @@ export class ForNode extends MutableNode {
   update(changed) {
     if (changed & this.depNum) return
     for (let idx = 0; idx < this.array.length; idx++) {
-      console.log(this.updateArr[idx])
       this.updateItem(idx, changed)
     }
   }

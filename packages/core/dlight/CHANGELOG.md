@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.43
+
+### Patch Changes
+
+- refactor: remove log
+
 ## 1.0.0-alpha.42
 
 ### Patch Changes
