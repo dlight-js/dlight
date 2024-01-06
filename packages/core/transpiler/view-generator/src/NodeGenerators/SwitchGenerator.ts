@@ -90,7 +90,7 @@ export default class SwitchGenerator extends CondGenerator {
                 this.t.identifier("updateFunc")
               ),
               this.t.arrowFunctionExpression(
-                [this.t.identifier("changed")],
+                this.updateParams,
                 this.geneUpdateBody(updateStatements)
               )
             )

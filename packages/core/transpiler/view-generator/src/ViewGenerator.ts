@@ -123,4 +123,13 @@ export default class ViewGenerator {
       ),
     ]
   }
+
+  get updateParams() {
+    return [
+      this.t.identifier("$changed"),
+      this.t.identifier("$key"),
+      this.t.identifier("$prevValue"),
+      this.t.identifier("$newValue"),
+    ]
+  }
 }

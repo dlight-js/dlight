@@ -1,5 +1,15 @@
 # babel-preset-dlight
 
+## 1.0.0-alpha.28
+
+### Patch Changes
+
+- feat: add lifecycle and onUpdate
+- Updated dependencies
+  - @dlightjs/reactivity-parser@1.0.0-alpha.7
+  - @dlightjs/view-generator@1.0.0-alpha.26
+  - @dlightjs/view-parser@1.0.0-alpha.4
+
 ## 1.0.0-alpha.27
 
 ### Patch Changes

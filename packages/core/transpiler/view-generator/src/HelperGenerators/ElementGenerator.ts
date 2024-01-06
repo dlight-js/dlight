@@ -1,42 +1,17 @@
 import { type types as t } from "@babel/core"
 import { DLError } from "../error"
-import DoGenerator from "./DoGenerator"
+import PropViewGenerator from "./PropViewGenerator"
 
-export default class ElementGenerator extends DoGenerator {
+export default class ElementGenerator extends PropViewGenerator {
   /**
    * @View
-   * View.addDidMount(() => { ${elementNode} })
-   */
-  mountElement(elementNode: t.Statement) {
-    return this.t.expressionStatement(
-      this.t.callExpression(
-        this.t.memberExpression(
-          this.t.identifier("View"),
-          this.t.identifier("addDidMount")
-        ),
-        [
-          this.t.arrowFunctionExpression(
-            [],
-            this.t.blockStatement([elementNode])
-          ),
-        ]
-      )
-    )
-  }
-
-  /**
-   * @brief Generate a view unit for an element
-   *  e.g. div().element(this.el)
-   * @param dlNodeName
-   * @param value
+   * View.addDidMount(${dlNodeName}, () => { ${elementNode} })
    * @param el true: dlNodeName._$el, false: dlNodeName
-   * @returns t.Statement
    */
-  setElement(
+  initElement(
     dlNodeName: string,
     value: t.Expression,
-    el = false,
-    check = false
+    el = false
   ): t.Statement {
     const elNode = el
       ? this.t.memberExpression(
@@ -44,61 +19,99 @@ export default class ElementGenerator extends DoGenerator {
           this.t.identifier("_$el")
         )
       : this.t.identifier(dlNodeName)
+    const elementNode = this.isOnlyMemberExpression(value)
+      ? this.assignHTMLElement(value as t.MemberExpression)
+      : this.assignHTMLFunctionElement(value)
 
-    return this.isOnlyMemberExpression(value)
-      ? this.assignHTMLElement(elNode, value as t.MemberExpression, check)
-      : this.assignHTMLFunctionElement(elNode, value, check)
+    return this.t.expressionStatement(
+      this.t.callExpression(
+        this.t.memberExpression(
+          this.t.identifier("View"),
+          this.t.identifier("addDidMount")
+        ),
+        [elNode, elementNode]
+      )
+    )
   }
 
   /**
-   * if (${elNode}) {
+   * ${elementNode}(${dlNodeName})
+   * @param el true: dlNodeName._$el, false: dlNodeName
+   */
+  updateElement(
+    dlNodeName: string,
+    value: t.Expression,
+    el = false
+  ): t.Statement | null {
+    if (!this.isOnlyMemberExpression(value)) return null
+    const elNode = el
+      ? this.t.memberExpression(
+          this.t.identifier(dlNodeName),
+          this.t.identifier("_$el")
+        )
+      : this.t.identifier(dlNodeName)
+
+    return this.t.expressionStatement(
+      this.t.logicalExpression(
+        "&&",
+        this.t.identifier(dlNodeName),
+        this.t.callExpression(
+          this.assignHTMLElement(value as t.MemberExpression),
+          [elNode]
+        )
+      )
+    )
+  }
+
+  private functionWrapper(statement: t.Statement): t.ArrowFunctionExpression {
+    return this.t.arrowFunctionExpression(
+      [this.t.identifier("$nodeEl")],
+      this.t.blockStatement([statement])
+    )
+  }
+  /**
+   * $nodeEl => {
    * if (typeof ${value} === "function") {
-   *  ${value}(${elNode})
+   *  ${value}($nodeEl)
    * } else {
-   *  ${value} = ${elNode}
+   *  ${value} = $nodeEl
    * }
    * }
    */
   private assignHTMLElement(
-    elNode: t.Expression,
-    value: t.MemberExpression,
-    check: boolean
-  ): t.IfStatement {
+    value: t.MemberExpression
+  ): t.ArrowFunctionExpression {
     const statement = this.t.ifStatement(
       this.t.binaryExpression(
         "===",
         this.t.unaryExpression("typeof", value, true),
         this.t.stringLiteral("function")
       ),
-      this.t.expressionStatement(this.t.callExpression(value, [elNode])),
       this.t.expressionStatement(
-        this.t.assignmentExpression("=", value, elNode)
+        this.t.callExpression(value, [this.t.identifier("$nodeEl")])
+      ),
+      this.t.expressionStatement(
+        this.t.assignmentExpression("=", value, this.t.identifier("$nodeEl"))
       )
     )
-    if (check) return this.t.ifStatement(elNode, statement)
-    return statement
+
+    return this.functionWrapper(statement)
   }
 
   /**
-   * ${elNode} && ${value}(${elNode})
+   * ${value}
    */
   private assignHTMLFunctionElement(
-    elNode: t.Expression,
-    value: t.Expression,
-    check: boolean
-  ): t.Statement {
+    value: t.Expression
+  ): t.FunctionExpression | t.ArrowFunctionExpression {
     if (
       !this.t.isFunctionExpression(value) &&
       !this.t.isArrowFunctionExpression(value)
     ) {
       return DLError.throw1()
     }
-    const statement = this.t.callExpression(value, [elNode])
-    if (check)
-      return this.t.expressionStatement(
-        this.t.logicalExpression("&&", elNode, statement)
-      )
-    return this.t.expressionStatement(statement)
+
+    return value
   }
 
   // --- Utils

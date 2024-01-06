@@ -22,14 +22,10 @@ export default class HTMLPropGenerator extends ForwardPropGenerator {
     // ---- Dynamic HTML prop with init and update
     if (dependencyIndexArr && dependencyIndexArr.length > 0) {
       if (key === "element") {
-        const statement = this.setDynamicHTMLProp(name, tag, key, value, false)
-        if (this.t.isIfStatement(statement)) {
-          this.addUpdateStatements(
-            dependencyIndexArr,
-            this.setDynamicHTMLProp(name, tag, key, value, true)
-          )
-        }
-        return this.mountElement(statement)
+        const updateStatement = this.updateElement(name, value)
+        if (updateStatement)
+          this.addUpdateStatements(dependencyIndexArr, updateStatement)
+        return this.initElement(name, value)
       }
       this.addUpdateStatements(
         dependencyIndexArr,
@@ -38,11 +34,10 @@ export default class HTMLPropGenerator extends ForwardPropGenerator {
       return this.setDynamicHTMLProp(name, tag, key, value, false)
     }
     // ---- Static HTML prop with init only
-    const statement = this.setStaticHTMLProp(name, tag, key, value)
     if (key === "element") {
-      return this.mountElement(statement)
+      return this.initElement(name, value)
     }
-    return statement
+    return this.setStaticHTMLProp(name, tag, key, value)
   }
 
   /**
@@ -278,13 +273,14 @@ export default class HTMLPropGenerator extends ForwardPropGenerator {
     )
   }
 
-  private readonly commonHTMLPropKeys = [
+  private static commonHTMLPropKeys = [
     "style",
     "dataset",
-    "element",
     "prop",
+    // "element" special case handled above
     "attr",
     "forwardProps",
+    ...HTMLPropGenerator.lifecycle,
   ]
 
   /**
@@ -296,11 +292,20 @@ export default class HTMLPropGenerator extends ForwardPropGenerator {
     value: t.Expression,
     check: boolean
   ): t.Statement {
+    if (
+      HTMLPropGenerator.lifecycle.includes(
+        attrName as (typeof HTMLPropGenerator.lifecycle)[number]
+      )
+    ) {
+      return this.addLifecycle(
+        dlNodeName,
+        attrName as (typeof HTMLPropGenerator.lifecycle)[number],
+        value
+      )
+    }
     if (attrName === "style") return this.setHTMLStyle(dlNodeName, value, check)
     if (attrName === "dataset")
       return this.setHTMLDataset(dlNodeName, value, check)
-    if (attrName === "element")
-      return this.setElement(dlNodeName, value, false, check)
     if (attrName === "prop")
       return this.setHTMLPropObject(dlNodeName, value, check)
     if (attrName === "attr")
@@ -324,7 +329,7 @@ export default class HTMLPropGenerator extends ForwardPropGenerator {
     attrName: string,
     value: t.Expression
   ): t.Statement {
-    if (this.commonHTMLPropKeys.includes(attrName))
+    if (HTMLPropGenerator.commonHTMLPropKeys.includes(attrName))
       return this.addCommonHTMLProp(dlNodeName, attrName, value, false)
     if (attrName.startsWith("on")) {
       const eventName = attrName.slice(2).toLowerCase()
@@ -354,7 +359,7 @@ export default class HTMLPropGenerator extends ForwardPropGenerator {
     value: t.Expression,
     check: boolean
   ): t.Statement {
-    if (this.commonHTMLPropKeys.includes(attrName))
+    if (HTMLPropGenerator.commonHTMLPropKeys.includes(attrName))
       return this.addCommonHTMLProp(dlNodeName, attrName, value, check)
     if (attrName.startsWith("on")) {
       const eventName = attrName.slice(2).toLowerCase()

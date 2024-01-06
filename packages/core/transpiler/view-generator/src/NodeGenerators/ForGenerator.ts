@@ -69,7 +69,7 @@ export default class ForGenerator extends BaseGenerator {
             true
           ),
           this.t.arrowFunctionExpression(
-            [this.t.identifier("changed"), this.t.identifier("$item")],
+            [...this.updateParams, this.t.identifier("$item")],
             this.t.blockStatement([
               this.t.expressionStatement(
                 this.t.assignmentExpression(
@@ -143,7 +143,7 @@ export default class ForGenerator extends BaseGenerator {
 
   /**
    * @View
-   * ${dlNodeName}.updateArray(${array}, ${array}.map(${item} => ${key}))
+   * ${dlNodeName}.updateArray(${array}, ${array}.map(${item} => ${key}), $key, $prevValue, $newValue)
    */
   private updateForNode(
     dlNodeName: string,
@@ -158,7 +158,11 @@ export default class ForGenerator extends BaseGenerator {
           this.t.identifier(dlNodeName),
           this.t.identifier("updateArray")
         ),
-        [array, ...this.getForKeyStatement(array, item, key)]
+        [
+          array,
+          ...this.updateParams.slice(1),
+          ...this.getForKeyStatement(array, item, key),
+        ]
       )
     )
   }
@@ -175,7 +179,7 @@ export default class ForGenerator extends BaseGenerator {
           this.t.identifier(dlNodeName),
           this.t.identifier("update")
         ),
-        [this.t.identifier("changed")]
+        this.updateParams
       )
     )
   }

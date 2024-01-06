@@ -1,5 +1,13 @@
 # @dlightjs/view-generator
 
+## 1.0.0-alpha.26
+
+### Patch Changes
+
+- feat: add lifecycle and onUpdate
+- Updated dependencies
+  - @dlightjs/reactivity-parser@1.0.0-alpha.7
+
 ## 1.0.0-alpha.25
 
 ### Patch Changes

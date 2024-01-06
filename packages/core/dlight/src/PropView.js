@@ -40,13 +40,13 @@ export class PropView {
    * @brief Update every node in dlUpdateNodes
    * @param changed - A parameter indicating what changed to trigger the update
    */
-  update(changed) {
+  update(...args) {
     this.dlUpdateFunc.forEach(update => {
       if (update.initd) {
         delete update.initd
         return
       }
-      update(changed)
+      update(...args)
     })
   }
 }

@@ -84,7 +84,7 @@ export default class IfGenerator extends CondGenerator {
                 this.t.identifier("updateFunc")
               ),
               this.t.arrowFunctionExpression(
-                [this.t.identifier("changed")],
+                this.updateParams,
                 this.geneUpdateBody(updateStatements)
               )
             )

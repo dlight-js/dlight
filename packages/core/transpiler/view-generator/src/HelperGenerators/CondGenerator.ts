@@ -54,7 +54,7 @@ export default class CondGenerator extends BaseGenerator {
 
   /**
    * @View
-   * ${dlNodeName}?.updateCond()
+   * ${dlNodeName}?.updateCond(key, prevValue, newValue)
    */
   updateCondNodeCond(dlNodeName: string): t.Statement {
     return this.optionalExpression(
@@ -64,7 +64,7 @@ export default class CondGenerator extends BaseGenerator {
           this.t.identifier(dlNodeName),
           this.t.identifier("updateCond")
         ),
-        []
+        this.updateParams.slice(1)
       )
     )
   }
@@ -81,7 +81,7 @@ export default class CondGenerator extends BaseGenerator {
           this.t.identifier(dlNodeName),
           this.t.identifier("update")
         ),
-        [this.t.identifier("changed")]
+        this.updateParams
       )
     )
   }
@@ -146,7 +146,7 @@ export default class CondGenerator extends BaseGenerator {
             this.t.identifier("$thisCond"),
             this.t.identifier("updateCond")
           ),
-          []
+          this.updateParams.slice(1)
         )
       )
     )

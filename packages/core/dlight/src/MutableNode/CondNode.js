@@ -24,12 +24,12 @@ export class CondNode extends MutableNode {
   /**
    * @brief Update the nodes in the environment
    */
-  updateCond() {
+  updateCond(...args) {
     const newNodes = this.geneNewNodesInEnv(() => this.condFunc(this))
     // ---- If the new nodes are the same as the old nodes, we only need to update  children
     if (this.didntChange) {
       this.didntChange = false
-      this.updateFunc?.(this.depNum)
+      this.updateFunc?.(this.depNum, ...args)
       return this._$nodes
     }
 
@@ -57,8 +57,8 @@ export class CondNode extends MutableNode {
    * @brief The update function of IfNode's childNodes is stored in the first child node
    * @param changed
    */
-  update(changed) {
+  update(changed, ...args) {
     if (changed & this.depNum) return
-    this.updateFunc?.(changed)
+    this.updateFunc?.(changed, ...args)
   }
 }

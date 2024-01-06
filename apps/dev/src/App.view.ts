@@ -10,47 +10,18 @@ import {
 } from "@dlightjs/types"
 
 @View
-class HH {
-  didMount() {
-    console.log("hh")
-  }
-  willUnmount() {
-    console.log("hh will")
-  }
-  didUnmount() {
-    console.log("hh unmounted")
-  }
-  View() {
-    button("jj").onClick(() => {
-      console.log("jj")
-    })
-  }
-}
-@View
 class JJ {
-  didMount() {
-    console.log("jj")
-  }
-  willUnmount() {
-    console.log("jj will")
-  }
-  didUnmount() {
-    console.log("jj unmounted")
-  }
   View() {
-    HH()
+    div("ok")
   }
 }
+
 @View
 class Sub {
   a
   hh = [1]
-  didMount() {
-    console.log(this.a.clientHeight, "shit")
-  }
-
   View() {
-    div().element(this.a)
+    div()
     {
       button("+").onClick(() => {
         this.hh = [...this.hh, this.hh.length]
@@ -60,12 +31,15 @@ class Sub {
       })
       for (const i of this.hh) {
         div()
+
         {
           div()
           {
-            JJ().element(el => {
-              console.log(el[0].clientHeight, "shit fuck")
-            })
+            JJ()
+              .hh(this.hh)
+              .onUpdate((_, jj, __, a) => {
+                console.log("changed", a.length)
+              })
           }
         }
       }
@@ -73,12 +47,44 @@ class Sub {
   }
 }
 @View
+class IfTest {
+  @Content count = 0
+
+  View() {}
+}
+@View
 class App {
   count = 0
   arr = [1, 2, 3]
 
+  @View
+  jj({ content }) {
+    div()
+    {
+      div()
+      {
+        // div(this.count).onUpdate(() => {
+        //   console.log("hh")
+        // })
+        if (this.count === 0) {
+          div("okk")
+        } else {
+          div(this.count).onUpdate((node, key, value, nextValue) => {
+            console.log("updated", key, value, nextValue)
+          })
+        }
+        button("+").onClick(() => {
+          this.count++
+        })
+      }
+    }
+  }
+
   View() {
     Sub()
+    button("+").onClick(() => {
+      this.count++
+    })
   }
 }
 

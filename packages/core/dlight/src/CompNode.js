@@ -58,8 +58,9 @@ export class CompNode extends DLNode {
     // Call watchers
     this._$callUpdatesBeforeInit()
     if (!("DidMountStore" in DLStore.global)) DLStore.global.DidMountStore = []
-    this.didMount && DLStore.global.DidMountStore.push(this.didMount.bind(this))
-    this.willMount?.()
+    this.didMount &&
+      DLStore.global.DidMountStore.push(this.didMount.bind(this, this))
+    this.willMount?.(this)
     this._$nodes = this.View?.() ?? []
   }
 
@@ -184,9 +185,10 @@ export class CompNode extends DLNode {
   _$updateProp(key, value) {
     const valueKey = `$${key}`
     if (this[valueKey] === value) return
+    const prevValue = this[valueKey]
     this[valueKey] = value
     this._$updateDerived(key)
-    this._$updateView(key)
+    this._$updateView(key, prevValue, value)
   }
 
   /**
@@ -208,10 +210,10 @@ export class CompNode extends DLNode {
    * @brief Update View related update function
    * @param key
    */
-  _$updateView(key) {
+  _$updateView(key, prevValue, newValue) {
     const depNum = this[`$$${key}`]
     if (!depNum) return
-    this._$update?.(depNum)
+    this._$update?.(depNum, key, prevValue, newValue)
   }
 }
 

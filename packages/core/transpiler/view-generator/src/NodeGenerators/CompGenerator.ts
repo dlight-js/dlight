@@ -18,10 +18,12 @@ export default class CompGenerator extends ForwardPropGenerator {
     this.addInitStatement(
       ...this.declareCompNode(dlNodeName, tag, content, props, children)
     )
+    const allDependencyIndexArr: number[] = []
     // ---- Resolve content
     if (content) {
       const { value, dependencyIndexArr } = content
       if (dependencyIndexArr && dependencyIndexArr.length > 0) {
+        allDependencyIndexArr.push(...dependencyIndexArr)
         this.addUpdateStatements(
           dependencyIndexArr,
           this.setCompContent(dlNodeName, value)
@@ -31,25 +33,36 @@ export default class CompGenerator extends ForwardPropGenerator {
 
     // ---- Resolve props
     if (props) {
+      let hasOnUpdate: t.Expression | false = false
       Object.entries(props).forEach(([key, { value, dependencyIndexArr }]) => {
-        if (key === "do") {
-          const statement = this.addDo(dlNodeName, value)
-          this.addInitStatement(statement)
-          this.addUpdateStatements(dependencyIndexArr, statement)
+        if (key === "forwardProps") return
+        if (key === "onUpdate") {
+          hasOnUpdate = value
+          return
+        }
+        allDependencyIndexArr.push(...(dependencyIndexArr ?? []))
+        if (
+          CompGenerator.lifecycle.includes(
+            key as (typeof CompGenerator.lifecycle)[number]
+          )
+        ) {
+          this.addInitStatement(
+            this.addLifecycle(
+              dlNodeName,
+              key as (typeof CompGenerator.lifecycle)[number],
+              value
+            )
+          )
           return
         }
         if (key === "element") {
-          const statement = this.setElement(dlNodeName, value, true)
-          this.addInitStatement(this.mountElement(statement))
-          if (this.t.isIfStatement(statement)) {
-            this.addUpdateStatements(
-              dependencyIndexArr,
-              this.setElement(dlNodeName, value, true, true)
-            )
-          }
+          this.addInitStatement(this.initElement(dlNodeName, value, true))
+          const updateStatement = this.updateElement(dlNodeName, value, true)
+          if (updateStatement)
+            this.addUpdateStatements(dependencyIndexArr, updateStatement)
           return
         }
-        if (key === "forwardProps") return
+
         if (dependencyIndexArr && dependencyIndexArr.length > 0) {
           this.addUpdateStatements(
             dependencyIndexArr,
@@ -57,6 +70,12 @@ export default class CompGenerator extends ForwardPropGenerator {
           )
         }
       })
+      if (hasOnUpdate) {
+        this.addUpdateStatements(
+          allDependencyIndexArr,
+          this.addOnUpdate(dlNodeName, hasOnUpdate)
+        )
+      }
     }
 
     return dlNodeName

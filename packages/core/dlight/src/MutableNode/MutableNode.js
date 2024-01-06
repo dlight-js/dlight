@@ -63,14 +63,14 @@ export class MutableNode extends DLNode {
    */
   removeNodes(nodes, removeEl = true) {
     nodes.forEach(node => {
-      node.willUnmount?.()
+      node.willUnmount?.(node)
       if (!("_$dlNodeType" in node)) {
         if (removeEl) this._$parentEl?.removeChild(node)
         removeEl = false
       }
       const nodes = node._$nodes ?? node.childNodes
       this.removeNodes(nodes, removeEl)
-      node.didUnmount?.()
+      node.didUnmount?.(node)
     })
   }
 }

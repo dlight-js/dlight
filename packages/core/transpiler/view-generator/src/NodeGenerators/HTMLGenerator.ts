@@ -16,11 +16,24 @@ export default class HTMLGenerator extends HTMLPropGenerator {
       //      for dynamic tag, we can't check it, so we just assume it's not internal
       //      represent by the "ANY" tag name
       const tagName = this.t.isStringLiteral(tag) ? tag.value : "ANY"
+      const allDependencyIndexArr: number[] = []
+      let hasOnUpdate: t.Expression | false = false
       Object.entries(props).forEach(([key, { value, dependencyIndexArr }]) => {
+        if (key === "onUpdate") {
+          hasOnUpdate = value
+          return
+        }
+        allDependencyIndexArr.push(...(dependencyIndexArr ?? []))
         this.addInitStatement(
           this.addHTMLProp(dlNodeName, tagName, key, value, dependencyIndexArr)
         )
       })
+      if (hasOnUpdate) {
+        this.addUpdateStatements(
+          allDependencyIndexArr,
+          this.addOnUpdate(dlNodeName, hasOnUpdate)
+        )
+      }
     }
 
     // ---- Resolve children

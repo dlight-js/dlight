@@ -28,11 +28,32 @@ export default class TemplateGenerator extends HTMLPropGenerator {
     this.addInitStatement(...insertElementStatements)
 
     // ---- Resolve props
+    const onUpdateMap: Record<
+      string,
+      { deps: number[]; value?: t.Expression }
+    > = {}
     props.forEach(({ tag, path, key, value, dependencyIndexArr }) => {
       const name = pathNameMap[path.join(".")]
+      if (!onUpdateMap[name])
+        onUpdateMap[name] = {
+          deps: [],
+        }
+      if (key === "onUpdate") {
+        onUpdateMap[name].value = value
+        return
+      }
+
+      onUpdateMap[name].deps.push(...(dependencyIndexArr ?? []))
+
       this.addInitStatement(
         this.addHTMLProp(name, tag, key, value, dependencyIndexArr)
       )
+    })
+
+    Object.entries(onUpdateMap).forEach(([name, { deps, value }]) => {
+      if (!value) return
+      console.log(name, deps)
+      this.addUpdateStatements(deps, this.addOnUpdate(name, value))
     })
 
     // ---- Resolve mutable particles

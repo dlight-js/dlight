@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.47
+
+### Patch Changes
+
+- feat: add lifecycle and onUpdate
+
 ## 1.0.0-alpha.46
 
 ### Patch Changes

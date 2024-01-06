@@ -9,6 +9,6 @@ export const DLError = createErrorHandler(
   },
   {},
   {
-    1: 'ExpressionNode only supports prop as ["element", "do"]',
+    1: "ExpressionNode only supports prop as element and lifecycle, receiving $0",
   }
 )

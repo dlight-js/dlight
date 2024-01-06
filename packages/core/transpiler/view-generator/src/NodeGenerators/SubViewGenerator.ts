@@ -20,8 +20,29 @@ export default class SubViewGenerator extends PropViewGenerator {
     const availableProperties = this.subViewPropMap[tag] ?? []
 
     if (props) {
+      const allDependencyIndexArr: number[] = []
+      let hasOnUpdate: t.Expression | false = false
       Object.entries(props).forEach(([key, { value, dependencyIndexArr }]) => {
+        if (key === "onUpdate") {
+          hasOnUpdate = value
+          return
+        }
+        if (
+          SubViewGenerator.lifecycle.includes(
+            key as (typeof SubViewGenerator.lifecycle)[number]
+          )
+        ) {
+          this.addInitStatement(
+            this.addLifecycle(
+              dlNodeName,
+              key as (typeof SubViewGenerator.lifecycle)[number],
+              value
+            )
+          )
+          return
+        }
         if (!dependencyIndexArr || dependencyIndexArr.length === 0) return
+        allDependencyIndexArr.push(...dependencyIndexArr)
         const depIdx = availableProperties.indexOf(key)
         const propChange = 1 << depIdx
         this.addUpdateStatements(
@@ -29,6 +50,12 @@ export default class SubViewGenerator extends PropViewGenerator {
           this.updateProp(dlNodeName, propChange, key, value)
         )
       })
+      if (hasOnUpdate) {
+        this.addUpdateStatements(
+          allDependencyIndexArr,
+          this.addOnUpdate(dlNodeName, hasOnUpdate)
+        )
+      }
     }
     this.addUpdateStatementsWithoutDep(this.updateSubView(dlNodeName))
 
@@ -82,7 +109,7 @@ export default class SubViewGenerator extends PropViewGenerator {
 
   /**
    * @View
-   * ${dlNodeName}.updateProp?.(${propChanged}, { ${key}: ${value} })
+   * ${dlNodeName}.updateProp?.(${propChanged}, ...updateParams, { ${key}: ${value} })
    */
   private updateProp(
     dlNodeName: string,
@@ -99,6 +126,7 @@ export default class SubViewGenerator extends PropViewGenerator {
         ),
         [
           this.t.numericLiteral(propChanged),
+          ...this.updateParams.slice(1),
           this.t.objectExpression([
             this.t.objectProperty(this.t.identifier(key), value),
           ]),
@@ -120,7 +148,7 @@ export default class SubViewGenerator extends PropViewGenerator {
           this.t.identifier(dlNodeName),
           this.t.identifier("update")
         ),
-        [this.t.identifier("changed")],
+        this.updateParams,
         true
       )
     )

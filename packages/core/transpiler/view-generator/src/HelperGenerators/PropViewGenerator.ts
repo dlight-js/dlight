@@ -3,9 +3,9 @@ import {
   type DependencyProp,
   type ViewParticle,
 } from "@dlightjs/reactivity-parser"
-import BaseGenerator from "./BaseGenerator"
+import LifecycleGenerator from "./LifecycleGenerator"
 
-export default class PropViewGenerator extends BaseGenerator {
+export default class PropViewGenerator extends LifecycleGenerator {
   /**
    * @brief Alter prop view in batch
    * @param props
@@ -43,7 +43,7 @@ export default class PropViewGenerator extends BaseGenerator {
         this.t.expressionStatement(
           this.t.callExpression(this.t.identifier("$addUpdate"), [
             this.t.arrowFunctionExpression(
-              [this.t.identifier("changed")],
+              this.updateParams,
               this.geneUpdateBody(updateStatements)
             ),
           ])
@@ -82,7 +82,7 @@ export default class PropViewGenerator extends BaseGenerator {
             propViewIdentifier,
             this.t.identifier("update")
           ),
-          [this.t.identifier("changed")]
+          this.updateParams
         )
       )
     )

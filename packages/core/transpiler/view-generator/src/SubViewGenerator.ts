@@ -136,7 +136,7 @@ export default class SubViewGenerator extends ViewGenerator {
     propsNode?: t.ObjectPattern
   ): t.ArrowFunctionExpression {
     // ---- Args
-    const args: t.Identifier[] = [this.t.identifier("changed")]
+    const args: t.Identifier[] = this.updateParams
     if (propsNode) {
       args.push(this.t.identifier("$subviewProps"))
     }
@@ -174,7 +174,7 @@ export default class SubViewGenerator extends ViewGenerator {
             return this.t.ifStatement(
               this.t.binaryExpression(
                 "&",
-                this.t.identifier("changed"),
+                this.t.identifier("$changed"),
                 this.t.numericLiteral(Number(depNum))
               ),
               this.t.blockStatement(statements)

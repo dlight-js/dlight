@@ -1,5 +1,11 @@
 # @dlightjs/view-parser
 
+## 1.0.0-alpha.4
+
+### Patch Changes
+
+- feat: add lifecycle and onUpdate
+
 ## 1.0.0-alpha.3
 
 ### Patch Changes

@@ -185,9 +185,9 @@ export class DLNode {
    * @param currFunc
    * @param prevFunc
    */
-  static lifecycleFunc(currFunc, prevFunc) {
-    currFunc()
-    prevFunc?.()
+  static lifecycleFunc(currFunc, prevFunc, node) {
+    currFunc(node)
+    prevFunc?.(node)
   }
 
   /**
@@ -199,7 +199,22 @@ export class DLNode {
     node.willUnmount = this.lifecycleFunc.bind(
       this,
       func,
-      node.willUnmount?.bind(node)
+      node.willUnmount?.bind(node),
+      node
+    )
+  }
+
+  /**
+   * @brief Add didUnmount function to node
+   * @param node
+   * @param func
+   */
+  static addDidUnmount(node, func) {
+    node.willUnmount = this.lifecycleFunc.bind(
+      this,
+      func,
+      node.willUnmount?.bind(node),
+      node
     )
   }
 
@@ -207,8 +222,8 @@ export class DLNode {
    * @brief Add didUnmount function to global store
    * @param func
    */
-  static addDidMount(func) {
-    DLStore.global.DidMountStore.push(func)
+  static addDidMount(node, func) {
+    DLStore.global.DidMountStore.push(() => func(node))
   }
 
   /**

@@ -1,5 +1,13 @@
 # @dlightjs/reactivity-parser
 
+## 1.0.0-alpha.7
+
+### Patch Changes
+
+- feat: add lifecycle and onUpdate
+- Updated dependencies
+  - @dlightjs/view-parser@1.0.0-alpha.4
+
 ## 1.0.0-alpha.6
 
 ### Patch Changes

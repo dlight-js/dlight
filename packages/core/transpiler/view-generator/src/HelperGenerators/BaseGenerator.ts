@@ -178,11 +178,20 @@ export default class BaseGenerator {
       this.t.variableDeclarator(
         this.t.identifier("$update"),
         this.t.arrowFunctionExpression(
-          [this.t.identifier("changed")],
+          [this.t.identifier("$changed")],
           this.geneUpdateBody(updateStatements)
         )
       ),
     ])
+  }
+
+  get updateParams() {
+    return [
+      this.t.identifier("$changed"),
+      this.t.identifier("$key"),
+      this.t.identifier("$prevValue"),
+      this.t.identifier("$newValue"),
+    ]
   }
 
   /**
@@ -204,7 +213,7 @@ export default class BaseGenerator {
           return this.t.ifStatement(
             this.t.binaryExpression(
               "&",
-              this.t.identifier("changed"),
+              this.t.identifier("$changed"),
               this.t.numericLiteral(Number(depNum))
             ),
             this.t.blockStatement(statements)
