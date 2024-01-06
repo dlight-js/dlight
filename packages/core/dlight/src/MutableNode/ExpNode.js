@@ -36,10 +36,10 @@ export class ExpNode extends FlatNode {
 
     // ---- Add new nodes
     const parentEl = this._$parentEl
-    const flowIndex = MutableNode.getFlowIndexFromNodes(parentEl._$nodes, this)
+    const flowIndex = CondNode.getFlowIndexFromNodes(parentEl._$nodes, this)
     const nextSibling = parentEl.childNodes[flowIndex]
-    MutableNode.appendNodesWithSibling(newNodes, parentEl, nextSibling)
-    MutableNode.runDidMount()
+    CondNode.appendNodesWithSibling(newNodes, parentEl, nextSibling)
+    CondNode.runDidMount()
 
     this._$nodes = newNodes
   }

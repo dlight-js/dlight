@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.54
+
+### Patch Changes
+
+- fix: flat node mutablecalling
+
 ## 1.0.0-alpha.53
 
 ### Patch Changes
