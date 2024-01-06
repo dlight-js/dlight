@@ -188,7 +188,7 @@ export class ForNode extends MutableNode {
     const flowIndex = MutableNode.getFlowIndexFromNodes(parentEl._$nodes, this)
 
     // ---- No nodes before, append all nodes
-    if (shortcutType === 3 || shortcutType === 2) {
+    if (shortcutType === 1 || shortcutType === 3) {
       const nextSibling = parentEl.childNodes[flowIndex]
       for (let idx = 0; idx < this.keys.length; idx++) {
         const newNodes = this.getNewNodes(idx)

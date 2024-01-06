@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.49
+
+### Patch Changes
+
+- fix: shortcutType for node typo
+
 ## 1.0.0-alpha.48
 
 ### Patch Changes
