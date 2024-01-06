@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.52
+
+### Patch Changes
+
+- faa61e0: refactor: change for loop \_$nodes to getter only
+
 ## 1.0.0-alpha.51
 
 ### Patch Changes
