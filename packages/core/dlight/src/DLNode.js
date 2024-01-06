@@ -33,16 +33,6 @@ export class DLNode {
   }
 
   /**
-   * @brief Parent dom element, will be passed to child nodes
-   */
-  _$parentEl
-
-  /**
-   * @brief Child DLNodes
-   */
-  _$nodes
-
-  /**
    * @brief Loop all child DLNodes to get all the child elements
    * @param nodes
    * @returns HTMLElement[]
@@ -70,28 +60,16 @@ export class DLNode {
   }
 
   /**
-   * @brief Loop all nodes shallowly,
-   *  i.e., don't loop the child nodes of dom elements and call runFunc on all nodes
-   * @param nodes
-   * @param runFunc
-   */
-  static loopShallowDLNodes(nodes, runFunc) {
-    nodes.forEach(node => {
-      if ("_$dlNodeType" in node) {
-        runFunc(node)
-        node._$nodes && DLNode.loopShallowDLNodes(node._$nodes, runFunc)
-      }
-    })
-  }
-
-  /**
    * @brief Add parentEl to all nodes until the first element
    * @param nodes
    * @param parentEl
    */
   static addParentEl(nodes, parentEl) {
-    this.loopShallowDLNodes(nodes, node => {
-      node._$parentEl = parentEl
+    nodes.forEach(node => {
+      if ("_$dlNodeType" in node) {
+        node._$parentEl = parentEl
+        node._$nodes && DLNode.addParentEl(node._$nodes, parentEl)
+      }
     })
   }
 
@@ -180,16 +158,6 @@ export class DLNode {
   }
 
   // ---- Lifecycle ----
-  /**
-   * @brief Use predefined function to reduce compiled code sise
-   * @param currFunc
-   * @param prevFunc
-   */
-  static lifecycleFunc(currFunc, prevFunc, node) {
-    currFunc(node)
-    prevFunc?.(node)
-  }
-
   /**
    * @brief Add willUnmount function to node
    * @param node

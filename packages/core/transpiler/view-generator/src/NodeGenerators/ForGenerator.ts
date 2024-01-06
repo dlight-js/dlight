@@ -36,11 +36,11 @@ export default class ForGenerator extends BaseGenerator {
   /**
    * @View
    * ${dlNodeName} = new ForNode(${array}, ${depNum}, ${array}.map(${item} => ${key}))
-   * ${dlNodeName}.addNodeFunc((${item}, $updateArr, idx) => {
-   *   $updateArr[idx] = (changed, $item) => {
+   * ${dlNodeName}.addNodeFunc((${item}, $updateMap, $key) => {
+   *   $updateMap.set($key, (changed, $item) => {
    *      ${item} = $item
    *      {$updateStatements}
-   *   }
+   *   })
    *   ${children}
    *   return [...${topLevelNodes}]
    * })
@@ -61,26 +61,27 @@ export default class ForGenerator extends BaseGenerator {
     childStatements.unshift(
       ...this.declareNodes(nodeIdx),
       this.t.expressionStatement(
-        this.t.assignmentExpression(
-          "=",
+        this.t.callExpression(
           this.t.memberExpression(
-            this.t.identifier("$updateArr"),
-            this.t.identifier("$idx"),
-            true
+            this.t.identifier("$updateMap"),
+            this.t.identifier("set")
           ),
-          this.t.arrowFunctionExpression(
-            [...this.updateParams, this.t.identifier("$item")],
-            this.t.blockStatement([
-              this.t.expressionStatement(
-                this.t.assignmentExpression(
-                  "=",
-                  item,
-                  this.t.identifier("$item")
-                )
-              ),
-              ...this.geneUpdateBody(updateStatements).body,
-            ])
-          )
+          [
+            this.t.identifier("$key"),
+            this.t.arrowFunctionExpression(
+              [...this.updateParams, this.t.identifier("$item")],
+              this.t.blockStatement([
+                this.t.expressionStatement(
+                  this.t.assignmentExpression(
+                    "=",
+                    item,
+                    this.t.identifier("$item")
+                  )
+                ),
+                ...this.geneUpdateBody(updateStatements).body,
+              ])
+            ),
+          ]
         )
       )
     )
@@ -110,8 +111,8 @@ export default class ForGenerator extends BaseGenerator {
             this.t.arrowFunctionExpression(
               [
                 item as any,
-                this.t.identifier("$updateArr"),
-                this.t.identifier("$idx"),
+                this.t.identifier("$updateMap"),
+                this.t.identifier("$key"),
               ],
               this.t.blockStatement(childStatements)
             ),

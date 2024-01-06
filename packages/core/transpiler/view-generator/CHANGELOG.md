@@ -1,5 +1,11 @@
 # @dlightjs/view-generator
 
+## 1.0.0-alpha.28
+
+### Patch Changes
+
+- refactor: using map for for node
+
 ## 1.0.0-alpha.27
 
 ### Patch Changes

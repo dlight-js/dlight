@@ -1,5 +1,11 @@
 # @dlightjs/transpiler
 
+## 1.0.0-alpha.31
+
+### Patch Changes
+
+- babel-preset-dlight@1.0.0-alpha.31
+
 ## 1.0.0-alpha.30
 
 ### Patch Changes
