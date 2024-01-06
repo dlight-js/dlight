@@ -1,4 +1,5 @@
 import { DLNodeType } from "../DLNode"
+import { DLStore } from "../store"
 import { MutableNode } from "./MutableNode"
 
 export class ForNode extends MutableNode {
@@ -9,6 +10,9 @@ export class ForNode extends MutableNode {
   depNum
 
   updateArr = []
+
+  willUnmountArr = []
+  didUnmountArr = []
 
   /**
    * @brief Constructor, For type
@@ -25,10 +29,19 @@ export class ForNode extends MutableNode {
 
   addNodeFunc(nodeFunc) {
     this.nodeFunc = nodeFunc
-    this.nodess = this.array.map((item, idx) =>
-      nodeFunc(item, this.updateArr, idx)
-    )
+    this.nodess = this.array.map((item, idx) => {
+      this.initUnmountStore()
+      const nodes = nodeFunc(item, this.updateArr, idx)
+      this.willUnmountArr[idx] = DLStore.global.WillUnmountStore.pop()
+      this.didUnmountArr[idx] = DLStore.global.DidUnmountStore.pop()
+      return nodes
+    })
     this._$nodes = this.nodess.flat(1)
+
+    // ---- For nested MutableNode, the whole strategy is just like EnvStore
+    //      we use array of function array to create "environment", popping and pushing
+    ForNode.addWillUnmount(this, this.runAllWillUnmount.bind(this))
+    ForNode.addDidUnmount(this, this.runAllDidUnmount.bind(this))
   }
 
   /**
@@ -74,10 +87,60 @@ export class ForNode extends MutableNode {
   /**
    * @brief Shortcut to generate new nodes with idx
    */
-  getNewNodes(idx, updateArr) {
-    return this.geneNewNodesInEnv(() =>
-      this.nodeFunc(this.array[idx], updateArr ?? this.updateArr, idx)
+  getNewNodes(idx) {
+    this.initUnmountStore()
+    const nodes = this.geneNewNodesInEnv(() =>
+      this.nodeFunc(this.array[idx], this.updateArr, idx)
     )
+    this.willUnmountArr[idx] = DLStore.global.WillUnmountStore.pop()
+    this.didUnmountArr[idx] = DLStore.global.DidUnmountStore.pop()
+    return nodes
+  }
+
+  /**
+   * @brief Shortcut to generate new nodes with idx
+   */
+  getNewNodesSliced(idx, updateArr) {
+    this.initUnmountStore()
+    const nodes = this.geneNewNodesInEnv(() =>
+      this.nodeFunc(this.array[idx], updateArr, idx)
+    )
+
+    return [
+      nodes,
+      DLStore.global.WillUnmountStore.pop(),
+      DLStore.global.DidUnmountStore.pop(),
+    ]
+  }
+
+  runAllWillUnmount() {
+    for (let idx = 0; idx < this.willUnmountArr.length; idx++) {
+      this.runWillUnmount(idx)
+    }
+  }
+
+  runAllDidUnmount() {
+    for (let idx = this.didUnmountArr.length - 1; idx >= 0; idx--) {
+      this.runDidUnmount(idx)
+    }
+  }
+
+  runWillUnmount(idx) {
+    const willMountArr = this.willUnmountArr[idx]
+    if (!willMountArr || willMountArr.length === 0) return
+    for (let i = 0; i < willMountArr.length; i++) willMountArr[i]?.()
+  }
+
+  runDidUnmount(idx) {
+    const didMountArr = this.didUnmountArr[idx]
+    if (!didMountArr || didMountArr.length === 0) return
+    for (let i = didMountArr.length - 1; i >= 0; i--) didMountArr[i]?.()
+  }
+
+  removeNodes(nodes, idx) {
+    this.runWillUnmount(idx)
+    super.removeNodes(nodes)
+    this.runDidUnmount(idx)
   }
 
   /**
@@ -126,8 +189,10 @@ export class ForNode extends MutableNode {
     }
     // ---- If the new array is shorter, remove the extra nodes
     for (let idx = currLength; idx < preLength; idx++) {
-      this.removeNodes(this.nodess[idx])
+      this.removeNodes(this.nodess[idx], idx)
     }
+    this.willUnmountArr = this.willUnmountArr.slice(0, currLength)
+    this.didUnmountArr = this.didUnmountArr.slice(0, currLength)
     this.nodess = this.nodess.slice(0, currLength)
     this._$nodes = this.nodess.flat(1)
   }
@@ -138,6 +203,9 @@ export class ForNode extends MutableNode {
    * @param newKeys
    */
   updateWithKey(newArray, newKeys) {
+    if (newKeys.length !== new Set(newKeys).size) {
+      throw new Error("DLight: Duplicate keys in for loop are not allowed")
+    }
     const prevKeys = this.keys
 
     this.array = [...newArray]
@@ -151,44 +219,35 @@ export class ForNode extends MutableNode {
       return
     }
 
-    const arrayVeryDifferent = ForNode.arrayVeryDifferent(prevKeys, this.keys)
-    let shortcutType = 0
-    if (arrayVeryDifferent) {
-      shortcutType = 1
-    } else if (this.keys.length === 0) {
-      // ---- No nodes after
-      shortcutType = 2
-    } else if (prevKeys.length === 0) {
-      // ---- No nodes before
-      shortcutType = 3
-    }
     const parentEl = this._$parentEl
     const prevNodess = this.nodess
 
-    // ---- Delete all nodes
-    if (shortcutType === 1 || shortcutType === 2) {
+    // ---- No nodes after, delete all nodes
+    if (this.keys.length === 0) {
       const parentNodes = parentEl._$nodes ?? []
       if (parentNodes.length === 1 && parentNodes[0] === this) {
         // ---- ForNode is the only node in the parent node
         //      Frequently used in real life scenarios because we tend to always wrap for with a div element,
         //      so we optimize it here
+        this.runAllWillUnmount()
         parentEl.innerHTML = ""
+        this.runAllDidUnmount()
       } else {
         for (let prevIdx = 0; prevIdx < prevKeys.length; prevIdx++) {
-          this.removeNodes(prevNodess[prevIdx])
+          this.removeNodes(prevNodess[prevIdx], prevIdx)
         }
       }
       this.nodess = []
       this._$nodes = []
       this.updateArr = []
-      if (shortcutType === 2) return
+      return
     }
 
     // ---- Record how many nodes are before this ForNode with the same parentNode
     const flowIndex = MutableNode.getFlowIndexFromNodes(parentEl._$nodes, this)
 
     // ---- No nodes before, append all nodes
-    if (shortcutType === 1 || shortcutType === 3) {
+    if (prevKeys.length === 0) {
       const nextSibling = parentEl.childNodes[flowIndex]
       for (let idx = 0; idx < this.keys.length; idx++) {
         const newNodes = this.getNewNodes(idx)
@@ -202,7 +261,8 @@ export class ForNode extends MutableNode {
 
     const shuffleKeys = []
     const newNodess = []
-    const newUpdateArr = []
+    // ---- [shuffleKey, newNodes, updateArr, willUnmountArr, didUnmountArr]
+    const newFuncs = []
 
     // ---- 1. Delete the nodes that are no longer in the array
     for (let prevIdx = 0; prevIdx < prevKeys.length; prevIdx++) {
@@ -210,10 +270,14 @@ export class ForNode extends MutableNode {
       if (this.keys.includes(prevKey)) {
         shuffleKeys.push(prevKey)
         newNodess.push(prevNodess[prevIdx])
-        newUpdateArr.push(this.updateArr[prevIdx])
+        newFuncs.push([
+          this.updateArr[prevIdx],
+          this.willUnmountArr[prevIdx],
+          this.didUnmountArr[prevIdx],
+        ])
         continue
       }
-      this.removeNodes(prevNodess[prevIdx])
+      this.removeNodes(prevNodess[prevIdx], prevIdx)
     }
 
     // ---- 2. Add the nodes that are not in the array but in the new array
@@ -237,8 +301,14 @@ export class ForNode extends MutableNode {
         continue
       }
       // ---- Insert updateArr first because in getNewNode the updateFunc will replace this null
-      newUpdateArr.splice(idx, 0, null)
-      const newNodes = this.getNewNodes(idx, newUpdateArr)
+      const updateArr = []
+      const [newNodes, willUnmountFunc, didUnmountFunc] =
+        this.getNewNodesSliced(idx, updateArr)
+      // ---- Add the new nodes
+      newFuncs.splice(idx, 0, [updateArr[idx], willUnmountFunc, didUnmountFunc])
+      newNodess.splice(idx, 0, newNodes)
+      shuffleKeys.splice(idx, 0, key)
+
       const count = MutableNode.appendNodesWithIndex(
         newNodes,
         parentEl,
@@ -248,9 +318,6 @@ export class ForNode extends MutableNode {
       MutableNode.runDidMount()
       newFlowIndex += count
       length += count
-      // ---- Add the new nodes
-      newNodess.splice(idx, 0, newNodes)
-      shuffleKeys.splice(idx, 0, key)
     }
 
     // ---- After adding and deleting, the only thing left is to reorder the nodes,
@@ -258,7 +325,15 @@ export class ForNode extends MutableNode {
     if (ForNode.arrayEqual(this.keys, shuffleKeys)) {
       this.nodess = newNodess
       this._$nodes = this.nodess.flat(1)
-      this.updateArr = newUpdateArr
+      this.updateArr = []
+      this.willUnmountArr = []
+      this.didUnmountArr = []
+      for (const [update, willUnmount, didUnmount] of newFuncs) {
+        this.updateArr.push(update)
+        this.willUnmountArr.push(willUnmount)
+        this.didUnmountArr.push(didUnmount)
+      }
+
       return
     }
 
@@ -303,14 +378,21 @@ export class ForNode extends MutableNode {
       const tempKey = shuffleKeys[idx]
       shuffleKeys[idx] = shuffleKeys[prevIdx]
       shuffleKeys[prevIdx] = tempKey
-      const tempUpdateArr = newUpdateArr[idx]
-      newUpdateArr[idx] = newUpdateArr[prevIdx]
-      newUpdateArr[prevIdx] = tempUpdateArr
+      const tempFunc = newFuncs[idx]
+      newFuncs[idx] = newFuncs[prevIdx]
+      newFuncs[prevIdx] = tempFunc
     }
 
     this.nodess = newNodess
     this._$nodes = this.nodess.flat(1)
-    this.updateArr = newUpdateArr
+    this.updateArr = []
+    this.willUnmountArr = []
+    this.didUnmountArr = []
+    for (const [update, willUnmount, didUnmount] of newFuncs) {
+      this.updateArr.push(update)
+      this.willUnmountArr.push(willUnmount)
+      this.didUnmountArr.push(didUnmount)
+    }
   }
 
   /**
@@ -322,15 +404,5 @@ export class ForNode extends MutableNode {
   static arrayEqual(arr1, arr2) {
     if (arr1.length !== arr2.length) return false
     return arr1.every((item, idx) => item === arr2[idx])
-  }
-
-  /**
-   * @brief No common elements in two arrays
-   * @param arr1
-   * @param arr2
-   * @returns
-   */
-  static arrayVeryDifferent(arr1, arr2) {
-    return arr1.every(item => !arr2.includes(item))
   }
 }

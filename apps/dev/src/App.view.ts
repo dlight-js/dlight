@@ -11,80 +11,56 @@ import {
 
 @View
 class JJ {
+  @Prop id
+  didUnmount() {
+    console.log("jjj", this.id)
+  }
+
   View() {
-    div("ok")
+    div(this.id)
   }
 }
 
-@View
-class Sub {
-  a
-  hh = [1]
-  View() {
-    div()
-    {
-      button("+").onClick(() => {
-        this.hh = [...this.hh, this.hh.length]
-      })
-      button("-").onClick(() => {
-        this.hh = [...this.hh.slice(0, -1)]
-      })
-      for (const i of this.hh) {
-        div()
-
-        {
-          div()
-          {
-            JJ()
-              .hh(this.hh)
-              .onUpdate((_, jj, __, a) => {
-                console.log("changed", a.length)
-              })
-          }
-        }
-      }
-    }
-  }
-}
 @View
 class IfTest {
-  @Content count = 0
+  @Prop id
+  didUnmount() {
+    console.log("unmount", this.id)
+  }
 
-  View() {}
+  View() {
+    if (this.id > -100) {
+      JJ().id(this.id)
+    }
+  }
 }
 @View
 class App {
   count = 0
-  arr = [1, 2, 3]
-
-  @View
-  jj({ content }) {
-    div()
-    {
-      div()
-      {
-        // div(this.count).onUpdate(() => {
-        //   console.log("hh")
-        // })
-        if (this.count === 0) {
-          div("okk")
-        } else {
-          div(this.count).onUpdate((node, key, value, nextValue) => {
-            console.log("updated", key, value, nextValue)
-          })
-        }
-        button("+").onClick(() => {
-          this.count++
-        })
-      }
-    }
-  }
+  arr = [0, 1, 2, 3]
 
   View() {
-    Sub()
     button("+").onClick(() => {
-      this.count++
+      this.arr = [...this.arr, Math.random() * 100]
     })
+    button("-").onClick(() => {
+      this.arr = [...this.arr.slice(0, -2), ...this.arr.slice(-1)]
+    })
+    // for (const j of this.arr) {
+    for (const i of this.arr) {
+      key: i
+      div()
+      {
+        div()
+        {
+          div()
+          {
+            IfTest().id(i)
+          }
+        }
+      }
+    }
+    // }
   }
 }
 

@@ -14,3 +14,18 @@ function testPerf(func: () => void) {
   }
   console.log(times.reduce((a, b) => a + b, 0) / times.length)
 }
+
+const a = Array(1000)
+  .fill(0)
+  .map((_, idx) => `${idx}`)
+const b = Array(1000).fill(1)
+testPerf(() => {
+  const c = a.length === new Set(a).size
+})
+
+testPerf(() => {
+  const c = []
+  for (let idx = a.length - 1; idx >= 0; idx--) {
+    c.push(idx)
+  }
+})

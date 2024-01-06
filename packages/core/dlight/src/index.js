@@ -14,6 +14,17 @@ export * from "./MutableNode/CondNode"
 import { DLStore } from "./store"
 export { setGlobal, setDocument } from "./store"
 
+function initStore() {
+  // Declare a global variable to store didMount functions
+  DLStore.global.DidMountStore = []
+
+  // Declare a global variable to store willUnmount functions
+  DLStore.global.WillUnmountStore = []
+
+  // Declare a global variable to store didUnmount functions
+  DLStore.global.DidUnmountStore = []
+}
+
 export function render(idOrEl, DL) {
   let el = idOrEl
   if (typeof idOrEl === "string") {
@@ -23,6 +34,7 @@ export function render(idOrEl, DL) {
       throw new Error(`DLight: Element with id ${idOrEl} not found`)
     }
   }
+  initStore()
   el.innerHTML = ""
   const dlNode = new DL()
   dlNode._$init()

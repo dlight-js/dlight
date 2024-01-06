@@ -1,7 +1,7 @@
 import { DLNodeType } from "../DLNode"
-import { MutableNode } from "./MutableNode"
+import { FlatNode } from "./FlatNode"
 
-export class CondNode extends MutableNode {
+export class CondNode extends FlatNode {
   condFunc
   cond
   depNum
@@ -18,7 +18,13 @@ export class CondNode extends MutableNode {
   addCondFunc(condFunc) {
     this.cond = -1
     this.condFunc = condFunc
+    this.initUnmountStore()
     this._$nodes = this.condFunc(this)
+    this.setUnmountFuncs()
+
+    // ---- Add to the global UnmountStore
+    CondNode.addWillUnmount(this, this.runWillUnmount.bind(this))
+    CondNode.addDidUnmount(this, this.runDidUnmount.bind(this))
   }
 
   /**

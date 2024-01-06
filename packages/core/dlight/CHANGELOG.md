@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.50
+
+### Patch Changes
+
+- refactor: rebuild unmount with store
+
 ## 1.0.0-alpha.49
 
 ### Patch Changes

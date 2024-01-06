@@ -56,20 +56,19 @@ export class MutableNode extends DLNode {
     return newNodes
   }
 
+  initUnmountStore() {
+    DLStore.global.WillUnmountStore.push([])
+    DLStore.global.DidUnmountStore.push([])
+  }
+
   /**
    * @brief Remove nodes from parentEl and run willUnmount and didUnmount
    * @param nodes
    * @param removeEl Only remove outermost element
    */
-  removeNodes(nodes, removeEl = true) {
-    nodes.forEach(node => {
-      node.willUnmount?.(node)
-      if (!("_$dlNodeType" in node)) {
-        if (removeEl) this._$parentEl?.removeChild(node)
-        removeEl = false
-      }
-      this.removeNodes(node._$nodes ?? node.childNodes, removeEl)
-      node.didUnmount?.(node)
+  removeNodes(nodes) {
+    DLNode.loopShallowEls(nodes, node => {
+      this._$parentEl.removeChild(node)
     })
   }
 }

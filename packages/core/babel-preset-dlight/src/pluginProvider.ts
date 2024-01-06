@@ -234,17 +234,7 @@ export class PluginProvider {
     //       watcherFunc() { myFunc() }
     const watchDeco = this.findDecoratorByName(node.decorators, "Watch")
     if (!watchDeco) {
-      if (
-        this.t.isIdentifier(node.key) &&
-        [
-          "constructor",
-          "willMount",
-          "didMount",
-          "willUnmount",
-          "didUnmount",
-        ].includes(node.key.name)
-      )
-        return
+      if (this.t.isIdentifier(node.key, { name: "constructor" })) return
       this.autoBindMethods(node)
       return
     }

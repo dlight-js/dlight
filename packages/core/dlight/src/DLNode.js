@@ -196,12 +196,11 @@ export class DLNode {
    * @param func
    */
   static addWillUnmount(node, func) {
-    node.willUnmount = this.lifecycleFunc.bind(
-      this,
-      func,
-      node.willUnmount?.bind(node),
-      node
-    )
+    const willUnmountStore = DLStore.global.WillUnmountStore
+    const currentStore = willUnmountStore[willUnmountStore.length - 1]
+    // ---- If the current store is empty, it means this node is not mutable
+    if (!currentStore) return
+    currentStore.push(func.bind(null, node))
   }
 
   /**
@@ -210,12 +209,11 @@ export class DLNode {
    * @param func
    */
   static addDidUnmount(node, func) {
-    node.willUnmount = this.lifecycleFunc.bind(
-      this,
-      func,
-      node.willUnmount?.bind(node),
-      node
-    )
+    const didUnmountStore = DLStore.global.DidUnmountStore
+    const currentStore = didUnmountStore[didUnmountStore.length - 1]
+    // ---- If the current store is empty, it means this node is not mutable
+    if (!currentStore) return
+    currentStore.push(func.bind(null, node))
   }
 
   /**
@@ -223,14 +221,13 @@ export class DLNode {
    * @param func
    */
   static addDidMount(node, func) {
-    DLStore.global.DidMountStore.push(() => func(node))
+    DLStore.global.DidMountStore.push(func.bind(null, node))
   }
 
   /**
    * @brief Run all didMount functions and reset the global store
    */
   static runDidMount() {
-    if (!("DidMountStore" in DLStore.global)) return
     const didMountStore = DLStore.global.DidMountStore
     for (let i = didMountStore.length - 1; i >= 0; i--) {
       didMountStore[i]()

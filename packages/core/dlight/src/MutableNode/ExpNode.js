@@ -1,8 +1,8 @@
 import { DLNodeType } from "../DLNode"
-import { MutableNode } from "./MutableNode"
+import { FlatNode } from "./FlatNode"
 import { DLStore } from "../store"
 
-export class ExpNode extends MutableNode {
+export class ExpNode extends FlatNode {
   nodesFunc
 
   /**
@@ -12,17 +12,23 @@ export class ExpNode extends MutableNode {
   constructor(nodesFunc) {
     super(DLNodeType.Exp)
     this.nodesFunc = nodesFunc
+    this.initUnmountStore()
     this._$nodes = ExpNode.formatNodes(nodesFunc())
+    this.setUnmountFuncs()
+
+    // ---- Add to the global UnmountStore
+    ExpNode.addWillUnmount(this, this.runWillUnmount.bind(this))
+    ExpNode.addDidUnmount(this, this.runDidUnmount.bind(this))
   }
 
   /**
    * @brief Generate new nodes and replace the old nodes
    */
   update() {
+    this.removeNodes(this._$nodes)
     const newNodes = this.geneNewNodesInEnv(() =>
       ExpNode.formatNodes(this.nodesFunc())
     )
-    this.removeNodes(this._$nodes)
     if (newNodes.length === 0) {
       this._$nodes = []
       return

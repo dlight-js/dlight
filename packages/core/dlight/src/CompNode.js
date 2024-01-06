@@ -57,10 +57,11 @@ export class CompNode extends DLNode {
 
     // Call watchers
     this._$callUpdatesBeforeInit()
-    if (!("DidMountStore" in DLStore.global)) DLStore.global.DidMountStore = []
-    this.didMount &&
-      DLStore.global.DidMountStore.push(this.didMount.bind(this, this))
-    this.willMount?.(this)
+    this.didMount && DLNode.addDidMount(this, this.didMount.bind(this))
+    this.willUnmount && DLNode.addWillUnmount(this, this.willUnmount.bind(this))
+    this.didUnmount && DLNode.addDidUnmount(this, this.didUnmount.bind(this))
+
+    this.willMount?.()
     this._$nodes = this.View?.() ?? []
   }
 

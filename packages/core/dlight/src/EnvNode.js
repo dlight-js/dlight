@@ -1,7 +1,7 @@
 import { DLNode, DLNodeType } from "./DLNode"
 import { DLStore } from "./store"
 
-class EnvStoreClass {
+export class EnvStoreClass {
   constructor() {
     this.envs = {}
     this.currentEnvNodes = []
