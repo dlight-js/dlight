@@ -10,9 +10,15 @@ import {
 } from "@dlightjs/types"
 
 @View
-class JJ {
+class HH {
   didMount() {
-    console.log("jj")
+    console.log("hh")
+  }
+  willUnmount() {
+    console.log("hh will")
+  }
+  didUnmount() {
+    console.log("hh unmounted")
   }
   View() {
     button("jj").onClick(() => {
@@ -21,17 +27,26 @@ class JJ {
   }
 }
 @View
+class JJ {
+  didMount() {
+    console.log("jj")
+  }
+  willUnmount() {
+    console.log("jj will")
+  }
+  didUnmount() {
+    console.log("jj unmounted")
+  }
+  View() {
+    HH()
+  }
+}
+@View
 class Sub {
-  @Prop name = required
-  @Prop onClick = required
   a
   hh = [1]
   didMount() {
     console.log(this.a.clientHeight, "shit")
-  }
-  @Watch
-  watchName() {
-    console.log(this.name)
   }
 
   View() {
@@ -40,10 +55,19 @@ class Sub {
       button("+").onClick(() => {
         this.hh = [...this.hh, this.hh.length]
       })
+      button("-").onClick(() => {
+        this.hh = [...this.hh.slice(0, -1)]
+      })
       for (const i of this.hh) {
-        JJ().element(el => {
-          console.log(el[0].clientHeight, "shit fuck")
-        })
+        div()
+        {
+          div()
+          {
+            JJ().element(el => {
+              console.log(el[0].clientHeight, "shit fuck")
+            })
+          }
+        }
       }
     }
   }

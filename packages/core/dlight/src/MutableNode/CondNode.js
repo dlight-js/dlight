@@ -47,7 +47,7 @@ export class CondNode extends MutableNode {
 
     const nextSibling = parentEl.childNodes[flowIndex]
     MutableNode.appendNodesWithSibling(newNodes, parentEl, nextSibling)
-    MutableNode.runDidMount(newNodes)
+    MutableNode.runDidMount()
     this._$nodes = newNodes
 
     return this._$nodes

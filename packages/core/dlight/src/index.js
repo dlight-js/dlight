@@ -27,7 +27,7 @@ export function render(idOrEl, DL) {
   const dlNode = new DL()
   dlNode._$init()
   insertNode(el, dlNode, 0)
-  DLNode.runDidMount(dlNode._$nodes)
+  DLNode.runDidMount()
 }
 
 export function manual(callback, _deps) {

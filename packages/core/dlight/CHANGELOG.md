@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.46
+
+### Patch Changes
+
+- refactor: new lifecycle pipeline
+
 ## 1.0.0-alpha.45
 
 ### Patch Changes

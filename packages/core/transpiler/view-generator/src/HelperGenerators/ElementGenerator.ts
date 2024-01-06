@@ -5,9 +5,9 @@ import DoGenerator from "./DoGenerator"
 export default class ElementGenerator extends DoGenerator {
   /**
    * @View
-   * View.addDidMount(${dlNodeName}, () => { ${elementNode} })
+   * View.addDidMount(() => { ${elementNode} })
    */
-  mountElement(elementNode: t.Statement, dlNodeName: string) {
+  mountElement(elementNode: t.Statement) {
     return this.t.expressionStatement(
       this.t.callExpression(
         this.t.memberExpression(
@@ -15,7 +15,6 @@ export default class ElementGenerator extends DoGenerator {
           this.t.identifier("addDidMount")
         ),
         [
-          this.t.identifier(dlNodeName),
           this.t.arrowFunctionExpression(
             [],
             this.t.blockStatement([elementNode])

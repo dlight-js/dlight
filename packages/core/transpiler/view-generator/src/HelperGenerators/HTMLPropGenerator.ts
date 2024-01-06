@@ -29,7 +29,7 @@ export default class HTMLPropGenerator extends ForwardPropGenerator {
             this.setDynamicHTMLProp(name, tag, key, value, true)
           )
         }
-        return this.mountElement(statement, name)
+        return this.mountElement(statement)
       }
       this.addUpdateStatements(
         dependencyIndexArr,
@@ -40,7 +40,7 @@ export default class HTMLPropGenerator extends ForwardPropGenerator {
     // ---- Static HTML prop with init only
     const statement = this.setStaticHTMLProp(name, tag, key, value)
     if (key === "element") {
-      return this.mountElement(statement, name)
+      return this.mountElement(statement)
     }
     return statement
   }

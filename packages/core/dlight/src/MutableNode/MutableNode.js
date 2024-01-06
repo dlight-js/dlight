@@ -56,11 +56,21 @@ export class MutableNode extends DLNode {
     return newNodes
   }
 
-  removeNodes(nodes) {
-    DLNode.loopDLNodes(nodes, node => node.willUnmount?.())
-    DLNode.loopShallowEls(nodes, el => {
-      this._$parentEl?.removeChild(el)
+  /**
+   * @brief Remove nodes from parentEl and run willUnmount and didUnmount
+   * @param nodes
+   * @param removeEl Only remove outermost element
+   */
+  removeNodes(nodes, removeEl = true) {
+    nodes.forEach(node => {
+      node.willUnmount?.()
+      if (!("_$dlNodeType" in node)) {
+        if (removeEl) this._$parentEl?.removeChild(node)
+        removeEl = false
+      }
+      const nodes = node._$nodes ?? node.childNodes
+      this.removeNodes(nodes, removeEl)
+      node.didUnmount?.()
     })
-    DLNode.loopDLNodesInsideOut(nodes, node => node.didUnmount?.())
   }
 }

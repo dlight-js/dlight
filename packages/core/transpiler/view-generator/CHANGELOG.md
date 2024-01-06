@@ -1,5 +1,11 @@
 # @dlightjs/view-generator
 
+## 1.0.0-alpha.25
+
+### Patch Changes
+
+- refactor: new lifecycle pipeline
+
 ## 1.0.0-alpha.24
 
 ### Patch Changes

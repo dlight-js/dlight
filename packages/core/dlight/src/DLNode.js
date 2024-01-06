@@ -1,3 +1,5 @@
+import { DLStore } from "./store"
+
 export const DLNodeType = {
   Comp: 0,
   For: 1,
@@ -54,30 +56,6 @@ export class DLNode {
   }
 
   // ---- Loop nodes ----
-  /**
-   * @brief Loop all child DLNodes deeply, including all the child nodes of child nodes
-   * @param nodes
-   * @param runFunc
-   */
-  static loopDLNodes(nodes, runFunc) {
-    nodes.forEach(node => {
-      runFunc(node)
-      node._$nodes && DLNode.loopDLNodes(node._$nodes, runFunc)
-    })
-  }
-
-  /**
-   * @brief Loop all child DLNodes deeply, including all the child nodes of child nodes
-   * @param nodes
-   * @param runFunc
-   */
-  static loopDLNodesInsideOut(nodes, runFunc) {
-    nodes.forEach(node => {
-      node._$nodes && DLNode.loopDLNodesInsideOut(node._$nodes, runFunc)
-      runFunc(node)
-    })
-  }
-
   /**
    * @brief Loop all elements shallowly,
    *  i.e., don't loop the child nodes of dom elements and only call runFunc on dom elements
@@ -202,11 +180,21 @@ export class DLNode {
   }
 
   // ---- Lifecycle ----
+  /**
+   * @brief Use predefined function to reduce compiled code sise
+   * @param currFunc
+   * @param prevFunc
+   */
   static lifecycleFunc(currFunc, prevFunc) {
     currFunc()
     prevFunc?.()
   }
 
+  /**
+   * @brief Add willUnmount function to node
+   * @param node
+   * @param func
+   */
   static addWillUnmount(node, func) {
     node.willUnmount = this.lifecycleFunc.bind(
       this,
@@ -215,17 +203,23 @@ export class DLNode {
     )
   }
 
-  static addDidMount(node, func) {
-    node.didMount = this.lifecycleFunc.bind(
-      this,
-      func,
-      node.didMount?.bind(node)
-    )
+  /**
+   * @brief Add didUnmount function to global store
+   * @param func
+   */
+  static addDidMount(func) {
+    DLStore.global.DidMountStore.push(func)
   }
 
-  static runDidMount(nodes) {
-    DLNode.loopDLNodesInsideOut(nodes, node => {
-      node.didMount?.()
-    })
+  /**
+   * @brief Run all didMount functions and reset the global store
+   */
+  static runDidMount() {
+    if (!("DidMountStore" in DLStore.global)) return
+    const didMountStore = DLStore.global.DidMountStore
+    for (let i = didMountStore.length - 1; i >= 0; i--) {
+      didMountStore[i]()
+    }
+    DLStore.global.DidMountStore = []
   }
 }
