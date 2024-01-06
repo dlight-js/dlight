@@ -15,12 +15,8 @@ import { DLStore } from "./store"
 export { setGlobal, setDocument } from "./store"
 
 function initStore() {
-  // Declare a global variable to store didMount functions
-  DLStore.global.DidMountStore = []
-
   // Declare a global variable to store willUnmount functions
   DLStore.global.WillUnmountStore = []
-
   // Declare a global variable to store didUnmount functions
   DLStore.global.DidUnmountStore = []
 }

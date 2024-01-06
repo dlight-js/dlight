@@ -189,6 +189,7 @@ export class DLNode {
    * @param func
    */
   static addDidMount(node, func) {
+    if (!DLStore.global.DidMountStore) DLStore.global.DidMountStore = []
     DLStore.global.DidMountStore.push(func.bind(null, node))
   }
 
@@ -197,6 +198,7 @@ export class DLNode {
    */
   static runDidMount() {
     const didMountStore = DLStore.global.DidMountStore
+    if (!didMountStore || didMountStore.length === 0) return
     for (let i = didMountStore.length - 1; i >= 0; i--) {
       didMountStore[i]()
     }

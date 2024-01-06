@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.53
+
+### Patch Changes
+
+- 07ae958: feat: lazy load didMountStore
+
 ## 1.0.0-alpha.52
 
 ### Patch Changes

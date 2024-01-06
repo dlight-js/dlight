@@ -4,16 +4,15 @@ import { MutableNode } from "./MutableNode"
 
 export class ForNode extends MutableNode {
   array
-  keys
   nodeFunc
   depNum
 
   nodesMap = new Map()
-
   updateMap = new Map()
-  willUnmountMap = new Map()
-  didUnmountMap = new Map()
 
+  /**
+   * @brief Getter for nodes
+   */
   get _$nodes() {
     const nodes = []
     for (let idx = 0; idx < this.array.length; idx++) {
@@ -35,6 +34,10 @@ export class ForNode extends MutableNode {
     this.depNum = depNum
   }
 
+  /**
+   * @brief To be called immediately after the constructor
+   * @param nodeFunc
+   */
   addNodeFunc(nodeFunc) {
     this.nodeFunc = nodeFunc
     this.array.forEach((item, idx) => {
@@ -44,7 +47,7 @@ export class ForNode extends MutableNode {
       this.nodesMap.set(key, nodes)
       this.setUnmountMap(key)
     })
-    // ---- For nested MutableNode, the whole strategy is just like EnvStore
+    // ---- For nested ForNode, the whole strategy is just like EnvStore
     //      we use array of function array to create "environment", popping and pushing
     ForNode.addWillUnmount(this, this.runAllWillUnmount.bind(this))
     ForNode.addDidUnmount(this, this.runAllDidUnmount.bind(this))
@@ -92,7 +95,7 @@ export class ForNode extends MutableNode {
   }
 
   /**
-   * @brief Shortcut to generate new nodes with idx
+   * @brief Shortcut to generate new nodes with idx and key
    */
   getNewNodes(idx, key) {
     this.initUnmountStore()
@@ -104,46 +107,77 @@ export class ForNode extends MutableNode {
     return nodes
   }
 
+  /**
+   * @brief Set the unmount map by getting the last unmount map from the global store
+   * @param key
+   */
   setUnmountMap(key) {
     const willUnmountMap = DLStore.global.WillUnmountStore.pop()
-    if (willUnmountMap && willUnmountMap.length > 0)
+    if (willUnmountMap && willUnmountMap.length > 0) {
+      if (!this.willUnmountMap) this.willUnmountMap = new Map()
       this.willUnmountMap.set(key, willUnmountMap)
+    }
     const didUnmountMap = DLStore.global.DidUnmountStore.pop()
-    if (didUnmountMap && didUnmountMap.length > 0)
+    if (didUnmountMap && didUnmountMap.length > 0) {
+      if (!this.didUnmountMap) this.didUnmountMap = new Map()
       this.didUnmountMap.set(key, didUnmountMap)
+    }
   }
 
+  /**
+   * @brief Run all the unmount functions and clear the unmount map
+   */
   runAllWillUnmount() {
+    if (!this.willUnmountMap || this.willUnmountMap.size === 0) return
     this.willUnmountMap.forEach(funcs => {
       for (let i = 0; i < funcs.length; i++) funcs[i]?.()
     })
+    this.willUnmountMap.clear()
   }
 
+  /**
+   * @brief Run all the unmount functions and clear the unmount map
+   */
   runAllDidUnmount() {
+    if (!this.didUnmountMap || this.didUnmountMap.size === 0) return
     this.didUnmountMap.forEach(funcs => {
       for (let i = funcs.length - 1; i >= 0; i--) funcs[i]?.()
     })
+    this.didUnmountMap.clear()
   }
 
+  /**
+   * @brief Run the unmount functions of the given key
+   * @param key
+   */
   runWillUnmount(key) {
+    if (!this.willUnmountMap || this.willUnmountMap.size === 0) return
     const funcs = this.willUnmountMap.get(key)
-
     if (!funcs) return
     for (let i = 0; i < funcs.length; i++) funcs[i]?.()
+    this.willUnmountMap.delete(key)
   }
 
+  /**
+   * @brief Run the unmount functions of the given key
+   */
   runDidUnmount(key) {
+    if (!this.didUnmountMap || this.didUnmountMap.size === 0) return
     const funcs = this.didUnmountMap.get(key)
     if (!funcs) return
     for (let i = funcs.length - 1; i >= 0; i--) funcs[i]?.()
+    this.didUnmountMap.delete(key)
   }
 
+  /**
+   * @brief Remove nodes from parentEl and run willUnmount and didUnmount
+   * @param nodes
+   * @param key
+   */
   removeNodes(nodes, key) {
     this.runWillUnmount(key)
     super.removeNodes(nodes)
     this.runDidUnmount(key)
-    this.willUnmountMap.delete(key)
-    this.didUnmountMap.delete(key)
     this.updateMap.delete(key)
     this.nodesMap.delete(key)
   }
@@ -168,20 +202,20 @@ export class ForNode extends MutableNode {
     const parentEl = this._$parentEl
     // ---- If the new array is longer, add new nodes directly
     if (preLength < currLength) {
-      let flowIndex = MutableNode.getFlowIndexFromNodes(parentEl._$nodes, this)
+      let flowIndex = ForNode.getFlowIndexFromNodes(parentEl._$nodes, this)
       // ---- Calling parentEl.childNodes.length is time-consuming,
       //      so we use a length variable to store the length
       const length = parentEl.childNodes.length
       for (let idx = 0; idx < currLength; idx++) {
         if (idx < preLength) {
-          flowIndex += MutableNode.getFlowIndexFromNodes(this.nodesMap.get(idx))
+          flowIndex += ForNode.getFlowIndexFromNodes(this.nodesMap.get(idx))
           this.updateItem(idx)
           continue
         }
         const newNodes = this.getNewNodes(idx, idx)
-        MutableNode.appendNodesWithIndex(newNodes, parentEl, flowIndex, length)
-        MutableNode.runDidMount()
+        ForNode.appendNodesWithIndex(newNodes, parentEl, flowIndex, length)
       }
+      ForNode.runDidMount()
       return
     }
 
@@ -232,27 +266,26 @@ export class ForNode extends MutableNode {
         this.runAllDidUnmount()
       } else {
         for (let prevIdx = 0; prevIdx < prevKeys.length; prevIdx++) {
-          this.removeNodes(this.nodesMap.get(prevIdx), prevKeys[prevIdx])
+          const prevKey = prevKeys[prevIdx]
+          this.removeNodes(this.nodesMap.get(prevKey), prevKey)
         }
       }
       this.nodesMap.clear()
-      this.willUnmountMap.clear()
-      this.didUnmountMap.clear()
       this.updateMap.clear()
       return
     }
 
     // ---- Record how many nodes are before this ForNode with the same parentNode
-    const flowIndex = MutableNode.getFlowIndexFromNodes(parentEl._$nodes, this)
+    const flowIndex = ForNode.getFlowIndexFromNodes(parentEl._$nodes, this)
 
     // ---- No nodes before, append all nodes
     if (prevKeys.length === 0) {
       const nextSibling = parentEl.childNodes[flowIndex]
       for (let idx = 0; idx < this.keys.length; idx++) {
         const newNodes = this.getNewNodes(idx, this.keys[idx])
-        MutableNode.appendNodesWithSibling(newNodes, parentEl, nextSibling)
-        MutableNode.runDidMount()
+        ForNode.appendNodesWithSibling(newNodes, parentEl, nextSibling)
       }
+      ForNode.runDidMount()
       return
     }
 
@@ -275,35 +308,27 @@ export class ForNode extends MutableNode {
     let newFlowIndex = flowIndex
     for (let idx = 0; idx < this.keys.length; idx++) {
       const key = this.keys[idx]
-      const prevIdx = shuffleKeys.indexOf(key)
-      if (prevIdx !== -1) {
+      if (shuffleKeys.includes(key)) {
         // ---- These nodes are already in the parentEl,
         //      and we need to keep track of their flowIndex
-        newFlowIndex += MutableNode.getFlowIndexFromNodes(
-          this.nodesMap.get(key)
-        )
-        // ---- Update the nodes, using old update function and new item
-        this.updateMap.get(key)?.(
-          this.depNum,
-          ...this.updateArgs,
-          this.array[idx]
-        )
+        newFlowIndex += ForNode.getFlowIndexFromNodes(this.nodesMap.get(key))
+        this.updateItem(idx)
         continue
       }
       const newNodes = this.getNewNodes(idx, key)
       // ---- Add the new nodes
       shuffleKeys.splice(idx, 0, key)
 
-      const count = MutableNode.appendNodesWithIndex(
+      const count = ForNode.appendNodesWithIndex(
         newNodes,
         parentEl,
         newFlowIndex,
         length
       )
-      MutableNode.runDidMount()
       newFlowIndex += count
       length += count
     }
+    ForNode.runDidMount()
 
     // ---- After adding and deleting, the only thing left is to reorder the nodes,
     //      but if the keys are the same, we don't need to reorder
@@ -319,10 +344,10 @@ export class ForNode extends MutableNode {
       const bufferedNode = bufferNodes[idx]
       if (bufferedNode) {
         // ---- If the node is buffered, we need to add it to the parentEl
-        const addedElNum = MutableNode.appendNodesWithIndex(
+        const addedElNum = ForNode.appendNodesWithIndex(
           bufferedNode,
           parentEl,
-          newFlowIndex + MutableNode.getFlowIndexFromNodes(bufferedNode),
+          newFlowIndex + ForNode.getFlowIndexFromNodes(bufferedNode),
           length
         )
         newFlowIndex += addedElNum
@@ -330,16 +355,15 @@ export class ForNode extends MutableNode {
         bufferNodes[idx] = undefined
       } else if (prevIdx === idx) {
         // ---- If the node is in the same position, we don't need to do anything
-        newFlowIndex += MutableNode.getFlowIndexFromNodes(
-          this.nodesMap.get(key)
-        )
+        newFlowIndex += ForNode.getFlowIndexFromNodes(this.nodesMap.get(key))
         continue
       } else {
         // ---- If the node is not in the same position, we need to buffer it
+        //      We buffer the node of the previous position, and then replace it with the node of the current position
         bufferNodes[this.keys.indexOf(shuffleKeys[idx])] = this.nodesMap.get(
           this.keys[prevIdx]
         )
-        const addedElNum = MutableNode.appendNodesWithIndex(
+        const addedElNum = ForNode.appendNodesWithIndex(
           this.nodesMap.get(key),
           parentEl,
           newFlowIndex,
