@@ -151,11 +151,22 @@ export class ForNode extends MutableNode {
       return
     }
 
+    const arrayVeryDifferent = ForNode.arrayVeryDifferent(prevKeys, this.keys)
+    let shortcutType = 0
+    if (arrayVeryDifferent) {
+      shortcutType = 1
+    } else if (this.keys.length === 0) {
+      // ---- No nodes after
+      shortcutType = 2
+    } else if (prevKeys.length === 0) {
+      // ---- No nodes before
+      shortcutType = 3
+    }
     const parentEl = this._$parentEl
     const prevNodess = this.nodess
 
-    // ---- No nodes after, delete all nodes
-    if (this.keys.length === 0) {
+    // ---- Delete all nodes
+    if (shortcutType === 1 || shortcutType === 2) {
       const parentNodes = parentEl._$nodes ?? []
       if (parentNodes.length === 1 && parentNodes[0] === this) {
         // ---- ForNode is the only node in the parent node
@@ -170,14 +181,14 @@ export class ForNode extends MutableNode {
       this.nodess = []
       this._$nodes = []
       this.updateArr = []
-      return
+      if (shortcutType === 2) return
     }
 
     // ---- Record how many nodes are before this ForNode with the same parentNode
     const flowIndex = MutableNode.getFlowIndexFromNodes(parentEl._$nodes, this)
 
     // ---- No nodes before, append all nodes
-    if (prevKeys.length === 0) {
+    if (shortcutType === 3 || shortcutType === 2) {
       const nextSibling = parentEl.childNodes[flowIndex]
       for (let idx = 0; idx < this.keys.length; idx++) {
         const newNodes = this.getNewNodes(idx)
@@ -311,5 +322,15 @@ export class ForNode extends MutableNode {
   static arrayEqual(arr1, arr2) {
     if (arr1.length !== arr2.length) return false
     return arr1.every((item, idx) => item === arr2[idx])
+  }
+
+  /**
+   * @brief No common elements in two arrays
+   * @param arr1
+   * @param arr2
+   * @returns
+   */
+  static arrayVeryDifferent(arr1, arr2) {
+    return arr1.every(item => !arr2.includes(item))
   }
 }
