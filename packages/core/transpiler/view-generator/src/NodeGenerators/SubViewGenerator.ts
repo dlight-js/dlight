@@ -23,7 +23,7 @@ export default class SubViewGenerator extends PropViewGenerator {
       const allDependencyIndexArr: number[] = []
       let hasOnUpdate: t.Expression | false = false
       Object.entries(props).forEach(([key, { value, dependencyIndexArr }]) => {
-        if (key === "onUpdate") {
+        if (key === "didUpdate") {
           hasOnUpdate = value
           return
         }

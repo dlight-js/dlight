@@ -28,29 +28,29 @@ export default class TemplateGenerator extends HTMLPropGenerator {
     this.addInitStatement(...insertElementStatements)
 
     // ---- Resolve props
-    const onUpdateMap: Record<
+    const didUpdateMap: Record<
       string,
       { deps: number[]; value?: t.Expression }
     > = {}
     props.forEach(({ tag, path, key, value, dependencyIndexArr }) => {
       const name = pathNameMap[path.join(".")]
-      if (!onUpdateMap[name])
-        onUpdateMap[name] = {
+      if (!didUpdateMap[name])
+        didUpdateMap[name] = {
           deps: [],
         }
-      if (key === "onUpdate") {
-        onUpdateMap[name].value = value
+      if (key === "didUpdate") {
+        didUpdateMap[name].value = value
         return
       }
 
-      onUpdateMap[name].deps.push(...(dependencyIndexArr ?? []))
+      didUpdateMap[name].deps.push(...(dependencyIndexArr ?? []))
 
       this.addInitStatement(
         this.addHTMLProp(name, tag, key, value, dependencyIndexArr)
       )
     })
 
-    Object.entries(onUpdateMap).forEach(([name, { deps, value }]) => {
+    Object.entries(didUpdateMap).forEach(([name, { deps, value }]) => {
       if (!value) return
       console.log(name, deps)
       this.addUpdateStatements(deps, this.addOnUpdate(name, value))

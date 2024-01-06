@@ -42,7 +42,7 @@ export default class ExpGenerator extends ElementGenerator {
             this.addUpdateStatements(dependencyIndexArr, updateStatement)
           return
         }
-        if (key === "onUpdate") {
+        if (key === "didUpdate") {
           this.addUpdateStatements(
             content.dependencyIndexArr,
             this.addOnUpdate(dlNodeName, value)

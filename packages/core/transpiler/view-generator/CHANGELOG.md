@@ -1,10 +1,16 @@
 # @dlightjs/view-generator
 
+## 1.0.0-alpha.27
+
+### Patch Changes
+
+- refactor: onUpdate -> didUpdate to avoid event conflict
+
 ## 1.0.0-alpha.26
 
 ### Patch Changes
 
-- feat: add lifecycle and onUpdate
+- feat: add lifecycle and didUpdate
 - Updated dependencies
   - @dlightjs/reactivity-parser@1.0.0-alpha.7
 

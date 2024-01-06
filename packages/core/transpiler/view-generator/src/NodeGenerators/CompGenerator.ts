@@ -36,7 +36,7 @@ export default class CompGenerator extends ForwardPropGenerator {
       let hasOnUpdate: t.Expression | false = false
       Object.entries(props).forEach(([key, { value, dependencyIndexArr }]) => {
         if (key === "forwardProps") return
-        if (key === "onUpdate") {
+        if (key === "didUpdate") {
           hasOnUpdate = value
           return
         }

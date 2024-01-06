@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.48
+
+### Patch Changes
+
+- feat: add arrayVeryDifferent for node check
+
 ## 1.0.0-alpha.47
 
 ### Patch Changes
