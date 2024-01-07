@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.56
+
+### Patch Changes
+
+- fix: condnode update unmount funcs
+
 ## 1.0.0-alpha.55
 
 ### Patch Changes

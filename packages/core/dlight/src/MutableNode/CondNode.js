@@ -31,16 +31,24 @@ export class CondNode extends FlatNode {
    * @brief Update the nodes in the environment
    */
   updateCond(...args) {
+    // ---- Need to save prev unmount funcs because we can't put removeNodes before geneNewNodesInEnv
+    //      The reason is that if it didn't change, we don't need to unmount or remove the nodes
+    const prevFuncs = [this.willUnmountFuncs, this.didUnmountFuncs]
     const newNodes = this.geneNewNodesInEnv(() => this.condFunc(this))
+
     // ---- If the new nodes are the same as the old nodes, we only need to update  children
     if (this.didntChange) {
+      ;[this.willUnmountFuncs, this.didUnmountFuncs] = prevFuncs
       this.didntChange = false
       this.updateFunc?.(this.depNum, ...args)
       return this._$nodes
     }
-
     // ---- Remove old nodes
+    const newFuncs = [this.willUnmountFuncs, this.didUnmountFuncs]
+    ;[this.willUnmountFuncs, this.didUnmountFuncs] = prevFuncs
     this._$nodes && this._$nodes.length > 0 && this.removeNodes(this._$nodes)
+    ;[this.willUnmountFuncs, this.didUnmountFuncs] = newFuncs
+
     if (newNodes.length === 0) {
       // ---- No branch has been taken
       this._$nodes = []
