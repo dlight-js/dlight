@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.59
+
+### Patch Changes
+
+- fix: old for array change affect new array
+
 ## 1.0.0-alpha.58
 
 ### Patch Changes

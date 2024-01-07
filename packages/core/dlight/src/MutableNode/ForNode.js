@@ -195,7 +195,7 @@ export class ForNode extends MutableNode {
       for (let idx = 0; idx < this.array.length; idx++) {
         this.updateItem(idx, newArray)
       }
-      this.array = newArray
+      this.array = [...newArray]
       return
     }
     const parentEl = this._$parentEl
@@ -215,7 +215,7 @@ export class ForNode extends MutableNode {
         ForNode.appendNodesWithIndex(newNodes, parentEl, flowIndex, length)
       }
       ForNode.runDidMount()
-      this.array = newArray
+      this.array = [...newArray]
       return
     }
 
@@ -228,7 +228,7 @@ export class ForNode extends MutableNode {
       const nodes = this.nodesMap.get(idx)
       this.removeNodes(nodes, idx)
     }
-    this.array = newArray
+    this.array = [...newArray]
   }
 
   /**
@@ -248,7 +248,7 @@ export class ForNode extends MutableNode {
       for (let idx = 0; idx < newArray.length; idx++) {
         this.updateItem(idx, newArray)
       }
-      this.array = newArray
+      this.array = [...newArray]
       return
     }
 
@@ -287,7 +287,7 @@ export class ForNode extends MutableNode {
         ForNode.appendNodesWithSibling(newNodes, parentEl, nextSibling)
       }
       ForNode.runDidMount()
-      this.array = newArray
+      this.array = [...newArray]
       return
     }
 
@@ -335,7 +335,7 @@ export class ForNode extends MutableNode {
     // ---- After adding and deleting, the only thing left is to reorder the nodes,
     //      but if the keys are the same, we don't need to reorder
     if (ForNode.arrayEqual(this.keys, shuffleKeys)) {
-      this.array = newArray
+      this.array = [...newArray]
       return
     }
 
@@ -382,7 +382,7 @@ export class ForNode extends MutableNode {
       shuffleKeys[idx] = shuffleKeys[prevIdx]
       shuffleKeys[prevIdx] = tempKey
     }
-    this.array = newArray
+    this.array = [...newArray]
   }
 
   /**
