@@ -238,15 +238,30 @@ export class PluginProvider {
     // ---- Get dependencies from watcher decorator or watcher function decorator
     let deps: string[] = []
     if (this.t.isIdentifier(watchDeco)) {
-      deps = this.getDependencies(path)
+      deps = this.getDependencies(node)
     } else {
-      const listenDeps = watchDeco.arguments[0]
-      if (this.t.isArrayExpression(listenDeps)) {
-        deps = listenDeps.elements
-          .filter(arg => this.t.isStringLiteral(arg))
-          .map(arg => (arg as t.StringLiteral).value)
-        deps = [...new Set(deps)]
-      }
+      const listenDepStrings = watchDeco.arguments
+        .filter(arg => this.t.isStringLiteral(arg))
+        .map(arg => (arg as t.StringLiteral).value)
+      const pseudoMethod = this.t.classMethod(
+        "method",
+        node.key,
+        [],
+        this.t.blockStatement([
+          this.t.expressionStatement(
+            this.t.arrayExpression(
+              listenDepStrings.map(str =>
+                this.t.memberExpression(
+                  this.t.thisExpression(),
+                  this.t.identifier(str)
+                )
+              )
+            )
+          ),
+        ])
+      )
+
+      deps = this.getDependencies(pseudoMethod)
     }
     // ---- Register watcher to propertiesContainer
     this.propertiesContainer[key] = {
@@ -274,7 +289,7 @@ export class PluginProvider {
 
     const isChildren = !!this.findDecoratorByName(node.decorators, "Children")
 
-    const deps = !isChildren ? this.getDependencies(path) : []
+    const deps = !isChildren ? this.getDependencies(node) : []
 
     this.propertiesContainer[key] = {
       node,
@@ -901,15 +916,17 @@ export class PluginProvider {
    * @param path
    * @returns dependencies
    */
-  getDependencies(path: NodePath<t.ClassMethod | t.ClassProperty>): string[] {
-    const node = path.node
+  getDependencies(node: t.ClassMethod | t.ClassProperty): string[] {
     if (!this.t.isIdentifier(node.key)) return []
 
     // ---- Deps: console.log(this.count)
     const deps = new Set<string>()
     // ---- Assign deps: this.count = 1 / this.count++
     const assignDeps = new Set<string>()
-    path.scope.traverse(node, {
+    const wrappedNode = this.valueWrapper(
+      this.t.classDeclaration(null, null, this.t.classBody([node]))
+    )
+    this.traverse(wrappedNode, {
       MemberExpression: innerPath => {
         if (!this.t.isIdentifier(innerPath.node.property)) return
         const propertyKey = innerPath.node.property.name

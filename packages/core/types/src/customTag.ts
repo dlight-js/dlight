@@ -1,4 +1,3 @@
-import { type CompNode } from "@dlightjs/dlight"
 import { type DLightHTMLAttributes } from "./htmlTag"
 
 // a very magical solution
@@ -15,7 +14,17 @@ export type DLightObject<T> = {
     : (value: T[K]) => DLightObject<Omit<T, K>>
 }
 interface CustomNodeProps {
-  do: (node: CompNode) => void
+  willMount: (node: any) => void
+  didMount: (node: any) => void
+  willUnmount: (node: any) => void
+  didUnmount: (node: any) => void
+  didUpdate: (
+    node: any,
+    changed: number,
+    key: string,
+    prevValue: any,
+    currValue: any
+  ) => void
   element: HTMLElement[] | ((holder: HTMLElement[]) => void) | undefined
   forwardProps: true | undefined
 }

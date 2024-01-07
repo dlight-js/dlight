@@ -1,5 +1,11 @@
 # babel-preset-dlight
 
+## 1.0.0-alpha.33
+
+### Patch Changes
+
+- fix: @Watch manual mode
+
 ## 1.0.0-alpha.32
 
 ### Patch Changes
