@@ -1,5 +1,8 @@
 import { type types as t } from "@babel/core"
-import { type TemplateParticle } from "@dlightjs/reactivity-parser"
+import {
+  type HTMLParticle,
+  type TemplateParticle,
+} from "@dlightjs/reactivity-parser"
 import HTMLPropGenerator from "../HelperGenerators/HTMLPropGenerator"
 
 export default class TemplateGenerator extends HTMLPropGenerator {
@@ -73,15 +76,33 @@ export default class TemplateGenerator extends HTMLPropGenerator {
 
   /**
    * @View
-   * static ${templateName} = ${createTemplate}(${templateString})
+   * static ${templateName} = (() => {
+   *   let _$node0, _$node1, ...
+   *   ${template}
+   *
+   *  return _$node0
+   * })()
    */
-  private addTemplate(template: string): string {
+  private addTemplate(template: HTMLParticle): string {
     const templateName = this.generateTemplateName()
+    const [statements, nodeName, , nodeIdx] = this.generateChild(
+      template,
+      false,
+      true
+    )
     this.addStaticClassProperty(
       templateName,
-      this.t.callExpression(this.t.identifier(this.importMap.createTemplate), [
-        this.t.stringLiteral(template),
-      ])
+      this.t.callExpression(
+        this.t.arrowFunctionExpression(
+          [],
+          this.t.blockStatement([
+            ...this.declareNodes(nodeIdx),
+            ...statements,
+            this.t.returnStatement(this.t.identifier(nodeName)),
+          ])
+        ),
+        []
+      )
     )
 
     return templateName
@@ -89,7 +110,7 @@ export default class TemplateGenerator extends HTMLPropGenerator {
 
   /**
    * @View
-   * ${dlNodeName} = ${this.className}.${templateName}()
+   * ${dlNodeName} = ${this.className}.${templateName}.cloneNode(true)
    */
   private declareTemplateNode(
     dlNodeName: string,
@@ -101,10 +122,13 @@ export default class TemplateGenerator extends HTMLPropGenerator {
         this.t.identifier(dlNodeName),
         this.t.callExpression(
           this.t.memberExpression(
-            this.t.identifier(this.className),
-            this.t.identifier(templateName)
+            this.t.memberExpression(
+              this.t.identifier(this.className),
+              this.t.identifier(templateName)
+            ),
+            this.t.identifier("cloneNode")
           ),
-          []
+          [this.t.booleanLiteral(true)]
         )
       )
     )

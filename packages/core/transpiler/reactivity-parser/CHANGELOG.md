@@ -1,5 +1,11 @@
 # @dlightjs/reactivity-parser
 
+## 1.0.0-alpha.8
+
+### Patch Changes
+
+- feat: avoid using innerHTML, createElement dynamically instead
+
 ## 1.0.0-alpha.7
 
 ### Patch Changes

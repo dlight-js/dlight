@@ -155,18 +155,24 @@ export default class BaseGenerator {
    */
   generateChild(
     viewParticle: ViewParticle,
-    mergeStatements = true
-  ): [t.Statement[], string, Record<number, t.Statement[]>] {
-    this.viewGenerator.nodeIdx = this.nodeIdx
+    mergeStatements = true,
+    newIdx = false
+  ): [t.Statement[], string, Record<number, t.Statement[]>, number] {
+    this.viewGenerator.nodeIdx = newIdx ? -1 : this.nodeIdx
     this.viewGenerator.templateIdx = this.templateIdx
     const [initStatements, updateStatements, classProperties, nodeName] =
       this.viewGenerator.generateChild(viewParticle)
-    this.nodeIdx = this.viewGenerator.nodeIdx
+    if (!newIdx) this.nodeIdx = this.viewGenerator.nodeIdx
     this.templateIdx = this.viewGenerator.templateIdx
     this.classProperties.push(...classProperties)
     if (mergeStatements) this.mergeStatements(updateStatements)
 
-    return [initStatements, nodeName, updateStatements]
+    return [
+      initStatements,
+      nodeName,
+      updateStatements,
+      this.viewGenerator.nodeIdx,
+    ]
   }
 
   /**
@@ -234,8 +240,7 @@ export default class BaseGenerator {
         "let",
         Array.from({ length: nodeIdx + 1 }, (_, i) =>
           this.t.variableDeclarator(
-            this.t.identifier(`${BaseGenerator.prefixMap.node}${i}`),
-            this.t.nullLiteral()
+            this.t.identifier(`${BaseGenerator.prefixMap.node}${i}`)
           )
         )
       ),

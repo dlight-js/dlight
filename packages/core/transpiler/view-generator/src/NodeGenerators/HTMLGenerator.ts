@@ -39,15 +39,20 @@ export default class HTMLGenerator extends HTMLPropGenerator {
     // ---- Resolve children
     if (children) {
       const childNames: string[] = []
+      let mutable = false
       children.forEach((child, idx) => {
         const [initStatements, childName] = this.generateChild(child)
         childNames.push(childName)
         this.addInitStatement(...initStatements)
-        if (child.type === "html")
+        if (child.type === "html") {
           this.addInitStatement(this.appendChild(dlNodeName, childName))
-        else this.addInitStatement(this.insertNode(dlNodeName, childName, idx))
+        } else {
+          mutable = true
+          this.addInitStatement(this.insertNode(dlNodeName, childName, idx))
+        }
       })
-      this.addInitStatement(this.setHTMLNodes(dlNodeName, childNames))
+      if (mutable)
+        this.addInitStatement(this.setHTMLNodes(dlNodeName, childNames))
     }
 
     return dlNodeName

@@ -1,5 +1,13 @@
 # @dlightjs/view-generator
 
+## 1.0.0-alpha.29
+
+### Patch Changes
+
+- feat: avoid using innerHTML, createElement dynamically instead
+- Updated dependencies
+  - @dlightjs/reactivity-parser@1.0.0-alpha.8
+
 ## 1.0.0-alpha.28
 
 ### Patch Changes

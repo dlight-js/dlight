@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.60
+
+### Patch Changes
+
+- feat: avoid using innerHTML, createElement dynamically instead
+
 ## 1.0.0-alpha.59
 
 ### Patch Changes

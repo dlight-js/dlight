@@ -2,7 +2,7 @@ import type babel from "@babel/core"
 import { type PluginObj } from "@babel/core"
 import { PluginProviderClass } from "./pluginProvider"
 import { type DLightOption } from "./types"
-import { defaultAlteredAttrMap, defaultAttributeMap } from "./const"
+import { defaultAttributeMap } from "./const"
 
 export default function (api: typeof babel, options: DLightOption): PluginObj {
   const { types } = api
@@ -11,7 +11,6 @@ export default function (api: typeof babel, options: DLightOption): PluginObj {
     excludeFiles = "**/{dist,node_modules,lib}/*.{js,ts}",
     enableDevTools = false,
     htmlTags = defaultHtmlTags => defaultHtmlTags,
-    alteredAttrMap = defaultAlteredAttrMap,
     attributeMap = defaultAttributeMap,
     parseTemplate = true,
   } = options
@@ -24,7 +23,6 @@ export default function (api: typeof babel, options: DLightOption): PluginObj {
     enableDevTools,
     htmlTags,
     attributeMap,
-    alteredAttrMap,
     parseTemplate
   )
 

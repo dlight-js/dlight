@@ -20,12 +20,12 @@ export interface TemplateProp {
   dependencyIndexArr?: number[]
 }
 
-export type mutableParticle = ViewParticle & { path: number[] }
+export type MutableParticle = ViewParticle & { path: number[] }
 
 export interface TemplateParticle {
   type: "template"
-  template: string
-  mutableParticles: mutableParticle[]
+  template: HTMLParticle
+  mutableParticles: MutableParticle[]
   props: TemplateProp[]
 }
 
@@ -113,7 +113,6 @@ export type ViewParticle =
 export interface ReactivityParserConfig {
   babelApi: typeof Babel
   availableProperties: string[]
-  alteredAttrMap: Record<string, string>
   dependencyMap: Record<string, string[]>
   identifierDepMap?: Record<string, string[]>
   dependencyParseType?: "property" | "identifier"

@@ -81,19 +81,6 @@ export function setEvent(el, key, value) {
 }
 
 /**
- * @brief Create a template function, which returns a function that returns a cloned element
- * @param templateStr
- * @returns a function that returns a cloned element
- */
-export function createTemplate(templateStr) {
-  const template = DLStore.document.createElement("template")
-  template.innerHTML = templateStr
-
-  const element = template.content.firstChild
-  return () => element.cloneNode(true)
-}
-
-/**
  * @brief Shortcut for document.createElement
  * @param tag
  * @returns HTMLElement

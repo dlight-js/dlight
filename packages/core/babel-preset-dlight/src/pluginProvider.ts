@@ -29,7 +29,6 @@ export class PluginProvider {
   private readonly excludes: string[]
   private readonly htmlTags: string[]
   private readonly attributeMap: Record<string, string[]>
-  private readonly alteredAttrMap: Record<string, string>
   private readonly parseTemplate: boolean
 
   constructor(
@@ -40,7 +39,6 @@ export class PluginProvider {
     enableDevTools: boolean,
     htmlTags: HTMLTags,
     attributeMap: Record<string, string[]>,
-    alteredAttrMap: Record<string, string>,
     parseTemplate: boolean
   ) {
     this.babelApi = babelApi
@@ -58,7 +56,6 @@ export class PluginProvider {
             )
           : htmlTags
     this.attributeMap = attributeMap
-    this.alteredAttrMap = alteredAttrMap
     this.parseTemplate = parseTemplate
   }
 
@@ -657,7 +654,6 @@ export class PluginProvider {
       babelApi: this.babelApi,
       availableProperties: this.availableProperties,
       dependencyMap: this.dependencyMap,
-      alteredAttrMap: this.alteredAttrMap,
       parseTemplate: this.parseTemplate,
     })
 
@@ -709,7 +705,6 @@ export class PluginProvider {
         babelApi: this.babelApi,
         availableProperties: this.availableProperties,
         dependencyMap: this.dependencyMap,
-        alteredAttrMap: this.alteredAttrMap,
       }
     )
 
@@ -728,7 +723,6 @@ export class PluginProvider {
       dependencyMap: this.dependencyMap,
       dependencyParseType: "identifier",
       identifierDepMap,
-      alteredAttrMap: this.alteredAttrMap,
     })
 
     const subViewPropMap = Object.fromEntries(

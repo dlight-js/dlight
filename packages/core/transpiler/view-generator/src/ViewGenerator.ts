@@ -116,8 +116,7 @@ export default class ViewGenerator {
         "let",
         Array.from({ length: this.nodeIdx + 1 }, (_, i) =>
           this.t.variableDeclarator(
-            this.t.identifier(`${BaseGenerator.prefixMap.node}${i}`),
-            this.t.nullLiteral()
+            this.t.identifier(`${BaseGenerator.prefixMap.node}${i}`)
           )
         )
       ),

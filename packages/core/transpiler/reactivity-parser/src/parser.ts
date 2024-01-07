@@ -1,7 +1,7 @@
 import {
   type TemplateProp,
   type ReactivityParserConfig,
-  type mutableParticle,
+  type MutableParticle,
   type ViewParticle,
   type TemplateParticle,
   type TextParticle,
@@ -40,12 +40,11 @@ export class ReactivityParser {
   private readonly dependencyMap: Record<string, string[]>
   private readonly identifierDepMap: Record<string, string[]>
   private readonly dependencyParseType
-  private readonly alteredAttrMap
   private readonly willParseTemplate
 
   private readonly escapeNamings = ["escape", "$"]
-  private readonly customHTMLProps = [
-    "onUpdate",
+  private static readonly customHTMLProps = [
+    "didUpdate",
     "willMount",
     "didMount",
     "willUnmount",
@@ -75,7 +74,6 @@ export class ReactivityParser {
     this.dependencyMap = config.dependencyMap
     this.identifierDepMap = config.identifierDepMap ?? {}
     this.dependencyParseType = config.dependencyParseType ?? "property"
-    this.alteredAttrMap = config.alteredAttrMap ?? {}
     this.willParseTemplate = config.parseTemplate ?? true
   }
 
@@ -119,72 +117,53 @@ export class ReactivityParser {
   private parseTemplate(htmlUnit: HTMLUnit): TemplateParticle {
     return {
       type: "template",
-      template: this.generateTemplateString(htmlUnit),
+      template: this.generateTemplate(htmlUnit),
       props: this.parseTemplateProps(htmlUnit),
       mutableParticles: this.generateMutableParticles(htmlUnit),
     }
   }
 
   /**
-   * @brief Generate a template string from a static HTMLUnit
+   * @brief Generate a template
    *  There'll be a situation where the tag is dynamic, e.g. tag(this.htmlTag),
    *  which we can't generate a template string for it, so we'll wrap it in an ExpParticle in parseHTML() section
    * @param htmlUnit
    * @returns template string
    */
-  private generateTemplateString(htmlUnit: HTMLUnit): string {
-    let templateString = ""
-    const generateString = (unit: HTMLUnit) => {
-      const tagName = (unit.tag as t.StringLiteral).value
-      const staticProps = this.filterTemplateProps(
-        // ---- Get all the static props
-        Object.entries(unit.props ?? [])
-          .filter(
-            ([, prop]) =>
-              this.isStaticProp(prop) &&
-              // ---- Filter out props with false values
-              !(this.t.isBooleanLiteral(prop.value) && !prop.value.value)
-          )
-          .map<[string, string | boolean]>(([key, { value }]) => [
-            this.recoverHTMLAttrName(key),
-            (value as t.StringLiteral).value,
-          ])
+  private generateTemplate(unit: HTMLUnit): HTMLParticle {
+    const staticProps = this.filterTemplateProps(
+      // ---- Get all the static props
+      Object.entries(unit.props ?? []).filter(
+        ([, prop]) =>
+          this.isStaticProp(prop) &&
+          // ---- Filter out props with false values
+          !(this.t.isBooleanLiteral(prop.value) && !prop.value.value)
       )
+    )
 
-      // ---- Open tag with props
-      const propString = staticProps
-        .map(([key, value]) =>
-          value === true ? ` ${key}` : ` ${key}="${value}"`
-        )
-        .join("")
-      templateString += `<${tagName}${propString}>`
-
-      // ---- ChildParticles
-      if (unit.content) {
-        // ---- Attach the content of current tag if it's a static string
-        if (this.isStaticProp(unit.content)) {
-          templateString += (unit.content.value as t.StringLiteral).value
-        }
-      } else {
-        unit.children?.forEach(unit => {
-          // ---- Recursively generate child particles
+    let children
+    if (unit.content) {
+      if (this.isStaticProp(unit.content)) {
+        staticProps.push(["textContent", unit.content])
+      }
+    } else if (unit.children) {
+      children = unit.children
+        .map(unit => {
           if (unit.type === "html" && this.t.isStringLiteral(unit.tag)) {
-            generateString(unit)
-            return
+            return this.generateTemplate(unit)
           }
-          // ---- Attach the text content to the parent tag
           if (unit.type === "text" && this.t.isStringLiteral(unit.content)) {
-            templateString += unit.content.value
+            return this.parseText(unit)
           }
         })
-      }
-
-      // ---- Close tag
-      templateString += `</${tagName}>`
+        .filter(Boolean) as HTMLParticle[]
     }
-    generateString(htmlUnit)
-
-    return templateString
+    return {
+      type: "html",
+      tag: unit.tag,
+      props: Object.fromEntries(staticProps),
+      children,
+    }
   }
 
   /**
@@ -194,8 +173,8 @@ export class ReactivityParser {
    * @param htmlUnit
    * @returns mutable particles
    */
-  private generateMutableParticles(htmlUnit: HTMLUnit): mutableParticle[] {
-    const mutableParticles: mutableParticle[] = []
+  private generateMutableParticles(htmlUnit: HTMLUnit): MutableParticle[] {
+    const mutableParticles: MutableParticle[] = []
     const generateMutableUnit = (unit: HTMLUnit, path: number[] = []) => {
       // ---- Generate mutable particles for current HTMLUnit
       unit.children?.forEach((child, idx) => {
@@ -778,7 +757,7 @@ export class ReactivityParser {
         // ---- Filter out event listeners
         .filter(([key]) => !key.startsWith("on"))
         // ---- Filter out specific props
-        .filter(([key]) => !this.customHTMLProps.includes(key))
+        .filter(([key]) => !ReactivityParser.customHTMLProps.includes(key))
     )
   }
 
@@ -1034,14 +1013,5 @@ export class ReactivityParser {
    */
   private uid(): string {
     return Math.random().toString(36).slice(2)
-  }
-
-  /**
-   * @brief Recover HTML attribute name from CamelCase to kebab-case
-   * @param name
-   * @returns HTML attribute name
-   */
-  recoverHTMLAttrName(name: string): string {
-    return this.alteredAttrMap[name as keyof typeof this.alteredAttrMap] ?? name
   }
 }

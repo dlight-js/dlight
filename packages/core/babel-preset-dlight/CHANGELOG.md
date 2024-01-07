@@ -1,5 +1,14 @@
 # babel-preset-dlight
 
+## 1.0.0-alpha.32
+
+### Patch Changes
+
+- feat: avoid using innerHTML, createElement dynamically instead
+- Updated dependencies
+  - @dlightjs/reactivity-parser@1.0.0-alpha.8
+  - @dlightjs/view-generator@1.0.0-alpha.29
+
 ## 1.0.0-alpha.31
 
 ### Patch Changes
