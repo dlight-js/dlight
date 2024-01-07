@@ -188,7 +188,7 @@ export class CompNode extends DLNode {
     if (this[valueKey] === value) return
     const prevValue = this[valueKey]
     this[valueKey] = value
-    this._$updateDerived(key)
+    this._$updateDerived(key, prevValue, value)
     this._$updateView(key, prevValue, value)
   }
 
@@ -196,11 +196,12 @@ export class CompNode extends DLNode {
    * @brief Update properties that depend on this property
    * @param key
    */
-  _$updateDerived(key) {
+  _$updateDerived(key, prevValue, value) {
     if ("_$notInitd" in this) return
     this[`$s$${key}`]?.forEach(k => {
       if (`$w$${k}` in this) {
-        this[k]()
+        // ---- Watcher
+        this[k](key, prevValue, value)
       } else {
         this[`$${k}`] = this[`$f$${k}`]
       }

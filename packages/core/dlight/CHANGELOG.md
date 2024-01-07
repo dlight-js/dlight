@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.61
+
+### Patch Changes
+
+- feat: add key/prevalue/value passdown to watcher
+
 ## 1.0.0-alpha.60
 
 ### Patch Changes
