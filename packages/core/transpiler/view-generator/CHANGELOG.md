@@ -1,5 +1,11 @@
 # @dlightjs/view-generator
 
+## 1.0.0-alpha.30
+
+### Patch Changes
+
+- refactor: fall back to fornode updateArr
+
 ## 1.0.0-alpha.29
 
 ### Patch Changes

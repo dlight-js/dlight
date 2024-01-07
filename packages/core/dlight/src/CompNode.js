@@ -203,6 +203,7 @@ export class CompNode extends DLNode {
         // ---- Watcher
         this[k](key, prevValue, value)
       } else {
+        // ---- Regular derived value
         this[`$${k}`] = this[`$f$${k}`]
       }
     })

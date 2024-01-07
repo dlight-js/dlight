@@ -8,7 +8,7 @@ export class ForNode extends MutableNode {
   depNum
 
   nodesMap = new Map()
-  updateMap = new Map()
+  updateArr = []
 
   /**
    * @brief Getter for nodes
@@ -43,7 +43,7 @@ export class ForNode extends MutableNode {
     this.array.forEach((item, idx) => {
       this.initUnmountStore()
       const key = this.keys?.[idx] ?? idx
-      const nodes = nodeFunc(item, this.updateMap, key)
+      const nodes = nodeFunc(item, this.updateArr, idx)
       this.nodesMap.set(key, nodes)
       this.setUnmountMap(key)
     })
@@ -71,9 +71,8 @@ export class ForNode extends MutableNode {
    * @param item
    */
   updateItem(idx, array, changed) {
-    const key = this.keys?.[idx] ?? idx
     // ---- The update function of ForNode's childNodes is stored in the first child node
-    this.updateMap.get(key)?.(
+    this.updateArr[idx]?.(
       changed ?? this.depNum,
       ...this.updateArgs,
       array[idx]
@@ -97,10 +96,10 @@ export class ForNode extends MutableNode {
   /**
    * @brief Shortcut to generate new nodes with idx and key
    */
-  getNewNodes(idx, key, array) {
+  getNewNodes(idx, key, array, updateArr) {
     this.initUnmountStore()
     const nodes = this.geneNewNodesInEnv(() =>
-      this.nodeFunc(array[idx], this.updateMap, key)
+      this.nodeFunc(array[idx], updateArr ?? this.updateArr, idx)
     )
     this.setUnmountMap(key)
     this.nodesMap.set(key, nodes)
@@ -178,7 +177,6 @@ export class ForNode extends MutableNode {
     this.runWillUnmount(key)
     super.removeNodes(nodes)
     this.runDidUnmount(key)
-    this.updateMap.delete(key)
     this.nodesMap.delete(key)
   }
 
@@ -228,6 +226,7 @@ export class ForNode extends MutableNode {
       const nodes = this.nodesMap.get(idx)
       this.removeNodes(nodes, idx)
     }
+    this.updateArr.splice(currLength, preLength - currLength)
     this.array = [...newArray]
   }
 
@@ -271,7 +270,7 @@ export class ForNode extends MutableNode {
         }
       }
       this.nodesMap.clear()
-      this.updateMap.clear()
+      this.updateArr = []
       this.array = []
       return
     }
@@ -292,12 +291,14 @@ export class ForNode extends MutableNode {
     }
 
     const shuffleKeys = []
+    const newUpdateArr = []
 
     // ---- 1. Delete the nodes that are no longer in the array
     for (let prevIdx = 0; prevIdx < prevKeys.length; prevIdx++) {
       const prevKey = prevKeys[prevIdx]
       if (this.keys.includes(prevKey)) {
         shuffleKeys.push(prevKey)
+        newUpdateArr.push(this.updateArr[prevIdx])
         continue
       }
       this.removeNodes(this.nodesMap.get(prevKey), prevKey)
@@ -317,7 +318,9 @@ export class ForNode extends MutableNode {
         this.updateItem(idx, newArray)
         continue
       }
-      const newNodes = this.getNewNodes(idx, key, newArray)
+      // ---- Insert updateArr first because in getNewNode the updateFunc will replace this null
+      newUpdateArr.splice(idx, 0, null)
+      const newNodes = this.getNewNodes(idx, key, newArray, newUpdateArr)
       // ---- Add the new nodes
       shuffleKeys.splice(idx, 0, key)
 
@@ -336,6 +339,7 @@ export class ForNode extends MutableNode {
     //      but if the keys are the same, we don't need to reorder
     if (ForNode.arrayEqual(this.keys, shuffleKeys)) {
       this.array = [...newArray]
+      this.updateArr = newUpdateArr
       return
     }
 
@@ -381,8 +385,12 @@ export class ForNode extends MutableNode {
       const tempKey = shuffleKeys[idx]
       shuffleKeys[idx] = shuffleKeys[prevIdx]
       shuffleKeys[prevIdx] = tempKey
+      const tempUpdateFunc = newUpdateArr[idx]
+      newUpdateArr[idx] = newUpdateArr[prevIdx]
+      newUpdateArr[prevIdx] = tempUpdateFunc
     }
     this.array = [...newArray]
+    this.updateArr = newUpdateArr
   }
 
   /**

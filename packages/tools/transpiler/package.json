@@ -1,6 +1,6 @@
 {
   "name": "@dlightjs/transpiler",
-  "version": "1.0.0-alpha.33",
+  "version": "1.0.0-alpha.34",
   "description": "DLight transpiler as function",
   "author": {
     "name": "IanDx",

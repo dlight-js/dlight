@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.62
+
+### Patch Changes
+
+- refactor: fall back to fornode updateArr
+
 ## 1.0.0-alpha.61
 
 ### Patch Changes
