@@ -97,10 +97,10 @@ export class ForNode extends MutableNode {
   /**
    * @brief Shortcut to generate new nodes with idx and key
    */
-  getNewNodes(idx, key) {
+  getNewNodes(idx, key, array) {
     this.initUnmountStore()
     const nodes = this.geneNewNodesInEnv(() =>
-      this.nodeFunc(this.array[idx], this.updateMap, key)
+      this.nodeFunc(array[idx], this.updateMap, key)
     )
     this.setUnmountMap(key)
     this.nodesMap.set(key, nodes)
@@ -189,16 +189,15 @@ export class ForNode extends MutableNode {
   updateWithOutKey(newArray) {
     const preLength = this.array.length
     const currLength = newArray.length
-    this.array = [...newArray]
 
     if (preLength === currLength) {
       // ---- If the length is the same, we only need to update the nodes
       for (let idx = 0; idx < this.array.length; idx++) {
         this.updateItem(idx)
       }
+      this.array = newArray
       return
     }
-
     const parentEl = this._$parentEl
     // ---- If the new array is longer, add new nodes directly
     if (preLength < currLength) {
@@ -212,10 +211,11 @@ export class ForNode extends MutableNode {
           this.updateItem(idx)
           continue
         }
-        const newNodes = this.getNewNodes(idx, idx)
+        const newNodes = this.getNewNodes(idx, idx, newArray)
         ForNode.appendNodesWithIndex(newNodes, parentEl, flowIndex, length)
       }
       ForNode.runDidMount()
+      this.array = newArray
       return
     }
 
@@ -228,6 +228,7 @@ export class ForNode extends MutableNode {
       const nodes = this.nodesMap.get(idx)
       this.removeNodes(nodes, idx)
     }
+    this.array = newArray
   }
 
   /**
@@ -240,15 +241,14 @@ export class ForNode extends MutableNode {
       throw new Error("DLight: Duplicate keys in for loop are not allowed")
     }
     const prevKeys = this.keys
-
-    this.array = [...newArray]
     this.keys = newKeys
 
     if (ForNode.arrayEqual(prevKeys, this.keys)) {
       // ---- If the keys are the same, we only need to update the nodes
-      for (let idx = 0; idx < this.array.length; idx++) {
+      for (let idx = 0; idx < newArray.length; idx++) {
         this.updateItem(idx)
       }
+      this.array = newArray
       return
     }
 
@@ -272,6 +272,7 @@ export class ForNode extends MutableNode {
       }
       this.nodesMap.clear()
       this.updateMap.clear()
+      this.array = []
       return
     }
 
@@ -282,10 +283,11 @@ export class ForNode extends MutableNode {
     if (prevKeys.length === 0) {
       const nextSibling = parentEl.childNodes[flowIndex]
       for (let idx = 0; idx < this.keys.length; idx++) {
-        const newNodes = this.getNewNodes(idx, this.keys[idx])
+        const newNodes = this.getNewNodes(idx, this.keys[idx], newArray)
         ForNode.appendNodesWithSibling(newNodes, parentEl, nextSibling)
       }
       ForNode.runDidMount()
+      this.array = newArray
       return
     }
 
@@ -315,7 +317,7 @@ export class ForNode extends MutableNode {
         this.updateItem(idx)
         continue
       }
-      const newNodes = this.getNewNodes(idx, key)
+      const newNodes = this.getNewNodes(idx, key, newArray)
       // ---- Add the new nodes
       shuffleKeys.splice(idx, 0, key)
 
@@ -332,7 +334,10 @@ export class ForNode extends MutableNode {
 
     // ---- After adding and deleting, the only thing left is to reorder the nodes,
     //      but if the keys are the same, we don't need to reorder
-    if (ForNode.arrayEqual(this.keys, shuffleKeys)) return
+    if (ForNode.arrayEqual(this.keys, shuffleKeys)) {
+      this.array = newArray
+      return
+    }
 
     newFlowIndex = flowIndex
     const bufferNodes = []
@@ -377,6 +382,7 @@ export class ForNode extends MutableNode {
       shuffleKeys[idx] = shuffleKeys[prevIdx]
       shuffleKeys[prevIdx] = tempKey
     }
+    this.array = newArray
   }
 
   /**

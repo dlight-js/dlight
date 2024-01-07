@@ -19,7 +19,6 @@ export class PropView {
   build() {
     let update
     const addUpdate = updateFunc => {
-      updateFunc.initd = true
       update = updateFunc
       this.dlUpdateFunc.add(updateFunc)
     }
@@ -42,10 +41,6 @@ export class PropView {
    */
   update(...args) {
     this.dlUpdateFunc.forEach(update => {
-      if (update.initd) {
-        delete update.initd
-        return
-      }
       update(...args)
     })
   }
