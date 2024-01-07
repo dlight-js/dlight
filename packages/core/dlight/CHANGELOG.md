@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.58
+
+### Patch Changes
+
+- fix: fornode update with new array
+
 ## 1.0.0-alpha.57
 
 ### Patch Changes

@@ -61,7 +61,7 @@ export class ForNode extends MutableNode {
     if (changed & this.depNum) return
     this.updateArgs = args
     for (let idx = 0; idx < this.array.length; idx++) {
-      this.updateItem(idx, changed)
+      this.updateItem(idx, this.array, changed)
     }
   }
 
@@ -70,13 +70,13 @@ export class ForNode extends MutableNode {
    * @param nodes
    * @param item
    */
-  updateItem(idx, changed) {
+  updateItem(idx, array, changed) {
     const key = this.keys?.[idx] ?? idx
     // ---- The update function of ForNode's childNodes is stored in the first child node
     this.updateMap.get(key)?.(
       changed ?? this.depNum,
       ...this.updateArgs,
-      this.array[idx]
+      array[idx]
     )
   }
 
@@ -193,7 +193,7 @@ export class ForNode extends MutableNode {
     if (preLength === currLength) {
       // ---- If the length is the same, we only need to update the nodes
       for (let idx = 0; idx < this.array.length; idx++) {
-        this.updateItem(idx)
+        this.updateItem(idx, newArray)
       }
       this.array = newArray
       return
@@ -208,7 +208,7 @@ export class ForNode extends MutableNode {
       for (let idx = 0; idx < currLength; idx++) {
         if (idx < preLength) {
           flowIndex += ForNode.getFlowIndexFromNodes(this.nodesMap.get(idx))
-          this.updateItem(idx)
+          this.updateItem(idx, newArray)
           continue
         }
         const newNodes = this.getNewNodes(idx, idx, newArray)
@@ -221,7 +221,7 @@ export class ForNode extends MutableNode {
 
     // ---- Update the nodes first
     for (let idx = 0; idx < currLength; idx++) {
-      this.updateItem(idx)
+      this.updateItem(idx, newArray)
     }
     // ---- If the new array is shorter, remove the extra nodes
     for (let idx = currLength; idx < preLength; idx++) {
@@ -246,7 +246,7 @@ export class ForNode extends MutableNode {
     if (ForNode.arrayEqual(prevKeys, this.keys)) {
       // ---- If the keys are the same, we only need to update the nodes
       for (let idx = 0; idx < newArray.length; idx++) {
-        this.updateItem(idx)
+        this.updateItem(idx, newArray)
       }
       this.array = newArray
       return
@@ -314,7 +314,7 @@ export class ForNode extends MutableNode {
         // ---- These nodes are already in the parentEl,
         //      and we need to keep track of their flowIndex
         newFlowIndex += ForNode.getFlowIndexFromNodes(this.nodesMap.get(key))
-        this.updateItem(idx)
+        this.updateItem(idx, newArray)
         continue
       }
       const newNodes = this.getNewNodes(idx, key, newArray)
