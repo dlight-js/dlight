@@ -12,7 +12,6 @@ export default function (api: typeof babel, options: DLightOption): PluginObj {
     enableDevTools = false,
     htmlTags = defaultHtmlTags => defaultHtmlTags,
     attributeMap = defaultAttributeMap,
-    minified = process.env.NODE_ENV === "development",
   } = options
 
   const pluginProvider = new PluginProviderClass(
@@ -22,8 +21,7 @@ export default function (api: typeof babel, options: DLightOption): PluginObj {
     Array.isArray(excludeFiles) ? excludeFiles : [excludeFiles],
     enableDevTools,
     htmlTags,
-    attributeMap,
-    minified
+    attributeMap
   )
 
   return {

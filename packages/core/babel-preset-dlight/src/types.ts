@@ -31,16 +31,6 @@ export interface DLightOption {
    * e.g. { alt: ["area", "img", "input"] }
    */
   attributeMap?: Record<string, string[]>
-  /**
-   * HTML attribute name map, from CamelCase to kebab-case
-   * e.g. { acceptCharset: "accept-charset" }
-   */
-  alteredAttrMap?: Record<string, string>
-  /**
-   * Minify the variable name
-   * @default true
-   */
-  minified?: boolean
 }
 
 export type PropertyContainer = Record<

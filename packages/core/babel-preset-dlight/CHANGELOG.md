@@ -1,5 +1,13 @@
 # babel-preset-dlight
 
+## 1.0.0-alpha.36
+
+### Patch Changes
+
+- refactor: no more minimizing
+- Updated dependencies
+  - @dlightjs/view-generator@1.0.0-alpha.32
+
 ## 1.0.0-alpha.35
 
 ### Patch Changes

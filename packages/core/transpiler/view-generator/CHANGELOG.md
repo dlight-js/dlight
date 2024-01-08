@@ -1,5 +1,11 @@
 # @dlightjs/view-generator
 
+## 1.0.0-alpha.32
+
+### Patch Changes
+
+- refactor: no more minimizing
+
 ## 1.0.0-alpha.31
 
 ### Patch Changes

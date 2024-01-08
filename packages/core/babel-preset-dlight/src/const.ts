@@ -211,25 +211,27 @@ export const availableDecoNames = [
 ]
 export const dlightDefaultPackageName = "@dlightjs/dlight"
 
-export const importList = [
-  "createElement",
-  "setStyle",
-  "setDataset",
-  "setEvent",
-  "setHTMLProp",
-  "setHTMLAttr",
-  "setHTMLProps",
-  "setHTMLAttrs",
-  "createTextNode",
-  "updateText",
-  "insertNode",
-  "ForNode",
-  "CondNode",
-  "ExpNode",
-  "EnvNode",
-  "SubViewNode",
-  "PropView",
-]
+export const importMap = Object.fromEntries(
+  [
+    "createElement",
+    "setStyle",
+    "setDataset",
+    "setEvent",
+    "setHTMLProp",
+    "setHTMLAttr",
+    "setHTMLProps",
+    "setHTMLAttrs",
+    "createTextNode",
+    "updateText",
+    "insertNode",
+    "ForNode",
+    "CondNode",
+    "ExpNode",
+    "EnvNode",
+    "SubViewNode",
+    "PropView",
+  ].map(name => [name, name])
+)
 
 /**
  * @brief HTML internal attribute map, can be accessed as js property

@@ -1,7 +1,7 @@
 import { type types as t } from "@babel/core"
 import { type ViewParticle } from "@dlightjs/reactivity-parser"
 import { type ViewGeneratorConfig } from "./types"
-import BaseGenerator from "./HelperGenerators/BaseGenerator"
+import BaseGenerator, { prefixMap } from "./HelperGenerators/BaseGenerator"
 import CompGenerator from "./NodeGenerators/CompGenerator"
 import HTMLGenerator from "./NodeGenerators/HTMLGenerator"
 import TemplateGenerator from "./NodeGenerators/TemplateGenerator"
@@ -16,7 +16,6 @@ import SwitchGenerator from "./NodeGenerators/SwitchGenerator"
 export default class ViewGenerator {
   config: ViewGeneratorConfig
   t: typeof t
-  prefixMap
 
   /**
    * @brief Construct the view generator from config
@@ -26,9 +25,6 @@ export default class ViewGenerator {
     this.config = config
     this.t = config.babelApi.types
     this.templateIdx = config.templateIdx
-    this.prefixMap = config.minified
-      ? { template: "$template", node: "$node" }
-      : { template: "$t", node: "$n" }
   }
 
   /**
@@ -119,9 +115,7 @@ export default class ViewGenerator {
       this.t.variableDeclaration(
         "let",
         Array.from({ length: this.nodeIdx + 1 }, (_, i) =>
-          this.t.variableDeclarator(
-            this.t.identifier(`${this.prefixMap.node}${i}`)
-          )
+          this.t.variableDeclarator(this.t.identifier(`${prefixMap.node}${i}`))
         )
       ),
     ]
