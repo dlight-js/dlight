@@ -8,11 +8,11 @@ export default function (api: typeof babel, options: DLightOption): PluginObj {
   const { types } = api
   const {
     files = "**/*.{js,jsx,ts,tsx}",
-    excludeFiles = "**/{dist,node_modules,lib}/*.{js,ts}",
+    excludeFiles = "**/{dist,node_modules,lib}/*",
     enableDevTools = false,
     htmlTags = defaultHtmlTags => defaultHtmlTags,
     attributeMap = defaultAttributeMap,
-    parseTemplate = true,
+    minified = process.env.NODE_ENV === "development",
   } = options
 
   const pluginProvider = new PluginProviderClass(
@@ -23,7 +23,7 @@ export default function (api: typeof babel, options: DLightOption): PluginObj {
     enableDevTools,
     htmlTags,
     attributeMap,
-    parseTemplate
+    minified
   )
 
   return {

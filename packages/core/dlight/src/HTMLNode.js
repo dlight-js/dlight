@@ -39,6 +39,8 @@ export function setHTMLProp(el, key, value) {
  */
 export function setHTMLProps(el, value) {
   Object.entries(value).forEach(([key, value]) => {
+    if (key === "style") return setStyle(el, value)
+    if (key === "dataset") return setDataset(el, value)
     setHTMLProp(el, key, value)
   })
 }

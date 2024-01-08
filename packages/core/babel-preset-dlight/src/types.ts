@@ -37,9 +37,10 @@ export interface DLightOption {
    */
   alteredAttrMap?: Record<string, string>
   /**
-   * Will parse nested html blocks as templates
+   * Minify the variable name
+   * @default true
    */
-  parseTemplate?: boolean
+  minified?: boolean
 }
 
 export type PropertyContainer = Record<

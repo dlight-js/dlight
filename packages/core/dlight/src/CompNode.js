@@ -50,6 +50,7 @@ export class CompNode extends DLNode {
     DLStore.global.DLEnvStore &&
       Object.entries(DLStore.global.DLEnvStore.envs).forEach(
         ([key, [value, envNode]]) => {
+          if (!(`$e$${key}` in this)) return
           envNode.addNode(this)
           this._$initEnv(key, value, envNode)
         }
@@ -149,7 +150,6 @@ export class CompNode extends DLNode {
    * @param envNode
    */
   _$initEnv(key, value, envNode) {
-    if (!(`$e$${key}` in this)) return
     this[key] = value
     this[`$en$${key}`] = envNode
   }

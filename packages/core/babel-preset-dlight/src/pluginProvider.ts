@@ -14,7 +14,7 @@ import {
   defaultHTMLTags,
   devMode,
   dlightDefaultPackageName,
-  importMap,
+  importList,
 } from "./const"
 
 export class PluginProvider {
@@ -29,7 +29,8 @@ export class PluginProvider {
   private readonly excludes: string[]
   private readonly htmlTags: string[]
   private readonly attributeMap: Record<string, string[]>
-  private readonly parseTemplate: boolean
+  private readonly importMap
+  private readonly minified: boolean
 
   constructor(
     babelApi: typeof babel,
@@ -39,7 +40,7 @@ export class PluginProvider {
     enableDevTools: boolean,
     htmlTags: HTMLTags,
     attributeMap: Record<string, string[]>,
-    parseTemplate: boolean
+    minified: boolean
   ) {
     this.babelApi = babelApi
     this.t = types
@@ -56,7 +57,13 @@ export class PluginProvider {
             )
           : htmlTags
     this.attributeMap = attributeMap
-    this.parseTemplate = parseTemplate
+
+    this.importMap = Object.fromEntries(
+      importList.map((funcName, idx) =>
+        minified ? [funcName, funcName] : [funcName, `$${idx}$`]
+      )
+    )
+    this.minified = minified
   }
 
   // ---- DLight class Level
@@ -141,7 +148,7 @@ export class PluginProvider {
       // ---- Add nodes import to the head of file
       this.programNode!.body.unshift(
         this.t.importDeclaration(
-          Object.entries(importMap).map(([key, value]) =>
+          Object.entries(this.importMap).map(([key, value]) =>
             this.t.importSpecifier(
               this.t.identifier(value),
               this.t.identifier(key)
@@ -669,13 +676,12 @@ export class PluginProvider {
       babelApi: this.babelApi,
       availableProperties: this.availableProperties,
       dependencyMap: this.dependencyMap,
-      parseTemplate: this.parseTemplate,
     })
 
     const [body, classProperties, templateIdx] = generateView(viewParticles, {
       babelApi: this.babelApi,
       className: this.className!,
-      importMap,
+      importMap: this.importMap,
       subViewPropMap: Object.fromEntries(
         Object.entries(subViewPropSubDepMap).map(([key, props]) => [
           key,
@@ -684,6 +690,7 @@ export class PluginProvider {
       ),
       templateIdx: -1,
       attributeMap: this.attributeMap,
+      minified: this.minified,
     })
     viewNode.body = body
     this.classBodyNode?.body.push(...classProperties)
@@ -753,10 +760,11 @@ export class PluginProvider {
       {
         babelApi: this.babelApi,
         className: this.className!,
-        importMap: importMap,
+        importMap: this.importMap,
         subViewPropMap,
         templateIdx,
         attributeMap: this.attributeMap,
+        minified: this.minified,
       }
     )
     viewNode.body = body

@@ -1,5 +1,13 @@
 # babel-preset-dlight
 
+## 1.0.0-alpha.35
+
+### Patch Changes
+
+- feat: add minified option
+- Updated dependencies
+  - @dlightjs/view-generator@1.0.0-alpha.31
+
 ## 1.0.0-alpha.34
 
 ### Patch Changes

@@ -16,6 +16,7 @@ import SwitchGenerator from "./NodeGenerators/SwitchGenerator"
 export default class ViewGenerator {
   config: ViewGeneratorConfig
   t: typeof t
+  prefixMap
 
   /**
    * @brief Construct the view generator from config
@@ -25,6 +26,9 @@ export default class ViewGenerator {
     this.config = config
     this.t = config.babelApi.types
     this.templateIdx = config.templateIdx
+    this.prefixMap = config.minified
+      ? { template: "$template", node: "$node" }
+      : { template: "$t", node: "$n" }
   }
 
   /**
@@ -116,7 +120,7 @@ export default class ViewGenerator {
         "let",
         Array.from({ length: this.nodeIdx + 1 }, (_, i) =>
           this.t.variableDeclarator(
-            this.t.identifier(`${BaseGenerator.prefixMap.node}${i}`)
+            this.t.identifier(`${this.prefixMap.node}${i}`)
           )
         )
       ),

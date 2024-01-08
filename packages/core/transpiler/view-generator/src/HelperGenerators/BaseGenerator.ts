@@ -3,13 +3,8 @@ import { type ViewParticle } from "@dlightjs/reactivity-parser"
 import { type SubViewPropMap, type ViewGeneratorConfig } from "../types"
 import ViewGenerator from "../ViewGenerator"
 
-export const devMode = process.env.NODE_ENV === "development"
-
 export default class BaseGenerator {
-  static readonly prefixMap = devMode
-    ? { template: "$template", node: "$node" }
-    : { template: "$t", node: "$n" }
-
+  readonly prefixMap: Record<string, string>
   readonly viewParticle: ViewParticle
   readonly config: ViewGeneratorConfig
 
@@ -48,6 +43,9 @@ export default class BaseGenerator {
           {}
         )
       : {}
+    this.prefixMap = config.minified
+      ? { template: "$template", node: "$node" }
+      : { template: "$t", node: "$n" }
   }
 
   // ---- Init Statements
@@ -240,7 +238,7 @@ export default class BaseGenerator {
         "let",
         Array.from({ length: nodeIdx + 1 }, (_, i) =>
           this.t.variableDeclarator(
-            this.t.identifier(`${BaseGenerator.prefixMap.node}${i}`)
+            this.t.identifier(`${this.prefixMap.node}${i}`)
           )
         )
       ),
@@ -269,13 +267,13 @@ export default class BaseGenerator {
   // ---- Used as dlNodeName for any node declaration
   nodeIdx = -1
   generateNodeName(idx?: number): string {
-    return `${BaseGenerator.prefixMap.node}${idx ?? ++this.nodeIdx}`
+    return `${this.prefixMap.node}${idx ?? ++this.nodeIdx}`
   }
 
   // ---- Used as template generation as class property
   templateIdx = -1
   generateTemplateName(): string {
-    return `${BaseGenerator.prefixMap.template}${++this.templateIdx}`
+    return `${this.prefixMap.template}${++this.templateIdx}`
   }
 
   // ---- @Utils -----

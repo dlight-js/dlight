@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.63
+
+### Patch Changes
+
+- refactor: no adding env when there's no prop matched
+
 ## 1.0.0-alpha.62
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @dlightjs/view-generator
 
+## 1.0.0-alpha.31
+
+### Patch Changes
+
+- feat: add minified option
+
 ## 1.0.0-alpha.30
 
 ### Patch Changes

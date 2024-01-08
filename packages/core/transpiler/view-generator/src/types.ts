@@ -8,4 +8,5 @@ export interface ViewGeneratorConfig {
   subViewPropMap: SubViewPropMap
   templateIdx: number
   attributeMap: Record<string, string[]>
+  minified: boolean
 }
