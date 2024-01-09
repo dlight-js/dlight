@@ -43,18 +43,18 @@ import { View } from "@dlightjs/dlight"
 
 @View
 class MyComp {
-  atNight = false
+  night = false
   fruits = ["🍎", "🍊", "🥑"]
 
   View() {
     h1("hello, dlight js")
     button("toggle")
-      .className("toggle")
-      .onclick(() => {
-        this.atNight = !this.atNight
+      .class("toggle")
+      .onClick(() => {
+        this.night = !this.night
       })
 
-    if (this.atNight) {
+    if (this.night) {
       "🌘"
     } else {
       "🔆"

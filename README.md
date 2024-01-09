@@ -33,7 +33,7 @@
 ## Another frontend framework?
 Sadly yes.
 
-## Show me some code first
+## Show me some examples first
 I know that you're looking for...
 * State
 * Computed state
@@ -150,7 +150,7 @@ Still working on view manipulating tests. Tedious work...
 
 ## Why another fucking framework in 2024?
 ### Please, no more functional components. 
-I have plenty of reasons to favor class components over functional components in a **signal-based MVVM** framework(Don't jump on me so fast. It's for signal-based and MVVM frameworks, not immutable).
+I have plenty of reasons to favor class components over functional components in a **signal-based MVVM** framework(Don't jump on me so fast. It's for signal-based and MVVM frameworks, not react, not MNC ones).
 
 #### 1. What does an MVVM framework need?
 
@@ -169,9 +169,10 @@ function MyComp() {
 }
 ```
 
-So
-1. why are we mixing the view and data together since it only runs once and the view is always the returned value? Might templated frameworks or Angular offer a more structured approach?
-2. How does data flow through this component? With count affecting both effect and the view, why must we adhere to a linear declaration order? This is a byproduct of the functional approach, where execution flows from top to bottom. However, in an MVVM context, data and views are interconnected in a more flexible, non-linear manner. Vue2 is a good example of this but the syntax is bad so they moved to functional components in Vue3. Angular is still in the game, good for them.
+1. Why are we mixing the view and data together since it only runs once and the view is always the returned value? Might templated frameworks or Angular offer a more structured approach?
+2. How does data flow through this component? With count affecting both effect and the view, why must we adhere to a linear declaration order? 
+
+This is a byproduct of the functional approach, where execution flows from top to bottom. However, in an MVVM context, data and views are interconnected in a more flexible, non-linear manner. Vue2 is a good example of this but the syntax is bad so they moved to functional components in Vue3. Angular is still in the game, good for them.
 So you can't do this in a functional component:
 ```js
 function MyComp() {
@@ -185,14 +186,14 @@ function MyComp() {
 But you can in a class component:
 ```js
 class MyComp {
-  View = <div>{count}</div>
+  View() { <div>{this.count}</div> }
   effect() {
     console.log(this.count)
   }
   count = 0
 }
 ```
-Makes more sense since the data and view are constructed and connected like a graph instead of a straight line.
+It makes more sense this way since the data and view are constructed and connected like a graph instead of a straight line.
 
 In React, the paradigm of `View = fn(data, state)` fits perfectly with functional components. However, in other signal-based frameworks, a more reasonable paradigm would be `signal1 -> View` + `signal2 -> View` + `signal1 -> Observer` instead of a uni-directed flow of `signal1 -> signal2 -> Observer -> View`.
 
@@ -242,7 +243,7 @@ class MyComp {
 
 
 ### Bye-bye, JSX
-XML is a language for 90s machines, not for humans. Apart from the extra closing tags, in JSX you can't even use for loops or if statements. A typical question: how can we write a conditional rendering with short-circuit evaluation in JSX?
+XML is a language for 90s' machines, not for humans. Apart from the extra closing tags, in JSX you can't even use for loops or if statements. A typical question: how can we write a conditional rendering with short-circuit evaluation in JSX?
 ```js
 if (condition === "a") {
   <div>hello</div>
@@ -298,8 +299,10 @@ Swift has this closure syntax that makes it possible to build a tree-like struct
 We can have a good taste of function call syntax like this:
 ```js
 div(
-  h1("hello"),
-  p("world")
+  { class: "wrapper", id: "wrapper" }
+  h1({}, "hello"),
+  img({ src: imgSrc, alt: "img" }),
+  button({ onClick: () => console.log("clicked") }, "click me"),
 )
 ```
 
@@ -309,43 +312,19 @@ Since we're using a compiler, let's think big. Who can have a `{}` syntax? Block
 
 ```js
 div()
+  .class("wrapper")
+  .id("wrapper")
 {
   h1("hello")
-  p("world")
-}
-```
-
-And you can inline the children with the parent element by adding a ";" to split them:
-```js
-div(); {
-  h1("hello")
-  p("world")
+  img()
+    .src(imgSrc)
+    .alt("img")
+  button("click me")
+    .onClick(() => console.log("clicked"))
 }
 ```
 
 A more complex real world comparison between JSX and DLight with control flow:
-```js
-Wrapper()
-  .id("wrapper")
-  .class("wrapper")
-{
-  CustomHeader("My Custom Header")
-    .description("This is a custom header component")
-    .color(color)
-    .backgroundColor(bgColor)
-  for (const { id, name, type } of items) {
-    key: id
-    if (type === "normal") {
-      NormalItem(name)
-    } else {
-      SpecialItemWrapper(); {
-        SpecialItem(name)
-      }
-    }
-  }
-  CustomFooter("My Custom Footer")
-}
-```
 ```js
 <Wrapper
   id="wrapper"
@@ -357,17 +336,38 @@ Wrapper()
     color={color}
     backgroundColor={bgColor}
   />
-  {items.map(({ id, name, type }) => (
+  {items.map(({ name, type }) => (
     type === "normal" 
-      ? <NormalItem key={id} name={name} />
+      ? <NormalItem name={name} />
       : (
-        <SpecialItemWrapper key={id}>
+        <SpecialItemWrapper>
           <SpecialItem name={name} />
         </SpecialItemWrapper>
       )
   ))}
   <CustomFooter content="My Custom Footer" />
 </Wrapper>
+```
+```js
+Wrapper()
+  .id("wrapper")
+  .class("wrapper")
+{
+  CustomHeader("My Custom Header")
+    .description("This is a custom header component")
+    .color(color)
+    .backgroundColor(bgColor)
+  for (const { name, type } of items) {
+    if (type === "normal") {
+      NormalItem(name)
+    } else {
+      SpecialItemWrapper(); {
+        SpecialItem(name)
+      }
+    }
+  }
+  CustomFooter("My Custom Footer")
+}
 ```
 
 I'm not cherry-picking here. This is how real world jsx code looks like.
@@ -440,14 +440,17 @@ Thanks all existing frameworks for the inspiration and the great work they've do
 * [Svelte](https://svelte.dev/)
 * [Solid](https://solidjs.com/)
 * [Angular](https://angular.dev/)
+* [Preact](https://preactjs.com/)
 * [Qwik](https://qwik.builder.io/)
 * [Ember](https://emberjs.com/)
 * [Marko](https://markojs.com/)
 * [VanJs](https://vanjs.org/)
 * [ef.js](https://ef.js.org/)
+* [Lit](https://lit.dev/)
 
-Thanks for [js-framework-benchmark](https://github.com/krausest/js-framework-benchmark) for the benchmarking tooling that pulls my hair out.
+Thanks [js-framework-benchmark](https://github.com/krausest/js-framework-benchmark) for the benchmarking tooling that pulls my hair out.
 
+Thanks [component party](https://component-party.dev/#context) for the syntax level comparison between different frameworks.
 
 
 # Contributors
