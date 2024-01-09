@@ -1,6 +1,7 @@
 import { expect, describe, it } from "vitest"
 import { parse } from "./mock"
 import { type TemplateParticle } from "../types"
+import { types as t } from "@babel/core"
 
 describe("TemplateUnit", () => {
   it("should not parse a single HTMLUnit to a TemplateUnit", () => {
@@ -15,40 +16,18 @@ describe("TemplateUnit", () => {
     expect(viewParticles[0].type).toBe("template")
   })
 
-  it("should correctly parse a nested HTMLUnit's structure into a template string", () => {
+  it("should correctly parse a nested HTMLUnit's structure into a template", () => {
     const viewParticles = parse("div(); {div()}")
     const template = (viewParticles[0] as any).template
-    expect(template).toBe("<div><div></div></div>")
-  })
-
-  it("should correctly parse a nested HTMLUnit's structure into a template string with props", () => {
-    const viewParticles = parse('div().class("ok"); {div()}')
-    const template = (viewParticles[0] as any).template
-    expect(template).toBe('<div class="ok"><div></div></div>')
-  })
-
-  it("should correctly parse a nested HTMLUnit's structure into a template string with props as true", () => {
-    const viewParticles = parse("div().ok(true); {div()}")
-    const template = (viewParticles[0] as any).template
-    expect(template).toBe("<div ok><div></div></div>")
-  })
-
-  it("should correctly parse a nested HTMLUnit's structure into a template string with props as false", () => {
-    const viewParticles = parse("div().ok(false); {div()}")
-    const template = (viewParticles[0] as any).template
-    expect(template).toBe("<div><div></div></div>")
-  })
-
-  it("should correctly parse a nested HTMLUnit's structure into a template string with different style props", () => {
-    const viewParticles = parse("div().rowSpan(1); {div()}")
-    const template = (viewParticles[0] as any).template
-    expect(template).toBe('<div rowspan="1"><div></div></div>')
+    expect(t.isStringLiteral(template.tag, { value: "div" })).toBe(true)
+    expect(template.children).toHaveLength(1)
+    expect(t.isStringLiteral(template.children[0].tag, { value: "div" })).toBe(
+      true
+    )
   })
 
   it("should correctly parse the path of TemplateParticle's dynamic props in root element", () => {
     const viewParticles = parse('div().class(this.flag); {div("ok")}')
-    const template = (viewParticles[0] as TemplateParticle).template
-    expect(template).toBe("<div><div>ok</div></div>")
 
     const dynamicProps = (viewParticles[0] as TemplateParticle).props
     expect(dynamicProps).toHaveLength(1)
@@ -59,8 +38,6 @@ describe("TemplateUnit", () => {
 
   it("should correctly parse the path of TemplateParticle's dynamic props in nested element", () => {
     const viewParticles = parse("div(); {div().class(this.flag)}")
-    const template = (viewParticles[0] as TemplateParticle).template
-    expect(template).toBe("<div><div></div></div>")
 
     const dynamicProps = (viewParticles[0] as TemplateParticle).props
     expect(dynamicProps).toHaveLength(1)
@@ -72,8 +49,6 @@ describe("TemplateUnit", () => {
 
   it("should correctly parse the path of TemplateParticle's dynamic props with mutable particles ahead", () => {
     const viewParticles = parse("div(); { Comp(); div().class(this.flag) }")
-    const template = (viewParticles[0] as TemplateParticle).template
-    expect(template).toBe("<div><div></div></div>")
 
     const dynamicProps = (viewParticles[0] as TemplateParticle).props
     expect(dynamicProps).toHaveLength(1)
