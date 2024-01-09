@@ -25,7 +25,7 @@
   </a>
 </p>
 
-# [Language Mode](./docs/LanguageMode.md)
+# [Traditional Framework Welcome Page](./docs/welcome.md)
 # Website - [dlight.dev](https://dlight.dev)
 
 
@@ -33,7 +33,7 @@
 ## Another frontend framework?
 Sadly yes.
 
-## Show me your code first
+## Show me some code first
 I know that you're looking for...
 * State
 * Computed state
@@ -42,7 +42,7 @@ I know that you're looking for...
 * ...
 
 ```js
-import { View } from "@dlightjs/dlight"
+import { render, View } from "@dlightjs/dlight"
 
 @View
 class Counter {
@@ -85,7 +85,7 @@ class Fruits {
 }
 
 @View
-class MyComp {
+class App {
   night = true
   toggle() {
     this.night = !this.night
@@ -104,10 +104,12 @@ class MyComp {
     }
   }
 }
+
+render("app", App)
 ```
 
 ## Performance?
-To me the performance is not as important as the DX. But I know you care about it and every framework claims that they're fast, lightweight, and performant. So DLight can't be left behind right?
+To me the performance is not as important as the DX. But I know you care about it and every framework claims that they're fast, lightweight, and performant. So DLight can't be left behind, right?
 
 So after some dark days of optimization, DLight is now the MOST performant framework.
 ### Speed
@@ -122,7 +124,8 @@ Most memory efficient data-driven framework.
 All the following sizes are gzipped from the latest version of each framework by [bundlejs](https://bundlejs.com/).
 | Framework | Version | Size |
 | --- | --- | --- |
-| DLight.js | 1.0.0-alpha.53 | 4.41KB |
+| dlightjs | 1.0.0-alpha.63 | 4.41KB |
+| preact | 10.19.3 | 4.5KB |
 | svelte | 5.0.0-next.30 | 7.02 kB | 
 | solidjs | 1.8.9 | 8.36KB |
 | vue | 3.4.6 | 38.8 kB |
@@ -131,7 +134,7 @@ All the following sizes are gzipped from the latest version of each framework by
 
 
 ## Documentation?
-Work my ass on writing documentations. Check [Documentation](https://dlight.dev/docs/getting-started)
+Worked my ass on documentations. Check [Documentation](https://dlight.dev/docs/getting-started)
 
 And there're a set of examples to walk you through DLight: [Example](https://dlight.dev/examples/introduction/hello-world)
 
@@ -140,14 +143,14 @@ And there're a set of examples to walk you through DLight: [Example](https://dli
 ![test-view-parser](./docs/imgs/test-view-parser.png)
 ![test-reactivity-parser](./docs//imgs/test-reactivity-parser.png)
 
-Still working on view manipulating tests. It's tedious work..
+Still working on view manipulating tests. Tedious work...
 
 ## Anyone using it built something?
-[DLight's website](https://dlight.dev/) including a [code playground](https://dlight.dev/playground) was fully developed in DLight.js, and the source code's [here](https://github.com/dlight-js/homepage)
+[DLight's website](https://dlight.dev/) including a [code playground](https://dlight.dev/playground) was fully developed in DLight.js, and the source code's [here](https://github.com/dlight-js/homepage). Credits to [Xinyi](https://github.com/orange04).
 
 ## Why another fucking framework in 2024?
 ### Please, no more functional components. 
-I have plenty of reasons to favor class components over functional components in a signal-based MVVM framework.
+I have plenty of reasons to favor class components over functional components in a **signal-based MVVM** framework(Don't jump on me so fast. It's for signal-based and MVVM frameworks, not immutable).
 
 #### 1. What does an MVVM framework need?
 
@@ -369,7 +372,83 @@ Wrapper()
 
 I'm not cherry-picking here. This is how real world jsx code looks like.
 
-I won't say this new syntax kills JSX, but it's definitely a good alternative for us what want to write pure JavaScript code, and DLight didn't introduce any new syntax, just the old fellows you know in js.
+I won't say this new syntax kills JSX, but it's definitely a good alternative for us who want to write pure JavaScript code, and DLight doesn't introduce any new syntax, just the old fellows you know in js. (And we know if you're a jsx fan, you'll never be convinced by this, ~~so just go away~~ so we extracted the dlight syntax parser into a standalone package, you can write your own jsx parser to override dlight parser and be injected in reactivity-parser to get all the cool features that dlight offers. If you're interested in this, feel free to start a discussion and we'll help you out.)
+
+## What DLight is offering
+Copy-pasting an existing framework and changing a little bit of syntax or make it 0.01x faster is just adding another pile of x in the 5-new-frameworks-per-day(or even more) frontend world.
+
+Coding out a framework is fairly simple. What's hard is to avoid the fixed mindset of existing frameworks, re-examine the essence of frontend frameworks, and create a better frontend development experience. It's all about the design.
+
+So DLight is offering all the features we've talked about above:
+1. Fast
+2. Lightweight
+3. Memory efficient
+4. Intuitive
+5. Well designed
+6. Well tested
+7. Well documented
+8. Class components for signals
+9. Whole new syntax with old buddies in js
+
+and more:
+
+10. Easiest reactivity system ever  
+```js
+// No more
+const [count, setCount] = useState(0)
+// Or
+const [getCount, setCount] = createSignal(0)
+console.log(getCount())
+// Or
+const count = ref(0)
+console.log(count.value)
+// Or
+const count = 0
+$: doubleCount = count * 2
+// ....
+// Just use class properties to set any (derived) state you want
+class {
+  count = 0
+  doubleCount = this.count * 2
+  anyMethod() {
+    console.log(this.doubleCount)
+  }
+}
+```
+11. Real lifecycle: `willMount`, `didMount`, `didUpdate`, `willUnmount`, `didUnmount`
+12. A whole new way to think about context, i.e, [environment variables](https://dlight.dev/docs/basic-usages/environment-variables) in DLight.
+13. Seamlessly integrate with existing frontend tech chain like [styling](https://dlight.dev/docs/basic-usages/best-practices)
+14. Great [TypeScript support](https://dlight.dev/docs/typescript-support) 
+
+## Will there be SSR?
+Yes if there're a fair amount of people interested in this project. I don't want to just do a simple hydration solution only to improve SEO. Currently I've implemented a minimal SSR solution that goes with a component-level island strategy with auto server/client component type detection. If you're interested in this, create an issue.
+
+## What's the next step?
+1. Testing and debugging for v1.0.0 statable release
+2. Fill the documentation
+3. Write articles about the design of DLight
+4. Make some tutorials(video and text) for DLight
+5. SSR
+
+If you want to contribute to DLight, we're more than happy to have you on board. It's never a one man's job to build a full-fledged framework. Any kind of contribution is welcome, from documentation to code or even criticism. Join the [discord server](https://discord.gg/TZQxTA5G) to spit out your ideas.
+
+# Credits
+Thanks all existing frameworks for the inspiration and the great work they've done. DLight is standing on the shoulders of giants.
+* [SwiftUI](https://developer.apple.com/xcode/swiftui/)
+* [React](https://react.dev/)
+* [Vue](https://vuejs.org/)
+* [Svelte](https://svelte.dev/)
+* [Solid](https://solidjs.com/)
+* [Angular](https://angular.dev/)
+* [Qwik](https://qwik.builder.io/)
+* [Ember](https://emberjs.com/)
+* [Marko](https://markojs.com/)
+* [VanJs](https://vanjs.org/)
+* [ef.js](https://ef.js.org/)
+
+Thanks for [js-framework-benchmark](https://github.com/krausest/js-framework-benchmark) for the benchmarking tooling that pulls my hair out.
+
+
 
 # Contributors
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
@@ -379,8 +458,8 @@ I won't say this new syntax kills JSX, but it's definitely a good alternative fo
   <tbody>
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/IanDxSSXX"><img src="https://avatars.githubusercontent.com/u/69476139?v=4?s=100" width="100px;" alt="Duan Yihan"/><br /><sub><b>Duan Yihan</b></sub></a><br /><a href="#infra-IanDxSSXX" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="https://github.com/dlight-js/dlight/commits?author=IanDxSSXX" title="Tests">⚠️</a> <a href="https://github.com/dlight-js/dlight/commits?author=IanDxSSXX" title="Code">💻</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/orange04"><img src="https://avatars.githubusercontent.com/u/47129477?v=4?s=100" width="100px;" alt="orange04"/><br /><sub><b>orange04</b></sub></a><br /><a href="https://github.com/dlight-js/dlight/commits?author=orange04" title="Code">💻</a> <a href="#design-orange04" title="Design">🎨</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Guo-lab"><img src="https://avatars.githubusercontent.com/u/74242889?v=4?s=100" width="100px;" alt="Guo-lab"/><br /><sub><b>Guo-lab</b></sub></a><br /><a href="#content-Guo-lab" title="Content">🖋</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/orange04"><img src="https://avatars.githubusercontent.com/u/47129477?v=4?s=100" width="100px;" alt="orange04"/><br /><sub><b>Chen Xinyi</b></sub></a><br /><a href="https://github.com/dlight-js/dlight/commits?author=orange04" title="Code">💻</a> <a href="#design-orange04" title="Design">🎨</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Guo-lab"><img src="https://avatars.githubusercontent.com/u/74242889?v=4?s=100" width="100px;" alt="Guo-lab"/><br /><sub><b>Guo Siqi</b></sub></a><br /><a href="#content-Guo-lab" title="Content">🖋</a></td>
     </tr>
   </tbody>
 </table>

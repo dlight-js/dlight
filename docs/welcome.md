@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./docs/imgs/logo_title.png" style="display:block; margin: auto; width: 50%;"/>
+  <img src="./imgs/logo_title.png" style="display:block; margin: auto; width: 50%;"/>
 </p>
 <p align="center">
   <a href="https://github.com/iandxssxx" target="_black">
