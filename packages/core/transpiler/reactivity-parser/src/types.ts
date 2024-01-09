@@ -20,12 +20,12 @@ export interface TemplateProp {
   dependencyIndexArr?: number[]
 }
 
-export type mutableParticle = ViewParticle & { path: number[] }
+export type MutableParticle = ViewParticle & { path: number[] }
 
 export interface TemplateParticle {
   type: "template"
-  template: string
-  mutableParticles: mutableParticle[]
+  template: HTMLParticle
+  mutableParticles: MutableParticle[]
   props: TemplateProp[]
 }
 
@@ -67,6 +67,18 @@ export interface IfParticle {
   branches: IfBranch[]
 }
 
+export interface SwitchBranch {
+  case: DependencyValue<t.Expression> | null | undefined
+  children: ViewParticle[]
+  break: boolean
+}
+
+export interface SwitchParticle {
+  type: "switch"
+  discriminant: DependencyValue<t.Expression>
+  branches: SwitchBranch[]
+}
+
 export interface EnvParticle {
   type: "env"
   props: Record<string, DependencyProp>
@@ -95,6 +107,7 @@ export type ViewParticle =
   | IfParticle
   | EnvParticle
   | ExpParticle
+  | SwitchParticle
   | SubviewParticle
 
 export interface ReactivityParserConfig {
@@ -103,9 +116,5 @@ export interface ReactivityParserConfig {
   dependencyMap: Record<string, string[]>
   identifierDepMap?: Record<string, string[]>
   dependencyParseType?: "property" | "identifier"
-}
-
-export interface ReactivityParserOption {
-  escapeNamings?: string[]
-  customHTMLProps?: string[]
+  parseTemplate?: boolean
 }

@@ -45,20 +45,21 @@ export default class EnvGenerator extends PropViewGenerator {
 
   /**
    * @View
-   * const ${dlNodeName} = new EnvNode(envs)
+   * ${dlNodeName} = new EnvNode(envs)
    */
   private declareEnvNode(
     dlNodeName: string,
     props: Record<string, DependencyProp>
-  ): t.VariableDeclaration {
-    return this.t.variableDeclaration("const", [
-      this.t.variableDeclarator(
+  ): t.Statement {
+    return this.t.expressionStatement(
+      this.t.assignmentExpression(
+        "=",
         this.t.identifier(dlNodeName),
         this.t.newExpression(this.t.identifier(this.importMap.EnvNode), [
           this.generateEnvs(props),
         ])
-      ),
-    ])
+      )
+    )
   }
 
   /**
@@ -95,7 +96,8 @@ export default class EnvGenerator extends PropViewGenerator {
     key: string,
     value: t.Expression
   ): t.Statement {
-    return this.t.expressionStatement(
+    return this.optionalExpression(
+      dlNodeName,
       this.t.callExpression(
         this.t.memberExpression(
           this.t.identifier(dlNodeName),

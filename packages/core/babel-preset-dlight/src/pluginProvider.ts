@@ -9,240 +9,16 @@ import { minimatch } from "minimatch"
 import { parseView } from "@dlightjs/view-parser"
 import { parseReactivity } from "@dlightjs/reactivity-parser"
 import { generateSubView, generateView } from "@dlightjs/view-generator"
-
-const devMode = process.env.NODE_ENV === "development"
+import {
+  availableDecoNames,
+  defaultHTMLTags,
+  devMode,
+  dlightDefaultPackageName,
+  importMap,
+} from "./const"
 
 export class PluginProvider {
-  // ---- Const Level
-  static defaultHTMLTags = [
-    "a",
-    "abbr",
-    "address",
-    "area",
-    "article",
-    "aside",
-    "audio",
-    "b",
-    "base",
-    "bdi",
-    "bdo",
-    "blockquote",
-    "body",
-    "br",
-    "button",
-    "canvas",
-    "caption",
-    "cite",
-    "code",
-    "col",
-    "colgroup",
-    "data",
-    "datalist",
-    "dd",
-    "del",
-    "details",
-    "dfn",
-    "dialog",
-    "div",
-    "dl",
-    "dt",
-    "em",
-    "embed",
-    "fieldset",
-    "figcaption",
-    "figure",
-    "footer",
-    "form",
-    "h1",
-    "h2",
-    "h3",
-    "h4",
-    "h5",
-    "h6",
-    "head",
-    "header",
-    "hgroup",
-    "hr",
-    "html",
-    "i",
-    "iframe",
-    "img",
-    "input",
-    "ins",
-    "kbd",
-    "label",
-    "legend",
-    "li",
-    "link",
-    "main",
-    "map",
-    "mark",
-    "menu",
-    "meta",
-    "meter",
-    "nav",
-    "noscript",
-    "object",
-    "ol",
-    "optgroup",
-    "option",
-    "output",
-    "p",
-    "picture",
-    "pre",
-    "progress",
-    "q",
-    "rp",
-    "rt",
-    "ruby",
-    "s",
-    "samp",
-    "script",
-    "section",
-    "select",
-    "slot",
-    "small",
-    "source",
-    "span",
-    "strong",
-    "style",
-    "sub",
-    "summary",
-    "sup",
-    "table",
-    "tbody",
-    "td",
-    "template",
-    "textarea",
-    "tfoot",
-    "th",
-    "thead",
-    "time",
-    "title",
-    "tr",
-    "track",
-    "u",
-    "ul",
-    "var",
-    "video",
-    "wbr",
-    "acronym",
-    "applet",
-    "basefont",
-    "bgsound",
-    "big",
-    "blink",
-    "center",
-    "dir",
-    "font",
-    "frame",
-    "frameset",
-    "isindex",
-    "keygen",
-    "listing",
-    "marquee",
-    "menuitem",
-    "multicol",
-    "nextid",
-    "nobr",
-    "noembed",
-    "noframes",
-    "param",
-    "plaintext",
-    "rb",
-    "rtc",
-    "spacer",
-    "strike",
-    "tt",
-    "xmp",
-    "animate",
-    "animateMotion",
-    "animateTransform",
-    "circle",
-    "clipPath",
-    "defs",
-    "desc",
-    "ellipse",
-    "feBlend",
-    "feColorMatrix",
-    "feComponentTransfer",
-    "feComposite",
-    "feConvolveMatrix",
-    "feDiffuseLighting",
-    "feDisplacementMap",
-    "feDistantLight",
-    "feDropShadow",
-    "feFlood",
-    "feFuncA",
-    "feFuncB",
-    "feFuncG",
-    "feFuncR",
-    "feGaussianBlur",
-    "feImage",
-    "feMerge",
-    "feMergeNode",
-    "feMorphology",
-    "feOffset",
-    "fePointLight",
-    "feSpecularLighting",
-    "feSpotLight",
-    "feTile",
-    "feTurbulence",
-    "filter",
-    "foreignObject",
-    "g",
-    "image",
-    "line",
-    "linearGradient",
-    "marker",
-    "mask",
-    "metadata",
-    "mpath",
-    "path",
-    "pattern",
-    "polygon",
-    "polyline",
-    "radialGradient",
-    "rect",
-    "set",
-    "stop",
-    "svg",
-    "switch",
-    "symbol",
-    "text",
-    "textPath",
-    "tspan",
-    "use",
-    "view",
-  ]
-
-  static availableDecoNames = ["Static", "Prop", "Env", "Content", "Children"]
-  static dlightDefaultPackageName = "@dlightjs/dlight"
-  static importMap = Object.fromEntries(
-    [
-      "createTemplate",
-      "setStyle",
-      "setDataset",
-      "setMemorizedEvent",
-      "setHTMLProp",
-      "setHTMLAttr",
-      "setHTMLProps",
-      "setHTMLAttrs",
-      "insertNode",
-      "createElement",
-      "ForNode",
-      "IfNode",
-      "EnvNode",
-      "createTextNode",
-      "updateText",
-      "ExpNode",
-      "PropView",
-    ].map((funcName, idx) =>
-      devMode ? [funcName, funcName] : [funcName, `$${idx}$`]
-    )
-  )
-
-  private readonly dlightPackageName = PluginProvider.dlightDefaultPackageName
+  private readonly dlightPackageName = dlightDefaultPackageName
 
   // ---- Plugin Level
   private readonly babelApi: typeof babel
@@ -252,6 +28,7 @@ export class PluginProvider {
   private readonly includes: string[]
   private readonly excludes: string[]
   private readonly htmlTags: string[]
+  private readonly attributeMap: Record<string, string[]>
 
   constructor(
     babelApi: typeof babel,
@@ -259,7 +36,8 @@ export class PluginProvider {
     includes: string[],
     excludes: string[],
     enableDevTools: boolean,
-    htmlTags: HTMLTags
+    htmlTags: HTMLTags,
+    attributeMap: Record<string, string[]>
   ) {
     this.babelApi = babelApi
     this.t = types
@@ -269,19 +47,18 @@ export class PluginProvider {
     this.enableDevTools = devMode && enableDevTools
     this.htmlTags =
       typeof htmlTags === "function"
-        ? htmlTags(PluginProvider.defaultHTMLTags)
+        ? htmlTags(defaultHTMLTags)
         : htmlTags.includes("*")
-          ? [
-              ...new Set([...PluginProvider.defaultHTMLTags, ...htmlTags]),
-            ].filter(tag => tag !== "*")
+          ? [...new Set([...defaultHTMLTags, ...htmlTags])].filter(
+              tag => tag !== "*"
+            )
           : htmlTags
+    this.attributeMap = attributeMap
   }
 
   // ---- DLight class Level
-  private classRootPath?: NodePath<t.ClassDeclaration | t.ClassExpression>
   private classDeclarationNode?: t.ClassDeclaration | t.ClassExpression
   private classBodyNode?: t.ClassBody
-  private constructorNode?: t.ClassMethod
   private propertiesContainer: PropertyContainer = {}
   private dependencyMap: Record<string, string[]> = {}
   private enter = true
@@ -298,10 +75,8 @@ export class PluginProvider {
    * @brief Clear all DLight Node Level variables after a class is transformed
    */
   clearNode() {
-    this.classRootPath = undefined
     this.classDeclarationNode = undefined
     this.classBodyNode = undefined
-    this.constructorNode = undefined
     this.propertiesContainer = {}
     this.dependencyMap = {}
     this.enter = true
@@ -323,7 +98,6 @@ export class PluginProvider {
    * @param path
    */
   initNode(path: NodePath<t.ClassDeclaration | t.ClassExpression>): void {
-    this.classRootPath = path
     const node: t.ClassDeclaration | t.ClassExpression = path.node
     this.classDeclarationNode = node
     this.classBodyNode = node.body
@@ -347,17 +121,15 @@ export class PluginProvider {
       )
     }
 
-    this.addConstructor()
-
     // ---- Add dlight import and alter import name,
     //      Only do this when enter the first dlight class
     if (!this.didAlterImports) {
       // ---- Get DLight imports
       const dlightImports = this.allImports.filter(
-        n => n.source.value === PluginProvider.dlightDefaultPackageName
+        n => n.source.value === dlightDefaultPackageName
       )
       // ---- Alter import name, e.g. "@dlight/dlight-client"
-      if (this.dlightPackageName !== PluginProvider.dlightDefaultPackageName) {
+      if (this.dlightPackageName !== dlightDefaultPackageName) {
         dlightImports.forEach(i => {
           i.source.value = this.dlightPackageName
         })
@@ -366,7 +138,7 @@ export class PluginProvider {
       // ---- Add nodes import to the head of file
       this.programNode!.body.unshift(
         this.t.importDeclaration(
-          Object.entries(PluginProvider.importMap).map(([key, value]) =>
+          Object.entries(importMap).map(([key, value]) =>
             this.t.importSpecifier(
               this.t.identifier(value),
               this.t.identifier(key)
@@ -377,277 +149,6 @@ export class PluginProvider {
       )
       this.didAlterImports = true
     }
-  }
-
-  handleClassCustomDecorators() {
-    if (!this.classBodyNode) return
-    const decorators = this.classDeclarationNode?.decorators
-    if (!decorators) return
-    // ---- Forward Prop
-    const forwardPropDeco = this.findDecoratorByName(decorators, "ForwardProps")
-    /**
-     * _$forwardProp
-     * _$forwardPropMap = new Set()
-     * _$forwardPropsId = []
-     */
-    if (forwardPropDeco) {
-      this.classBodyNode.body.unshift(
-        this.t.classProperty(this.t.identifier("_$forwardProps")),
-        this.t.classProperty(
-          this.t.identifier("_$forwardPropsSet"),
-          this.t.newExpression(this.t.identifier("Set"), [])
-        ),
-        this.t.classProperty(
-          this.t.identifier("_$forwardPropsId"),
-          this.t.arrayExpression([])
-        )
-      )
-      this.classDeclarationNode!.decorators = this.removeDecorators(
-        decorators,
-        ["ForwardProps"]
-      )
-    }
-  }
-
-  /**
-   * @brief Transform the whole DLight class when exiting the class
-   *  1. Alter all the state properties
-   *  2. Transform MainView and SubViews with DLight syntax
-   */
-  transformDLightClass(): void {
-    const usedProperties = this.handleView()
-    const propertyArr = Object.entries(this.propertiesContainer).reverse()
-    const depReversedMap = this.dependencyMapReversed()
-
-    for (const [
-      key,
-      { node, deps, isStatic, isChildren, isPropOrEnv, isWatcher, isContent },
-    ] of propertyArr) {
-      if (isChildren) {
-        this.resolveChildrenDecorator(node as t.ClassProperty)
-        continue
-      }
-      if (deps.length > 0) {
-        usedProperties.push(...deps)
-        if (isWatcher) this.resolveWatcherDecorator(node as t.ClassMethod)
-        else this.handleDerivedProperty(node as t.ClassProperty)
-      }
-      if (isPropOrEnv) {
-        this.resolvePropDecorator(node as t.ClassProperty, isPropOrEnv)
-      }
-      if (isContent) {
-        this.resolvePropDecorator(node as t.ClassProperty, "Prop")
-        this.resolveContentDecorator(node as t.ClassProperty)
-      }
-      if (isStatic) continue
-      if (usedProperties.includes(key)) {
-        this.resolveStateDecorator(
-          node as t.ClassProperty,
-          this.availableProperties.indexOf(key),
-          depReversedMap[key]
-        )
-      }
-    }
-  }
-
-  /* ---- DLight Class View Handlers ---- */
-  /**
-   * @brief Transform Body and SubViews with DLight syntax
-   * @returns used properties
-   */
-  handleView(): string[] {
-    if (!this.classBodyNode) return []
-    const usedPropertySet = new Set<string>()
-    let mainView: undefined | t.ClassMethod
-    const subViewNodes: t.ClassMethod[] = []
-    for (let viewNode of this.classBodyNode.body) {
-      if (!this.t.isClassProperty(viewNode) && !this.t.isClassMethod(viewNode))
-        continue
-      if (!this.t.isIdentifier(viewNode.key)) continue
-      const isSubView = this.findDecoratorByName(viewNode.decorators, "View")
-      const isMainView = viewNode.key.name === "View"
-      if (!isSubView && !isMainView) continue
-
-      if (this.t.isClassProperty(viewNode)) {
-        // ---- Handle TSAsExpression, e.g. MyView = (() => {}) as Type1 as Type2
-        let exp = viewNode.value
-        while (this.t.isTSAsExpression(exp)) exp = exp.expression
-        if (!this.t.isArrowFunctionExpression(viewNode.value)) continue
-        viewNode.value = exp
-        // ---- Transform arrow function property into method
-        const newViewNode = this.arrowFunctionPropertyToMethod(viewNode)
-        if (!newViewNode) continue
-        viewNode = newViewNode
-      }
-
-      if (isSubView) {
-        viewNode.decorators = null
-        subViewNodes.push(viewNode)
-      } else {
-        mainView = viewNode
-      }
-    }
-
-    const subViewNames = subViewNodes.map(v => (v.key as t.Identifier).name)
-    const subViewPropSubDepMap: SubViewPropSubDepMap = Object.fromEntries(
-      subViewNodes
-        .map(v => {
-          const prop = v.params[0]
-          if (!prop || !this.t.isObjectPattern(prop)) return ["-", null as any]
-          const props = Object.fromEntries(
-            prop.properties
-              .map(p => {
-                if (!this.t.isObjectProperty(p)) return ["-", null]
-                const key = (p.key as t.Identifier).name
-                // ---- Get identifiers that depend on this prop
-                const subDeps = this.getIdentifiers(
-                  this.t.assignmentExpression(
-                    "=",
-                    this.t.objectPattern([
-                      this.t.objectProperty(this.t.numericLiteral(0), p.value),
-                    ]),
-                    this.t.numericLiteral(0)
-                  )
-                ).filter(v => v !== key)
-                return [key, subDeps]
-              })
-              .filter(([_, props]) => props)
-          )
-          return [(v.key as t.Identifier).name, props]
-        })
-        .filter(([_, props]) => props)
-    )
-    let templateIdx = -1
-    if (mainView) {
-      let usedProperties
-      ;[usedProperties, templateIdx] = this.alterMainView(
-        mainView,
-        subViewNames,
-        subViewPropSubDepMap
-      )
-      usedProperties.forEach(usedPropertySet.add.bind(usedPropertySet))
-    }
-
-    subViewNodes.forEach(viewNode => {
-      let usedProperties
-      ;[usedProperties, templateIdx] = this.alterSubView(
-        viewNode,
-        subViewNames,
-        subViewPropSubDepMap,
-        templateIdx
-      )
-      usedProperties.forEach(usedPropertySet.add.bind(usedPropertySet))
-    })
-
-    const usedProperties: string[] = []
-    this.availableProperties.forEach(p => {
-      if (usedPropertySet.has(p)) usedProperties.push(p)
-    })
-    // const usedProperties = usedPropertyDeps.map(dep => dep.slice(1, -4))
-    return usedProperties
-  }
-
-  /**
-   * @brief Transform Views with DLight syntax
-   * @param viewNode
-   * @param subViewNames
-   * @param isSubView
-   * @returns Used properties
-   */
-  alterMainView(
-    viewNode: t.ClassMethod,
-    subViewNames: string[],
-    subViewPropSubDepMap: SubViewPropSubDepMap
-  ): [Set<string>, number] {
-    const viewUnits = parseView(viewNode.body, {
-      babelApi: this.babelApi,
-      subviewNames: subViewNames,
-      htmlTags: this.htmlTags,
-    })
-
-    const [viewParticles, usedPropertySet] = parseReactivity(viewUnits, {
-      babelApi: this.babelApi,
-      availableProperties: this.availableProperties,
-      dependencyMap: this.dependencyMap,
-    })
-
-    const [body, classProperties, templateIdx] = generateView(viewParticles, {
-      babelApi: this.babelApi,
-      className: this.className!,
-      importMap: PluginProvider.importMap,
-      subViewPropMap: Object.fromEntries(
-        Object.entries(subViewPropSubDepMap).map(([key, props]) => [
-          key,
-          Object.keys(props),
-        ])
-      ),
-      templateIdx: -1,
-    })
-    viewNode.body = body
-    this.classBodyNode?.body.push(...classProperties)
-
-    return [usedPropertySet, templateIdx]
-  }
-
-  alterSubView(
-    viewNode: t.ClassMethod,
-    subViewNames: string[],
-    subViewPropSubDepMap: SubViewPropSubDepMap,
-    templateIdx: number
-  ): [Set<string>, number] {
-    const viewUnits = parseView(viewNode.body, {
-      babelApi: this.babelApi,
-      subviewNames: subViewNames,
-      htmlTags: this.htmlTags,
-    })
-    const [viewParticlesProperty, usedPropertySet] = parseReactivity(
-      viewUnits,
-      {
-        babelApi: this.babelApi,
-        availableProperties: this.availableProperties,
-        dependencyMap: this.dependencyMap,
-      }
-    )
-
-    const subViewProp =
-      subViewPropSubDepMap[(viewNode.key as t.Identifier).name] ?? []
-    const identifierDepMap: Record<string, string[]> = {}
-    Object.entries(subViewProp).forEach(([key, subDeps]) => {
-      subDeps.forEach(dep => {
-        identifierDepMap[dep] = [key]
-      })
-    })
-
-    const [viewParticlesIdentifier] = parseReactivity(viewUnits, {
-      babelApi: this.babelApi,
-      availableProperties: Object.keys(subViewProp),
-      dependencyMap: this.dependencyMap,
-      dependencyParseType: "identifier",
-      identifierDepMap,
-    })
-
-    const subViewPropMap = Object.fromEntries(
-      Object.entries(subViewPropSubDepMap).map(([key, props]) => [
-        key,
-        Object.keys(props),
-      ])
-    )
-    const [body, classProperties, newTemplateIdx] = generateSubView(
-      viewParticlesProperty,
-      viewParticlesIdentifier,
-      viewNode.params[0] as t.ObjectPattern,
-      {
-        babelApi: this.babelApi,
-        className: this.className!,
-        importMap: PluginProvider.importMap,
-        subViewPropMap,
-        templateIdx,
-      }
-    )
-    viewNode.body = body
-    this.classBodyNode?.body.push(...classProperties)
-
-    return [usedPropertySet, newTemplateIdx]
   }
 
   /* ---- Babel Visitors ---- */
@@ -662,7 +163,7 @@ export class PluginProvider {
       this.t.isImportDeclaration(n)
     ) as t.ImportDeclaration[]
     const dlightImports = this.allImports.filter(
-      n => n.source.value === PluginProvider.dlightDefaultPackageName
+      n => n.source.value === dlightDefaultPackageName
     )
     if (dlightImports.length === 0) {
       this.enter = false
@@ -701,7 +202,6 @@ export class PluginProvider {
     if (!this.enter) return
     if (!this.enterClassNode) return
     this.transformDLightClass()
-    this.addInit()
     this.exitClass(path)
     this.clearNode()
     this.enterClassNode = false
@@ -735,15 +235,30 @@ export class PluginProvider {
     // ---- Get dependencies from watcher decorator or watcher function decorator
     let deps: string[] = []
     if (this.t.isIdentifier(watchDeco)) {
-      deps = this.getDependencies(path)
+      deps = this.getDependencies(node)
     } else {
-      const listenDeps = watchDeco.arguments[0]
-      if (this.t.isArrayExpression(listenDeps)) {
-        deps = listenDeps.elements
-          .filter(arg => this.t.isStringLiteral(arg))
-          .map(arg => (arg as t.StringLiteral).value)
-        deps = [...new Set(deps)]
-      }
+      const listenDepStrings = watchDeco.arguments
+        .filter(arg => this.t.isStringLiteral(arg))
+        .map(arg => (arg as t.StringLiteral).value)
+      const pseudoMethod = this.t.classMethod(
+        "method",
+        node.key,
+        [],
+        this.t.blockStatement([
+          this.t.expressionStatement(
+            this.t.arrayExpression(
+              listenDepStrings.map(str =>
+                this.t.memberExpression(
+                  this.t.thisExpression(),
+                  this.t.identifier(str)
+                )
+              )
+            )
+          ),
+        ])
+      )
+
+      deps = this.getDependencies(pseudoMethod)
     }
     // ---- Register watcher to propertiesContainer
     this.propertiesContainer[key] = {
@@ -771,7 +286,7 @@ export class PluginProvider {
 
     const isChildren = !!this.findDecoratorByName(node.decorators, "Children")
 
-    const deps = !isChildren ? this.getDependencies(path) : []
+    const deps = !isChildren ? this.getDependencies(node) : []
 
     this.propertiesContainer[key] = {
       node,
@@ -782,10 +297,7 @@ export class PluginProvider {
       isPropOrEnv: isProp ? "Prop" : isEnv ? "Env" : undefined,
     }
 
-    node.decorators = this.removeDecorators(
-      decorators,
-      PluginProvider.availableDecoNames
-    )
+    node.decorators = this.removeDecorators(decorators, availableDecoNames)
     this.visitClassProperty(path)
   }
 
@@ -962,6 +474,293 @@ export class PluginProvider {
   }
 
   /* ---- Helper Functions ---- */
+
+  handleClassCustomDecorators() {
+    if (!this.classBodyNode) return
+    const decorators = this.classDeclarationNode?.decorators
+    if (!decorators) return
+    // ---- Forward Prop
+    const forwardPropDeco = this.findDecoratorByName(decorators, "ForwardProps")
+    /**
+     * _$forwardProp
+     * _$forwardPropMap = new Set()
+     * _$forwardPropsId = []
+     */
+    if (forwardPropDeco) {
+      this.classBodyNode.body.unshift(
+        this.t.classProperty(this.t.identifier("_$forwardProps")),
+        this.t.classProperty(
+          this.t.identifier("_$forwardPropsSet"),
+          this.t.newExpression(this.t.identifier("Set"), [])
+        ),
+        this.t.classProperty(
+          this.t.identifier("_$forwardPropsId"),
+          this.t.arrayExpression([])
+        )
+      )
+      this.classDeclarationNode!.decorators = this.removeDecorators(
+        decorators,
+        ["ForwardProps"]
+      )
+    }
+  }
+
+  /**
+   * @brief Transform the whole DLight class when exiting the class
+   *  1. Alter all the state properties
+   *  2. Transform MainView and SubViews with DLight syntax
+   */
+  transformDLightClass(): void {
+    const usedProperties = this.handleView()
+    const propertyArr = Object.entries(this.propertiesContainer).reverse()
+    const depReversedMap = this.dependencyMapReversed()
+
+    for (const [
+      key,
+      { node, deps, isStatic, isChildren, isPropOrEnv, isWatcher, isContent },
+    ] of propertyArr) {
+      if (isChildren) {
+        this.resolveChildrenDecorator(node as t.ClassProperty)
+        continue
+      }
+      if (deps.length > 0) {
+        usedProperties.push(...deps)
+        if (isWatcher) this.resolveWatcherDecorator(node as t.ClassMethod)
+        else this.handleDerivedProperty(node as t.ClassProperty)
+      }
+      if (isPropOrEnv) {
+        this.resolvePropDecorator(node as t.ClassProperty, isPropOrEnv)
+      }
+      if (isContent) {
+        this.resolvePropDecorator(node as t.ClassProperty, "Prop")
+        this.resolveContentDecorator(node as t.ClassProperty)
+      }
+      if (isStatic) continue
+      if (usedProperties.includes(key)) {
+        this.resolveStateDecorator(
+          node as t.ClassProperty,
+          this.availableProperties.indexOf(key),
+          depReversedMap[key]
+        )
+      }
+    }
+  }
+
+  /* ---- DLight Class View Handlers ---- */
+  /**
+   * @brief Transform Body and SubViews with DLight syntax
+   * @returns used properties
+   */
+  handleView(): string[] {
+    if (!this.classBodyNode) return []
+    const usedPropertySet = new Set<string>()
+    let mainView: undefined | t.ClassMethod
+    const subViewNodes: t.ClassMethod[] = []
+    for (let viewNode of this.classBodyNode.body) {
+      if (!this.t.isClassProperty(viewNode) && !this.t.isClassMethod(viewNode))
+        continue
+      if (!this.t.isIdentifier(viewNode.key)) continue
+      const isSubView = this.findDecoratorByName(viewNode.decorators, "View")
+      const isMainView = viewNode.key.name === "View"
+      if (!isSubView && !isMainView) continue
+
+      if (this.t.isClassProperty(viewNode)) {
+        // ---- Handle TSAsExpression, e.g. MyView = (() => {}) as Type1 as Type2
+        let exp = viewNode.value
+        while (this.t.isTSAsExpression(exp)) exp = exp.expression
+        if (!this.t.isArrowFunctionExpression(exp)) continue
+        viewNode.value = exp
+        // ---- Transform arrow function property into method
+        const newViewNode = this.arrowFunctionPropertyToMethod(viewNode)
+        if (!newViewNode) continue
+        viewNode = newViewNode
+      }
+
+      if (isSubView) {
+        viewNode.decorators = null
+        subViewNodes.push(viewNode)
+      } else {
+        mainView = viewNode
+      }
+    }
+
+    const subViewNames = subViewNodes.map(v => (v.key as t.Identifier).name)
+    const subViewPropSubDepMap: SubViewPropSubDepMap = Object.fromEntries(
+      subViewNodes
+        .map(v => {
+          const prop = v.params[0]
+          if (!prop || !this.t.isObjectPattern(prop)) return ["-", null as any]
+          const props = Object.fromEntries(
+            prop.properties
+              .map(p => {
+                if (!this.t.isObjectProperty(p)) return ["-", null]
+                const key = (p.key as t.Identifier).name
+                // ---- Get identifiers that depend on this prop
+                const subDeps = this.getIdentifiers(
+                  // ---- Some unimportant value wrapper
+                  this.t.assignmentExpression(
+                    "=",
+                    this.t.objectPattern([
+                      this.t.objectProperty(this.t.numericLiteral(0), p.value),
+                    ]),
+                    this.t.numericLiteral(0)
+                  )
+                ).filter(v => v !== key)
+                return [key, subDeps]
+              })
+              .filter(([_, props]) => props)
+          )
+          return [(v.key as t.Identifier).name, props]
+        })
+        .filter(([_, props]) => props)
+    )
+    let templateIdx = -1
+    if (mainView) {
+      let usedProperties
+      ;[usedProperties, templateIdx] = this.alterMainView(
+        mainView,
+        subViewNames,
+        subViewPropSubDepMap
+      )
+      usedProperties.forEach(usedPropertySet.add.bind(usedPropertySet))
+    }
+
+    subViewNodes.forEach(viewNode => {
+      let usedProperties
+      ;[usedProperties, templateIdx] = this.alterSubView(
+        viewNode,
+        subViewNames,
+        subViewPropSubDepMap,
+        templateIdx
+      )
+      usedProperties.forEach(usedPropertySet.add.bind(usedPropertySet))
+    })
+
+    const usedProperties: string[] = []
+    this.availableProperties.forEach(p => {
+      if (usedPropertySet.has(p)) usedProperties.push(p)
+    })
+    // const usedProperties = usedPropertyDeps.map(dep => dep.slice(1, -4))
+    return usedProperties
+  }
+
+  /**
+   * @brief Transform Views with DLight syntax
+   * @param viewNode
+   * @param subViewNames
+   * @param isSubView
+   * @returns Used properties
+   */
+  alterMainView(
+    viewNode: t.ClassMethod,
+    subViewNames: string[],
+    subViewPropSubDepMap: SubViewPropSubDepMap
+  ): [Set<string>, number] {
+    const viewUnits = parseView(viewNode.body, {
+      babelApi: this.babelApi,
+      subviewNames: subViewNames,
+      htmlTags: this.htmlTags,
+    })
+
+    const [viewParticles, usedPropertySet] = parseReactivity(viewUnits, {
+      babelApi: this.babelApi,
+      availableProperties: this.availableProperties,
+      dependencyMap: this.dependencyMap,
+    })
+
+    const [body, classProperties, templateIdx] = generateView(viewParticles, {
+      babelApi: this.babelApi,
+      className: this.className!,
+      importMap,
+      subViewPropMap: Object.fromEntries(
+        Object.entries(subViewPropSubDepMap).map(([key, props]) => [
+          key,
+          Object.keys(props),
+        ])
+      ),
+      templateIdx: -1,
+      attributeMap: this.attributeMap,
+    })
+    viewNode.body = body
+    this.classBodyNode?.body.push(...classProperties)
+
+    return [usedPropertySet, templateIdx]
+  }
+
+  alterSubView(
+    viewNode: t.ClassMethod,
+    subViewNames: string[],
+    subViewPropSubDepMap: SubViewPropSubDepMap,
+    templateIdx: number
+  ): [Set<string>, number] {
+    // ---- Add prop => Sub() => Sub(_$, $subviewNode)
+    if (viewNode.params.length === 0) {
+      viewNode.params.push(
+        this.t.identifier("_$"),
+        this.t.identifier("$subviewNode")
+      )
+    } else if (viewNode.params.length === 1) {
+      viewNode.params.push(this.t.identifier("$subviewNode"))
+    } else {
+      viewNode.params[1] = this.t.identifier("$subviewNode")
+      viewNode.params.length = 2
+    }
+    const viewUnits = parseView(viewNode.body, {
+      babelApi: this.babelApi,
+      subviewNames: subViewNames,
+      htmlTags: this.htmlTags,
+    })
+    const [viewParticlesProperty, usedPropertySet] = parseReactivity(
+      viewUnits,
+      {
+        babelApi: this.babelApi,
+        availableProperties: this.availableProperties,
+        dependencyMap: this.dependencyMap,
+      }
+    )
+
+    const subViewProp =
+      subViewPropSubDepMap[(viewNode.key as t.Identifier).name] ?? []
+    const identifierDepMap: Record<string, string[]> = {}
+    Object.entries(subViewProp).forEach(([key, subDeps]) => {
+      subDeps.forEach(dep => {
+        identifierDepMap[dep] = [key]
+      })
+    })
+
+    const [viewParticlesIdentifier] = parseReactivity(viewUnits, {
+      babelApi: this.babelApi,
+      availableProperties: Object.keys(subViewProp),
+      dependencyMap: this.dependencyMap,
+      dependencyParseType: "identifier",
+      identifierDepMap,
+    })
+
+    const subViewPropMap = Object.fromEntries(
+      Object.entries(subViewPropSubDepMap).map(([key, props]) => [
+        key,
+        Object.keys(props),
+      ])
+    )
+    const [body, classProperties, newTemplateIdx] = generateSubView(
+      viewParticlesProperty,
+      viewParticlesIdentifier,
+      viewNode.params[0] as t.ObjectPattern,
+      {
+        babelApi: this.babelApi,
+        className: this.className!,
+        importMap,
+        subViewPropMap,
+        templateIdx,
+        attributeMap: this.attributeMap,
+      }
+    )
+    viewNode.body = body
+    this.classBodyNode?.body.push(...classProperties)
+
+    return [usedPropertySet, newTemplateIdx]
+  }
+
   /**
    * @brief Test if the file is allowed to be transformed
    * @param fileName
@@ -1045,55 +844,32 @@ export class PluginProvider {
   }
 
   /**
-   * constructor(props, content, children, forwardPropsScope) {
+   * constructor() {
    *  super()
    * }
    */
-  addConstructor() {
-    if (!this.classBodyNode) return
-    let constructor = this.classBodyNode.body.find(n =>
+  addConstructor(): t.ClassMethod {
+    let constructor = this.classBodyNode!.body.find(n =>
       this.t.isClassMethod(n, { kind: "constructor" })
     ) as t.ClassMethod
-    if (constructor) throw new Error("DLight class should not have constructor")
+    if (constructor) return constructor
 
     constructor = this.t.classMethod(
       "constructor",
       this.t.identifier("constructor"),
-      [
-        this.t.identifier("props"),
-        this.t.identifier("content"),
-        this.t.identifier("children"),
-        this.t.identifier("forwardPropsScope"),
-      ],
+      [],
       this.t.blockStatement([
         this.t.expressionStatement(this.t.callExpression(this.t.super(), [])),
       ])
     )
-    this.constructorNode = constructor
-    this.classBodyNode.body.unshift(constructor)
-  }
 
-  addInit() {
-    this.constructorNode!.body.body.push(
-      this.t.expressionStatement(
-        this.t.callExpression(
-          this.t.memberExpression(
-            this.t.thisExpression(),
-            this.t.identifier("_$init")
-          ),
-          [
-            this.t.identifier("props"),
-            this.t.identifier("content"),
-            this.t.identifier("children"),
-            this.t.identifier("forwardPropsScope"),
-          ]
-        )
-      )
-    )
+    this.classBodyNode!.body.unshift(constructor)
+    return constructor
   }
 
   autoBindMethods(node: t.ClassMethod) {
-    this.constructorNode!.body.body.push(
+    const constructorNode = this.addConstructor()
+    constructorNode.body.body.push(
       this.t.expressionStatement(
         this.t.assignmentExpression(
           "=",
@@ -1111,7 +887,7 @@ export class PluginProvider {
   }
 
   /**
-   * ${key} = ${value}
+   * ${key}
    * get $f$${key}() {
    *  return ${value}
    * }
@@ -1128,6 +904,7 @@ export class PluginProvider {
       this.t.blockStatement([this.t.returnStatement(value)])
     )
     this.classBodyNode!.body.splice(propertyIdx + 1, 0, getterNode)
+    node.value = null
   }
 
   /**
@@ -1135,15 +912,17 @@ export class PluginProvider {
    * @param path
    * @returns dependencies
    */
-  getDependencies(path: NodePath<t.ClassMethod | t.ClassProperty>): string[] {
-    const node = path.node
+  getDependencies(node: t.ClassMethod | t.ClassProperty): string[] {
     if (!this.t.isIdentifier(node.key)) return []
 
     // ---- Deps: console.log(this.count)
     const deps = new Set<string>()
     // ---- Assign deps: this.count = 1 / this.count++
     const assignDeps = new Set<string>()
-    path.scope.traverse(node, {
+    const wrappedNode = this.valueWrapper(
+      this.t.classDeclaration(null, null, this.t.classBody([node]))
+    )
+    this.traverse(wrappedNode, {
       MemberExpression: innerPath => {
         if (!this.t.isIdentifier(innerPath.node.property)) return
         const propertyKey = innerPath.node.property.name
@@ -1207,27 +986,21 @@ export class PluginProvider {
   arrowFunctionPropertyToMethod(
     propertyNode: t.ClassProperty
   ): t.ClassMethod | undefined {
-    if (this.t.isArrowFunctionExpression(propertyNode.value)) return
-    let newNode: t.ClassMethod | undefined
-    this.classRootPath!.scope.traverse(this.classBodyNode!, {
-      ClassProperty: innerPath => {
-        if (innerPath.node !== propertyNode) return
-        const propertyBody = (propertyNode.value as t.ArrowFunctionExpression)
-          .body
-        const body = this.t.isExpression(propertyBody)
-          ? this.t.blockStatement([this.t.returnStatement(propertyBody)])
-          : propertyBody
-        const methodNode = this.t.classMethod(
-          "method",
-          propertyNode.key,
-          (propertyNode.value as t.ArrowFunctionExpression).params,
-          body
-        )
-        newNode = methodNode
-        innerPath.replaceWith(methodNode)
-      },
-    })
-    return newNode
+    if (!this.t.isArrowFunctionExpression(propertyNode.value)) return
+    const value = propertyNode.value
+    if (!this.t.isBlockStatement(value.body)) return
+    // ---- Remove property
+    const propertyIdx = this.classBodyNode!.body.indexOf(propertyNode)
+    // ---- Add method
+    const methodNode = this.t.classMethod(
+      "method",
+      propertyNode.key,
+      value.params,
+      value.body
+    )
+    this.classBodyNode!.body.splice(propertyIdx, 1, methodNode)
+
+    return methodNode
   }
 
   /**

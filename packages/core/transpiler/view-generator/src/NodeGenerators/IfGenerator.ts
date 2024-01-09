@@ -1,79 +1,21 @@
 import { type types as t } from "@babel/core"
-import BaseGenerator from "../HelperGenerators/BaseGenerator"
 import { type IfParticle, type IfBranch } from "@dlightjs/reactivity-parser"
+import CondGenerator from "../HelperGenerators/CondGenerator"
 
-export default class IfGenerator extends BaseGenerator {
+export default class IfGenerator extends CondGenerator {
   run() {
-    const ifParticle = this.viewParticle as IfParticle
-    // ---- declareIfNode
-    const dlNodeName = this.generateNodeName()
-    this.addInitStatement(this.declareIfNode(dlNodeName, ifParticle.branches))
-
-    const deps = ifParticle.branches.flatMap(
+    const { branches } = this.viewParticle as IfParticle
+    const deps = branches.flatMap(
       ({ condition }) => condition.dependencyIndexArr ?? []
     )
-    this.addUpdateStatements(deps, this.updateIfNodeCond(dlNodeName))
-    this.addUpdateStatementsWithoutDep(this.updateIfNode(dlNodeName))
+    // ---- declareIfNode
+    const dlNodeName = this.generateNodeName()
+    this.addInitStatement(...this.declareIfNode(dlNodeName, branches, deps))
+
+    this.addUpdateStatements(deps, this.updateCondNodeCond(dlNodeName))
+    this.addUpdateStatementsWithoutDep(this.updateCondNode(dlNodeName))
 
     return dlNodeName
-  }
-
-  /**
-   * @View
-   * ${firstNode}._$updateFunc = (changed) => { ${updateStatements} }
-   */
-  private geneUpdateFunc(
-    firstNode: string,
-    updateStatements: Record<number, t.Statement[]>
-  ): t.ExpressionStatement {
-    return this.t.expressionStatement(
-      this.t.assignmentExpression(
-        "=",
-        this.t.memberExpression(
-          this.t.identifier(firstNode),
-          this.t.identifier("_$updateFunc")
-        ),
-        this.t.arrowFunctionExpression(
-          [this.t.identifier("changed")],
-          this.geneUpdateBody(updateStatements)
-        )
-      )
-    )
-  }
-
-  /**
-   * @View
-   * ${firstNode}._$cond = ${idx}
-   */
-  private geneCondIdx(firstNode: string, idx: number): t.ExpressionStatement {
-    return this.t.expressionStatement(
-      this.t.assignmentExpression(
-        "=",
-        this.t.memberExpression(
-          this.t.identifier(firstNode),
-          this.t.identifier("cond")
-        ),
-        this.t.numericLiteral(idx)
-      )
-    )
-  }
-
-  /**
-   * @View
-   * if ($thisIf.cond === ${idx}) return
-   */
-  private geneCondCheck(idx: number): t.IfStatement {
-    return this.t.ifStatement(
-      this.t.binaryExpression(
-        "===",
-        this.t.memberExpression(
-          this.t.identifier("$thisIf"),
-          this.t.identifier("cond")
-        ),
-        this.t.numericLiteral(idx)
-      ),
-      this.t.returnStatement()
-    )
   }
 
   /**
@@ -90,116 +32,81 @@ export default class IfGenerator extends BaseGenerator {
 
   /**
    * @View
-   * const ${dlNodeName} = new IfNode(($thisIf) => {
+   * const ${dlNodeName} = new IfNode(($thisCond) => {
    *   if (cond1) {
-   *    if ($thisIf.cond === 0) return
+   *    if ($thisCond.cond === 0) return
    *    ${children}
-   *    thisIf.cond = 0
-   *    node0.update = () => {}
+   *    $thisCond.cond = 0
    *    return [nodes]
    *   } else if (cond2) {
-   *    if ($thisIf.cond === 1) return
+   *    if ($thisCond.cond === 1) return
    *    ${children}
-   *    thisIf.cond = 1
+   *    $thisCond.cond = 1
    *    return [nodes]
    *   }
    * })
    */
-  private declareIfNode(dlNodeName: string, branches: IfBranch[]): t.Statement {
-    let hasElseStatement = false
-
+  private declareIfNode(
+    dlNodeName: string,
+    branches: IfBranch[],
+    deps: number[]
+  ): t.Statement[] {
+    // ---- If no else statement, add one
+    if (
+      !this.t.isBooleanLiteral(branches[branches.length - 1].condition.value, {
+        value: true,
+      })
+    ) {
+      branches.push({
+        condition: { value: this.t.booleanLiteral(true) },
+        children: [],
+      })
+    }
     const ifStatement = branches
       .reverse()
-      .reduce<any>((acc, { condition, children }, idx) => {
+      .reduce<any>((acc, { condition, children }, i) => {
+        const idx = branches.length - i - 1
         // ---- Generate children
-        const [childStatements, topLevelNodes, updateStatements] =
-          this.generateChildren(children, false)
-
-        // ---- Check cond statement
-        childStatements.unshift(this.geneCondCheck(branches.length - idx - 1))
+        const [childStatements, topLevelNodes, updateStatements, nodeIdx] =
+          this.generateChildren(children, false, true)
 
         // ---- Update func
-        if (Object.keys(updateStatements).length > 0) {
-          childStatements.push(
-            this.geneUpdateFunc(topLevelNodes[0], updateStatements)
+        childStatements.unshift(
+          ...this.declareNodes(nodeIdx),
+          /**
+           * $thisCond.updateFunc = (changed) => { ${updateStatements} }
+           */
+          this.t.expressionStatement(
+            this.t.assignmentExpression(
+              "=",
+              this.t.memberExpression(
+                this.t.identifier("$thisCond"),
+                this.t.identifier("updateFunc")
+              ),
+              this.t.arrowFunctionExpression(
+                this.updateParams,
+                this.geneUpdateBody(updateStatements)
+              )
+            )
           )
-        }
-
-        // ---- Cond idx (reverse order)
-        childStatements.push(
-          this.geneCondIdx("$thisIf", branches.length - idx - 1)
         )
 
-        // ---- Return statement
-        childStatements.push(this.generateReturnStatement(topLevelNodes))
+        // ---- Check cond and update cond
+        childStatements.unshift(this.geneCondCheck(idx), this.geneCondIdx(idx))
 
-        if (
-          idx === 0 &&
-          this.t.isBooleanLiteral(condition.value, { value: true })
-        ) {
-          // ---- else statement
-          hasElseStatement = true
-          return this.t.blockStatement(childStatements)
-        }
+        // ---- Return statement
+        childStatements.push(this.geneCondReturnStatement(topLevelNodes, idx))
+
+        // ---- else statement
+        if (i === 0) return this.t.blockStatement(childStatements)
 
         return this.geneIfStatement(condition.value, childStatements, acc)
       }, undefined)
 
-    if (!hasElseStatement) {
-      /**
-       * else {
-       *  thisIf.cond = -1
-       *  return []
-       * }
-       */
-      ifStatement.alternate = this.t.blockStatement([
-        this.geneCondIdx("$thisIf", -1),
-        this.t.returnStatement(this.t.arrayExpression([])),
-      ])
-    }
-
-    return this.t.variableDeclaration("const", [
-      this.t.variableDeclarator(
-        this.t.identifier(dlNodeName),
-        this.t.newExpression(this.t.identifier(this.importMap.IfNode), [
-          this.t.arrowFunctionExpression(
-            [this.t.identifier("$thisIf")],
-            this.t.blockStatement([ifStatement])
-          ),
-        ])
-      ),
-    ])
-  }
-
-  /**
-   * @View
-   * ${dlNodeName}.updateCond()
-   */
-  private updateIfNodeCond(dlNodeName: string): t.ExpressionStatement {
-    return this.t.expressionStatement(
-      this.t.callExpression(
-        this.t.memberExpression(
-          this.t.identifier(dlNodeName),
-          this.t.identifier("updateCond")
-        ),
-        []
-      )
-    )
-  }
-
-  /**
-   * @View
-   * ${dlNodeName}.update(changed)
-   */
-  private updateIfNode(dlNodeName: string): t.ExpressionStatement {
-    return this.t.expressionStatement(
-      this.t.callExpression(
-        this.t.memberExpression(
-          this.t.identifier(dlNodeName),
-          this.t.identifier("update")
-        ),
-        [this.t.identifier("changed")]
-      )
+    return this.declareCondNode(
+      dlNodeName,
+      this.t.blockStatement([ifStatement]),
+      deps
     )
   }
 }

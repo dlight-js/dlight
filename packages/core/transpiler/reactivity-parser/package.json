@@ -1,6 +1,6 @@
 {
   "name": "@dlightjs/reactivity-parser",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-alpha.8",
   "description": "DLight reactivity parser given View Units",
   "author": {
     "name": "IanDx",
@@ -34,8 +34,13 @@
     "@dlightjs/view-parser": "workspace:*"
   },
   "tsup": {
-    "entry": ["src/index.ts"],
-    "format": ["cjs", "esm"],
+    "entry": [
+      "src/index.ts"
+    ],
+    "format": [
+      "cjs",
+      "esm"
+    ],
     "clean": true,
     "dts": true,
     "minify": true

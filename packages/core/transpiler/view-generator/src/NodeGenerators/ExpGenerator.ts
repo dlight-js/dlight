@@ -22,17 +22,34 @@ export default class ExpGenerator extends ElementGenerator {
 
     if (props) {
       Object.entries(props).forEach(([key, { value, dependencyIndexArr }]) => {
-        const statement = this.setExpProp(dlNodeName, key, value)
-        if (statement) {
-          this.addInitStatement(statement)
-          dependencyIndexArr = [
-            ...(dependencyIndexArr ?? []),
-            ...(content.dependencyIndexArr ?? []),
-          ]
-          if (dependencyIndexArr.length > 0) {
-            this.addUpdateStatements(dependencyIndexArr, statement)
-          }
+        if (
+          ExpGenerator.lifecycle.includes(
+            key as (typeof ExpGenerator.lifecycle)[number]
+          )
+        ) {
+          return this.addInitStatement(
+            this.addLifecycle(
+              dlNodeName,
+              key as (typeof ExpGenerator.lifecycle)[number],
+              value
+            )
+          )
         }
+        if (key === "element") {
+          this.addInitStatement(this.initElement(dlNodeName, value, true))
+          const updateStatement = this.updateElement(dlNodeName, value, true)
+          if (updateStatement)
+            this.addUpdateStatements(dependencyIndexArr, updateStatement)
+          return
+        }
+        if (key === "didUpdate") {
+          this.addUpdateStatements(
+            content.dependencyIndexArr,
+            this.addOnUpdate(dlNodeName, value)
+          )
+          return
+        }
+        DLError.warn1(key)
       })
     }
 
@@ -40,36 +57,19 @@ export default class ExpGenerator extends ElementGenerator {
   }
 
   /**
-   * @brief Expression node only supports `element` and `do` props
-   * @param dlNodeName
-   * @param key
-   * @param value
-   * @returns
-   */
-  private setExpProp(
-    dlNodeName: string,
-    key: string,
-    value: t.Expression
-  ): t.Statement {
-    if (key === "element") return this.setElement(dlNodeName, value, true)
-    if (key === "do") return this.addDo(dlNodeName, value)
-
-    return DLError.warn1()
-  }
-
-  /**
    * @View
-   * const ${dlNodeName} = new ExpNode(() => ${value})
+   * ${dlNodeName} = new ExpNode(() => ${value})
    */
   private declareExpNode(dlNodeName: string, value: t.Expression): t.Statement {
-    return this.t.variableDeclaration("const", [
-      this.t.variableDeclarator(
+    return this.t.expressionStatement(
+      this.t.assignmentExpression(
+        "=",
         this.t.identifier(dlNodeName),
         this.t.newExpression(this.t.identifier(this.importMap.ExpNode), [
           this.t.arrowFunctionExpression([], value),
         ])
-      ),
-    ])
+      )
+    )
   }
 
   /**
@@ -77,7 +77,8 @@ export default class ExpGenerator extends ElementGenerator {
    * ${dlNodeName}.update()
    */
   private updateExpNode(dlNodeName: string): t.Statement {
-    return this.t.expressionStatement(
+    return this.optionalExpression(
+      dlNodeName,
       this.t.callExpression(
         this.t.memberExpression(
           this.t.identifier(dlNodeName),

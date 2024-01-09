@@ -16,12 +16,14 @@ export default class CompGenerator extends ForwardPropGenerator {
     const dlNodeName = this.generateNodeName()
 
     this.addInitStatement(
-      this.declareCompNode(dlNodeName, tag, content, props, children)
+      ...this.declareCompNode(dlNodeName, tag, content, props, children)
     )
+    const allDependencyIndexArr: number[] = []
     // ---- Resolve content
     if (content) {
       const { value, dependencyIndexArr } = content
       if (dependencyIndexArr && dependencyIndexArr.length > 0) {
+        allDependencyIndexArr.push(...dependencyIndexArr)
         this.addUpdateStatements(
           dependencyIndexArr,
           this.setCompContent(dlNodeName, value)
@@ -31,20 +33,36 @@ export default class CompGenerator extends ForwardPropGenerator {
 
     // ---- Resolve props
     if (props) {
+      let hasOnUpdate: t.Expression | false = false
       Object.entries(props).forEach(([key, { value, dependencyIndexArr }]) => {
-        if (key === "do") {
-          const statement = this.addDo(dlNodeName, value)
-          this.addInitStatement(statement)
-          this.addUpdateStatements(dependencyIndexArr, statement)
+        if (key === "forwardProps") return
+        if (key === "didUpdate") {
+          hasOnUpdate = value
+          return
+        }
+        allDependencyIndexArr.push(...(dependencyIndexArr ?? []))
+        if (
+          CompGenerator.lifecycle.includes(
+            key as (typeof CompGenerator.lifecycle)[number]
+          )
+        ) {
+          this.addInitStatement(
+            this.addLifecycle(
+              dlNodeName,
+              key as (typeof CompGenerator.lifecycle)[number],
+              value
+            )
+          )
           return
         }
         if (key === "element") {
-          const statement = this.setElement(dlNodeName, value, true)
-          this.addInitStatement(statement)
-          this.addUpdateStatements(dependencyIndexArr, statement)
+          this.addInitStatement(this.initElement(dlNodeName, value, true))
+          const updateStatement = this.updateElement(dlNodeName, value, true)
+          if (updateStatement)
+            this.addUpdateStatements(dependencyIndexArr, updateStatement)
           return
         }
-        if (key === "forwardProps") return
+
         if (dependencyIndexArr && dependencyIndexArr.length > 0) {
           this.addUpdateStatements(
             dependencyIndexArr,
@@ -52,6 +70,12 @@ export default class CompGenerator extends ForwardPropGenerator {
           )
         }
       })
+      if (hasOnUpdate) {
+        this.addUpdateStatements(
+          allDependencyIndexArr,
+          this.addOnUpdate(dlNodeName, hasOnUpdate)
+        )
+      }
     }
 
     return dlNodeName
@@ -76,7 +100,8 @@ export default class CompGenerator extends ForwardPropGenerator {
 
   /**
    * @View
-   * const ${dlNodeName} = new ${tag}(${props}, ${content}, ${children}, ${this})
+   * ${dlNodeName} = new ${tag}()
+   * ${dlNodeName}._$init(${props}, ${content}, ${children}, ${this})
    */
   private declareCompNode(
     dlNodeName: string,
@@ -84,7 +109,7 @@ export default class CompGenerator extends ForwardPropGenerator {
     content?: DependencyProp,
     props?: Record<string, DependencyProp>,
     children?: ViewParticle[]
-  ): t.VariableDeclaration {
+  ): t.Statement[] {
     let willForwardProps = false
     if (props) {
       if ("forwardProps" in props) willForwardProps = true
@@ -94,19 +119,31 @@ export default class CompGenerator extends ForwardPropGenerator {
         )
       )
     }
-    return this.t.variableDeclaration("const", [
-      this.t.variableDeclarator(
-        this.t.identifier(dlNodeName),
-        this.t.newExpression(tag, [
-          this.generateCompProps(props),
-          content?.value ?? this.t.nullLiteral(),
-          children && children.length > 0
-            ? this.t.identifier(this.declarePropView(children))
-            : this.t.nullLiteral(),
-          willForwardProps ? this.t.identifier("this") : this.t.nullLiteral(),
-        ])
+    return [
+      this.t.expressionStatement(
+        this.t.assignmentExpression(
+          "=",
+          this.t.identifier(dlNodeName),
+          this.t.newExpression(tag, [])
+        )
       ),
-    ])
+      this.t.expressionStatement(
+        this.t.callExpression(
+          this.t.memberExpression(
+            this.t.identifier(dlNodeName),
+            this.t.identifier("_$init")
+          ),
+          [
+            this.generateCompProps(props),
+            content?.value ?? this.t.nullLiteral(),
+            children && children.length > 0
+              ? this.t.identifier(this.declarePropView(children))
+              : this.t.nullLiteral(),
+            willForwardProps ? this.t.identifier("this") : this.t.nullLiteral(),
+          ]
+        )
+      ),
+    ]
   }
 
   /**
@@ -114,7 +151,8 @@ export default class CompGenerator extends ForwardPropGenerator {
    * ${dlNodeName}._$setContent(${value})
    */
   private setCompContent(dlNodeName: string, value: t.Expression): t.Statement {
-    return this.t.expressionStatement(
+    return this.optionalExpression(
+      dlNodeName,
       this.t.callExpression(
         this.t.memberExpression(
           this.t.identifier(dlNodeName),
@@ -134,7 +172,8 @@ export default class CompGenerator extends ForwardPropGenerator {
     key: string,
     value: t.Expression
   ): t.Statement {
-    return this.t.expressionStatement(
+    return this.optionalExpression(
+      dlNodeName,
       this.t.callExpression(
         this.t.memberExpression(
           this.t.identifier(dlNodeName),

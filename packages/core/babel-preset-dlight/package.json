@@ -1,6 +1,6 @@
 {
   "name": "babel-preset-dlight",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0-alpha.36",
   "description": "DLight transpiler babel preset",
   "author": {
     "name": "IanDx",
@@ -29,11 +29,11 @@
   },
   "dependencies": {
     "@babel/plugin-syntax-decorators": "^7.23.3",
-    "babel-plugin-syntax-typescript-new": "workspace:*",
-    "minimatch": "^9.0.3",
     "@dlightjs/reactivity-parser": "workspace:*",
     "@dlightjs/view-generator": "workspace:*",
-    "@dlightjs/view-parser": "workspace:*"
+    "@dlightjs/view-parser": "workspace:*",
+    "babel-plugin-syntax-typescript-new": "workspace:*",
+    "minimatch": "^9.0.3"
   },
   "tsup": {
     "entry": [

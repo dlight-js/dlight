@@ -15,8 +15,7 @@ export function info(message: string) {
 }
 
 export function jsonify(obj: any) {
-  return JSON
-    .stringify(obj)
+  return JSON.stringify(obj)
     .replace("{", "{\n    ")
     .replace("}", "\n  }")
     .replace(/,/g, ",\n    ")

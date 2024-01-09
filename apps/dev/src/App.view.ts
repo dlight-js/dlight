@@ -1,4 +1,4 @@
-import { View } from "@dlightjs/dlight"
+import { View, setGlobal } from "@dlightjs/dlight"
 import {
   type Typed,
   type Pretty,
@@ -9,54 +9,84 @@ import {
   required,
 } from "@dlightjs/types"
 
-interface SubProp {
-  name?: string
-  onClick: () => void
-}
 @View
-class Sub {
-  @Prop name = required
-  @Prop onClick = required
-
-  @Watch
-  watchName() {
-    console.log(this.name)
+class JJ {
+  @Prop id
+  didUnmount() {
+    console.log("jjj", this.id)
   }
 
   View() {
-    button(this.name).onClick(this.onClick)
+    div(this.id)
   }
 }
 
-const SubView = Sub as Pretty as Typed<SubProp>
-
-@ForwardProps
 @View
-class Ok {
+class IfTest {
+  @Prop id
+  @Children hh
+  @Env jj
+  didUnmount() {
+    console.log("unmount", this.id)
+  }
+
   View() {
-    button("ok").forwardProps()
-    SubView().forwardProps()
+    this.hh
   }
 }
-const OkView = Ok as Pretty
-
 @View
 class App {
   count = 0
-  arr = [0, 1]
+  jj = this.count * 2
+  arr = [0, 1, 2, 3]
+
+  didMount() {
+    console.log("did mount")
+  }
+  @Watch("count")
+  didUpdate() {
+    console.log("did update")
+  }
 
   View() {
+    div(this.jj)
     button("+").onClick(() => {
+      // this.arr = Array.from({ length: 10000 }).map((_, i) => i)
+      this.arr = [...this.arr, this.arr.length]
       this.count++
     })
-    OkView()
-      .style({
-        color: "red",
-      })
-      .onClick(() => {
-        console.log(this.count)
-      })
-      .name("shit")
+    button("-").onClick(() => {
+      this.arr = []
+      this.arr = [...this.arr.slice(0, -2), ...this.arr.slice(-1)]
+    })
+    // env().jj(100)
+    // {
+    div()
+    {
+      div()
+      {
+        for (const i of this.arr) {
+          div(i)
+        }
+      }
+    }
+    // }
+
+    // for (const j of this.arr) {
+    // for (const i of this.arr) {
+    //   key: i
+    //   div()
+    //   {
+    //     div()
+    //     {
+    //       div()
+    //       {
+    //         IfTest().id(i)
+    //       }
+    //     }
+    //   }
+    // }
+    // }
   }
 }
 

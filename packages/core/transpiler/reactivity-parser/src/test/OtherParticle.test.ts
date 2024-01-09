@@ -16,6 +16,12 @@ describe("OtherParticle", () => {
     expect(viewParticles[0].type).toBe("if")
   })
 
+  it("should parse an IfUnit as an SwitchParticle", () => {
+    const viewParticles = parse("switch(this.flag) {  }")
+    expect(viewParticles.length).toBe(1)
+    expect(viewParticles[0].type).toBe("switch")
+  })
+
   it("should parse a ForUnit as a ForParticle", () => {
     const viewParticles = parse("for(const item of this.items) { div() }")
     expect(viewParticles.length).toBe(1)

@@ -3,13 +3,9 @@ import { type ViewParticle } from "@dlightjs/reactivity-parser"
 import { type SubViewPropMap, type ViewGeneratorConfig } from "../types"
 import ViewGenerator from "../ViewGenerator"
 
-const devMode = process.env.NODE_ENV === "development"
+export const prefixMap = { template: "$t", node: "$node" }
 
 export default class BaseGenerator {
-  static readonly prefixMap = devMode
-    ? { template: "$template", node: "$node" }
-    : { template: "$t", node: "$n" }
-
   readonly viewParticle: ViewParticle
   readonly config: ViewGeneratorConfig
 
@@ -18,6 +14,7 @@ export default class BaseGenerator {
   readonly className: string
   readonly importMap: Record<string, string>
   readonly subViewPropMap: SubViewPropMap
+  readonly elementAttributeMap
 
   readonly viewGenerator
 
@@ -35,6 +32,18 @@ export default class BaseGenerator {
     this.importMap = config.importMap
     this.subViewPropMap = config.subViewPropMap
     this.viewGenerator = new ViewGenerator(config)
+    this.elementAttributeMap = config.attributeMap
+      ? Object.entries(config.attributeMap).reduce<Record<string, string[]>>(
+          (acc, [key, elements]) => {
+            elements.forEach(element => {
+              if (!acc[element]) acc[element] = []
+              acc[element].push(key)
+            })
+            return acc
+          },
+          {}
+        )
+      : {}
   }
 
   // ---- Init Statements
@@ -65,7 +74,6 @@ export default class BaseGenerator {
     statement: t.Statement
   ) {
     if (!dependencies || dependencies.length === 0) return
-    dependencies = [...new Set(dependencies)]
     const depNum = BaseGenerator.calcDependencyNum(dependencies)
     if (!this.updateStatements[depNum]) this.updateStatements[depNum] = []
     this.updateStatements[depNum].push(statement)
@@ -102,18 +110,24 @@ export default class BaseGenerator {
    */
   generateChildren(
     viewParticles: ViewParticle[],
-    mergeStatements = true
-  ): [t.Statement[], string[], Record<number, t.Statement[]>] {
-    this.viewGenerator.nodeIdx = this.nodeIdx
+    mergeStatements = true,
+    newIdx = false
+  ): [t.Statement[], string[], Record<number, t.Statement[]>, number] {
+    this.viewGenerator.nodeIdx = newIdx ? -1 : this.nodeIdx
     this.viewGenerator.templateIdx = this.templateIdx
     const [initStatements, updateStatements, classProperties, topLevelNodes] =
       this.viewGenerator.generateChildren(viewParticles)
-    this.nodeIdx = this.viewGenerator.nodeIdx
+    if (!newIdx) this.nodeIdx = this.viewGenerator.nodeIdx
     this.templateIdx = this.viewGenerator.templateIdx
     this.classProperties.push(...classProperties)
     if (mergeStatements) this.mergeStatements(updateStatements)
 
-    return [initStatements, topLevelNodes, updateStatements]
+    return [
+      initStatements,
+      topLevelNodes,
+      updateStatements,
+      this.viewGenerator.nodeIdx,
+    ]
   }
 
   /**
@@ -137,23 +151,54 @@ export default class BaseGenerator {
    */
   generateChild(
     viewParticle: ViewParticle,
-    mergeStatements = true
-  ): [t.Statement[], string, Record<number, t.Statement[]>] {
-    this.viewGenerator.nodeIdx = this.nodeIdx
+    mergeStatements = true,
+    newIdx = false
+  ): [t.Statement[], string, Record<number, t.Statement[]>, number] {
+    this.viewGenerator.nodeIdx = newIdx ? -1 : this.nodeIdx
     this.viewGenerator.templateIdx = this.templateIdx
     const [initStatements, updateStatements, classProperties, nodeName] =
       this.viewGenerator.generateChild(viewParticle)
-    this.nodeIdx = this.viewGenerator.nodeIdx
+    if (!newIdx) this.nodeIdx = this.viewGenerator.nodeIdx
     this.templateIdx = this.viewGenerator.templateIdx
     this.classProperties.push(...classProperties)
     if (mergeStatements) this.mergeStatements(updateStatements)
 
-    return [initStatements, nodeName, updateStatements]
+    return [
+      initStatements,
+      nodeName,
+      updateStatements,
+      this.viewGenerator.nodeIdx,
+    ]
   }
 
   /**
    * @View
-   * this._$update = (changed) => {
+   * const $update = (changed) => { ${updateStatements} }
+   */
+  geneUpdateFunc(updateStatements: Record<number, t.Statement[]>): t.Statement {
+    return this.t.variableDeclaration("const", [
+      this.t.variableDeclarator(
+        this.t.identifier("$update"),
+        this.t.arrowFunctionExpression(
+          [this.t.identifier("$changed")],
+          this.geneUpdateBody(updateStatements)
+        )
+      ),
+    ])
+  }
+
+  get updateParams() {
+    return [
+      this.t.identifier("$changed"),
+      this.t.identifier("$key"),
+      this.t.identifier("$prevValue"),
+      this.t.identifier("$newValue"),
+    ]
+  }
+
+  /**
+   * @View
+   * (changed) => {
    *   if (changed & 1) {
    *     ...
    *   }
@@ -170,7 +215,7 @@ export default class BaseGenerator {
           return this.t.ifStatement(
             this.t.binaryExpression(
               "&",
-              this.t.identifier("changed"),
+              this.t.identifier("$changed"),
               this.t.numericLiteral(Number(depNum))
             ),
             this.t.blockStatement(statements)
@@ -178,6 +223,22 @@ export default class BaseGenerator {
         }),
       ...(updateStatements[0] ?? []),
     ])
+  }
+
+  /**
+   * @View
+   * let node1, node2, ...
+   */
+  declareNodes(nodeIdx: number): t.VariableDeclaration[] {
+    if (nodeIdx === -1) return []
+    return [
+      this.t.variableDeclaration(
+        "let",
+        Array.from({ length: nodeIdx + 1 }, (_, i) =>
+          this.t.variableDeclarator(this.t.identifier(`${prefixMap.node}${i}`))
+        )
+      ),
+    ]
   }
 
   /**
@@ -202,13 +263,13 @@ export default class BaseGenerator {
   // ---- Used as dlNodeName for any node declaration
   nodeIdx = -1
   generateNodeName(idx?: number): string {
-    return `${BaseGenerator.prefixMap.node}${idx ?? ++this.nodeIdx}`
+    return `${prefixMap.node}${idx ?? ++this.nodeIdx}`
   }
 
   // ---- Used as template generation as class property
   templateIdx = -1
   generateTemplateName(): string {
-    return `${BaseGenerator.prefixMap.template}${++this.templateIdx}`
+    return `${prefixMap.template}${++this.templateIdx}`
   }
 
   // ---- @Utils -----
@@ -228,6 +289,7 @@ export default class BaseGenerator {
    */
   static calcDependencyNum(dependencies: number[] | undefined): number {
     if (!dependencies || dependencies.length === 0) return 0
+    dependencies = [...new Set(dependencies)]
     return dependencies.reduce((acc, dep) => acc + (1 << dep), 0)
   }
 
@@ -241,6 +303,19 @@ export default class BaseGenerator {
       this.t.program([
         this.t.isStatement(node) ? node : this.t.expressionStatement(node),
       ])
+    )
+  }
+
+  /**
+   * @View
+   * ${dlNodeName} && ${expression}
+   */
+  optionalExpression(
+    dlNodeName: string,
+    expression: t.Expression
+  ): t.Statement {
+    return this.t.expressionStatement(
+      this.t.logicalExpression("&&", this.t.identifier(dlNodeName), expression)
     )
   }
 

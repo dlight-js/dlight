@@ -18,18 +18,18 @@ export default class Header {
     }
   ]
 
-  Body() {
+  View() {
     div()
-      .className(headerWrap)
+      .class(headerWrap)
     {
       img()
         .src("./logo_title.png")
-        .className(headerLogo)
+        .class(headerLogo)
       div()
       {
         for (const navItem of this.navList) {
           a(navItem.navName)
-            .className(navBtn)
+            .class(navBtn)
             .href(navItem.url)
         }
       }

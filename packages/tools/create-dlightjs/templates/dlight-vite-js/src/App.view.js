@@ -7,39 +7,39 @@ import Header from "./Header.view"
 export default class App {
   count = 0
 
-  Body() {
+  View() {
     div()
-      .className(wrap)
+      .class(wrap)
     {
       Header()
       div()
-        .className(slogan2)
+        .class(slogan2)
       {
         p()
         {
           span("D")
-            .className(colorD)
+            .class(colorD)
           span("Light")
-            .className(colorL)
+            .class(colorL)
         }
-        p("Your Modern")
-          .className(m0)
-        p("Web Framework")
+        p("DX-First UI")
+          .class(m0)
+        p("Rendering Library")
       }
       div()
-        .className(countWrap)
+        .class(countWrap)
       {
         p(this.count)
-          .className(`${countBtn} ${countText}`)
+          .class(`${countBtn} ${countText}`)
         div()
-          .className(btnWrap)
+          .class(btnWrap)
         {
           Button("count ++")
-            .onclick(() => {
+            .onClick(() => {
               this.count++
             })
           Button("count --")
-            .onclick(() => {
+            .onClick(() => {
               this.count--
             })
         }

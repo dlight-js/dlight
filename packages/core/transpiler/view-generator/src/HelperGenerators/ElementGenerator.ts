@@ -1,17 +1,49 @@
 import { type types as t } from "@babel/core"
 import { DLError } from "../error"
-import DoGenerator from "./DoGenerator"
+import PropViewGenerator from "./PropViewGenerator"
 
-export default class ElementGenerator extends DoGenerator {
+export default class ElementGenerator extends PropViewGenerator {
   /**
-   * @brief Generate a view unit for an element
-   *  e.g. div().element(this.el)
-   * @param dlNodeName
-   * @param value
+   * @View
+   * View.addDidMount(${dlNodeName}, () => { ${elementNode} })
    * @param el true: dlNodeName._$el, false: dlNodeName
-   * @returns t.Statement
    */
-  setElement(dlNodeName: string, value: t.Expression, el = false): t.Statement {
+  initElement(
+    dlNodeName: string,
+    value: t.Expression,
+    el = false
+  ): t.Statement {
+    const elNode = el
+      ? this.t.memberExpression(
+          this.t.identifier(dlNodeName),
+          this.t.identifier("_$el")
+        )
+      : this.t.identifier(dlNodeName)
+    const elementNode = this.isOnlyMemberExpression(value)
+      ? this.assignHTMLElement(value as t.MemberExpression)
+      : this.assignHTMLFunctionElement(value)
+
+    return this.t.expressionStatement(
+      this.t.callExpression(
+        this.t.memberExpression(
+          this.t.identifier("View"),
+          this.t.identifier("addDidMount")
+        ),
+        [elNode, elementNode]
+      )
+    )
+  }
+
+  /**
+   * ${elementNode}(${dlNodeName})
+   * @param el true: dlNodeName._$el, false: dlNodeName
+   */
+  updateElement(
+    dlNodeName: string,
+    value: t.Expression,
+    el = false
+  ): t.Statement | null {
+    if (!this.isOnlyMemberExpression(value)) return null
     const elNode = el
       ? this.t.memberExpression(
           this.t.identifier(dlNodeName),
@@ -19,49 +51,67 @@ export default class ElementGenerator extends DoGenerator {
         )
       : this.t.identifier(dlNodeName)
 
-    return this.isOnlyMemberExpression(value)
-      ? this.assignHTMLElement(elNode, value as t.MemberExpression)
-      : this.assignHTMLFunctionElement(elNode, value)
+    return this.t.expressionStatement(
+      this.t.logicalExpression(
+        "&&",
+        this.t.identifier(dlNodeName),
+        this.t.callExpression(
+          this.assignHTMLElement(value as t.MemberExpression),
+          [elNode]
+        )
+      )
+    )
   }
 
+  private functionWrapper(statement: t.Statement): t.ArrowFunctionExpression {
+    return this.t.arrowFunctionExpression(
+      [this.t.identifier("$nodeEl")],
+      this.t.blockStatement([statement])
+    )
+  }
   /**
+   * $nodeEl => {
    * if (typeof ${value} === "function") {
-   *  ${value}(${elNode})
+   *  ${value}($nodeEl)
    * } else {
-   *  ${value} = ${elNode}
+   *  ${value} = $nodeEl
+   * }
    * }
    */
   private assignHTMLElement(
-    elNode: t.Expression,
     value: t.MemberExpression
-  ): t.IfStatement {
-    return this.t.ifStatement(
+  ): t.ArrowFunctionExpression {
+    const statement = this.t.ifStatement(
       this.t.binaryExpression(
         "===",
         this.t.unaryExpression("typeof", value, true),
         this.t.stringLiteral("function")
       ),
-      this.t.expressionStatement(this.t.callExpression(value, [elNode])),
       this.t.expressionStatement(
-        this.t.assignmentExpression("=", value, elNode)
+        this.t.callExpression(value, [this.t.identifier("$nodeEl")])
+      ),
+      this.t.expressionStatement(
+        this.t.assignmentExpression("=", value, this.t.identifier("$nodeEl"))
       )
     )
+
+    return this.functionWrapper(statement)
   }
 
   /**
-   * ${value}(${elNode})
+   * ${value}
    */
   private assignHTMLFunctionElement(
-    elNode: t.Expression,
     value: t.Expression
-  ): t.Statement {
+  ): t.FunctionExpression | t.ArrowFunctionExpression {
     if (
       !this.t.isFunctionExpression(value) &&
       !this.t.isArrowFunctionExpression(value)
     ) {
       return DLError.throw1()
     }
-    return this.t.expressionStatement(this.t.callExpression(value, [elNode]))
+
+    return value
   }
 
   // --- Utils

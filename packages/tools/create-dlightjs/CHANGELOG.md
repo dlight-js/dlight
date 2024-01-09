@@ -1,5 +1,11 @@
 # create-dlightjs
 
+## 1.0.0-alpha.0
+
+### Major Changes
+
+- feat: create-dlightjs upgrade to v1.0.0
+
 ## 0.10.1
 
 ### Patch Changes

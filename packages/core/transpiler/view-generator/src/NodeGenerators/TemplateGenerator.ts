@@ -1,5 +1,8 @@
 import { type types as t } from "@babel/core"
-import { type TemplateParticle } from "@dlightjs/reactivity-parser"
+import {
+  type HTMLParticle,
+  type TemplateParticle,
+} from "@dlightjs/reactivity-parser"
 import HTMLPropGenerator from "../HelperGenerators/HTMLPropGenerator"
 
 export default class TemplateGenerator extends HTMLPropGenerator {
@@ -28,11 +31,32 @@ export default class TemplateGenerator extends HTMLPropGenerator {
     this.addInitStatement(...insertElementStatements)
 
     // ---- Resolve props
+    const didUpdateMap: Record<
+      string,
+      { deps: number[]; value?: t.Expression }
+    > = {}
     props.forEach(({ tag, path, key, value, dependencyIndexArr }) => {
       const name = pathNameMap[path.join(".")]
+      if (!didUpdateMap[name])
+        didUpdateMap[name] = {
+          deps: [],
+        }
+      if (key === "didUpdate") {
+        didUpdateMap[name].value = value
+        return
+      }
+
+      didUpdateMap[name].deps.push(...(dependencyIndexArr ?? []))
+
       this.addInitStatement(
         this.addHTMLProp(name, tag, key, value, dependencyIndexArr)
       )
+    })
+
+    Object.entries(didUpdateMap).forEach(([name, { deps, value }]) => {
+      if (!value) return
+      console.log(name, deps)
+      this.addUpdateStatements(deps, this.addOnUpdate(name, value))
     })
 
     // ---- Resolve mutable particles
@@ -52,15 +76,33 @@ export default class TemplateGenerator extends HTMLPropGenerator {
 
   /**
    * @View
-   * static ${templateName} = ${createTemplate}(${templateString})
+   * static ${templateName} = (() => {
+   *   let _$node0, _$node1, ...
+   *   ${template}
+   *
+   *  return _$node0
+   * })()
    */
-  private addTemplate(template: string): string {
+  private addTemplate(template: HTMLParticle): string {
     const templateName = this.generateTemplateName()
+    const [statements, nodeName, , nodeIdx] = this.generateChild(
+      template,
+      false,
+      true
+    )
     this.addStaticClassProperty(
       templateName,
-      this.t.callExpression(this.t.identifier(this.importMap.createTemplate), [
-        this.t.stringLiteral(template),
-      ])
+      this.t.callExpression(
+        this.t.arrowFunctionExpression(
+          [],
+          this.t.blockStatement([
+            ...this.declareNodes(nodeIdx),
+            ...statements,
+            this.t.returnStatement(this.t.identifier(nodeName)),
+          ])
+        ),
+        []
+      )
     )
 
     return templateName
@@ -68,24 +110,28 @@ export default class TemplateGenerator extends HTMLPropGenerator {
 
   /**
    * @View
-   * const ${dlNodeName} = ${this.className}.${templateName}()
+   * ${dlNodeName} = ${this.className}.${templateName}.cloneNode(true)
    */
   private declareTemplateNode(
     dlNodeName: string,
     templateName: string
   ): t.Statement {
-    return this.t.variableDeclaration("const", [
-      this.t.variableDeclarator(
+    return this.t.expressionStatement(
+      this.t.assignmentExpression(
+        "=",
         this.t.identifier(dlNodeName),
         this.t.callExpression(
           this.t.memberExpression(
-            this.t.identifier(this.className),
-            this.t.identifier(templateName)
+            this.t.memberExpression(
+              this.t.identifier(this.className),
+              this.t.identifier(templateName)
+            ),
+            this.t.identifier("cloneNode")
           ),
-          []
+          [this.t.booleanLiteral(true)]
         )
-      ),
-    ])
+      )
+    )
   }
 
   /**
@@ -104,16 +150,17 @@ export default class TemplateGenerator extends HTMLPropGenerator {
   ): t.Statement {
     const newNodeName = this.generateNodeName()
     if (path.length === 0) {
-      return this.t.variableDeclaration("const", [
-        this.t.variableDeclarator(
+      return this.t.expressionStatement(
+        this.t.assignmentExpression(
+          "=",
           this.t.identifier(newNodeName),
           Array.from({ length: offset }).reduce(
             (acc: t.Expression) =>
               this.t.memberExpression(acc, this.t.identifier("nextSibling")),
             this.t.identifier(dlNodeName)
           )
-        ),
-      ])
+        )
+      )
     }
     const addFirstChild = (object: t.Expression) =>
       // ---- ${object}.firstChild
@@ -140,8 +187,9 @@ export default class TemplateGenerator extends HTMLPropGenerator {
     const addNextSibling = (object: t.Expression) =>
       // ---- ${object}.nextSibling
       this.t.memberExpression(object, this.t.identifier("nextSibling"))
-    return this.t.variableDeclaration("const", [
-      this.t.variableDeclarator(
+    return this.t.expressionStatement(
+      this.t.assignmentExpression(
+        "=",
         this.t.identifier(newNodeName),
         path.reduce((acc: t.Expression, cur: number, idx) => {
           if (idx === 0 && offset > 0) {
@@ -152,8 +200,8 @@ export default class TemplateGenerator extends HTMLPropGenerator {
           if (cur === 2) return addThirdChild(acc)
           return addOtherChild(acc, cur)
         }, this.t.identifier(dlNodeName))
-      ),
-    ])
+      )
+    )
   }
 
   /**

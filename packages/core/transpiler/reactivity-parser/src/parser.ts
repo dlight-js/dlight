@@ -1,8 +1,7 @@
 import {
   type TemplateProp,
   type ReactivityParserConfig,
-  type ReactivityParserOption,
-  type mutableParticle,
+  type MutableParticle,
   type ViewParticle,
   type TemplateParticle,
   type TextParticle,
@@ -14,6 +13,7 @@ import {
   type IfParticle,
   type EnvParticle,
   type SubviewParticle,
+  SwitchParticle,
 } from "./types"
 import { type NodePath, type types as t, type traverse } from "@babel/core"
 import {
@@ -27,13 +27,12 @@ import {
   type EnvUnit,
   type ExpUnit,
   type SubviewUnit,
+  SwitchUnit,
 } from "@dlightjs/view-parser"
 import { DLError } from "./error"
-import { recoverHTMLAttrName } from "./attr"
 
 export class ReactivityParser {
   private readonly config: ReactivityParserConfig
-  private readonly options?: ReactivityParserOption
 
   private readonly t: typeof t
   private readonly traverse: typeof traverse
@@ -43,8 +42,12 @@ export class ReactivityParser {
   private readonly dependencyParseType
 
   private readonly escapeNamings = ["escape", "$"]
-  private readonly customHTMLProps = [
-    "do",
+  private static readonly customHTMLProps = [
+    "didUpdate",
+    "willMount",
+    "didMount",
+    "willUnmount",
+    "didUnmount",
     "element",
     "innerHTML",
     "prop",
@@ -62,20 +65,14 @@ export class ReactivityParser {
    * @param config
    * @param options
    */
-  constructor(
-    config: ReactivityParserConfig,
-    options?: ReactivityParserOption
-  ) {
+  constructor(config: ReactivityParserConfig) {
     this.config = config
-    this.options = options
     this.t = config.babelApi.types
     this.traverse = config.babelApi.traverse
     this.availableProperties = config.availableProperties
     this.dependencyMap = config.dependencyMap
     this.identifierDepMap = config.identifierDepMap ?? {}
     this.dependencyParseType = config.dependencyParseType ?? "property"
-    options?.escapeNamings && (this.escapeNamings = options.escapeNamings)
-    options?.customHTMLProps && (this.customHTMLProps = options.customHTMLProps)
   }
 
   /**
@@ -101,6 +98,7 @@ export class ReactivityParser {
     if (viewUnit.type === "if") return this.parseIf(viewUnit)
     if (viewUnit.type === "env") return this.parseEnv(viewUnit)
     if (viewUnit.type === "exp") return this.parseExp(viewUnit)
+    if (viewUnit.type === "switch") return this.parseSwitch(viewUnit)
     if (viewUnit.type === "subview") return this.parseSubview(viewUnit)
     return DLError.throw1()
   }
@@ -117,72 +115,53 @@ export class ReactivityParser {
   private parseTemplate(htmlUnit: HTMLUnit): TemplateParticle {
     return {
       type: "template",
-      template: this.generateTemplateString(htmlUnit),
+      template: this.generateTemplate(htmlUnit),
       props: this.parseTemplateProps(htmlUnit),
       mutableParticles: this.generateMutableParticles(htmlUnit),
     }
   }
 
   /**
-   * @brief Generate a template string from a static HTMLUnit
+   * @brief Generate a template
    *  There'll be a situation where the tag is dynamic, e.g. tag(this.htmlTag),
    *  which we can't generate a template string for it, so we'll wrap it in an ExpParticle in parseHTML() section
    * @param htmlUnit
    * @returns template string
    */
-  private generateTemplateString(htmlUnit: HTMLUnit): string {
-    let templateString = ""
-    const generateString = (unit: HTMLUnit) => {
-      const tagName = (unit.tag as t.StringLiteral).value
-      const staticProps = this.filterTemplateProps(
-        // ---- Get all the static props
-        Object.entries(unit.props ?? [])
-          .filter(
-            ([, prop]) =>
-              this.isStaticProp(prop) &&
-              // ---- Filter out props with false values
-              !(this.t.isBooleanLiteral(prop.value) && !prop.value.value)
-          )
-          .map<[string, string | boolean]>(([key, { value }]) => [
-            recoverHTMLAttrName(key),
-            (value as t.StringLiteral).value,
-          ])
+  private generateTemplate(unit: HTMLUnit): HTMLParticle {
+    const staticProps = this.filterTemplateProps(
+      // ---- Get all the static props
+      Object.entries(unit.props ?? []).filter(
+        ([, prop]) =>
+          this.isStaticProp(prop) &&
+          // ---- Filter out props with false values
+          !(this.t.isBooleanLiteral(prop.value) && !prop.value.value)
       )
+    )
 
-      // ---- Open tag with props
-      const propString = staticProps
-        .map(([key, value]) =>
-          value === true ? ` ${key}` : ` ${key}="${value}"`
-        )
-        .join("")
-      templateString += `<${tagName}${propString}>`
-
-      // ---- ChildParticles
-      if (unit.content) {
-        // ---- Attach the content of current tag if it's a static string
-        if (this.isStaticProp(unit.content)) {
-          templateString += (unit.content.value as t.StringLiteral).value
-        }
-      } else {
-        unit.children?.forEach(unit => {
-          // ---- Recursively generate child particles
+    let children
+    if (unit.content) {
+      if (this.isStaticProp(unit.content)) {
+        staticProps.push(["textContent", unit.content])
+      }
+    } else if (unit.children) {
+      children = unit.children
+        .map(unit => {
           if (unit.type === "html" && this.t.isStringLiteral(unit.tag)) {
-            generateString(unit)
-            return
+            return this.generateTemplate(unit)
           }
-          // ---- Attach the text content to the parent tag
           if (unit.type === "text" && this.t.isStringLiteral(unit.content)) {
-            templateString += unit.content.value
+            return this.parseText(unit)
           }
         })
-      }
-
-      // ---- Close tag
-      templateString += `</${tagName}>`
+        .filter(Boolean) as HTMLParticle[]
     }
-    generateString(htmlUnit)
-
-    return templateString
+    return {
+      type: "html",
+      tag: unit.tag,
+      props: Object.fromEntries(staticProps),
+      children,
+    }
   }
 
   /**
@@ -192,14 +171,14 @@ export class ReactivityParser {
    * @param htmlUnit
    * @returns mutable particles
    */
-  private generateMutableParticles(htmlUnit: HTMLUnit): mutableParticle[] {
-    const mutableParticles: mutableParticle[] = []
+  private generateMutableParticles(htmlUnit: HTMLUnit): MutableParticle[] {
+    const mutableParticles: MutableParticle[] = []
     const generateMutableUnit = (unit: HTMLUnit, path: number[] = []) => {
       // ---- Generate mutable particles for current HTMLUnit
       unit.children?.forEach((child, idx) => {
         if (
-          (child.type !== "html" || !this.t.isStringLiteral(child.tag)) &&
-          child.type !== "text"
+          !(child.type === "html" && this.t.isStringLiteral(child.tag)) &&
+          !(child.type === "text" && this.t.isStringLiteral(child.content))
         ) {
           mutableParticles.push({
             path: [...path, idx],
@@ -253,20 +232,18 @@ export class ReactivityParser {
         ?.filter(
           child =>
             (child.type === "html" && this.t.isStringLiteral(child.tag)) ||
-            child.type === "text"
+            (child.type === "text" && this.t.isStringLiteral(child.content))
         )
         .forEach((child, idx) => {
           if (child.type === "html") {
             generateVariableProp(child, [...path, idx])
           } else if (child.type === "text") {
             // ---- if the child is a TextUnit, we just insert the text content
-            const dependencyIndexArr = this.getDependencies(child.content)
             templateProps.push({
               tag: "text",
               key: "value",
               path: [...path, idx],
               value: child.content,
-              dependencyIndexArr,
             })
           }
         })
@@ -340,6 +317,7 @@ export class ReactivityParser {
         viewPropMap: {
           [id]: [innerHTMLParticle],
         },
+        dependencyIndexArr: tagDependencies,
       },
     }
   }
@@ -387,6 +365,7 @@ export class ReactivityParser {
         viewPropMap: {
           [id]: [compParticle],
         },
+        dependencyIndexArr: tagDependencies,
       },
     }
   }
@@ -450,6 +429,32 @@ export class ReactivityParser {
           dependencyIndexArr: this.getDependencies(branch.condition),
         },
         children: branch.children.map(this.parseViewParticle.bind(this)),
+      })),
+    }
+  }
+
+  // ---- @Switch ----
+  /**
+   * @brief Parse a SwitchUnit into an SwitchParticle with dependencies
+   * @param switchUnit
+   * @returns SwitchParticle
+   */
+  private parseSwitch(switchUnit: SwitchUnit): SwitchParticle {
+    return {
+      type: "switch",
+      discriminant: {
+        value: switchUnit.discriminant,
+        dependencyIndexArr: this.getDependencies(switchUnit.discriminant),
+      },
+      branches: switchUnit.branches.map(branch => ({
+        case: branch.case
+          ? {
+              value: branch.case,
+              dependencyIndexArr: this.getDependencies(branch.case),
+            }
+          : null,
+        children: branch.children.map(this.parseViewParticle.bind(this)),
+        break: branch.break,
       })),
     }
   }
@@ -688,7 +693,7 @@ export class ReactivityParser {
    * @returns ViewParticle
    */
   private parseViewParticle(viewUnit: ViewUnit): ViewParticle {
-    const parser = new ReactivityParser(this.config, this.options)
+    const parser = new ReactivityParser(this.config)
     const parsedUnit = parser.parse(viewUnit)
     // ---- Collect used properties
     parser.usedProperties.forEach(
@@ -749,7 +754,7 @@ export class ReactivityParser {
         // ---- Filter out event listeners
         .filter(([key]) => !key.startsWith("on"))
         // ---- Filter out specific props
-        .filter(([key]) => !this.customHTMLProps.includes(key))
+        .filter(([key]) => !ReactivityParser.customHTMLProps.includes(key))
     )
   }
 

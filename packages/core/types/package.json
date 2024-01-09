@@ -28,8 +28,13 @@
     "@dlightjs/dlight": "workspace:*"
   },
   "tsup": {
-    "entry": ["src/index.ts"],
-    "format": ["cjs", "esm"],
+    "entry": [
+      "src/index.ts"
+    ],
+    "format": [
+      "cjs",
+      "esm"
+    ],
     "clean": true,
     "dts": true,
     "minify": true

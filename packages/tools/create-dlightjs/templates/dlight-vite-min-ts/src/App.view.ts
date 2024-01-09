@@ -6,7 +6,7 @@ interface AppProps {
 
 @View
 class App implements AppProps {
-  Body() {
+  View() {
     div("hello dlight")
   }
 }

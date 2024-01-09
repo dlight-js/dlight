@@ -3,9 +3,9 @@ import {
   type DependencyProp,
   type ViewParticle,
 } from "@dlightjs/reactivity-parser"
-import BaseGenerator from "./BaseGenerator"
+import LifecycleGenerator from "./LifecycleGenerator"
 
-export default class PropViewGenerator extends BaseGenerator {
+export default class PropViewGenerator extends LifecycleGenerator {
   /**
    * @brief Alter prop view in batch
    * @param props
@@ -24,68 +24,65 @@ export default class PropViewGenerator extends BaseGenerator {
 
   /**
    * @View
-   * const ${dlNodeName} = new PropView(() => {
+   * ${dlNodeName} = new PropView(($addUpdate) => {
+   *  addUpdate((changed) => { ${updateStatements} })
    *  ${initStatements}
-   *  ${topLevelNodes[0])._$updateFunc = (changed) => { ${updateStatements} }
    *  return ${topLevelNodes}
    * })
    */
   declarePropView(viewParticles: ViewParticle[]) {
     // ---- Generate PropView
-    const [initStatements, topLevelNodes, updateStatements] =
-      this.generateChildren(viewParticles, false)
+    const [initStatements, topLevelNodes, updateStatements, nodeIdx] =
+      this.generateChildren(viewParticles, false, true)
     // ---- Add update function to the first node
-    if (topLevelNodes.length > 0) {
-      /**
-       * ${topLevelNodes[0]}.update = (changed) => ${updateStatements}
-       */
-      initStatements.push(
+    /**
+     * $addUpdate((changed) => { ${updateStatements} })
+     */
+    if (Object.keys(updateStatements).length > 0) {
+      initStatements.unshift(
         this.t.expressionStatement(
-          this.t.assignmentExpression(
-            "=",
-            this.t.memberExpression(
-              this.t.identifier(topLevelNodes[0]),
-              this.t.identifier("_$updateFunc")
-            ),
+          this.t.callExpression(this.t.identifier("$addUpdate"), [
             this.t.arrowFunctionExpression(
-              [this.t.identifier("changed")],
+              this.updateParams,
               this.geneUpdateBody(updateStatements)
-            )
-          )
-        ),
-        this.generateReturnStatement(topLevelNodes)
+            ),
+          ])
+        )
       )
     }
+    initStatements.unshift(...this.declareNodes(nodeIdx))
+    initStatements.push(this.generateReturnStatement(topLevelNodes))
 
     // ---- Assign as a dlNode
     const dlNodeName = this.generateNodeName()
-    const propViewNode = this.t.variableDeclaration("const", [
-      this.t.variableDeclarator(
+    const propViewNode = this.t.expressionStatement(
+      this.t.assignmentExpression(
+        "=",
         this.t.identifier(dlNodeName),
         this.t.newExpression(this.t.identifier(this.importMap.PropView), [
           this.t.arrowFunctionExpression(
-            [],
+            [this.t.identifier("$addUpdate")],
             this.t.blockStatement(initStatements)
           ),
         ])
-      ),
-    ])
+      )
+    )
     this.addInitStatement(propViewNode)
     const propViewIdentifier = this.t.identifier(dlNodeName)
 
     // ---- Add to update statements
     /**
-     * ${dlNodeName}.update(changed)
+     * ${dlNodeName}?.update(changed)
      */
-    this.addUpdateStatements(
-      PropViewGenerator.reverseDependencyIndexArr(updateStatements),
-      this.t.expressionStatement(
+    this.addUpdateStatementsWithoutDep(
+      this.optionalExpression(
+        dlNodeName,
         this.t.callExpression(
           this.t.memberExpression(
             propViewIdentifier,
             this.t.identifier("update")
           ),
-          [this.t.identifier("changed")]
+          this.updateParams
         )
       )
     )

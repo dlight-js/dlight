@@ -31,8 +31,9 @@ export default class MainViewGenerator extends ViewGenerator {
     })
 
     const viewBody = this.t.blockStatement([
-      ...allInitStatements,
+      ...this.declareNodes(),
       ...this.geneUpdate(allUpdateStatements),
+      ...allInitStatements,
       this.geneReturn(topLevelNodes),
     ])
 
@@ -41,8 +42,8 @@ export default class MainViewGenerator extends ViewGenerator {
 
   /**
    * @View
-   * this._$update = (changed) => {
-   *  if (changed & 1) {
+   * this._$update = ($changed, $key, $prevValue, $newValue) => {
+   *  if ($changed & 1) {
    *    ...
    *  }
    *  ...
@@ -62,7 +63,7 @@ export default class MainViewGenerator extends ViewGenerator {
             false
           ),
           this.t.arrowFunctionExpression(
-            [this.t.identifier("changed")],
+            this.updateParams,
             this.t.blockStatement([
               ...Object.entries(updateStatements)
                 .filter(([depNum]) => depNum !== "0")
@@ -70,7 +71,7 @@ export default class MainViewGenerator extends ViewGenerator {
                   return this.t.ifStatement(
                     this.t.binaryExpression(
                       "&",
-                      this.t.identifier("changed"),
+                      this.t.identifier("$changed"),
                       this.t.numericLiteral(Number(depNum))
                     ),
                     this.t.blockStatement(statements)

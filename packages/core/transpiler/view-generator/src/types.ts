@@ -7,4 +7,5 @@ export interface ViewGeneratorConfig {
   importMap: Record<string, string>
   subViewPropMap: SubViewPropMap
   templateIdx: number
+  attributeMap: Record<string, string[]>
 }

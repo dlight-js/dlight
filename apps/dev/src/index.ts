@@ -14,11 +14,17 @@ function testPerf(func: () => void) {
   }
   console.log(times.reduce((a, b) => a + b, 0) / times.length)
 }
-
-class JJ {}
-const tt = []
+const count = 10000
 testPerf(() => {
-  for (let i = 0; i < 200000; i++) {
-    tt.push(new JJ())
+  const a = []
+  for (let i = 0; i < count; i++) {
+    a[i] = i
+  }
+})
+testPerf(() => {
+  const a = new Map()
+
+  for (let i = 0; i < count; i++) {
+    a.set(i, i)
   }
 })

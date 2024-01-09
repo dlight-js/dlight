@@ -27,17 +27,17 @@ class Header {
   @View
   Nav = (({ url, navName }: NavProps) => {
     a(navName)
-      .className(navBtn)
+      .class(navBtn)
       .href(url)
-  }) as any as Typed<NavProps>
+  }) as Pretty as Typed<NavProps>
 
-  Body() {
+  View() {
     div()
-      .className(headerWrap)
+      .class(headerWrap)
     {
       img()
         .src("./logo_title.png")
-        .className(headerLogo)
+        .class(headerLogo)
       div()
       {
         for (const navItem of this.navList) {

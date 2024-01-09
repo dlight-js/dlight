@@ -16,25 +16,43 @@ export default class HTMLGenerator extends HTMLPropGenerator {
       //      for dynamic tag, we can't check it, so we just assume it's not internal
       //      represent by the "ANY" tag name
       const tagName = this.t.isStringLiteral(tag) ? tag.value : "ANY"
+      const allDependencyIndexArr: number[] = []
+      let hasOnUpdate: t.Expression | false = false
       Object.entries(props).forEach(([key, { value, dependencyIndexArr }]) => {
+        if (key === "didUpdate") {
+          hasOnUpdate = value
+          return
+        }
+        allDependencyIndexArr.push(...(dependencyIndexArr ?? []))
         this.addInitStatement(
           this.addHTMLProp(dlNodeName, tagName, key, value, dependencyIndexArr)
         )
       })
+      if (hasOnUpdate) {
+        this.addUpdateStatements(
+          allDependencyIndexArr,
+          this.addOnUpdate(dlNodeName, hasOnUpdate)
+        )
+      }
     }
 
     // ---- Resolve children
     if (children) {
       const childNames: string[] = []
+      let mutable = false
       children.forEach((child, idx) => {
         const [initStatements, childName] = this.generateChild(child)
         childNames.push(childName)
         this.addInitStatement(...initStatements)
-        if (child.type === "html")
+        if (child.type === "html") {
           this.addInitStatement(this.appendChild(dlNodeName, childName))
-        else this.addInitStatement(this.insertNode(dlNodeName, childName, idx))
+        } else {
+          mutable = true
+          this.addInitStatement(this.insertNode(dlNodeName, childName, idx))
+        }
       })
-      this.addInitStatement(this.setHTMLNodes(dlNodeName, childNames))
+      if (mutable)
+        this.addInitStatement(this.setHTMLNodes(dlNodeName, childNames))
     }
 
     return dlNodeName
@@ -42,17 +60,18 @@ export default class HTMLGenerator extends HTMLPropGenerator {
 
   /**
    * @View
-   * const ${dlNodeName} = createElement(${tag})
+   * ${dlNodeName} = createElement(${tag})
    */
   private declareHTMLNode(dlNodeName: string, tag: t.Expression): t.Statement {
-    return this.t.variableDeclaration("const", [
-      this.t.variableDeclarator(
+    return this.t.expressionStatement(
+      this.t.assignmentExpression(
+        "=",
         this.t.identifier(dlNodeName),
         this.t.callExpression(this.t.identifier(this.importMap.createElement), [
           tag,
         ])
-      ),
-    ])
+      )
+    )
   }
 
   /**

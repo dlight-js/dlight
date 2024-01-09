@@ -5,65 +5,66 @@ import { wrap, slogan2, countWrap, countBtn, btnHover, btnWrap, countText, color
 
 interface BtnProps {
   content: string
-  onclick: () => void
+  onClick: () => void
   index: number
 }
+
 @View
 class App {
   count = 0
   btnStatus = [0, 0]
 
   @View
-  Btn = (({ content, onclick, index }: BtnProps) => {
+  Btn = (({ content, onClick, index }: BtnProps) => {
     button(content)
-      .className(this.btnStatus[index] === 1 ? `${countBtn} ${btnHover}` : countBtn)
-      .onclick(onclick)
-      .onmouseover(() => {
+      .class(this.btnStatus[index] === 1 ? `${countBtn} ${btnHover}` : countBtn)
+      .onClick(onClick)
+      .onMouseOver(() => {
         this.btnStatus[index] = 1
         this.btnStatus = [...this.btnStatus]
       })
-      .onmouseleave(() => {
+      .onMouseLeave(() => {
         this.btnStatus[index] = 0
         this.btnStatus = [...this.btnStatus]
       })
-  }) as any as SubTyped<BtnProps>
+  }) as Pretty as SubTyped<BtnProps>
 
 
-  Body() {
+  View() {
     div()
-      .className(wrap)
+      .class(wrap)
     {
       Header()
       div()
-        .className(slogan2)
+        .class(slogan2)
       {
         p()
         {
           span("D")
-            .className(colorD)
+            .class(colorD)
           span("Light")
-            .className(colorL)
+            .class(colorL)
         }
-        p("Your Modern")
-          .className(m0)
-        p("Web Framework")
+        p("DX-first UI")
+          .class(m0)
+        p("Rendering Library")
       }
       div()
-        .className(countWrap)
+        .class(countWrap)
       {
         p(this.count)
-          .className(`${countBtn} ${countText}`)
+          .class(`${countBtn} ${countText}`)
         div()
-          .className(btnWrap)
+          .class(btnWrap)
         {
           this.Btn("count ++")
             .index(0)
-            .onclick(() => {
+            .onClick(() => {
               this.count++
             })
           this.Btn("count --")
             .index(1)
-            .onclick(() => {
+            .onClick(() => {
               this.count--
             })
         }

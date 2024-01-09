@@ -5,7 +5,7 @@
 }
 
 .headerWrap {
-  padding: 40px 60px;
+  padding: 20px 30px;
   display: flex;
   justify-content: space-between;
 }
@@ -29,7 +29,7 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   margin: auto;
-  margin-top: 100px;
+  margin-top: 60px;
   width: 50%;
   display: flex;
   flex-direction: column;
@@ -53,7 +53,6 @@
   font-family: Neucha, sans-serif;
   line-height: 23px;
   outline: none;
-  padding: .75rem;
   text-decoration: none;
   transition: all 235ms ease-in-out;
   border-bottom-left-radius: 15px 255px;
@@ -79,7 +78,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 30px;
+  margin-top: 20px;
 }
 
 .countBtn {

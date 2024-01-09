@@ -22,7 +22,7 @@ const projectName = await input({
       return "Use lowercase letters, no spaces or special characters. Use hyphens or underscores to separate words."
     }
     return true
-  }
+  },
 })
 
 const language = await select({
@@ -30,13 +30,13 @@ const language = await select({
   choices: [
     {
       name: "Javascript",
-      value: "js"
+      value: "js",
     },
     {
       name: "Typescript",
-      value: "ts"
-    }
-  ]
+      value: "ts",
+    },
+  ],
 })
 
 const isBlank = await select({
@@ -44,13 +44,13 @@ const isBlank = await select({
   choices: [
     {
       name: "yes",
-      value: true
+      value: true,
     },
     {
       name: "no",
-      value: false
-    }
-  ]
+      value: false,
+    },
+  ],
 })
 
 // Resolve Deps
@@ -59,25 +59,17 @@ const selectedDependencies: string[] = await checkbox({
   choices: [
     {
       name: "@dlightjs/components",
-      value: "@dlightjs/components"
-    },
-    {
-      name: "@dlightjs/decorators",
-      value: "@dlightjs/decorators"
+      value: "@dlightjs/components",
     },
     {
       name: "@dlightjs/material-icons",
-      value: "@dlightjs/material-icons"
+      value: "@dlightjs/material-icons",
     },
     {
       name: "@dlightjs/markit",
-      value: "@dlightjs/markit"
+      value: "@dlightjs/markit",
     },
-    {
-      name: "@iandx/easy-css",
-      value: "@iandx/easy-css"
-    }
-  ]
+  ],
 })
 const selectedDevDependencies = ["vite", "vite-plugin-dlight"]
 selectedDependencies.push("@dlightjs/dlight")
@@ -86,25 +78,27 @@ if (language === "ts") {
   selectedDevDependencies.push("typescript")
 }
 
-const getLatestVersion = async(key: string) => {
+const getLatestVersion = async (key: string) => {
   return await fetch(`https://registry.npmjs.org/${key}`)
     .then(async res => await res.json())
     .then((data: any) => data["dist-tags"].latest)
 }
-const selectDep = async(selectFields: string[]) => {
+const selectDep = async (selectFields: string[]) => {
   const selectedDeps: Record<string, string> = {}
 
-  await Promise.all(selectFields.map(async key => {
-    const version = await getLatestVersion(key)
-    selectedDeps[key] = `^${version}`
-  }))
+  await Promise.all(
+    selectFields.map(async key => {
+      const version = await getLatestVersion(key)
+      selectedDeps[key] = `^${version}`
+    })
+  )
 
   return selectedDeps
 }
 
 const [deps, devDeps] = await Promise.all([
   selectDep(selectedDependencies),
-  selectDep(selectedDevDependencies)
+  selectDep(selectedDevDependencies),
 ])
 
 // --- Download templates
@@ -127,28 +121,28 @@ fs.writeFileSync(
   { encoding: "utf8", flag: "w" }
 )
 
-const packageManager = await select({
+const packageManager = (await select({
   message: "🍲 Package manager",
   choices: [
     {
       name: "NPM",
-      value: "npm"
+      value: "npm",
     },
     {
       name: "PNPM",
-      value: "pnpm"
+      value: "pnpm",
     },
     {
       name: "YARN",
-      value: "yarn"
+      value: "yarn",
     },
     {
       name: "NONE",
       value: undefined,
-      description: "Install by yourself"
-    }
-  ]
-}) as any as string
+      description: "Install by yourself",
+    },
+  ],
+})) as any as string
 
 if (packageManager) {
   execSync(`${packageManager} install`, { cwd: projectName, stdio: "inherit" })

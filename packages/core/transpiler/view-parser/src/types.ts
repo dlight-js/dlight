@@ -45,6 +45,18 @@ export interface IfUnit {
   branches: IfBranch[]
 }
 
+export interface SwitchBranch {
+  case: t.Expression | null | undefined
+  children: ViewUnit[]
+  break: boolean
+}
+
+export interface SwitchUnit {
+  type: "switch"
+  discriminant: t.Expression
+  branches: SwitchBranch[]
+}
+
 export interface EnvUnit {
   type: "env"
   props: Record<string, ViewProp>
@@ -73,16 +85,10 @@ export type ViewUnit =
   | EnvUnit
   | ExpUnit
   | SubviewUnit
+  | SwitchUnit
 
 export interface ViewParserConfig {
   babelApi: typeof Babel
   subviewNames: string[]
   htmlTags: string[]
-}
-
-export interface ViewParserOption {
-  compWrapper?: string
-  htmlTagWrapper?: string
-  environmentTagName?: string
-  expressionTagName?: string
 }

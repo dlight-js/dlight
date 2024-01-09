@@ -2,14 +2,16 @@ import type babel from "@babel/core"
 import { type PluginObj } from "@babel/core"
 import { PluginProviderClass } from "./pluginProvider"
 import { type DLightOption } from "./types"
+import { defaultAttributeMap } from "./const"
 
 export default function (api: typeof babel, options: DLightOption): PluginObj {
   const { types } = api
   const {
     files = "**/*.{js,jsx,ts,tsx}",
-    excludeFiles = "**/{dist,node_modules,lib}/*.{js,ts}",
+    excludeFiles = "**/{dist,node_modules,lib}/*",
     enableDevTools = false,
     htmlTags = defaultHtmlTags => defaultHtmlTags,
+    attributeMap = defaultAttributeMap,
   } = options
 
   const pluginProvider = new PluginProviderClass(
@@ -18,7 +20,8 @@ export default function (api: typeof babel, options: DLightOption): PluginObj {
     Array.isArray(files) ? files : [files],
     Array.isArray(excludeFiles) ? excludeFiles : [excludeFiles],
     enableDevTools,
-    htmlTags
+    htmlTags,
+    attributeMap
   )
 
   return {
