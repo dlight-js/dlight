@@ -375,11 +375,11 @@ I'm not cherry-picking here. This is how real world jsx code looks like.
 I won't say this new syntax kills JSX, but it's definitely a good alternative for us who want to write pure JavaScript code, and DLight doesn't introduce any new syntax, just the old fellows you know in js. (And we know if you're a jsx fan, you'll never be convinced by this, ~~so just go away~~ so we extracted the dlight syntax parser into a standalone package, you can write your own jsx parser to override dlight parser and be injected in reactivity-parser to get all the cool features that dlight offers. If you're interested in this, feel free to start a discussion and we'll help you out.)
 
 ## What DLight is offering
-Copy-pasting an existing framework and changing a little bit of syntax or make it 0.01x faster is just adding another pile of x in the 5-new-frameworks-per-day(or even more) frontend world.
+Copy-pasting an existing framework and changing a little bit of syntax or making it 0.01x faster is just adding another pile of x in the 5-new-frameworks-per-day(or even more) frontend world.
 
 Coding out a framework is fairly simple. What's hard is to avoid the fixed mindset of existing frameworks, re-examine the essence of frontend frameworks, and create a better frontend development experience. It's all about the design.
 
-So DLight is offering all the features we've talked about above:
+DLight is offering all the features we've talked about above:
 1. Fast
 2. Lightweight
 3. Memory efficient
@@ -407,28 +407,26 @@ const count = 0
 $: doubleCount = count * 2
 // ....
 // Just use class properties to set any (derived) state you want
-class {
-  count = 0
-  doubleCount = this.count * 2
-  anyMethod() {
-    console.log(this.doubleCount)
-  }
+count = 0
+doubleCount = this.count * 2
+anyMethod() {
+  console.log(this.doubleCount)
 }
 ```
 11. Real lifecycle: `willMount`, `didMount`, `didUpdate`, `willUnmount`, `didUnmount`
 12. A whole new way to think about context, i.e, [environment variables](https://dlight.dev/docs/basic-usages/environment-variables) in DLight.
-13. Seamlessly integrate with existing frontend tech chain like [styling](https://dlight.dev/docs/basic-usages/best-practices)
+13. Seamlessly integrate with existing frontend tech chains like [styling](https://dlight.dev/docs/basic-usages/best-practices)
 14. Great [TypeScript support](https://dlight.dev/docs/typescript-support) 
 
 ## Will there be SSR?
 Yes if there're a fair amount of people interested in this project. I don't want to just do a simple hydration solution only to improve SEO. Currently I've implemented a minimal SSR solution that goes with a component-level island strategy with auto server/client component type detection. If you're interested in this, create an issue.
 
-## What's the next step?
-1. Testing and debugging for v1.0.0 statable release
-2. Fill the documentation
-3. Write articles about the design of DLight
-4. Make some tutorials(video and text) for DLight
-5. SSR
+## What's the next steps?
+- [ ] Testing and debugging for v1.0.0 statable release
+- [ ] Fill the documentation
+- [ ] Write articles about the design of DLight
+- [ ] Make some tutorials(video and text) for DLight
+- [ ] SSR
 
 If you want to contribute to DLight, we're more than happy to have you on board. It's never a one man's job to build a full-fledged framework. Any kind of contribution is welcome, from documentation to code or even criticism. Join the [discord server](https://discord.gg/TZQxTA5G) to spit out your ideas.
 
