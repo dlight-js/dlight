@@ -1,7 +1,7 @@
 import { type Typed } from "./customTag"
 import { type DLightHtmlTagFunc } from "./htmlTag"
 
-export const comp: <T>(tag: T) => Typed<T extends any ? object : T> =
+export const comp: <T>(tag: T) => object extends T ? any : Typed<T> =
   null as any
 export const tag: (tag: any) => DLightHtmlTagFunc = null as any
 

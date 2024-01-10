@@ -150,7 +150,7 @@ Still working on view manipulating tests. Tedious work...
 
 ## Why another fucking framework in 2024?
 ### Please, no more functional components. 
-I have plenty of reasons to favor class components over functional components in a **signal-based MVVM** framework(Don't jump on me so fast. It's for signal-based and MVVM frameworks, not react, not MNC ones).
+I have plenty of reasons to favor class components over functional components in a **signal-based MVVM** framework(Don't jump on me so fast. It's for signal-based MVVM frameworks, not react, not MVC ones).
 
 #### 1. What does an MVVM framework need?
 
@@ -392,7 +392,8 @@ DLight is offering all the features we've talked about above:
 
 and more:
 
-10. Easiest reactivity system ever  
+10. Easiest reactivity system ever   
+
 ```js
 // No more
 const [count, setCount] = useState(0)
@@ -413,6 +414,9 @@ anyMethod() {
   console.log(this.doubleCount)
 }
 ```
+In DLight, we don't even need to add a `@State` decorator to mark a state variable, every class property will reactive if they're used in the view. Some may argue "I want the full control of my state" but do you? It's just a view-model that contains a bunch of data. The only thing I need to care about is that my data change, my view changes too. So why do we need to distinguish between state and non-state? 
+
+
 11. Real lifecycle: `willMount`, `didMount`, `didUpdate`, `willUnmount`, `didUnmount`
 12. A whole new way to think about context, i.e, [environment variables](https://dlight.dev/docs/basic-usages/environment-variables) in DLight.
 13. Seamlessly integrate with existing frontend tech chains like [styling](https://dlight.dev/docs/basic-usages/best-practices)

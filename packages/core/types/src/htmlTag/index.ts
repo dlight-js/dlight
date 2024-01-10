@@ -9,28 +9,32 @@ export type PropertyWithEvent<G> = Omit<
   }[keyof G]
 > &
   DLightGlobalEventHandlers
-interface DLightHtmlProps {
-  do: (element: HTMLElement) => void
-  element: HTMLElement | ((holder: HTMLElement) => void) | undefined
+interface DLightHtmlProps<El> {
+  element: El | ((holder: El) => void) | undefined
   prop: Record<string, string | number | boolean>
   attr: Record<string, string>
   dataset: Record<string, string>
   forwardProps: true | undefined
+  willMount: (el: El) => void
+  didMount: (el: El) => void
+  willUnmount: (el: El) => void
+  didUnmount: (el: El) => void
+  didUpdate: <T>(el: El, key: string, prevValue: T, currValue: T) => void
 }
 
-export type DLightHTMLAttributes<T, G = object> = DLightHtmlProps &
+export type DLightHTMLAttributes<T, G, El> = DLightHtmlProps<El> &
   HTMLAttributes<T> &
   G
 
-export type DLightHTMLAttributesFunc<T, G = object> = {
-  [K in keyof DLightHTMLAttributes<T, G>]: (
-    value?: DLightHTMLAttributes<T, G>[K]
-  ) => Omit<DLightHTMLAttributesFunc<T, G>, K>
+export type DLightHTMLAttributesFunc<T, G, El> = {
+  [K in keyof DLightHTMLAttributes<T, G, El>]: (
+    value?: DLightHTMLAttributes<T, G, El>[K]
+  ) => Omit<DLightHTMLAttributesFunc<T, G, El>, K>
 }
 
 export type DLightHtmlTagFunc<T = HTMLElement, G = object> = (
   innerText?: string | number
-) => DLightHTMLAttributesFunc<PropertyWithEvent<T>, G>
+) => DLightHTMLAttributesFunc<PropertyWithEvent<T>, G, T>
 
 export const a: DLightHtmlTagFunc<HTMLAnchorElement> = null as any
 export const abbr: DLightHtmlTagFunc = null as any

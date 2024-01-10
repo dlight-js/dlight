@@ -18,13 +18,7 @@ interface CustomNodeProps {
   didMount: (node: any) => void
   willUnmount: (node: any) => void
   didUnmount: (node: any) => void
-  didUpdate: (
-    node: any,
-    changed: number,
-    key: string,
-    prevValue: any,
-    currValue: any
-  ) => void
+  didUpdate: (node: any, key: string, prevValue: any, currValue: any) => void
   element: HTMLElement[] | ((holder: HTMLElement[]) => void) | undefined
   forwardProps: true | undefined
 }
@@ -71,7 +65,9 @@ type CustomSubViewTag<T> = T extends { content: infer U }
 type CustomTagType<T, G> = CustomClassTag<
   T &
     CustomNodeProps &
-    (keyof G extends never ? object : DLightHTMLAttributes<G>),
+    (keyof G extends never
+      ? object
+      : DLightHTMLAttributes<G, object, HTMLElement>),
   T
 > &
   Useless

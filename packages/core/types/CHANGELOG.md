@@ -1,5 +1,11 @@
 # @dlightjs/types
 
+## 1.0.0-alpha.1
+
+### Patch Changes
+
+- feat: align with new dlight version
+
 ## 0.10.10
 
 ### Patch Changes
