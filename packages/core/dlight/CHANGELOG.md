@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.64
+
+### Patch Changes
+
+- fix: for node keyed update
+
 ## 1.0.0-alpha.63
 
 ### Patch Changes

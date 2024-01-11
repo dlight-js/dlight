@@ -344,13 +344,13 @@ export class ForNode extends MutableNode {
     }
 
     newFlowIndex = flowIndex
-    const bufferNodes = []
+    const bufferNodes = new Map()
     // ---- 3. Replace the nodes in the same position using Fisher-Yates shuffle algorithm
     for (let idx = 0; idx < this.keys.length; idx++) {
       const key = this.keys[idx]
       const prevIdx = shuffleKeys.indexOf(key)
 
-      const bufferedNode = bufferNodes[idx]
+      const bufferedNode = bufferNodes.get(key)
       if (bufferedNode) {
         // ---- We need to add the flowIndex of the bufferedNode,
         //      because the bufferedNode is in the parentEl and the new position is ahead of the previous position
@@ -372,9 +372,8 @@ export class ForNode extends MutableNode {
       } else {
         // ---- If the node is not in the same position, we need to buffer it
         //      We buffer the node of the previous position, and then replace it with the node of the current position
-        bufferNodes[this.keys.indexOf(shuffleKeys[idx])] = this.nodesMap.get(
-          shuffleKeys[idx]
-        )
+        const prevKey = shuffleKeys[idx]
+        bufferNodes.set(prevKey, this.nodesMap.get(prevKey))
         // ---- Length would never change, and the last will always be in the same position,
         //      so it'll always be insertBefore instead of appendChild
         const childNodes = this.nodesMap.get(key)
