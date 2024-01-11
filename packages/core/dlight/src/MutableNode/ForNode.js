@@ -352,16 +352,19 @@ export class ForNode extends MutableNode {
 
       const bufferedNode = bufferNodes[idx]
       if (bufferedNode) {
-        // ---- If the node is buffered, we need to add it to the parentEl
-        const addedElNum = ForNode.appendNodesWithIndex(
-          bufferedNode,
-          parentEl,
-          newFlowIndex + ForNode.getFlowIndexFromNodes(bufferedNode),
-          length
-        )
-        newFlowIndex += addedElNum
-        length += addedElNum
-        bufferNodes[idx] = undefined
+        // ---- We need to add the flowIndex of the bufferedNode,
+        //      because the bufferedNode is in the parentEl and the new position is ahead of the previous position
+        const bufferedFlowIndex = ForNode.getFlowIndexFromNodes(bufferedNode)
+        const lastEl = ForNode.toEls(bufferedNode).pop()
+        const nextSibling =
+          parentEl.childNodes[newFlowIndex + bufferedFlowIndex]
+        if (lastEl !== nextSibling && lastEl.nextSibling !== nextSibling) {
+          // ---- If the node is buffered, we need to add it to the parentEl
+          ForNode.insertNodesBefore(bufferedNode, parentEl, nextSibling)
+        }
+        // ---- So the added length is the length of the bufferedNode
+        newFlowIndex += bufferedFlowIndex
+        delete bufferNodes[idx]
       } else if (prevIdx === idx) {
         // ---- If the node is in the same position, we don't need to do anything
         newFlowIndex += ForNode.getFlowIndexFromNodes(this.nodesMap.get(key))
@@ -370,16 +373,20 @@ export class ForNode extends MutableNode {
         // ---- If the node is not in the same position, we need to buffer it
         //      We buffer the node of the previous position, and then replace it with the node of the current position
         bufferNodes[this.keys.indexOf(shuffleKeys[idx])] = this.nodesMap.get(
-          this.keys[prevIdx]
+          shuffleKeys[idx]
         )
-        const addedElNum = ForNode.appendNodesWithIndex(
-          this.nodesMap.get(key),
-          parentEl,
-          newFlowIndex,
-          length
-        )
-        newFlowIndex += addedElNum
-        length += addedElNum
+        // ---- Length would never change, and the last will always be in the same position,
+        //      so it'll always be insertBefore instead of appendChild
+        const childNodes = this.nodesMap.get(key)
+        const lastEl = ForNode.toEls(childNodes).pop()
+        const nextSibling = parentEl.childNodes[newFlowIndex]
+        if (lastEl !== nextSibling && lastEl.nextSibling !== nextSibling) {
+          newFlowIndex += ForNode.insertNodesBefore(
+            childNodes,
+            parentEl,
+            nextSibling
+          )
+        }
       }
       // ---- Swap the keys
       const tempKey = shuffleKeys[idx]
