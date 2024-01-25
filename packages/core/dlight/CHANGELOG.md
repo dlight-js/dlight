@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.65
+
+### Patch Changes
+
+- perf: avoid using shift and unshift
+
 ## 1.0.0-alpha.64
 
 ### Patch Changes

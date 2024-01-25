@@ -82,12 +82,12 @@ export class DLNode {
    */
   static getFlowIndexFromNodes(nodes, stopNode) {
     let index = 0
-    const stack = [...nodes]
+    const stack = [...nodes].reverse()
     while (stack.length > 0) {
-      const node = stack.shift()
+      const node = stack.pop()
       if (node === stopNode) break
       if ("_$dlNodeType" in node) {
-        node._$nodes && stack.unshift(...node._$nodes)
+        node._$nodes && stack.push(...[...node._$nodes].reverse())
       } else {
         index++
       }
