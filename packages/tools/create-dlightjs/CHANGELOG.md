@@ -1,5 +1,11 @@
 # create-dlightjs
 
+## 1.0.0-alpha.1
+
+### Patch Changes
+
+- feat: get npm url from NPM_CONFIG_REGISTRY
+
 ## 1.0.0-alpha.0
 
 ### Major Changes

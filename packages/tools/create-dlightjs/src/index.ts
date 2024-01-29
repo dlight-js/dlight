@@ -7,6 +7,9 @@ import fetch from "node-fetch"
 import path from "path"
 import fs from "fs"
 
+const npmRegistry =
+  process.env.NPM_CONFIG_REGISTRY ?? "https://registry.npmjs.org/"
+
 // ---- Get project info
 const projectName = await input({
   message: "💻 Your project name",
@@ -79,7 +82,7 @@ if (language === "ts") {
 }
 
 const getLatestVersion = async (key: string) => {
-  return await fetch(`https://registry.npmjs.org/${key}`)
+  return await fetch(`${npmRegistry}${key}`)
     .then(async res => await res.json())
     .then((data: any) => data["dist-tags"].latest)
 }
