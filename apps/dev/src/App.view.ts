@@ -8,6 +8,7 @@ import {
   Watch,
   required,
 } from "@dlightjs/types"
+import { Button } from "./Button100.view"
 
 @View
 class JJ {
@@ -36,57 +37,17 @@ class IfTest {
 }
 @View
 class App {
-  count = 0
-  jj = this.count * 2
-  arr = [0, 1, 2, 3]
-
-  didMount() {
-    console.log("did mount")
-  }
-  @Watch("count")
-  didUpdate() {
-    console.log("did update")
-  }
+  flag = true
 
   View() {
-    div(this.jj)
-    button("+").onClick(() => {
-      // this.arr = Array.from({ length: 10000 }).map((_, i) => i)
-      this.arr = [...this.arr, this.arr.length]
-      this.count++
+    button("toggle").onClick(() => {
+      this.flag = !this.flag
     })
-    button("-").onClick(() => {
-      this.arr = []
-      this.arr = [...this.arr.slice(0, -2), ...this.arr.slice(-1)]
-    })
-    // env().jj(100)
-    // {
-    div()
-    {
-      div()
-      {
-        for (const i of this.arr) {
-          div(i)
-        }
+    if (this.flag) {
+      for (const i of [...Array(5000).keys()]) {
+        Button(i)
       }
     }
-    // }
-
-    // for (const j of this.arr) {
-    // for (const i of this.arr) {
-    //   key: i
-    //   div()
-    //   {
-    //     div()
-    //     {
-    //       div()
-    //       {
-    //         IfTest().id(i)
-    //       }
-    //     }
-    //   }
-    // }
-    // }
   }
 }
 
