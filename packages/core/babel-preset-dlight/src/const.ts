@@ -217,6 +217,7 @@ export const importMap = Object.fromEntries(
     "setStyle",
     "setDataset",
     "setEvent",
+    "delegateEvent",
     "setHTMLProp",
     "setHTMLAttr",
     "setHTMLProps",

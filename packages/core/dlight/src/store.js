@@ -20,7 +20,7 @@ if (!("document" in Store)) {
   }
 }
 
-export const DLStore = Store
+export const DLStore = { ...Store, delegatedEvents: new Set() }
 
 export function setGlobal(globalObj) {
   DLStore.global = globalObj
