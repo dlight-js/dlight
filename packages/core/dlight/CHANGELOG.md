@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-alpha.66
+
+### Patch Changes
+
+- feat: Add event delegation
+
 ## 1.0.0-alpha.65
 
 ### Patch Changes

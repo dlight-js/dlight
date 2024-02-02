@@ -1,5 +1,13 @@
 # babel-preset-dlight
 
+## 1.0.0-alpha.37
+
+### Patch Changes
+
+- feat: Add event delegation
+- Updated dependencies
+  - @dlightjs/view-generator@1.0.0-alpha.33
+
 ## 1.0.0-alpha.36
 
 ### Patch Changes

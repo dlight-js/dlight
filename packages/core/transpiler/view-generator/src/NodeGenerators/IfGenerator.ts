@@ -70,26 +70,30 @@ export default class IfGenerator extends CondGenerator {
         const [childStatements, topLevelNodes, updateStatements, nodeIdx] =
           this.generateChildren(children, false, true)
 
-        // ---- Update func
-        childStatements.unshift(
-          ...this.declareNodes(nodeIdx),
-          /**
-           * $thisCond.updateFunc = (changed) => { ${updateStatements} }
-           */
-          this.t.expressionStatement(
-            this.t.assignmentExpression(
-              "=",
-              this.t.memberExpression(
-                this.t.identifier("$thisCond"),
-                this.t.identifier("updateFunc")
-              ),
-              this.t.arrowFunctionExpression(
-                this.updateParams,
-                this.geneUpdateBody(updateStatements)
+        const updateNode = []
+        if (Object.keys(updateStatements).length > 0) {
+          updateNode.push(
+            /**
+             * $thisCond.updateFunc = (changed) => { ${updateStatements} }
+             */
+            this.t.expressionStatement(
+              this.t.assignmentExpression(
+                "=",
+                this.t.memberExpression(
+                  this.t.identifier("$thisCond"),
+                  this.t.identifier("updateFunc")
+                ),
+                this.t.arrowFunctionExpression(
+                  this.updateParams,
+                  this.geneUpdateBody(updateStatements)
+                )
               )
             )
           )
-        )
+        }
+
+        // ---- Update func
+        childStatements.unshift(...this.declareNodes(nodeIdx), ...updateNode)
 
         // ---- Check cond and update cond
         childStatements.unshift(this.geneCondCheck(idx), this.geneCondIdx(idx))

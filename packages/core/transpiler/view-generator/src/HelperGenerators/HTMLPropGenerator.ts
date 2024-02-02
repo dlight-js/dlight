@@ -3,6 +3,31 @@ import { DLError } from "../error"
 import ForwardPropGenerator from "./ForwardPropGenerator"
 
 export default class HTMLPropGenerator extends ForwardPropGenerator {
+  static DelegatedEvents = new Set([
+    "beforeinput",
+    "click",
+    "dblclick",
+    "contextmenu",
+    "focusin",
+    "focusout",
+    "input",
+    "keydown",
+    "keyup",
+    "mousedown",
+    "mousemove",
+    "mouseout",
+    "mouseover",
+    "mouseup",
+    "pointerdown",
+    "pointermove",
+    "pointerout",
+    "pointerover",
+    "pointerup",
+    "touchend",
+    "touchmove",
+    "touchstart",
+  ])
+
   /**
    * @brief Add any HTML props according to the key
    * @param name
@@ -195,6 +220,27 @@ export default class HTMLPropGenerator extends ForwardPropGenerator {
 
   /**
    * @View
+   * delegateEvent(${dlNodeName}, ${key}, ${value})
+   */
+  private delegateEvent(
+    dlNodeName: string,
+    key: string,
+    value: t.Expression,
+    check: boolean
+  ): t.Statement {
+    return this.setPropWithCheck(
+      dlNodeName,
+      this.t.callExpression(this.t.identifier(this.importMap.delegateEvent), [
+        this.t.identifier(dlNodeName),
+        this.t.stringLiteral(key),
+        value,
+      ]),
+      check
+    )
+  }
+
+  /**
+   * @View
    * setHTMLProp(${dlNodeName}, ${key}, ${value})
    */
   private setCachedProp(
@@ -333,6 +379,9 @@ export default class HTMLPropGenerator extends ForwardPropGenerator {
       return this.addCommonHTMLProp(dlNodeName, attrName, value, false)
     if (attrName.startsWith("on")) {
       const eventName = attrName.slice(2).toLowerCase()
+      if (HTMLPropGenerator.DelegatedEvents.has(eventName)) {
+        return this.delegateEvent(dlNodeName, eventName, value, false)
+      }
       return this.setHTMLEvent(dlNodeName, eventName, value)
     }
     if (this.isInternalAttribute(tag, attrName)) {
@@ -363,6 +412,9 @@ export default class HTMLPropGenerator extends ForwardPropGenerator {
       return this.addCommonHTMLProp(dlNodeName, attrName, value, check)
     if (attrName.startsWith("on")) {
       const eventName = attrName.slice(2).toLowerCase()
+      if (HTMLPropGenerator.DelegatedEvents.has(eventName)) {
+        return this.delegateEvent(dlNodeName, eventName, value, check)
+      }
       return this.setEvent(dlNodeName, eventName, value, check)
     }
     if (this.isInternalAttribute(tag, attrName)) {

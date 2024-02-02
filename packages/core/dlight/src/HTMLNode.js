@@ -82,6 +82,22 @@ export function setEvent(el, key, value) {
   el[`$on${key}`] = value
 }
 
+function eventHandler(e) {
+  const key = `$$${e.type}`
+  for (const node of e.composedPath()) {
+    if (node[key]) node[key](e)
+    if (e.cancelBubble) return
+  }
+}
+
+export function delegateEvent(el, key, value) {
+  if (el[`$$${key}`] === value) return
+  el[`$$${key}`] = value
+  if (!DLStore.delegatedEvents.has(key)) {
+    DLStore.delegatedEvents.add(key)
+    DLStore.document.addEventListener(key, eventHandler)
+  }
+}
 /**
  * @brief Shortcut for document.createElement
  * @param tag

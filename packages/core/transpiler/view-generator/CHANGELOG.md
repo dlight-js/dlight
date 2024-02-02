@@ -1,5 +1,11 @@
 # @dlightjs/view-generator
 
+## 1.0.0-alpha.33
+
+### Patch Changes
+
+- feat: Add event delegation
+
 ## 1.0.0-alpha.32
 
 ### Patch Changes
