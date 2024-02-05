@@ -1,4 +1,4 @@
-import { type Typed } from "./customTag"
+import { type Typed } from "./compTag"
 import { type DLightHtmlTagFunc } from "./htmlTag"
 
 export const comp: <T>(tag: T) => object extends T ? any : Typed<T> =
@@ -7,8 +7,9 @@ export const tag: (tag: any) => DLightHtmlTagFunc = null as any
 
 export { _ } from "./expressionTag"
 export * from "./htmlTag"
-export * from "./customTag"
+export * from "./compTag"
 export * from "./envTag"
+export * from "./model"
 export const Static = null as any
 export const Children = null as any
 export const Content = null as any

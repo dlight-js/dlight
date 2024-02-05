@@ -1,5 +1,11 @@
 # @dlightjs/types
 
+## 1.0.0-beta.2
+
+### Patch Changes
+
+- feat: add Model encapsulation
+
 ## 1.0.0-alpha.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # babel-preset-dlight
 
+## 1.0.0-beta.1
+
+### Patch Changes
+
+- feat: add Model encapsulation
+
 ## 1.0.0-beta.39
 
 ### Patch Changes

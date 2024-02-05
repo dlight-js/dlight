@@ -1,5 +1,12 @@
 # vite-plugin-dlight
 
+## 1.0.0-beta.1
+
+### Patch Changes
+
+- Updated dependencies
+  - babel-preset-dlight@1.0.0-beta.1
+
 ## 1.0.0-beta.39
 
 ### Patch Changes

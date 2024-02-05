@@ -1,5 +1,5 @@
 // ---- env
-import { DLightObject } from "./customTag"
+import { DLightObject } from "./compTag"
 
 type AnyEnv = { _$anyEnv: true }
 

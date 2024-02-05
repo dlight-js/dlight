@@ -200,6 +200,8 @@ export class CompNode extends DLNode {
         this[k] = this[`$f$${k}`]
       }
     })
+    // ---- Trigger parent view
+    if (this._$model) this._$model._$updateProp(this._$modelKey)
   }
 
   /**
@@ -222,10 +224,21 @@ export class CompNode extends DLNode {
     this._$updateDerived(key)
     this._$updateView(key)
   }
+
+  _$injectModel(ModelCls, key, ...args) {
+    if (!ModelCls.IAmDLightModel) return ModelCls.modeling(...args)
+    const model = new ModelCls()
+    model._$init(args[0], args[1], null, null)
+    model._$model = this
+    model._$modelKey = key
+
+    return model
+  }
 }
 
 // ---- @View -> class Comp extends View
 export const View = CompNode
+export const Model = CompNode
 
 /**
  * @brief Run all update functions given the key

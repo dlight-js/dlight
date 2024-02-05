@@ -58,11 +58,12 @@ export class PluginProvider {
   }
 
   // ---- DLight class Level
-  private classDeclarationNode?: t.ClassDeclaration | t.ClassExpression
+  private classDeclarationNode?: t.ClassDeclaration
   private classBodyNode?: t.ClassBody
   private propertiesContainer: PropertyContainer = {}
   private dependencyMap: Record<string, string[]> = {}
   private enter = true
+  private dLightModel = false
   private enterClassNode = false
   private className?: string
 
@@ -82,6 +83,7 @@ export class PluginProvider {
     this.dependencyMap = {}
     this.enter = true
     this.enterClassNode = false
+    this.dLightModel = false
     this.className = undefined
   }
 
@@ -98,8 +100,8 @@ export class PluginProvider {
    * @brief Initialize DLight Node Level variables when entering a class
    * @param path
    */
-  initNode(path: NodePath<t.ClassDeclaration | t.ClassExpression>): void {
-    const node: t.ClassDeclaration | t.ClassExpression = path.node
+  initNode(path: NodePath<t.ClassDeclaration>): void {
+    const node: t.ClassDeclaration = path.node
     this.classDeclarationNode = node
     this.classBodyNode = node.body
     this.propertiesContainer = {}
@@ -183,23 +185,19 @@ export class PluginProvider {
     this.exitProgram(path)
   }
 
-  private enterClass(
-    _path: NodePath<t.ClassDeclaration | t.ClassExpression>
-  ): void {}
+  private enterClass(_path: NodePath<t.ClassDeclaration>): void {}
 
-  classEnter(path: NodePath<t.ClassDeclaration | t.ClassExpression>): void {
+  classEnter(path: NodePath<t.ClassDeclaration>): void {
     if (!this.enter) return
-    this.enterClassNode = this.isDLightView(path)
+    this.enterClassNode = this.isDLightClass(path)
     if (!this.enterClass) return
     this.initNode(path)
     this.enterClass(path)
   }
 
-  private exitClass(
-    _path: NodePath<t.ClassDeclaration | t.ClassExpression>
-  ): void {}
+  private exitClass(_path: NodePath<t.ClassDeclaration>): void {}
 
-  classExit(path: NodePath<t.ClassDeclaration | t.ClassExpression>): void {
+  classExit(path: NodePath<t.ClassDeclaration>): void {
     if (!this.enter) return
     if (!this.enterClassNode) return
     this.transformDLightClass()
@@ -281,6 +279,9 @@ export class PluginProvider {
     const decorators = node.decorators
     const isSubView = this.findDecoratorByName(decorators, "View")
     if (isSubView) return
+    // ---- Parse model
+    this.parseModel(path)
+
     const isProp = !!this.findDecoratorByName(decorators, "Prop")
     const isEnv = !!this.findDecoratorByName(decorators, "Env")
 
@@ -408,10 +409,14 @@ export class PluginProvider {
     const key = node.key.name
     const propertyIdx = this.classBodyNode.body.indexOf(node)
 
-    const idxNode = this.t.classProperty(
-      this.t.identifier(`$$${key}`),
-      this.t.numericLiteral(1 << idx)
-    )
+    const idxNode = !this.dLightModel
+      ? [
+          this.t.classProperty(
+            this.t.identifier(`$$${key}`),
+            this.t.numericLiteral(1 << idx)
+          ),
+        ]
+      : []
 
     const depsNode = reverseDeps
       ? [
@@ -424,7 +429,7 @@ export class PluginProvider {
         ]
       : []
 
-    this.classBodyNode.body.splice(propertyIdx + 1, 0, idxNode, ...depsNode)
+    this.classBodyNode.body.splice(propertyIdx + 1, 0, ...idxNode, ...depsNode)
   }
 
   /* ---- Helper Functions ---- */
@@ -465,7 +470,8 @@ export class PluginProvider {
    *  2. Transform MainView and SubViews with DLight syntax
    */
   transformDLightClass(): void {
-    const usedProperties = this.handleView()
+    let usedProperties = this.handleView()
+    if (this.dLightModel) usedProperties = this.availableProperties
     const propertyArr = Object.entries(this.propertiesContainer).reverse()
     const depReversedMap = this.dependencyMapReversed()
     this.addAutoUpdate(usedProperties)
@@ -905,15 +911,13 @@ export class PluginProvider {
    * @param path
    * @returns
    */
-  private isDLightView(
-    path: NodePath<t.ClassDeclaration | t.ClassExpression>
-  ): boolean {
+  private isDLightView(path: NodePath<t.ClassDeclaration>): boolean {
     const node = path.node
     const decorators = node.decorators ?? []
-    const isDecorator = decorators.find((deco: t.Decorator) =>
+    const isViewDecorator = decorators.find((deco: t.Decorator) =>
       this.t.isIdentifier(deco.expression, { name: "View" })
     )
-    if (isDecorator) {
+    if (isViewDecorator) {
       node.superClass = this.t.identifier("View")
       node.decorators = node.decorators?.filter(
         (deco: t.Decorator) =>
@@ -921,6 +925,88 @@ export class PluginProvider {
       )
     }
     return this.t.isIdentifier(node.superClass, { name: "View" })
+  }
+
+  private isDLightModel(path: NodePath<t.ClassDeclaration>): boolean {
+    const node = path.node
+    const decorators = node.decorators ?? []
+    const isModelDecorator = decorators.find((deco: t.Decorator) =>
+      this.t.isIdentifier(deco.expression, { name: "Model" })
+    )
+    if (isModelDecorator) {
+      node.superClass = this.t.identifier("Model")
+      node.decorators = node.decorators?.filter(
+        (deco: t.Decorator) =>
+          !this.t.isIdentifier(deco.expression, { name: "Model" })
+      )
+    }
+
+    // ---- Add property _$model
+    node.body.body.unshift(this.t.classProperty(this.t.identifier("_$model")))
+
+    // ---- Delete all views
+    node.body.body = node.body.body.filter(
+      n =>
+        !(
+          (this.t.isClassProperty(n) ||
+            this.t.isClassMethod(n, { kind: "method" })) &&
+          (this.findDecoratorByName(n.decorators, "View") ||
+            (this.t.isIdentifier(n.key) && n.key.name === "View"))
+        )
+    )
+    this.dLightModel = true
+
+    // ---- Add ModelCls.IAmDLightModel = true after the class
+    if (node.id) {
+      const modelClsNode = this.t.expressionStatement(
+        this.t.assignmentExpression(
+          "=",
+          this.t.memberExpression(node.id, this.t.identifier("IAmDLightModel")),
+          this.t.booleanLiteral(true)
+        )
+      )
+      path.insertAfter(modelClsNode)
+    }
+
+    return this.t.isIdentifier(node.superClass, { name: "Model" })
+  }
+
+  /**
+   * @brief Test if the class is a dlight class
+   * @param path
+   * @returns
+   */
+  isDLightClass(path: NodePath<t.ClassDeclaration>): boolean {
+    return this.isDLightView(path) || this.isDLightModel(path)
+  }
+
+  private parseModel(path: NodePath<t.ClassProperty>) {
+    const node = path.node
+    const key = node.key
+    if (!this.t.isIdentifier(key)) return
+    path.scope.traverse(node, {
+      CallExpression: innerPath => {
+        if (!this.t.isMemberExpression(innerPath.node.callee)) return
+        if (
+          !this.t.isIdentifier(innerPath.node.callee.property, {
+            name: "modeling",
+          })
+        )
+          return
+        const args = innerPath.node.arguments
+        const modelCls = innerPath.node.callee.object
+        innerPath.replaceWith(
+          this.t.callExpression(
+            this.t.memberExpression(
+              this.t.thisExpression(),
+              this.t.identifier("_$injectModel")
+            ),
+            [modelCls, this.t.stringLiteral(key.name), ...args]
+          )
+        )
+        innerPath.skip()
+      },
+    })
   }
 
   /**

@@ -36,10 +36,6 @@ export default function (api: typeof babel, options: DLightOption): PluginObj {
         enter: pluginProvider.classEnter.bind(pluginProvider),
         exit: pluginProvider.classExit.bind(pluginProvider),
       },
-      ClassExpression: {
-        enter: pluginProvider.classEnter.bind(pluginProvider),
-        exit: pluginProvider.classExit.bind(pluginProvider),
-      },
       ClassMethod: pluginProvider.classMethodVisitor.bind(pluginProvider),
       ClassProperty: pluginProvider.classPropertyVisitor.bind(pluginProvider),
     },

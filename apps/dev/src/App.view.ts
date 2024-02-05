@@ -1,4 +1,4 @@
-import { View, update } from "@dlightjs/dlight"
+import { View, update, Model } from "@dlightjs/dlight"
 import {
   type Typed,
   type Pretty,
@@ -9,19 +9,51 @@ import {
   required,
   div,
   tbody,
+  Modeling,
 } from "@dlightjs/types"
 import { Button } from "./Button100.view"
 
-interface Data {
-  count: number
-  arr: number[]
+@Model
+class DDData {
+  count = 3
+  arr = [1, 2, 3]
+
+  willMount() {
+    console.log(this.count, "cool")
+  }
 }
+const DD = DDData as Pretty as Modeling<DDData>
+@Model
+class Fetch {
+  @Prop id
+  data
+  loading = true
+
+  @Watch
+  async fetch() {
+    const res = await fetch(
+      `https://jsonplaceholder.typicode.com/posts/${this.id}`
+    )
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    this.data = await res.json()
+    this.loading = false
+    console.log(this.data)
+  }
+}
+
+const FetchModel = Fetch as Pretty as Modeling<Fetch, { id: number }>
 
 @View
 class App {
-  data: Data = {
-    count: 3,
-    arr: [1, 2, 3],
+  data = DD.modeling()
+
+  fetchData = FetchModel.modeling({
+    id: this.data.count,
+  })
+  // fetchData = FetchModel.modeling({ id: this.data.count })
+
+  willMount() {
+    console.log("willMount")
   }
 
   View() {
@@ -32,23 +64,14 @@ class App {
       this.data.arr.push(this.data.count)
     })
 
-    div()
-    {
-      div()
-      {
-        div().didMount(() => {
-          console.log("didMount")
-        })
-        {
-          div()
-          {
-            div("ok")
-          }
-        }
-      }
-    }
     for (const i of this.data.arr) {
       div(i)
+    }
+
+    if (this.fetchData.loading) {
+      div("loading")
+    } else {
+      div(JSON.stringify(this.fetchData.data))
     }
   }
 }

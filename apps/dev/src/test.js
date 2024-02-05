@@ -38,7 +38,9 @@ class WindowSize {
 
 @View
 class App {
-  windowSize = new WindowSize()
+  windowSize = Model(WindowSize, { prop1: 1 })
+
+  windowSize = WindowSize.modeling({ prop1: 1 })
 
   View() {
     div(`Width: ${this.windowSize.width}, Height: ${this.windowSize.height}`)
