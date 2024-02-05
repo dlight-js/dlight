@@ -1,7 +1,7 @@
-// import { render } from "@dlightjs/dlight"
-// import App from "./App.view"
+import { render } from "@dlightjs/dlight"
+import App from "./App.view"
 
-// render("main", App)
+render("main", App)
 
 // function testPerf(func: () => void) {
 //   // multiple times to get average
@@ -28,10 +28,14 @@
 //     a.set(i, i)
 //   }
 // })
-
-const a = document.createElement("div")
-for (let i = 0; i < 10000; i++) {
-  a.appendChild(document.createTextNode(""))
+class JJ {
+  aa() {
+    console.log(this)
+    return 1
+  }
 }
 
-console.log(a, a.childNodes)
+class BB {
+  ok = new JJ()
+}
+console.log(new BB().ok.aa())

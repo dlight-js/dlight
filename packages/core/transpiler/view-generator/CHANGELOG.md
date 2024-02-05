@@ -1,5 +1,17 @@
 # @dlightjs/view-generator
 
+## 1.0.0-beta.35
+
+### Patch Changes
+
+- feat: new deep reactivity
+
+## 1.0.0-alpha.34
+
+### Patch Changes
+
+- feat: obj not equal
+
 ## 1.0.0-alpha.33
 
 ### Patch Changes

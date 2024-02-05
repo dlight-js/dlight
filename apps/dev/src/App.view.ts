@@ -1,4 +1,4 @@
-import { View, setGlobal } from "@dlightjs/dlight"
+import { View, update } from "@dlightjs/dlight"
 import {
   type Typed,
   type Pretty,
@@ -7,48 +7,31 @@ import {
   Prop,
   Watch,
   required,
+  div,
+  tbody,
 } from "@dlightjs/types"
 import { Button } from "./Button100.view"
 
-@View
-class JJ {
-  @Prop id
-  didUnmount() {
-    console.log("jjj", this.id)
-  }
+// interface Data {
+//   count: number
+//   arr: number[]
+// }
 
-  View() {
-    div(this.id)
-  }
-}
-
-@View
-class IfTest {
-  @Prop id
-  @Children hh
-  @Env jj
-  didUnmount() {
-    console.log("unmount", this.id)
-  }
-
-  View() {
-    this.hh
-  }
-}
 @View
 class App {
-  flag = true
-
+  rows = []
   View() {
-    button("toggle").onClick(() => {
-      this.flag = !this.flag
+    button("+").onClick(() => {
+      this.rows.push(this.rows.length)
     })
-    if (this.flag) {
-      for (const i of [...Array(5000).keys()]) {
-        Button(i)
-      }
+    button("-").onClick(() => {
+      this.rows.pop()
+    })
+    for (const [idx, row] of Object.entries(this.rows)) {
+      key: idx
+      div(row)
     }
   }
 }
 
-export default App as Pretty as Typed
+export default App

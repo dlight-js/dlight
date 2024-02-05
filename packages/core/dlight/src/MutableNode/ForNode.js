@@ -57,9 +57,9 @@ export class ForNode extends MutableNode {
    * @brief Non-array update function
    * @param changed
    */
-  update(changed, ...args) {
+  update(changed, key) {
     if (changed & this.depNum) return
-    this.updateArgs = args
+    this.updateKey = key
     for (let idx = 0; idx < this.array.length; idx++) {
       this.updateItem(idx, this.array, changed)
     }
@@ -72,11 +72,7 @@ export class ForNode extends MutableNode {
    */
   updateItem(idx, array, changed) {
     // ---- The update function of ForNode's childNodes is stored in the first child node
-    this.updateArr[idx]?.(
-      changed ?? this.depNum,
-      ...this.updateArgs,
-      array[idx]
-    )
+    this.updateArr[idx]?.(changed ?? this.depNum, this.updateKey, array[idx])
   }
 
   /**
@@ -84,8 +80,8 @@ export class ForNode extends MutableNode {
    * @param newArray
    * @param newKeys
    */
-  updateArray(newArray, key, prevValue, newValue, newKeys) {
-    this.updateArgs = [key, prevValue, newValue]
+  updateArray(newArray, key, newKeys) {
+    this.updateKey = key
     if (newKeys) {
       this.updateWithKey(newArray, newKeys)
       return

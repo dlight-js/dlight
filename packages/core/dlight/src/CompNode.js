@@ -74,9 +74,13 @@ export class CompNode extends DLNode {
     const ownProps = Object.getOwnPropertyNames(this)
     const allProps = [...protoProps, ...ownProps]
     allProps.forEach(key => {
+      // ---- Run watcher
       if (key.startsWith("$w$")) return this[key.slice(3)]()
+      // ---- Run derived value
       if (key.startsWith("$f$")) {
-        this[`$${key.slice(3)}`] = this[key]
+        const realKey = key.slice(3)
+        this[realKey] = this[key]
+        this._$updateProp(realKey)
       }
     })
     delete this._$notInitd
@@ -100,7 +104,7 @@ export class CompNode extends DLNode {
         return this[valueKey]
       },
       set(value) {
-        if (this[valueKey] === value) return
+        if (this[valueKey] === value && !(value instanceof Object)) return
         this[valueKey] = value
         this._$forwardPropsSet?.forEach(node => {
           if (node._$dlNodeType === DLNodeType.Comp) node._$setProp(key, value)
@@ -163,7 +167,7 @@ export class CompNode extends DLNode {
   _$updateEnv(key, value, envNode) {
     if (!(`$e$${key}` in this)) return
     if (envNode !== this[`$en$${key}`]) return
-    if (this[key] === value) return
+    if (this[key] === value && !(value instanceof Object)) return
     this[key] = value
   }
 
@@ -174,37 +178,26 @@ export class CompNode extends DLNode {
   _$setContent(value) {
     const contentKey = this._$contentKey
     if (!contentKey) return
-    if (this[contentKey] === value) return
+    if (this[contentKey] === value && !(value instanceof Object)) return
     this[contentKey] = value
-  }
-
-  /**
-   * @brief Update a prop and call any related update function
-   * @param key
-   * @param value
-   */
-  _$updateProp(key, value) {
-    const valueKey = `$${key}`
-    if (this[valueKey] === value) return
-    const prevValue = this[valueKey]
-    this[valueKey] = value
-    this._$updateDerived(key, prevValue, value)
-    this._$updateView(key, prevValue, value)
   }
 
   /**
    * @brief Update properties that depend on this property
    * @param key
    */
-  _$updateDerived(key, prevValue, value) {
+  _$updateDerived(key) {
     if ("_$notInitd" in this) return
+    // ---- "trigger-view"
+    if (!this[`$tv$${key}`]) this[`$tv$${key}`] = true
+
     this[`$s$${key}`]?.forEach(k => {
       if (`$w$${k}` in this) {
         // ---- Watcher
-        this[k](key, prevValue, value)
+        this[k](key)
       } else {
         // ---- Regular derived value
-        this[`$${k}`] = this[`$f$${k}`]
+        this[k] = this[`$f$${k}`]
       }
     })
   }
@@ -213,10 +206,21 @@ export class CompNode extends DLNode {
    * @brief Update View related update function
    * @param key
    */
-  _$updateView(key, prevValue, newValue) {
+  _$updateView(key) {
+    if (!this[`$tv$${key}`]) return
     const depNum = this[`$$${key}`]
     if (!depNum) return
-    this._$update?.(depNum, key, prevValue, newValue)
+    this._$update?.(depNum, key)
+    // ---- "trigger-value"
+    this[`$tv$${key}`] = false
+  }
+
+  /**
+   * @brief Update a specific prop
+   */
+  _$updateProp(key) {
+    this._$updateDerived(key)
+    this._$updateView(key)
   }
 }
 
@@ -229,6 +233,5 @@ export const View = CompNode
  * @param key
  */
 export function update(dlNode, key) {
-  dlNode._$updateDerived(key)
-  dlNode._$updateView(key)
+  dlNode._$updateProp(key)
 }

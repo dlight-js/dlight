@@ -1,5 +1,24 @@
 export const devMode = process.env.NODE_ENV === "development"
 
+export const reactivityFuncNames = [
+  // ---- Array
+  "push",
+  "pop",
+  "shift",
+  "unshift",
+  "splice",
+  "sort",
+  "reverse",
+  // ---- Set
+  "add",
+  "delete",
+  "clear",
+  // ---- Map
+  "set",
+  "delete",
+  "clear",
+]
+
 export const defaultHTMLTags = [
   "a",
   "abbr",
