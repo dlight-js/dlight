@@ -12,24 +12,43 @@ import {
 } from "@dlightjs/types"
 import { Button } from "./Button100.view"
 
-// interface Data {
-//   count: number
-//   arr: number[]
-// }
+interface Data {
+  count: number
+  arr: number[]
+}
 
 @View
 class App {
-  rows = []
+  data: Data = {
+    count: 3,
+    arr: [1, 2, 3],
+  }
+
   View() {
     button("+").onClick(() => {
-      this.rows.push(this.rows.length)
+      this.data.count++
     })
-    button("-").onClick(() => {
-      this.rows.pop()
+    button("push").onClick(() => {
+      this.data.arr.push(this.data.count)
     })
-    for (const [idx, row] of Object.entries(this.rows)) {
-      key: idx
-      div(row)
+
+    div()
+    {
+      div()
+      {
+        div().didMount(() => {
+          console.log("didMount")
+        })
+        {
+          div()
+          {
+            div("ok")
+          }
+        }
+      }
+    }
+    for (const i of this.data.arr) {
+      div(i)
     }
   }
 }

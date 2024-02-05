@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-beta.5
+
+### Patch Changes
+
+- feat: recur func calling opt
+
 ## 1.0.0-beta.4
 
 ### Patch Changes

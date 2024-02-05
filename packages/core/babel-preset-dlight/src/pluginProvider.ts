@@ -639,7 +639,7 @@ export class PluginProvider {
       const prop = callee.property
       if (
         !this.t.isThisExpression(obj) ||
-        !this.t.isIdentifier(prop, { name: "_$updateProp" })
+        !this.t.isIdentifier(prop, { name: "_$updateView" })
       )
         return
       const arg = exp.arguments[0]
@@ -654,7 +654,7 @@ export class PluginProvider {
     Object.entries(obj).forEach(([, value]) => {
       if (!value) return
       // ---- Type start with lowercase is not a node
-      if (value.type && value.type[0] !== value.type[0].toLowerCase()) {
+      if (value.type?.[0] && value.type[0] !== value.type[0].toLowerCase()) {
         if (this.t.isExpression(value)) {
           this.addAutoUpdateToNode(value, this.availableProperties)
         }

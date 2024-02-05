@@ -9,16 +9,38 @@ class MyData {
   }
 }
 
-
 @View
 class App {
-  data = {
-    obj: { name: "John" },
-  }
-
   myData = new MyData()
 
   View() {
-    div(this.myData.loading)
+    if (this.myData.loading) {
+      div("Loading...")
+    } else {
+      Comp().data(this.myData.data)
+    }
+  }
+}
+
+
+@Data
+class WindowSize {
+  width = window.innerWidth
+  height = window.innerHeight
+
+  constructor() {
+    window.addEventListener("resize", () => {
+      this.width = window.innerWidth
+      this.height = window.innerHeight
+    })
+  }
+}
+
+@View
+class App {
+  windowSize = new WindowSize()
+
+  View() {
+    div(`Width: ${this.windowSize.width}, Height: ${this.windowSize.height}`)
   }
 }
