@@ -10,6 +10,7 @@ import {
   div,
   tbody,
   Modeling,
+  use,
 } from "@dlightjs/types"
 import { Button } from "./Button100.view"
 
@@ -45,9 +46,9 @@ const FetchModel = Fetch as Pretty as Modeling<Fetch, { id: number }>
 
 @View
 class App {
-  data = DD.modeling()
+  data = use(DD)
 
-  fetchData = FetchModel.modeling({
+  fetchData = use(FetchModel, {
     id: this.data.count,
   })
   // fetchData = FetchModel.modeling({ id: this.data.count })

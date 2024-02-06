@@ -7,7 +7,7 @@ import { defaultAttributeMap } from "./const"
 export default function (api: typeof babel, options: DLightOption): PluginObj {
   const { types } = api
   const {
-    files = "**/*.{js,jsx,ts,tsx}",
+    files = "**/*.{js,ts}",
     excludeFiles = "**/{dist,node_modules,lib}/*",
     enableDevTools = false,
     htmlTags = defaultHtmlTags => defaultHtmlTags,

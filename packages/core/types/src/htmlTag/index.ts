@@ -250,5 +250,5 @@ export const symbol: DLightHtmlTagFunc<SVGSymbolElement> = null as any
 export const text: DLightHtmlTagFunc<SVGTextElement> = null as any
 export const textPath: DLightHtmlTagFunc<SVGTextPathElement> = null as any
 export const tspan: DLightHtmlTagFunc<SVGTSpanElement> = null as any
-export const use: DLightHtmlTagFunc<SVGUseElement> = null as any
+// export const use: DLightHtmlTagFunc<SVGUseElement> = null as any
 export const view: DLightHtmlTagFunc<SVGViewElement> = null as any

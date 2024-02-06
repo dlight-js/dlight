@@ -507,6 +507,11 @@ export class PluginProvider {
     }
   }
 
+  /**
+   * @brief Add updateProp and updateDerived if there's a assignment
+   * @param usedProperties
+   * @returns
+   */
   private addAutoUpdate(usedProperties: string[]) {
     if (!this.classBodyNode) return
     const nonViewNodes = this.classBodyNode.body.filter(
@@ -531,6 +536,11 @@ export class PluginProvider {
     })
   }
 
+  /**
+   * @Brief Add updateView and updateDerived to the node
+   * @param node
+   * @param usedProperties
+   */
   private addAutoUpdateToNode(
     node: t.Expression | t.BlockStatement,
     usedProperties: string[]
@@ -568,6 +578,12 @@ export class PluginProvider {
     })
   }
 
+  /**
+   * @brief Add updateView and updateDerived to the assignment
+   * @param path
+   * @param key
+   * @returns
+   */
   private addUpdate(path: NodePath, key: string) {
     // ---- this._$updateView("key")
     const updateViewNode = this.t.callExpression(
@@ -633,6 +649,11 @@ export class PluginProvider {
     path.skip()
   }
 
+  /**
+   * @brief Get all top level updateView props to avoid duplicate
+   * @param blockStatement
+   * @returns
+   */
   private getUpdatePropExp(blockStatement: t.BlockStatement) {
     const propNames = new Set()
     blockStatement.body.forEach(node => {
@@ -655,6 +676,11 @@ export class PluginProvider {
     return propNames
   }
 
+  /**
+   * @brief Go through viewUnits and add auto update to any Babel node
+   * @param obj
+   * @returns
+   */
   private addViewAutoUpdate(obj: object) {
     if (typeof obj !== "object") return
     Object.entries(obj).forEach(([, value]) => {
@@ -813,6 +839,14 @@ export class PluginProvider {
     return [usedPropertySet, templateIdx]
   }
 
+  /**
+   * @brief Transform SubViews with DLight syntax
+   * @param viewNode
+   * @param subViewNames
+   * @param subViewPropSubDepMap
+   * @param templateIdx
+   * @returns
+   */
   alterSubView(
     viewNode: t.ClassMethod,
     subViewNames: string[],
@@ -927,6 +961,11 @@ export class PluginProvider {
     return this.t.isIdentifier(node.superClass, { name: "View" })
   }
 
+  /**
+   * @brief Test if the class is a dlight model
+   * @param path
+   * @returns
+   */
   private isDLightModel(path: NodePath<t.ClassDeclaration>): boolean {
     const node = path.node
     const decorators = node.decorators ?? []
@@ -980,31 +1019,24 @@ export class PluginProvider {
     return this.isDLightView(path) || this.isDLightModel(path)
   }
 
+  /**
+   * @brief Parse any use(Model) inside a property
+   * @param path
+   * @returns
+   */
   private parseModel(path: NodePath<t.ClassProperty>) {
     const node = path.node
     const key = node.key
     if (!this.t.isIdentifier(key)) return
     path.scope.traverse(node, {
       CallExpression: innerPath => {
-        if (!this.t.isMemberExpression(innerPath.node.callee)) return
-        if (
-          !this.t.isIdentifier(innerPath.node.callee.property, {
-            name: "modeling",
-          })
-        )
-          return
+        if (!this.t.isIdentifier(innerPath.node.callee, { name: "use" })) return
         const args = innerPath.node.arguments
-        const modelCls = innerPath.node.callee.object
-        innerPath.replaceWith(
-          this.t.callExpression(
-            this.t.memberExpression(
-              this.t.thisExpression(),
-              this.t.identifier("_$injectModel")
-            ),
-            [modelCls, this.t.stringLiteral(key.name), ...args]
-          )
+        args.splice(1, 0, this.t.stringLiteral(key.name))
+        innerPath.node.callee = this.t.memberExpression(
+          this.t.thisExpression(),
+          this.t.identifier("_$injectModel")
         )
-        innerPath.skip()
       },
     })
   }

@@ -1,5 +1,11 @@
 # babel-preset-dlight
 
+## 1.0.0-beta.2
+
+### Patch Changes
+
+- refactor: use for modeling
+
 ## 1.0.0-beta.1
 
 ### Patch Changes
