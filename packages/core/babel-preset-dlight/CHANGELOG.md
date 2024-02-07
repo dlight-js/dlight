@@ -1,5 +1,14 @@
 # babel-preset-dlight
 
+## 1.0.0-beta.3
+
+### Patch Changes
+
+- 70ccc1b: feat: add in depth reactivity and reduce rerender
+- Updated dependencies [70ccc1b]
+  - @dlightjs/reactivity-parser@1.0.0-beta.1
+  - @dlightjs/view-generator@1.0.0-beta.1
+
 ## 1.0.0-beta.2
 
 ### Patch Changes

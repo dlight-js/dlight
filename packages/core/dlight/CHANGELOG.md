@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-beta.7
+
+### Patch Changes
+
+- 70ccc1b: feat: add in depth reactivity and reduce rerender
+
 ## 1.0.0-beta.6
 
 ### Patch Changes
