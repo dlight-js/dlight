@@ -9,4 +9,4 @@ interface ExpressionTag {
 
 type ExpressionTagFunc = (nodes: any) => ExpressionTag
 
-export const _: ExpressionTagFunc = null as any
+export const _: ExpressionTagFunc

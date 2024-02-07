@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { ContentKeyName, ContentProp } from "./compTag"
 
 type RemoveDLightLifecycle<T> = Omit<
@@ -20,10 +19,8 @@ export type Modeling<Model, Props = object> = {
       : never
 }
 
-export function use<M extends Modeling<object>>(
+export const use: <M extends Modeling<any, any>>(
   model: M,
   props?: M["props"],
   content?: M["content"]
-): M["model"] {
-  return null as any
-}
+) => M["model"]

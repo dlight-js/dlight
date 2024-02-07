@@ -1,17 +1,4 @@
-import { View, update, Model } from "@dlightjs/dlight"
-import {
-  type Typed,
-  type Pretty,
-  button,
-  ForwardProps,
-  Prop,
-  Watch,
-  required,
-  div,
-  tbody,
-  Modeling,
-  use,
-} from "@dlightjs/types"
+import { View, update, Model, button, form, h1 } from "@dlightjs/dlight"
 
 @View
 @ForwardProps
