@@ -663,12 +663,8 @@ export class PluginProvider {
       const node = parentPath.node
       if (!this.getUpdatePropExp(node).has(key)) {
         const returns = this.getAllTopLevelReturnBlock(node)
-        returns.forEach(p => {
-          ;(p.node as t.BlockStatement).body.splice(
-            -1,
-            0,
-            this.t.expressionStatement(updateViewNode)
-          )
+        returns.forEach(node => {
+          node.body.splice(-1, 0, this.t.expressionStatement(updateViewNode))
         })
         if (!this.t.isReturnStatement(node.body[node.body.length - 1])) {
           node.body.push(this.t.expressionStatement(updateViewNode))
@@ -1483,8 +1479,8 @@ export class PluginProvider {
    * @param node
    * @returns
    */
-  getAllTopLevelReturnBlock(node: t.BlockStatement): NodePath[] {
-    const returns: NodePath[] = []
+  getAllTopLevelReturnBlock(node: t.BlockStatement): t.BlockStatement[] {
+    const returns: t.BlockStatement[] = []
 
     let inNestedFunction = false
     this.traverse(this.valueWrapper(node), {
@@ -1495,7 +1491,15 @@ export class PluginProvider {
       },
       ReturnStatement: path => {
         if (inNestedFunction) return
-        returns.push(path.parentPath)
+        const parentNode = path.parentPath.node
+        if (!this.t.isBlockStatement(parentNode)) {
+          const newNode = this.t.blockStatement([path.node])
+          path.replaceWith(newNode)
+          returns.push(newNode)
+        } else {
+          returns.push(parentNode)
+        }
+        path.skip()
       },
       exit: path => {
         if (this.t.isFunction(path.node)) inNestedFunction = false
