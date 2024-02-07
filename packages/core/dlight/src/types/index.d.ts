@@ -16,7 +16,6 @@ export const Prop: any
 export const Env: any
 export const Watch: any
 export const ForwardProps: any
-export const required: any
 
 export function render(idOrEl: string | HTMLElement, DL: any): void
 export function manual<T>(callback: () => T, _deps?: any[]): T
@@ -27,3 +26,4 @@ export const $: typeof escape
 export const View: any
 export const Model: any
 export const update: any
+export const required: any

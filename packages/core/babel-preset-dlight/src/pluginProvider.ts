@@ -1029,18 +1029,6 @@ export class PluginProvider {
     )
     this.dLightModel = true
 
-    // ---- Add ModelCls.IAmDLightModel = true after the class
-    if (node.id) {
-      const modelClsNode = this.t.expressionStatement(
-        this.t.assignmentExpression(
-          "=",
-          this.t.memberExpression(node.id, this.t.identifier("IAmDLightModel")),
-          this.t.booleanLiteral(true)
-        )
-      )
-      path.insertAfter(modelClsNode)
-    }
-
     return this.t.isIdentifier(node.superClass, { name: "Model" })
   }
 
@@ -1059,6 +1047,19 @@ export class PluginProvider {
    * @returns
    */
   private parseModel(path: NodePath<t.ClassProperty>) {
+    const hasUseImport = this.allImports.some(
+      imp =>
+        imp.source.value === this.dlightPackageName &&
+        imp.specifiers.some(s => {
+          if (
+            this.t.isImportSpecifier(s) &&
+            this.t.isIdentifier(s.imported, { name: "use" })
+          ) {
+            return true
+          }
+        })
+    )
+    if (!hasUseImport) return
     const node = path.node
     const key = node.key
     if (!this.t.isIdentifier(key)) return

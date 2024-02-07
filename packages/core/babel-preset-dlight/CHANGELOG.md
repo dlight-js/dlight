@@ -1,5 +1,11 @@
 # babel-preset-dlight
 
+## 1.0.0-beta.4
+
+### Patch Changes
+
+- feat: only parse model when use is imported
+
 ## 1.0.0-beta.3
 
 ### Patch Changes
