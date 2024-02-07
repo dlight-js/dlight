@@ -155,7 +155,6 @@ export class PluginProvider {
   }
 
   /* ---- Babel Visitors ---- */
-  private enterProgram(_path: NodePath<t.Program>): void {}
   programEnterVisitor(
     path: NodePath<t.Program>,
     filename: string | undefined
@@ -173,26 +172,21 @@ export class PluginProvider {
       return
     }
     this.programNode = path.node
-    this.enterProgram(path)
   }
 
-  private exitProgram(_path: NodePath<t.Program>): void {}
-  programExitVisitor(path: NodePath<t.Program>): void {
+  programExitVisitor(): void {
     if (!this.enter) return
     this.didAlterImports = false
     this.allImports = []
     this.programNode = undefined
-    this.exitProgram(path)
   }
-
-  private enterClass(_path: NodePath<t.ClassDeclaration>): void {}
 
   classEnter(path: NodePath<t.ClassDeclaration>): void {
     if (!this.enter) return
     this.enterClassNode = this.isDLightClass(path)
-    if (!this.enterClass) return
+    if (!this.enterClassNode) return
     this.initNode(path)
-    this.enterClass(path)
+    this.resolveMounting(path)
   }
 
   private exitClass(_path: NodePath<t.ClassDeclaration>): void {}
@@ -1411,6 +1405,59 @@ export class PluginProvider {
     })
 
     return reversedMap
+  }
+
+  private resolveMounting(path: NodePath<t.ClassDeclaration>) {
+    const node = path.node
+    if (!this.t.isIdentifier(node.id)) return
+    const decorators = node.decorators ?? []
+    const findEntry = (name: string) => {
+      const found = decorators.find(deco =>
+        this.t.isIdentifier(deco.expression, { name })
+      )
+      if (found)
+        decorators.splice(
+          decorators.findIndex(deco => deco === found),
+          1
+        )
+      return found
+    }
+
+    // ---- Find "@Main" for mounting "main", "@App" for mounting "app"
+    const entryValue = findEntry("Main")
+      ? "main"
+      : findEntry("App")
+        ? "app"
+        : null
+    let mountNode: t.Expression
+    if (entryValue) {
+      mountNode = this.t.stringLiteral(entryValue)
+    } else {
+      // ---- Find "@Mount("any-id")"
+      const mounting = decorators.find(
+        deco =>
+          this.t.isCallExpression(deco.expression) &&
+          this.t.isIdentifier(deco.expression.callee, { name: "Mount" }) &&
+          deco.expression.arguments.length === 1
+      ) as t.Decorator
+      if (!mounting) return
+      decorators.splice(
+        decorators.findIndex(deco => deco === mounting),
+        1
+      )
+      mountNode = (mounting.expression as t.CallExpression)
+        .arguments[0] as t.Expression
+    }
+
+    // ---- ${importMap.render}("main", ${node.id})
+    path.insertAfter(
+      this.t.expressionStatement(
+        this.t.callExpression(this.t.identifier(importMap.render), [
+          mountNode,
+          node.id as t.Identifier,
+        ])
+      )
+    )
   }
 
   /**

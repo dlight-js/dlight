@@ -250,7 +250,8 @@ export const importMap = Object.fromEntries(
     "EnvNode",
     "SubViewNode",
     "PropView",
-  ].map(name => [name, name])
+    "render",
+  ].map(name => [name, `$$${name}`])
 )
 
 /**

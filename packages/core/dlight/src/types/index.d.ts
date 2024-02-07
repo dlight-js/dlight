@@ -16,7 +16,11 @@ export const Prop: any
 export const Env: any
 export const Watch: any
 export const ForwardProps: any
+export const Main: any
+export const App: any
+export const Mount: (idOrEl: string | HTMLElement) => any
 
+// ---- With actual value
 export function render(idOrEl: string | HTMLElement, DL: any): void
 export function manual<T>(callback: () => T, _deps?: any[]): T
 export function escape<T>(arg: T): T

@@ -9,6 +9,8 @@ import {
   Watch,
   button,
   div,
+  Main,
+  Mount,
 } from "@dlightjs/dlight"
 
 import { Button } from "./Button100.view"
@@ -44,6 +46,7 @@ class Fetch {
 
 const FetchModel = Fetch as Pretty as Modeling<Fetch, { id: number }>
 
+@Mount(document.getElementById("main"))
 @View
 class App {
   data = use(DD)
