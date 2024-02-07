@@ -10,13 +10,29 @@ export default class SwitchGenerator extends CondGenerator {
       ({ case: _case }) => _case?.dependencyIndexArr ?? []
     )
     deps.push(...(discriminant.dependencyIndexArr ?? []))
+
+    const depsNode = this.t.arrayExpression([
+      ...(discriminant.dependenciesNode?.elements ?? []),
+      ...branches.flatMap(
+        ({ case: _case }) => _case?.dependenciesNode?.elements ?? []
+      ),
+    ])
     // ---- declareSwitchNode
     const dlNodeName = this.generateNodeName()
     this.addInitStatement(
-      ...this.declareSwitchNode(dlNodeName, discriminant.value, branches, deps)
+      this.declareSwitchNode(
+        dlNodeName,
+        discriminant.value,
+        branches,
+        deps,
+        depsNode
+      )
     )
 
-    this.addUpdateStatements(deps, this.updateCondNodeCond(dlNodeName))
+    this.addUpdateStatements(
+      deps,
+      this.updateCondNodeCond(dlNodeName, depsNode)
+    )
     this.addUpdateStatementsWithoutDep(this.updateCondNode(dlNodeName))
 
     return dlNodeName
@@ -44,8 +60,9 @@ export default class SwitchGenerator extends CondGenerator {
     dlNodeName: string,
     discriminant: t.Expression,
     branches: SwitchBranch[],
-    deps: number[]
-  ): t.Statement[] {
+    deps: number[],
+    depsNode: t.ArrayExpression
+  ): t.Statement {
     // ---- Format statements, make fallthrough statements append to the previous case
     const formattedBranches: SwitchBranch[] = branches.map(
       ({ case: _case, break: _break, children }, idx) => {
@@ -118,7 +135,8 @@ export default class SwitchGenerator extends CondGenerator {
       this.t.blockStatement([
         this.t.switchStatement(discriminant, switchStatements),
       ]),
-      deps
+      deps,
+      depsNode
     )
   }
 }

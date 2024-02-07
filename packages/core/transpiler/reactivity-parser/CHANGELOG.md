@@ -1,5 +1,17 @@
 # @dlightjs/reactivity-parser
 
+## 1.0.0-beta.1
+
+### Patch Changes
+
+- 70ccc1b: feat: add in depth reactivity and reduce rerender
+
+## 1.0.0-beta.9
+
+### Patch Changes
+
+- feat: new deep reactivity
+
 ## 1.0.0-alpha.8
 
 ### Patch Changes

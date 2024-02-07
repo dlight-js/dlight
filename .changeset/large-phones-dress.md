@@ -1,0 +1,5 @@
+---
+"@dlightjs/types": patch
+---
+
+build

@@ -59,15 +59,11 @@ class ToDoMVC {
   addTodo({ target, key }: KeyboardEvent) {
     const title = (target as HTMLInputElement).value.trim()
     if (key === "Enter" && title) {
-      this.todos = [
-        ...this.todos,
-        {
-          id: performance.now(),
-          title,
-          completed: false,
-        },
-      ]
-      console.log(this.todos)
+      this.todos.push({
+        id: performance.now(),
+        title,
+        completed: false,
+      })
       ;(target as HTMLInputElement).value = ""
     }
   }
@@ -77,15 +73,14 @@ class ToDoMVC {
   }
 
   toggleTodo(id: number) {
-    this.todos = this.todos.map(todo =>
-      todo.id === id ? { ...todo, completed: !todo.completed } : todo
-    )
+    const idx = this.todos.findIndex(todo => todo.id === id)
+    this.todos[this.todos.findIndex(todo => todo.id === id)].completed =
+      !this.todos[idx].completed
   }
 
   doneEditing(id: number) {
-    this.todos = this.todos.map(todo =>
-      todo.id === id ? { ...todo, title: this.editingText } : todo
-    )
+    const idx = this.todos.findIndex(todo => todo.id === id)
+    this.todos[idx].title = this.editingText
     this.editingId = null
   }
 
@@ -128,7 +123,6 @@ class ToDoMVC {
             this.removeTodo(id)
           })
       }
-      div(`${editing} ${this.editingId} ${id}`)
       if (editing) {
         input()
           .class("edit")
@@ -137,6 +131,9 @@ class ToDoMVC {
             this.editingText = (e.target as HTMLInputElement).value
           })
           .onBlur(() => this.doneEditing(id))
+          .onKeyDown(e => {
+            if (e.key === "Enter") this.doneEditing(id)
+          })
           .element(el => {
             setTimeout(() => el.focus())
           })

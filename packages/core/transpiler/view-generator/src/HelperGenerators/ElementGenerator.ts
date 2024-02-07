@@ -43,7 +43,13 @@ export default class ElementGenerator extends PropViewGenerator {
     value: t.Expression,
     el = false
   ): t.Statement | null {
-    if (!this.isOnlyMemberExpression(value)) return null
+    if (
+      !this.isOnlyMemberExpression(value) ||
+      (this.t.isMemberExpression(value) &&
+        this.t.isThisExpression(value.object) &&
+        this.t.isIdentifier(value.property))
+    )
+      return null
     const elNode = el
       ? this.t.memberExpression(
           this.t.identifier(dlNodeName),

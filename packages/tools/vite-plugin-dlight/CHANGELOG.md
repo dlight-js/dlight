@@ -1,5 +1,47 @@
 # vite-plugin-dlight
 
+## 1.0.0-beta.4
+
+### Patch Changes
+
+- Updated dependencies
+  - babel-preset-dlight@1.0.0-beta.4
+
+## 1.0.0-beta.3
+
+### Patch Changes
+
+- Updated dependencies [70ccc1b]
+  - babel-preset-dlight@1.0.0-beta.3
+
+## 1.0.0-beta.2
+
+### Patch Changes
+
+- Updated dependencies
+  - babel-preset-dlight@1.0.0-beta.2
+
+## 1.0.0-beta.1
+
+### Patch Changes
+
+- Updated dependencies
+  - babel-preset-dlight@1.0.0-beta.1
+
+## 1.0.0-beta.39
+
+### Patch Changes
+
+- feat: new deep reactivity
+- Updated dependencies
+  - babel-preset-dlight@1.0.0-beta.39
+
+## 1.0.0-alpha.38
+
+### Patch Changes
+
+- babel-preset-dlight@1.0.0-alpha.38
+
 ## 1.0.0-alpha.37
 
 ### Patch Changes

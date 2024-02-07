@@ -35,23 +35,32 @@ export default class TemplateGenerator extends HTMLPropGenerator {
       string,
       { deps: number[]; value?: t.Expression }
     > = {}
-    props.forEach(({ tag, path, key, value, dependencyIndexArr }) => {
-      const name = pathNameMap[path.join(".")]
-      if (!didUpdateMap[name])
-        didUpdateMap[name] = {
-          deps: [],
+    props.forEach(
+      ({ tag, path, key, value, dependencyIndexArr, dependenciesNode }) => {
+        const name = pathNameMap[path.join(".")]
+        if (!didUpdateMap[name])
+          didUpdateMap[name] = {
+            deps: [],
+          }
+        if (key === "didUpdate") {
+          didUpdateMap[name].value = value
+          return
         }
-      if (key === "didUpdate") {
-        didUpdateMap[name].value = value
-        return
+
+        didUpdateMap[name].deps.push(...(dependencyIndexArr ?? []))
+
+        this.addInitStatement(
+          this.addHTMLProp(
+            name,
+            tag,
+            key,
+            value,
+            dependencyIndexArr,
+            dependenciesNode
+          )
+        )
       }
-
-      didUpdateMap[name].deps.push(...(dependencyIndexArr ?? []))
-
-      this.addInitStatement(
-        this.addHTMLProp(name, tag, key, value, dependencyIndexArr)
-      )
-    })
+    )
 
     Object.entries(didUpdateMap).forEach(([name, { deps, value }]) => {
       if (!value) return

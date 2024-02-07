@@ -48,8 +48,8 @@ export default class BaseGenerator {
 
   // ---- Init Statements
   private readonly initStatements: t.Statement[] = []
-  addInitStatement(...statements: t.Statement[]) {
-    this.initStatements.push(...statements)
+  addInitStatement(...statements: (t.Statement | null)[]) {
+    this.initStatements.push(...(statements.filter(Boolean) as t.Statement[]))
   }
 
   // ---- Added Class Properties, typically used in for Template
@@ -71,12 +71,12 @@ export default class BaseGenerator {
   private readonly updateStatements: Record<number, t.Statement[]> = {}
   addUpdateStatements(
     dependencies: number[] | undefined,
-    statement: t.Statement
+    statement: t.Statement | undefined | null
   ) {
     if (!dependencies || dependencies.length === 0) return
     const depNum = BaseGenerator.calcDependencyNum(dependencies)
     if (!this.updateStatements[depNum]) this.updateStatements[depNum] = []
-    this.updateStatements[depNum].push(statement)
+    if (statement) this.updateStatements[depNum].push(statement)
   }
 
   addUpdateStatementsWithoutDep(statement: t.Statement) {
@@ -188,12 +188,7 @@ export default class BaseGenerator {
   }
 
   get updateParams() {
-    return [
-      this.t.identifier("$changed"),
-      this.t.identifier("$key"),
-      this.t.identifier("$prevValue"),
-      this.t.identifier("$newValue"),
-    ]
+    return [this.t.identifier("$changed"), this.t.identifier("$key")]
   }
 
   /**

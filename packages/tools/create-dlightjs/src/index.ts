@@ -76,10 +76,6 @@ const selectedDependencies: string[] = await checkbox({
 })
 const selectedDevDependencies = ["vite", "vite-plugin-dlight"]
 selectedDependencies.push("@dlightjs/dlight")
-if (language === "ts") {
-  selectedDevDependencies.push("@dlightjs/types")
-  selectedDevDependencies.push("typescript")
-}
 
 const getLatestVersion = async (key: string) => {
   return await fetch(`${npmRegistry}${key}`)

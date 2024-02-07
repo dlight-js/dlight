@@ -1,5 +1,5 @@
 import { DLNodeType } from "../DLNode"
-import { DLStore } from "../store"
+import { DLStore, cached } from "../store"
 import { MutableNode } from "./MutableNode"
 
 export class ForNode extends MutableNode {
@@ -27,11 +27,13 @@ export class ForNode extends MutableNode {
    * @param nodeFunc
    * @param keys
    */
-  constructor(array, depNum, keys) {
+  constructor(array, depNum, keys, nodeFunc, deps) {
     super(DLNodeType.For)
     this.array = [...array]
     this.keys = keys
     this.depNum = depNum
+    this.deps = deps
+    this.addNodeFunc(nodeFunc)
   }
 
   /**
@@ -53,13 +55,20 @@ export class ForNode extends MutableNode {
     ForNode.addDidUnmount(this, this.runAllDidUnmount.bind(this))
   }
 
+  cache(deps) {
+    if (!deps || !deps.length) return false
+    if (cached(deps, this.deps)) return true
+    this.deps = deps
+    return false
+  }
+
   /**
    * @brief Non-array update function
    * @param changed
    */
-  update(changed, ...args) {
+  update(changed, key) {
     if (changed & this.depNum) return
-    this.updateArgs = args
+    this.updateKey = key
     for (let idx = 0; idx < this.array.length; idx++) {
       this.updateItem(idx, this.array, changed)
     }
@@ -72,11 +81,7 @@ export class ForNode extends MutableNode {
    */
   updateItem(idx, array, changed) {
     // ---- The update function of ForNode's childNodes is stored in the first child node
-    this.updateArr[idx]?.(
-      changed ?? this.depNum,
-      ...this.updateArgs,
-      array[idx]
-    )
+    this.updateArr[idx]?.(changed ?? this.depNum, this.updateKey, array[idx])
   }
 
   /**
@@ -84,8 +89,11 @@ export class ForNode extends MutableNode {
    * @param newArray
    * @param newKeys
    */
-  updateArray(newArray, key, prevValue, newValue, newKeys) {
-    this.updateArgs = [key, prevValue, newValue]
+  updateArray(newArrayFunc, key, newKeysFunc, deps) {
+    if (this.cache(deps)) return
+    const newArray = newArrayFunc()
+    const newKeys = newKeysFunc()
+    this.updateKey = key
     if (newKeys) {
       this.updateWithKey(newArray, newKeys)
       return

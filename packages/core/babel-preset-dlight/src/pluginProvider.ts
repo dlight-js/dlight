@@ -1,5 +1,5 @@
 import type babel from "@babel/core"
-import { type types as t, type NodePath } from "@babel/core"
+import { types as t, type NodePath } from "@babel/core"
 import {
   type PropertyContainer,
   type HTMLTags,
@@ -15,6 +15,7 @@ import {
   devMode,
   dlightDefaultPackageName,
   importMap,
+  reactivityFuncNames,
 } from "./const"
 
 export class PluginProvider {
@@ -57,11 +58,12 @@ export class PluginProvider {
   }
 
   // ---- DLight class Level
-  private classDeclarationNode?: t.ClassDeclaration | t.ClassExpression
+  private classDeclarationNode?: t.ClassDeclaration
   private classBodyNode?: t.ClassBody
   private propertiesContainer: PropertyContainer = {}
   private dependencyMap: Record<string, string[]> = {}
   private enter = true
+  private dLightModel = false
   private enterClassNode = false
   private className?: string
 
@@ -81,6 +83,7 @@ export class PluginProvider {
     this.dependencyMap = {}
     this.enter = true
     this.enterClassNode = false
+    this.dLightModel = false
     this.className = undefined
   }
 
@@ -97,8 +100,8 @@ export class PluginProvider {
    * @brief Initialize DLight Node Level variables when entering a class
    * @param path
    */
-  initNode(path: NodePath<t.ClassDeclaration | t.ClassExpression>): void {
-    const node: t.ClassDeclaration | t.ClassExpression = path.node
+  initNode(path: NodePath<t.ClassDeclaration>): void {
+    const node: t.ClassDeclaration = path.node
     this.classDeclarationNode = node
     this.classBodyNode = node.body
     this.propertiesContainer = {}
@@ -182,23 +185,19 @@ export class PluginProvider {
     this.exitProgram(path)
   }
 
-  private enterClass(
-    _path: NodePath<t.ClassDeclaration | t.ClassExpression>
-  ): void {}
+  private enterClass(_path: NodePath<t.ClassDeclaration>): void {}
 
-  classEnter(path: NodePath<t.ClassDeclaration | t.ClassExpression>): void {
+  classEnter(path: NodePath<t.ClassDeclaration>): void {
     if (!this.enter) return
-    this.enterClassNode = this.isDLightView(path)
+    this.enterClassNode = this.isDLightClass(path)
     if (!this.enterClass) return
     this.initNode(path)
     this.enterClass(path)
   }
 
-  private exitClass(
-    _path: NodePath<t.ClassDeclaration | t.ClassExpression>
-  ): void {}
+  private exitClass(_path: NodePath<t.ClassDeclaration>): void {}
 
-  classExit(path: NodePath<t.ClassDeclaration | t.ClassExpression>): void {
+  classExit(path: NodePath<t.ClassDeclaration>): void {
     if (!this.enter) return
     if (!this.enterClassNode) return
     this.transformDLightClass()
@@ -227,15 +226,15 @@ export class PluginProvider {
     //       @Watch(["count", "flag"])
     //       watcherFunc() { myFunc() }
     const watchDeco = this.findDecoratorByName(node.decorators, "Watch")
-    if (!watchDeco) {
-      if (this.t.isIdentifier(node.key, { name: "constructor" })) return
-      this.autoBindMethods(node)
-      return
-    }
+    if (this.t.isIdentifier(node.key, { name: "constructor" })) return
+    this.autoBindMethods(node)
+    if (!watchDeco) return
+
     // ---- Get dependencies from watcher decorator or watcher function decorator
     let deps: string[] = []
+    let depsNode
     if (this.t.isIdentifier(watchDeco)) {
-      deps = this.getDependencies(node)
+      ;[deps, depsNode] = this.getDependencies(node)
     } else {
       const listenDepStrings = watchDeco.arguments
         .filter(arg => this.t.isStringLiteral(arg))
@@ -258,12 +257,13 @@ export class PluginProvider {
         ])
       )
 
-      deps = this.getDependencies(pseudoMethod)
+      ;[deps, depsNode] = this.getDependencies(pseudoMethod)
     }
     // ---- Register watcher to propertiesContainer
     this.propertiesContainer[key] = {
       node,
       deps,
+      depsNode,
       isWatcher: true,
     }
     node.decorators = this.removeDecorators(node.decorators, ["Watch"])
@@ -281,16 +281,20 @@ export class PluginProvider {
     const decorators = node.decorators
     const isSubView = this.findDecoratorByName(decorators, "View")
     if (isSubView) return
+    // ---- Parse model
+    this.parseModel(path)
+
     const isProp = !!this.findDecoratorByName(decorators, "Prop")
     const isEnv = !!this.findDecoratorByName(decorators, "Env")
 
     const isChildren = !!this.findDecoratorByName(node.decorators, "Children")
 
-    const deps = !isChildren ? this.getDependencies(node) : []
+    const [deps, depsNode] = !isChildren ? this.getDependencies(node) : [[]]
 
     this.propertiesContainer[key] = {
       node,
       deps,
+      depsNode,
       isStatic: !!this.findDecoratorByName(decorators, "Static"),
       isContent: !!this.findDecoratorByName(decorators, "Content"),
       isChildren,
@@ -306,14 +310,34 @@ export class PluginProvider {
    * @brief Decorator resolver: Watcher
    * Add:
    * $wW${key}
+   * in watcher:
+   * watchxx() {
+   *  if (this._$cache(${key}, ${deps})) return
+   *  ...
+   * }
    * @param node
    */
-  resolveWatcherDecorator(node: t.ClassMethod): void {
+  resolveWatcherDecorator(
+    node: t.ClassMethod,
+    depsNode: t.ArrayExpression
+  ): void {
     if (!this.t.isIdentifier(node.key)) return
     const key = node.key.name
     const propertyIdx = this.classBodyNode!.body.indexOf(node)
     const watcherNode = this.t.classProperty(this.t.identifier(`$w$${key}`))
     this.classBodyNode!.body.splice(propertyIdx, 0, watcherNode)
+    node.body.body.unshift(
+      this.t.ifStatement(
+        this.t.callExpression(
+          this.t.memberExpression(
+            this.t.thisExpression(),
+            this.t.identifier("_$cache")
+          ),
+          [this.t.stringLiteral(key), depsNode]
+        ),
+        this.t.blockStatement([this.t.returnStatement()])
+      )
+    )
   }
 
   /**
@@ -394,15 +418,8 @@ export class PluginProvider {
   /**
    * @brief Decorator resolver: State
    * Add:
-   *  $${key} = ${value}
    *  $$${key} = ${depIdx}
    *  $sub$${key} = [${reversedDeps}]
-   *  get ${key}() {
-   *    return this.$${key}
-   *  }
-   *  set ${key}(value) {
-   *    this._$updateProp("${key}", value)
-   *  }
    * @param node
    */
   resolveStateDecorator(
@@ -413,13 +430,16 @@ export class PluginProvider {
     if (!this.classBodyNode) return
     if (!this.t.isIdentifier(node.key)) return
     const key = node.key.name
-    node.key.name = `$${key}`
     const propertyIdx = this.classBodyNode.body.indexOf(node)
 
-    const idxNode = this.t.classProperty(
-      this.t.identifier(`$$${key}`),
-      this.t.numericLiteral(1 << idx)
-    )
+    const idxNode = !this.dLightModel
+      ? [
+          this.t.classProperty(
+            this.t.identifier(`$$${key}`),
+            this.t.numericLiteral(1 << idx)
+          ),
+        ]
+      : []
 
     const depsNode = reverseDeps
       ? [
@@ -432,45 +452,7 @@ export class PluginProvider {
         ]
       : []
 
-    const getterNode = this.t.classMethod(
-      "get",
-      this.t.identifier(key),
-      [],
-      this.t.blockStatement([
-        this.t.returnStatement(
-          this.t.memberExpression(
-            this.t.thisExpression(),
-            this.t.identifier(`$${key}`)
-          )
-        ),
-      ])
-    )
-
-    const setterNode = this.t.classMethod(
-      "set",
-      this.t.identifier(key),
-      [this.t.identifier("value")],
-      this.t.blockStatement([
-        this.t.expressionStatement(
-          this.t.callExpression(
-            this.t.memberExpression(
-              this.t.thisExpression(),
-              this.t.identifier("_$updateProp")
-            ),
-            [this.t.stringLiteral(key), this.t.identifier("value")]
-          )
-        ),
-      ])
-    )
-
-    this.classBodyNode.body.splice(
-      propertyIdx + 1,
-      0,
-      idxNode,
-      ...depsNode,
-      getterNode,
-      setterNode
-    )
+    this.classBodyNode.body.splice(propertyIdx + 1, 0, ...idxNode, ...depsNode)
   }
 
   /* ---- Helper Functions ---- */
@@ -511,13 +493,24 @@ export class PluginProvider {
    *  2. Transform MainView and SubViews with DLight syntax
    */
   transformDLightClass(): void {
-    const usedProperties = this.handleView()
+    let usedProperties = this.handleView()
+    if (this.dLightModel) usedProperties = this.availableProperties
     const propertyArr = Object.entries(this.propertiesContainer).reverse()
     const depReversedMap = this.dependencyMapReversed()
+    this.addAutoUpdate(usedProperties)
 
     for (const [
       key,
-      { node, deps, isStatic, isChildren, isPropOrEnv, isWatcher, isContent },
+      {
+        node,
+        deps,
+        isStatic,
+        isChildren,
+        isPropOrEnv,
+        isWatcher,
+        isContent,
+        depsNode,
+      },
     ] of propertyArr) {
       if (isChildren) {
         this.resolveChildrenDecorator(node as t.ClassProperty)
@@ -525,8 +518,9 @@ export class PluginProvider {
       }
       if (deps.length > 0) {
         usedProperties.push(...deps)
-        if (isWatcher) this.resolveWatcherDecorator(node as t.ClassMethod)
-        else this.handleDerivedProperty(node as t.ClassProperty)
+        if (isWatcher)
+          this.resolveWatcherDecorator(node as t.ClassMethod, depsNode!)
+        else this.handleDerivedProperty(node as t.ClassProperty, depsNode!)
       }
       if (isPropOrEnv) {
         this.resolvePropDecorator(node as t.ClassProperty, isPropOrEnv)
@@ -544,6 +538,196 @@ export class PluginProvider {
         )
       }
     }
+  }
+
+  /**
+   * @brief Add updateProp and updateDerived if there's a assignment
+   * @param usedProperties
+   * @returns
+   */
+  private addAutoUpdate(usedProperties: string[]) {
+    if (!this.classBodyNode) return
+    const nonViewNodes = this.classBodyNode.body.filter(
+      n =>
+        !(
+          ((this.t.isClassProperty(n) || this.t.isClassMethod(n)) &&
+            ["View", "constructor", "_$compName"].includes(
+              (n.key as t.Identifier).name
+            )) ||
+          (this.t.isClassMethod(n, { kind: "method" }) &&
+            this.findDecoratorByName(n.decorators, "View"))
+        )
+    )
+    nonViewNodes.forEach(n => {
+      const value = this.t.isClassProperty(n)
+        ? n.value
+        : this.t.isClassMethod(n)
+          ? n.body
+          : null
+      if (!value) return
+      this.addAutoUpdateToNode(value, usedProperties)
+    })
+  }
+
+  /**
+   * @Brief Add updateView and updateDerived to the node
+   * @param node
+   * @param usedProperties
+   */
+  private addAutoUpdateToNode(
+    node: t.Expression | t.BlockStatement,
+    usedProperties: string[]
+  ) {
+    this.traverse(this.valueWrapper(node), {
+      MemberExpression: path => {
+        if (
+          !this.t.isThisExpression(path.node.object) ||
+          !this.t.isIdentifier(path.node.property)
+        )
+          return
+        const key = path.node.property.name
+        if (!usedProperties.includes(key)) return
+        const assignPath = this.isAssignmentExpressionLeft(path)
+        if (!assignPath) return
+        this.addUpdate(assignPath, key)
+      },
+      CallExpression: path => {
+        if (!this.t.isMemberExpression(path.node.callee)) return
+        const funcNameNode = path.node.callee.property
+        if (!this.t.isIdentifier(funcNameNode)) return
+        if (!reactivityFuncNames.includes(funcNameNode.name)) return
+        let callee = path.get("callee").get("object") as NodePath
+
+        while (this.t.isMemberExpression(callee.node)) {
+          callee = callee.get("object") as NodePath
+        }
+        if (!this.t.isThisExpression(callee?.node)) return
+        const propName = (
+          (callee.parentPath!.node as t.MemberExpression)
+            .property as t.Identifier
+        ).name
+        this.addUpdate(path, propName)
+      },
+    })
+  }
+
+  /**
+   * @brief Add updateView and updateDerived to the assignment
+   * @param path
+   * @param key
+   * @returns
+   */
+  private addUpdate(path: NodePath, key: string) {
+    // ---- this._$updateView("key")
+    const updateViewNode = this.t.callExpression(
+      this.t.memberExpression(
+        this.t.thisExpression(),
+        this.t.identifier("_$updateView")
+      ),
+      [this.t.stringLiteral(key)]
+    )
+    // ---- this._$updateDerived("key")
+    const updateDerivedNode = this.t.callExpression(
+      this.t.memberExpression(
+        this.t.thisExpression(),
+        this.t.identifier("_$updateDerived")
+      ),
+      [this.t.stringLiteral(key)]
+    )
+    // ---- Add updateDerived right on the assignment
+    let newNode: t.Node = this.t.sequenceExpression([
+      path.node as t.UpdateExpression | t.AssignmentExpression,
+      updateDerivedNode,
+    ])
+
+    // ---- Find the outermost block statement to add updateView, avoid
+    //      1. if block
+    //      2. loop block
+    let parentPath = path.parentPath
+    while (parentPath) {
+      if (
+        this.t.isBlockStatement(parentPath.node) &&
+        !this.t.isIfStatement(parentPath.parentPath?.node) &&
+        !this.t.isLoop(parentPath.parentPath?.node)
+      )
+        break
+      if (this.t.isFunction(parentPath.node)) {
+        parentPath = parentPath.get("body") as NodePath
+        break
+      }
+      parentPath = parentPath.parentPath as NodePath
+    }
+
+    // ---- Add updateView to last
+    if (this.t.isBlockStatement(parentPath?.node)) {
+      const node = parentPath.node
+      if (!this.getUpdatePropExp(node).has(key)) {
+        const returns = this.getAllTopLevelReturnBlock(node)
+        returns.forEach(p => {
+          ;(p.node as t.BlockStatement).body.splice(
+            -1,
+            0,
+            this.t.expressionStatement(updateViewNode)
+          )
+        })
+        if (!this.t.isReturnStatement(node.body[node.body.length - 1])) {
+          node.body.push(this.t.expressionStatement(updateViewNode))
+        }
+      }
+    } else {
+      // ---- If no block statement found, do (original, update)
+      newNode = this.t.sequenceExpression([newNode, updateViewNode])
+    }
+
+    path.replaceWith(newNode)
+    path.skip()
+  }
+
+  /**
+   * @brief Get all top level updateView props to avoid duplicate
+   * @param blockStatement
+   * @returns
+   */
+  private getUpdatePropExp(blockStatement: t.BlockStatement) {
+    const propNames = new Set()
+    blockStatement.body.forEach(node => {
+      if (!this.t.isExpressionStatement(node)) return
+      const exp = node.expression
+      if (!this.t.isCallExpression(exp)) return
+      const callee = exp.callee
+      if (!this.t.isMemberExpression(callee)) return
+      const obj = callee.object
+      const prop = callee.property
+      if (
+        !this.t.isThisExpression(obj) ||
+        !this.t.isIdentifier(prop, { name: "_$updateView" })
+      )
+        return
+      const arg = exp.arguments[0]
+      if (!this.t.isStringLiteral(arg)) return
+      propNames.add(arg.value)
+    })
+    return propNames
+  }
+
+  /**
+   * @brief Go through viewUnits and add auto update to any Babel node
+   * @param obj
+   * @returns
+   */
+  private addViewAutoUpdate(obj: object) {
+    if (typeof obj !== "object") return
+    Object.entries(obj).forEach(([, value]) => {
+      if (!value) return
+      // ---- Type start with lowercase is not a node
+      if (value.type?.[0] && value.type[0] !== value.type[0].toLowerCase()) {
+        if (this.t.isExpression(value)) {
+          this.addAutoUpdateToNode(value, this.availableProperties)
+        }
+      } else {
+        this.addViewAutoUpdate(value)
+      }
+    })
   }
 
   /* ---- DLight Class View Handlers ---- */
@@ -661,11 +845,13 @@ export class PluginProvider {
       subviewNames: subViewNames,
       htmlTags: this.htmlTags,
     })
+    viewUnits.map(viewUnit => this.addViewAutoUpdate(viewUnit))
 
     const [viewParticles, usedPropertySet] = parseReactivity(viewUnits, {
       babelApi: this.babelApi,
       availableProperties: this.availableProperties,
       dependencyMap: this.dependencyMap,
+      reactivityFuncNames,
     })
 
     const [body, classProperties, templateIdx] = generateView(viewParticles, {
@@ -687,6 +873,14 @@ export class PluginProvider {
     return [usedPropertySet, templateIdx]
   }
 
+  /**
+   * @brief Transform SubViews with DLight syntax
+   * @param viewNode
+   * @param subViewNames
+   * @param subViewPropSubDepMap
+   * @param templateIdx
+   * @returns
+   */
   alterSubView(
     viewNode: t.ClassMethod,
     subViewNames: string[],
@@ -710,12 +904,15 @@ export class PluginProvider {
       subviewNames: subViewNames,
       htmlTags: this.htmlTags,
     })
+    viewUnits.map(viewUnit => this.addViewAutoUpdate(viewUnit))
+
     const [viewParticlesProperty, usedPropertySet] = parseReactivity(
       viewUnits,
       {
         babelApi: this.babelApi,
         availableProperties: this.availableProperties,
         dependencyMap: this.dependencyMap,
+        reactivityFuncNames,
       }
     )
 
@@ -734,6 +931,7 @@ export class PluginProvider {
       dependencyMap: this.dependencyMap,
       dependencyParseType: "identifier",
       identifierDepMap,
+      reactivityFuncNames,
     })
 
     const subViewPropMap = Object.fromEntries(
@@ -781,15 +979,13 @@ export class PluginProvider {
    * @param path
    * @returns
    */
-  private isDLightView(
-    path: NodePath<t.ClassDeclaration | t.ClassExpression>
-  ): boolean {
+  private isDLightView(path: NodePath<t.ClassDeclaration>): boolean {
     const node = path.node
     const decorators = node.decorators ?? []
-    const isDecorator = decorators.find((deco: t.Decorator) =>
+    const isViewDecorator = decorators.find((deco: t.Decorator) =>
       this.t.isIdentifier(deco.expression, { name: "View" })
     )
-    if (isDecorator) {
+    if (isViewDecorator) {
       node.superClass = this.t.identifier("View")
       node.decorators = node.decorators?.filter(
         (deco: t.Decorator) =>
@@ -797,6 +993,176 @@ export class PluginProvider {
       )
     }
     return this.t.isIdentifier(node.superClass, { name: "View" })
+  }
+
+  /**
+   * @brief Test if the class is a dlight model
+   * @param path
+   * @returns
+   */
+  private isDLightModel(path: NodePath<t.ClassDeclaration>): boolean {
+    const node = path.node
+    const decorators = node.decorators ?? []
+    const isModelDecorator = decorators.find((deco: t.Decorator) =>
+      this.t.isIdentifier(deco.expression, { name: "Model" })
+    )
+    if (isModelDecorator) {
+      node.superClass = this.t.identifier("Model")
+      node.decorators = node.decorators?.filter(
+        (deco: t.Decorator) =>
+          !this.t.isIdentifier(deco.expression, { name: "Model" })
+      )
+    }
+
+    // ---- Add property _$model
+    node.body.body.unshift(this.t.classProperty(this.t.identifier("_$model")))
+
+    // ---- Delete all views
+    node.body.body = node.body.body.filter(
+      n =>
+        !(
+          (this.t.isClassProperty(n) ||
+            this.t.isClassMethod(n, { kind: "method" })) &&
+          (this.findDecoratorByName(n.decorators, "View") ||
+            (this.t.isIdentifier(n.key) && n.key.name === "View"))
+        )
+    )
+    this.dLightModel = true
+
+    return this.t.isIdentifier(node.superClass, { name: "Model" })
+  }
+
+  /**
+   * @brief Test if the class is a dlight class
+   * @param path
+   * @returns
+   */
+  isDLightClass(path: NodePath<t.ClassDeclaration>): boolean {
+    return this.isDLightView(path) || this.isDLightModel(path)
+  }
+
+  /**
+   * @brief Parse any use(Model) inside a property
+   * @param path
+   * @returns
+   */
+  private parseModel(path: NodePath<t.ClassProperty>) {
+    const hasUseImport = this.allImports.some(
+      imp =>
+        imp.source.value === this.dlightPackageName &&
+        imp.specifiers.some(s => {
+          if (
+            this.t.isImportSpecifier(s) &&
+            this.t.isIdentifier(s.imported, { name: "use" })
+          ) {
+            return true
+          }
+        })
+    )
+    if (!hasUseImport) return
+    const node = path.node
+    const key = node.key
+    if (!this.t.isIdentifier(key)) return
+    path.scope.traverse(node, {
+      CallExpression: innerPath => {
+        if (!this.t.isIdentifier(innerPath.node.callee, { name: "use" })) return
+        const args = innerPath.node.arguments
+        const propsArg = args[1]
+        const contentArg = args[2]
+        let propsNode: t.Expression = this.t.nullLiteral()
+        if (propsArg) {
+          const mergedPropsNode: [
+            t.Expression,
+            t.ArrayExpression | t.NullLiteral,
+          ][] = []
+          const spreadPropsNode: [
+            t.Expression,
+            t.Expression,
+            t.ArrayExpression | t.NullLiteral,
+          ][] = []
+          // ---- Get props deps
+          if (this.t.isObjectExpression(propsArg)) {
+            propsArg.properties.forEach(prop => {
+              if (this.t.isSpreadElement(prop)) {
+                const [, depsNode] = this.getDependenciesFromNode(
+                  prop.argument as t.Expression
+                )
+                mergedPropsNode.push([
+                  prop.argument as t.Expression,
+                  depsNode ?? this.t.nullLiteral(),
+                ])
+              } else if (this.t.isObjectProperty(prop)) {
+                const [, depsNode] = this.getDependenciesFromNode(
+                  prop.value as t.Expression
+                )
+                spreadPropsNode.push([
+                  !prop.computed && this.t.isIdentifier(prop.key)
+                    ? this.t.stringLiteral(prop.key.name)
+                    : (prop.key as t.Expression),
+                  prop.value as t.Expression,
+                  depsNode ?? this.t.nullLiteral(),
+                ])
+              } else {
+                spreadPropsNode.push([
+                  !prop.computed && this.t.isIdentifier(prop.key)
+                    ? this.t.stringLiteral(prop.key.name)
+                    : (prop.key as t.Expression),
+                  this.t.arrowFunctionExpression([], prop.body),
+                  this.t.nullLiteral(),
+                ])
+              }
+            })
+          } else {
+            const [, depsNode] = this.getDependenciesFromNode(
+              propsArg as t.Expression
+            )
+            mergedPropsNode.push([
+              propsArg as t.Expression,
+              depsNode ?? this.t.nullLiteral(),
+            ])
+          }
+          /**
+           * @View { ok: this.count, ...this.props }
+           * {
+           *  m: [[this.props, []]]
+           *  s: [["ok", this.count, [this.count]]]
+           * }
+           */
+          propsNode = this.t.objectExpression([
+            this.t.objectProperty(
+              this.t.identifier("m"),
+              this.t.arrayExpression(
+                mergedPropsNode.map(n => this.t.arrayExpression(n))
+              )
+            ),
+            this.t.objectProperty(
+              this.t.identifier("s"),
+              this.t.arrayExpression(
+                spreadPropsNode.map(n => this.t.arrayExpression(n))
+              )
+            ),
+          ])
+        }
+
+        let contentNode: t.Expression = this.t.nullLiteral()
+        if (contentArg) {
+          const [, depsNode] = this.getDependenciesFromNode(
+            contentArg as t.Expression
+          )
+          contentNode = this.t.arrayExpression([
+            contentArg as t.Expression,
+            depsNode ?? this.t.nullLiteral(),
+          ])
+        }
+        args[1] = propsNode
+        args[2] = contentNode
+        args[3] = this.t.stringLiteral(key.name)
+        innerPath.node.callee = this.t.memberExpression(
+          this.t.thisExpression(),
+          this.t.identifier("_$injectModel")
+        )
+      },
+    })
   }
 
   /**
@@ -844,11 +1210,34 @@ export class PluginProvider {
   }
 
   /**
+   * @brief Generate a dependency node from a dependency identifier,
+   *  loop until the parent node is not a binary expression or a member expression
+   * @param path
+   * @returns
+   */
+  private geneDependencyNode(path: NodePath): t.Expression {
+    let parentPath = path
+    while (parentPath?.parentPath) {
+      const pParentPath = parentPath.parentPath
+      if (
+        !(
+          this.t.isBinaryExpression(pParentPath.node) ||
+          this.t.isMemberExpression(pParentPath.node)
+        )
+      ) {
+        return parentPath.node as t.Expression
+      }
+      parentPath = pParentPath
+    }
+    return path.node as t.Expression
+  }
+
+  /**
    * constructor() {
    *  super()
    * }
    */
-  addConstructor(): t.ClassMethod {
+  private addConstructor(): t.ClassMethod {
     let constructor = this.classBodyNode!.body.find(n =>
       this.t.isClassMethod(n, { kind: "constructor" })
     ) as t.ClassMethod
@@ -867,7 +1256,7 @@ export class PluginProvider {
     return constructor
   }
 
-  autoBindMethods(node: t.ClassMethod) {
+  private autoBindMethods(node: t.ClassMethod) {
     const constructorNode = this.addConstructor()
     constructorNode.body.body.push(
       this.t.expressionStatement(
@@ -889,10 +1278,14 @@ export class PluginProvider {
   /**
    * ${key}
    * get $f$${key}() {
+   *  if (this._$cache(${key}, ${deps})) return this.${key}
    *  return ${value}
    * }
    */
-  handleDerivedProperty(node: t.ClassProperty) {
+  private handleDerivedProperty(
+    node: t.ClassProperty,
+    depsNode: t.ArrayExpression
+  ) {
     if (!this.t.isIdentifier(node.key)) return
     const key = node.key.name
     const value = node.value
@@ -901,51 +1294,68 @@ export class PluginProvider {
       "get",
       this.t.identifier(`$f$${key}`),
       [],
-      this.t.blockStatement([this.t.returnStatement(value)])
+      this.t.blockStatement([
+        this.t.ifStatement(
+          this.t.callExpression(
+            this.t.memberExpression(
+              this.t.thisExpression(),
+              this.t.identifier("_$cache")
+            ),
+            [this.t.stringLiteral(key), depsNode]
+          ),
+          this.t.blockStatement([
+            this.t.returnStatement(
+              this.t.memberExpression(
+                this.t.thisExpression(),
+                this.t.identifier(key)
+              )
+            ),
+          ])
+        ),
+        this.t.returnStatement(value),
+      ])
     )
     this.classBodyNode!.body.splice(propertyIdx + 1, 0, getterNode)
     node.value = null
   }
 
-  /**
-   * @brief Get all valid dependencies of a babel path
-   * @param path
-   * @returns dependencies
-   */
-  getDependencies(node: t.ClassMethod | t.ClassProperty): string[] {
-    if (!this.t.isIdentifier(node.key)) return []
-
+  private getDependenciesFromNode(
+    node: t.Expression | t.ClassDeclaration,
+    isClassLevel = false
+  ): [string[], t.ArrayExpression | undefined] {
     // ---- Deps: console.log(this.count)
     const deps = new Set<string>()
     // ---- Assign deps: this.count = 1 / this.count++
     const assignDeps = new Set<string>()
-    const wrappedNode = this.valueWrapper(
-      this.t.classDeclaration(null, null, this.t.classBody([node]))
-    )
-    this.traverse(wrappedNode, {
+    const depNodes: Record<string, t.Expression[]> = {}
+
+    this.traverse(this.valueWrapper(node), {
       MemberExpression: innerPath => {
-        if (!this.t.isIdentifier(innerPath.node.property)) return
+        if (
+          !this.t.isIdentifier(innerPath.node.property) ||
+          !this.t.isThisExpression(innerPath.node.object)
+        )
+          return
+
         const propertyKey = innerPath.node.property.name
-        if (this.isAssignmentExpressionLeft(innerPath)) {
+        if (
+          this.isAssignmentExpressionLeft(innerPath) ||
+          this.isAssignmentFunction(innerPath)
+        ) {
           assignDeps.add(propertyKey)
         } else if (
           this.availableProperties.includes(propertyKey) &&
-          this.t.isThisExpression(innerPath.node.object) &&
           !this.isMemberInEscapeFunction(
             innerPath,
             this.classDeclarationNode!
           ) &&
-          !this.isMemberInManualFunction(
-            innerPath,
-            this.classDeclarationNode!
-          ) &&
-          !this.isAssignmentExpressionRight(
-            innerPath,
-            this.classDeclarationNode!
-          )
+          !this.isMemberInManualFunction(innerPath, this.classDeclarationNode!)
         ) {
           deps.add(propertyKey)
-          this.dependencyMap[propertyKey]?.forEach(deps.add.bind(deps))
+          if (isClassLevel)
+            this.dependencyMap[propertyKey]?.forEach(deps.add.bind(deps))
+          if (!depNodes[propertyKey]) depNodes[propertyKey] = []
+          depNodes[propertyKey].push(this.geneDependencyNode(innerPath))
         }
       },
     })
@@ -954,16 +1364,45 @@ export class PluginProvider {
     //      e.g. { console.log(this.count); this.count = 1 }
     //      this will cause infinite loop
     //      so we eliminate "count" from deps
-    assignDeps.forEach(deps.delete.bind(deps))
+    assignDeps.forEach(dep => {
+      deps.delete(dep)
+      delete depNodes[dep]
+    })
+
+    let dependencyNodes = Object.values(depNodes).flat()
+    // ---- deduplicate the dependency nodes
+    dependencyNodes = dependencyNodes.filter((n, i) => {
+      const idx = dependencyNodes.findIndex(m => this.t.isNodesEquivalent(m, n))
+      return idx === i
+    })
 
     // ---- Add deps to dependencyMap
-    const propertyKey = node.key.name
     const depArr = [...deps]
-    if (deps.size > 0) {
+    if (isClassLevel && deps.size > 0) {
+      const propertyKey = (
+        ((node as t.ClassDeclaration).body.body[0] as t.ClassMethod)
+          .key as t.Identifier
+      ).name
       this.dependencyMap[propertyKey] = depArr
     }
 
-    return depArr
+    return [depArr, this.t.arrayExpression(dependencyNodes)]
+  }
+  /**
+   * @brief Get all valid dependencies of a babel path
+   * @param path
+   * @returns dependencies
+   */
+  private getDependencies(
+    node: t.ClassMethod | t.ClassProperty
+  ): [string[], t.ArrayExpression | undefined] {
+    if (!this.t.isIdentifier(node.key)) return [[], undefined]
+    const wrappedNode = this.t.classDeclaration(
+      null,
+      null,
+      this.t.classBody([node])
+    )
+    return this.getDependenciesFromNode(wrappedNode, true)
   }
 
   private dependencyMapReversed() {
@@ -1036,6 +1475,34 @@ export class PluginProvider {
       node.value = this.t.identifier("undefined")
     }
     node.value = this.t.arrowFunctionExpression([], node.value)
+  }
+
+  /**
+   * @brief Get all top level return statements in a block statement,
+   *  ignore nested function returns
+   * @param node
+   * @returns
+   */
+  getAllTopLevelReturnBlock(node: t.BlockStatement): NodePath[] {
+    const returns: NodePath[] = []
+
+    let inNestedFunction = false
+    this.traverse(this.valueWrapper(node), {
+      Function: path => {
+        if (inNestedFunction) return
+        inNestedFunction = true
+        path.skip()
+      },
+      ReturnStatement: path => {
+        if (inNestedFunction) return
+        returns.push(path.parentPath)
+      },
+      exit: path => {
+        if (this.t.isFunction(path.node)) inNestedFunction = false
+      },
+    })
+
+    return returns
   }
 
   /**
@@ -1163,45 +1630,42 @@ export class PluginProvider {
   /**
    * @brief Check if it's the left side of an assignment expression, e.g. this.count = 1
    * @param innerPath
-   * @returns is left side of an assignment expression
+   * @returns assignment expression
    */
-  isAssignmentExpressionLeft(innerPath: NodePath): boolean {
-    const parentNode = innerPath.parentPath?.node
+  isAssignmentExpressionLeft(innerPath: NodePath): NodePath | null {
+    let parentPath = innerPath.parentPath
+    while (parentPath && !this.t.isStatement(parentPath.node)) {
+      if (this.t.isAssignmentExpression(parentPath.node)) {
+        if (parentPath.node.left === innerPath.node) return parentPath
+        const leftPath = parentPath.get("left") as NodePath
+        if (innerPath.isDescendant(leftPath)) return parentPath
+      } else if (this.t.isUpdateExpression(parentPath.node)) {
+        return parentPath
+      }
+      parentPath = parentPath.parentPath
+    }
 
-    return (
-      (this.t.isAssignmentExpression(parentNode) &&
-        parentNode.left === innerPath.node) ||
-      this.t.isUpdateExpression(parentNode)
-    )
+    return null
   }
 
   /**
-   * @brief Check if a member expression is the right side of an assignment expression
-   *   e.g. this.count = this.count + 1
+   * @brief Check if it's a reactivity function, e.g. arr.push
    * @param innerPath
-   * @returns is the right side of an assignment expression
+   * @returns
    */
-  isAssignmentExpressionRight(
-    innerPath: NodePath<t.MemberExpression>,
-    stopNode: t.Node
-  ): boolean {
-    const currNode = innerPath.node
+  isAssignmentFunction(innerPath: NodePath): boolean {
+    let parentPath = innerPath.parentPath
 
-    let isRightExp = false
-    let reversePath: NodePath<t.Node> | null = innerPath.parentPath
-    while (reversePath && reversePath.node !== stopNode) {
-      if (this.t.isAssignmentExpression(reversePath.node)) {
-        const leftNode = reversePath.node.left as t.MemberExpression
-        const typeEqual = currNode.type === leftNode.type
-        const identifierEqual =
-          (currNode.property as t.Identifier).name ===
-          (leftNode.property as t.Identifier).name
-        isRightExp = typeEqual && identifierEqual
-      }
-      reversePath = reversePath.parentPath
+    while (parentPath && this.t.isMemberExpression(parentPath.node)) {
+      parentPath = parentPath.parentPath
     }
-
-    return isRightExp
+    if (!parentPath) return false
+    return (
+      this.t.isCallExpression(parentPath.node) &&
+      this.t.isMemberExpression(parentPath.node.callee) &&
+      this.t.isIdentifier(parentPath.node.callee.property) &&
+      reactivityFuncNames.includes(parentPath.node.callee.property.name)
+    )
   }
 
   /**

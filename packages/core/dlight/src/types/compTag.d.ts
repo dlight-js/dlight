@@ -31,7 +31,7 @@ export type RemoveOptional<T> = {
 
 type IsAny<T> = { _$isAny: true } extends T ? true : false
 
-type ContentKeyName<T> = {
+export type ContentKeyName<T> = {
   [K in keyof T]: IsAny<T[K]> extends true
     ? never
     : // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -40,7 +40,9 @@ type ContentKeyName<T> = {
       : never
 }[keyof T]
 
-type CheckContent<T> = RemoveOptional<T>[ContentKeyName<RemoveOptional<T>>]
+export type CheckContent<T> = RemoveOptional<T>[ContentKeyName<
+  RemoveOptional<T>
+>]
 
 type CustomClassTag<T, O> = ContentKeyName<RemoveOptional<O>> extends undefined
   ? () => DLightObject<T>

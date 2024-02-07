@@ -1,5 +1,48 @@
 # babel-preset-dlight
 
+## 1.0.0-beta.4
+
+### Patch Changes
+
+- feat: only parse model when use is imported
+
+## 1.0.0-beta.3
+
+### Patch Changes
+
+- 70ccc1b: feat: add in depth reactivity and reduce rerender
+- Updated dependencies [70ccc1b]
+  - @dlightjs/reactivity-parser@1.0.0-beta.1
+  - @dlightjs/view-generator@1.0.0-beta.1
+
+## 1.0.0-beta.2
+
+### Patch Changes
+
+- refactor: use for modeling
+
+## 1.0.0-beta.1
+
+### Patch Changes
+
+- feat: add Model encapsulation
+
+## 1.0.0-beta.39
+
+### Patch Changes
+
+- feat: new deep reactivity
+- Updated dependencies
+  - @dlightjs/reactivity-parser@1.0.0-beta.9
+  - @dlightjs/view-generator@1.0.0-beta.35
+
+## 1.0.0-alpha.38
+
+### Patch Changes
+
+- Updated dependencies
+  - @dlightjs/view-generator@1.0.0-alpha.34
+
 ## 1.0.0-alpha.37
 
 ### Patch Changes

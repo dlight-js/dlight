@@ -46,3 +46,4 @@ export function escape(arg) {
 }
 
 export const $ = escape
+export const required = null

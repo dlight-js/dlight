@@ -1,5 +1,65 @@
 # @dlightjs/dlight
 
+## 1.0.0-beta.8
+
+### Patch Changes
+
+- feat: only parse model when use is imported
+
+## 1.0.0-beta.7
+
+### Patch Changes
+
+- 70ccc1b: feat: add in depth reactivity and reduce rerender
+
+## 1.0.0-beta.6
+
+### Patch Changes
+
+- feat: add Model encapsulation
+
+## 1.0.0-beta.5
+
+### Patch Changes
+
+- feat: recur func calling opt
+
+## 1.0.0-beta.4
+
+### Patch Changes
+
+- build
+
+## 1.0.0-beta.3
+
+### Patch Changes
+
+- build
+
+## 1.0.0-beta.2
+
+### Patch Changes
+
+- fix: prevalue in for
+
+## 1.0.0-beta.69
+
+### Patch Changes
+
+- feat: new deep reactivity
+
+## 1.0.0-alpha.68
+
+### Patch Changes
+
+- build
+
+## 1.0.0-alpha.67
+
+### Patch Changes
+
+- feat: obj not equal
+
 ## 1.0.0-alpha.66
 
 ### Patch Changes

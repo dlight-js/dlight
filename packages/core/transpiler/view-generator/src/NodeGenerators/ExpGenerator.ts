@@ -11,12 +11,14 @@ export default class ExpGenerator extends ElementGenerator {
 
     const dlNodeName = this.generateNodeName()
 
-    this.addInitStatement(this.declareExpNode(dlNodeName, content.value))
+    this.addInitStatement(
+      this.declareExpNode(dlNodeName, content.value, content.dependenciesNode)
+    )
 
     if (content.dependencyIndexArr && content.dependencyIndexArr.length > 0) {
       this.addUpdateStatements(
         content.dependencyIndexArr,
-        this.updateExpNode(dlNodeName)
+        this.updateExpNode(dlNodeName, content.value, content.dependenciesNode)
       )
     }
 
@@ -58,15 +60,20 @@ export default class ExpGenerator extends ElementGenerator {
 
   /**
    * @View
-   * ${dlNodeName} = new ExpNode(() => ${value})
+   * ${dlNodeName} = new ExpNode(${value}, dependenciesNode)
    */
-  private declareExpNode(dlNodeName: string, value: t.Expression): t.Statement {
+  private declareExpNode(
+    dlNodeName: string,
+    value: t.Expression,
+    dependenciesNode?: t.ArrayExpression
+  ): t.Statement {
     return this.t.expressionStatement(
       this.t.assignmentExpression(
         "=",
         this.t.identifier(dlNodeName),
         this.t.newExpression(this.t.identifier(this.importMap.ExpNode), [
-          this.t.arrowFunctionExpression([], value),
+          value,
+          dependenciesNode ?? this.t.nullLiteral(),
         ])
       )
     )
@@ -74,9 +81,13 @@ export default class ExpGenerator extends ElementGenerator {
 
   /**
    * @View
-   * ${dlNodeName}.update()
+   * ${dlNodeName}.update(() => value, dependenciesNode)
    */
-  private updateExpNode(dlNodeName: string): t.Statement {
+  private updateExpNode(
+    dlNodeName: string,
+    value: t.Expression,
+    dependenciesNode?: t.ArrayExpression
+  ): t.Statement {
     return this.optionalExpression(
       dlNodeName,
       this.t.callExpression(
@@ -84,7 +95,10 @@ export default class ExpGenerator extends ElementGenerator {
           this.t.identifier(dlNodeName),
           this.t.identifier("update")
         ),
-        []
+        [
+          this.t.arrowFunctionExpression([], value),
+          dependenciesNode ?? this.t.nullLiteral(),
+        ]
       )
     )
   }

@@ -6,5 +6,8 @@ export default defineConfig({
     port: 4320,
   },
   base: "",
+  optimizeDeps: {
+    disabled: true,
+  },
   plugins: [dlight({ files: "**/*.view.{ts,js}", enableDevTools: true })],
 })

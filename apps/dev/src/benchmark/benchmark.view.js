@@ -1,5 +1,79 @@
-import { View, render, update } from "@dlightjs/dlight"
-import { buildData } from "./data"
+import { View, render } from "@dlightjs/dlight"
+
+let idCounter = 1
+
+const adjectives = [
+  "pretty",
+  "large",
+  "big",
+  "small",
+  "tall",
+  "short",
+  "long",
+  "handsome",
+  "plain",
+  "quaint",
+  "clean",
+  "elegant",
+  "easy",
+  "angry",
+  "crazy",
+  "helpful",
+  "mushy",
+  "odd",
+  "unsightly",
+  "adorable",
+  "important",
+  "inexpensive",
+  "cheap",
+  "expensive",
+  "fancy",
+]
+const colours = [
+  "red",
+  "yellow",
+  "blue",
+  "green",
+  "pink",
+  "brown",
+  "purple",
+  "brown",
+  "white",
+  "black",
+  "orange",
+]
+const nouns = [
+  "table",
+  "chair",
+  "house",
+  "bbq",
+  "desk",
+  "car",
+  "pony",
+  "cookie",
+  "sandwich",
+  "burger",
+  "pizza",
+  "mouse",
+  "keyboard",
+]
+
+function _random(max) {
+  return Math.round(Math.random() * 1000) % max
+}
+
+function buildData(count) {
+  const data = new Array(count)
+  for (let i = 0; i < count; i++) {
+    data[i] = {
+      id: idCounter++,
+      label: `${adjectives[_random(adjectives.length)]} ${
+        colours[_random(colours.length)]
+      } ${nouns[_random(nouns.length)]}`,
+    }
+  }
+  return data
+}
 
 @View
 class Main {
@@ -13,7 +87,6 @@ class Main {
   swapRows() {
     if (this.rows.length > 998) {
       ;[this.rows[1], this.rows[998]] = [this.rows[998], this.rows[1]]
-      this.rows = [...this.rows]
     }
   }
 
@@ -26,7 +99,7 @@ class Main {
   }
 
   deleteRow(id) {
-    this.rows = [...this.rows.filter(row => row.id !== id)]
+    this.rows = this.rows.filter(row => row.id !== id)
   }
 
   addBig() {
@@ -35,14 +108,12 @@ class Main {
 
   append() {
     this.rows.push(...buildData(1000))
-    this.rows = [...this.rows, ...buildData(1000)]
   }
 
   update() {
     for (let i = 0; i < this.rows.length; i += 10) {
       this.rows[i].label += " !!!"
     }
-    this.rows = [...this.rows]
   }
 
   View() {

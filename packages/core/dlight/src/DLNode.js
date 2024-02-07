@@ -53,10 +53,12 @@ export class DLNode {
    * @param runFunc
    */
   static loopShallowEls(nodes, runFunc) {
-    nodes.forEach(node => {
-      if (!("_$dlNodeType" in node)) return runFunc(node)
-      node._$nodes && DLNode.loopShallowEls(node._$nodes, runFunc)
-    })
+    const stack = [...nodes].reverse()
+    while (stack.length > 0) {
+      const node = stack.pop()
+      if (!("_$dlNodeType" in node)) runFunc(node)
+      else node._$nodes && stack.push(...[...node._$nodes].reverse())
+    }
   }
 
   /**

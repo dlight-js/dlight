@@ -1,13 +1,23 @@
 import { DLNode } from "./DLNode"
-import { DLStore } from "./store"
+import { DLStore, cached } from "./store"
+
+function cache(el, key, deps) {
+  // ---- If there are no deps, update it every time
+  if (!deps || !deps.length) return false
+  const cacheKey = `$${key}`
+  if (cached(deps, el[cacheKey])) return true
+  el[cacheKey] = deps
+  return false
+}
 
 /**
  * @brief Plainly set style
  * @param el
  * @param value
  */
-export function setStyle(el, value) {
-  Object.assign(el.style, value)
+export function setStyle(el, valueFunc, deps) {
+  if (cache(el, "style", deps)) return
+  Object.assign(el.style, valueFunc())
 }
 
 /**
@@ -15,8 +25,9 @@ export function setStyle(el, value) {
  * @param el
  * @param value
  */
-export function setDataset(el, value) {
-  Object.assign(el.dataset, value)
+export function setDataset(el, valueFunc, deps) {
+  if (cache(el, "dataset", deps)) return
+  Object.assign(el.dataset, valueFunc())
 }
 
 /**
@@ -25,11 +36,9 @@ export function setDataset(el, value) {
  * @param key
  * @param value
  */
-export function setHTMLProp(el, key, value) {
-  const prevKey = `$${key}`
-  if (prevKey in el && el[prevKey] === value) return
-  el[key] = value
-  el[prevKey] = value
+export function setHTMLProp(el, key, valueFunc, deps) {
+  if (cache(el, key, deps)) return
+  el[key] = valueFunc()
 }
 
 /**
@@ -37,8 +46,9 @@ export function setHTMLProp(el, key, value) {
  * @param el
  * @param value
  */
-export function setHTMLProps(el, value) {
-  Object.entries(value).forEach(([key, value]) => {
+export function setHTMLProps(el, valueFunc, deps) {
+  if (cache(el, "$props", deps)) return
+  Object.entries(valueFunc()).forEach(([key, value]) => {
     if (key === "style") return setStyle(el, value)
     if (key === "dataset") return setDataset(el, value)
     setHTMLProp(el, key, value)
@@ -51,11 +61,9 @@ export function setHTMLProps(el, value) {
  * @param key
  * @param value
  */
-export function setHTMLAttr(el, key, value) {
-  const prevKey = `$${key}`
-  if (prevKey in el && el[prevKey] === value) return
-  el.setAttribute(key, value)
-  el[prevKey] = value
+export function setHTMLAttr(el, key, valueFunc, deps) {
+  if (cache(el, key, deps)) return
+  el.setAttribute(key, valueFunc())
 }
 
 /**
@@ -63,8 +71,9 @@ export function setHTMLAttr(el, key, value) {
  * @param el
  * @param value
  */
-export function setHTMLAttrs(el, value) {
-  Object.entries(value).forEach(([key, value]) => {
+export function setHTMLAttrs(el, valueFunc, deps) {
+  if (cache(el, "$attrs", deps)) return
+  Object.entries(valueFunc()).forEach(([key, value]) => {
     setHTMLAttr(el, key, value)
   })
 }
@@ -75,7 +84,9 @@ export function setHTMLAttrs(el, value) {
  * @param key
  * @param value
  */
-export function setEvent(el, key, value) {
+export function setEvent(el, key, valueFunc, deps) {
+  if (cache(el, key, deps)) return
+  const value = valueFunc()
   const prevEvent = el[`$on${key}`]
   if (prevEvent) el.removeEventListener(key, prevEvent)
   el.addEventListener(key, value)
@@ -90,7 +101,9 @@ function eventHandler(e) {
   }
 }
 
-export function delegateEvent(el, key, value) {
+export function delegateEvent(el, key, valueFunc, deps) {
+  if (cache(el, key, deps)) return
+  const value = valueFunc()
   if (el[`$$${key}`] === value) return
   el[`$$${key}`] = value
   if (!DLStore.delegatedEvents.has(key)) {
@@ -131,32 +144,17 @@ export function insertNode(el, node, position) {
  * @param key
  * @param value
  */
-export function forwardHTMLProp(el, key, value) {
-  if (key === "style") {
-    setStyle(el, value)
-    return
-  }
-  if (key === "dataset") {
-    setDataset(el, value)
-    return
-  }
+export function forwardHTMLProp(el, key, value, deps) {
+  if (key === "style") return setStyle(el, value, deps)
+  if (key === "dataset") return setDataset(el, value, deps)
   if (key === "element") return
-  if (key === "prop") {
-    setHTMLProps(el, value)
-    return
-  }
-  if (key === "attr") {
-    setHTMLAttrs(el, value)
-    return
-  }
-  if (key === "innerHTML") {
-    setHTMLProp(el, "innerHTML", value)
-    return
-  }
+  if (key === "prop") return setHTMLProps(el, value, deps)
+  if (key === "attr") return setHTMLAttrs(el, value, deps)
+  if (key === "innerHTML") return setHTMLProp(el, "innerHTML", value, deps)
+  if (key === "textContent") return setHTMLProp(el, "textContent", value, deps)
   if (key === "forwardProp") return
   if (key.startsWith("on")) {
-    setEvent(el, key.slice(2).toLowerCase(), value)
-    return
+    return setEvent(el, key.slice(2).toLowerCase(), value, deps)
   }
-  setHTMLAttr(el, key, value)
+  setHTMLAttr(el, key, value, deps)
 }

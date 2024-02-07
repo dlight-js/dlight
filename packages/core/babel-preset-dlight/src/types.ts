@@ -43,6 +43,7 @@ export type PropertyContainer = Record<
     isChildren?: boolean | number
     isWatcher?: boolean
     isPropOrEnv?: "Prop" | "Env"
+    depsNode?: t.ArrayExpression
   }
 >
 

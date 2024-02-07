@@ -1,5 +1,4 @@
-import { View } from "@dlightjs/dlight"
-import { type Typed, type Pretty, div } from "@dlightjs/types"
+import { View, type Typed, type Pretty, div } from "@dlightjs/dlight"
 
 interface AppProps {
 }
