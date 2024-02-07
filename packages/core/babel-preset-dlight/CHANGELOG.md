@@ -1,5 +1,11 @@
 # babel-preset-dlight
 
+## 1.0.0-beta.7
+
+### Patch Changes
+
+- fix: don't use insertAfter in babel
+
 ## 1.0.0-beta.6
 
 ### Patch Changes

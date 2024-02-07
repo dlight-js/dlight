@@ -1450,7 +1450,13 @@ export class PluginProvider {
     }
 
     // ---- ${importMap.render}("main", ${node.id})
-    path.insertAfter(
+    const parentNode = path.parentPath.node
+    if (!this.t.isBlockStatement(parentNode) && !this.t.isProgram(parentNode))
+      return
+    const idx = parentNode.body.indexOf(node)
+    parentNode.body.splice(
+      idx + 1,
+      0,
       this.t.expressionStatement(
         this.t.callExpression(this.t.identifier(importMap.render), [
           mountNode,
