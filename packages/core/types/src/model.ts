@@ -19,3 +19,11 @@ export type Modeling<Model, Props = object> = {
       ? U
       : never
 }
+
+export function use<M extends Modeling<object>>(
+  model: M,
+  props?: M["props"],
+  content?: M["content"]
+): M["model"] {
+  return null as any
+}

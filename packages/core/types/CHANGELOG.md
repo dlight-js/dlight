@@ -1,5 +1,11 @@
 # @dlightjs/types
 
+## 1.0.0-beta.4
+
+### Patch Changes
+
+- build
+
 ## 1.0.0-beta.3
 
 ### Patch Changes

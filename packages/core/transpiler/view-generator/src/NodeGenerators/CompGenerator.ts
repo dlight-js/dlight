@@ -21,12 +21,12 @@ export default class CompGenerator extends ForwardPropGenerator {
     const allDependencyIndexArr: number[] = []
     // ---- Resolve content
     if (content) {
-      const { value, dependencyIndexArr } = content
+      const { value, dependencyIndexArr, dependenciesNode } = content
       if (dependencyIndexArr && dependencyIndexArr.length > 0) {
         allDependencyIndexArr.push(...dependencyIndexArr)
         this.addUpdateStatements(
           dependencyIndexArr,
-          this.setCompContent(dlNodeName, value)
+          this.setCompContent(dlNodeName, value, dependenciesNode)
         )
       }
     }
@@ -34,42 +34,44 @@ export default class CompGenerator extends ForwardPropGenerator {
     // ---- Resolve props
     if (props) {
       let hasOnUpdate: t.Expression | false = false
-      Object.entries(props).forEach(([key, { value, dependencyIndexArr }]) => {
-        if (key === "forwardProps") return
-        if (key === "didUpdate") {
-          hasOnUpdate = value
-          return
-        }
-        allDependencyIndexArr.push(...(dependencyIndexArr ?? []))
-        if (
-          CompGenerator.lifecycle.includes(
-            key as (typeof CompGenerator.lifecycle)[number]
-          )
-        ) {
-          this.addInitStatement(
-            this.addLifecycle(
-              dlNodeName,
-              key as (typeof CompGenerator.lifecycle)[number],
-              value
+      Object.entries(props).forEach(
+        ([key, { value, dependencyIndexArr, dependenciesNode }]) => {
+          if (key === "forwardProps") return
+          if (key === "didUpdate") {
+            hasOnUpdate = value
+            return
+          }
+          allDependencyIndexArr.push(...(dependencyIndexArr ?? []))
+          if (
+            CompGenerator.lifecycle.includes(
+              key as (typeof CompGenerator.lifecycle)[number]
             )
-          )
-          return
-        }
-        if (key === "element") {
-          this.addInitStatement(this.initElement(dlNodeName, value, true))
-          const updateStatement = this.updateElement(dlNodeName, value, true)
-          if (updateStatement)
-            this.addUpdateStatements(dependencyIndexArr, updateStatement)
-          return
-        }
+          ) {
+            this.addInitStatement(
+              this.addLifecycle(
+                dlNodeName,
+                key as (typeof CompGenerator.lifecycle)[number],
+                value
+              )
+            )
+            return
+          }
+          if (key === "element") {
+            this.addInitStatement(this.initElement(dlNodeName, value, true))
+            const updateStatement = this.updateElement(dlNodeName, value, true)
+            if (updateStatement)
+              this.addUpdateStatements(dependencyIndexArr, updateStatement)
+            return
+          }
 
-        if (dependencyIndexArr && dependencyIndexArr.length > 0) {
-          this.addUpdateStatements(
-            dependencyIndexArr,
-            this.setCompProp(dlNodeName, key, value)
-          )
+          if (dependencyIndexArr && dependencyIndexArr.length > 0) {
+            this.addUpdateStatements(
+              dependencyIndexArr,
+              this.setCompProp(dlNodeName, key, value, dependenciesNode)
+            )
+          }
         }
-      })
+      )
       if (hasOnUpdate) {
         this.addUpdateStatements(
           allDependencyIndexArr,
@@ -85,16 +87,21 @@ export default class CompGenerator extends ForwardPropGenerator {
    * @View
    * null
    *  or
-   * { prop1: xxx, prop2: xxx, ... }
+   * [[prop1, value1, deps1], [prop2, value2, deps2], ...
    */
   private generateCompProps(
     props?: Record<string, DependencyProp>
   ): t.Expression {
     if (!props || Object.keys(props).length === 0) return this.t.nullLiteral()
-    return this.t.objectExpression(
-      Object.entries(props).map(([key, { value }]) =>
-        this.t.objectProperty(this.t.identifier(key), value)
-      )
+    return this.t.arrayExpression(
+      Object.entries(props).map(([key, { value, dependenciesNode }]) => {
+        const depNode = dependenciesNode ?? this.t.nullLiteral()
+        return this.t.arrayExpression([
+          this.t.stringLiteral(key),
+          value,
+          depNode,
+        ])
+      })
     )
   }
 
@@ -135,7 +142,12 @@ export default class CompGenerator extends ForwardPropGenerator {
           ),
           [
             this.generateCompProps(props),
-            content?.value ?? this.t.nullLiteral(),
+            content
+              ? this.t.arrayExpression([
+                  content.value,
+                  content.dependenciesNode ?? this.t.nullLiteral(),
+                ])
+              : this.t.nullLiteral(),
             children && children.length > 0
               ? this.t.identifier(this.declarePropView(children))
               : this.t.nullLiteral(),
@@ -148,9 +160,17 @@ export default class CompGenerator extends ForwardPropGenerator {
 
   /**
    * @View
-   * ${dlNodeName}._$setContent(${value})
+   * ${dlNodeName}._$setContent(() => ${value}, ${dependenciesNode})
    */
-  private setCompContent(dlNodeName: string, value: t.Expression): t.Statement {
+  private setCompContent(
+    dlNodeName: string,
+    value: t.Expression,
+    dependenciesNode?: t.ArrayExpression
+  ): t.Statement {
+    const depNode =
+      dependenciesNode && dependenciesNode.elements.length
+        ? [dependenciesNode]
+        : []
     return this.optionalExpression(
       dlNodeName,
       this.t.callExpression(
@@ -158,20 +178,25 @@ export default class CompGenerator extends ForwardPropGenerator {
           this.t.identifier(dlNodeName),
           this.t.identifier("_$setContent")
         ),
-        [value]
+        [this.t.arrowFunctionExpression([], value), ...depNode]
       )
     )
   }
 
   /**
    * @View
-   * ${dlNodeName}._$setProp(${key}, ${value})
+   * ${dlNodeName}._$setProp(${key}, () => ${value}, ${dependenciesNode})
    */
   private setCompProp(
     dlNodeName: string,
     key: string,
-    value: t.Expression
+    value: t.Expression,
+    dependenciesNode?: t.ArrayExpression
   ): t.Statement {
+    const depNode =
+      dependenciesNode && dependenciesNode.elements.length
+        ? [dependenciesNode]
+        : []
     return this.optionalExpression(
       dlNodeName,
       this.t.callExpression(
@@ -179,7 +204,11 @@ export default class CompGenerator extends ForwardPropGenerator {
           this.t.identifier(dlNodeName),
           this.t.identifier("_$setProp")
         ),
-        [this.t.stringLiteral(key), value]
+        [
+          this.t.stringLiteral(key),
+          this.t.arrowFunctionExpression([], value),
+          ...depNode,
+        ]
       )
     )
   }

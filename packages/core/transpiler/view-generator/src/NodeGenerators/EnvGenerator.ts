@@ -20,13 +20,15 @@ export default class EnvGenerator extends PropViewGenerator {
     this.addInitStatement(this.geneEnvChildren(dlNodeName, children))
 
     // ---- Update props
-    Object.entries(props).forEach(([key, { dependencyIndexArr, value }]) => {
-      if (!dependencyIndexArr) return
-      this.addUpdateStatements(
-        dependencyIndexArr,
-        this.updateEnvNode(dlNodeName, key, value)
-      )
-    })
+    Object.entries(props).forEach(
+      ([key, { dependencyIndexArr, value, dependenciesNode }]) => {
+        if (!dependencyIndexArr) return
+        this.addUpdateStatements(
+          dependencyIndexArr,
+          this.updateEnvNode(dlNodeName, key, value, dependenciesNode)
+        )
+      }
+    )
 
     return dlNodeName
   }
@@ -34,13 +36,25 @@ export default class EnvGenerator extends PropViewGenerator {
   /**
    * @View
    * { ${key}: ${value}, ... }
+   * { ${key}: ${deps}, ... }
    */
-  private generateEnvs(props: Record<string, DependencyProp>): t.Expression {
-    return this.t.objectExpression(
-      Object.entries(props).map(([key, { value }]) =>
-        this.t.objectProperty(this.t.identifier(key), value)
-      )
-    )
+  private generateEnvs(props: Record<string, DependencyProp>): t.Expression[] {
+    return [
+      this.t.objectExpression(
+        Object.entries(props).map(([key, { value }]) =>
+          this.t.objectProperty(this.t.identifier(key), value)
+        )
+      ),
+      this.t.objectExpression(
+        Object.entries(props)
+          .map(
+            ([key, { dependenciesNode }]) =>
+              dependenciesNode &&
+              this.t.objectProperty(this.t.identifier(key), dependenciesNode)
+          )
+          .filter(Boolean) as t.ObjectProperty[]
+      ),
+    ]
   }
 
   /**
@@ -55,9 +69,10 @@ export default class EnvGenerator extends PropViewGenerator {
       this.t.assignmentExpression(
         "=",
         this.t.identifier(dlNodeName),
-        this.t.newExpression(this.t.identifier(this.importMap.EnvNode), [
-          this.generateEnvs(props),
-        ])
+        this.t.newExpression(
+          this.t.identifier(this.importMap.EnvNode),
+          this.generateEnvs(props)
+        )
       )
     )
   }
@@ -89,12 +104,13 @@ export default class EnvGenerator extends PropViewGenerator {
 
   /**
    * @View
-   * ${dlNodeName}.updateEnv(${key}, ${value})
+   * ${dlNodeName}.updateEnv(${key}, () => ${value}, ${dependenciesNode})
    */
   private updateEnvNode(
     dlNodeName: string,
     key: string,
-    value: t.Expression
+    value: t.Expression,
+    dependenciesNode?: t.ArrayExpression
   ): t.Statement {
     return this.optionalExpression(
       dlNodeName,
@@ -103,7 +119,11 @@ export default class EnvGenerator extends PropViewGenerator {
           this.t.identifier(dlNodeName),
           this.t.identifier("updateEnv")
         ),
-        [this.t.stringLiteral(key), value]
+        [
+          this.t.stringLiteral(key),
+          this.t.arrowFunctionExpression([], value),
+          dependenciesNode ?? this.t.nullLiteral(),
+        ]
       )
     )
   }

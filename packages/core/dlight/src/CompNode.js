@@ -1,6 +1,6 @@
 import { DLNode, DLNodeType } from "./DLNode"
 import { forwardHTMLProp } from "./HTMLNode"
-import { DLStore } from "./store"
+import { DLStore, cached } from "./store"
 
 export class CompNode extends DLNode {
   /**
@@ -38,10 +38,10 @@ export class CompNode extends DLNode {
 
     // Forward props first to allow internal props to override forwarded props
     if (forwardPropsScope) forwardPropsScope._$addForwardProps(this)
-    if (content !== null) this._$setContent(content)
+    if (content) this._$setContent(() => content[0], content[1])
     if (props) {
-      Object.entries(props).forEach(([key, value]) => {
-        this._$setProp(key, value)
+      props.forEach(([key, value, deps]) => {
+        this._$setProp(key, () => value, deps)
       })
     }
     if (children) this._$children = children
@@ -87,31 +87,43 @@ export class CompNode extends DLNode {
   }
 
   /**
+   * @brief Set all the props to forward
+   * @param key
+   * @param value
+   * @param deps
+   */
+  _$setPropToForward(key, value, deps) {
+    this._$forwardPropsSet.forEach(node => {
+      const isContent = key === "_$content"
+      if (node._$dlNodeType === DLNodeType.Comp) {
+        if (isContent) node._$setContent(() => value, deps)
+        else node._$setProp(key, () => value, deps)
+        return
+      }
+      if (node instanceof HTMLElement) {
+        if (isContent) key = "textContent"
+        forwardHTMLProp(node, key, () => value, deps)
+      }
+    })
+  }
+
+  /**
    * @brief Define forward props
    * @param key
    * @param value
    */
-  _$setForwardProp(key, value) {
-    if (key in this) {
-      this[key] = value
-      return
+  _$setForwardProp(key, valueFunc, deps) {
+    const notInitd = "_$notInitd" in this
+    if (!notInitd && this._$cache(key, deps)) return
+    const value = valueFunc()
+    if (key === "_$content" && this._$contentKey) {
+      this[this._$contentKey] = value
+      this._$updateProp(this._$contentKey)
     }
-    this._$forwardPropsId.push(key)
-    const valueKey = `$${key}`
-    this[valueKey] = value
-    Object.defineProperty(this, key, {
-      get() {
-        return this[valueKey]
-      },
-      set(value) {
-        if (this[valueKey] === value && !(value instanceof Object)) return
-        this[valueKey] = value
-        this._$forwardPropsSet?.forEach(node => {
-          if (node._$dlNodeType === DLNodeType.Comp) node._$setProp(key, value)
-          if (node instanceof HTMLElement) forwardHTMLProp(node, key, value)
-        })
-      },
-    })
+    this[key] = value
+    this._$updateProp(key)
+    if (notInitd) this._$forwardPropsId.push(key)
+    else this._$setPropToForward(key, value, deps)
   }
 
   /**
@@ -121,14 +133,7 @@ export class CompNode extends DLNode {
   _$addForwardProps(node) {
     this._$forwardPropsSet.add(node)
     this._$forwardPropsId.forEach(key => {
-      const value = this[key]
-      this._$forwardPropsSet?.forEach(node => {
-        if (node._$dlNodeType === DLNodeType.Comp) {
-          if ("_$forwardProps" in node) node._$forwardPropsId.push(key)
-          node._$setProp(key, value)
-        }
-        if (node instanceof HTMLElement) forwardHTMLProp(node, key, value)
-      })
+      this._$setPropToForward(key, this[key])
     })
     DLNode.addWillUnmount(
       node,
@@ -137,14 +142,49 @@ export class CompNode extends DLNode {
   }
 
   /**
+   * @brief Cache the deps and return true if the deps are the same as the previous deps
+   * @param key
+   * @param deps
+   * @returns
+   */
+  _$cache(key, deps) {
+    if (!deps || !deps.length) return false
+    const cacheKey = `$cc$${key}`
+    if (cached(deps, this[cacheKey])) return true
+    this[cacheKey] = deps
+    return false
+  }
+
+  /**
+   * @brief Set the content prop, the key is stored in _$contentKey
+   * @param value
+   */
+  _$setContent(valueFunc, deps) {
+    if ("_$forwardProps" in this)
+      return this._$setForwardProp("_$content", valueFunc, deps)
+    const contentKey = this._$contentKey
+    if (!contentKey) return
+    if (this._$cache(contentKey, deps)) return
+    this[contentKey] = valueFunc()
+    this._$updateProp(contentKey)
+  }
+
+  /**
    * @brief Set a prop directly, if this is a forwarded prop, go and init forwarded props
    * @param key
    * @param value
+   * @param deps
    */
-  _$setProp(key, value) {
-    if ("_$forwardProps" in this) this._$setForwardProp(key, value)
-    if (!(`$p$${key}` in this)) return
-    this[key] = value
+  _$setProp(key, valueFunc, deps) {
+    if ("_$forwardProps" in this)
+      return this._$setForwardProp(key, valueFunc, deps)
+    if (!(`$p$${key}` in this)) {
+      console.warn(`[${key}] is not a prop in ${this.constructor.name}`)
+      return
+    }
+    if (this._$cache(key, deps)) return
+    this[key] = valueFunc()
+    this._$updateProp(key)
   }
 
   /**
@@ -158,6 +198,7 @@ export class CompNode extends DLNode {
     this[`$en$${key}`] = envNode
   }
 
+  // ---- Update functions
   /**
    * @brief Update an env, called in EnvNode._$update
    * @param key
@@ -167,19 +208,8 @@ export class CompNode extends DLNode {
   _$updateEnv(key, value, envNode) {
     if (!(`$e$${key}` in this)) return
     if (envNode !== this[`$en$${key}`]) return
-    if (this[key] === value && !(value instanceof Object)) return
     this[key] = value
-  }
-
-  /**
-   * @brief Set the content prop, the key is stored in _$contentKey
-   * @param value
-   */
-  _$setContent(value) {
-    const contentKey = this._$contentKey
-    if (!contentKey) return
-    if (this[contentKey] === value && !(value instanceof Object)) return
-    this[contentKey] = value
+    this._$updateProp(key)
   }
 
   /**
@@ -219,16 +249,30 @@ export class CompNode extends DLNode {
 
   /**
    * @brief Update a specific prop
+   * @param key
    */
   _$updateProp(key) {
     this._$updateDerived(key)
     this._$updateView(key)
   }
 
-  _$injectModel(ModelCls, key, ...args) {
-    if (!ModelCls.IAmDLightModel) return ModelCls.modeling(...args)
+  /**
+   * @brief Inject Dlight model in to a property
+   * @param ModelCls
+   * @param props { m: [props, deps], s: [key, value, deps] }
+   * @param content
+   * @param key
+   * @returns
+   */
+  _$injectModel(ModelCls, props, content, key) {
     const model = new ModelCls()
-    model._$init(args[0], args[1], null, null)
+    const collectedProps = props?.s
+    props?.m.forEach(([props, deps]) => {
+      Object.entries(props).forEach(([key, value]) => {
+        collectedProps.push([key, value, deps])
+      })
+    })
+    model._$init(collectedProps, content, null, null)
     model._$model = this
     model._$modelKey = key
 

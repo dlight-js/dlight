@@ -74,7 +74,8 @@ class ToDoMVC {
 
   toggleTodo(id: number) {
     const idx = this.todos.findIndex(todo => todo.id === id)
-    this.todos[idx].completed = !this.todos[idx].completed
+    this.todos[this.todos.findIndex(todo => todo.id === id)].completed =
+      !this.todos[idx].completed
   }
 
   doneEditing(id: number) {

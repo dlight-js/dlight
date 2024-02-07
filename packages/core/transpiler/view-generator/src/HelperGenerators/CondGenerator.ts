@@ -54,9 +54,12 @@ export default class CondGenerator extends BaseGenerator {
 
   /**
    * @View
-   * ${dlNodeName}?.updateCond(key, prevValue, newValue)
+   * ${dlNodeName}?.updateCond(key, depsNode)
    */
-  updateCondNodeCond(dlNodeName: string): t.Statement {
+  updateCondNodeCond(
+    dlNodeName: string,
+    depsNode: t.ArrayExpression
+  ): t.Statement {
     return this.optionalExpression(
       dlNodeName,
       this.t.callExpression(
@@ -64,7 +67,7 @@ export default class CondGenerator extends BaseGenerator {
           this.t.identifier(dlNodeName),
           this.t.identifier("updateCond")
         ),
-        this.updateParams.slice(1)
+        [...this.updateParams.slice(1), depsNode]
       )
     )
   }
@@ -88,39 +91,28 @@ export default class CondGenerator extends BaseGenerator {
 
   /**
    * @View
-   * ${dlNodeName} = new CondNode(${depNum})
-   * ${dlNodeName}.addCondFunc(($thisCond) => {})
+   * ${dlNodeName} = new CondNode(${depNum}, ($thisCond) => {}, depsNode)
    */
   declareCondNode(
     dlNodeName: string,
     condFunc: t.BlockStatement,
-    deps: number[]
-  ): t.Statement[] {
-    return [
-      this.t.expressionStatement(
-        this.t.assignmentExpression(
-          "=",
-          this.t.identifier(dlNodeName),
-          this.t.newExpression(this.t.identifier(this.importMap.CondNode), [
-            this.t.numericLiteral(CondGenerator.calcDependencyNum(deps)),
-          ])
-        )
-      ),
-      this.t.expressionStatement(
-        this.t.callExpression(
-          this.t.memberExpression(
-            this.t.identifier(dlNodeName),
-            this.t.identifier("addCondFunc")
+    deps: number[],
+    depsNode: t.ArrayExpression
+  ): t.Statement {
+    return this.t.expressionStatement(
+      this.t.assignmentExpression(
+        "=",
+        this.t.identifier(dlNodeName),
+        this.t.newExpression(this.t.identifier(this.importMap.CondNode), [
+          this.t.numericLiteral(CondGenerator.calcDependencyNum(deps)),
+          this.t.arrowFunctionExpression(
+            [this.t.identifier("$thisCond")],
+            condFunc
           ),
-          [
-            this.t.arrowFunctionExpression(
-              [this.t.identifier("$thisCond")],
-              condFunc
-            ),
-          ]
-        )
-      ),
-    ]
+          depsNode,
+        ])
+      )
+    )
   }
 
   /**

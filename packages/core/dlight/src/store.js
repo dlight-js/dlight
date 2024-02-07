@@ -29,3 +29,11 @@ export function setGlobal(globalObj) {
 export function setDocument(customDocument) {
   DLStore.document = customDocument
 }
+
+export function cached(deps, prevDeps) {
+  return (
+    prevDeps &&
+    // ---- If any of the deps is an object or any of the deps is different from the previous deps
+    !deps.some((dep, i) => dep instanceof Object || dep !== prevDeps[i])
+  )
+}

@@ -135,14 +135,45 @@ export default class SubViewGenerator extends ViewGenerator {
     updateStatements: Record<number, t.Statement[]>,
     propsNode?: t.ObjectPattern
   ): t.ArrowFunctionExpression {
+    const bodyEntryNodes: t.Statement[] = []
     // ---- Args
     const args: t.Identifier[] = this.updateParams
     if (propsNode) {
-      args.push(this.t.identifier("$subviewProps"))
-    }
+      // ---- Add $subviewProps and $depsArr to args
+      args.push(
+        this.t.identifier("$subviewPropsFunc"),
+        this.t.identifier("$depsArr")
+      )
 
-    // ---- If update
-    if (propsNode) {
+      // ---- Add cache
+      /**
+       * if ($subviewNode.cached(depsArr, changed)) return
+       */
+      bodyEntryNodes.push(
+        this.t.ifStatement(
+          this.t.callExpression(
+            this.t.memberExpression(
+              this.t.identifier("$subviewNode"),
+              this.t.identifier("cached")
+            ),
+            [this.t.identifier("$depsArr"), this.t.identifier("$changed")]
+          ),
+          this.t.blockStatement([this.t.returnStatement()])
+        )
+      )
+
+      /**
+       * const $subviewProps = $subviewPropsFunc()
+       */
+      bodyEntryNodes.push(
+        this.t.variableDeclaration("const", [
+          this.t.variableDeclarator(
+            this.t.identifier("$subviewProps"),
+            this.t.callExpression(this.t.identifier("$subviewPropsFunc"), [])
+          ),
+        ])
+      )
+
       /**
        * ${prop} = $subviewProps
        */
@@ -168,6 +199,7 @@ export default class SubViewGenerator extends ViewGenerator {
     return this.t.arrowFunctionExpression(
       args,
       this.t.blockStatement([
+        ...bodyEntryNodes,
         ...Object.entries(updateStatements)
           .filter(([depNum]) => depNum !== "0")
           .map(([depNum, statements]) => {

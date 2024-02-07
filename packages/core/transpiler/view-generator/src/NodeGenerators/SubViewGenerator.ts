@@ -13,43 +13,56 @@ export default class SubViewGenerator extends PropViewGenerator {
 
     const dlNodeName = this.generateNodeName()
 
-    this.addInitStatement(
-      ...this.declareSubviewNode(dlNodeName, tag, props ?? {})
-    )
-
     const availableProperties = this.subViewPropMap[tag] ?? []
 
+    const allDependenciesNode: (t.ArrayExpression | t.NullLiteral)[] =
+      Array.from(
+        {
+          length: availableProperties.length,
+        },
+        () => this.t.nullLiteral()
+      )
     if (props) {
       const allDependencyIndexArr: number[] = []
+
       let hasOnUpdate: t.Expression | false = false
-      Object.entries(props).forEach(([key, { value, dependencyIndexArr }]) => {
-        if (key === "didUpdate") {
-          hasOnUpdate = value
-          return
-        }
-        if (
-          SubViewGenerator.lifecycle.includes(
-            key as (typeof SubViewGenerator.lifecycle)[number]
-          )
-        ) {
-          this.addInitStatement(
-            this.addLifecycle(
+      Object.entries(props).forEach(
+        ([key, { value, dependencyIndexArr, dependenciesNode }]) => {
+          if (key === "didUpdate") {
+            hasOnUpdate = value
+            return
+          }
+          if (
+            SubViewGenerator.lifecycle.includes(
+              key as (typeof SubViewGenerator.lifecycle)[number]
+            )
+          ) {
+            this.addInitStatement(
+              this.addLifecycle(
+                dlNodeName,
+                key as (typeof SubViewGenerator.lifecycle)[number],
+                value
+              )
+            )
+            return
+          }
+          if (!dependencyIndexArr || dependencyIndexArr.length === 0) return
+          allDependencyIndexArr.push(...dependencyIndexArr)
+          const depIdx = availableProperties.indexOf(key)
+          if (dependenciesNode) allDependenciesNode[depIdx] = dependenciesNode
+          const propChange = 1 << depIdx
+          this.addUpdateStatements(
+            dependencyIndexArr,
+            this.updateProp(
               dlNodeName,
-              key as (typeof SubViewGenerator.lifecycle)[number],
-              value
+              propChange,
+              key,
+              value,
+              allDependenciesNode[depIdx]
             )
           )
-          return
         }
-        if (!dependencyIndexArr || dependencyIndexArr.length === 0) return
-        allDependencyIndexArr.push(...dependencyIndexArr)
-        const depIdx = availableProperties.indexOf(key)
-        const propChange = 1 << depIdx
-        this.addUpdateStatements(
-          dependencyIndexArr,
-          this.updateProp(dlNodeName, propChange, key, value)
-        )
-      })
+      )
       if (hasOnUpdate) {
         this.addUpdateStatements(
           allDependencyIndexArr,
@@ -57,6 +70,16 @@ export default class SubViewGenerator extends PropViewGenerator {
         )
       }
     }
+
+    this.addInitStatement(
+      ...this.declareSubviewNode(
+        dlNodeName,
+        tag,
+        props ?? {},
+        allDependenciesNode
+      )
+    )
+
     this.addUpdateStatementsWithoutDep(this.updateSubView(dlNodeName))
 
     return dlNodeName
@@ -76,23 +99,23 @@ export default class SubViewGenerator extends PropViewGenerator {
 
   /**
    * @View
-   * ${dlNodeName} = new SubViewNode()
+   * ${dlNodeName} = new SubViewNode(${allDependenciesNode})
    * this.${tag}({${props}}, ${dlNodeName})
    */
   private declareSubviewNode(
     dlNodeName: string,
     tag: string,
-    props: Record<string, DependencyProp>
+    props: Record<string, DependencyProp>,
+    allDependenciesNode: (t.ArrayExpression | t.NullLiteral)[]
   ): t.Statement[] {
     return [
       this.t.expressionStatement(
         this.t.assignmentExpression(
           "=",
           this.t.identifier(dlNodeName),
-          this.t.newExpression(
-            this.t.identifier(this.importMap.SubViewNode),
-            []
-          )
+          this.t.newExpression(this.t.identifier(this.importMap.SubViewNode), [
+            this.t.arrayExpression(allDependenciesNode),
+          ])
         )
       ),
       this.t.expressionStatement(
@@ -109,13 +132,14 @@ export default class SubViewGenerator extends PropViewGenerator {
 
   /**
    * @View
-   * ${dlNodeName}.updateProp?.(${propChanged}, ...updateParams, { ${key}: ${value} })
+   * ${dlNodeName}.updateProp?.(${propChanged}, ...updateParams, () => { ${key}: ${value} }, allDependenciesNode)
    */
   private updateProp(
     dlNodeName: string,
     propChanged: number,
     key: string,
-    value: t.Expression
+    value: t.Expression,
+    allDependenciesNode: t.ArrayExpression | t.NullLiteral
   ): t.Statement {
     return this.optionalExpression(
       dlNodeName,
@@ -127,9 +151,13 @@ export default class SubViewGenerator extends PropViewGenerator {
         [
           this.t.numericLiteral(propChanged),
           ...this.updateParams.slice(1),
-          this.t.objectExpression([
-            this.t.objectProperty(this.t.identifier(key), value),
-          ]),
+          this.t.arrowFunctionExpression(
+            [],
+            this.t.objectExpression([
+              this.t.objectProperty(this.t.identifier(key), value),
+            ])
+          ),
+          allDependenciesNode,
         ],
         true
       )

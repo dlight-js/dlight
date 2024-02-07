@@ -28,14 +28,14 @@ render("main", App)
 //     a.set(i, i)
 //   }
 // })
-class JJ {
-  aa() {
-    console.log(this)
-    return 1
-  }
-}
+// class JJ {
+//   aa() {
+//     console.log(this)
+//     return 1
+//   }
+// }
 
-class BB {
-  ok = new JJ()
-}
-console.log(new BB().ok.aa())
+// class BB {
+//   ok = new JJ()
+// }
+// console.log(new BB().ok.aa())

@@ -1,5 +1,4 @@
 import { type types as t } from "@babel/core"
-import { DLError } from "../error"
 import BaseGenerator from "./BaseGenerator"
 
 export default class LifecycleGenerator extends BaseGenerator {
@@ -39,13 +38,6 @@ export default class LifecycleGenerator extends BaseGenerator {
     key: (typeof LifecycleGenerator.lifecycle)[number],
     value: t.Expression
   ): t.Statement {
-    ;("")
-    if (
-      !this.t.isFunctionExpression(value) &&
-      !this.t.isArrowFunctionExpression(value)
-    ) {
-      return DLError.throw1()
-    }
     if (key === "willMount") {
       return this.addWillMount(dlNodeName, value)
     }

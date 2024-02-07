@@ -4,12 +4,14 @@ import type Babel from "@babel/core"
 export interface DependencyValue<T> {
   value: T
   dependencyIndexArr?: number[]
+  dependenciesNode?: t.ArrayExpression
 }
 
 export interface DependencyProp {
   value: t.Expression
   viewPropMap?: Record<string, ViewParticle[]>
   dependencyIndexArr?: number[]
+  dependenciesNode?: t.ArrayExpression
 }
 
 export interface TemplateProp {
@@ -18,6 +20,7 @@ export interface TemplateProp {
   path: number[]
   value: t.Expression
   dependencyIndexArr?: number[]
+  dependenciesNode?: t.ArrayExpression
 }
 
 export type MutableParticle = ViewParticle & { path: number[] }

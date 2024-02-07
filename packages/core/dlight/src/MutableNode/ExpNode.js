@@ -1,33 +1,37 @@
 import { DLNodeType } from "../DLNode"
 import { FlatNode } from "./FlatNode"
-import { DLStore } from "../store"
+import { DLStore, cached } from "../store"
 
 export class ExpNode extends FlatNode {
-  nodesFunc
-
   /**
    * @brief Constructor, Exp type, accept a function that returns a list of nodes
    * @param nodesFunc
    */
-  constructor(nodesFunc) {
+  constructor(value, deps) {
     super(DLNodeType.Exp)
-    this.nodesFunc = nodesFunc
     this.initUnmountStore()
-    this._$nodes = ExpNode.formatNodes(nodesFunc())
+    this._$nodes = ExpNode.formatNodes(value)
     this.setUnmountFuncs()
-
+    this.deps = deps
     // ---- Add to the global UnmountStore
     ExpNode.addWillUnmount(this, this.runWillUnmount.bind(this))
     ExpNode.addDidUnmount(this, this.runDidUnmount.bind(this))
   }
 
+  cache(deps) {
+    if (!deps || !deps.length) return false
+    if (cached(deps, this.deps)) return true
+    this.deps = deps
+    return false
+  }
   /**
    * @brief Generate new nodes and replace the old nodes
    */
-  update() {
+  update(valueFunc, deps) {
+    if (this.cache(deps)) return
     this.removeNodes(this._$nodes)
     const newNodes = this.geneNewNodesInEnv(() =>
-      ExpNode.formatNodes(this.nodesFunc())
+      ExpNode.formatNodes(valueFunc())
     )
     if (newNodes.length === 0) {
       this._$nodes = []

@@ -12,68 +12,40 @@ import {
   Modeling,
   use,
 } from "@dlightjs/types"
-import { Button } from "./Button100.view"
 
-@Model
-class DDData {
-  count = 3
-  arr = [1, 2, 3]
-
-  willMount() {
-    console.log(this.count, "cool")
+@View
+@ForwardProps
+class Comp {
+  @Content ok
+  View() {
+    div().forwardProps()
+    div(this.ok + 10000)
   }
 }
-const DD = DDData as Pretty as Modeling<DDData>
-@Model
-class Fetch {
-  @Prop id
-  data
-  loading = true
-
-  @Watch
-  async fetch() {
-    const res = await fetch(
-      `https://jsonplaceholder.typicode.com/posts/${this.id}`
-    )
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    this.data = await res.json()
-    this.loading = false
-    console.log(this.data)
-  }
-}
-
-const FetchModel = Fetch as Pretty as Modeling<Fetch, { id: number }>
 
 @View
 class App {
-  data = use(DD)
-
-  fetchData = use(FetchModel, {
-    id: this.data.count,
-  })
-  // fetchData = FetchModel.modeling({ id: this.data.count })
-
-  willMount() {
-    console.log("willMount")
+  obj = {
+    nest: {
+      nest2: {
+        count: 1,
+      },
+    },
   }
 
   View() {
     button("+").onClick(() => {
-      this.data.count++
+      this.obj.nest.nest2.count++
+      this.obj.nest.nest2.count++
     })
-    button("push").onClick(() => {
-      this.data.arr.push(this.data.count)
+    Comp(
+      (() => {
+        console.log("updated")
+        return this.obj.nest.nest2.count + 2
+      })()
+    ).onClick(() => {
+      console.log("ok")
     })
-
-    for (const i of this.data.arr) {
-      div(i)
-    }
-
-    if (this.fetchData.loading) {
-      div("loading")
-    } else {
-      div(JSON.stringify(this.fetchData.data))
-    }
   }
 }
 

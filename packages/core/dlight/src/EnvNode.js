@@ -1,5 +1,5 @@
 import { DLNode, DLNodeType } from "./DLNode"
-import { DLStore } from "./store"
+import { DLStore, cached } from "./store"
 
 export class EnvStoreClass {
   constructor() {
@@ -47,16 +47,24 @@ export class EnvStoreClass {
 }
 
 export class EnvNode extends DLNode {
-  constructor(envs) {
+  constructor(envs, depsArr) {
     super(DLNodeType.Env)
     // Declare a global variable to store the environment variables
     if (!("DLEnvStore" in DLStore.global))
       DLStore.global.DLEnvStore = new EnvStoreClass()
 
     this.envs = envs
+    this.depsArr = depsArr
     this.updateNodes = new Set()
 
     DLStore.global.DLEnvStore.addEnvNode(this)
+  }
+
+  cached(deps, name) {
+    if (!deps || !deps.length) return false
+    if (cached(deps, this.depsArr[name])) return true
+    this.depsArr[name] = deps
+    return false
   }
 
   /**
@@ -64,8 +72,10 @@ export class EnvNode extends DLNode {
    * @param name - The name of the environment variable to update
    * @param value - The new value of the environment variable
    */
-  updateEnv(name, value) {
-    this.envs[name] = value
+  updateEnv(name, valueFunc, deps) {
+    if (this.cached(deps, name)) return
+    const value = valueFunc()
+    this.envs[name] = [value, deps]
     if (DLStore.global.DLEnvStore.currentEnvNodes.includes(this)) {
       DLStore.global.DLEnvStore.mergeEnvs()
     }

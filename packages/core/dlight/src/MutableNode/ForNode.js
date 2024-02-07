@@ -1,5 +1,5 @@
 import { DLNodeType } from "../DLNode"
-import { DLStore } from "../store"
+import { DLStore, cached } from "../store"
 import { MutableNode } from "./MutableNode"
 
 export class ForNode extends MutableNode {
@@ -27,11 +27,13 @@ export class ForNode extends MutableNode {
    * @param nodeFunc
    * @param keys
    */
-  constructor(array, depNum, keys) {
+  constructor(array, depNum, keys, nodeFunc, deps) {
     super(DLNodeType.For)
     this.array = [...array]
     this.keys = keys
     this.depNum = depNum
+    this.deps = deps
+    this.addNodeFunc(nodeFunc)
   }
 
   /**
@@ -51,6 +53,13 @@ export class ForNode extends MutableNode {
     //      we use array of function array to create "environment", popping and pushing
     ForNode.addWillUnmount(this, this.runAllWillUnmount.bind(this))
     ForNode.addDidUnmount(this, this.runAllDidUnmount.bind(this))
+  }
+
+  cache(deps) {
+    if (!deps || !deps.length) return false
+    if (cached(deps, this.deps)) return true
+    this.deps = deps
+    return false
   }
 
   /**
@@ -80,7 +89,10 @@ export class ForNode extends MutableNode {
    * @param newArray
    * @param newKeys
    */
-  updateArray(newArray, key, newKeys) {
+  updateArray(newArrayFunc, key, newKeysFunc, deps) {
+    if (this.cache(deps)) return
+    const newArray = newArrayFunc()
+    const newKeys = newKeysFunc()
     this.updateKey = key
     if (newKeys) {
       this.updateWithKey(newArray, newKeys)
