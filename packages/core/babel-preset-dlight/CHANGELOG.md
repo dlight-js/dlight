@@ -1,5 +1,11 @@
 # babel-preset-dlight
 
+## 1.0.0-beta.5
+
+### Patch Changes
+
+- fix: update if statement non body
+
 ## 1.0.0-beta.4
 
 ### Patch Changes

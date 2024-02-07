@@ -1,5 +1,5 @@
 import { render } from "@dlightjs/dlight"
-import App from "./App.view"
+import App from "./Fine.view"
 
 render("main", App)
 
