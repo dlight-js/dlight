@@ -1,5 +1,11 @@
 # create-dlightjs
 
+## 1.0.0-beta.2
+
+### Patch Changes
+
+- feat: new types from @dlightjs/dight
+
 ## 1.0.0-alpha.1
 
 ### Patch Changes

@@ -3,6 +3,6 @@ import dlight from "vite-plugin-dlight"
 
 export default defineConfig({
     plugins: [
-        dlight({ files: "**/*.view.js" })
+        dlight({ files: "**/*.{view,model}.ts" })
     ]
 });

@@ -1,5 +1,4 @@
-import { View } from "@dlightjs/dlight"
-import { type Typed, div, p, button, span, type Pretty, SubTyped } from "@dlightjs/types"
+import { View, type Typed, div, p, button, span, type Pretty, type SubTyped  } from "@dlightjs/dlight"
 import Header from "./Header.view"
 import { wrap, slogan2, countWrap, countBtn, btnHover, btnWrap, countText, colorD, colorL, m0 } from "./style.module.css"
 

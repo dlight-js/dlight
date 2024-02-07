@@ -1,6 +1,5 @@
-import { View } from "@dlightjs/dlight"
+import { View, type Typed, div, img, a, type Pretty } from "@dlightjs/dlight"
 import { headerWrap, navBtn, headerLogo } from "./style.module.css"
-import { type Typed, div, img, a, type Pretty } from "@dlightjs/types"
 
 interface NavProps {
   url: string
