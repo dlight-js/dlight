@@ -1,5 +1,11 @@
 # @dlightjs/view-generator
 
+## 1.0.0-beta.2
+
+### Patch Changes
+
+- fix: condView empty update when cond changed
+
 ## 1.0.0-beta.1
 
 ### Patch Changes

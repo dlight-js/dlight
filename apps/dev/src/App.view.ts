@@ -17,12 +17,16 @@ import { Button } from "./Button100.view"
 
 @Model
 class DDData {
+  @Env ok
   count = 3
   arr = [1, 2, 3]
-  private ok() {}
+  fetch = use(FetchModel, { id: 1 })
 
+  jj = (() => {
+    console.log(this.ok, "fuck")
+  })()
   willMount() {
-    console.log(this.count, "cool")
+    console.log(this.ok, "nno")
   }
 }
 const DD = DDData as Pretty as Modeling<DDData>
@@ -31,6 +35,7 @@ class Fetch {
   @Prop id
   data
   loading = true
+  @Env ok
 
   @Watch
   async fetch() {
@@ -42,40 +47,55 @@ class Fetch {
     this.loading = false
     console.log(this.data)
   }
+
+  willMount() {
+    console.log("nno", this.ok)
+  }
 }
 
 const FetchModel = Fetch as Pretty as Modeling<Fetch, { id: number }>
-
-@Mount(document.getElementById("main"))
 @View
-class App {
-  data = use(DD)
-
-  fetchData = use(FetchModel, {
-    id: this.data.count,
-  })
-  // fetchData = FetchModel.modeling({ id: this.data.count })
+class Comp {
+  dd = use(DD)
+  @Env ok
 
   willMount() {
-    console.log("willMount")
+    console.log(this.ok, "11")
   }
-
   View() {
-    button("+").onClick(() => {
-      this.data.count++
-    })
-    button("push").onClick(() => {
-      this.data.arr.push(this.data.count)
-    })
+    div("hh")
+  }
+}
 
-    for (const i of this.data.arr) {
-      div(i)
+@View
+class CC {
+  @Prop a
+  View() {
+    if (this.a) {
+      div("ok")
     }
+  }
+}
+@Main
+@View
+class App {
+  a = true
+  b = true
+  View() {
+    // env().ok("100")
+    // {
+    //   Comp()
+    // }
+    div(`a: ${this.a} | b: ${this.b}`)
+    button("+").onClick(() => {
+      this.a = !this.a
+    })
+    button("-").onClick(() => {
+      this.b = !this.b
+    })
 
-    if (this.fetchData.loading) {
-      div("loading")
-    } else {
-      div(JSON.stringify(this.fetchData.data))
+    if (this.a && this.b) {
+      CC().a(this.a)
     }
   }
 }
