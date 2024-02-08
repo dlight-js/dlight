@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-beta.10
+
+### Patch Changes
+
+- fix: if cache will lead to not updating object
+
 ## 1.0.0-beta.9
 
 ### Patch Changes

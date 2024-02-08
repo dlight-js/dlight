@@ -70,10 +70,12 @@ class Comp {
 @View
 class CC {
   @Prop a
+  @Prop count
   View() {
     if (this.a) {
       div("ok")
     }
+    div(this.count)
   }
 }
 @Main
@@ -81,6 +83,10 @@ class CC {
 class App {
   a = true
   b = true
+  count = {
+    a: true,
+    count: 1,
+  }
   View() {
     // env().ok("100")
     // {
@@ -88,14 +94,17 @@ class App {
     // }
     div(`a: ${this.a} | b: ${this.b}`)
     button("+").onClick(() => {
-      this.a = !this.a
+      this.count.a = !this.count.a
     })
     button("-").onClick(() => {
       this.b = !this.b
     })
+    button("add").onClick(() => {
+      this.count.count++
+    })
 
-    if (this.a && this.b) {
-      CC().a(this.a)
+    if (this.count.a) {
+      CC().a(this.a).count(this.count.count)
     }
   }
 }
