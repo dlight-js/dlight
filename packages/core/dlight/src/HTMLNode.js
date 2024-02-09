@@ -17,7 +17,14 @@ function cache(el, key, deps) {
  */
 export function setStyle(el, valueFunc, deps) {
   if (cache(el, "style", deps)) return
-  Object.assign(el.style, valueFunc())
+  const style = valueFunc()
+  Object.entries(style).forEach(([key, value]) => {
+    if (key.startsWith("--")) {
+      el.style.setProperty(key, value)
+    } else {
+      el.style[key] = value
+    }
+  })
 }
 
 /**
