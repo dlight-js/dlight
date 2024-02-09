@@ -1,17 +1,15 @@
 import { DLNodeType } from "../DLNode"
 import { FlatNode } from "./FlatNode"
-import { cached } from "../store"
 
 export class CondNode extends FlatNode {
   /**
    * @brief Constructor, If type, accept a function that returns a list of nodes
    * @param caseFunc
    */
-  constructor(depNum, condFunc, deps) {
+  constructor(depNum, condFunc) {
     super(DLNodeType.Cond)
     this.depNum = depNum
     this.cond = -1
-    this.deps = deps
     this.condFunc = condFunc
     this.initUnmountStore()
     this._$nodes = this.condFunc(this)
@@ -22,20 +20,10 @@ export class CondNode extends FlatNode {
     CondNode.addDidUnmount(this, this.runDidUnmount.bind(this))
   }
 
-  cache(deps) {
-    if (!deps || !deps.length) return false
-    if (cached(deps, this.deps)) return true
-    this.deps = deps
-    return false
-  }
   /**
    * @brief Update the nodes in the environment
    */
-  updateCond(key, deps) {
-    if (this.cache(deps)) {
-      this.updateFunc?.(this.depNum, key)
-      return
-    }
+  updateCond(key) {
     // ---- Need to save prev unmount funcs because we can't put removeNodes before geneNewNodesInEnv
     //      The reason is that if it didn't change, we don't need to unmount or remove the nodes
     const prevFuncs = [this.willUnmountFuncs, this.didUnmountFuncs]

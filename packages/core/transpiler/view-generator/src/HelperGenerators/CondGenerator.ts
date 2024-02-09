@@ -54,12 +54,9 @@ export default class CondGenerator extends BaseGenerator {
 
   /**
    * @View
-   * ${dlNodeName}?.updateCond(key, depsNode)
+   * ${dlNodeName}?.updateCond(key)
    */
-  updateCondNodeCond(
-    dlNodeName: string,
-    depsNode: t.ArrayExpression
-  ): t.Statement {
+  updateCondNodeCond(dlNodeName: string): t.Statement {
     return this.optionalExpression(
       dlNodeName,
       this.t.callExpression(
@@ -67,7 +64,7 @@ export default class CondGenerator extends BaseGenerator {
           this.t.identifier(dlNodeName),
           this.t.identifier("updateCond")
         ),
-        [...this.updateParams.slice(1), depsNode]
+        [...this.updateParams.slice(1)]
       )
     )
   }
@@ -91,13 +88,12 @@ export default class CondGenerator extends BaseGenerator {
 
   /**
    * @View
-   * ${dlNodeName} = new CondNode(${depNum}, ($thisCond) => {}, depsNode)
+   * ${dlNodeName} = new CondNode(${depNum}, ($thisCond) => {})
    */
   declareCondNode(
     dlNodeName: string,
     condFunc: t.BlockStatement,
-    deps: number[],
-    depsNode: t.ArrayExpression
+    deps: number[]
   ): t.Statement {
     return this.t.expressionStatement(
       this.t.assignmentExpression(
@@ -109,7 +105,6 @@ export default class CondGenerator extends BaseGenerator {
             [this.t.identifier("$thisCond")],
             condFunc
           ),
-          depsNode,
         ])
       )
     )

@@ -1,5 +1,11 @@
 # @dlightjs/view-generator
 
+## 1.0.0-beta.3
+
+### Patch Changes
+
+- fix: cache not updating
+
 ## 1.0.0-beta.2
 
 ### Patch Changes

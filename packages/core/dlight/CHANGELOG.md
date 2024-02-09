@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-beta.12
+
+### Patch Changes
+
+- fix: cache not updating
+
 ## 1.0.0-beta.11
 
 ### Patch Changes

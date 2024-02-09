@@ -103,7 +103,10 @@ class App {
     button("add").onClick(() => {
       this.count.count++
     })
-    for (const i of this.count.arr) {
+    // for (const i of this.count.arr) {
+    //   CC().a(this.a).count(this.count.count)
+    // }
+    if (this.count.a) {
       CC().a(this.a).count(this.count.count)
     }
   }

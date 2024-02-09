@@ -19,21 +19,14 @@ export default class ForGenerator extends BaseGenerator {
         item,
         children,
         BaseGenerator.calcDependencyNum(array.dependencyIndexArr),
-        key,
-        array.dependenciesNode
+        key
       )
     )
 
     // ---- Update statements
     this.addUpdateStatements(
       array.dependencyIndexArr,
-      this.updateForNode(
-        dlNodeName,
-        array.value,
-        item,
-        key,
-        array.dependenciesNode
-      )
+      this.updateForNode(dlNodeName, array.value, item, key)
     )
     this.addUpdateStatementsWithoutDep(this.updateForNodeItem(dlNodeName))
 
@@ -50,7 +43,7 @@ export default class ForGenerator extends BaseGenerator {
    *   })
    *   ${children}
    *   return [...${topLevelNodes}]
-   * }, depsNode)
+   * })
    */
   private declareForNode(
     dlNodeName: string,
@@ -58,8 +51,7 @@ export default class ForGenerator extends BaseGenerator {
     item: t.LVal,
     children: ViewParticle[],
     depNum: number,
-    key?: t.Expression,
-    depsNode?: t.ArrayExpression
+    key?: t.Expression
   ): t.Statement {
     // ---- NodeFunc
     const [childStatements, topLevelNodes, updateStatements, nodeIdx] =
@@ -112,7 +104,6 @@ export default class ForGenerator extends BaseGenerator {
             ],
             this.t.blockStatement(childStatements)
           ),
-          depsNode ?? this.t.nullLiteral(),
         ])
       )
     )
@@ -137,14 +128,13 @@ export default class ForGenerator extends BaseGenerator {
 
   /**
    * @View
-   * ${dlNodeName}.updateArray(() => ${array}, () => ${array}.map(${item} => ${key}), $key, $depsNode)
+   * ${dlNodeName}.updateArray(${array},  $key, ${array}.map(${item} => ${key}))
    */
   private updateForNode(
     dlNodeName: string,
     array: t.Expression,
     item: t.LVal,
-    key?: t.Expression,
-    depsNode?: t.ArrayExpression
+    key?: t.Expression
   ): t.Statement {
     return this.optionalExpression(
       dlNodeName,
@@ -154,13 +144,9 @@ export default class ForGenerator extends BaseGenerator {
           this.t.identifier("updateArray")
         ),
         [
-          this.t.arrowFunctionExpression([], array),
+          array,
           ...this.updateParams.slice(1),
-          this.t.arrowFunctionExpression(
-            [],
-            this.getForKeyStatement(array, item, key)
-          ),
-          depsNode ?? this.t.nullLiteral(),
+          this.getForKeyStatement(array, item, key),
         ]
       )
     )

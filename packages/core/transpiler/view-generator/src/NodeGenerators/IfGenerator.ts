@@ -8,21 +8,12 @@ export default class IfGenerator extends CondGenerator {
     const deps = branches.flatMap(
       ({ condition }) => condition.dependencyIndexArr ?? []
     )
-    const depsNode = this.t.arrayExpression(
-      branches.flatMap(
-        ({ condition }) => condition.dependenciesNode?.elements ?? []
-      )
-    )
+
     // ---- declareIfNode
     const dlNodeName = this.generateNodeName()
-    this.addInitStatement(
-      this.declareIfNode(dlNodeName, branches, deps, depsNode)
-    )
+    this.addInitStatement(this.declareIfNode(dlNodeName, branches, deps))
 
-    this.addUpdateStatements(
-      deps,
-      this.updateCondNodeCond(dlNodeName, depsNode)
-    )
+    this.addUpdateStatements(deps, this.updateCondNodeCond(dlNodeName))
     this.addUpdateStatementsWithoutDep(this.updateCondNode(dlNodeName))
 
     return dlNodeName
@@ -54,13 +45,12 @@ export default class IfGenerator extends CondGenerator {
    *    $thisCond.cond = 1
    *    return [nodes]
    *   }
-   * }, depsNode)
+   * })
    */
   private declareIfNode(
     dlNodeName: string,
     branches: IfBranch[],
-    deps: number[],
-    depsNode: t.ArrayExpression
+    deps: number[]
   ): t.Statement {
     // ---- If no else statement, add one
     if (
@@ -118,8 +108,7 @@ export default class IfGenerator extends CondGenerator {
     return this.declareCondNode(
       dlNodeName,
       this.t.blockStatement([ifStatement]),
-      deps,
-      depsNode
+      deps
     )
   }
 }
