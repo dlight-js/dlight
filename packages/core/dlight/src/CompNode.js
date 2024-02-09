@@ -262,7 +262,7 @@ export class CompNode extends DLNode {
    * @brief Update all props and content of the model
    */
   static _$updateModel(model, propsFunc, contentFunc) {
-    const props = propsFunc()
+    const props = propsFunc() ?? {}
     const collectedProps = props.s ?? []
     props.m?.forEach(([props, deps]) => {
       Object.entries(props).forEach(([key, value]) => {
@@ -285,14 +285,14 @@ export class CompNode extends DLNode {
    * @returns
    */
   _$injectModel(ModelCls, propsFunc, contentFunc, key) {
-    const model = new ModelCls()
-    const props = propsFunc()
+    const props = propsFunc() ?? {}
     const collectedProps = props.s ?? []
     props.m?.forEach(([props, deps]) => {
       Object.entries(props).forEach(([key, value]) => {
         collectedProps.push([key, value, deps])
       })
     })
+    const model = new ModelCls()
     model._$init(collectedProps, contentFunc(), null, null)
     model._$model = this
     model._$modelKey = key

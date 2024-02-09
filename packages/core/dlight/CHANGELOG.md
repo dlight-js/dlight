@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-beta.14
+
+### Patch Changes
+
+- fix: optional props for model
+
 ## 1.0.0-beta.13
 
 ### Patch Changes
