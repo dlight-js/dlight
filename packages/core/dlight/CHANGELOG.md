@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-beta.15
+
+### Patch Changes
+
+- fix: don't compare object caching
+
 ## 1.0.0-beta.14
 
 ### Patch Changes
