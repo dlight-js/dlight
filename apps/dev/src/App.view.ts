@@ -95,7 +95,7 @@ class App {
     // {
     //   Comp()
     // }
-    div(this.jj.jj)
+    div(this.jj.jj.toString())
     button("+").onClick(() => {
       this.jj.jj++
     })

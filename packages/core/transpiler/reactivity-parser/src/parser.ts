@@ -764,7 +764,7 @@ export class ReactivityParser {
         if (this.isAttrFromFunction(innerPath, idName)) return
         const depsArray = this.identifierDepMap[idName]
 
-        if (!depsArray) return
+        if (!depsArray || !Array.isArray(depsArray)) return
         if (
           this.isMemberInEscapeFunction(innerPath) ||
           this.isMemberInManualFunction(innerPath)

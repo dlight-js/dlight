@@ -1,5 +1,11 @@
 # @dlightjs/reactivity-parser
 
+## 1.0.0-beta.2
+
+### Patch Changes
+
+- fix: "value" return function in identifierDepMap of reactivity-parser
+
 ## 1.0.0-beta.1
 
 ### Patch Changes
