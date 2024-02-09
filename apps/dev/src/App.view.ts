@@ -86,6 +86,7 @@ class App {
   count = {
     a: true,
     count: 1,
+    arr: [1, 2, 3],
   }
   View() {
     // env().ok("100")
@@ -102,8 +103,7 @@ class App {
     button("add").onClick(() => {
       this.count.count++
     })
-
-    if (this.count.a) {
+    for (const i of this.count.arr) {
       CC().a(this.a).count(this.count.count)
     }
   }

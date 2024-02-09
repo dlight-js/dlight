@@ -33,7 +33,7 @@ export class CondNode extends FlatNode {
    */
   updateCond(key, deps) {
     if (this.cache(deps)) {
-      this.willCallUpdate = true
+      this.updateFunc?.(this.depNum, key)
       return
     }
     // ---- Need to save prev unmount funcs because we can't put removeNodes before geneNewNodesInEnv
@@ -45,9 +45,7 @@ export class CondNode extends FlatNode {
     if (this.didntChange) {
       ;[this.willUnmountFuncs, this.didUnmountFuncs] = prevFuncs
       this.didntChange = false
-      // ---- Because it didn't change, we still need to call update
-      //      even if the depNum is the same
-      this.willCallUpdate = true
+      this.updateFunc?.(this.depNum, key)
       return
     }
     // ---- Remove old nodes
@@ -76,11 +74,8 @@ export class CondNode extends FlatNode {
    * @brief The update function of IfNode's childNodes is stored in the first child node
    * @param changed
    */
-  update(changed, ...args) {
-    if (changed & this.depNum) {
-      if (!this.willCallUpdate) return
-      this.willCallUpdate = false
-    }
-    this.updateFunc?.(changed, ...args)
+  update(changed, key) {
+    if (changed & this.depNum) return
+    this.updateFunc?.(changed, key)
   }
 }

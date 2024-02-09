@@ -63,18 +63,6 @@ export class ForNode extends MutableNode {
   }
 
   /**
-   * @brief Non-array update function
-   * @param changed
-   */
-  update(changed, key) {
-    if (changed & this.depNum) return
-    this.updateKey = key
-    for (let idx = 0; idx < this.array.length; idx++) {
-      this.updateItem(idx, this.array, changed)
-    }
-  }
-
-  /**
    * @brief Update the view related to one item in the array
    * @param nodes
    * @param item
@@ -84,13 +72,32 @@ export class ForNode extends MutableNode {
     this.updateArr[idx]?.(changed ?? this.depNum, this.updateKey, array[idx])
   }
 
+  updateItems(changed, key) {
+    this.updateKey = key
+    for (let idx = 0; idx < this.array.length; idx++) {
+      this.updateItem(idx, this.array, changed)
+    }
+  }
+
+  /**
+   * @brief Non-array update function
+   * @param changed
+   */
+  update(changed, key) {
+    if (changed & this.depNum) return
+    this.updateItems(changed, key)
+  }
+
   /**
    * @brief Array-related update function
    * @param newArray
    * @param newKeys
    */
   updateArray(newArrayFunc, key, newKeysFunc, deps) {
-    if (this.cache(deps)) return
+    if (this.cache(deps)) {
+      this.updateItems(this.depNum, key)
+      return
+    }
     const newArray = newArrayFunc()
     const newKeys = newKeysFunc()
     this.updateKey = key
