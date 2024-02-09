@@ -30,37 +30,6 @@ export function setDocument(customDocument) {
   DLStore.document = customDocument
 }
 
-/***
- * @brief Compare two values with rule:
- *   1. Primitive/Function: Compared directly
- *   2. Array: Compared by each element
- *   3. Object: Compared items with depth at most 2
- * @param a
- * @param b
- * @param objCompareDepth
- */
-function compare(a, b, objCompareDepth = 0) {
-  if (objCompareDepth > 2) return false
-  if (a instanceof Array) {
-    if (!(b instanceof Array)) return false
-    if (a.length !== b.length) return false
-    return !a.some((c, i) => !compare(c, b[i]))
-  }
-
-  if (a instanceof Object) {
-    if (!(b instanceof Object)) return false
-    const keysA = Object.keys(a)
-    const keysB = Object.keys(b)
-    if (keysA.length !== keysB.length) return false
-    for (let key of keysA) {
-      if (!compare(a[key], b[key], objCompareDepth + 1)) return false
-    }
-    return true
-  }
-
-  return a === b
-}
-
 /**
  * @brief Compare the deps with the previous deps
  * @param deps
@@ -68,6 +37,6 @@ function compare(a, b, objCompareDepth = 0) {
  * @returns
  */
 export function cached(deps, prevDeps) {
-  if (!prevDeps || deps.length !== prevDeps.length) return false
-  return !deps.some((dep, i) => !compare(dep, prevDeps[i]))
+  if (!deps || !prevDeps || deps.length !== prevDeps.length) return false
+  return !deps.some((dep, i) => dep instanceof Object || prevDeps[i] !== dep)
 }
