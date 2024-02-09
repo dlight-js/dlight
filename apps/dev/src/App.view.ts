@@ -90,12 +90,23 @@ class JJ {
 class App {
   count = 1
   jj = use(JJ, { count: this.count })
+  el
+  didMount() {
+    console.log(this.el.style)
+    // this.el.style.setProperty("--color-ok", "red")
+    // this.el.style["--color-ok"] = "red"
+  }
   View() {
     // env().ok("100")
-    // {
+    // {s
     //   Comp()
     // }
     div(this.jj.jj.toString())
+      .class("ok")
+      .style({
+        "--color-ok": "red",
+      })
+      .element(el => (this.el = el))
     button("+").onClick(() => {
       this.jj.jj++
     })

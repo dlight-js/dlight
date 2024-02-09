@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-beta.16
+
+### Patch Changes
+
+- feat: add style var support
+
 ## 1.0.0-beta.15
 
 ### Patch Changes
