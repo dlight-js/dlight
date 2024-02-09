@@ -189,18 +189,14 @@ export class PluginProvider {
     this.resolveMounting(path)
   }
 
-  private exitClass(_path: NodePath<t.ClassDeclaration>): void {}
-
-  classExit(path: NodePath<t.ClassDeclaration>): void {
+  classExit(): void {
     if (!this.enter) return
     if (!this.enterClassNode) return
     this.transformDLightClass()
-    this.exitClass(path)
     this.clearNode()
     this.enterClassNode = false
   }
 
-  private visitClassMethod(_path: NodePath<t.ClassMethod>): void {}
   classMethodVisitor(path: NodePath<t.ClassMethod>): void {
     if (!this.enterClassNode) return
     if (!this.t.isIdentifier(path.node.key)) return
@@ -261,11 +257,8 @@ export class PluginProvider {
       isWatcher: true,
     }
     node.decorators = this.removeDecorators(node.decorators, ["Watch"])
-
-    this.visitClassMethod(path)
   }
 
-  private visitClassProperty(_path: NodePath<t.ClassProperty>): void {}
   classPropertyVisitor(path: NodePath<t.ClassProperty>): void {
     if (!this.enterClassNode) return
     const node = path.node
@@ -276,7 +269,7 @@ export class PluginProvider {
     const isSubView = this.findDecoratorByName(decorators, "View")
     if (isSubView) return
     // ---- Parse model
-    this.parseModel(path)
+    const isModel = this.parseModel(path)
 
     const isProp = !!this.findDecoratorByName(decorators, "Prop")
     const isEnv = !!this.findDecoratorByName(decorators, "Env")
@@ -293,10 +286,10 @@ export class PluginProvider {
       isContent: !!this.findDecoratorByName(decorators, "Content"),
       isChildren,
       isPropOrEnv: isProp ? "Prop" : isEnv ? "Env" : undefined,
+      isModel,
     }
 
     node.decorators = this.removeDecorators(decorators, availableDecoNames)
-    this.visitClassProperty(path)
   }
 
   /* ---- Decorator Resolvers ---- */
@@ -503,6 +496,7 @@ export class PluginProvider {
         isPropOrEnv,
         isWatcher,
         isContent,
+        isModel,
         depsNode,
       },
     ] of propertyArr) {
@@ -512,9 +506,11 @@ export class PluginProvider {
       }
       if (deps.length > 0) {
         usedProperties.push(...deps)
-        if (isWatcher)
+        if (isWatcher) {
           this.resolveWatcherDecorator(node as t.ClassMethod, depsNode!)
-        else this.handleDerivedProperty(node as t.ClassProperty, depsNode!)
+        } else if (!isModel) {
+          this.handleDerivedProperty(node as t.ClassProperty, depsNode!)
+        }
       }
       if (isPropOrEnv) {
         this.resolvePropDecorator(node as t.ClassProperty, isPropOrEnv)
@@ -1053,106 +1049,111 @@ export class PluginProvider {
     const node = path.node
     const key = node.key
     if (!this.t.isIdentifier(key)) return
-    path.scope.traverse(node, {
-      CallExpression: innerPath => {
-        if (!this.t.isIdentifier(innerPath.node.callee, { name: "use" })) return
-        const args = innerPath.node.arguments
-        const propsArg = args[1]
-        const contentArg = args[2]
-        let propsNode: t.Expression = this.t.nullLiteral()
-        if (propsArg) {
-          const mergedPropsNode: [
-            t.Expression,
-            t.ArrayExpression | t.NullLiteral,
-          ][] = []
-          const spreadPropsNode: [
-            t.Expression,
-            t.Expression,
-            t.ArrayExpression | t.NullLiteral,
-          ][] = []
-          // ---- Get props deps
-          if (this.t.isObjectExpression(propsArg)) {
-            propsArg.properties.forEach(prop => {
-              if (this.t.isSpreadElement(prop)) {
-                const [, depsNode] = this.getDependenciesFromNode(
-                  prop.argument as t.Expression
-                )
-                mergedPropsNode.push([
-                  prop.argument as t.Expression,
-                  depsNode ?? this.t.nullLiteral(),
-                ])
-              } else if (this.t.isObjectProperty(prop)) {
-                const [, depsNode] = this.getDependenciesFromNode(
-                  prop.value as t.Expression
-                )
-                spreadPropsNode.push([
-                  !prop.computed && this.t.isIdentifier(prop.key)
-                    ? this.t.stringLiteral(prop.key.name)
-                    : (prop.key as t.Expression),
-                  prop.value as t.Expression,
-                  depsNode ?? this.t.nullLiteral(),
-                ])
-              } else {
-                spreadPropsNode.push([
-                  !prop.computed && this.t.isIdentifier(prop.key)
-                    ? this.t.stringLiteral(prop.key.name)
-                    : (prop.key as t.Expression),
-                  this.t.arrowFunctionExpression([], prop.body),
-                  this.t.nullLiteral(),
-                ])
-              }
-            })
-          } else {
+    const value = node.value
+    if (!this.t.isCallExpression(value)) return
+    if (!this.t.isIdentifier(value.callee, { name: "use" })) return
+    const args = value.arguments
+    const propsArg = args[1]
+    const contentArg = args[2]
+    let propsNode: t.Expression = this.t.nullLiteral()
+    if (propsArg) {
+      const mergedPropsNode: [
+        t.Expression,
+        t.ArrayExpression | t.NullLiteral,
+      ][] = []
+      const spreadPropsNode: [
+        t.Expression,
+        t.Expression,
+        t.ArrayExpression | t.NullLiteral,
+      ][] = []
+      // ---- Get props deps
+      if (this.t.isObjectExpression(propsArg)) {
+        propsArg.properties.forEach(prop => {
+          if (this.t.isSpreadElement(prop)) {
             const [, depsNode] = this.getDependenciesFromNode(
-              propsArg as t.Expression
+              prop.argument as t.Expression
             )
             mergedPropsNode.push([
-              propsArg as t.Expression,
+              prop.argument as t.Expression,
               depsNode ?? this.t.nullLiteral(),
             ])
+          } else if (this.t.isObjectProperty(prop)) {
+            const [, depsNode] = this.getDependenciesFromNode(
+              prop.value as t.Expression
+            )
+            spreadPropsNode.push([
+              !prop.computed && this.t.isIdentifier(prop.key)
+                ? this.t.stringLiteral(prop.key.name)
+                : (prop.key as t.Expression),
+              prop.value as t.Expression,
+              depsNode ?? this.t.nullLiteral(),
+            ])
+          } else {
+            spreadPropsNode.push([
+              !prop.computed && this.t.isIdentifier(prop.key)
+                ? this.t.stringLiteral(prop.key.name)
+                : (prop.key as t.Expression),
+              this.t.arrowFunctionExpression([], prop.body),
+              this.t.nullLiteral(),
+            ])
           }
-          /**
-           * @View { ok: this.count, ...this.props }
-           * {
-           *  m: [[this.props, []]]
-           *  s: [["ok", this.count, [this.count]]]
-           * }
-           */
-          propsNode = this.t.objectExpression([
-            this.t.objectProperty(
-              this.t.identifier("m"),
-              this.t.arrayExpression(
-                mergedPropsNode.map(n => this.t.arrayExpression(n))
-              )
-            ),
-            this.t.objectProperty(
-              this.t.identifier("s"),
-              this.t.arrayExpression(
-                spreadPropsNode.map(n => this.t.arrayExpression(n))
-              )
-            ),
-          ])
-        }
-
-        let contentNode: t.Expression = this.t.nullLiteral()
-        if (contentArg) {
-          const [, depsNode] = this.getDependenciesFromNode(
-            contentArg as t.Expression
-          )
-          contentNode = this.t.arrayExpression([
-            contentArg as t.Expression,
-            depsNode ?? this.t.nullLiteral(),
-          ])
-        }
-        args[1] = propsNode
-        args[2] = contentNode
-        args[3] = this.t.stringLiteral(key.name)
-        innerPath.node.callee = this.t.memberExpression(
-          this.t.thisExpression(),
-          this.t.identifier("_$injectModel")
+        })
+      } else {
+        const [, depsNode] = this.getDependenciesFromNode(
+          propsArg as t.Expression
         )
-      },
-    })
+        mergedPropsNode.push([
+          propsArg as t.Expression,
+          depsNode ?? this.t.nullLiteral(),
+        ])
+      }
+      /**
+       * @View { ok: this.count, ...this.props }
+       * {
+       *  m: [[this.props, []]]
+       *  s: [["ok", this.count, [this.count]]]
+       * }
+       */
+      propsNode = this.t.objectExpression([
+        this.t.objectProperty(
+          this.t.identifier("m"),
+          this.t.arrayExpression(
+            mergedPropsNode.map(n => this.t.arrayExpression(n))
+          )
+        ),
+        this.t.objectProperty(
+          this.t.identifier("s"),
+          this.t.arrayExpression(
+            spreadPropsNode.map(n => this.t.arrayExpression(n))
+          )
+        ),
+      ])
+    }
+
+    let contentNode: t.Expression = this.t.nullLiteral()
+    if (contentArg) {
+      const [, depsNode] = this.getDependenciesFromNode(
+        contentArg as t.Expression
+      )
+      contentNode = this.t.arrayExpression([
+        contentArg as t.Expression,
+        depsNode ?? this.t.nullLiteral(),
+      ])
+    }
+    args[1] = this.t.arrowFunctionExpression([], propsNode)
+    args[2] = this.t.arrowFunctionExpression([], contentNode)
+    args[3] = this.t.stringLiteral(key.name)
+    value.callee = this.t.memberExpression(
+      this.t.thisExpression(),
+      this.t.identifier("_$injectModel")
+    )
+    // ---- Add $md$${key}
+    const propertyIdx = this.classBodyNode!.body.indexOf(node)
+    const modelDecorator = this.t.classProperty(
+      this.t.identifier(`$md$${key.name}`)
+    )
+    this.classBodyNode!.body.splice(propertyIdx, 0, modelDecorator)
+    return true
   }
 
   /**

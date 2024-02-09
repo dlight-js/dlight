@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-beta.13
+
+### Patch Changes
+
+- feat: model updating without recreate
+
 ## 1.0.0-beta.12
 
 ### Patch Changes

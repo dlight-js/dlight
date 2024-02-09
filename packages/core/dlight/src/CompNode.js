@@ -225,6 +225,8 @@ export class CompNode extends DLNode {
       if (`$w$${k}` in this) {
         // ---- Watcher
         this[k](key)
+      } else if (`$md$${k}` in this) {
+        this[k]._$update()
       } else {
         // ---- Regular derived value
         this[k] = this[`$f$${k}`]
@@ -257,6 +259,24 @@ export class CompNode extends DLNode {
   }
 
   /**
+   * @brief Update all props and content of the model
+   */
+  static _$updateModel(model, propsFunc, contentFunc) {
+    const props = propsFunc()
+    const collectedProps = props.s ?? []
+    props.m?.forEach(([props, deps]) => {
+      Object.entries(props).forEach(([key, value]) => {
+        collectedProps.push([key, value, deps])
+      })
+    })
+    collectedProps.forEach(([key, value, deps]) => {
+      model._$setProp(key, () => value, deps)
+    })
+    const content = contentFunc()
+    if (content) model._$setContent(() => content[0], content[1])
+  }
+
+  /**
    * @brief Inject Dlight model in to a property
    * @param ModelCls
    * @param props { m: [props, deps], s: [key, value, deps] }
@@ -264,17 +284,24 @@ export class CompNode extends DLNode {
    * @param key
    * @returns
    */
-  _$injectModel(ModelCls, props, content, key) {
+  _$injectModel(ModelCls, propsFunc, contentFunc, key) {
     const model = new ModelCls()
-    const collectedProps = props?.s
-    props?.m.forEach(([props, deps]) => {
+    const props = propsFunc()
+    const collectedProps = props.s ?? []
+    props.m?.forEach(([props, deps]) => {
       Object.entries(props).forEach(([key, value]) => {
         collectedProps.push([key, value, deps])
       })
     })
-    model._$init(collectedProps, content, null, null)
+    model._$init(collectedProps, contentFunc(), null, null)
     model._$model = this
     model._$modelKey = key
+    model._$update = CompNode._$updateModel.bind(
+      null,
+      model,
+      propsFunc,
+      contentFunc
+    )
 
     return model
   }

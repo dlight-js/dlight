@@ -78,37 +78,30 @@ class CC {
     div(this.count)
   }
 }
+
+@Model
+class JJ {
+  @Prop count = 0
+  jj = this.count
+}
+
 @Main
 @View
 class App {
-  a = true
-  b = true
-  count = {
-    a: true,
-    count: 1,
-    arr: [1, 2, 3],
-  }
+  count = 1
+  jj = use(JJ, { count: this.count })
   View() {
     // env().ok("100")
     // {
     //   Comp()
     // }
-    div(`a: ${this.a} | b: ${this.b}`)
+    div(this.jj.jj)
     button("+").onClick(() => {
-      this.count.a = !this.count.a
+      this.jj.jj++
     })
-    button("-").onClick(() => {
-      this.b = !this.b
+    button("+").onClick(() => {
+      this.count++
     })
-    button("add").onClick(() => {
-      this.count.count++
-    })
-    // for (const i of this.count.arr) {
-    //   CC().a(this.a).count(this.count.count)
-    // }
-    if (this.count.a) {
-      CC().a(this.a).count(this.count.count)
-    }
   }
 }
 
