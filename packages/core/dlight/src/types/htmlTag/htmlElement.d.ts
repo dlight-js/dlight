@@ -32,8 +32,12 @@ type OmitFuncAndReadOnlyProperty<G> = Omit<
   "className" | "htmlFor" | "style" | "innerText"
 >
 
+type CustomCSSProperties = {
+  [Key in `--${string}`]: string | number
+}
+
 export type HTMLAttributes<T> = OmitFuncAndReadOnlyProperty<T> & {
-  style: Properties
+  style: Properties & CustomCSSProperties
   class: string
   for: string
 }
