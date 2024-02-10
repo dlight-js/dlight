@@ -65,7 +65,7 @@ export default class ExpGenerator extends ElementGenerator {
   private declareExpNode(
     dlNodeName: string,
     value: t.Expression,
-    dependenciesNode?: t.ArrayExpression
+    dependenciesNode: t.ArrayExpression
   ): t.Statement {
     return this.t.expressionStatement(
       this.t.assignmentExpression(
@@ -86,7 +86,7 @@ export default class ExpGenerator extends ElementGenerator {
   private updateExpNode(
     dlNodeName: string,
     value: t.Expression,
-    dependenciesNode?: t.ArrayExpression
+    dependenciesNode: t.ArrayExpression
   ): t.Statement {
     return this.optionalExpression(
       dlNodeName,

@@ -22,62 +22,52 @@ export default class SubViewGenerator extends PropViewGenerator {
         },
         () => this.t.nullLiteral()
       )
-    if (props) {
-      const allDependencyIndexArr: number[] = []
 
-      let hasOnUpdate: t.Expression | false = false
-      Object.entries(props).forEach(
-        ([key, { value, dependencyIndexArr, dependenciesNode }]) => {
-          if (key === "didUpdate") {
-            hasOnUpdate = value
-            return
-          }
-          if (
-            SubViewGenerator.lifecycle.includes(
-              key as (typeof SubViewGenerator.lifecycle)[number]
-            )
-          ) {
-            this.addInitStatement(
-              this.addLifecycle(
-                dlNodeName,
-                key as (typeof SubViewGenerator.lifecycle)[number],
-                value
-              )
-            )
-            return
-          }
-          if (!dependencyIndexArr || dependencyIndexArr.length === 0) return
-          allDependencyIndexArr.push(...dependencyIndexArr)
-          const depIdx = availableProperties.indexOf(key)
-          if (dependenciesNode) allDependenciesNode[depIdx] = dependenciesNode
-          const propChange = 1 << depIdx
-          this.addUpdateStatements(
-            dependencyIndexArr,
-            this.updateProp(
+    const allDependencyIndexArr: number[] = []
+
+    Object.entries(props).forEach(
+      ([key, { value, dependencyIndexArr, dependenciesNode }]) => {
+        if (key === "didUpdate") return
+        if (
+          SubViewGenerator.lifecycle.includes(
+            key as (typeof SubViewGenerator.lifecycle)[number]
+          )
+        ) {
+          this.addInitStatement(
+            this.addLifecycle(
               dlNodeName,
-              propChange,
-              key,
-              value,
-              allDependenciesNode[depIdx]
+              key as (typeof SubViewGenerator.lifecycle)[number],
+              value
             )
           )
+          return
         }
-      )
-      if (hasOnUpdate) {
+        if (!dependencyIndexArr || dependencyIndexArr.length === 0) return
+        allDependencyIndexArr.push(...dependencyIndexArr)
+        const depIdx = availableProperties.indexOf(key)
+        if (dependenciesNode) allDependenciesNode[depIdx] = dependenciesNode
+        const propChange = 1 << depIdx
         this.addUpdateStatements(
-          allDependencyIndexArr,
-          this.addOnUpdate(dlNodeName, hasOnUpdate)
+          dependencyIndexArr,
+          this.updateProp(
+            dlNodeName,
+            propChange,
+            key,
+            value,
+            allDependenciesNode[depIdx]
+          )
         )
       }
+    )
+    if (props.didUpdate) {
+      this.addUpdateStatements(
+        allDependencyIndexArr,
+        this.addOnUpdate(dlNodeName, props.didUpdate.value)
+      )
     }
 
     this.addInitStatement(
-      ...this.declareSubviewNode(
-        dlNodeName,
-        tag,
-        props ?? {},
-        allDependenciesNode
-      )
+      ...this.declareSubviewNode(dlNodeName, tag, props, allDependenciesNode)
     )
 
     this.addUpdateStatementsWithoutDep(this.updateSubView(dlNodeName))

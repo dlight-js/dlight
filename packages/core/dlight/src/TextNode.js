@@ -1,12 +1,14 @@
-import { DLStore } from "./store"
+import { DLStore, cached } from "./store"
 
 /**
  * @brief Shorten document.createTextNode
  * @param value
  * @returns Text
  */
-export function createTextNode(value) {
-  return DLStore.document.createTextNode(value)
+export function createTextNode(value, deps) {
+  const node = DLStore.document.createTextNode(value)
+  node.$$deps = deps
+  return node
 }
 
 /**
@@ -14,7 +16,9 @@ export function createTextNode(value) {
  * @param node
  * @param value
  */
-export function updateText(node, value) {
-  if (node.textContent === value) return
+export function updateText(node, valueFunc, deps) {
+  if (cached(deps, node.$$deps)) return
+  const value = valueFunc()
   node.textContent = value
+  node.$$deps = deps
 }

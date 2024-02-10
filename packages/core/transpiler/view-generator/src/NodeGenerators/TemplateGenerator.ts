@@ -47,7 +47,7 @@ export default class TemplateGenerator extends HTMLPropGenerator {
           return
         }
 
-        didUpdateMap[name].deps.push(...(dependencyIndexArr ?? []))
+        didUpdateMap[name].deps.push(...dependencyIndexArr)
 
         this.addInitStatement(
           this.addHTMLProp(

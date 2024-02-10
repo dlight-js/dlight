@@ -15,6 +15,7 @@ export default class BaseGenerator {
   readonly importMap: Record<string, string>
   readonly subViewPropMap: SubViewPropMap
   readonly elementAttributeMap
+  readonly alterAttributeMap
 
   readonly viewGenerator
 
@@ -44,6 +45,7 @@ export default class BaseGenerator {
           {}
         )
       : {}
+    this.alterAttributeMap = config.alterAttributeMap
   }
 
   // ---- Init Statements

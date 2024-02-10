@@ -200,7 +200,7 @@ export class ViewParser {
 
       const children = this.parseView(caseBody)
       const branch: SwitchBranch = {
-        case: s.test,
+        case: s.test ?? this.t.booleanLiteral(true),
         children,
         break: isBreak,
       }

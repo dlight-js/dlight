@@ -51,7 +51,7 @@ export default class ForGenerator extends BaseGenerator {
     item: t.LVal,
     children: ViewParticle[],
     depNum: number,
-    key?: t.Expression
+    key: t.Expression
   ): t.Statement {
     // ---- NodeFunc
     const [childStatements, topLevelNodes, updateStatements, nodeIdx] =
@@ -116,14 +116,14 @@ export default class ForGenerator extends BaseGenerator {
   private getForKeyStatement(
     array: t.Expression,
     item: t.LVal,
-    key?: t.Expression
+    key: t.Expression
   ): t.Expression {
-    return key
-      ? this.t.callExpression(
+    return this.t.isNullLiteral(key)
+      ? key
+      : this.t.callExpression(
           this.t.memberExpression(array, this.t.identifier("map")),
           [this.t.arrowFunctionExpression([item as any], key)]
         )
-      : this.t.nullLiteral()
   }
 
   /**
@@ -134,7 +134,7 @@ export default class ForGenerator extends BaseGenerator {
     dlNodeName: string,
     array: t.Expression,
     item: t.LVal,
-    key?: t.Expression
+    key: t.Expression
   ): t.Statement {
     return this.optionalExpression(
       dlNodeName,

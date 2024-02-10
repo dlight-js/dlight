@@ -39,11 +39,9 @@ export class CompNode extends DLNode {
     // Forward props first to allow internal props to override forwarded props
     if (forwardPropsScope) forwardPropsScope._$addForwardProps(this)
     if (content) this._$setContent(() => content[0], content[1])
-    if (props) {
-      props.forEach(([key, value, deps]) => {
-        this._$setProp(key, () => value, deps)
-      })
-    }
+    props.forEach(([key, value, deps]) => {
+      this._$setProp(key, () => value, deps)
+    })
     if (children) this._$children = children
 
     // Add envs

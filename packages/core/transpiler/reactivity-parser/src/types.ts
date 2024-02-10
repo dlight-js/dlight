@@ -20,7 +20,7 @@ export interface TemplateProp {
   path: number[]
   value: t.Expression
   dependencyIndexArr: number[]
-  dependenciesNode?: t.ArrayExpression
+  dependenciesNode: t.ArrayExpression
 }
 
 export type MutableParticle = ViewParticle & { path: number[] }
@@ -70,7 +70,7 @@ export interface IfParticle {
 }
 
 export interface SwitchBranch {
-  case: DependencyValue<t.Expression> | null | undefined
+  case: DependencyValue<t.Expression>
   children: ViewParticle[]
   break: boolean
 }

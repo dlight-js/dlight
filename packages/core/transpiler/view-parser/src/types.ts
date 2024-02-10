@@ -44,7 +44,7 @@ export interface IfUnit {
 }
 
 export interface SwitchBranch {
-  case: t.Expression | null | undefined
+  case: t.Expression
   children: ViewUnit[]
   break: boolean
 }

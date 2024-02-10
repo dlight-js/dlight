@@ -452,12 +452,10 @@ export class ReactivityParser {
         ...this.getDependencies(switchUnit.discriminant),
       },
       branches: switchUnit.branches.map(branch => ({
-        case: branch.case
-          ? {
-              value: branch.case,
-              ...this.getDependencies(branch.case),
-            }
-          : null,
+        case: {
+          value: branch.case,
+          ...this.getDependencies(branch.case),
+        },
         children: branch.children.map(this.parseViewParticle.bind(this)),
         break: branch.break,
       })),
