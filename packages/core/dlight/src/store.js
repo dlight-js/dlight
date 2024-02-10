@@ -37,6 +37,6 @@ export function setDocument(customDocument) {
  * @returns
  */
 export function cached(deps, prevDeps) {
-  if (prevDeps || deps.length !== prevDeps.length) return false
+  if (!prevDeps || deps.length !== prevDeps.length) return false
   return deps.every((dep, i) => !(dep instanceof Object) && prevDeps[i] === dep)
 }

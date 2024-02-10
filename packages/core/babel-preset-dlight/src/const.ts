@@ -1,5 +1,10 @@
 export const devMode = process.env.NODE_ENV === "development"
 
+export const alterAttributeMap = {
+  class: "className",
+  for: "htmlFor",
+}
+
 export const reactivityFuncNames = [
   // ---- Array
   "push",
@@ -309,7 +314,7 @@ export const defaultAttributeMap = {
   charset: ["meta"],
   checked: ["input"],
   cite: ["blockquote", "del", "ins", "q"],
-  class: ["*"],
+  className: ["*"],
   color: ["font", "hr"],
   cols: ["textarea"],
   // ---- Original: colspan
@@ -344,7 +349,7 @@ export const defaultAttributeMap = {
   enctype: ["form"],
   // ---- Original: enterkeyhint
   enterKeyHint: ["textarea", "contenteditable"],
-  for: ["label", "output"],
+  htmlFor: ["label", "output"],
   form: [
     "button",
     "fieldset",

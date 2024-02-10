@@ -17,7 +17,7 @@ export default class HTMLGenerator extends HTMLPropGenerator {
     const tagName = this.t.isStringLiteral(tag) ? tag.value : "ANY"
     const allDependencyIndexArr: number[] = []
     Object.entries(props).forEach(
-      ([key, { value, dependencyIndexArr, dependenciesNode }]) => {
+      ([key, { value, dependencyIndexArr, dependenciesNode, dynamic }]) => {
         if (key === "didUpdate") return
         allDependencyIndexArr.push(...(dependencyIndexArr ?? []))
         this.addInitStatement(
@@ -26,6 +26,7 @@ export default class HTMLGenerator extends HTMLPropGenerator {
             tagName,
             key,
             value,
+            dynamic,
             dependencyIndexArr,
             dependenciesNode
           )

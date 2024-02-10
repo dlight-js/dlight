@@ -12,7 +12,7 @@ export default class TextGenerator extends BaseGenerator {
       this.declareTextNode(dlNodeName, content.value, content.dependenciesNode)
     )
 
-    if (content.dependencyIndexArr && content.dependencyIndexArr.length > 0) {
+    if (content.dynamic) {
       this.addUpdateStatements(
         content.dependencyIndexArr,
         this.updateTextNode(dlNodeName, content.value, content.dependenciesNode)

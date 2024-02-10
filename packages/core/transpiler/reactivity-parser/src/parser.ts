@@ -37,6 +37,7 @@ export class ReactivityParser {
   private readonly t: typeof t
   private readonly traverse: typeof traverse
   private readonly availableProperties: string[]
+  private readonly availableIdentifiers?: string[]
   private readonly dependencyMap: Record<string, string[]>
   private readonly identifierDepMap: Record<string, string[]>
   private readonly dependencyParseType
@@ -55,7 +56,6 @@ export class ReactivityParser {
     "attr",
     "dataset",
     "forwardProps",
-    "textContent",
   ]
 
   readonly usedProperties = new Set<string>()
@@ -71,6 +71,7 @@ export class ReactivityParser {
     this.t = config.babelApi.types
     this.traverse = config.babelApi.traverse
     this.availableProperties = config.availableProperties
+    this.availableIdentifiers = config.availableIdentifiers
     this.dependencyMap = config.dependencyMap
     this.identifierDepMap = config.identifierDepMap ?? {}
     this.dependencyParseType = config.dependencyParseType ?? "property"
@@ -145,6 +146,7 @@ export class ReactivityParser {
         ...prop,
         dependencyIndexArr: [],
         dependenciesNode: this.t.arrayExpression([]),
+        dynamic: false,
       },
     ])
 
@@ -230,7 +232,7 @@ export class ReactivityParser {
         })
       // ---- Recursively generate props for static HTMLUnit children
       unit.children
-        ?.filter(
+        .filter(
           child =>
             (child.type === "html" && this.t.isStringLiteral(child.tag)) ||
             (child.type === "text" && this.t.isStringLiteral(child.content))
@@ -247,6 +249,7 @@ export class ReactivityParser {
               value: child.content,
               dependencyIndexArr: [],
               dependenciesNode: this.t.arrayExpression([]),
+              dynamic: false,
             })
           }
         })
@@ -284,9 +287,8 @@ export class ReactivityParser {
    * @returns ExpParticle | HTMLParticle
    */
   private parseHTML(htmlUnit: HTMLUnit): ExpParticle | HTMLParticle {
-    const { dependencyIndexArr, dependenciesNode } = this.getDependencies(
-      htmlUnit.tag
-    )
+    const { dependencyIndexArr, dependenciesNode, dynamic } =
+      this.getDependencies(htmlUnit.tag)
 
     const innerHTMLParticle: HTMLParticle = {
       type: "html",
@@ -307,7 +309,7 @@ export class ReactivityParser {
     )
 
     // ---- Not a dynamic tag
-    if (dependencyIndexArr.length === 0) return innerHTMLParticle
+    if (!dynamic) return innerHTMLParticle
 
     // ---- Dynamic tag, wrap it in an ExpParticle to make the tag reactive
     const id = this.uid()
@@ -320,6 +322,7 @@ export class ReactivityParser {
         },
         dependencyIndexArr,
         dependenciesNode,
+        dynamic,
       },
       props: {},
     }
@@ -334,9 +337,8 @@ export class ReactivityParser {
    * @returns CompParticle | ExpParticle
    */
   private parseComp(compUnit: CompUnit): CompParticle | ExpParticle {
-    const { dependencyIndexArr, dependenciesNode } = this.getDependencies(
-      compUnit.tag
-    )
+    const { dependencyIndexArr, dependenciesNode, dynamic } =
+      this.getDependencies(compUnit.tag)
 
     const compParticle: CompParticle = {
       type: "comp",
@@ -355,7 +357,7 @@ export class ReactivityParser {
       this.parseViewParticle.bind(this)
     )
 
-    if (dependencyIndexArr.length === 0) return compParticle
+    if (!dynamic) return compParticle
 
     const id = this.uid()
     return {
@@ -367,6 +369,7 @@ export class ReactivityParser {
         },
         dependencyIndexArr,
         dependenciesNode,
+        dynamic,
       },
       props: {},
     }
@@ -380,9 +383,8 @@ export class ReactivityParser {
    * @returns ForParticle
    */
   private parseFor(forUnit: ForUnit): ForParticle {
-    const { dependencyIndexArr, dependenciesNode } = this.getDependencies(
-      forUnit.array
-    )
+    const { dependencyIndexArr, dependenciesNode, dynamic } =
+      this.getDependencies(forUnit.array)
     const prevIdentifierDepMap = this.config.identifierDepMap
     // ---- Find all the identifiers in the key and remove them from the identifierDepMap
     //      because once the key is changed, that identifier related dependencies will be changed too,
@@ -395,7 +397,7 @@ export class ReactivityParser {
         this.t.assignmentExpression(
           "=",
           forUnit.item,
-          this.t.identifier("temp")
+          this.t.objectExpression([])
         )
       )
         .filter(id => !keyDep || id !== keyDep)
@@ -404,11 +406,13 @@ export class ReactivityParser {
           dependencyIndexArr.map(n => this.availableProperties[n]),
         ])
     )
+
     const forParticle: ForParticle = {
       type: "for",
       item: forUnit.item,
       array: {
         value: forUnit.array,
+        dynamic,
         dependencyIndexArr,
         dependenciesNode,
       },
@@ -562,22 +566,35 @@ export class ReactivityParser {
    * @returns dependency index array
    */
   private getDependencies(node: t.Expression | t.Statement): {
+    dynamic: boolean
     dependencyIndexArr: number[]
     dependenciesNode: t.ArrayExpression
   } {
-    const [directDependencies, depNodes] =
+    // ---- Both id and prop deps need to be calculated because
+    //      id is for subview update, prop is normal update
+    //      in a subview, the depsNode should be both id and prop
+    const [directIdentifierDeps, identifierDepNodes] =
+      this.getIdentifierDependencies(node)
+    const [directPropertyDeps, propertyDepNodes] =
+      this.getPropertyDependencies(node)
+    const directDependencies =
       this.dependencyParseType === "identifier"
-        ? this.getIdentifierDependencies(node)
-        : this.getPropertyDependencies(node)
+        ? directIdentifierDeps
+        : directPropertyDeps
+    const identifierMapDependencies = this.getIdentifierMapDependencies(node)
+    const deps = [
+      ...new Set([...directDependencies, ...identifierMapDependencies]),
+    ]
+
+    const depNodes = [
+      ...identifierDepNodes,
+      ...propertyDepNodes,
+    ] as t.Expression[]
 
     return {
-      dependencyIndexArr: [
-        ...new Set([
-          ...directDependencies,
-          ...this.getIdentifierMapDependencies(node),
-        ]),
-      ],
-      dependenciesNode: this.t.arrayExpression(depNodes as t.Expression[]),
+      dynamic: depNodes.length > 0 || deps.length > 0,
+      dependencyIndexArr: deps,
+      dependenciesNode: this.t.arrayExpression(depNodes),
     }
   }
 
@@ -595,6 +612,9 @@ export class ReactivityParser {
   private getIdentifierDependencies(
     node: t.Expression | t.Statement
   ): [number[], t.Node[]] {
+    const availableIdentifiers =
+      this.availableIdentifiers ?? this.availableProperties
+
     const deps = new Set<string>()
     const assignDeps = new Set<string>()
     const depNodes: Record<string, t.Node[]> = {}
@@ -604,7 +624,7 @@ export class ReactivityParser {
       Identifier: innerPath => {
         const identifier = innerPath.node
         const idName = identifier.name
-        if (!this.availableProperties.includes(idName)) return
+        if (!availableIdentifiers.includes(idName)) return
         if (
           this.isAssignmentExpressionLeft(innerPath) ||
           this.isAssignmentFunction(innerPath)

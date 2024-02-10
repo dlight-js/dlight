@@ -33,7 +33,7 @@ export function render(idOrEl, DL) {
   initStore()
   el.innerHTML = ""
   const dlNode = new DL()
-  dlNode._$init()
+  dlNode._$init([])
   insertNode(el, dlNode, 0)
   DLNode.runDidMount()
 }

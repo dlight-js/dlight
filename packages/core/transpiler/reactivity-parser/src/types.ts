@@ -3,6 +3,7 @@ import type Babel from "@babel/core"
 
 export interface DependencyValue<T> {
   value: T
+  dynamic: boolean
   dependencyIndexArr: number[]
   dependenciesNode: t.ArrayExpression
 }
@@ -10,6 +11,7 @@ export interface DependencyValue<T> {
 export interface DependencyProp {
   value: t.Expression
   viewPropMap: Record<string, ViewParticle[]>
+  dynamic: boolean
   dependencyIndexArr: number[]
   dependenciesNode: t.ArrayExpression
 }
@@ -19,6 +21,7 @@ export interface TemplateProp {
   key: string
   path: number[]
   value: t.Expression
+  dynamic: boolean
   dependencyIndexArr: number[]
   dependenciesNode: t.ArrayExpression
 }
@@ -115,6 +118,7 @@ export type ViewParticle =
 export interface ReactivityParserConfig {
   babelApi: typeof Babel
   availableProperties: string[]
+  availableIdentifiers?: string[]
   dependencyMap: Record<string, string[]>
   identifierDepMap?: Record<string, string[]>
   dependencyParseType?: "property" | "identifier"

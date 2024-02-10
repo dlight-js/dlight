@@ -10,6 +10,7 @@ import { parseView } from "@dlightjs/view-parser"
 import { parseReactivity } from "@dlightjs/reactivity-parser"
 import { generateSubView, generateView } from "@dlightjs/view-generator"
 import {
+  alterAttributeMap,
   availableDecoNames,
   defaultHTMLTags,
   devMode,
@@ -852,6 +853,7 @@ export class PluginProvider {
       ),
       templateIdx: -1,
       attributeMap: this.attributeMap,
+      alterAttributeMap,
     })
     viewNode.body = body
     this.classBodyNode?.body.push(...classProperties)
@@ -892,16 +894,6 @@ export class PluginProvider {
     })
     viewUnits.map(viewUnit => this.addViewAutoUpdate(viewUnit))
 
-    const [viewParticlesProperty, usedPropertySet] = parseReactivity(
-      viewUnits,
-      {
-        babelApi: this.babelApi,
-        availableProperties: this.availableProperties,
-        dependencyMap: this.dependencyMap,
-        reactivityFuncNames,
-      }
-    )
-
     const subViewProp =
       subViewPropSubDepMap[(viewNode.key as t.Identifier).name] ?? []
     const identifierDepMap: Record<string, string[]> = {}
@@ -910,6 +902,18 @@ export class PluginProvider {
         identifierDepMap[dep] = [key]
       })
     })
+
+    const [viewParticlesProperty, usedPropertySet] = parseReactivity(
+      viewUnits,
+      {
+        babelApi: this.babelApi,
+        availableProperties: this.availableProperties,
+        availableIdentifiers: Object.keys(subViewProp),
+        dependencyMap: this.dependencyMap,
+        dependencyParseType: "property",
+        reactivityFuncNames,
+      }
+    )
 
     const [viewParticlesIdentifier] = parseReactivity(viewUnits, {
       babelApi: this.babelApi,
@@ -937,6 +941,7 @@ export class PluginProvider {
         subViewPropMap,
         templateIdx,
         attributeMap: this.attributeMap,
+        alterAttributeMap,
       }
     )
     viewNode.body = body

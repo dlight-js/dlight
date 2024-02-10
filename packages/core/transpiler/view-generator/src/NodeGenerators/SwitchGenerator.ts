@@ -67,6 +67,7 @@ export default class SwitchGenerator extends CondGenerator {
           value: this.t.booleanLiteral(true),
           dependencyIndexArr: [],
           dependenciesNode: this.t.arrayExpression([]),
+          dynamic: false,
         },
         break: true,
         children: [],

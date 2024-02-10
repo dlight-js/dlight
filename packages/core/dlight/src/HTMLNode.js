@@ -2,6 +2,7 @@ import { DLNode } from "./DLNode"
 import { DLStore, cached } from "./store"
 
 function cache(el, key, deps) {
+  if (deps.length === 0) return false
   const cacheKey = `$${key}`
   if (cached(deps, el[cacheKey])) return true
   el[cacheKey] = deps
@@ -39,6 +40,12 @@ export function setDataset(el, value) {
  * @param value
  */
 export function setHTMLProp(el, key, valueFunc, deps) {
+  // ---- Comparing deps, same value won't trigger
+  //      will lead to a bug if the value is set outside of the DLNode
+  //      e.g. setHTMLProp(el, "textContent", "value", [])
+  //       =>  el.textContent = "other"
+  //       =>  setHTMLProp(el, "textContent", "value", [])
+  //       The value will be set to "other" instead of "value"
   if (cache(el, key, deps)) return
   el[key] = valueFunc()
 }

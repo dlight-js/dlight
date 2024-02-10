@@ -42,11 +42,12 @@ export default class HTMLPropGenerator extends ForwardPropGenerator {
     tag: string,
     key: string,
     value: t.Expression,
+    dynamic: boolean,
     dependencyIndexArr: number[],
     dependenciesNode: t.ArrayExpression
   ): t.Statement | null {
     // ---- Dynamic HTML prop with init and update
-    if (dependencyIndexArr.length > 0) {
+    if (dynamic) {
       this.addUpdateStatements(
         dependencyIndexArr,
         this.setDynamicHTMLProp(name, tag, key, value, dependenciesNode, true)

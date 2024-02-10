@@ -1,5 +1,5 @@
-import { View } from "@dlightjs/dlight"
 import {
+  View,
   type Typed,
   type Pretty,
   div,
@@ -16,7 +16,7 @@ import {
   span,
   strong,
   a,
-} from "@dlightjs/types"
+} from "@dlightjs/dlight"
 
 interface ToDo {
   id: number
@@ -112,7 +112,10 @@ class ToDoMVC {
           .class("toggle")
           .type("checkbox")
           .checked(completed)
-          .onInput(() => this.toggleTodo(id))
+          .onClick(e => {
+            e.preventDefault()
+            this.toggleTodo(id)
+          })
         label(title).onDblClick(() => {
           this.editingText = title
           this.editingId = id
@@ -199,7 +202,6 @@ class ToDoMVC {
           ul().class("todo-list")
           {
             for (const { id, title, completed } of this.filteredTodos) {
-              key: id
               this.ToDoItem()
                 .id(id)
                 .title(title)

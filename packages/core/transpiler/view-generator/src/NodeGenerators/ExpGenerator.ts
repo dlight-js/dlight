@@ -15,7 +15,7 @@ export default class ExpGenerator extends ElementGenerator {
       this.declareExpNode(dlNodeName, content.value, content.dependenciesNode)
     )
 
-    if (content.dependencyIndexArr && content.dependencyIndexArr.length > 0) {
+    if (content.dynamic) {
       this.addUpdateStatements(
         content.dependencyIndexArr,
         this.updateExpNode(dlNodeName, content.value, content.dependenciesNode)

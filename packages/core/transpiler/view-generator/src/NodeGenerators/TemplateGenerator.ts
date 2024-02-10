@@ -36,7 +36,15 @@ export default class TemplateGenerator extends HTMLPropGenerator {
       { deps: number[]; value?: t.Expression }
     > = {}
     props.forEach(
-      ({ tag, path, key, value, dependencyIndexArr, dependenciesNode }) => {
+      ({
+        tag,
+        path,
+        key,
+        value,
+        dependencyIndexArr,
+        dependenciesNode,
+        dynamic,
+      }) => {
         const name = pathNameMap[path.join(".")]
         if (!didUpdateMap[name])
           didUpdateMap[name] = {
@@ -55,6 +63,7 @@ export default class TemplateGenerator extends HTMLPropGenerator {
             tag,
             key,
             value,
+            dynamic,
             dependencyIndexArr,
             dependenciesNode
           )
@@ -64,7 +73,6 @@ export default class TemplateGenerator extends HTMLPropGenerator {
 
     Object.entries(didUpdateMap).forEach(([name, { deps, value }]) => {
       if (!value) return
-      console.log(name, deps)
       this.addUpdateStatements(deps, this.addOnUpdate(name, value))
     })
 
