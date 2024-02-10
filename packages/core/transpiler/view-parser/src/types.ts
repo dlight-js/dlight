@@ -14,24 +14,22 @@ export interface TextUnit {
 export interface HTMLUnit {
   type: "html"
   tag: t.Expression
-  content?: ViewProp
-  props?: Record<string, ViewProp>
-  children?: ViewUnit[]
+  props: Record<string, ViewProp>
+  children: ViewUnit[]
 }
 
 export interface CompUnit {
   type: "comp"
   tag: t.Expression
-  content?: ViewProp
-  props?: Record<string, ViewProp>
-  children?: ViewUnit[]
+  props: Record<string, ViewProp>
+  children: ViewUnit[]
 }
 
 export interface ForUnit {
   type: "for"
   item: t.LVal
   array: t.Expression
-  key?: t.Expression
+  key: t.Expression
   children: ViewUnit[]
 }
 
@@ -66,14 +64,14 @@ export interface EnvUnit {
 export interface ExpUnit {
   type: "exp"
   content: ViewProp
-  props?: Record<string, ViewProp>
+  props: Record<string, ViewProp>
 }
 
 export interface SubviewUnit {
   type: "subview"
   tag: string
-  props?: Record<string, ViewProp>
-  children?: ViewUnit[]
+  props: Record<string, ViewProp>
+  children: ViewUnit[]
 }
 
 export type ViewUnit =

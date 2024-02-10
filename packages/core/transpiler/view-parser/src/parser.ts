@@ -85,7 +85,7 @@ export class ViewParser {
       const type = lastViewUnit?.type
       const childViewUnits = this.parseView(statement)
       if (type === "html") {
-        delete lastViewUnit.content
+        delete lastViewUnit.props.textContent
         lastViewUnit.children = childViewUnits
       } else if (type === "comp" || type === "subview") {
         lastViewUnit.children = childViewUnits
@@ -131,6 +131,7 @@ export class ViewParser {
     this.viewUnits.push({
       type: "exp",
       content: this.parseProp(expression),
+      props: {},
     })
   }
 
@@ -236,7 +237,7 @@ export class ViewParser {
     }
     const item = (left as t.VariableDeclaration).declarations[0].id
     const array = node.right
-    let key: t.Expression | undefined
+    let key: t.Expression = this.t.nullLiteral()
     const forBody = node.body
     let forBodyStatements: Array<t.Statement | t.Directive>
     if (this.t.isExpressionStatement(forBody)) {
@@ -341,6 +342,7 @@ export class ViewParser {
     this.viewUnits.push({
       type: "exp",
       content: this.parseProp(node),
+      props: {},
     })
   }
 
@@ -456,20 +458,22 @@ export class ViewParser {
         return
       }
       if (this.htmlTags.includes(tagName)) {
+        if (contentProp) props.textContent = contentProp
         this.viewUnits.push({
           type: "html",
           tag: this.t.stringLiteral(tagName),
-          content: contentProp,
           props,
+          children: [],
         })
         return
       }
       // ---- Custom tag
+      if (contentProp) props._$content = contentProp
       this.viewUnits.push({
         type: "comp",
         tag: n.callee,
-        content: contentProp,
         props,
+        children: [],
       })
       return
     }
@@ -493,6 +497,7 @@ export class ViewParser {
         type: "subview",
         tag: n.callee.property.name,
         props,
+        children: [],
       })
       return
     }
@@ -501,11 +506,14 @@ export class ViewParser {
       //      2. htmlTag(xxx)
       //      3. tag(xxx)
       const [tagType, tag] = this.alterTagType(n.callee)
+      if (contentProp) {
+        props[tagType === "html" ? "textContent" : "content"] = contentProp
+      }
       this.viewUnits.push({
         type: tagType,
         tag,
-        content: contentProp,
         props,
+        children: [],
       })
     }
   }
