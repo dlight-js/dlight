@@ -75,7 +75,7 @@ export class EnvNode extends DLNode {
   updateEnv(name, valueFunc, deps) {
     if (this.cached(deps, name)) return
     const value = valueFunc()
-    this.envs[name] = [value, deps]
+    this.envs[name] = value
     if (DLStore.global.DLEnvStore.currentEnvNodes.includes(this)) {
       DLStore.global.DLEnvStore.mergeEnvs()
     }
