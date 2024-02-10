@@ -133,20 +133,23 @@ export class ReactivityParser {
   private generateTemplate(unit: HTMLUnit): HTMLParticle {
     const staticProps = this.filterTemplateProps(
       // ---- Get all the static props
-      Object.entries(unit.props ?? []).filter(
+      Object.entries(unit.props).filter(
         ([, prop]) =>
           this.isStaticProp(prop) &&
           // ---- Filter out props with false values
           !(this.t.isBooleanLiteral(prop.value) && !prop.value.value)
       )
-    )
+    ).map(([key, prop]) => [
+      key,
+      {
+        ...prop,
+        dependencyIndexArr: [],
+        dependenciesNode: this.t.arrayExpression([]),
+      },
+    ])
 
-    let children
-    if (unit.content) {
-      if (this.isStaticProp(unit.content)) {
-        staticProps.push(["textContent", unit.content])
-      }
-    } else if (unit.children) {
+    let children: ViewParticle[] = []
+    if (!unit.props.textContent) {
       children = unit.children
         .map(unit => {
           if (unit.type === "html" && this.t.isStringLiteral(unit.tag)) {
@@ -214,10 +217,7 @@ export class ReactivityParser {
     const generateVariableProp = (unit: HTMLUnit, path: number[]) => {
       // ---- Generate all non-static(string/number/boolean) props for current HTMLUnit
       //      to be inserted further in the generator
-      Object.entries({
-        ...(unit.props ?? {}),
-        ...(unit.content ? { textContent: unit.content } : {}),
-      })
+      Object.entries(unit.props)
         .filter(([, prop]) => !this.isStaticProp(prop))
         .forEach(([key, prop]) => {
           templateProps.push({
@@ -245,6 +245,8 @@ export class ReactivityParser {
               key: "value",
               path: [...path, idx],
               value: child.content,
+              dependencyIndexArr: [],
+              dependenciesNode: this.t.arrayExpression([]),
             })
           }
         })
@@ -289,24 +291,20 @@ export class ReactivityParser {
     const innerHTMLParticle: HTMLParticle = {
       type: "html",
       tag: htmlUnit.tag,
+      props: {},
+      children: [],
     }
 
-    if (htmlUnit.props) {
-      if (htmlUnit.content) {
-        htmlUnit.props.textContent = htmlUnit.content
-      }
-      innerHTMLParticle.props = Object.fromEntries(
-        Object.entries(htmlUnit.props).map(([key, prop]) => [
-          key,
-          this.generateDependencyProp(prop),
-        ])
-      )
-    }
-    if (htmlUnit.children) {
-      innerHTMLParticle.children = htmlUnit.children.map(
-        this.parseViewParticle.bind(this)
-      )
-    }
+    innerHTMLParticle.props = Object.fromEntries(
+      Object.entries(htmlUnit.props).map(([key, prop]) => [
+        key,
+        this.generateDependencyProp(prop),
+      ])
+    )
+
+    innerHTMLParticle.children = htmlUnit.children.map(
+      this.parseViewParticle.bind(this)
+    )
 
     // ---- Not a dynamic tag
     if (dependencyIndexArr.length === 0) return innerHTMLParticle
@@ -323,6 +321,7 @@ export class ReactivityParser {
         dependencyIndexArr,
         dependenciesNode,
       },
+      props: {},
     }
   }
 
@@ -342,24 +341,19 @@ export class ReactivityParser {
     const compParticle: CompParticle = {
       type: "comp",
       tag: compUnit.tag,
+      props: {},
+      children: [],
     }
 
-    if (compUnit.content) {
-      compParticle.content = this.generateDependencyProp(compUnit.content)
-    }
-    if (compUnit.props) {
-      compParticle.props = Object.fromEntries(
-        Object.entries(compUnit.props).map(([key, prop]) => [
-          key,
-          this.generateDependencyProp(prop),
-        ])
-      )
-    }
-    if (compUnit.children) {
-      compParticle.children = compUnit.children.map(
-        this.parseViewParticle.bind(this)
-      )
-    }
+    compParticle.props = Object.fromEntries(
+      Object.entries(compUnit.props).map(([key, prop]) => [
+        key,
+        this.generateDependencyProp(prop),
+      ])
+    )
+    compParticle.children = compUnit.children.map(
+      this.parseViewParticle.bind(this)
+    )
 
     if (dependencyIndexArr.length === 0) return compParticle
 
@@ -374,6 +368,7 @@ export class ReactivityParser {
         dependencyIndexArr,
         dependenciesNode,
       },
+      props: {},
     }
   }
 
@@ -498,14 +493,12 @@ export class ReactivityParser {
     const expParticle: ExpParticle = {
       type: "exp",
       content: this.generateDependencyProp(expUnit.content),
-    }
-    if (expUnit.props) {
-      expParticle.props = Object.fromEntries(
+      props: Object.fromEntries(
         Object.entries(expUnit.props).map(([key, prop]) => [
           key,
           this.generateDependencyProp(prop),
         ])
-      )
+      ),
     }
     return expParticle
   }
@@ -520,6 +513,8 @@ export class ReactivityParser {
     const subviewParticle: SubviewParticle = {
       type: "subview",
       tag: subviewUnit.tag,
+      props: {},
+      children: [],
     }
     if (subviewUnit.props) {
       subviewParticle.props = Object.fromEntries(
@@ -548,14 +543,12 @@ export class ReactivityParser {
     const dependencyProp: DependencyProp = {
       value: prop.value,
       ...this.getDependencies(prop.value),
-    }
-    if (prop.viewPropMap) {
-      dependencyProp.viewPropMap = Object.fromEntries(
+      viewPropMap: Object.fromEntries(
         Object.entries(prop.viewPropMap).map(([key, units]) => [
           key,
           units.map(this.parseViewParticle.bind(this)),
         ])
-      )
+      ),
     }
     return dependencyProp
   }
@@ -572,7 +565,7 @@ export class ReactivityParser {
    */
   private getDependencies(node: t.Expression | t.Statement): {
     dependencyIndexArr: number[]
-    dependenciesNode?: t.ArrayExpression
+    dependenciesNode: t.ArrayExpression
   } {
     const [directDependencies, depNodes] =
       this.dependencyParseType === "identifier"

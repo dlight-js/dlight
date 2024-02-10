@@ -3,7 +3,7 @@ import { type types as t } from "@babel/core"
 
 export interface ViewProp {
   value: t.Expression
-  viewPropMap?: Record<string, ViewUnit[]>
+  viewPropMap: Record<string, ViewUnit[]>
 }
 
 export interface TextUnit {

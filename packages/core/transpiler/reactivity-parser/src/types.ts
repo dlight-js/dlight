@@ -3,15 +3,15 @@ import type Babel from "@babel/core"
 
 export interface DependencyValue<T> {
   value: T
-  dependencyIndexArr?: number[]
-  dependenciesNode?: t.ArrayExpression
+  dependencyIndexArr: number[]
+  dependenciesNode: t.ArrayExpression
 }
 
 export interface DependencyProp {
   value: t.Expression
-  viewPropMap?: Record<string, ViewParticle[]>
-  dependencyIndexArr?: number[]
-  dependenciesNode?: t.ArrayExpression
+  viewPropMap: Record<string, ViewParticle[]>
+  dependencyIndexArr: number[]
+  dependenciesNode: t.ArrayExpression
 }
 
 export interface TemplateProp {
@@ -19,7 +19,7 @@ export interface TemplateProp {
   key: string
   path: number[]
   value: t.Expression
-  dependencyIndexArr?: number[]
+  dependencyIndexArr: number[]
   dependenciesNode?: t.ArrayExpression
 }
 
@@ -40,23 +40,22 @@ export interface TextParticle {
 export interface HTMLParticle {
   type: "html"
   tag: t.Expression
-  props?: Record<string, DependencyValue<t.Expression>>
-  children?: ViewParticle[]
+  props: Record<string, DependencyValue<t.Expression>>
+  children: ViewParticle[]
 }
 
 export interface CompParticle {
   type: "comp"
   tag: t.Expression
-  content?: DependencyProp
-  props?: Record<string, DependencyProp>
-  children?: ViewParticle[]
+  props: Record<string, DependencyProp>
+  children: ViewParticle[]
 }
 
 export interface ForParticle {
   type: "for"
   item: t.LVal
   array: DependencyValue<t.Expression>
-  key?: t.Expression
+  key: t.Expression
   children: ViewParticle[]
 }
 
@@ -91,14 +90,14 @@ export interface EnvParticle {
 export interface ExpParticle {
   type: "exp"
   content: DependencyProp
-  props?: Record<string, DependencyProp>
+  props: Record<string, DependencyProp>
 }
 
 export interface SubviewParticle {
   type: "subview"
   tag: string
-  props?: Record<string, DependencyProp>
-  children?: ViewParticle[]
+  props: Record<string, DependencyProp>
+  children: ViewParticle[]
 }
 
 export type ViewParticle =
