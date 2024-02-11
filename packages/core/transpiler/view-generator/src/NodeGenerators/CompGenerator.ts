@@ -41,9 +41,6 @@ export default class CompGenerator extends ForwardPropGenerator {
         }
         if (key === "element") {
           this.addInitStatement(this.initElement(dlNodeName, value, true))
-          const updateStatement = this.updateElement(dlNodeName, value, true)
-          if (updateStatement)
-            this.addUpdateStatements(dependencyIndexArr, updateStatement)
           return
         }
         if (key === "_$content") {

@@ -62,9 +62,6 @@ export default class HTMLPropGenerator extends ForwardPropGenerator {
       )
     }
     // ---- Static HTML prop with init only
-    if (key === "element") {
-      return this.initElement(name, value)
-    }
     return this.setStaticHTMLProp(name, tag, key, value)
   }
 
@@ -359,8 +356,8 @@ export default class HTMLPropGenerator extends ForwardPropGenerator {
       return null
     }
     if (attrName === "element") {
-      if (check) return this.initElement(dlNodeName, value)
-      return this.updateElement(dlNodeName, value)
+      if (!check) return this.initElement(dlNodeName, value)
+      return null
     }
     if (attrName === "style") return this.setHTMLStyle(dlNodeName, value, check)
     if (attrName === "dataset")
