@@ -136,6 +136,10 @@ const packageManager = (await select({
       value: "yarn",
     },
     {
+      name: "BUN",
+      value: "bun",
+    },
+    {
       name: "NONE",
       value: undefined,
       description: "Install by yourself",
@@ -153,6 +157,8 @@ if (packageManager) {
     cmd = "npm run dev"
   } else if (packageManager === "yarn") {
     cmd = "yarn dev"
+  } else if (packageManager === "bun") {
+    cmd = "bun dev"
   }
   info(`Run app with \`cd ${projectName} && ${cmd}\`\n`)
 }
