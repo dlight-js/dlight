@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-beta.19
+
+### Patch Changes
+
+- feat: reduce re-calc in udpating view
+
 ## 1.0.0-beta.17
 
 ### Patch Changes

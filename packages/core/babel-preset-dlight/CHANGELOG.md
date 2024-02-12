@@ -1,5 +1,11 @@
 # babel-preset-dlight
 
+## 1.0.0-beta.12
+
+### Patch Changes
+
+- feat: reduce re-calc in udpating view
+
 ## 1.0.0-beta.11
 
 ### Patch Changes

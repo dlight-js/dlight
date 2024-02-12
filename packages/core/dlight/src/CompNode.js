@@ -217,7 +217,8 @@ export class CompNode extends DLNode {
   _$updateDerived(key) {
     if ("_$notInitd" in this) return
     // ---- "trigger-view"
-    if (!this[`$tv$${key}`]) this[`$tv$${key}`] = true
+    if (!this["_$updatingSet"]) this["_$updatingSet"] = new Set()
+    if (`$$${key}` in this) this["_$updatingSet"].add(this[`$$${key}`])
 
     this[`$s$${key}`]?.forEach(k => {
       if (`$w$${k}` in this) {
@@ -230,21 +231,24 @@ export class CompNode extends DLNode {
         this[k] = this[`$f$${k}`]
       }
     })
-    // ---- Trigger parent view
-    if (this._$model) this._$model._$updateProp(this._$modelKey)
   }
 
   /**
    * @brief Update View related update function
    * @param key
    */
-  _$updateView(key) {
-    if (!this[`$tv$${key}`]) return
-    const depNum = this[`$$${key}`]
-    if (!depNum) return
-    this._$update?.(depNum, key)
+  _$updateView() {
+    // ---- Trigger parent view
+    if (this._$model) {
+      this._$model._$updateProp(this._$modelKey)
+      return
+    }
+    const depNums = this["_$updatingSet"]
+    if (!depNums) return
+    const depNum = Array.from(depNums).reduce((acc, cur) => acc | cur, 0)
+    this._$update?.(depNum)
     // ---- "trigger-value"
-    this[`$tv$${key}`] = false
+    delete this["_$updatingSet"]
   }
 
   /**

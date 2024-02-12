@@ -556,7 +556,8 @@ export class PluginProvider {
           ? n.body
           : null
       if (!value) return
-      this.addAutoUpdateToNode(value, usedProperties)
+      this.addUpdateDerived(value, usedProperties)
+      this.addUpdateView(value)
     })
   }
 
@@ -565,10 +566,18 @@ export class PluginProvider {
    * @param node
    * @param usedProperties
    */
-  private addAutoUpdateToNode(
+  private addUpdateDerived(
     node: t.Expression | t.BlockStatement,
     usedProperties: string[]
   ) {
+    const newUpdateProp = (key: string) =>
+      this.t.callExpression(
+        this.t.memberExpression(
+          this.t.thisExpression(),
+          this.t.identifier("_$updateDerived")
+        ),
+        [this.t.stringLiteral(key)]
+      )
     this.traverse(this.valueWrapper(node), {
       MemberExpression: path => {
         if (
@@ -580,7 +589,13 @@ export class PluginProvider {
         if (!usedProperties.includes(key)) return
         const assignPath = this.isAssignmentExpressionLeft(path)
         if (!assignPath) return
-        this.addUpdate(assignPath, key)
+        assignPath.replaceWith(
+          this.t.sequenceExpression([
+            assignPath.node as t.Expression,
+            newUpdateProp(key),
+          ])
+        )
+        assignPath.skip()
       },
       CallExpression: path => {
         if (!this.t.isMemberExpression(path.node.callee)) return
@@ -593,108 +608,60 @@ export class PluginProvider {
           callee = callee.get("object") as NodePath
         }
         if (!this.t.isThisExpression(callee?.node)) return
-        const propName = (
+        const key = (
           (callee.parentPath!.node as t.MemberExpression)
             .property as t.Identifier
         ).name
-        this.addUpdate(path, propName)
+        path.replaceWith(
+          this.t.sequenceExpression([path.node, newUpdateProp(key)])
+        )
+        path.skip()
       },
     })
   }
 
-  /**
-   * @brief Add updateView and updateDerived to the assignment
-   * @param path
-   * @param key
-   * @returns
-   */
-  private addUpdate(path: NodePath, key: string) {
-    // ---- this._$updateView("key")
-    const updateViewNode = this.t.callExpression(
-      this.t.memberExpression(
-        this.t.thisExpression(),
-        this.t.identifier("_$updateView")
-      ),
-      [this.t.stringLiteral(key)]
-    )
-    // ---- this._$updateDerived("key")
-    const updateDerivedNode = this.t.callExpression(
-      this.t.memberExpression(
-        this.t.thisExpression(),
-        this.t.identifier("_$updateDerived")
-      ),
-      [this.t.stringLiteral(key)]
-    )
-    // ---- Add updateDerived right on the assignment
-    let newNode: t.Node = this.t.sequenceExpression([
-      path.node as t.UpdateExpression | t.AssignmentExpression,
-      updateDerivedNode,
-    ])
-
-    // ---- Find the outermost block statement to add updateView, avoid
-    //      1. if block
-    //      2. loop block
-    let parentPath = path.parentPath
-    while (parentPath) {
-      if (
-        this.t.isBlockStatement(parentPath.node) &&
-        !this.t.isIfStatement(parentPath.parentPath?.node) &&
-        !this.t.isLoop(parentPath.parentPath?.node)
+  private addUpdateView(node: t.Expression | t.BlockStatement) {
+    const newUpdateViewNode = () =>
+      this.t.expressionStatement(
+        this.t.callExpression(
+          this.t.memberExpression(
+            this.t.thisExpression(),
+            this.t.identifier("_$updateView")
+          ),
+          []
+        )
       )
-        break
-      if (this.t.isFunction(parentPath.node)) {
-        parentPath = parentPath.get("body") as NodePath
-        break
-      }
-      parentPath = parentPath.parentPath as NodePath
+    const isControlFlowBlock = (node: t.BlockStatement) =>
+      this.t.isIfStatement(node) ||
+      this.t.isLoop(node) ||
+      this.t.isTryStatement(node) ||
+      this.t.isSwitchStatement(node)
+
+    const handleFunction = (
+      path: NodePath<t.FunctionExpression | t.ArrowFunctionExpression>
+    ) => {
+      if (this.t.isBlockStatement(path.node.body)) return
+      path.node.body = this.t.sequenceExpression([
+        path.node.body,
+        newUpdateViewNode().expression,
+      ])
     }
 
-    // ---- Add updateView to last
-    if (this.t.isBlockStatement(parentPath?.node)) {
-      const node = parentPath.node
-      if (!this.getUpdatePropExp(node).has(key)) {
-        const returns = this.getAllTopLevelReturnBlock(node)
-        returns.forEach(node => {
-          node.body.splice(-1, 0, this.t.expressionStatement(updateViewNode))
-        })
-        if (!this.t.isReturnStatement(node.body[node.body.length - 1])) {
-          node.body.push(this.t.expressionStatement(updateViewNode))
+    this.traverse(this.valueWrapper(node), {
+      BlockStatement: path => {
+        const statements = path.node.body
+        const returnIdx = statements.findIndex(s => this.t.isReturnStatement(s))
+        const parentPath = path.parentPath
+        if (returnIdx === -1) {
+          if (isControlFlowBlock(parentPath?.node as t.BlockStatement)) return
+          statements.push(newUpdateViewNode())
+          return
         }
-      }
-    } else {
-      // ---- If no block statement found, do (original, update)
-      newNode = this.t.sequenceExpression([newNode, updateViewNode])
-    }
-
-    path.replaceWith(newNode)
-    path.skip()
-  }
-
-  /**
-   * @brief Get all top level updateView props to avoid duplicate
-   * @param blockStatement
-   * @returns
-   */
-  private getUpdatePropExp(blockStatement: t.BlockStatement) {
-    const propNames = new Set()
-    blockStatement.body.forEach(node => {
-      if (!this.t.isExpressionStatement(node)) return
-      const exp = node.expression
-      if (!this.t.isCallExpression(exp)) return
-      const callee = exp.callee
-      if (!this.t.isMemberExpression(callee)) return
-      const obj = callee.object
-      const prop = callee.property
-      if (
-        !this.t.isThisExpression(obj) ||
-        !this.t.isIdentifier(prop, { name: "_$updateView" })
-      )
-        return
-      const arg = exp.arguments[0]
-      if (!this.t.isStringLiteral(arg)) return
-      propNames.add(arg.value)
+        statements.splice(returnIdx, 0, newUpdateViewNode())
+      },
+      FunctionExpression: handleFunction,
+      ArrowFunctionExpression: handleFunction,
     })
-    return propNames
   }
 
   /**
@@ -709,7 +676,8 @@ export class PluginProvider {
       // ---- Type start with lowercase is not a node
       if (value.type?.[0] && value.type[0] !== value.type[0].toLowerCase()) {
         if (this.t.isExpression(value)) {
-          this.addAutoUpdateToNode(value, this.availableProperties)
+          this.addUpdateDerived(value, this.availableProperties)
+          this.addUpdateView(value)
         }
       } else {
         this.addViewAutoUpdate(value)
