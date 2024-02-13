@@ -76,7 +76,11 @@ export class CompNode extends DLNode {
       // ---- Run watcher
       if (key.startsWith("$w$")) return this[key.slice(3)]()
       // ---- Run model update
-      if (key.startsWith("$md$")) return this[key.slice(4)]._$update()
+      if (key.startsWith("$md$")) {
+        const realKey = key.slice(4)
+        this[realKey] = this[realKey]()
+        return
+      }
       // ---- Run derived value
       if (key.startsWith("$f$")) {
         const realKey = key.slice(3)

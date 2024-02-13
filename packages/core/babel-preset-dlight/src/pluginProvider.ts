@@ -1153,6 +1153,8 @@ export class PluginProvider {
       this.t.thisExpression(),
       this.t.identifier("_$injectModel")
     )
+    // ---- Wrap a function for lazy evaluation
+    node.value = this.t.arrowFunctionExpression([], value)
     // ---- Add $md$${key}
     const propertyIdx = this.classBodyNode!.body.indexOf(node)
     const modelDecorator = this.t.classProperty(
