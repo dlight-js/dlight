@@ -245,8 +245,10 @@ export class CompNode extends DLNode {
     }
     const depNums = this["_$updatingSet"]
     if (!depNums) return
-    const depNum = Array.from(depNums).reduce((acc, cur) => acc | cur, 0)
-    this._$update?.(depNum)
+    if (depNums.size > 0) {
+      const depNum = Array.from(depNums).reduce((acc, cur) => acc | cur, 0)
+      this._$update?.(depNum)
+    }
     // ---- "trigger-value"
     delete this["_$updatingSet"]
   }

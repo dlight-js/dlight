@@ -444,7 +444,6 @@ export class PluginProvider {
   }
 
   /* ---- Helper Functions ---- */
-
   handleClassCustomDecorators() {
     if (!this.classBodyNode) return
     const decorators = this.classDeclarationNode?.decorators
@@ -546,7 +545,9 @@ export class PluginProvider {
               (n.key as t.Identifier).name
             )) ||
           (this.t.isClassMethod(n, { kind: "method" }) &&
-            this.findDecoratorByName(n.decorators, "View"))
+            this.findDecoratorByName(n.decorators, "View")) ||
+          this.t.isClassMethod(n, { static: true }) ||
+          this.t.isClassProperty(n, { static: true })
         )
     )
     nonViewNodes.forEach(n => {
@@ -637,6 +638,19 @@ export class PluginProvider {
       this.t.isTryStatement(node) ||
       this.t.isSwitchStatement(node)
 
+    const hasUpdateDerived = (node: t.BlockStatement) =>
+      node.body.some(
+        n =>
+          this.t.isExpressionStatement(n) &&
+          this.t.isSequenceExpression(n.expression) &&
+          this.t.isCallExpression(n.expression.expressions[1]) &&
+          this.t.isMemberExpression(n.expression.expressions[1].callee) &&
+          this.t.isThisExpression(n.expression.expressions[1].callee.object) &&
+          this.t.isIdentifier(n.expression.expressions[1].callee.property, {
+            name: "_$updateDerived",
+          })
+      )
+
     const handleFunction = (
       path: NodePath<t.FunctionExpression | t.ArrowFunctionExpression>
     ) => {
@@ -653,11 +667,20 @@ export class PluginProvider {
         const returnIdx = statements.findIndex(s => this.t.isReturnStatement(s))
         const parentPath = path.parentPath
         if (returnIdx === -1) {
+          // ---- If no return statement, and it's a control flow block, don't add updateView
           if (isControlFlowBlock(parentPath?.node as t.BlockStatement)) return
+          // ---- If no return statement, and it doesn't have updateDerived, don't add updateView
+          if (!hasUpdateDerived(path.node)) return
           statements.push(newUpdateViewNode())
           return
         }
-        statements.splice(returnIdx, 0, newUpdateViewNode())
+        // ---- If is a control flow block or has updateDerived, add updateView before return
+        if (
+          isControlFlowBlock(parentPath?.node as t.BlockStatement) ||
+          hasUpdateDerived(path.node)
+        ) {
+          statements.splice(returnIdx, 0, newUpdateViewNode())
+        }
       },
       FunctionExpression: handleFunction,
       ArrowFunctionExpression: handleFunction,

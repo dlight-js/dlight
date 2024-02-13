@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-beta.20
+
+### Patch Changes
+
+- fix: no updateView in static property/method/non-updateDerivedBlock
+
 ## 1.0.0-beta.19
 
 ### Patch Changes
