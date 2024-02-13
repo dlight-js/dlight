@@ -14,105 +14,29 @@ import {
 } from "@dlightjs/dlight"
 
 import { Button } from "./Button100.view"
-
 @Model
-class DDData {
-  @Env ok
-  count = 3
-  arr = [1, 2, 3]
-  fetch = use(FetchModel, { id: 1 })
-
-  jj = (() => {
-    console.log(this.ok, "fuck")
-  })()
-  willMount() {
-    console.log(this.ok, "nno")
-  }
-}
-const DD = DDData as Pretty as Modeling<DDData>
-@Model
-class Fetch {
-  @Prop id
-  data
-  loading = true
-  @Env ok
+class MyModel {
+  @Prop count = 0
+  dblCount = this.count * 2
 
   @Watch
-  async fetch() {
-    const res = await fetch(
-      `https://jsonplaceholder.typicode.com/posts/${this.id}`
-    )
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    this.data = await res.json()
-    this.loading = false
-    console.log(this.data)
-  }
-
-  willMount() {
-    console.log("nno", this.ok)
+  watchCount() {
+    console.log("count changed", this.dblCount)
   }
 }
-
-const FetchModel = Fetch as Pretty as Modeling<Fetch, { id: number }>
-@View
-class Comp {
-  dd = use(DD)
-  @Env ok
-
-  willMount() {
-    console.log(this.ok, "11")
-  }
-  View() {
-    div("hh")
-  }
-}
-
-@View
-class CC {
-  @Prop a
-  @Prop count
-  View() {
-    if (this.a) {
-      div("ok")
-    }
-    div(this.count)
-  }
-}
-
-@Model
-class JJ {
-  @Prop count = 0
-  jj = this.count
-}
-
 @Main
 @View
 class App {
   count = 1
-  jj = use(JJ, { count: this.count })
-  el
-  didMount() {
-    console.log(this.el.style)
-    // this.el.style.setProperty("--color-ok", "red")
-    // this.el.style["--color-ok"] = "red"
-  }
+  dblCount = this.count * 2
+  model = use(MyModel, { count: this.dblCount })
   View() {
-    // env().ok("100")
-    // {s
-    //   Comp()
-    // }
-    div(this.jj.jj.toString())
-      .class("ok")
-      .style({
-        "--color-ok": "red",
-      })
-      .element(el => (this.el = el))
-    button("+").onClick(() => {
-      this.jj.jj++
+    button("toggle").onClick(() => {
+      this.flag = !this.flag
     })
-    button("+").onClick(() => {
-      this.count++
-    })
+    if (this.flag) {
+      MyComp()
+    }
   }
 }
 
