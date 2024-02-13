@@ -1,5 +1,11 @@
 # babel-preset-dlight
 
+## 1.0.0-beta.17
+
+### Patch Changes
+
+- fix: treat model as function when loading to avoid recalc
+
 ## 1.0.0-beta.16
 
 ### Patch Changes

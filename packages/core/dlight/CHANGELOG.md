@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-beta.25
+
+### Patch Changes
+
+- fix: treat model as function when loading to avoid recalc
+
 ## 1.0.0-beta.24
 
 ### Patch Changes
