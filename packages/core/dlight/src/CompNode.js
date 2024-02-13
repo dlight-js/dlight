@@ -75,6 +75,8 @@ export class CompNode extends DLNode {
     allProps.forEach(key => {
       // ---- Run watcher
       if (key.startsWith("$w$")) return this[key.slice(3)]()
+      // ---- Run model update
+      if (key.startsWith("$md$")) return this[key.slice(4)]._$update()
       // ---- Run derived value
       if (key.startsWith("$f$")) {
         const realKey = key.slice(3)

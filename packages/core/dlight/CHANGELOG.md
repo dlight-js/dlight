@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-beta.23
+
+### Patch Changes
+
+- fix: no 1st time update for model
+
 ## 1.0.0-beta.22
 
 ### Patch Changes
