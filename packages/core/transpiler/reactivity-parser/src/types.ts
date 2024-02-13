@@ -3,15 +3,17 @@ import type Babel from "@babel/core"
 
 export interface DependencyValue<T> {
   value: T
-  dependencyIndexArr?: number[]
-  dependenciesNode?: t.ArrayExpression
+  dynamic: boolean
+  dependencyIndexArr: number[]
+  dependenciesNode: t.ArrayExpression
 }
 
 export interface DependencyProp {
   value: t.Expression
-  viewPropMap?: Record<string, ViewParticle[]>
-  dependencyIndexArr?: number[]
-  dependenciesNode?: t.ArrayExpression
+  viewPropMap: Record<string, ViewParticle[]>
+  dynamic: boolean
+  dependencyIndexArr: number[]
+  dependenciesNode: t.ArrayExpression
 }
 
 export interface TemplateProp {
@@ -19,8 +21,9 @@ export interface TemplateProp {
   key: string
   path: number[]
   value: t.Expression
-  dependencyIndexArr?: number[]
-  dependenciesNode?: t.ArrayExpression
+  dynamic: boolean
+  dependencyIndexArr: number[]
+  dependenciesNode: t.ArrayExpression
 }
 
 export type MutableParticle = ViewParticle & { path: number[] }
@@ -40,23 +43,22 @@ export interface TextParticle {
 export interface HTMLParticle {
   type: "html"
   tag: t.Expression
-  props?: Record<string, DependencyValue<t.Expression>>
-  children?: ViewParticle[]
+  props: Record<string, DependencyValue<t.Expression>>
+  children: ViewParticle[]
 }
 
 export interface CompParticle {
   type: "comp"
   tag: t.Expression
-  content?: DependencyProp
-  props?: Record<string, DependencyProp>
-  children?: ViewParticle[]
+  props: Record<string, DependencyProp>
+  children: ViewParticle[]
 }
 
 export interface ForParticle {
   type: "for"
   item: t.LVal
   array: DependencyValue<t.Expression>
-  key?: t.Expression
+  key: t.Expression
   children: ViewParticle[]
 }
 
@@ -71,7 +73,7 @@ export interface IfParticle {
 }
 
 export interface SwitchBranch {
-  case: DependencyValue<t.Expression> | null | undefined
+  case: DependencyValue<t.Expression>
   children: ViewParticle[]
   break: boolean
 }
@@ -91,14 +93,14 @@ export interface EnvParticle {
 export interface ExpParticle {
   type: "exp"
   content: DependencyProp
-  props?: Record<string, DependencyProp>
+  props: Record<string, DependencyProp>
 }
 
 export interface SubviewParticle {
   type: "subview"
   tag: string
-  props?: Record<string, DependencyProp>
-  children?: ViewParticle[]
+  props: Record<string, DependencyProp>
+  children: ViewParticle[]
 }
 
 export type ViewParticle =
@@ -116,6 +118,7 @@ export type ViewParticle =
 export interface ReactivityParserConfig {
   babelApi: typeof Babel
   availableProperties: string[]
+  availableIdentifiers?: string[]
   dependencyMap: Record<string, string[]>
   identifierDepMap?: Record<string, string[]>
   dependencyParseType?: "property" | "identifier"

@@ -15,7 +15,7 @@ export default class ExpGenerator extends ElementGenerator {
       this.declareExpNode(dlNodeName, content.value, content.dependenciesNode)
     )
 
-    if (content.dependencyIndexArr && content.dependencyIndexArr.length > 0) {
+    if (content.dynamic) {
       this.addUpdateStatements(
         content.dependencyIndexArr,
         this.updateExpNode(dlNodeName, content.value, content.dependenciesNode)
@@ -23,7 +23,7 @@ export default class ExpGenerator extends ElementGenerator {
     }
 
     if (props) {
-      Object.entries(props).forEach(([key, { value, dependencyIndexArr }]) => {
+      Object.entries(props).forEach(([key, { value }]) => {
         if (
           ExpGenerator.lifecycle.includes(
             key as (typeof ExpGenerator.lifecycle)[number]
@@ -39,9 +39,6 @@ export default class ExpGenerator extends ElementGenerator {
         }
         if (key === "element") {
           this.addInitStatement(this.initElement(dlNodeName, value, true))
-          const updateStatement = this.updateElement(dlNodeName, value, true)
-          if (updateStatement)
-            this.addUpdateStatements(dependencyIndexArr, updateStatement)
           return
         }
         if (key === "didUpdate") {
@@ -65,7 +62,7 @@ export default class ExpGenerator extends ElementGenerator {
   private declareExpNode(
     dlNodeName: string,
     value: t.Expression,
-    dependenciesNode?: t.ArrayExpression
+    dependenciesNode: t.ArrayExpression
   ): t.Statement {
     return this.t.expressionStatement(
       this.t.assignmentExpression(
@@ -86,7 +83,7 @@ export default class ExpGenerator extends ElementGenerator {
   private updateExpNode(
     dlNodeName: string,
     value: t.Expression,
-    dependenciesNode?: t.ArrayExpression
+    dependenciesNode: t.ArrayExpression
   ): t.Statement {
     return this.optionalExpression(
       dlNodeName,

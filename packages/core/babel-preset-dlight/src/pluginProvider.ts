@@ -10,6 +10,7 @@ import { parseView } from "@dlightjs/view-parser"
 import { parseReactivity } from "@dlightjs/reactivity-parser"
 import { generateSubView, generateView } from "@dlightjs/view-generator"
 import {
+  alterAttributeMap,
   availableDecoNames,
   defaultHTMLTags,
   devMode,
@@ -443,7 +444,6 @@ export class PluginProvider {
   }
 
   /* ---- Helper Functions ---- */
-
   handleClassCustomDecorators() {
     if (!this.classBodyNode) return
     const decorators = this.classDeclarationNode?.decorators
@@ -545,7 +545,9 @@ export class PluginProvider {
               (n.key as t.Identifier).name
             )) ||
           (this.t.isClassMethod(n, { kind: "method" }) &&
-            this.findDecoratorByName(n.decorators, "View"))
+            this.findDecoratorByName(n.decorators, "View")) ||
+          this.t.isClassMethod(n, { static: true }) ||
+          this.t.isClassProperty(n, { static: true })
         )
     )
     nonViewNodes.forEach(n => {
@@ -555,7 +557,8 @@ export class PluginProvider {
           ? n.body
           : null
       if (!value) return
-      this.addAutoUpdateToNode(value, usedProperties)
+      this.addUpdateDerived(value, usedProperties)
+      this.addUpdateView(value)
     })
   }
 
@@ -564,10 +567,18 @@ export class PluginProvider {
    * @param node
    * @param usedProperties
    */
-  private addAutoUpdateToNode(
+  private addUpdateDerived(
     node: t.Expression | t.BlockStatement,
     usedProperties: string[]
   ) {
+    const newUpdateProp = (node: t.Expression, key: string) =>
+      this.t.callExpression(
+        this.t.memberExpression(
+          this.t.thisExpression(),
+          this.t.identifier("_$ud")
+        ),
+        [node, this.t.stringLiteral(key)]
+      )
     this.traverse(this.valueWrapper(node), {
       MemberExpression: path => {
         if (
@@ -579,7 +590,10 @@ export class PluginProvider {
         if (!usedProperties.includes(key)) return
         const assignPath = this.isAssignmentExpressionLeft(path)
         if (!assignPath) return
-        this.addUpdate(assignPath, key)
+        assignPath.replaceWith(
+          newUpdateProp(assignPath.node as t.Expression, key)
+        )
+        assignPath.skip()
       },
       CallExpression: path => {
         if (!this.t.isMemberExpression(path.node.callee)) return
@@ -592,108 +606,95 @@ export class PluginProvider {
           callee = callee.get("object") as NodePath
         }
         if (!this.t.isThisExpression(callee?.node)) return
-        const propName = (
+        const key = (
           (callee.parentPath!.node as t.MemberExpression)
             .property as t.Identifier
         ).name
-        this.addUpdate(path, propName)
+        path.replaceWith(newUpdateProp(path.node, key))
+        path.skip()
       },
     })
   }
 
-  /**
-   * @brief Add updateView and updateDerived to the assignment
-   * @param path
-   * @param key
-   * @returns
-   */
-  private addUpdate(path: NodePath, key: string) {
-    // ---- this._$updateView("key")
-    const updateViewNode = this.t.callExpression(
-      this.t.memberExpression(
-        this.t.thisExpression(),
-        this.t.identifier("_$updateView")
-      ),
-      [this.t.stringLiteral(key)]
-    )
-    // ---- this._$updateDerived("key")
-    const updateDerivedNode = this.t.callExpression(
-      this.t.memberExpression(
-        this.t.thisExpression(),
-        this.t.identifier("_$updateDerived")
-      ),
-      [this.t.stringLiteral(key)]
-    )
-    // ---- Add updateDerived right on the assignment
-    let newNode: t.Node = this.t.sequenceExpression([
-      path.node as t.UpdateExpression | t.AssignmentExpression,
-      updateDerivedNode,
-    ])
-
-    // ---- Find the outermost block statement to add updateView, avoid
-    //      1. if block
-    //      2. loop block
-    let parentPath = path.parentPath
-    while (parentPath) {
-      if (
-        this.t.isBlockStatement(parentPath.node) &&
-        !this.t.isIfStatement(parentPath.parentPath?.node) &&
-        !this.t.isLoop(parentPath.parentPath?.node)
+  private addUpdateView(node: t.Expression | t.BlockStatement) {
+    const newUpdateViewNode = () =>
+      this.t.expressionStatement(
+        this.t.callExpression(
+          this.t.memberExpression(
+            this.t.thisExpression(),
+            this.t.identifier("_$updateView")
+          ),
+          []
+        )
       )
-        break
-      if (this.t.isFunction(parentPath.node)) {
-        parentPath = parentPath.get("body") as NodePath
-        break
-      }
-      parentPath = parentPath.parentPath as NodePath
+    const isControlFlowBlock = (node: t.BlockStatement) =>
+      this.t.isIfStatement(node) ||
+      this.t.isLoop(node) ||
+      this.t.isTryStatement(node) ||
+      this.t.isSwitchStatement(node)
+
+    const isLogicExpression = (node: t.Expression) =>
+      this.t.isCallExpression(node) &&
+      this.t.isMemberExpression(node.callee) &&
+      this.t.isThisExpression(node.callee.object) &&
+      this.t.isIdentifier(node.callee.property, {
+        name: "_$ud",
+      })
+
+    const hasUpdateDerived = (node: t.BlockStatement) =>
+      node.body.some(
+        n => this.t.isExpressionStatement(n) && isLogicExpression(n.expression)
+      )
+
+    const handleFunction = (
+      path: NodePath<t.FunctionExpression | t.ArrowFunctionExpression>
+    ) => {
+      if (this.t.isBlockStatement(path.node.body)) return
+      if (!isLogicExpression(path.node.body)) return
+      // ---- Add IIFE and this._$updateView
+      // () => node -> () => { const _$tmp = node; this._$updateView(); return _$tmp;}
+      path.node.body = this.t.callExpression(
+        this.t.arrowFunctionExpression(
+          [],
+          this.t.blockStatement([
+            this.t.variableDeclaration("const", [
+              this.t.variableDeclarator(
+                this.t.identifier("_$tmp"),
+                path.node.body
+              ),
+            ]),
+            newUpdateViewNode(),
+            this.t.returnStatement(this.t.identifier("_$tmp")),
+          ])
+        ),
+        []
+      )
     }
 
-    // ---- Add updateView to last
-    if (this.t.isBlockStatement(parentPath?.node)) {
-      const node = parentPath.node
-      if (!this.getUpdatePropExp(node).has(key)) {
-        const returns = this.getAllTopLevelReturnBlock(node)
-        returns.forEach(node => {
-          node.body.splice(-1, 0, this.t.expressionStatement(updateViewNode))
-        })
-        if (!this.t.isReturnStatement(node.body[node.body.length - 1])) {
-          node.body.push(this.t.expressionStatement(updateViewNode))
+    this.traverse(this.valueWrapper(node), {
+      BlockStatement: path => {
+        const statements = path.node.body
+        const returnIdx = statements.findIndex(s => this.t.isReturnStatement(s))
+        const parentPath = path.parentPath
+        if (returnIdx === -1) {
+          // ---- If no return statement, and it's a control flow block, don't add updateView
+          if (isControlFlowBlock(parentPath?.node as t.BlockStatement)) return
+          // ---- If no return statement, and it doesn't have updateDerived, don't add updateView
+          if (!hasUpdateDerived(path.node)) return
+          statements.push(newUpdateViewNode())
+          return
         }
-      }
-    } else {
-      // ---- If no block statement found, do (original, update)
-      newNode = this.t.sequenceExpression([newNode, updateViewNode])
-    }
-
-    path.replaceWith(newNode)
-    path.skip()
-  }
-
-  /**
-   * @brief Get all top level updateView props to avoid duplicate
-   * @param blockStatement
-   * @returns
-   */
-  private getUpdatePropExp(blockStatement: t.BlockStatement) {
-    const propNames = new Set()
-    blockStatement.body.forEach(node => {
-      if (!this.t.isExpressionStatement(node)) return
-      const exp = node.expression
-      if (!this.t.isCallExpression(exp)) return
-      const callee = exp.callee
-      if (!this.t.isMemberExpression(callee)) return
-      const obj = callee.object
-      const prop = callee.property
-      if (
-        !this.t.isThisExpression(obj) ||
-        !this.t.isIdentifier(prop, { name: "_$updateView" })
-      )
-        return
-      const arg = exp.arguments[0]
-      if (!this.t.isStringLiteral(arg)) return
-      propNames.add(arg.value)
+        // ---- If is a control flow block or has updateDerived, add updateView before return
+        if (
+          isControlFlowBlock(parentPath?.node as t.BlockStatement) ||
+          hasUpdateDerived(path.node)
+        ) {
+          statements.splice(returnIdx, 0, newUpdateViewNode())
+        }
+      },
+      FunctionExpression: handleFunction,
+      ArrowFunctionExpression: handleFunction,
     })
-    return propNames
   }
 
   /**
@@ -708,7 +709,8 @@ export class PluginProvider {
       // ---- Type start with lowercase is not a node
       if (value.type?.[0] && value.type[0] !== value.type[0].toLowerCase()) {
         if (this.t.isExpression(value)) {
-          this.addAutoUpdateToNode(value, this.availableProperties)
+          this.addUpdateDerived(value, this.availableProperties)
+          this.addUpdateView(value)
         }
       } else {
         this.addViewAutoUpdate(value)
@@ -852,6 +854,7 @@ export class PluginProvider {
       ),
       templateIdx: -1,
       attributeMap: this.attributeMap,
+      alterAttributeMap,
     })
     viewNode.body = body
     this.classBodyNode?.body.push(...classProperties)
@@ -892,16 +895,6 @@ export class PluginProvider {
     })
     viewUnits.map(viewUnit => this.addViewAutoUpdate(viewUnit))
 
-    const [viewParticlesProperty, usedPropertySet] = parseReactivity(
-      viewUnits,
-      {
-        babelApi: this.babelApi,
-        availableProperties: this.availableProperties,
-        dependencyMap: this.dependencyMap,
-        reactivityFuncNames,
-      }
-    )
-
     const subViewProp =
       subViewPropSubDepMap[(viewNode.key as t.Identifier).name] ?? []
     const identifierDepMap: Record<string, string[]> = {}
@@ -910,6 +903,18 @@ export class PluginProvider {
         identifierDepMap[dep] = [key]
       })
     })
+
+    const [viewParticlesProperty, usedPropertySet] = parseReactivity(
+      viewUnits,
+      {
+        babelApi: this.babelApi,
+        availableProperties: this.availableProperties,
+        availableIdentifiers: Object.keys(subViewProp),
+        dependencyMap: this.dependencyMap,
+        dependencyParseType: "property",
+        reactivityFuncNames,
+      }
+    )
 
     const [viewParticlesIdentifier] = parseReactivity(viewUnits, {
       babelApi: this.babelApi,
@@ -937,6 +942,7 @@ export class PluginProvider {
         subViewPropMap,
         templateIdx,
         attributeMap: this.attributeMap,
+        alterAttributeMap,
       }
     )
     viewNode.body = body

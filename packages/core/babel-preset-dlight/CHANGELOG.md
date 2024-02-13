@@ -1,5 +1,38 @@
 # babel-preset-dlight
 
+## 1.0.0-beta.16
+
+### Patch Changes
+
+- fix: add ModelType and fix forwardProp
+
+## 1.0.0-beta.15
+
+### Patch Changes
+
+- Updated dependencies
+  - @dlightjs/reactivity-parser@1.0.0-beta.3
+  - @dlightjs/view-generator@1.0.0-beta.4
+  - @dlightjs/view-parser@1.0.0-beta.5
+
+## 1.0.0-beta.14
+
+### Patch Changes
+
+- refactor: change updateDerived to \_$ud
+
+## 1.0.0-beta.13
+
+### Patch Changes
+
+- fix: no updateView in static property/method/non-updateDerivedBlock
+
+## 1.0.0-beta.12
+
+### Patch Changes
+
+- feat: reduce re-calc in udpating view
+
 ## 1.0.0-beta.11
 
 ### Patch Changes

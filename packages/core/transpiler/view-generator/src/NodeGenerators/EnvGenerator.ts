@@ -110,7 +110,7 @@ export default class EnvGenerator extends PropViewGenerator {
     dlNodeName: string,
     key: string,
     value: t.Expression,
-    dependenciesNode?: t.ArrayExpression
+    dependenciesNode: t.ArrayExpression
   ): t.Statement {
     return this.optionalExpression(
       dlNodeName,
@@ -122,7 +122,7 @@ export default class EnvGenerator extends PropViewGenerator {
         [
           this.t.stringLiteral(key),
           this.t.arrowFunctionExpression([], value),
-          dependenciesNode ?? this.t.nullLiteral(),
+          dependenciesNode,
         ]
       )
     )

@@ -3,7 +3,7 @@ import { type types as t } from "@babel/core"
 
 export interface ViewProp {
   value: t.Expression
-  viewPropMap?: Record<string, ViewUnit[]>
+  viewPropMap: Record<string, ViewUnit[]>
 }
 
 export interface TextUnit {
@@ -14,24 +14,22 @@ export interface TextUnit {
 export interface HTMLUnit {
   type: "html"
   tag: t.Expression
-  content?: ViewProp
-  props?: Record<string, ViewProp>
-  children?: ViewUnit[]
+  props: Record<string, ViewProp>
+  children: ViewUnit[]
 }
 
 export interface CompUnit {
   type: "comp"
   tag: t.Expression
-  content?: ViewProp
-  props?: Record<string, ViewProp>
-  children?: ViewUnit[]
+  props: Record<string, ViewProp>
+  children: ViewUnit[]
 }
 
 export interface ForUnit {
   type: "for"
   item: t.LVal
   array: t.Expression
-  key?: t.Expression
+  key: t.Expression
   children: ViewUnit[]
 }
 
@@ -46,7 +44,7 @@ export interface IfUnit {
 }
 
 export interface SwitchBranch {
-  case: t.Expression | null | undefined
+  case: t.Expression
   children: ViewUnit[]
   break: boolean
 }
@@ -66,14 +64,14 @@ export interface EnvUnit {
 export interface ExpUnit {
   type: "exp"
   content: ViewProp
-  props?: Record<string, ViewProp>
+  props: Record<string, ViewProp>
 }
 
 export interface SubviewUnit {
   type: "subview"
   tag: string
-  props?: Record<string, ViewProp>
-  children?: ViewUnit[]
+  props: Record<string, ViewProp>
+  children: ViewUnit[]
 }
 
 export type ViewUnit =

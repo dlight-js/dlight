@@ -1,5 +1,11 @@
 # @dlightjs/view-generator
 
+## 1.0.0-beta.4
+
+### Patch Changes
+
+- update: transpiler
+
 ## 1.0.0-beta.3
 
 ### Patch Changes

@@ -2,8 +2,7 @@ import { DLNode } from "./DLNode"
 import { DLStore, cached } from "./store"
 
 function cache(el, key, deps) {
-  // ---- If there are no deps, update it every time
-  if (!deps || !deps.length) return false
+  if (deps.length === 0) return false
   const cacheKey = `$${key}`
   if (cached(deps, el[cacheKey])) return true
   el[cacheKey] = deps
@@ -15,10 +14,8 @@ function cache(el, key, deps) {
  * @param el
  * @param value
  */
-export function setStyle(el, valueFunc, deps) {
-  if (cache(el, "style", deps)) return
-  const style = valueFunc()
-  Object.entries(style).forEach(([key, value]) => {
+export function setStyle(el, value) {
+  Object.entries(value).forEach(([key, value]) => {
     if (key.startsWith("--")) {
       el.style.setProperty(key, value)
     } else {
@@ -32,9 +29,8 @@ export function setStyle(el, valueFunc, deps) {
  * @param el
  * @param value
  */
-export function setDataset(el, valueFunc, deps) {
-  if (cache(el, "dataset", deps)) return
-  Object.assign(el.dataset, valueFunc())
+export function setDataset(el, value) {
+  Object.assign(el.dataset, value)
 }
 
 /**
@@ -44,6 +40,12 @@ export function setDataset(el, valueFunc, deps) {
  * @param value
  */
 export function setHTMLProp(el, key, valueFunc, deps) {
+  // ---- Comparing deps, same value won't trigger
+  //      will lead to a bug if the value is set outside of the DLNode
+  //      e.g. setHTMLProp(el, "textContent", "value", [])
+  //       =>  el.textContent = "other"
+  //       =>  setHTMLProp(el, "textContent", "value", [])
+  //       The value will be set to "other" instead of "value"
   if (cache(el, key, deps)) return
   el[key] = valueFunc()
 }
@@ -53,12 +55,11 @@ export function setHTMLProp(el, key, valueFunc, deps) {
  * @param el
  * @param value
  */
-export function setHTMLProps(el, valueFunc, deps) {
-  if (cache(el, "$props", deps)) return
-  Object.entries(valueFunc()).forEach(([key, value]) => {
-    if (key === "style") return setStyle(el, value)
-    if (key === "dataset") return setDataset(el, value)
-    setHTMLProp(el, key, value)
+export function setHTMLProps(el, value) {
+  Object.entries(value).forEach(([key, v]) => {
+    if (key === "style") return setStyle(el, v)
+    if (key === "dataset") return setDataset(el, v)
+    setHTMLProp(el, key, v, [])
   })
 }
 
@@ -78,10 +79,9 @@ export function setHTMLAttr(el, key, valueFunc, deps) {
  * @param el
  * @param value
  */
-export function setHTMLAttrs(el, valueFunc, deps) {
-  if (cache(el, "$attrs", deps)) return
-  Object.entries(valueFunc()).forEach(([key, value]) => {
-    setHTMLAttr(el, key, value)
+export function setHTMLAttrs(el, value) {
+  Object.entries(value).forEach(([key, v]) => {
+    setHTMLAttr(el, key, v, [])
   })
 }
 
@@ -91,9 +91,7 @@ export function setHTMLAttrs(el, valueFunc, deps) {
  * @param key
  * @param value
  */
-export function setEvent(el, key, valueFunc, deps) {
-  if (cache(el, key, deps)) return
-  const value = valueFunc()
+export function setEvent(el, key, value) {
   const prevEvent = el[`$on${key}`]
   if (prevEvent) el.removeEventListener(key, prevEvent)
   el.addEventListener(key, value)
@@ -108,9 +106,7 @@ function eventHandler(e) {
   }
 }
 
-export function delegateEvent(el, key, valueFunc, deps) {
-  if (cache(el, key, deps)) return
-  const value = valueFunc()
+export function delegateEvent(el, key, value) {
   if (el[`$$${key}`] === value) return
   el[`$$${key}`] = value
   if (!DLStore.delegatedEvents.has(key)) {

@@ -39,11 +39,10 @@ export class CompNode extends DLNode {
     // Forward props first to allow internal props to override forwarded props
     if (forwardPropsScope) forwardPropsScope._$addForwardProps(this)
     if (content) this._$setContent(() => content[0], content[1])
-    if (props) {
+    if (props)
       props.forEach(([key, value, deps]) => {
         this._$setProp(key, () => value, deps)
       })
-    }
     if (children) this._$children = children
 
     // Add envs
@@ -76,6 +75,8 @@ export class CompNode extends DLNode {
     allProps.forEach(key => {
       // ---- Run watcher
       if (key.startsWith("$w$")) return this[key.slice(3)]()
+      // ---- Run model update
+      if (key.startsWith("$md$")) return this[key.slice(4)]._$update()
       // ---- Run derived value
       if (key.startsWith("$f$")) {
         const realKey = key.slice(3)
@@ -133,7 +134,7 @@ export class CompNode extends DLNode {
   _$addForwardProps(node) {
     this._$forwardPropsSet.add(node)
     this._$forwardPropsId.forEach(key => {
-      this._$setPropToForward(key, this[key])
+      this._$setPropToForward(key, this[key], [])
     })
     DLNode.addWillUnmount(
       node,
@@ -213,13 +214,22 @@ export class CompNode extends DLNode {
   }
 
   /**
+   * @brief Update a prop
+   */
+  _$ud(exp, key) {
+    this._$updateDerived(key)
+    return exp
+  }
+
+  /**
    * @brief Update properties that depend on this property
    * @param key
    */
   _$updateDerived(key) {
     if ("_$notInitd" in this) return
     // ---- "trigger-view"
-    if (!this[`$tv$${key}`]) this[`$tv$${key}`] = true
+    if (!this["_$updatingSet"]) this["_$updatingSet"] = new Set()
+    if (`$$${key}` in this) this["_$updatingSet"].add(this[`$$${key}`])
 
     this[`$s$${key}`]?.forEach(k => {
       if (`$w$${k}` in this) {
@@ -232,21 +242,26 @@ export class CompNode extends DLNode {
         this[k] = this[`$f$${k}`]
       }
     })
-    // ---- Trigger parent view
-    if (this._$model) this._$model._$updateProp(this._$modelKey)
   }
 
   /**
    * @brief Update View related update function
    * @param key
    */
-  _$updateView(key) {
-    if (!this[`$tv$${key}`]) return
-    const depNum = this[`$$${key}`]
-    if (!depNum) return
-    this._$update?.(depNum, key)
+  _$updateView() {
+    // ---- Trigger parent view
+    if (this._$model) {
+      this._$model._$updateProp(this._$modelKey)
+      return
+    }
+    const depNums = this["_$updatingSet"]
+    if (!depNums) return
+    if (depNums.size > 0) {
+      const depNum = Array.from(depNums).reduce((acc, cur) => acc | cur, 0)
+      this._$update?.(depNum)
+    }
     // ---- "trigger-value"
-    this[`$tv$${key}`] = false
+    delete this["_$updatingSet"]
   }
 
   /**

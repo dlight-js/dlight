@@ -1,5 +1,41 @@
 # @dlightjs/dlight
 
+## 1.0.0-beta.24
+
+### Patch Changes
+
+- fix: add ModelType and fix forwardProp
+
+## 1.0.0-beta.23
+
+### Patch Changes
+
+- fix: no 1st time update for model
+
+## 1.0.0-beta.22
+
+### Patch Changes
+
+- refactor: change updateDerived to \_$ud
+
+## 1.0.0-beta.21
+
+### Patch Changes
+
+- fix: comp optional props
+
+## 1.0.0-beta.20
+
+### Patch Changes
+
+- fix: no updateView in static property/method/non-updateDerivedBlock
+
+## 1.0.0-beta.19
+
+### Patch Changes
+
+- feat: reduce re-calc in udpating view
+
 ## 1.0.0-beta.17
 
 ### Patch Changes

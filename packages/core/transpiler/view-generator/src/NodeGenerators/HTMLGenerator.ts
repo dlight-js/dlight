@@ -11,58 +11,51 @@ export default class HTMLGenerator extends HTMLPropGenerator {
     this.addInitStatement(this.declareHTMLNode(dlNodeName, tag))
 
     // ---- Resolve props
-    if (props) {
-      // ---- Use the tag name to check if the prop is internal for the tag,
-      //      for dynamic tag, we can't check it, so we just assume it's not internal
-      //      represent by the "ANY" tag name
-      const tagName = this.t.isStringLiteral(tag) ? tag.value : "ANY"
-      const allDependencyIndexArr: number[] = []
-      let hasOnUpdate: t.Expression | false = false
-      Object.entries(props).forEach(
-        ([key, { value, dependencyIndexArr, dependenciesNode }]) => {
-          if (key === "didUpdate") {
-            hasOnUpdate = value
-            return
-          }
-          allDependencyIndexArr.push(...(dependencyIndexArr ?? []))
-          this.addInitStatement(
-            this.addHTMLProp(
-              dlNodeName,
-              tagName,
-              key,
-              value,
-              dependencyIndexArr,
-              dependenciesNode
-            )
+    // ---- Use the tag name to check if the prop is internal for the tag,
+    //      for dynamic tag, we can't check it, so we just assume it's not internal
+    //      represent by the "ANY" tag name
+    const tagName = this.t.isStringLiteral(tag) ? tag.value : "ANY"
+    const allDependencyIndexArr: number[] = []
+    Object.entries(props).forEach(
+      ([key, { value, dependencyIndexArr, dependenciesNode, dynamic }]) => {
+        if (key === "didUpdate") return
+        allDependencyIndexArr.push(...(dependencyIndexArr ?? []))
+        this.addInitStatement(
+          this.addHTMLProp(
+            dlNodeName,
+            tagName,
+            key,
+            value,
+            dynamic,
+            dependencyIndexArr,
+            dependenciesNode
           )
-        }
-      )
-      if (hasOnUpdate) {
-        this.addUpdateStatements(
-          allDependencyIndexArr,
-          this.addOnUpdate(dlNodeName, hasOnUpdate)
         )
       }
+    )
+    if (props.didUpdate) {
+      this.addUpdateStatements(
+        allDependencyIndexArr,
+        this.addOnUpdate(dlNodeName, props.didUpdate.value)
+      )
     }
 
     // ---- Resolve children
-    if (children) {
-      const childNames: string[] = []
-      let mutable = false
-      children.forEach((child, idx) => {
-        const [initStatements, childName] = this.generateChild(child)
-        childNames.push(childName)
-        this.addInitStatement(...initStatements)
-        if (child.type === "html") {
-          this.addInitStatement(this.appendChild(dlNodeName, childName))
-        } else {
-          mutable = true
-          this.addInitStatement(this.insertNode(dlNodeName, childName, idx))
-        }
-      })
-      if (mutable)
-        this.addInitStatement(this.setHTMLNodes(dlNodeName, childNames))
-    }
+    const childNames: string[] = []
+    let mutable = false
+    children.forEach((child, idx) => {
+      const [initStatements, childName] = this.generateChild(child)
+      childNames.push(childName)
+      this.addInitStatement(...initStatements)
+      if (child.type === "html") {
+        this.addInitStatement(this.appendChild(dlNodeName, childName))
+      } else {
+        mutable = true
+        this.addInitStatement(this.insertNode(dlNodeName, childName, idx))
+      }
+    })
+    if (mutable)
+      this.addInitStatement(this.setHTMLNodes(dlNodeName, childNames))
 
     return dlNodeName
   }
