@@ -1,5 +1,11 @@
 # babel-preset-dlight
 
+## 1.0.0-beta.16
+
+### Patch Changes
+
+- fix: add ModelType and fix forwardProp
+
 ## 1.0.0-beta.15
 
 ### Patch Changes

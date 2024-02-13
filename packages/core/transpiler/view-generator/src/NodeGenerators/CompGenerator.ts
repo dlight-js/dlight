@@ -104,7 +104,7 @@ export default class CompGenerator extends ForwardPropGenerator {
     const willForwardProps = "forwardProps" in props
     props = Object.fromEntries(
       Object.entries(props).filter(
-        ([key]) => !["do", "element", "forwardProps"].includes(key)
+        ([key]) => !["do", "element", "forwardProps", "_$content"].includes(key)
       )
     )
 

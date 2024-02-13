@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-beta.24
+
+### Patch Changes
+
+- fix: add ModelType and fix forwardProp
+
 ## 1.0.0-beta.23
 
 ### Patch Changes

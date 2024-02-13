@@ -134,7 +134,7 @@ export class CompNode extends DLNode {
   _$addForwardProps(node) {
     this._$forwardPropsSet.add(node)
     this._$forwardPropsId.forEach(key => {
-      this._$setPropToForward(key, this[key])
+      this._$setPropToForward(key, this[key], [])
     })
     DLNode.addWillUnmount(
       node,

@@ -27,3 +27,6 @@ export const use: <M>(
   content?: GetContent<Parameters<M>[0]>
   // @ts-expect-error Model should be a function
 ) => RemoveDLightInternal<ReturnType<M>, Parameters<M>[0]>
+
+// @ts-expect-error Model should be a function
+export type ModelType<T> = RemoveDLightInternal<ReturnType<T>, Parameters<T>[0]>
