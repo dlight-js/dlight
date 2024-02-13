@@ -1,5 +1,11 @@
 # @dlightjs/view-parser
 
+## 1.0.0-beta.5
+
+### Patch Changes
+
+- update: transpiler
+
 ## 1.0.0-alpha.4
 
 ### Patch Changes

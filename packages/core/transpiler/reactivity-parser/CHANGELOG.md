@@ -1,5 +1,13 @@
 # @dlightjs/reactivity-parser
 
+## 1.0.0-beta.3
+
+### Patch Changes
+
+- update: transpiler
+- Updated dependencies
+  - @dlightjs/view-parser@1.0.0-beta.5
+
 ## 1.0.0-beta.2
 
 ### Patch Changes
