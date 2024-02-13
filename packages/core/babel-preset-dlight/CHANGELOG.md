@@ -1,5 +1,11 @@
 # babel-preset-dlight
 
+## 1.0.0-beta.14
+
+### Patch Changes
+
+- refactor: change updateDerived to \_$ud
+
 ## 1.0.0-beta.13
 
 ### Patch Changes

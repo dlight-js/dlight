@@ -571,13 +571,13 @@ export class PluginProvider {
     node: t.Expression | t.BlockStatement,
     usedProperties: string[]
   ) {
-    const newUpdateProp = (key: string) =>
+    const newUpdateProp = (node: t.Expression, key: string) =>
       this.t.callExpression(
         this.t.memberExpression(
           this.t.thisExpression(),
-          this.t.identifier("_$updateDerived")
+          this.t.identifier("_$ud")
         ),
-        [this.t.stringLiteral(key)]
+        [node, this.t.stringLiteral(key)]
       )
     this.traverse(this.valueWrapper(node), {
       MemberExpression: path => {
@@ -591,10 +591,7 @@ export class PluginProvider {
         const assignPath = this.isAssignmentExpressionLeft(path)
         if (!assignPath) return
         assignPath.replaceWith(
-          this.t.sequenceExpression([
-            assignPath.node as t.Expression,
-            newUpdateProp(key),
-          ])
+          newUpdateProp(assignPath.node as t.Expression, key)
         )
         assignPath.skip()
       },
@@ -613,9 +610,7 @@ export class PluginProvider {
           (callee.parentPath!.node as t.MemberExpression)
             .property as t.Identifier
         ).name
-        path.replaceWith(
-          this.t.sequenceExpression([path.node, newUpdateProp(key)])
-        )
+        path.replaceWith(newUpdateProp(path.node, key))
         path.skip()
       },
     })
@@ -638,27 +633,42 @@ export class PluginProvider {
       this.t.isTryStatement(node) ||
       this.t.isSwitchStatement(node)
 
+    const isLogicExpression = (node: t.Expression) =>
+      this.t.isCallExpression(node) &&
+      this.t.isMemberExpression(node.callee) &&
+      this.t.isThisExpression(node.callee.object) &&
+      this.t.isIdentifier(node.callee.property, {
+        name: "_$ud",
+      })
+
     const hasUpdateDerived = (node: t.BlockStatement) =>
       node.body.some(
-        n =>
-          this.t.isExpressionStatement(n) &&
-          this.t.isSequenceExpression(n.expression) &&
-          this.t.isCallExpression(n.expression.expressions[1]) &&
-          this.t.isMemberExpression(n.expression.expressions[1].callee) &&
-          this.t.isThisExpression(n.expression.expressions[1].callee.object) &&
-          this.t.isIdentifier(n.expression.expressions[1].callee.property, {
-            name: "_$updateDerived",
-          })
+        n => this.t.isExpressionStatement(n) && isLogicExpression(n.expression)
       )
 
     const handleFunction = (
       path: NodePath<t.FunctionExpression | t.ArrowFunctionExpression>
     ) => {
       if (this.t.isBlockStatement(path.node.body)) return
-      path.node.body = this.t.sequenceExpression([
-        path.node.body,
-        newUpdateViewNode().expression,
-      ])
+      if (!isLogicExpression(path.node.body)) return
+      // ---- Add IIFE and this._$updateView
+      // () => node -> () => { const _$tmp = node; this._$updateView(); return _$tmp;}
+      path.node.body = this.t.callExpression(
+        this.t.arrowFunctionExpression(
+          [],
+          this.t.blockStatement([
+            this.t.variableDeclaration("const", [
+              this.t.variableDeclarator(
+                this.t.identifier("_$tmp"),
+                path.node.body
+              ),
+            ]),
+            newUpdateViewNode(),
+            this.t.returnStatement(this.t.identifier("_$tmp")),
+          ])
+        ),
+        []
+      )
     }
 
     this.traverse(this.valueWrapper(node), {

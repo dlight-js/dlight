@@ -212,6 +212,14 @@ export class CompNode extends DLNode {
   }
 
   /**
+   * @brief Update a prop
+   */
+  _$ud(exp, key) {
+    this._$updateDerived(key)
+    return exp
+  }
+
+  /**
    * @brief Update properties that depend on this property
    * @param key
    */
