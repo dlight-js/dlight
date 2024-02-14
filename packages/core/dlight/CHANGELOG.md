@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-beta.26
+
+### Patch Changes
+
+- fix: set attr object err
+
 ## 1.0.0-beta.25
 
 ### Patch Changes

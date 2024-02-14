@@ -59,7 +59,7 @@ export function setHTMLProps(el, value) {
   Object.entries(value).forEach(([key, v]) => {
     if (key === "style") return setStyle(el, v)
     if (key === "dataset") return setDataset(el, v)
-    setHTMLProp(el, key, v, [])
+    setHTMLProp(el, key, () => v, [])
   })
 }
 
@@ -81,7 +81,7 @@ export function setHTMLAttr(el, key, valueFunc, deps) {
  */
 export function setHTMLAttrs(el, value) {
   Object.entries(value).forEach(([key, v]) => {
-    setHTMLAttr(el, key, v, [])
+    setHTMLAttr(el, key, () => v, [])
   })
 }
 
