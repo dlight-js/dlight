@@ -1,5 +1,5 @@
-import { DLightGlobalEventHandlers } from "./event"
-import { type HTMLAttributes } from "./htmlElement"
+import type { DLightGlobalEventHandlers } from "./event"
+import type { OmitIndexSignature, HTMLAttributes } from "./htmlElement"
 
 // ---- If there is an event(start with on), remove it
 export type PropertyWithEvent<G> = Omit<
@@ -35,7 +35,7 @@ export type DLightHTMLAttributesFunc<T, G, El> = {
 
 export type DLightHtmlTagFunc<T = HTMLElement, G = object> = (
   innerText?: string | number
-) => DLightHTMLAttributesFunc<PropertyWithEvent<T>, G, T>
+) => DLightHTMLAttributesFunc<PropertyWithEvent<OmitIndexSignature<T>>, G, T>
 
 export const a: DLightHtmlTagFunc<HTMLAnchorElement>
 export const abbr: DLightHtmlTagFunc
@@ -74,9 +74,7 @@ export const fieldset: DLightHtmlTagFunc<HTMLFieldSetElement>
 export const figcaption: DLightHtmlTagFunc
 export const figure: DLightHtmlTagFunc
 export const footer: DLightHtmlTagFunc
-// ---- Don't know why HTMLFormElement is not working
-// export const form: DLightHtmlTagFunc<HTMLFormElement>
-export const form: DLightHtmlTagFunc
+export const form: DLightHtmlTagFunc<HTMLFormElement>
 export const h1: DLightHtmlTagFunc<HTMLHeadingElement>
 export const h2: DLightHtmlTagFunc<HTMLHeadingElement>
 export const h3: DLightHtmlTagFunc<HTMLHeadingElement>

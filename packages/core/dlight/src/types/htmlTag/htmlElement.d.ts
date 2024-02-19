@@ -7,6 +7,13 @@ type IfEquals<X, Y, A, B> = (<T>() => T extends X ? 1 : 2) extends <
   ? A
   : B
 
+export type OmitIndexSignature<ObjectType> = {
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  [KeyType in keyof ObjectType as {} extends Record<KeyType, unknown>
+    ? never
+    : KeyType]: ObjectType[KeyType]
+}
+
 // ---- For each key, check whether there is readonly, if there is, return never, and then Pick out is not never
 type WritableKeysOf<T> = {
   [P in keyof T]: IfEquals<
@@ -24,7 +31,9 @@ type OmitFunction<T> = Omit<
   { [K in keyof T]: T[K] extends (...args: any) => any ? K : never }[keyof T]
 >
 
-type OmitFuncAndReadOnly<T> = RemoveReadOnly<OmitFunction<T>>
+type OmitFuncAndReadOnly<T> = RemoveReadOnly<
+  OmitFunction<OmitIndexSignature<T>>
+>
 
 // ---- properties
 type OmitFuncAndReadOnlyProperty<G> = Omit<

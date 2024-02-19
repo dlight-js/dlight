@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-beta.27
+
+### Patch Changes
+
+- fix: index prop led form typing issue
+
 ## 1.0.0-beta.26
 
 ### Patch Changes
