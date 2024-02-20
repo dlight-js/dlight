@@ -41,6 +41,7 @@ export class CompNode extends DLNode {
     if (content) this._$setContent(() => content[0], content[1])
     if (props)
       props.forEach(([key, value, deps]) => {
+        if (key === "props") return this._$setProps(() => value, deps)
         this._$setProp(key, () => value, deps)
       })
     if (children) this._$children = children
@@ -190,6 +191,15 @@ export class CompNode extends DLNode {
     if (this._$cache(key, deps)) return
     this[key] = valueFunc()
     this._$updateProp(key)
+  }
+
+  _$setProps(valueFunc, deps) {
+    if (this._$cache("props", deps)) return
+    const props = valueFunc()
+    if (!props) return
+    Object.entries(props).forEach(([key, value]) => {
+      this._$setProp(key, () => value, [])
+    })
   }
 
   /**

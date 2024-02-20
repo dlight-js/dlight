@@ -50,6 +50,13 @@ export default class CompGenerator extends ForwardPropGenerator {
           )
           return
         }
+        if (key === "props") {
+          this.addUpdateStatements(
+            dependencyIndexArr,
+            this.setCompProps(dlNodeName, value, dependenciesNode)
+          )
+          return
+        }
 
         this.addUpdateStatements(
           dependencyIndexArr,
@@ -102,7 +109,7 @@ export default class CompGenerator extends ForwardPropGenerator {
     children: ViewParticle[]
   ): t.Statement[] {
     const willForwardProps = "forwardProps" in props
-    props = Object.fromEntries(
+    const newProps = Object.fromEntries(
       Object.entries(props).filter(
         ([key]) => !["do", "element", "forwardProps", "_$content"].includes(key)
       )
@@ -125,7 +132,7 @@ export default class CompGenerator extends ForwardPropGenerator {
             this.t.identifier("_$init")
           ),
           [
-            this.generateCompProps(props),
+            this.generateCompProps(newProps),
             content
               ? this.t.arrayExpression([
                   content.value,
@@ -185,6 +192,27 @@ export default class CompGenerator extends ForwardPropGenerator {
           this.t.arrowFunctionExpression([], value),
           dependenciesNode,
         ]
+      )
+    )
+  }
+
+  /**
+   * @View
+   * ${dlNodeName}._$setProps(() => ${value}, ${dependenciesNode})
+   */
+  private setCompProps(
+    dlNodeName: string,
+    value: t.Expression,
+    dependenciesNode: t.ArrayExpression
+  ): t.Statement {
+    return this.optionalExpression(
+      dlNodeName,
+      this.t.callExpression(
+        this.t.memberExpression(
+          this.t.identifier(dlNodeName),
+          this.t.identifier("_$setProps")
+        ),
+        [this.t.arrowFunctionExpression([], value), dependenciesNode]
       )
     )
   }

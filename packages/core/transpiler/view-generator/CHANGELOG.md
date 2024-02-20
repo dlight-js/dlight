@@ -1,5 +1,11 @@
 # @dlightjs/view-generator
 
+## 1.0.0-beta.5
+
+### Patch Changes
+
+- feat: add comp props
+
 ## 1.0.0-beta.4
 
 ### Patch Changes

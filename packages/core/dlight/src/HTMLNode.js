@@ -147,17 +147,18 @@ export function insertNode(el, node, position) {
  * @param key
  * @param value
  */
-export function forwardHTMLProp(el, key, value, deps) {
-  if (key === "style") return setStyle(el, value, deps)
-  if (key === "dataset") return setDataset(el, value, deps)
+export function forwardHTMLProp(el, key, valueFunc, deps) {
+  if (key === "style") return setStyle(el, valueFunc())
+  if (key === "dataset") return setDataset(el, valueFunc())
   if (key === "element") return
-  if (key === "prop") return setHTMLProps(el, value, deps)
-  if (key === "attr") return setHTMLAttrs(el, value, deps)
-  if (key === "innerHTML") return setHTMLProp(el, "innerHTML", value, deps)
-  if (key === "textContent") return setHTMLProp(el, "textContent", value, deps)
+  if (key === "prop") return setHTMLProps(el, valueFunc())
+  if (key === "attr") return setHTMLAttrs(el, valueFunc())
+  if (key === "innerHTML") return setHTMLProp(el, "innerHTML", valueFunc, deps)
+  if (key === "textContent")
+    return setHTMLProp(el, "textContent", valueFunc, deps)
   if (key === "forwardProp") return
   if (key.startsWith("on")) {
-    return setEvent(el, key.slice(2).toLowerCase(), value, deps)
+    return setEvent(el, key.slice(2).toLowerCase(), valueFunc())
   }
-  setHTMLAttr(el, key, value, deps)
+  setHTMLAttr(el, key, valueFunc, deps)
 }

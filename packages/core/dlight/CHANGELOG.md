@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-beta.28
+
+### Patch Changes
+
+- feat: add comp props
+
 ## 1.0.0-beta.27
 
 ### Patch Changes

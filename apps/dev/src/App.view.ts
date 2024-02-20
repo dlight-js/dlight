@@ -11,6 +11,7 @@ import {
   div,
   Main,
   Mount,
+  ForwardProps,
 } from "@dlightjs/dlight"
 
 import { Button } from "./Button100.view"
@@ -24,19 +25,31 @@ class MyModel {
     console.log("count changed", this.dblCount)
   }
 }
+
+@ForwardProps
+@View
+class No {
+  View() {
+    div().forwardProps()
+  }
+}
+
 @Main
 @View
 class App {
-  count = 1
+  count = 100
   dblCount = this.count * 2
   model = use(MyModel, { count: this.dblCount })
   View() {
     button("toggle").onClick(() => {
-      this.flag = !this.flag
+      this.count = this.count + 1
     })
-    if (this.flag) {
-      MyComp()
-    }
+    No().props({
+      _$content: this.count,
+      onClick: () => {
+        console.log("clicked")
+      },
+    })
   }
 }
 
