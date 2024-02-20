@@ -31,3 +31,8 @@ export const View: any
 export const Model: any
 export const update: any
 export const required: any
+
+// ---- View types
+export type DLightViewComp<T = any> = Typed<T>
+export type DLightViewProp = (View: any) => void
+export type DLightViewLazy<T = any> = () => Promise<{ default: T }>

@@ -264,10 +264,6 @@ export class CompNode extends DLNode {
    */
   _$updateView() {
     // ---- Trigger parent view
-    if (this._$model) {
-      this._$model._$updateProp(this._$modelKey)
-      return
-    }
     const depNums = this["_$updatingSet"]
     if (!depNums) return
     if (depNums.size > 0) {
@@ -310,10 +306,9 @@ export class CompNode extends DLNode {
    * @param ModelCls
    * @param props { m: [props, deps], s: [key, value, deps] }
    * @param content
-   * @param key
    * @returns
    */
-  _$injectModel(ModelCls, propsFunc, contentFunc, key) {
+  _$injectModel(ModelCls, propsFunc, contentFunc) {
     const props = propsFunc() ?? {}
     const collectedProps = props.s ?? []
     props.m?.forEach(([props, deps]) => {
@@ -323,8 +318,6 @@ export class CompNode extends DLNode {
     })
     const model = new ModelCls()
     model._$init(collectedProps, contentFunc(), null, null)
-    model._$model = this
-    model._$modelKey = key
     model._$update = CompNode._$updateModel.bind(
       null,
       model,

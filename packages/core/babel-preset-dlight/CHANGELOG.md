@@ -1,5 +1,11 @@
 # babel-preset-dlight
 
+## 1.0.0-beta.19
+
+### Patch Changes
+
+- fix: avoid model updating view
+
 ## 1.0.0-beta.18
 
 ### Patch Changes

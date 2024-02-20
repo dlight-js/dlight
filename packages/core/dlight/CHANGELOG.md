@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-beta.29
+
+### Patch Changes
+
+- fix: avoid model updating view
+
 ## 1.0.0-beta.28
 
 ### Patch Changes
