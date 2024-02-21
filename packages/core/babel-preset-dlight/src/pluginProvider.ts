@@ -540,7 +540,7 @@ export class PluginProvider {
       n =>
         !(
           ((this.t.isClassProperty(n) || this.t.isClassMethod(n)) &&
-            ["View", "constructor", "_$compName"].includes(
+            ["constructor", "_$compName"].includes(
               (n.key as t.Identifier).name
             )) ||
           this.t.isClassMethod(n, { static: true }) ||

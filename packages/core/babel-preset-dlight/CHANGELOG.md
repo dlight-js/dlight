@@ -1,5 +1,11 @@
 # babel-preset-dlight
 
+## 1.0.0-beta.23
+
+### Patch Changes
+
+- fix: Add auto update at View method
+
 ## 1.0.0-beta.22
 
 ### Patch Changes
