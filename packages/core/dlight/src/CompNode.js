@@ -263,7 +263,15 @@ export class CompNode extends DLNode {
    * @param key
    */
   _$updateView() {
-    // ---- Trigger parent view
+    if (this._$modelCallee) {
+      if (this._$suppressUpdate) {
+        this._$suppressUpdate = false
+        return
+      }
+      // ---- Trigger the update of the model callee
+      this._$modelCallee._$updateProp(this._$modelKey)
+      return
+    }
     const depNums = this["_$updatingSet"]
     if (!depNums) return
     if (depNums.size > 0) {
@@ -287,6 +295,10 @@ export class CompNode extends DLNode {
    * @brief Update all props and content of the model
    */
   static _$updateModel(model, propsFunc, contentFunc) {
+    // ---- Suppress update because top level update will be performed
+    //      directly by the state variable in the model callee, which will
+    //      trigger the update of the model
+    model._$suppressUpdate = true
     const props = propsFunc() ?? {}
     const collectedProps = props.s ?? []
     props.m?.forEach(([props, deps]) => {
@@ -295,10 +307,16 @@ export class CompNode extends DLNode {
       })
     })
     collectedProps.forEach(([key, value, deps]) => {
-      model._$setProp(key, () => value, deps)
+      if (model._$cache(key, deps)) return
+      model[key] = value
+      model._$updateDerived(key)
     })
     const content = contentFunc()
-    if (content) model._$setContent(() => content[0], content[1])
+    if (content) {
+      if (model._$cache("_$content", content[1])) return
+      model[model._$contentKey] = content[0]
+      model._$updateDerived(model._$contentKey)
+    }
   }
 
   /**
@@ -306,9 +324,10 @@ export class CompNode extends DLNode {
    * @param ModelCls
    * @param props { m: [props, deps], s: [key, value, deps] }
    * @param content
+   * @param key
    * @returns
    */
-  _$injectModel(ModelCls, propsFunc, contentFunc) {
+  _$injectModel(ModelCls, propsFunc, contentFunc, key) {
     const props = propsFunc() ?? {}
     const collectedProps = props.s ?? []
     props.m?.forEach(([props, deps]) => {
@@ -318,6 +337,8 @@ export class CompNode extends DLNode {
     })
     const model = new ModelCls()
     model._$init(collectedProps, contentFunc(), null, null)
+    model._$modelCallee = this
+    model._$modelKey = key
     model._$update = CompNode._$updateModel.bind(
       null,
       model,

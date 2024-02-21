@@ -617,7 +617,6 @@ export class PluginProvider {
   }
 
   private addUpdateView(node: t.Expression | t.BlockStatement) {
-    if (this.dLightModel) return
     const newUpdateViewNode = () =>
       this.t.expressionStatement(
         this.t.callExpression(
@@ -1149,6 +1148,7 @@ export class PluginProvider {
     }
     args[1] = this.t.arrowFunctionExpression([], propsNode)
     args[2] = this.t.arrowFunctionExpression([], contentNode)
+    args[3] = this.t.stringLiteral(key.name)
     value.callee = this.t.memberExpression(
       this.t.thisExpression(),
       this.t.identifier("_$injectModel")

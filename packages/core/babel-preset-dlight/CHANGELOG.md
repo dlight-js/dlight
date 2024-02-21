@@ -1,5 +1,11 @@
 # babel-preset-dlight
 
+## 1.0.0-beta.20
+
+### Patch Changes
+
+- fix: avoid model callee led model re-rendering
+
 ## 1.0.0-beta.19
 
 ### Patch Changes

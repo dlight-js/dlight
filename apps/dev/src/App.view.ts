@@ -29,6 +29,9 @@ class MyModel {
     this.n = this.dblCount
     this.n2 = this.dblCount
     this.n3 = this.dblCount
+    setTimeout(() => {
+      this.n *= 2
+    }, 1000)
   }
 }
 
@@ -37,9 +40,10 @@ class jj {
   @Content what
   @Prop @Static nono
 
-  model = use(MyModel, { count: this.what, ll: this.nono })
+  model = use(MyModel, { count: this.what })
   @Watch
   jfae() {
+    // console.trace()
     console.log(this.model)
   }
 

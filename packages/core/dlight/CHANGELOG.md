@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-beta.30
+
+### Patch Changes
+
+- fix: avoid model callee led model re-rendering
+
 ## 1.0.0-beta.29
 
 ### Patch Changes
