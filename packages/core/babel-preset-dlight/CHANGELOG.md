@@ -1,5 +1,11 @@
 # babel-preset-dlight
 
+## 1.0.0-beta.22
+
+### Patch Changes
+
+- fix: abort updating when comp/model is mounted
+
 ## 1.0.0-beta.21
 
 ### Patch Changes

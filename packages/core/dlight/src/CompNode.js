@@ -60,10 +60,15 @@ export class CompNode extends DLNode {
     this._$callUpdatesBeforeInit()
     this.didMount && DLNode.addDidMount(this, this.didMount.bind(this))
     this.willUnmount && DLNode.addWillUnmount(this, this.willUnmount.bind(this))
+    DLNode.addDidUnmount(this, this._$setUnmounted.bind(this))
     this.didUnmount && DLNode.addDidUnmount(this, this.didUnmount.bind(this))
 
     this.willMount?.()
     this._$nodes = this.View?.() ?? []
+  }
+
+  _$setUnmounted() {
+    this._$unmounted = true
   }
 
   /**
@@ -270,6 +275,8 @@ export class CompNode extends DLNode {
       this._$depNumsToUpdate = [depNum]
       // ---- Update in the next microtask
       Promise.resolve().then(() => {
+        // ---- Abort if unmounted
+        if (this._$unmounted) return
         const depNums = this._$depNumsToUpdate
         if (depNums.length > 0) {
           const depNum = depNums.reduce((acc, cur) => acc | cur, 0)
@@ -285,6 +292,8 @@ export class CompNode extends DLNode {
     this._$depNumsToUpdate = true
     // ---- Update in the next microtask
     Promise.resolve().then(() => {
+      // ---- Abort if unmounted
+      if (this._$unmounted) return
       this._$modelCallee._$updateDerived(this._$modelKey)
       delete this._$depNumsToUpdate
     })
@@ -296,7 +305,6 @@ export class CompNode extends DLNode {
     // ---- Suppress update because top level update will be performed
     //      directly by the state variable in the model callee, which will
     //      trigger the update of the model
-    model._$suppressUpdate = true
     const props = propsFunc() ?? {}
     const collectedProps = props.s ?? []
     props.m?.forEach(([props, deps]) => {
@@ -309,6 +317,10 @@ export class CompNode extends DLNode {
     })
     const content = contentFunc()
     if (content) model._$setContent(() => content[0], content[1])
+  }
+
+  static _$releaseModel() {
+    delete this._$modelCallee
   }
 
   /**

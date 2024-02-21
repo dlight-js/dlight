@@ -1,5 +1,17 @@
 # @dlightjs/dlight
 
+## 1.0.0-beta.34
+
+### Patch Changes
+
+- fix: abort updating when comp/model is mounted
+
+## 1.0.0-beta.33
+
+### Patch Changes
+
+- refactor: release model callee reference when comp is unmount
+
 ## 1.0.0-beta.32
 
 ### Patch Changes

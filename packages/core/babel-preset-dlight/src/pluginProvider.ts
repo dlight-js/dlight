@@ -480,11 +480,10 @@ export class PluginProvider {
    *  2. Transform MainView and SubViews with DLight syntax
    */
   transformDLightClass(): void {
-    let usedProperties = this.handleView()
-    if (this.dLightModel) usedProperties = this.availableProperties
+    this.addAutoUpdate(this.availableProperties)
+    const usedProperties = this.handleView()
     const propertyArr = Object.entries(this.propertiesContainer).reverse()
     const depReversedMap = this.dependencyMapReversed()
-    this.addAutoUpdate(usedProperties)
 
     for (const [
       key,
@@ -544,8 +543,6 @@ export class PluginProvider {
             ["View", "constructor", "_$compName"].includes(
               (n.key as t.Identifier).name
             )) ||
-          (this.t.isClassMethod(n, { kind: "method" }) &&
-            this.findDecoratorByName(n.decorators, "View")) ||
           this.t.isClassMethod(n, { static: true }) ||
           this.t.isClassProperty(n, { static: true })
         )
@@ -612,26 +609,6 @@ export class PluginProvider {
         path.replaceWith(newUpdateProp(path.node, key))
         path.skip()
       },
-    })
-  }
-
-  /**
-   * @brief Go through viewUnits and add auto update to any Babel node
-   * @param obj
-   * @returns
-   */
-  private addViewAutoUpdate(obj: object) {
-    if (typeof obj !== "object") return
-    Object.entries(obj).forEach(([, value]) => {
-      if (!value) return
-      // ---- Type start with lowercase is not a node
-      if (value.type?.[0] && value.type[0] !== value.type[0].toLowerCase()) {
-        if (this.t.isExpression(value)) {
-          this.addUpdateDerived(value, this.availableProperties)
-        }
-      } else {
-        this.addViewAutoUpdate(value)
-      }
     })
   }
 
@@ -750,7 +727,6 @@ export class PluginProvider {
       subviewNames: subViewNames,
       htmlTags: this.htmlTags,
     })
-    viewUnits.map(viewUnit => this.addViewAutoUpdate(viewUnit))
 
     const [viewParticles, usedPropertySet] = parseReactivity(viewUnits, {
       babelApi: this.babelApi,
@@ -810,7 +786,6 @@ export class PluginProvider {
       subviewNames: subViewNames,
       htmlTags: this.htmlTags,
     })
-    viewUnits.map(viewUnit => this.addViewAutoUpdate(viewUnit))
 
     const subViewProp =
       subViewPropSubDepMap[(viewNode.key as t.Identifier).name] ?? []
