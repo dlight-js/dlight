@@ -29,22 +29,22 @@ class MyModel {
     this.n = this.dblCount
     this.n2 = this.dblCount
     this.n3 = this.dblCount
-    setTimeout(() => {
-      this.n *= 2
-    }, 1000)
+    // setTimeout(() => {
+    //   this.n *= 2
+    // }, 1000)
   }
 }
 
 @View
 class jj {
   @Content what
-  @Prop @Static nono
+  @Prop nono
 
   model = use(MyModel, { count: this.what })
   @Watch
   jfae() {
     // console.trace()
-    console.log(this.model)
+    console.log(this.model, "what changed")
   }
 
   View() {
@@ -55,23 +55,44 @@ class jj {
   }
 }
 
+@Model
+class JJModel {
+  count = 101
+  jj = 210
+  ok() {
+    this.count = 0
+  }
+  nono() {
+    this.jj = 100
+  }
+}
 @Main
 @View
 class App {
-  count = 100
-  dblCount = this.count * 2
+  count = 101
+  m = use(JJModel)
+  jj = 210
 
   View() {
-    button("toggle").onClick(() => {
-      this.count = this.count + 1
+    jj(this.count).nono(this.jj)
+    button("+").onClick(() => {
+      this.count++
     })
-    // No().props({
-    //   _$content: this.count,
-    //   onClick: () => {
-    //     console.log("clicked")
-    //   },
-    // })
-    jj(this.count).nono("no")
+    button("-").onClick(() => {
+      this.m.ok()
+    })
+
+    button("?").onClick(() => {
+      this.m.nono()
+    })
+
+    if (this.m.count > 100) {
+      if (this.m.jj > 200) {
+        _(View => div("ok"))
+      }
+    } else {
+      div("no")
+    }
   }
 }
 

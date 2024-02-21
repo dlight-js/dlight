@@ -86,7 +86,7 @@ export class CompNode extends DLNode {
       if (key.startsWith("$f$")) {
         const realKey = key.slice(3)
         this[realKey] = this[key]
-        this._$updateProp(realKey)
+        this._$updateDerived(realKey)
       }
     })
     delete this._$notInitd
@@ -124,10 +124,10 @@ export class CompNode extends DLNode {
     const value = valueFunc()
     if (key === "_$content" && this._$contentKey) {
       this[this._$contentKey] = value
-      this._$updateProp(this._$contentKey)
+      this._$updateDerived(this._$contentKey)
     }
     this[key] = value
-    this._$updateProp(key)
+    this._$updateDerived(key)
     if (notInitd) this._$forwardPropsId.push(key)
     else this._$setPropToForward(key, value, deps)
   }
@@ -172,7 +172,7 @@ export class CompNode extends DLNode {
     if (!contentKey) return
     if (this._$cache(contentKey, deps)) return
     this[contentKey] = valueFunc()
-    this._$updateProp(contentKey)
+    this._$updateDerived(contentKey)
   }
 
   /**
@@ -190,7 +190,7 @@ export class CompNode extends DLNode {
     }
     if (this._$cache(key, deps)) return
     this[key] = valueFunc()
-    this._$updateProp(key)
+    this._$updateDerived(key)
   }
 
   _$setProps(valueFunc, deps) {
@@ -224,7 +224,7 @@ export class CompNode extends DLNode {
     if (!(`$e$${key}` in this)) return
     if (envNode !== this[`$en$${key}`]) return
     this[key] = value
-    this._$updateProp(key)
+    this._$updateDerived(key)
   }
 
   /**
@@ -241,9 +241,6 @@ export class CompNode extends DLNode {
    */
   _$updateDerived(key) {
     if ("_$notInitd" in this) return
-    // ---- "trigger-view"
-    if (!this["_$updatingSet"]) this["_$updatingSet"] = new Set()
-    if (`$$${key}` in this) this["_$updatingSet"].add(this[`$$${key}`])
 
     this[`$s$${key}`]?.forEach(k => {
       if (`$w$${k}` in this) {
@@ -256,41 +253,42 @@ export class CompNode extends DLNode {
         this[k] = this[`$f$${k}`]
       }
     })
-  }
 
-  /**
-   * @brief Update View related update function
-   * @param key
-   */
-  _$updateView() {
-    if (this._$modelCallee) {
-      if (this._$suppressUpdate) {
-        this._$suppressUpdate = false
-        return
-      }
-      // ---- Trigger the update of the model callee
-      this._$modelCallee._$updateProp(this._$modelKey)
-      return
-    }
-    const depNums = this["_$updatingSet"]
-    if (!depNums) return
-    if (depNums.size > 0) {
-      const depNum = Array.from(depNums).reduce((acc, cur) => acc | cur, 0)
-      this._$update?.(depNum)
-    }
-    // ---- "trigger-value"
-    delete this["_$updatingSet"]
-  }
-
-  /**
-   * @brief Update a specific prop
-   * @param key
-   */
-  _$updateProp(key) {
-    this._$updateDerived(key)
+    // ---- "trigger-view"
     this._$updateView(key)
   }
 
+  _$updateView(key) {
+    if (this._$modelCallee) return this._$updateModelCallee()
+    if (!("_$update" in this)) return
+    const depNum = this[`$$${key}`]
+    if (!depNum) return
+    // ---- Collect all depNums that need to be updated
+    if ("_$depNumsToUpdate" in this) {
+      this._$depNumsToUpdate.push(depNum)
+    } else {
+      this._$depNumsToUpdate = [depNum]
+      // ---- Update in the next microtask
+      Promise.resolve().then(() => {
+        const depNums = this._$depNumsToUpdate
+        if (depNums.length > 0) {
+          const depNum = depNums.reduce((acc, cur) => acc | cur, 0)
+          this._$update(depNum)
+        }
+        delete this._$depNumsToUpdate
+      })
+    }
+  }
+
+  _$updateModelCallee() {
+    if ("_$depNumsToUpdate" in this) return
+    this._$depNumsToUpdate = true
+    // ---- Update in the next microtask
+    Promise.resolve().then(() => {
+      this._$modelCallee._$updateDerived(this._$modelKey)
+      delete this._$depNumsToUpdate
+    })
+  }
   /**
    * @brief Update all props and content of the model
    */
@@ -307,16 +305,10 @@ export class CompNode extends DLNode {
       })
     })
     collectedProps.forEach(([key, value, deps]) => {
-      if (model._$cache(key, deps)) return
-      model[key] = value
-      model._$updateDerived(key)
+      model._$setProp(key, () => value, deps)
     })
     const content = contentFunc()
-    if (content) {
-      if (model._$cache("_$content", content[1])) return
-      model[model._$contentKey] = content[0]
-      model._$updateDerived(model._$contentKey)
-    }
+    if (content) model._$setContent(() => content[0], content[1])
   }
 
   /**
@@ -360,5 +352,5 @@ export const Model = CompNode
  * @param key
  */
 export function update(dlNode, key) {
-  dlNode._$updateProp(key)
+  dlNode._$updateDerived(key)
 }

@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-beta.31
+
+### Patch Changes
+
+- feat: update view in next micro tast
+
 ## 1.0.0-beta.30
 
 ### Patch Changes

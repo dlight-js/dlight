@@ -558,7 +558,6 @@ export class PluginProvider {
           : null
       if (!value) return
       this.addUpdateDerived(value, usedProperties)
-      this.addUpdateView(value)
     })
   }
 
@@ -616,87 +615,6 @@ export class PluginProvider {
     })
   }
 
-  private addUpdateView(node: t.Expression | t.BlockStatement) {
-    const newUpdateViewNode = () =>
-      this.t.expressionStatement(
-        this.t.callExpression(
-          this.t.memberExpression(
-            this.t.thisExpression(),
-            this.t.identifier("_$updateView")
-          ),
-          []
-        )
-      )
-    const isControlFlowBlock = (node: t.BlockStatement) =>
-      this.t.isIfStatement(node) ||
-      this.t.isLoop(node) ||
-      this.t.isTryStatement(node) ||
-      this.t.isSwitchStatement(node)
-
-    const isLogicExpression = (node: t.Expression) =>
-      this.t.isCallExpression(node) &&
-      this.t.isMemberExpression(node.callee) &&
-      this.t.isThisExpression(node.callee.object) &&
-      this.t.isIdentifier(node.callee.property, {
-        name: "_$ud",
-      })
-
-    const hasUpdateDerived = (node: t.BlockStatement) =>
-      node.body.some(
-        n => this.t.isExpressionStatement(n) && isLogicExpression(n.expression)
-      )
-
-    const handleFunction = (
-      path: NodePath<t.FunctionExpression | t.ArrowFunctionExpression>
-    ) => {
-      if (this.t.isBlockStatement(path.node.body)) return
-      if (!isLogicExpression(path.node.body)) return
-      // ---- Add IIFE and this._$updateView
-      // () => node -> () => { const _$tmp = node; this._$updateView(); return _$tmp;}
-      path.node.body = this.t.callExpression(
-        this.t.arrowFunctionExpression(
-          [],
-          this.t.blockStatement([
-            this.t.variableDeclaration("const", [
-              this.t.variableDeclarator(
-                this.t.identifier("_$tmp"),
-                path.node.body
-              ),
-            ]),
-            newUpdateViewNode(),
-            this.t.returnStatement(this.t.identifier("_$tmp")),
-          ])
-        ),
-        []
-      )
-    }
-
-    this.traverse(this.valueWrapper(node), {
-      BlockStatement: path => {
-        const statements = path.node.body
-        const returnIdx = statements.findIndex(s => this.t.isReturnStatement(s))
-        const parentPath = path.parentPath
-        if (returnIdx === -1) {
-          // ---- If no return statement, and it's a control flow block, don't add updateView
-          if (isControlFlowBlock(parentPath?.node as t.BlockStatement)) return
-          // ---- If no return statement, and it doesn't have updateDerived, don't add updateView
-          if (!hasUpdateDerived(path.node)) return
-          statements.push(newUpdateViewNode())
-          return
-        }
-        // ---- If is a control flow block or has updateDerived, add updateView before return
-        if (
-          isControlFlowBlock(parentPath?.node as t.BlockStatement) ||
-          hasUpdateDerived(path.node)
-        ) {
-          statements.splice(returnIdx, 0, newUpdateViewNode())
-        }
-      },
-      FunctionExpression: handleFunction,
-      ArrowFunctionExpression: handleFunction,
-    })
-  }
-
   /**
    * @brief Go through viewUnits and add auto update to any Babel node
    * @param obj
@@ -710,7 +628,6 @@ export class PluginProvider {
       if (value.type?.[0] && value.type[0] !== value.type[0].toLowerCase()) {
         if (this.t.isExpression(value)) {
           this.addUpdateDerived(value, this.availableProperties)
-          this.addUpdateView(value)
         }
       } else {
         this.addViewAutoUpdate(value)
