@@ -16,6 +16,7 @@ import {
   devMode,
   dlightDefaultPackageName,
   importMap,
+  importsToDelete,
   reactivityFuncNames,
 } from "./const"
 
@@ -138,6 +139,18 @@ export class PluginProvider {
           i.source.value = this.dlightPackageName
         })
       }
+
+      // ---- remove all tag-import
+      dlightImports.forEach(importNode => {
+        importNode.specifiers = importNode.specifiers.filter(
+          specifier =>
+            !(
+              this.t.isImportSpecifier(specifier) &&
+              this.t.isIdentifier(specifier.imported) &&
+              importsToDelete.includes(specifier.imported.name)
+            )
+        )
+      })
 
       // ---- Add nodes import to the head of file
       this.programNode!.body.unshift(

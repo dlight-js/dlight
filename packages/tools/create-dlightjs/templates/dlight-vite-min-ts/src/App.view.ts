@@ -1,13 +1,9 @@
-import { View, type Typed, type Pretty, div } from "@dlightjs/dlight"
+import { View, Main, div } from "@dlightjs/dlight"
 
-interface AppProps {
-}
-
+@Main
 @View
-class App implements AppProps {
+class App {
   View() {
     div("hello dlight")
   }
 }
-
-export default App as Pretty as Typed<AppProps>

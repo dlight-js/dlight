@@ -259,6 +259,22 @@ export const importMap = Object.fromEntries(
   ].map(name => [name, `$$${name}`])
 )
 
+export const importsToDelete = [
+  "Static",
+  "Children",
+  "Content",
+  "Prop",
+  "Env",
+  "Watch",
+  "ForwardProps",
+  "Main",
+  "App",
+  "Mount",
+  "_",
+  "env",
+  ...defaultHTMLTags.filter(tag => tag !== "use"),
+]
+
 /**
  * @brief HTML internal attribute map, can be accessed as js property
  */

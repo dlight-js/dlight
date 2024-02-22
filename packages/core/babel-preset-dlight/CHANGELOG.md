@@ -1,5 +1,11 @@
 # babel-preset-dlight
 
+## 1.0.0-beta.24
+
+### Patch Changes
+
+- feat: remove tag import in babel preset
+
 ## 1.0.0-beta.23
 
 ### Patch Changes

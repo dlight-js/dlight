@@ -54,7 +54,18 @@ class jj {
     // }
   }
 }
-
+@View
+class A {
+  View() {
+    div("hello")
+  }
+}
+@View
+class B {
+  View() {
+    div("world")
+  }
+}
 @Model
 class JJModel {
   count = 101
@@ -72,24 +83,24 @@ class App {
   count = 101
   m = use(JJModel)
   jj = 210
-
+  no = {
+    a: A,
+  }
   View() {
     jj(this.count).nono(this.jj)
     button("+").onClick(() => {
       this.count++
     })
     button("-").onClick(() => {
-      this.m.ok()
+      this.count--
     })
 
     button("?").onClick(() => {
-      this.m.nono()
+      this.no.a = this.no.a === A ? B : A
     })
-
-    if (this.m.count > 100) {
-      if (this.m.jj > 200) {
-        _(View => div("ok"))
-      }
+    if (this.count > 100) {
+      this.count
+      this.no.a()
     } else {
       div("no")
     }

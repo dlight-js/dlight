@@ -1,5 +1,11 @@
 # create-dlightjs
 
+## 1.0.0-beta.1
+
+### Patch Changes
+
+- feat: remove tag import in babel preset
+
 ## 1.0.0-beta.2
 
 ### Patch Changes

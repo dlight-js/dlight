@@ -1,7 +1,8 @@
-import { View } from "@dlightjs/dlight"
+import { View, div } from "@dlightjs/dlight"
 
+@Main
 @View
-export default class App {
+class App {
   View() {
     div("hello dlight!")
   }
