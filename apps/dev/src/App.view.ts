@@ -13,6 +13,7 @@ import {
   Mount,
   ForwardProps,
   Content,
+  _,
 } from "@dlightjs/dlight"
 
 import { Button } from "./Button100.view"
@@ -50,7 +51,10 @@ class jj {
   View() {
     // env().jj(this.model.count)
     // {
-    _(!console.log("update") && this.model.n)
+    _(!console.log("update") && this.model.n).didMount(() => {
+      console.log("ok")
+    })
+
     // }
   }
 }

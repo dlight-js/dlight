@@ -1,5 +1,6 @@
 import { type Typed } from "./compTag"
 import { type DLightHtmlTagFunc } from "./htmlTag"
+export { type Properties as CSSProperties } from "csstype"
 
 export const comp: <T>(tag: T) => object extends T ? any : Typed<T>
 export const tag: (tag: any) => DLightHtmlTagFunc
