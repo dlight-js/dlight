@@ -47,3 +47,9 @@ export function escape(arg) {
 
 export const $ = escape
 export const required = null
+
+export function use() {
+  console.error(
+    "DLight: use() is not supported be called directly. You can only assign `use(model)` to a dlight class property. Any other expressions are not allowed."
+  )
+}

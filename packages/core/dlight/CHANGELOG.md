@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-beta.36
+
+### Patch Changes
+
+- feat: add use function error hint
+
 ## 1.0.0-beta.35
 
 ### Patch Changes
