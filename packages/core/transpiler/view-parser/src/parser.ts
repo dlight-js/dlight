@@ -63,6 +63,10 @@ export class ViewParser {
       this.parseExpression(statement.expression)
       return
     }
+    if (this.t.isTryStatement(statement)) {
+      this.parseTry(statement)
+      return
+    }
     if (this.t.isForOfStatement(statement)) {
       this.parseFor(statement)
       return
@@ -210,6 +214,22 @@ export class ViewParser {
       type: "switch",
       discriminant: node.discriminant,
       branches,
+    })
+  }
+
+  /**
+   * @brief Parse try statement
+   * @param node
+   */
+  private parseTry(node: t.TryStatement) {
+    const tryBody = this.t.blockStatement(node.block.body)
+    const catchBodyNode = node.handler?.body ?? this.t.blockStatement([])
+
+    this.viewUnits.push({
+      type: "try",
+      children: this.parseView(tryBody),
+      exception: node.handler?.param ?? null,
+      catchChildren: this.parseView(catchBodyNode),
     })
   }
 
