@@ -42,7 +42,7 @@ export default class MainViewGenerator extends ViewGenerator {
 
   /**
    * @View
-   * this._$update = ($changed, $key) => {
+   * this._$update = ($changed) => {
    *  if ($changed & 1) {
    *    ...
    *  }

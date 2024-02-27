@@ -16,55 +16,38 @@ import {
 
 @View
 class MyComp {
-  @Prop shit
+  model = use(ModelJ)
+
+  ok = this.model.ok
+
   View() {
-    try {
-      button("trigger").onClick(this.shit)
-    } catch (e) {
-      div(`error: ${e.message}`).style({
-        color: "red",
-      })
-    }
+    button("reset").onClick(this.model.change)
+    // div(this.aa.jj)
   }
 }
 
-@View
-class Update {
-  @Content update
-  @Children children
-  View() {
-    if (this.update) {
-      this.children
-    } else {
-      this.children
-    }
+@Model
+class ModelJ {
+  jj = { ok: 100 }
+  // ok = this.jj.ok
+  change() {
+    this.jj = null
   }
 }
 
 @View
 @Main
 class App {
-  msg = "error"
-  shit() {
-    console.log("jjj")
-    // setTimeout(() => {
-    throw new Error(this.msg)
-    // }, 10)
-  }
-  update
-
   View() {
-    input()
-      .onInput(e => {
-        this.msg = e.target.value
+    try {
+      MyComp()
+    } catch (e) {
+      div(`error: ${e.message}`).style({
+        color: "red",
       })
-      .value(this.msg)
-    button("reset").onClick(() => {
-      this.update = !this.update
-    })
-    Update(this.update)
-    {
-      MyComp().shit(this.shit)
+      // .didMount(() => {
+      //   throw e
+      // })
     }
   }
 }

@@ -124,6 +124,6 @@ export default class ViewGenerator {
   }
 
   get updateParams() {
-    return [this.t.identifier("$changed"), this.t.identifier("$key")]
+    return [this.t.identifier("$changed")]
   }
 }

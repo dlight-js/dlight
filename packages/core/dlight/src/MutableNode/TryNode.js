@@ -1,42 +1,29 @@
 import { DLNodeType } from "../DLNode"
 import { FlatNode } from "./FlatNode"
+import { EnvNode } from "../EnvNode"
 
 export class TryNode extends FlatNode {
-  /**
-   * @brief Constructor, If type, accept a function that returns a list of nodes
-   * @param caseFunc
-   */
   constructor(tryFunc, catchFunc) {
     super(DLNodeType.Try)
     this.tryFunc = tryFunc
-    const nodes = this.triable(tryFunc, catchFunc)
-    if (nodes) this._$nodes = nodes
+    const catchable = this.getCatchable(catchFunc)
+    this.envNode = new EnvNode({ _$catchable: catchable })
+    const nodes = tryFunc(this.setUpdateFunc.bind(this), catchable) ?? []
+    this.envNode.initNodes(nodes)
+    this._$nodes = nodes
   }
 
   update(changed) {
     this.updateFunc?.(changed)
   }
 
-  caught(catchFunc) {
-    const nodes = this.geneNewNodesInEnv(() => catchFunc(this))
-    this._$nodes && this.removeNodes(this._$nodes)
-    const parentEl = this._$parentEl
-    const flowIndex = ExpNode.getFlowIndexFromNodes(parentEl._$nodes, this)
-    const nextSibling = parentEl.childNodes[flowIndex]
-    ExpNode.appendNodesWithSibling(nodes, parentEl, nextSibling)
-    ExpNode.runDidMount()
-    this._$nodes = nodes
-  }
-
   setUpdateFunc(updateFunc) {
     this.updateFunc = updateFunc
   }
 
-  triable(closure, catchFunc) {
-    return closure(this.setUpdateFunc.bind(this), callback => {
-      if (typeof callback !== "function") return callback
-
-      return (...args) => {
+  getCatchable(catchFunc) {
+    return callback =>
+      (...args) => {
         try {
           return callback(...args)
         } catch (e) {
@@ -55,6 +42,5 @@ export class TryNode extends FlatNode {
           this._$nodes = nodes
         }
       }
-    })
   }
 }

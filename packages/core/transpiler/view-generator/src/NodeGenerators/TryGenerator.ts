@@ -7,8 +7,6 @@ export default class TryGenerator extends BaseGenerator {
     const { children, catchChildren, exception } = this
       .viewParticle as TryParticle
 
-    children.forEach(this.addCatchable.bind(this))
-
     const dlNodeName = this.generateNodeName()
 
     // ---- Declare for node
@@ -20,21 +18,6 @@ export default class TryGenerator extends BaseGenerator {
     this.addUpdateStatementsWithoutDep(this.declareUpdate(dlNodeName))
 
     return dlNodeName
-  }
-
-  addCatchable(obj: any) {
-    for (const key in obj) {
-      if (typeof obj[key] === "object" && obj[key] !== null) {
-        if ("dependencyIndexArr" in obj[key]) {
-          obj[key].value = this.t.callExpression(
-            this.t.identifier("$catchable"),
-            [obj[key].value]
-          )
-        } else {
-          this.addCatchable(obj[key])
-        }
-      }
-    }
   }
 
   /**

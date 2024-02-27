@@ -1,5 +1,15 @@
 # babel-preset-dlight
 
+## 1.0.0-beta.26
+
+### Patch Changes
+
+- fix: try-catch model
+- Updated dependencies
+  - @dlightjs/reactivity-parser@1.0.0-beta.5
+  - @dlightjs/view-generator@1.0.0-beta.7
+  - @dlightjs/view-parser@1.0.0-beta.7
+
 ## 1.0.0-beta.25
 
 ### Patch Changes

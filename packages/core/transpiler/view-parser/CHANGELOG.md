@@ -1,5 +1,11 @@
 # @dlightjs/view-parser
 
+## 1.0.0-beta.7
+
+### Patch Changes
+
+- fix: try-catch model
+
 ## 1.0.0-beta.6
 
 ### Patch Changes

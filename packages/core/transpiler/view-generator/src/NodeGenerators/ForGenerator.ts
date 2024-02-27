@@ -128,7 +128,7 @@ export default class ForGenerator extends BaseGenerator {
 
   /**
    * @View
-   * ${dlNodeName}.updateArray(${array},  $key, ${array}.map(${item} => ${key}))
+   * ${dlNodeName}.updateArray(${array}, ${array}.map(${item} => ${key}))
    */
   private updateForNode(
     dlNodeName: string,
