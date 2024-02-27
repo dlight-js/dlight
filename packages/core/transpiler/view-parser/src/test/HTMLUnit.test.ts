@@ -46,7 +46,7 @@ describe("HTMLUnit", () => {
   // ---- Content
   it("should correctly parse content for HTMLTag", () => {
     const viewUnits = parse('div("hello")')
-    const content = (viewUnits[0] as HTMLUnit).content
+    const content = (viewUnits[0] as HTMLUnit).props.textContent
 
     expect(t.isStringLiteral(content?.value, { value: "hello" })).toBeTruthy()
   })
@@ -59,7 +59,7 @@ describe("HTMLUnit", () => {
         .expression as t.CallExpression
     ).arguments[0]
 
-    const content = (viewUnits[0] as HTMLUnit).content
+    const content = (viewUnits[0] as HTMLUnit).props.textContent
     expect(content?.value).toBe(originalExpression)
   })
 
@@ -114,7 +114,7 @@ describe("HTMLUnit", () => {
 
     // ---- Content stored in content instead of props
     const props = (viewUnits[0] as HTMLUnit).props!
-    expect(Object.keys(props).length).toBe(5)
+    expect(Object.keys(props).length).toBe(6)
   })
 
   it("should parse the View => {} as props' nested view as ViewUnits stored in props.viewPropMap", () => {
@@ -150,7 +150,7 @@ describe("HTMLUnit", () => {
       t.isStringLiteral((children[0] as HTMLUnit).tag, { value: "h1" })
     ).toBeTruthy()
     expect(
-      t.isStringLiteral((children[0] as HTMLUnit).content?.value, {
+      t.isStringLiteral((children[0] as HTMLUnit).props.textContent.value, {
         value: "hello",
       })
     ).toBeTruthy()
@@ -174,7 +174,7 @@ describe("HTMLUnit", () => {
 
   it("should drop content in HTMLTag if children exist", () => {
     const viewUnits = parse('div("hello");{ h1("hello") }')
-    const content = (viewUnits[0] as HTMLUnit).content
+    const content = (viewUnits[0] as HTMLUnit).props.textContent
 
     expect(content).toBeUndefined()
   })

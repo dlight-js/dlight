@@ -30,7 +30,7 @@ describe("ExpUnit", () => {
     const originalExpression = (statement.body[0] as t.ExpressionStatement)
       .expression
 
-    const content = (viewUnits[0] as HTMLUnit).content
+    const content = (viewUnits[0] as ExpUnit).content
     expect(content?.value).toBe(originalExpression)
   })
 
@@ -42,7 +42,7 @@ describe("ExpUnit", () => {
         .expression as t.CallExpression
     ).arguments[0]
 
-    const content = (viewUnits[0] as HTMLUnit).content
+    const content = (viewUnits[0] as ExpUnit).content
     expect(content?.value).toBe(originalExpression)
   })
 

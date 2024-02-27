@@ -58,9 +58,9 @@ describe("CompUnit", () => {
   // ---- Content
   it("should correctly parse content for CompTag", () => {
     const viewUnits = parse('Comp("hello")')
-    const content = (viewUnits[0] as HTMLUnit).content
+    const content = (viewUnits[0] as HTMLUnit).props._$content
 
-    expect(t.isStringLiteral(content?.value, { value: "hello" })).toBeTruthy()
+    expect(t.isStringLiteral(content.value, { value: "hello" })).toBeTruthy()
   })
 
   it("should correctly parse content with any expression as its value", () => {
@@ -71,7 +71,7 @@ describe("CompUnit", () => {
         .expression as t.CallExpression
     ).arguments[0]
 
-    const content = (viewUnits[0] as HTMLUnit).content?.value
+    const content = (viewUnits[0] as HTMLUnit).props._$content.value
     expect(content).toBe(originalExpression)
   })
 
@@ -79,7 +79,7 @@ describe("CompUnit", () => {
     const statement = parseCode("Comp(View => { div(); span() })")
     const viewUnits = parseView(statement)
 
-    const content = (viewUnits[0] as HTMLUnit).content!
+    const content = (viewUnits[0] as HTMLUnit).props._$content
     const viewContentMap = content.viewPropMap!
     expect(Object.keys(viewContentMap).length).toBe(1)
 
