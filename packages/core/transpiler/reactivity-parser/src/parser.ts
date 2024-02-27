@@ -590,6 +590,16 @@ export class ReactivityParser {
     dependencyIndexArr: number[]
     dependenciesNode: t.ArrayExpression
   } {
+    if (
+      this.t.isFunctionExpression(node) ||
+      this.t.isArrowFunctionExpression(node)
+    ) {
+      return {
+        dynamic: false,
+        dependencyIndexArr: [],
+        dependenciesNode: this.t.arrayExpression([]),
+      }
+    }
     // ---- Both id and prop deps need to be calculated because
     //      id is for subview update, prop is normal update
     //      in a subview, the depsNode should be both id and prop
@@ -695,12 +705,6 @@ export class ReactivityParser {
   private getPropertyDependencies(
     node: t.Expression | t.Statement
   ): [number[], t.Node[]] {
-    if (
-      this.t.isFunctionExpression(node) ||
-      this.t.isArrowFunctionExpression(node)
-    )
-      return [[], []]
-
     const deps = new Set<string>()
     const assignDeps = new Set<string>()
     const depNodes: Record<string, t.Node[]> = {}
