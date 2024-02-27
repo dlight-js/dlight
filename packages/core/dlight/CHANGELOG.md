@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-beta.37
+
+### Patch Changes
+
+- feat: add try-catch
+
 ## 1.0.0-beta.36
 
 ### Patch Changes

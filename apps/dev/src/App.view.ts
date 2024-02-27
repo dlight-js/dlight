@@ -1,112 +1,70 @@
 import {
-  View,
-  update,
+  Children,
+  Content,
+  Main,
   Model,
-  use,
-  Modeling,
-  Pretty,
   Prop,
+  View,
   Watch,
   button,
   div,
-  Main,
-  Mount,
-  ForwardProps,
-  Content,
-  _,
+  h1,
+  h2,
+  input,
+  use,
 } from "@dlightjs/dlight"
 
-import { Button } from "./Button100.view"
-@Model
-class MyModel {
-  @Prop count = 0
-  dblCount = this.count * 2
-  n = 100
-  n2 = 100
-  n3 = 100
-  @Watch
-  watchCount() {
-    console.log("count changed", this.dblCount)
-    this.n = this.dblCount
-    this.n2 = this.dblCount
-    this.n3 = this.dblCount
-    // setTimeout(() => {
-    //   this.n *= 2
-    // }, 1000)
+@View
+class MyComp {
+  @Prop shit
+  View() {
+    try {
+      button("trigger").onClick(this.shit)
+    } catch (e) {
+      div(`error: ${e.message}`).style({
+        color: "red",
+      })
+    }
   }
 }
 
 @View
-class jj {
-  @Content what
-  @Prop nono
-
-  model = use(MyModel, { count: this.what })
-  @Watch
-  jfae() {
-    // console.trace()
-    console.log(this.model, "what changed")
-  }
-
+class Update {
+  @Content update
+  @Children children
   View() {
-    // env().jj(this.model.count)
-    // {
-    _(!console.log("update") && this.model.n).didMount(() => {
-      console.log("ok")
-    })
-
-    // }
-  }
-}
-@View
-class A {
-  View() {
-    div("hello")
-  }
-}
-@View
-class B {
-  View() {
-    div("world")
-  }
-}
-@Model
-class JJModel {
-  count = 101
-  jj = 210
-  ok() {
-    this.count = 0
-  }
-  nono() {
-    this.jj = 100
-  }
-}
-@Main
-@View
-class App {
-  count = 101
-  m = use(JJModel)
-  jj = 210
-  no = {
-    a: A,
-  }
-  View() {
-    jj(this.count).nono(this.jj)
-    button("+").onClick(() => {
-      this.count++
-    })
-    button("-").onClick(() => {
-      this.count--
-    })
-
-    button("?").onClick(() => {
-      this.no.a = this.no.a === A ? B : A
-    })
-    if (this.count > 100) {
-      this.count
-      this.no.a()
+    if (this.update) {
+      this.children
     } else {
-      div("no")
+      this.children
+    }
+  }
+}
+
+@View
+@Main
+class App {
+  msg = "error"
+  shit() {
+    console.log("jjj")
+    // setTimeout(() => {
+    throw new Error(this.msg)
+    // }, 10)
+  }
+  update
+
+  View() {
+    input()
+      .onInput(e => {
+        this.msg = e.target.value
+      })
+      .value(this.msg)
+    button("reset").onClick(() => {
+      this.update = !this.update
+    })
+    Update(this.update)
+    {
+      MyComp().shit(this.shit)
     }
   }
 }

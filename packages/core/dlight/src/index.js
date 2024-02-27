@@ -10,6 +10,7 @@ export * from "./SubViewNode"
 export * from "./MutableNode/ForNode"
 export * from "./MutableNode/ExpNode"
 export * from "./MutableNode/CondNode"
+export * from "./MutableNode/TryNode"
 
 import { DLStore } from "./store"
 export { setGlobal, setDocument } from "./store"

@@ -1,5 +1,13 @@
 # @dlightjs/reactivity-parser
 
+## 1.0.0-beta.4
+
+### Patch Changes
+
+- feat: add try-catch
+- Updated dependencies
+  - @dlightjs/view-parser@1.0.0-beta.6
+
 ## 1.0.0-beta.3
 
 ### Patch Changes

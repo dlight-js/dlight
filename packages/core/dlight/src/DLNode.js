@@ -7,6 +7,7 @@ export const DLNodeType = {
   Env: 3,
   Exp: 4,
   Subview: 5,
+  Try: 6,
 }
 
 export class DLNode {

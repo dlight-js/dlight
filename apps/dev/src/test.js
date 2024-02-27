@@ -1,3 +1,5 @@
+import { feFuncA } from "@dlightjs/dlight"
+
 @Data
 class MyData {
   data
@@ -46,3 +48,26 @@ class App {
     div(`Width: ${this.windowSize.width}, Height: ${this.windowSize.height}`)
   }
 }
+
+
+
+
+
+@View
+class jj {
+
+  View() {
+    const node = new TryUnit((_$tryNode) => {
+      try {
+        update = 
+        ...
+      } catch {
+        _$tryNode.shit
+        tryNode.caught(tryNode.geneNewNodesInEnv(() => {
+          ...
+        }))
+      }
+    })
+  }
+}
+
