@@ -14,6 +14,7 @@ import {
   type EnvParticle,
   type SubviewParticle,
   SwitchParticle,
+  TryParticle,
 } from "./types"
 import { type NodePath, type types as t, type traverse } from "@babel/core"
 import {
@@ -28,6 +29,7 @@ import {
   type ExpUnit,
   type SubviewUnit,
   SwitchUnit,
+  TryUnit,
 } from "@dlightjs/view-parser"
 import { DLError } from "./error"
 
@@ -98,6 +100,7 @@ export class ReactivityParser {
     if (viewUnit.type === "html") return this.parseHTML(viewUnit)
     if (viewUnit.type === "comp") return this.parseComp(viewUnit)
     if (viewUnit.type === "for") return this.parseFor(viewUnit)
+    if (viewUnit.type === "try") return this.parseTry(viewUnit)
     if (viewUnit.type === "if") return this.parseIf(viewUnit)
     if (viewUnit.type === "env") return this.parseEnv(viewUnit)
     if (viewUnit.type === "exp") return this.parseExp(viewUnit)
@@ -463,6 +466,23 @@ export class ReactivityParser {
         children: branch.children.map(this.parseViewParticle.bind(this)),
         break: branch.break,
       })),
+    }
+  }
+
+  // ---- @Try ----
+  /**
+   * @brief Parse a TryUnit into an TryParticle with dependencies
+   * @param tryUnit
+   * @returns TryParticle
+   */
+  private parseTry(tryUnit: TryUnit): TryParticle {
+    return {
+      type: "try",
+      children: tryUnit.children.map(this.parseViewParticle.bind(this)),
+      exception: tryUnit.exception,
+      catchChildren: tryUnit.catchChildren.map(
+        this.parseViewParticle.bind(this)
+      ),
     }
   }
 
