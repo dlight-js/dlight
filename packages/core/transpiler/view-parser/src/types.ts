@@ -58,7 +58,7 @@ export interface TryUnit {
 
 export interface SwitchUnit {
   type: "switch"
-  discriminant: t.Expression | null
+  discriminant: t.Expression
   branches: SwitchBranch[]
 }
 
