@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-next.1
+
+### Patch Changes
+
+- fix: for loop update using prevIdx
+
 ## 1.0.0-beta.39
 
 ### Patch Changes

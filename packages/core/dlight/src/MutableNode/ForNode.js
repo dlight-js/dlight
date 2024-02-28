@@ -310,11 +310,12 @@ export class ForNode extends MutableNode {
     let newFlowIndex = flowIndex
     for (let idx = 0; idx < this.keys.length; idx++) {
       const key = this.keys[idx]
-      if (shuffleKeys.includes(key)) {
+      const prevIdx = shuffleKeys.indexOf(key)
+      if (prevIdx !== -1) {
         // ---- These nodes are already in the parentEl,
         //      and we need to keep track of their flowIndex
         newFlowIndex += ForNode.getFlowIndexFromNodes(this.nodesMap.get(key))
-        newUpdateArr[idx]?.(this.depNum, newArray[idx])
+        newUpdateArr[prevIdx]?.(this.depNum, newArray[idx])
         continue
       }
       // ---- Insert updateArr first because in getNewNode the updateFunc will replace this null
