@@ -253,6 +253,7 @@ export const importMap = Object.fromEntries(
     "CondNode",
     "ExpNode",
     "EnvNode",
+    "TryNode",
     "SubViewNode",
     "PropView",
     "render",

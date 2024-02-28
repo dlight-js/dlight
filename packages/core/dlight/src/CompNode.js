@@ -50,6 +50,10 @@ export class CompNode extends DLNode {
     DLStore.global.DLEnvStore &&
       Object.entries(DLStore.global.DLEnvStore.envs).forEach(
         ([key, [value, envNode]]) => {
+          if (key === "_$catchable") {
+            this._$catchable = value
+            return
+          }
           if (!(`$e$${key}` in this)) return
           envNode.addNode(this)
           this._$initEnv(key, value, envNode)
@@ -65,6 +69,12 @@ export class CompNode extends DLNode {
 
     this.willMount?.()
     this._$nodes = this.View?.() ?? []
+    if (this._$catchable) {
+      if (this._$update)
+        this._$update = this._$catchable(this._$update.bind(this))
+      this._$updateDerived = this._$catchable(this._$updateDerived.bind(this))
+      delete this._$catchable
+    }
   }
 
   _$setUnmounted() {

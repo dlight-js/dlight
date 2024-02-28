@@ -49,6 +49,13 @@ export interface SwitchBranch {
   break: boolean
 }
 
+export interface TryUnit {
+  type: "try"
+  children: ViewUnit[]
+  exception: t.Identifier | t.ArrayPattern | t.ObjectPattern | null
+  catchChildren: ViewUnit[]
+}
+
 export interface SwitchUnit {
   type: "switch"
   discriminant: t.Expression
@@ -84,6 +91,7 @@ export type ViewUnit =
   | ExpUnit
   | SubviewUnit
   | SwitchUnit
+  | TryUnit
 
 export interface ViewParserConfig {
   babelApi: typeof Babel

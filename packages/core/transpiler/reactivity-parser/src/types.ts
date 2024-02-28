@@ -84,6 +84,13 @@ export interface SwitchParticle {
   branches: SwitchBranch[]
 }
 
+export interface TryParticle {
+  type: "try"
+  children: ViewParticle[]
+  exception: t.Identifier | t.ArrayPattern | t.ObjectPattern | null
+  catchChildren: ViewParticle[]
+}
+
 export interface EnvParticle {
   type: "env"
   props: Record<string, DependencyProp>
@@ -114,6 +121,7 @@ export type ViewParticle =
   | ExpParticle
   | SwitchParticle
   | SubviewParticle
+  | TryParticle
 
 export interface ReactivityParserConfig {
   babelApi: typeof Babel

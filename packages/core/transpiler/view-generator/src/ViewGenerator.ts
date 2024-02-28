@@ -12,6 +12,7 @@ import TextGenerator from "./NodeGenerators/TextGenerator"
 import ExpGenerator from "./NodeGenerators/ExpGenerator"
 import SubViewGenerator from "./NodeGenerators/SubViewGenerator"
 import SwitchGenerator from "./NodeGenerators/SwitchGenerator"
+import TryGenerator from "./NodeGenerators/TryGenerator"
 
 export default class ViewGenerator {
   config: ViewGeneratorConfig
@@ -41,6 +42,7 @@ export default class ViewGenerator {
     text: TextGenerator,
     exp: ExpGenerator,
     subview: SubViewGenerator,
+    try: TryGenerator,
   }
 
   /**
@@ -122,6 +124,6 @@ export default class ViewGenerator {
   }
 
   get updateParams() {
-    return [this.t.identifier("$changed"), this.t.identifier("$key")]
+    return [this.t.identifier("$changed")]
   }
 }

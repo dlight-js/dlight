@@ -1,5 +1,20 @@
 # vite-plugin-dlight
 
+## 1.0.0-beta.26
+
+### Patch Changes
+
+- fix: try-catch model
+- Updated dependencies
+  - babel-preset-dlight@1.0.0-beta.26
+
+## 1.0.0-beta.25
+
+### Patch Changes
+
+- Updated dependencies
+  - babel-preset-dlight@1.0.0-beta.25
+
 ## 1.0.0-beta.24
 
 ### Patch Changes

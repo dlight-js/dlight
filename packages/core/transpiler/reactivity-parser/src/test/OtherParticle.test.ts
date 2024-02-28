@@ -70,4 +70,10 @@ describe("OtherParticle", () => {
     expect(viewParticles.length).toBe(1)
     expect(viewParticles[0].type).toBe("exp")
   })
+
+  it("should parse a TryUnit as a TryParticle", () => {
+    const viewParticles = parse("try { div() } catch(e) { div() }")
+    expect(viewParticles.length).toBe(1)
+    expect(viewParticles[0].type).toBe("try")
+  })
 })
