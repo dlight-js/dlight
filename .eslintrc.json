@@ -21,7 +21,7 @@
         "@typescript-eslint/no-non-null-assertion": "off",
         "@typescript-eslint/no-invalid-void-type": "off",
         "@typescript-eslint/no-explicit-any": "off",
-        "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }]
+        "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^(_|View)" }]
     },
     "plugins": ["@typescript-eslint", "prettier", "dlight"]
 }

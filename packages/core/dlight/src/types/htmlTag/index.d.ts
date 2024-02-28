@@ -34,7 +34,7 @@ export type DLightHTMLAttributesFunc<T, G, El> = {
 }
 
 export type DLightHtmlTagFunc<T = HTMLElement, G = object> = (
-  innerText?: string | number
+  innerText?: string | number | ((View: never) => void)
 ) => DLightHTMLAttributesFunc<PropertyWithEvent<OmitIndexSignature<T>>, G, T>
 
 export const a: DLightHtmlTagFunc<HTMLAnchorElement>

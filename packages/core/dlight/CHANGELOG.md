@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-beta.39
+
+### Patch Changes
+
+- feat: add alternative children syntax
+
 ## 1.0.0-beta.38
 
 ### Patch Changes

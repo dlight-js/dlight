@@ -1,5 +1,13 @@
 # @dlightjs/reactivity-parser
 
+## 1.0.0-beta.6
+
+### Patch Changes
+
+- feat: add alternative children syntax
+- Updated dependencies
+  - @dlightjs/view-parser@1.0.0-beta.8
+
 ## 1.0.0-beta.5
 
 ### Patch Changes

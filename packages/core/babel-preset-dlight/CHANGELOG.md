@@ -1,5 +1,15 @@
 # babel-preset-dlight
 
+## 1.0.0-beta.27
+
+### Patch Changes
+
+- feat: add alternative children syntax
+- Updated dependencies
+  - @dlightjs/reactivity-parser@1.0.0-beta.6
+  - @dlightjs/view-generator@1.0.0-beta.8
+  - @dlightjs/view-parser@1.0.0-beta.8
+
 ## 1.0.0-beta.26
 
 ### Patch Changes
