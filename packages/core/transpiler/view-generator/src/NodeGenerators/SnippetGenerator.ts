@@ -1,19 +1,19 @@
 import {
   type DependencyProp,
-  type SubviewParticle,
+  type SnippetParticle,
 } from "@dlightjs/reactivity-parser"
 import type { types as t } from "@babel/core"
 import PropViewGenerator from "../HelperGenerators/PropViewGenerator"
 
-export default class SubViewGenerator extends PropViewGenerator {
+export default class SnippetGenerator extends PropViewGenerator {
   run() {
-    let { props } = this.viewParticle as SubviewParticle
+    let { props } = this.viewParticle as SnippetParticle
     props = this.alterPropViews(props)
-    const { tag } = this.viewParticle as SubviewParticle
+    const { tag } = this.viewParticle as SnippetParticle
 
     const dlNodeName = this.generateNodeName()
 
-    const availableProperties = this.subViewPropMap[tag] ?? []
+    const availableProperties = this.snippetPropMap[tag] ?? []
 
     const allDependenciesNode: (t.ArrayExpression | t.NullLiteral)[] =
       Array.from(
@@ -29,14 +29,14 @@ export default class SubViewGenerator extends PropViewGenerator {
       ([key, { value, dependencyIndexArr, dependenciesNode }]) => {
         if (key === "didUpdate") return
         if (
-          SubViewGenerator.lifecycle.includes(
-            key as (typeof SubViewGenerator.lifecycle)[number]
+          SnippetGenerator.lifecycle.includes(
+            key as (typeof SnippetGenerator.lifecycle)[number]
           )
         ) {
           this.addInitStatement(
             this.addLifecycle(
               dlNodeName,
-              key as (typeof SubViewGenerator.lifecycle)[number],
+              key as (typeof SnippetGenerator.lifecycle)[number],
               value
             )
           )
@@ -67,10 +67,10 @@ export default class SubViewGenerator extends PropViewGenerator {
     }
 
     this.addInitStatement(
-      ...this.declareSubviewNode(dlNodeName, tag, props, allDependenciesNode)
+      ...this.declareSnippetNode(dlNodeName, tag, props, allDependenciesNode)
     )
 
-    this.addUpdateStatementsWithoutDep(this.updateSubView(dlNodeName))
+    this.addUpdateStatementsWithoutDep(this.updateSnippet(dlNodeName))
 
     return dlNodeName
   }
@@ -89,10 +89,10 @@ export default class SubViewGenerator extends PropViewGenerator {
 
   /**
    * @View
-   * ${dlNodeName} = new SubViewNode(${allDependenciesNode})
+   * ${dlNodeName} = new SnippetNode(${allDependenciesNode})
    * this.${tag}({${props}}, ${dlNodeName})
    */
-  private declareSubviewNode(
+  private declareSnippetNode(
     dlNodeName: string,
     tag: string,
     props: Record<string, DependencyProp>,
@@ -103,7 +103,7 @@ export default class SubViewGenerator extends PropViewGenerator {
         this.t.assignmentExpression(
           "=",
           this.t.identifier(dlNodeName),
-          this.t.newExpression(this.t.identifier(this.importMap.SubViewNode), [
+          this.t.newExpression(this.t.identifier(this.importMap.SnippetNode), [
             this.t.arrayExpression(allDependenciesNode),
           ])
         )
@@ -158,7 +158,7 @@ export default class SubViewGenerator extends PropViewGenerator {
    * @View
    * ${dlNodeName}.update(changed)
    */
-  private updateSubView(dlNodeName: string): t.Statement {
+  private updateSnippet(dlNodeName: string): t.Statement {
     return this.optionalExpression(
       dlNodeName,
       this.t.optionalCallExpression(

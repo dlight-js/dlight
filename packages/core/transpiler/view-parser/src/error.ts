@@ -6,7 +6,7 @@ export const DLError = createErrorHandler(
     1: "Invalid syntax in DLight's View, only accepts dot chain call expression",
     2: "First argument of $0() must be an expression",
     3: "Invalid syntax in DLight's View, only accepts expression as props",
-    4: "Invalid SubView calling, only accepts static subview calling like `this.SubView()`",
+    4: "Invalid Snippet calling, only accepts static snippet calling like `this.Snippet()`",
   },
   {
     1: "DLight only accepts ForOfStatement as for loop, skipping this statement",

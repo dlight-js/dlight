@@ -204,7 +204,7 @@ const htmlTags = [
   "use",
   "view",
 ]
-const subviewNames = ["MySubview", "InnerButton"]
+const snippetNames = ["MySnippet", "InnerButton"]
 
 export const availableProperties = [
   "flag",
@@ -229,7 +229,7 @@ const dependencyMap = {
 const viewConfig: ViewParserConfig = {
   babelApi,
   htmlTags,
-  subviewNames,
+  snippetNames,
 }
 
 export const reactivityConfig: ReactivityParserConfig = {

@@ -6,9 +6,7 @@ export class CompNode extends DLNode {
   /**
    * @brief Constructor, Comp type
    * @internal
-   *  * key - getter: return $key
-   *  * key - setter: set $key, update $s$key, call update function with $$key
-   *  * $key - private property key
+   *  * key - private property key
    *  * $$key - dependency number, e.g. 0b1, 0b10, 0b100
    *  * $s$key - set of properties that depend on this property
    *  * $p$key - exist if this property is a prop
@@ -68,7 +66,7 @@ export class CompNode extends DLNode {
     this.didUnmount && DLNode.addDidUnmount(this, this.didUnmount.bind(this))
 
     this.willMount?.()
-    this._$nodes = this.View?.() ?? []
+    this._$nodes = this.Body?.() ?? []
     if (this._$catchable) {
       if (this._$update)
         this._$update = this._$catchable(this._$update.bind(this))

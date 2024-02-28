@@ -203,12 +203,12 @@ const htmlTags = [
   "use",
   "view",
 ]
-const subviewNames = ["MySubview", "InnerButton"]
+const snippetNames = ["MySnippet", "InnerButton"]
 
 export const config: ViewParserConfig = {
   babelApi: babel,
   htmlTags,
-  subviewNames,
+  snippetNames,
 }
 
 export function parseCode(code: string) {

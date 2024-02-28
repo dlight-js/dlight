@@ -1,11 +1,11 @@
 import type Babel from "@babel/core"
 
-export type SubViewPropMap = Record<string, string[]>
+export type SnippetPropMap = Record<string, string[]>
 export interface ViewGeneratorConfig {
   babelApi: typeof Babel
   className: string
   importMap: Record<string, string>
-  subViewPropMap: SubViewPropMap
+  snippetPropMap: SnippetPropMap
   templateIdx: number
   attributeMap: Record<string, string[]>
   alterAttributeMap: Record<string, string>

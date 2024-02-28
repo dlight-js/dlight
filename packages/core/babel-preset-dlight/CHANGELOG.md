@@ -470,7 +470,7 @@
 
 ### Patch Changes
 
-- fix: subview property not parsed correctly
+- fix: snippet property not parsed correctly
 
 ## 1.0.0-alpha.1
 
@@ -502,13 +502,13 @@
 
 ### Patch Changes
 
-- fix: duplicated updateFunc in subview
+- fix: duplicated updateFunc in snippet
 
 ## 0.10.2
 
 ### Patch Changes
 
-- fix: subview of arrow function
+- fix: snippet of arrow function
 
 ## 0.10.1
 
@@ -526,7 +526,7 @@
 
 ### Patch Changes
 
-- feat: add subview type support
+- feat: add snippet type support
 
 ## 0.9.28
 

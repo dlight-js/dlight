@@ -10,7 +10,7 @@ import IfGenerator from "./NodeGenerators/IfGenerator"
 import EnvGenerator from "./NodeGenerators/EnvGenerator"
 import TextGenerator from "./NodeGenerators/TextGenerator"
 import ExpGenerator from "./NodeGenerators/ExpGenerator"
-import SubViewGenerator from "./NodeGenerators/SubViewGenerator"
+import SnippetGenerator from "./NodeGenerators/SnippetGenerator"
 import SwitchGenerator from "./NodeGenerators/SwitchGenerator"
 import TryGenerator from "./NodeGenerators/TryGenerator"
 
@@ -41,7 +41,7 @@ export default class ViewGenerator {
     env: EnvGenerator,
     text: TextGenerator,
     exp: ExpGenerator,
-    subview: SubViewGenerator,
+    snippet: SnippetGenerator,
     try: TryGenerator,
   }
 

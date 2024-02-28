@@ -58,7 +58,7 @@ type CustomClassTag<T, O> = ContentKeyName<RemoveOptional<O>> extends undefined
         ) => DLightObject<Omit<T, ContentKeyName<RemoveOptional<O>>>>
       : never
 
-type CustomSubViewTag<T> = T extends { content: infer U }
+type CustomSnippetTag<T> = T extends { content: infer U }
   ? (content: U) => DLightObject<Omit<T, "content">>
   : T extends { content?: infer U }
     ? (content?: U) => DLightObject<Omit<T, "content">>
@@ -74,7 +74,7 @@ type CustomTagType<T, G> = CustomClassTag<
 > &
   Useless
 export type Typed<T = object, G = object> = CustomTagType<T, G> & Useless
-export type SubTyped<T = object> = CustomSubViewTag<T> & Useless
+export type SnippetTyped<T = object> = CustomSnippetTag<T> & Useless
 
 export type Pretty = any
 

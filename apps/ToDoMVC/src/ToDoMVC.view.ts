@@ -9,13 +9,14 @@ import {
   input,
   label,
   ul,
-  SubTyped,
+  SnippetTyped,
   button,
   li,
   footer,
   span,
   strong,
   a,
+  Snippet,
 } from "@dlightjs/dlight"
 
 interface ToDo {
@@ -100,7 +101,7 @@ class ToDoMVC {
     window.removeEventListener("hashchange", this.locationHandler)
   }
 
-  @View
+  @Snippet
   ToDoItem = (({ id, title, completed, editing }: ToDoItemProps) => {
     li().class(
       `todo ${editing ? "editing" : ""} ${completed ? "completed" : ""}`.trim()
@@ -142,9 +143,9 @@ class ToDoMVC {
           })
       }
     }
-  }) as Pretty as SubTyped<ToDoItemProps>
+  }) as Pretty as SnippetTyped<ToDoItemProps>
 
-  @View
+  @Snippet
   Footer() {
     footer().class("footer")
     {
@@ -182,7 +183,7 @@ class ToDoMVC {
     }
   }
 
-  View() {
+  Body() {
     section().class("todoapp")
     {
       header().class("header")
@@ -202,6 +203,7 @@ class ToDoMVC {
           ul().class("todo-list")
           {
             for (const { id, title, completed } of this.filteredTodos) {
+              key: id
               this.ToDoItem()
                 .id(id)
                 .title(title)

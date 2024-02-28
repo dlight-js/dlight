@@ -6,7 +6,7 @@ export const DLNodeType = {
   Cond: 2,
   Env: 3,
   Exp: 4,
-  Subview: 5,
+  Snippet: 5,
   Try: 6,
 }
 

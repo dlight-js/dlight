@@ -18,7 +18,7 @@ export class ViewParser {
 
   private readonly t: typeof t
   private readonly traverse: typeof tr
-  private readonly subviewNames: string[]
+  private readonly snippetNames: string[]
   private readonly htmlTags: string[]
 
   readonly viewUnits: ViewUnit[] = []
@@ -33,7 +33,7 @@ export class ViewParser {
     this.config = config
     this.t = config.babelApi.types
     this.traverse = config.babelApi.traverse
-    this.subviewNames = config.subviewNames
+    this.snippetNames = config.snippetNames
     this.htmlTags = config.htmlTags
   }
 
@@ -91,7 +91,7 @@ export class ViewParser {
       if (type === "html") {
         delete lastViewUnit.props.textContent
         lastViewUnit.children.push(...childViewUnits)
-      } else if (type === "comp" || type === "subview") {
+      } else if (type === "comp" || type === "snippet") {
         lastViewUnit.children.push(...childViewUnits)
       } else if (type === "env") {
         if (childViewUnits.length > 0) {
@@ -527,9 +527,9 @@ export class ViewParser {
       this.t.isMemberExpression(n.callee) &&
       this.t.isThisExpression(n.callee.object) &&
       this.t.isIdentifier(n.callee.property) &&
-      this.subviewNames.includes(n.callee.property.name)
+      this.snippetNames.includes(n.callee.property.name)
     ) {
-      // ---- Subview
+      // ---- Snippet
       if (contentProp) props.content = contentProp
       if (
         !(
@@ -540,7 +540,7 @@ export class ViewParser {
       )
         return DLError.throw4()
       this.viewUnits.push({
-        type: "subview",
+        type: "snippet",
         tag: n.callee.property.name,
         props,
         children: [],

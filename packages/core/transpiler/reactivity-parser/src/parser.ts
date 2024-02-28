@@ -12,7 +12,7 @@ import {
   type ForParticle,
   type IfParticle,
   type EnvParticle,
-  type SubviewParticle,
+  type SnippetParticle,
   SwitchParticle,
   TryParticle,
 } from "./types"
@@ -27,7 +27,7 @@ import {
   type IfUnit,
   type EnvUnit,
   type ExpUnit,
-  type SubviewUnit,
+  type SnippetUnit,
   SwitchUnit,
   TryUnit,
 } from "@dlightjs/view-parser"
@@ -105,7 +105,7 @@ export class ReactivityParser {
     if (viewUnit.type === "env") return this.parseEnv(viewUnit)
     if (viewUnit.type === "exp") return this.parseExp(viewUnit)
     if (viewUnit.type === "switch") return this.parseSwitch(viewUnit)
-    if (viewUnit.type === "subview") return this.parseSubview(viewUnit)
+    if (viewUnit.type === "snippet") return this.parseSnippet(viewUnit)
     return DLError.throw1()
   }
 
@@ -525,34 +525,34 @@ export class ReactivityParser {
     return expParticle
   }
 
-  // ---- @Subview ----
+  // ---- @Snippet ----
   /**
-   * @brief Parse a SubviewUnit into a SubviewParticle with dependencies
-   * @param subviewUnit
-   * @returns SubviewParticle
+   * @brief Parse a SnippetUnit into a SnippetParticle with dependencies
+   * @param snippetUnit
+   * @returns SnippetParticle
    */
-  private parseSubview(subviewUnit: SubviewUnit): SubviewParticle {
-    const subviewParticle: SubviewParticle = {
-      type: "subview",
-      tag: subviewUnit.tag,
+  private parseSnippet(snippetUnit: SnippetUnit): SnippetParticle {
+    const snippetParticle: SnippetParticle = {
+      type: "snippet",
+      tag: snippetUnit.tag,
       props: {},
       children: [],
     }
-    if (subviewUnit.props) {
-      subviewParticle.props = Object.fromEntries(
-        Object.entries(subviewUnit.props).map(([key, prop]) => [
+    if (snippetUnit.props) {
+      snippetParticle.props = Object.fromEntries(
+        Object.entries(snippetUnit.props).map(([key, prop]) => [
           key,
           this.generateDependencyProp(prop),
         ])
       )
     }
-    if (subviewUnit.children) {
-      subviewParticle.children = subviewUnit.children.map(
+    if (snippetUnit.children) {
+      snippetParticle.children = snippetUnit.children.map(
         this.parseViewParticle.bind(this)
       )
     }
 
-    return subviewParticle
+    return snippetParticle
   }
 
   // ---- Dependencies ----
@@ -601,8 +601,8 @@ export class ReactivityParser {
       }
     }
     // ---- Both id and prop deps need to be calculated because
-    //      id is for subview update, prop is normal update
-    //      in a subview, the depsNode should be both id and prop
+    //      id is for snippet update, prop is normal update
+    //      in a snippet, the depsNode should be both id and prop
     const [directIdentifierDeps, identifierDepNodes] =
       this.getIdentifierDependencies(node)
     const [directPropertyDeps, propertyDepNodes] =

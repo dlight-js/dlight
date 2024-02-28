@@ -29,6 +29,7 @@ export function setGlobal(globalObj: any): void
 export function setDocument(customDocument: any): void
 export const $: typeof escape
 export const View: any
+export const Snippet: any
 export const Model: any
 export const update: any
 export const required: any

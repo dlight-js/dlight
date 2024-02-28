@@ -1,6 +1,6 @@
 {
   "name": "@dlightjs/view-parser",
-  "version": "1.0.0-beta.8",
+  "version": "1.0.0-next.0",
   "description": "DLight DSL syntax parser",
   "author": {
     "name": "IanDx",

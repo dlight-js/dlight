@@ -3,12 +3,12 @@ import { types as t, type NodePath } from "@babel/core"
 import {
   type PropertyContainer,
   type HTMLTags,
-  type SubViewPropSubDepMap,
+  type SnippetPropSubDepMap,
 } from "./types"
 import { minimatch } from "minimatch"
 import { parseView } from "@dlightjs/view-parser"
 import { parseReactivity } from "@dlightjs/reactivity-parser"
-import { generateSubView, generateView } from "@dlightjs/view-generator"
+import { generateSnippet, generateView } from "@dlightjs/view-generator"
 import {
   alterAttributeMap,
   availableDecoNames,
@@ -215,10 +215,10 @@ export class PluginProvider {
     if (!this.enterClassNode) return
     if (!this.t.isIdentifier(path.node.key)) return
     const key = path.node.key.name
-    if (key === "View") return
+    if (key === "Body") return
 
-    const isSubView = this.findDecoratorByName(path.node.decorators, "View")
-    if (isSubView) return
+    const isSnippet = this.findDecoratorByName(path.node.decorators, "Snippet")
+    if (isSnippet) return
     const node = path.node
 
     // ---- Handle watcher
@@ -278,10 +278,10 @@ export class PluginProvider {
     const node = path.node
     if (!this.t.isIdentifier(node.key)) return
     const key = node.key.name
-    if (key === "View") return
+    if (key === "Body") return
     const decorators = node.decorators
-    const isSubView = this.findDecoratorByName(decorators, "View")
-    if (isSubView) return
+    const isSnippet = this.findDecoratorByName(decorators, "Snippet")
+    if (isSnippet) return
     // ---- Parse model
     const isModel = this.parseModel(path)
 
@@ -490,7 +490,7 @@ export class PluginProvider {
   /**
    * @brief Transform the whole DLight class when exiting the class
    *  1. Alter all the state properties
-   *  2. Transform MainView and SubViews with DLight syntax
+   *  2. Transform MainView and Snippets with DLight syntax
    */
   transformDLightClass(): void {
     this.addAutoUpdate(this.availableProperties)
@@ -627,21 +627,21 @@ export class PluginProvider {
 
   /* ---- DLight Class View Handlers ---- */
   /**
-   * @brief Transform Body and SubViews with DLight syntax
+   * @brief Transform Body and Snippets with DLight syntax
    * @returns used properties
    */
   handleView(): string[] {
     if (!this.classBodyNode) return []
     const usedPropertySet = new Set<string>()
     let mainView: undefined | t.ClassMethod
-    const subViewNodes: t.ClassMethod[] = []
+    const snippetNodes: t.ClassMethod[] = []
     for (let viewNode of this.classBodyNode.body) {
       if (!this.t.isClassProperty(viewNode) && !this.t.isClassMethod(viewNode))
         continue
       if (!this.t.isIdentifier(viewNode.key)) continue
-      const isSubView = this.findDecoratorByName(viewNode.decorators, "View")
-      const isMainView = viewNode.key.name === "View"
-      if (!isSubView && !isMainView) continue
+      const isSnippet = this.findDecoratorByName(viewNode.decorators, "Snippet")
+      const isMainView = viewNode.key.name === "Body"
+      if (!isSnippet && !isMainView) continue
 
       if (this.t.isClassProperty(viewNode)) {
         // ---- Handle TSAsExpression, e.g. MyView = (() => {}) as Type1 as Type2
@@ -655,17 +655,17 @@ export class PluginProvider {
         viewNode = newViewNode
       }
 
-      if (isSubView) {
+      if (isSnippet) {
         viewNode.decorators = null
-        subViewNodes.push(viewNode)
+        snippetNodes.push(viewNode)
       } else {
         mainView = viewNode
       }
     }
 
-    const subViewNames = subViewNodes.map(v => (v.key as t.Identifier).name)
-    const subViewPropSubDepMap: SubViewPropSubDepMap = Object.fromEntries(
-      subViewNodes
+    const snippetNames = snippetNodes.map(v => (v.key as t.Identifier).name)
+    const snippetPropSubDepMap: SnippetPropSubDepMap = Object.fromEntries(
+      snippetNodes
         .map(v => {
           const prop = v.params[0]
           if (!prop || !this.t.isObjectPattern(prop)) return ["-", null as any]
@@ -698,18 +698,18 @@ export class PluginProvider {
       let usedProperties
       ;[usedProperties, templateIdx] = this.alterMainView(
         mainView,
-        subViewNames,
-        subViewPropSubDepMap
+        snippetNames,
+        snippetPropSubDepMap
       )
       usedProperties.forEach(usedPropertySet.add.bind(usedPropertySet))
     }
 
-    subViewNodes.forEach(viewNode => {
+    snippetNodes.forEach(viewNode => {
       let usedProperties
-      ;[usedProperties, templateIdx] = this.alterSubView(
+      ;[usedProperties, templateIdx] = this.alterSnippet(
         viewNode,
-        subViewNames,
-        subViewPropSubDepMap,
+        snippetNames,
+        snippetPropSubDepMap,
         templateIdx
       )
       usedProperties.forEach(usedPropertySet.add.bind(usedPropertySet))
@@ -726,18 +726,18 @@ export class PluginProvider {
   /**
    * @brief Transform Views with DLight syntax
    * @param viewNode
-   * @param subViewNames
-   * @param isSubView
+   * @param snippetNames
+   * @param isSnippet
    * @returns Used properties
    */
   alterMainView(
     viewNode: t.ClassMethod,
-    subViewNames: string[],
-    subViewPropSubDepMap: SubViewPropSubDepMap
+    snippetNames: string[],
+    snippetPropSubDepMap: SnippetPropSubDepMap
   ): [Set<string>, number] {
     const viewUnits = parseView(viewNode.body, {
       babelApi: this.babelApi,
-      subviewNames: subViewNames,
+      snippetNames: snippetNames,
       htmlTags: this.htmlTags,
     })
 
@@ -752,8 +752,8 @@ export class PluginProvider {
       babelApi: this.babelApi,
       className: this.className!,
       importMap,
-      subViewPropMap: Object.fromEntries(
-        Object.entries(subViewPropSubDepMap).map(([key, props]) => [
+      snippetPropMap: Object.fromEntries(
+        Object.entries(snippetPropSubDepMap).map(([key, props]) => [
           key,
           Object.keys(props),
         ])
@@ -769,41 +769,41 @@ export class PluginProvider {
   }
 
   /**
-   * @brief Transform SubViews with DLight syntax
+   * @brief Transform Snippets with DLight syntax
    * @param viewNode
-   * @param subViewNames
-   * @param subViewPropSubDepMap
+   * @param snippetNames
+   * @param snippetPropSubDepMap
    * @param templateIdx
    * @returns
    */
-  alterSubView(
+  alterSnippet(
     viewNode: t.ClassMethod,
-    subViewNames: string[],
-    subViewPropSubDepMap: SubViewPropSubDepMap,
+    snippetNames: string[],
+    snippetPropSubDepMap: SnippetPropSubDepMap,
     templateIdx: number
   ): [Set<string>, number] {
-    // ---- Add prop => Sub() => Sub(_$, $subviewNode)
+    // ---- Add prop => Sub() => Sub(_$, $snippetNode)
     if (viewNode.params.length === 0) {
       viewNode.params.push(
         this.t.identifier("_$"),
-        this.t.identifier("$subviewNode")
+        this.t.identifier("$snippetNode")
       )
     } else if (viewNode.params.length === 1) {
-      viewNode.params.push(this.t.identifier("$subviewNode"))
+      viewNode.params.push(this.t.identifier("$snippetNode"))
     } else {
-      viewNode.params[1] = this.t.identifier("$subviewNode")
+      viewNode.params[1] = this.t.identifier("$snippetNode")
       viewNode.params.length = 2
     }
     const viewUnits = parseView(viewNode.body, {
       babelApi: this.babelApi,
-      subviewNames: subViewNames,
+      snippetNames: snippetNames,
       htmlTags: this.htmlTags,
     })
 
-    const subViewProp =
-      subViewPropSubDepMap[(viewNode.key as t.Identifier).name] ?? []
+    const snippetProp =
+      snippetPropSubDepMap[(viewNode.key as t.Identifier).name] ?? []
     const identifierDepMap: Record<string, string[]> = {}
-    Object.entries(subViewProp).forEach(([key, subDeps]) => {
+    Object.entries(snippetProp).forEach(([key, subDeps]) => {
       subDeps.forEach(dep => {
         identifierDepMap[dep] = [key]
       })
@@ -814,7 +814,7 @@ export class PluginProvider {
       {
         babelApi: this.babelApi,
         availableProperties: this.availableProperties,
-        availableIdentifiers: Object.keys(subViewProp),
+        availableIdentifiers: Object.keys(snippetProp),
         dependencyMap: this.dependencyMap,
         dependencyParseType: "property",
         reactivityFuncNames,
@@ -823,20 +823,20 @@ export class PluginProvider {
 
     const [viewParticlesIdentifier] = parseReactivity(viewUnits, {
       babelApi: this.babelApi,
-      availableProperties: Object.keys(subViewProp),
+      availableProperties: Object.keys(snippetProp),
       dependencyMap: this.dependencyMap,
       dependencyParseType: "identifier",
       identifierDepMap,
       reactivityFuncNames,
     })
 
-    const subViewPropMap = Object.fromEntries(
-      Object.entries(subViewPropSubDepMap).map(([key, props]) => [
+    const snippetPropMap = Object.fromEntries(
+      Object.entries(snippetPropSubDepMap).map(([key, props]) => [
         key,
         Object.keys(props),
       ])
     )
-    const [body, classProperties, newTemplateIdx] = generateSubView(
+    const [body, classProperties, newTemplateIdx] = generateSnippet(
       viewParticlesProperty,
       viewParticlesIdentifier,
       viewNode.params[0] as t.ObjectPattern,
@@ -844,7 +844,7 @@ export class PluginProvider {
         babelApi: this.babelApi,
         className: this.className!,
         importMap,
-        subViewPropMap,
+        snippetPropMap,
         templateIdx,
         attributeMap: this.attributeMap,
         alterAttributeMap,
@@ -920,8 +920,8 @@ export class PluginProvider {
         !(
           (this.t.isClassProperty(n) ||
             this.t.isClassMethod(n, { kind: "method" })) &&
-          (this.findDecoratorByName(n.decorators, "View") ||
-            (this.t.isIdentifier(n.key) && n.key.name === "View"))
+          (this.findDecoratorByName(n.decorators, "Snippet") ||
+            (this.t.isIdentifier(n.key) && n.key.name === "Body"))
         )
     )
     this.dLightModel = true
