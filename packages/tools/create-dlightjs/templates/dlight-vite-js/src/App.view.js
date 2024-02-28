@@ -3,11 +3,12 @@ import { wrap, slogan2, countWrap, countBtn, btnWrap, countText, colorD, colorL,
 import Button from "./Button.view"
 import Header from "./Header.view"
 
+@Main
 @View
 export default class App {
   count = 0
 
-  View() {
+  Body() {
     div()
       .class(wrap)
     {

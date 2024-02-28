@@ -1,4 +1,4 @@
-import { View, type Typed, div, p, button, span, type Pretty, type SubTyped  } from "@dlightjs/dlight"
+import { View, type Typed, div, p, button, span, type Pretty, type SnippetTyped, Snippet  } from "@dlightjs/dlight"
 import Header from "./Header.view"
 import { wrap, slogan2, countWrap, countBtn, btnHover, btnWrap, countText, colorD, colorL, m0 } from "./style.module.css"
 
@@ -13,7 +13,7 @@ class App {
   count = 0
   btnStatus = [0, 0]
 
-  @View
+  @Snippet
   Btn = (({ content, onClick, index }: BtnProps) => {
     button(content)
       .class(this.btnStatus[index] === 1 ? `${countBtn} ${btnHover}` : countBtn)
@@ -26,10 +26,10 @@ class App {
         this.btnStatus[index] = 0
         this.btnStatus = [...this.btnStatus]
       })
-  }) as Pretty as SubTyped<BtnProps>
+  }) as Pretty as SnippetTyped<BtnProps>
 
 
-  View() {
+  Body() {
     div()
       .class(wrap)
     {

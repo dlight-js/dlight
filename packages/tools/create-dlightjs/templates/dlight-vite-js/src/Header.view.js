@@ -18,7 +18,7 @@ export default class Header {
     }
   ]
 
-  View() {
+  Body() {
     div()
       .class(headerWrap)
     {

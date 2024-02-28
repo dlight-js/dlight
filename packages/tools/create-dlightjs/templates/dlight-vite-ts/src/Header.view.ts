@@ -1,4 +1,4 @@
-import { View, type Typed, div, img, a, type Pretty } from "@dlightjs/dlight"
+import { View, type Typed, div, img, a, Snippet, type Pretty, type SnippetTyped } from "@dlightjs/dlight"
 import { headerWrap, navBtn, headerLogo } from "./style.module.css"
 
 interface NavProps {
@@ -23,14 +23,14 @@ class Header {
     }
   ]
 
-  @View
+  @Snippet
   Nav = (({ url, navName }: NavProps) => {
     a(navName)
       .class(navBtn)
       .href(url)
-  }) as Pretty as Typed<NavProps>
+  }) as Pretty as SnippetTyped<NavProps>
 
-  View() {
+  Body() {
     div()
       .class(headerWrap)
     {

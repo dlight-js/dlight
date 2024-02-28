@@ -1,5 +1,11 @@
 # create-dlightjs
 
+## 1.0.0-next.1
+
+### Patch Changes
+
+- refactor: template upgrade
+
 ## 1.0.0-beta.1
 
 ### Patch Changes

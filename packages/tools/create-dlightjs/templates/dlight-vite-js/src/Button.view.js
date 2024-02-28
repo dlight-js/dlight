@@ -7,7 +7,7 @@ export default class Button {
   @Prop onClick
   btnStatus = 0
 
-  View() {
+  Body() {
     button(this.content)
       .class(this.btnStatus === 1 ? `${countBtn} ${btnHover}` : countBtn)
       .onClick(this.onClick)
