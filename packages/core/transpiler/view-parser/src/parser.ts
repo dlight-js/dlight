@@ -90,12 +90,12 @@ export class ViewParser {
       const childViewUnits = this.parseView(statement)
       if (type === "html") {
         delete lastViewUnit.props.textContent
-        lastViewUnit.children = childViewUnits
+        lastViewUnit.children.push(...childViewUnits)
       } else if (type === "comp" || type === "subview") {
-        lastViewUnit.children = childViewUnits
+        lastViewUnit.children.push(...childViewUnits)
       } else if (type === "env") {
         if (childViewUnits.length > 0) {
-          lastViewUnit.children = childViewUnits
+          lastViewUnit.children.push(...childViewUnits)
         } else {
           this.viewUnits.pop()
           DLError.error2()
@@ -367,6 +367,26 @@ export class ViewParser {
   }
 
   /**
+   * @brief Return a block statement if the node is a prop view
+   * @param node
+   * @returns
+   */
+  private isPropView(node: t.Node): null | t.BlockStatement {
+    if (
+      !(
+        this.t.isArrowFunctionExpression(node) &&
+        (this.t.isIdentifier(node.params[0], { name: "View" }) ||
+          this.t.isIdentifier(node.params[0], { name: "_View" }))
+      )
+    )
+      return null
+
+    const body = node.body
+    if (this.t.isBlockStatement(body)) return body
+    return this.t.blockStatement([this.t.expressionStatement(body)])
+  }
+
+  /**
    * @brief Parse props in the type node
    * @param propNode
    * @returns ViewProp
@@ -386,23 +406,14 @@ export class ViewParser {
     const dlViewPropResult: Record<string, ViewUnit[]> = {}
     this.traverse(this.valueWrapper(propNode), {
       ArrowFunctionExpression: innerPath => {
-        const node = innerPath.node
-        if (node.params.length === 0) return
-        const firstParam = node.params[0]
-        if (
-          !this.t.isIdentifier(firstParam, { name: "View" }) &&
-          !this.t.isIdentifier(firstParam, { name: "_View" })
-        )
-          return
-        const body = this.t.isBlockStatement(node.body)
-          ? node.body
-          : this.t.blockStatement([this.t.expressionStatement(node.body)])
+        const node = this.isPropView(innerPath.node)
+        if (!node) return
         const id = this.uid()
         // ---- Parse the body of View => {} as a new View
-        dlViewPropResult[id] = this.parseView(body)
+        dlViewPropResult[id] = this.parseView(node)
         // ---- Replace the View => {} with a id string literal
         const newNode = this.t.stringLiteral(id)
-        if (node === propNode) {
+        if (innerPath.node === propNode) {
           propNode = newNode
         }
         innerPath.replaceWith(newNode)
@@ -478,12 +489,27 @@ export class ViewParser {
         return
       }
       if (this.htmlTags.includes(tagName)) {
-        if (contentProp) props.textContent = contentProp
+        let children: ViewUnit[] = []
+        if (contentProp) {
+          let isViewProp = false
+          if (
+            contentProp.viewPropMap &&
+            Object.keys(contentProp.viewPropMap).length === 1
+          ) {
+            const key = Object.keys(contentProp.viewPropMap)[0]
+            if (this.t.isStringLiteral(contentProp.value, { value: key })) {
+              isViewProp = true
+              const viewUnit = contentProp.viewPropMap[key]
+              children = viewUnit
+            }
+          }
+          if (!isViewProp) props.textContent = contentProp
+        }
         this.viewUnits.push({
           type: "html",
           tag: this.t.stringLiteral(tagName),
           props,
-          children: [],
+          children,
         })
         return
       }

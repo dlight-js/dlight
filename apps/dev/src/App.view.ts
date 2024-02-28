@@ -39,16 +39,11 @@ class ModelJ {
 @Main
 class App {
   View() {
-    try {
-      MyComp()
-    } catch (e) {
-      div(`error: ${e.message}`).style({
-        color: "red",
-      })
-      // .didMount(() => {
-      //   throw e
-      // })
-    }
+    div(_View => {
+      div("ok")
+    }).style({
+      color: "red",
+    })
   }
 }
 
