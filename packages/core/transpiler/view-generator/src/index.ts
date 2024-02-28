@@ -2,7 +2,7 @@ import { type ViewParticle } from "@dlightjs/reactivity-parser"
 import { type ViewGeneratorConfig } from "./types"
 import { type types as t } from "@babel/core"
 import MainViewGenerator from "./MainViewGenerator"
-import SubViewGenerator from "./SubViewGenerator"
+import SnippetGenerator from "./SnippetGenerator"
 
 export function generateView(
   viewParticles: ViewParticle[],
@@ -11,13 +11,13 @@ export function generateView(
   return new MainViewGenerator(config).generate(viewParticles)
 }
 
-export function generateSubView(
+export function generateSnippet(
   viewParticlesWithPropertyDep: ViewParticle[],
   viewParticlesWithIdentityDep: ViewParticle[],
   propNode: t.ObjectPattern,
   config: ViewGeneratorConfig
 ): [t.BlockStatement, t.ClassProperty[], number] {
-  return new SubViewGenerator(config).generate(
+  return new SnippetGenerator(config).generate(
     viewParticlesWithPropertyDep,
     viewParticlesWithIdentityDep,
     propNode

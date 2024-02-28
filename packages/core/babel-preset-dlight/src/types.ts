@@ -50,4 +50,4 @@ export type PropertyContainer = Record<
 
 export type IdentifierToDepNode = t.SpreadElement | t.Expression
 
-export type SubViewPropSubDepMap = Record<string, Record<string, string[]>>
+export type SnippetPropSubDepMap = Record<string, Record<string, string[]>>

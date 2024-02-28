@@ -1,9 +1,9 @@
 import { DLNode, DLNodeType } from "./DLNode"
 import { cached } from "./store"
 
-export class SubViewNode extends DLNode {
+export class SnippetNode extends DLNode {
   constructor(depsArr) {
-    super(DLNodeType.Subview)
+    super(DLNodeType.Snippet)
     this.depsArr = depsArr
   }
 

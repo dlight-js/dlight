@@ -1,6 +1,6 @@
 import { type types as t, type traverse } from "@babel/core"
 import { type ViewParticle } from "@dlightjs/reactivity-parser"
-import { type SubViewPropMap, type ViewGeneratorConfig } from "../types"
+import { type SnippetPropMap, type ViewGeneratorConfig } from "../types"
 import ViewGenerator from "../ViewGenerator"
 
 export const prefixMap = { template: "$t", node: "$node" }
@@ -13,7 +13,7 @@ export default class BaseGenerator {
   readonly traverse: typeof traverse
   readonly className: string
   readonly importMap: Record<string, string>
-  readonly subViewPropMap: SubViewPropMap
+  readonly snippetPropMap: SnippetPropMap
   readonly elementAttributeMap
   readonly alterAttributeMap
 
@@ -31,7 +31,7 @@ export default class BaseGenerator {
     this.traverse = config.babelApi.traverse
     this.className = config.className
     this.importMap = config.importMap
-    this.subViewPropMap = config.subViewPropMap
+    this.snippetPropMap = config.snippetPropMap
     this.viewGenerator = new ViewGenerator(config)
     this.elementAttributeMap = config.attributeMap
       ? Object.entries(config.attributeMap).reduce<Record<string, string[]>>(

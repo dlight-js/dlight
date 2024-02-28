@@ -61,11 +61,10 @@ export class ForNode extends MutableNode {
    */
   updateItem(idx, array, changed) {
     // ---- The update function of ForNode's childNodes is stored in the first child node
-    this.updateArr[idx]?.(changed ?? this.depNum, this.updateKey, array[idx])
+    this.updateArr[idx]?.(changed ?? this.depNum, array[idx])
   }
 
-  updateItems(changed, key) {
-    this.updateKey = key
+  updateItems(changed) {
     for (let idx = 0; idx < this.array.length; idx++) {
       this.updateItem(idx, this.array, changed)
     }
@@ -75,9 +74,9 @@ export class ForNode extends MutableNode {
    * @brief Non-array update function
    * @param changed
    */
-  update(changed, key) {
+  update(changed) {
     if (changed & this.depNum) return
-    this.updateItems(changed, key)
+    this.updateItems(changed)
   }
 
   /**
@@ -85,8 +84,7 @@ export class ForNode extends MutableNode {
    * @param newArray
    * @param newKeys
    */
-  updateArray(newArray, key, newKeys) {
-    this.updateKey = key
+  updateArray(newArray, newKeys) {
     if (newKeys) {
       this.updateWithKey(newArray, newKeys)
       return
@@ -316,7 +314,7 @@ export class ForNode extends MutableNode {
         // ---- These nodes are already in the parentEl,
         //      and we need to keep track of their flowIndex
         newFlowIndex += ForNode.getFlowIndexFromNodes(this.nodesMap.get(key))
-        this.updateItem(idx, newArray)
+        newUpdateArr[idx]?.(this.depNum, newArray[idx])
         continue
       }
       // ---- Insert updateArr first because in getNewNode the updateFunc will replace this null

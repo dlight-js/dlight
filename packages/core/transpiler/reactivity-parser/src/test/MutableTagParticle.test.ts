@@ -71,10 +71,10 @@ describe("MutableTagParticle", () => {
     expect(compParticle.type).toBe("comp")
   })
 
-  // ---- Subview
-  it("should parse a SubviewUnit as an HTMLParticle", () => {
-    const viewParticles = parse("this.MySubview()")
+  // ---- Snippet
+  it("should parse a SnippetUnit as an HTMLParticle", () => {
+    const viewParticles = parse("this.MySnippet()")
     expect(viewParticles.length).toBe(1)
-    expect(viewParticles[0].type).toBe("subview")
+    expect(viewParticles[0].type).toBe("snippet")
   })
 })

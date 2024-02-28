@@ -38,11 +38,14 @@ class ModelJ {
 @View
 @Main
 class App {
-  View() {
+  Body() {
     div(_View => {
       div("ok")
     }).style({
       color: "red",
+    })
+    MyComp().didMount(() => {
+      console.log("ok")
     })
   }
 }

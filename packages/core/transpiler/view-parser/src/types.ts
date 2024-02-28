@@ -74,8 +74,8 @@ export interface ExpUnit {
   props: Record<string, ViewProp>
 }
 
-export interface SubviewUnit {
-  type: "subview"
+export interface SnippetUnit {
+  type: "snippet"
   tag: string
   props: Record<string, ViewProp>
   children: ViewUnit[]
@@ -89,12 +89,12 @@ export type ViewUnit =
   | ForUnit
   | EnvUnit
   | ExpUnit
-  | SubviewUnit
+  | SnippetUnit
   | SwitchUnit
   | TryUnit
 
 export interface ViewParserConfig {
   babelApi: typeof Babel
-  subviewNames: string[]
+  snippetNames: string[]
   htmlTags: string[]
 }

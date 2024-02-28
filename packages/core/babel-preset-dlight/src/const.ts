@@ -254,7 +254,7 @@ export const importMap = Object.fromEntries(
     "ExpNode",
     "EnvNode",
     "TryNode",
-    "SubViewNode",
+    "SnippetNode",
     "PropView",
     "render",
   ].map(name => [name, `$$${name}`])
@@ -273,6 +273,7 @@ export const importsToDelete = [
   "Mount",
   "_",
   "env",
+  "Snippet",
   ...defaultHTMLTags.filter(tag => tag !== "use"),
 ]
 

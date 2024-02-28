@@ -103,8 +103,8 @@ export interface ExpParticle {
   props: Record<string, DependencyProp>
 }
 
-export interface SubviewParticle {
-  type: "subview"
+export interface SnippetParticle {
+  type: "snippet"
   tag: string
   props: Record<string, DependencyProp>
   children: ViewParticle[]
@@ -120,7 +120,7 @@ export type ViewParticle =
   | EnvParticle
   | ExpParticle
   | SwitchParticle
-  | SubviewParticle
+  | SnippetParticle
   | TryParticle
 
 export interface ReactivityParserConfig {

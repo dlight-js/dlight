@@ -2,13 +2,13 @@ import { type types as t } from "@babel/core"
 import { type ViewParticle } from "@dlightjs/reactivity-parser"
 import ViewGenerator from "./ViewGenerator"
 
-export default class SubViewGenerator extends ViewGenerator {
+export default class SnippetGenerator extends ViewGenerator {
   /**
-   * @brief Generate the subview, i.e., @View MySubView({ prop1, prop2 }) { ... }
+   * @brief Generate the snippet, i.e., @View MySnippet({ prop1, prop2 }) { ... }
    *  This is different from the main view in that it has a props node
    *  and is needed to parse twice,
    *    1. for this.deps (viewParticlesWithPropertyDep)
-   *    2. for props that passed in this subview (viewParticlesWithIdentityDep)
+   *    2. for props that passed in this snippet (viewParticlesWithIdentityDep)
    * @param viewParticlesWithPropertyDep
    * @param viewParticlesWithIdentityDep
    * @param propsNode
@@ -84,14 +84,14 @@ export default class SubViewGenerator extends ViewGenerator {
 
   /**
    * @View
-   * $subviewNode._$nodes = ${topLevelNodes}
+   * $snippetNode._$nodes = ${topLevelNodes}
    */
   geneAddNodes(topLevelNodes: string[]): t.Statement {
     return this.t.expressionStatement(
       this.t.assignmentExpression(
         "=",
         this.t.memberExpression(
-          this.t.identifier("$subviewNode"),
+          this.t.identifier("$snippetNode"),
           this.t.identifier("_$nodes")
         ),
         this.t.arrayExpression(
@@ -103,7 +103,7 @@ export default class SubViewGenerator extends ViewGenerator {
 
   /**
    * @View
-   * $subviewNode.${name} = (changed) => { ${updateStatements} }
+   * $snippetNode.${name} = (changed) => { ${updateStatements} }
    */
   geneUpdateFunc(
     name: string,
@@ -114,7 +114,7 @@ export default class SubViewGenerator extends ViewGenerator {
       this.t.assignmentExpression(
         "=",
         this.t.memberExpression(
-          this.t.identifier("$subviewNode"),
+          this.t.identifier("$snippetNode"),
           this.t.identifier(name)
         ),
         this.geneUpdateBody(updateStatements, propsNode)
@@ -139,21 +139,21 @@ export default class SubViewGenerator extends ViewGenerator {
     // ---- Args
     const args: t.Identifier[] = this.updateParams
     if (propsNode) {
-      // ---- Add $subviewProps and $depsArr to args
+      // ---- Add $snippetProps and $depsArr to args
       args.push(
-        this.t.identifier("$subviewPropsFunc"),
+        this.t.identifier("$snippetPropsFunc"),
         this.t.identifier("$depsArr")
       )
 
       // ---- Add cache
       /**
-       * if ($subviewNode.cached(depsArr, changed)) return
+       * if ($snippetNode.cached(depsArr, changed)) return
        */
       bodyEntryNodes.push(
         this.t.ifStatement(
           this.t.callExpression(
             this.t.memberExpression(
-              this.t.identifier("$subviewNode"),
+              this.t.identifier("$snippetNode"),
               this.t.identifier("cached")
             ),
             [this.t.identifier("$depsArr"), this.t.identifier("$changed")]
@@ -163,19 +163,19 @@ export default class SubViewGenerator extends ViewGenerator {
       )
 
       /**
-       * const $subviewProps = $subviewPropsFunc()
+       * const $snippetProps = $snippetPropsFunc()
        */
       bodyEntryNodes.push(
         this.t.variableDeclaration("const", [
           this.t.variableDeclarator(
-            this.t.identifier("$subviewProps"),
-            this.t.callExpression(this.t.identifier("$subviewPropsFunc"), [])
+            this.t.identifier("$snippetProps"),
+            this.t.callExpression(this.t.identifier("$snippetPropsFunc"), [])
           ),
         ])
       )
 
       /**
-       * ${prop} = $subviewProps
+       * ${prop} = $snippetProps
        */
       propsNode.properties
         .filter(prop => this.t.isObjectProperty(prop))
@@ -187,7 +187,7 @@ export default class SubViewGenerator extends ViewGenerator {
               this.t.assignmentExpression(
                 "=",
                 this.t.objectPattern([prop]),
-                this.t.identifier("$subviewProps")
+                this.t.identifier("$snippetProps")
               )
             )
           )
