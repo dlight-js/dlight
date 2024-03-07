@@ -62,8 +62,8 @@ export class CondNode extends FlatNode {
    * @brief The update function of IfNode's childNodes is stored in the first child node
    * @param changed
    */
-  update(changed, key) {
-    if (changed & this.depNum) return
-    this.updateFunc?.(changed, key)
+  update(changed) {
+    if (!(~this.depNum ^ changed)) return
+    this.updateFunc?.(changed)
   }
 }

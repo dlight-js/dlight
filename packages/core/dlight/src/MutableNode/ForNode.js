@@ -75,7 +75,13 @@ export class ForNode extends MutableNode {
    * @param changed
    */
   update(changed) {
-    if (changed & this.depNum) return
+    // ---- e.g. this.depNum -> 1110 changed-> 1010
+    //      ~this.depNum & changed -> ~1110 & 1010 -> 0000
+    //      no update because depNum contains all the changed
+    // ---- e.g. this.depNum -> 1110 changed-> 1101
+    //      ~this.depNum & changed -> ~1110 & 1101 -> 0001
+    //      update because depNum doesn't contain all the changed
+    if (!(~this.depNum & changed)) return
     this.updateItems(changed)
   }
 
