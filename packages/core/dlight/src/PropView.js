@@ -1,5 +1,5 @@
 import { DLNode } from "./DLNode"
-
+import { insertNode } from "./HTMLNode"
 export class PropView {
   propViewFunc
   dlUpdateFunc = new Set()
@@ -44,4 +44,8 @@ export class PropView {
       update(...args)
     })
   }
+}
+
+export function insertChildren(el, propView) {
+  insertNode(el, { _$nodes: propView.build(), _$dlNodeType: 7 }, 0)
 }

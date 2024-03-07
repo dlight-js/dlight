@@ -33,6 +33,7 @@ export const Snippet: any
 export const Model: any
 export const update: any
 export const required: any
+export function insertChildren<T>(parent: T, children: DLightViewProp): void
 
 // ---- View types
 export type DLightViewComp<T = any> = Typed<T>
