@@ -19,7 +19,8 @@ interface CustomNodeProps {
   willUnmount: (node: any) => void
   didUnmount: (node: any) => void
   didUpdate: (node: any, key: string, prevValue: any, currValue: any) => void
-  element: HTMLElement[] | ((holder: HTMLElement[]) => void) | undefined
+  ref: (node: any) => void
+  elements: HTMLElement[] | ((holder: HTMLElement[]) => void) | undefined
   forwardProps: true | undefined
 }
 

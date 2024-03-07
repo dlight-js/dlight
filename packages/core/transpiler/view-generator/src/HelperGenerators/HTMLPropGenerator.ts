@@ -327,14 +327,14 @@ export default class HTMLPropGenerator extends ForwardPropGenerator {
     "style",
     "dataset",
     "prop",
-    "element",
+    "ref",
     "attr",
     "forwardProps",
     ...HTMLPropGenerator.lifecycle,
   ]
 
   /**
-   * For style/dataset/element/attr/prop
+   * For style/dataset/ref/attr/prop
    */
   private addCommonHTMLProp(
     dlNodeName: string,
@@ -355,7 +355,7 @@ export default class HTMLPropGenerator extends ForwardPropGenerator {
         )
       return null
     }
-    if (attrName === "element") {
+    if (attrName === "ref") {
       if (!check) return this.initElement(dlNodeName, value)
       return null
     }

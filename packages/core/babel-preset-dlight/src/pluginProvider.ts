@@ -493,8 +493,8 @@ export class PluginProvider {
    *  2. Transform MainView and Snippets with DLight syntax
    */
   transformDLightClass(): void {
-    this.addAutoUpdate(this.availableProperties)
     const usedProperties = this.handleView()
+    this.addAutoUpdate(usedProperties)
     const propertyArr = Object.entries(this.propertiesContainer).reverse()
     const depReversedMap = this.dependencyMapReversed()
 

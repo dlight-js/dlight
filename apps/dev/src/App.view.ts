@@ -38,14 +38,33 @@ class ModelJ {
 @View
 @Main
 class App {
+  arr = [1, 2, 3]
+  count = 0
+
   Body() {
-    div(_View => {
-      div("ok")
-    }).style({
-      color: "red",
+    div()
+    {
+      if (this.arr.length > 0) {
+        div(`${this.count} ++ `)
+
+        div()
+        {
+          for (const i of this.arr) {
+            key: i
+            div(i)
+          }
+        }
+      }
+    }
+
+    button(this.count).onClick(() => {
+      if (this.count === null) {
+        this.count = 0
+      }
+      this.count++
     })
-    MyComp().didMount(() => {
-      console.log("ok")
+    button("reset").onClick(() => {
+      this.count = null
     })
   }
 }

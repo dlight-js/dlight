@@ -138,7 +138,7 @@ class ToDoMVC {
           .onKeyDown(e => {
             if (e.key === "Enter") this.doneEditing(id)
           })
-          .element(el => {
+          .ref(el => {
             setTimeout(() => el.focus())
           })
       }

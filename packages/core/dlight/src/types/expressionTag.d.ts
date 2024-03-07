@@ -4,7 +4,8 @@ interface ExpressionTag {
   willUnmount: (node: any) => void
   didUnmount: (node: any) => void
   didUpdate: <T>(node: any, key: string, prevValue: T, currValue: T) => void
-  element: HTMLElement[] | ((holder: HTMLElement[]) => void) | undefined
+  elements: HTMLElement[] | ((holder: HTMLElement[]) => void) | undefined
+  ref: (node: any) => void
 }
 
 type ExpressionTagFunc = (nodes: any) => ExpressionTag

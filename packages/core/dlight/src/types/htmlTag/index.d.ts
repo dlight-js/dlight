@@ -11,7 +11,7 @@ export type PropertyWithEvent<G> = Omit<
   DLightGlobalEventHandlers
 
 interface DLightHtmlProps<El> {
-  element: El | ((holder: El) => void) | undefined
+  ref: El | ((holder: El) => void) | undefined
   prop: Record<string, string | number | boolean>
   attr: Record<string, string>
   dataset: Record<string, string>

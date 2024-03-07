@@ -37,16 +37,19 @@ export default class ExpGenerator extends ElementGenerator {
             )
           )
         }
-        if (key === "element") {
-          this.addInitStatement(this.initElement(dlNodeName, value, true))
-          return
+        if (key === "ref") {
+          return this.addInitStatement(this.initElement(dlNodeName, value))
+        }
+        if (key === "elements") {
+          return this.addInitStatement(
+            this.initElement(dlNodeName, value, true)
+          )
         }
         if (key === "didUpdate") {
-          this.addUpdateStatements(
+          return this.addUpdateStatements(
             content.dependencyIndexArr,
             this.addOnUpdate(dlNodeName, value)
           )
-          return
         }
         DLError.warn1(key)
       })

@@ -39,7 +39,11 @@ export default class CompGenerator extends ForwardPropGenerator {
           )
           return
         }
-        if (key === "element") {
+        if (key === "ref") {
+          this.addInitStatement(this.initElement(dlNodeName, value))
+          return
+        }
+        if (key === "elements") {
           this.addInitStatement(this.initElement(dlNodeName, value, true))
           return
         }
@@ -113,7 +117,8 @@ export default class CompGenerator extends ForwardPropGenerator {
       Object.entries(props).filter(
         ([key]) =>
           ![
-            "element",
+            "ref",
+            "elements",
             "forwardProps",
             "_$content",
             "didUpdate",
