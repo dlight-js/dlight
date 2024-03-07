@@ -4,9 +4,12 @@ import PropViewGenerator from "./PropViewGenerator"
 export default class ElementGenerator extends PropViewGenerator {
   /**
    * @View
+   * el:
    * View.addDidMount(${dlNodeName}, () => (
    *   typeof ${value} === "function" ? ${value}($nodeEl) : ${value} = $nodeEl
    * ))
+   * not el:
+   * typeof ${value} === "function" ? ${value}($nodeEl) : ${value} = $nodeEl
    * @param el true: dlNodeName._$el, false: dlNodeName
    */
   initElement(
@@ -35,18 +38,20 @@ export default class ElementGenerator extends PropViewGenerator {
       elementNode = this.t.callExpression(value, [elNode])
     }
 
-    return this.t.expressionStatement(
-      this.t.callExpression(
-        this.t.memberExpression(
-          this.t.identifier("View"),
-          this.t.identifier("addDidMount")
-        ),
-        [
-          this.t.identifier(dlNodeName),
-          this.t.arrowFunctionExpression([], elementNode),
-        ]
-      )
-    )
+    return el
+      ? this.t.expressionStatement(
+          this.t.callExpression(
+            this.t.memberExpression(
+              this.t.identifier("View"),
+              this.t.identifier("addDidMount")
+            ),
+            [
+              this.t.identifier(dlNodeName),
+              this.t.arrowFunctionExpression([], elementNode),
+            ]
+          )
+        )
+      : this.t.expressionStatement(elementNode)
   }
 
   // --- Utils
