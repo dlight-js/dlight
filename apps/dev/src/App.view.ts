@@ -11,6 +11,7 @@ import {
   h1,
   h2,
   input,
+  insertChildren,
   use,
 } from "@dlightjs/dlight"
 
@@ -34,15 +35,48 @@ class ModelJ {
     this.jj = null
   }
 }
+@View
+class Portal {
+  @Children content
+  @Prop mount
+  bodyEl
+  previousContent
+  didMount() {
+    console.log(this.mount)
+    if (this.mount) {
+      this.previousContent = this.mount.innerHTML
+      this.mount.innerHTML = ""
+    } else {
+      const el = document.createElement("div")
+      document.body.appendChild(el)
+      this.bodyEl = el
+      this.mount = el
+    }
+
+    insertChildren(this.mount, this.content)
+  }
+
+  willUnmount() {
+    if (this.bodyEl) {
+      document.body.removeChild(this.bodyEl)
+    } else {
+      this.mount.innerHTML = this.previousContent
+    }
+  }
+}
 
 @View
 @Main
 class App {
   arr = [1, 2, 3]
   count = 0
+  el = null
 
+  didMount() {
+    console.log("didMount", this.el)
+  }
   Body() {
-    div()
+    div().ref(this.el)
     {
       if (this.arr.length > 0) {
         div(`${this.count} ++ `)
@@ -55,6 +89,11 @@ class App {
           }
         }
       }
+    }
+    Portal().mount(this.el)
+    {
+      h1("Portal")
+      h2("Portal")
     }
 
     button(this.count).onClick(() => {

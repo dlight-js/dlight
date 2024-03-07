@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-next.2
+
+### Patch Changes
+
+- feat: fixes and feature requests
+
 ## 1.0.0-next.1
 
 ### Patch Changes

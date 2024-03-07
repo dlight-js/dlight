@@ -1,5 +1,13 @@
 # @dlightjs/reactivity-parser
 
+## 1.0.0-next.1
+
+### Patch Changes
+
+- feat: fixes and feature requests
+- Updated dependencies
+  - @dlightjs/view-parser@1.0.0-next.1
+
 ## 1.0.0-beta.6
 
 ### Patch Changes

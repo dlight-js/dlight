@@ -1,5 +1,15 @@
 # babel-preset-dlight
 
+## 1.0.0-next.1
+
+### Patch Changes
+
+- feat: fixes and feature requests
+- Updated dependencies
+  - @dlightjs/reactivity-parser@1.0.0-next.1
+  - @dlightjs/view-generator@1.0.0-next.1
+  - @dlightjs/view-parser@1.0.0-next.1
+
 ## 1.0.0-beta.27
 
 ### Patch Changes
