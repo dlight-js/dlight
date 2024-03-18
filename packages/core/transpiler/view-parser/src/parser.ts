@@ -553,7 +553,7 @@ export class ViewParser {
       //      3. tag(xxx)
       const [tagType, tag] = this.alterTagType(n.callee)
       if (contentProp) {
-        props[tagType === "html" ? "textContent" : "content"] = contentProp
+        props[tagType === "html" ? "textContent" : "_$content"] = contentProp
       }
       this.viewUnits.push({
         type: tagType,

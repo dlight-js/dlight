@@ -1,5 +1,11 @@
 # @dlightjs/view-parser
 
+## 1.0.0-next.2
+
+### Patch Changes
+
+- fix: component content prop named as "\_$content"
+
 ## 1.0.0-next.1
 
 ### Patch Changes
