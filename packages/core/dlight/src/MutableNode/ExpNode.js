@@ -12,14 +12,19 @@ export class ExpNode extends FlatNode {
     this.initUnmountStore()
     this._$nodes = ExpNode.formatNodes(value)
     this.setUnmountFuncs()
-    this.deps = deps
+    this.deps = this.parseDeps(deps)
     // ---- Add to the global UnmountStore
     ExpNode.addWillUnmount(this, this.runWillUnmount.bind(this))
     ExpNode.addDidUnmount(this, this.runDidUnmount.bind(this))
   }
 
+  parseDeps(deps) {
+    return deps.map(dep => (dep.prototype._$init ? dep.toString() : dep))
+  }
+
   cache(deps) {
     if (!deps || !deps.length) return false
+    deps = this.parseDeps(deps)
     if (cached(deps, this.deps)) return true
     this.deps = deps
     return false

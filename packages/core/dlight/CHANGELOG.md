@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-next.3
+
+### Patch Changes
+
+- fix: if cond typo + exp component level cache
+
 ## 1.0.0-next.2
 
 ### Patch Changes

@@ -63,7 +63,7 @@ export class CondNode extends FlatNode {
    * @param changed
    */
   update(changed) {
-    if (!(~this.depNum ^ changed)) return
+    if (!(~this.depNum & changed)) return
     this.updateFunc?.(changed)
   }
 }
