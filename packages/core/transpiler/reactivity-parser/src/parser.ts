@@ -54,8 +54,8 @@ export class ReactivityParser {
     "didUnmount",
     "element",
     "innerHTML",
-    "prop",
-    "attr",
+    "props",
+    "attrs",
     "dataset",
     "forwardProps",
   ]

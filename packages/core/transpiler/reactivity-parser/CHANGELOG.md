@@ -1,5 +1,11 @@
 # @dlightjs/reactivity-parser
 
+## 1.0.0-next.5
+
+### Patch Changes
+
+- feat: change prop->props and attr->attrs
+
 ## 1.0.0-next.4
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @dlightjs/view-generator
 
+## 1.0.0-next.2
+
+### Patch Changes
+
+- feat: change prop->props and attr->attrs
+
 ## 1.0.0-next.1
 
 ### Patch Changes
