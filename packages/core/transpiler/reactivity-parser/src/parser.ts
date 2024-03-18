@@ -766,7 +766,7 @@ export class ReactivityParser {
       const pParentPath = parentPath.parentPath
       if (
         !(
-          this.t.isMemberExpression(pParentPath.node) ||
+          this.t.isMemberExpression(pParentPath.node, { computed: false }) ||
           this.t.isOptionalMemberExpression(pParentPath.node)
         )
       ) {

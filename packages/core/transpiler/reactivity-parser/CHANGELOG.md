@@ -1,5 +1,11 @@
 # @dlightjs/reactivity-parser
 
+## 1.0.0-next.4
+
+### Patch Changes
+
+- fix: no computed dep node member chaining
+
 ## 1.0.0-next.3
 
 ### Patch Changes

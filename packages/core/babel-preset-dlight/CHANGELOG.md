@@ -1,5 +1,14 @@
 # babel-preset-dlight
 
+## 1.0.0-next.4
+
+### Patch Changes
+
+- fix: no computed dep node member chaining
+- Updated dependencies
+  - @dlightjs/reactivity-parser@1.0.0-next.4
+  - @dlightjs/view-generator@1.0.0-next.1
+
 ## 1.0.0-next.3
 
 ### Patch Changes
