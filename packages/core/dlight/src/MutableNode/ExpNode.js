@@ -19,7 +19,13 @@ export class ExpNode extends FlatNode {
   }
 
   parseDeps(deps) {
-    return deps.map(dep => (dep?.prototype?._$init ? dep.toString() : dep))
+    return deps.map(dep => {
+      // ---- CompNode
+      if (dep?.prototype?._$init) return dep.toString()
+      // ---- SnippetNode
+      if (dep?.propViewFunc) return dep.propViewFunc.toString()
+      return dep
+    })
   }
 
   cache(deps) {

@@ -16,95 +16,43 @@ import {
 } from "@dlightjs/dlight"
 
 @View
-class MyComp {
-  model = use(ModelJ)
-
-  ok = this.model.ok
-
-  View() {
-    button("reset").onClick(this.model.change)
-    // div(this.aa.jj)
+class JJ {
+  @Children no
+  ok = {
+    count: 1,
+    view: this.no,
   }
-}
+  willMount() {
+    this.ok.view = this.no
+  }
 
-@Model
-class ModelJ {
-  jj = { ok: 100 }
-  // ok = this.jj.ok
-  change() {
-    this.jj = null
+  Body() {
+    if (this.ok.count > 0) {
+      this.ok.view
+    }
+    button("ok").onClick(() => {
+      this.ok.count++
+    })
   }
 }
 @View
-class Portal {
-  @Children content
-  @Prop mount
-  bodyEl
-  previousContent
-  didMount() {
-    console.log(this.mount)
-    if (this.mount) {
-      this.previousContent = this.mount.innerHTML
-      this.mount.innerHTML = ""
-    } else {
-      const el = document.createElement("div")
-      document.body.appendChild(el)
-      this.bodyEl = el
-      this.mount = el
-    }
-
-    insertChildren(this.mount, this.content)
+class Fuck {
+  willMount() {
+    console.log("inin")
   }
-
-  willUnmount() {
-    if (this.bodyEl) {
-      document.body.removeChild(this.bodyEl)
-    } else {
-      this.mount.innerHTML = this.previousContent
-    }
+  Body() {
+    "jjjj"
   }
 }
 
 @View
 @Main
 class App {
-  arr = [1, 2, 3]
-  count = 0
-  el = null
-
-  didMount() {
-    console.log("didMount", this.el)
-  }
   Body() {
-    div().ref(this.el)
+    JJ()
     {
-      if (this.arr.length > 0) {
-        div(`${this.count} ++ `)
-
-        div()
-        {
-          for (const i of this.arr) {
-            key: i
-            div(i)
-          }
-        }
-      }
+      Fuck()
     }
-    Portal().mount(this.el)
-    {
-      h1("Portal")
-      h2("Portal")
-    }
-
-    button(this.count).onClick(() => {
-      if (this.count === null) {
-        this.count = 0
-      }
-      this.count++
-    })
-    button("reset").onClick(() => {
-      this.count = null
-    })
   }
 }
 
