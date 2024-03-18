@@ -19,7 +19,7 @@ export class ExpNode extends FlatNode {
   }
 
   parseDeps(deps) {
-    return deps.map(dep => (dep.prototype?._$init ? dep.toString() : dep))
+    return deps.map(dep => (dep?.prototype?._$init ? dep.toString() : dep))
   }
 
   cache(deps) {

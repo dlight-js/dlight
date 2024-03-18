@@ -1,5 +1,23 @@
 # @dlightjs/dlight
 
+## 1.0.0-next.7
+
+### Patch Changes
+
+- build
+
+## 1.0.0-next.6
+
+### Patch Changes
+
+- fix: optional prototype for expnode comp dep altering+
+
+## 1.0.0-next.5
+
+### Patch Changes
+
+- build
+
 ## 1.0.0-next.4
 
 ### Patch Changes
