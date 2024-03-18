@@ -1,5 +1,15 @@
 # babel-preset-dlight
 
+## 1.0.0-next.3
+
+### Patch Changes
+
+- fix: no unknown binary expression dep node and add optional member
+- fix: no unknown binary expression dep node and add optional member
+- Updated dependencies
+  - @dlightjs/reactivity-parser@1.0.0-next.3
+  - @dlightjs/view-generator@1.0.0-next.1
+
 ## 1.0.0-next.2
 
 ### Patch Changes

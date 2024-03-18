@@ -766,15 +766,24 @@ export class ReactivityParser {
       const pParentPath = parentPath.parentPath
       if (
         !(
-          this.t.isBinaryExpression(pParentPath.node) ||
-          this.t.isMemberExpression(pParentPath.node)
+          this.t.isMemberExpression(pParentPath.node) ||
+          this.t.isOptionalMemberExpression(pParentPath.node)
         )
       ) {
-        return parentPath.node
+        break
       }
       parentPath = pParentPath
     }
-    return path.node
+    const depNode = this.t.cloneNode(parentPath.node)
+    // ---- Turn memberExpression to optionalMemberExpression
+    this.traverse(this.valueWrapper(depNode as t.Expression), {
+      MemberExpression: innerPath => {
+        if (this.t.isThisExpression(innerPath.node.object)) return
+        innerPath.node.optional = true
+        innerPath.node.type = "OptionalMemberExpression" as any
+      },
+    })
+    return depNode
   }
 
   /**
