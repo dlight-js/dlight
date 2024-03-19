@@ -27,19 +27,23 @@ export class TryNode extends FlatNode {
         try {
           return callback(...args)
         } catch (e) {
-          const nodes = this.geneNewNodesInEnv(() =>
-            catchFunc(this.setUpdateFunc.bind(this), e)
-          )
-          this._$nodes && this.removeNodes(this._$nodes)
-          const parentEl = this._$parentEl
-          const flowIndex = FlatNode.getFlowIndexFromNodes(
-            parentEl._$nodes,
-            this
-          )
-          const nextSibling = parentEl.childNodes[flowIndex]
-          FlatNode.appendNodesWithSibling(nodes, parentEl, nextSibling)
-          FlatNode.runDidMount()
-          this._$nodes = nodes
+          // ---- Run it in next tick to make sure when error occurs before
+          //      didMount, this._$parentEl is not null
+          Promise.resolve().then(() => {
+            const nodes = this.geneNewNodesInEnv(() =>
+              catchFunc(this.setUpdateFunc.bind(this), e)
+            )
+            this._$nodes && this.removeNodes(this._$nodes)
+            const parentEl = this._$parentEl
+            const flowIndex = FlatNode.getFlowIndexFromNodes(
+              parentEl._$nodes,
+              this
+            )
+            const nextSibling = parentEl.childNodes[flowIndex]
+            FlatNode.appendNodesWithSibling(nodes, parentEl, nextSibling)
+            FlatNode.runDidMount()
+            this._$nodes = nodes
+          })
         }
       }
   }

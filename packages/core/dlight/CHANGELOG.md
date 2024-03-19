@@ -1,5 +1,11 @@
 # @dlightjs/dlight
 
+## 1.0.0-next.9
+
+### Patch Changes
+
+- feat: add try-catch lifecycle and init level catchable
+
 ## 1.0.0-next.8
 
 ### Patch Changes

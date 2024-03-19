@@ -34,7 +34,7 @@ export class CompNode extends DLNode {
   _$init(props, content, children, forwardPropsScope) {
     this._$notInitd = true
 
-    // Forward props first to allow internal props to override forwarded props
+    // ---- Forward props first to allow internal props to override forwarded props
     if (forwardPropsScope) forwardPropsScope._$addForwardProps(this)
     if (content) this._$setContent(() => content[0], content[1])
     if (props)
@@ -44,7 +44,7 @@ export class CompNode extends DLNode {
       })
     if (children) this._$children = children
 
-    // Add envs
+    // ---- Add envs
     DLStore.global.DLEnvStore &&
       Object.entries(DLStore.global.DLEnvStore.envs).forEach(
         ([key, [value, envNode]]) => {
@@ -58,20 +58,25 @@ export class CompNode extends DLNode {
         }
       )
 
-    // Call watchers
-    this._$callUpdatesBeforeInit()
-    this.didMount && DLNode.addDidMount(this, this.didMount.bind(this))
-    this.willUnmount && DLNode.addWillUnmount(this, this.willUnmount.bind(this))
-    DLNode.addDidUnmount(this, this._$setUnmounted.bind(this))
-    this.didUnmount && DLNode.addDidUnmount(this, this.didUnmount.bind(this))
+    const willCall = () => {
+      this._$callUpdatesBeforeInit()
+      this.didMount && DLNode.addDidMount(this, this.didMount.bind(this))
+      this.willUnmount &&
+        DLNode.addWillUnmount(this, this.willUnmount.bind(this))
+      DLNode.addDidUnmount(this, this._$setUnmounted.bind(this))
+      this.didUnmount && DLNode.addDidUnmount(this, this.didUnmount.bind(this))
+      this.willMount?.()
+      this._$nodes = this.Body?.() ?? []
+    }
 
-    this.willMount?.()
-    this._$nodes = this.Body?.() ?? []
     if (this._$catchable) {
+      this._$catchable(willCall)()
       if (this._$update)
         this._$update = this._$catchable(this._$update.bind(this))
       this._$updateDerived = this._$catchable(this._$updateDerived.bind(this))
       delete this._$catchable
+    } else {
+      willCall()
     }
   }
 
