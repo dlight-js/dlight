@@ -14,46 +14,52 @@ import {
   insertChildren,
   use,
 } from "@dlightjs/dlight"
-
-@View
+@Model
 class JJ {
-  @Children no
-  ok = {
-    count: 1,
-    view: this.no,
-  }
-  willMount() {
-    this.ok.view = this.no
-  }
-
-  Body() {
-    if (this.ok.count > 0) {
-      this.ok.view
-    }
-    button("ok").onClick(() => {
-      this.ok.count++
-    })
+  jj = 1
+  ui() {
+    this.jj = 2
   }
 }
 @View
-class Fuck {
-  willMount() {
-    console.log("inin")
+class DataView {
+  @Prop count
+  @Watch
+  watcher() {
+    console.log(this.count, this.count.notExist) // Error occurs here
   }
-  Body() {
-    "jjjj"
-  }
+  Body() {}
 }
-
-@View
 @Main
-class App {
+@View
+class MyComp {
+  w 
+  count = null
+  jj() {
+    this.w = 1
+  }
+
   Body() {
-    JJ()
-    {
-      Fuck()
+    try {
+      DataView().count(this.count)
+      button().onClick(() => {
+        this.count = null
+      })
+    } catch (e) {
+      div(e.message)
     }
   }
 }
 
-export default App
+// @View
+// @Main
+// class App {
+//   Body() {
+//     JJ()
+//     {
+//       Fuck()
+//     }
+//   }
+// }
+
+// export default App

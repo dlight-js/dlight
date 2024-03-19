@@ -1,5 +1,11 @@
 # babel-preset-dlight
 
+## 1.0.0-next.6
+
+### Patch Changes
+
+- fix: model not updating
+
 ## 1.0.0-next.5
 
 ### Patch Changes

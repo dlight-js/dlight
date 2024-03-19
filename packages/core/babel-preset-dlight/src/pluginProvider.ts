@@ -494,7 +494,9 @@ export class PluginProvider {
    */
   transformDLightClass(): void {
     const usedProperties = this.handleView()
-    this.addAutoUpdate(usedProperties)
+    this.addAutoUpdate(
+      this.dLightModel ? this.availableProperties : usedProperties
+    )
     const propertyArr = Object.entries(this.propertiesContainer).reverse()
     const depReversedMap = this.dependencyMapReversed()
 
