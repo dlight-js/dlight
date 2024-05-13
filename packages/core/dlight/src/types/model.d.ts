@@ -19,7 +19,7 @@ type GetContent<T> = ContentKeyName<T> extends undefined
     ? U
     : never
 
-export const use: <M>(
+export const use: <M extends new () => unknown>(
   model: M,
   // @ts-expect-error Model should be a function
   props?: GetProps<Parameters<M>[0]>,
