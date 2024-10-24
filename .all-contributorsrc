@@ -47,6 +47,16 @@
         "bug",
         "example"
       ]
+    },
+    {
+      "login": "ZhengHeber",
+      "name": "Haibo Zheng",
+      "avatar_url": "https://avatars.githubusercontent.com/u/77974962?v=4",
+      "profile": "https://github.com/ZhengHeber",
+      "contributions": [
+        "bug",
+        "content"
+      ]
     }
   ],
   "contributorsPerLine": 7,
