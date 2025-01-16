@@ -238,6 +238,7 @@ export const dlightDefaultPackageName = "@dlightjs/dlight"
 export const importMap = Object.fromEntries(
   [
     "createElement",
+    "createSVGElement",
     "setStyle",
     "setDataset",
     "setEvent",
