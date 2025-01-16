@@ -124,6 +124,15 @@ export function createElement(tag) {
 }
 
 /**
+ * @brief Shortcut for document.createElementNS
+ * @param tag Tag name, e.g. 'svg', 'circle', etc.
+ * @returns HTMLElement
+ */
+export function createSVGElement(tag) {
+  return DLStore.document.createElementNS("http://www.w3.org/2000/svg", tag)
+}
+
+/**
  * @brief Insert any DLNode into an element, set the _$nodes and append the element to the element's children
  * @param el
  * @param node
