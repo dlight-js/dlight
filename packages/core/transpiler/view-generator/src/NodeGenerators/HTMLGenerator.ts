@@ -69,9 +69,16 @@ export default class HTMLGenerator extends HTMLPropGenerator {
       this.t.assignmentExpression(
         "=",
         this.t.identifier(dlNodeName),
-        this.t.callExpression(this.t.identifier(this.importMap.createElement), [
-          tag,
-        ])
+        tag.type === "StringLiteral" &&
+          (tag.value === "svg" || tag.value === "circle")
+          ? this.t.callExpression(
+              this.t.identifier(this.importMap.createSVGElement),
+              [tag]
+            )
+          : this.t.callExpression(
+              this.t.identifier(this.importMap.createElement),
+              [tag]
+            )
       )
     )
   }
