@@ -7,9 +7,13 @@ export default defineConfig({
   },
   base: "",
   optimizeDeps: {
-    disabled: true,
+    noDiscovery: true,
+    include: undefined
   },
   plugins: [
     dlight({ files: "**/*.{view,model}.{ts,js}", enableDevTools: true }),
   ],
+  build: {
+    minify: false
+  }
 })
