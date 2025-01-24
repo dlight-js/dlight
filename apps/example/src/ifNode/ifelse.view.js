@@ -12,7 +12,7 @@ class IfElse {
     this.count--
   }
 
-  View() {
+  Body() {
     div(`Count: ${this.count}`)
     button("+")
       .onClick(this.addCount)

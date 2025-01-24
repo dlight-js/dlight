@@ -2,7 +2,7 @@ import { View } from "@dlightjs/dlight"
 
 @View
 class NestHtml {
-  View() {
+  Body() {
     div()
       .style({ backgroundColor: "gray", height: "200px" })
     {

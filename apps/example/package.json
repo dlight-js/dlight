@@ -13,12 +13,13 @@
     "dev": "vite",
     "build": "vite build"
   },
+  "dependencies": {
+    "@dlightjs/dlight": "workspace:*",
+    "babel-preset-dlight": "workspace:*"
+  },
   "devDependencies": {
-    "vite": "^4.4.9",
+    "vite": "^6.0.11",
     "vite-plugin-dlight": "workspace:*",
     "vite-plugin-dlight-js": "workspace:*"
-  },
-  "dependencies": {
-    "@dlightjs/dlight": "workspace:*"
   }
 }

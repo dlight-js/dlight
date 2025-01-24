@@ -3,7 +3,7 @@ import ChildComp from "./ChildNode.view"
 
 @View
 class ParentComp {
-  View() {
+  Body() {
     div("I am parent!")
     ChildComp()
       .name("Cindy")

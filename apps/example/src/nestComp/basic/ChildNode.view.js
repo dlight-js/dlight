@@ -4,7 +4,7 @@ import { View } from "@dlightjs/dlight"
 class ChildComp {
   @Prop name = "John"
 
-  View() {
+  Body() {
     div(`I am the child ${this.name}!`)
   }
 }

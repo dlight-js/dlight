@@ -1,8 +1,9 @@
-import { View } from "@dlightjs/dlight"
+import { View, Main } from "@dlightjs/dlight"
 
+@Main
 @View
 class App {
-  View() {
+  Body() {
     button("+")
   }
 }

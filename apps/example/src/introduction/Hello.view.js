@@ -2,7 +2,7 @@ import { View } from "@dlightjs/dlight"
 
 @View
 class Hello {
-  View() {
+  Body() {
     div("hello world!")
   }
 }

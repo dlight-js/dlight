@@ -9,7 +9,7 @@ class Function {
     this.count++
   }
 
-  View() {
+  Body() {
     div(this.count)
     button("+")
       .onclick(this.handleClick)

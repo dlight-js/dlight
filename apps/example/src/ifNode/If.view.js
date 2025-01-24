@@ -8,7 +8,7 @@ class If {
     this.isHappy = !this.isHappy
   }
 
-  View() {
+  Body() {
     button("Change mood")
       .onClick(this.changeMood)
     if (this.isHappy) {

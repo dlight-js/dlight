@@ -4,7 +4,7 @@ import { View } from "@dlightjs/dlight"
 class ChildComp {
   @Env textColor = "black"
 
-  View() {
+  Body() {
     div("I'm supposed to be red").style({ color: this.textColor })
   }
 }

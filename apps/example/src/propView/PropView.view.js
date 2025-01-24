@@ -5,7 +5,7 @@ class Header {
   @Prop rightView
   @Prop centerView
   @Prop leftView
-  View() {
+  Body() {
     div().style({
       display: "flex",
       justifyContent: "space-between",
@@ -31,7 +31,7 @@ class Header {
 
 @View
 class PropViewClass {
-  View() {
+  Body() {
     Header()
       .leftView(View => {
         div("hhhh")
