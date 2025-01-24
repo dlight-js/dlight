@@ -1,5 +1,5 @@
 import { defineConfig } from "vite"
-import dlight from "../../packages/tools/vite-plugin-dlight/dist"
+import dlight from "vite-plugin-dlight"
 
 export default defineConfig({
   plugins: [dlight({ files: "**/*.view.{ts,js}" })],
