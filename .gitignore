@@ -12,6 +12,7 @@ lerna-debug.log*
 node_modules
 */node_modules
 dist-ssr
+.turbo
 *.local
 
 # Editor directories and files

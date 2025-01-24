@@ -6,9 +6,13 @@
     "name": "IanDx",
     "email": "iandxssxx@gmail.com"
   },
-  "keywords": ["babel-plugin"],
+  "keywords": [
+    "babel-plugin"
+  ],
   "license": "MIT",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "type": "module",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
@@ -17,9 +21,7 @@
     "build": "tsup --sourcemap"
   },
   "devDependencies": {
+    "@babel/types": "^7.20.7",
     "tsup": "^6.5.0"
-  },
-  "dependencies": {
-    "@babel/types": "^7.20.7"
   }
 }

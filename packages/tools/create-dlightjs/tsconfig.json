@@ -17,7 +17,6 @@
     "noImplicitThis": false,
     "experimentalDecorators": true,
     "ignoreDeprecations": "5.0",
-    "suppressExcessPropertyErrors": true,
     "declaration": false
   },
   "ts-node": {
