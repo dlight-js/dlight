@@ -5,7 +5,7 @@ import { View } from "@dlightjs/dlight"
 class ReactiveStatement {
   count = 0
 
-  View() {
+  Body() {
     div("count")
     div(this.count)
     div("double count")

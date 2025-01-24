@@ -4,7 +4,7 @@ import { View } from "@dlightjs/dlight"
 class ColumnCenterView {
   @Children children
 
-  View() {
+  Body() {
     div()
       .style({ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" })
     {
@@ -15,7 +15,7 @@ class ColumnCenterView {
 
 @View
 class ChildrenView {
-  View() {
+  Body() {
     ColumnCenterView()
     {
       div("short")

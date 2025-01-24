@@ -4,7 +4,7 @@ import { View } from "@dlightjs/dlight"
 class TextInput {
   name = ""
 
-  View() {
+  Body() {
     input()
       .placeholder("Enter your name")
       .onInput((e) => {

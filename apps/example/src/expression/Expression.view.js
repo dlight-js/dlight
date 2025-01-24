@@ -4,7 +4,7 @@ import { View } from "@dlightjs/dlight"
 class Expression {
   count = 0
 
-  View() {
+  Body() {
     button("Add").onclick(() => this.count++)
     div()
     {

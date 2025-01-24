@@ -5,7 +5,7 @@ import { View } from "@dlightjs/dlight"
 class Reactivity {
   count = 0
 
-  View() {
+  Body() {
     div(this.count)
     button("+")
       .onclick(() => {

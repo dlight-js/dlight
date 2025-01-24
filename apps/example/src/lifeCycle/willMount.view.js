@@ -16,7 +16,7 @@ class WillMount {
     window.removeEventListener("click", this.handleClick.bind(this))
   }
 
-  View() {
+  Body() {
     div()
       .style({ backgroundColor: this.color, height: "500px" })
   }

@@ -4,7 +4,7 @@ import { View } from "@dlightjs/dlight"
 class InlineHandler {
   color = "red"
 
-  View() {
+  Body() {
     button("Hover Me!")
       .style({ backgroundColor: this.color })
       .onMouseEnter(() => {

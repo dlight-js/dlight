@@ -5,7 +5,7 @@ import ChildComp from "./ChildComp.view"
 class RootComp {
   textColor = "red"
 
-  View() {
+  Body() {
     env().textColor(this.textColor)
     {
       div("I am a parent component")

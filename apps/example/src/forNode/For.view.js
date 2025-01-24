@@ -4,7 +4,7 @@ import { View } from "@dlightjs/dlight"
 class For {
   fruitsList = ["apple", "banana", "orange"]
 
-  View() {
+  Body() {
     h2("Fruits:")
     ul()
     {

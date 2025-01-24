@@ -2,7 +2,7 @@ import { View } from "@dlightjs/dlight"
 
 @View
 class InlineStyle {
-  View() {
+  Body() {
     div("I am a red text")
       .style({ color: "red", fontWeight: "bold" })
   }

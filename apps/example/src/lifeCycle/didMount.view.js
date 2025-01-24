@@ -8,7 +8,7 @@ class DidMount {
     this.name = "Cindy"
   }
 
-  View() {
+  Body() {
     div(`hello ${this.name}!`)
   }
 }

@@ -5,7 +5,7 @@ class BeautifulButton {
   @Content content = ""
   @Prop onclick = undefined
 
-  View() {
+  Body() {
     button(this.content)
       .style({ fontWeight: "bold", borderWidth: "0px", padding: "10px 10px", margin: "10px", borderRadius: "10px", color: "orange" })
       .onclick(this.onclick)
@@ -16,7 +16,7 @@ class BeautifulButton {
 class ContentView {
   count = 0
 
-  View() {
+  Body() {
     h2(`Count: ${this.count}`)
     BeautifulButton("Add")
       .onclick(() => {

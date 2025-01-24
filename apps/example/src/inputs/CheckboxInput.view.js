@@ -4,7 +4,7 @@ import { View } from "@dlightjs/dlight"
 class CheckboxInput {
   choices = []
 
-  View() {
+  Body() {
     div("Choose your favorite fruits:")
     for (const fruit of ["apple", "banana", "strawberry"]) {
       div()

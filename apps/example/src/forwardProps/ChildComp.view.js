@@ -4,7 +4,7 @@ import { View } from "@dlightjs/dlight"
 class SubComp {
   @Prop isHappy = true
 
-  View() {
+  Body() {
     div(`I am ${this.isHappy ? "happy" : "sad"}!`)
   }
 }
@@ -14,7 +14,7 @@ class SubComp {
 class ChildComp {
   @Prop name = "John"
 
-  View() {
+  Body() {
     div(`I am the child ${this.name}!`)
       .forwardProps()
     SubComp()

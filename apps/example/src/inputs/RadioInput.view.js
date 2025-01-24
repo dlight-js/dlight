@@ -4,7 +4,7 @@ import { View } from "@dlightjs/dlight"
 class RadioInput {
   choice = ""
 
-  View() {
+  Body() {
     div("Choose your favorite fruit:")
     for (const fruit of ["apple", "banana", "strawberry"]) {
       div()

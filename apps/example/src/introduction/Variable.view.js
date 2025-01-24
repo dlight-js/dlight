@@ -5,7 +5,7 @@ import { View } from "@dlightjs/dlight"
 class Variable {
   name = "John"
 
-  View() {
+  Body() {
     div(`Hello ${this.name}!`)
   }
 }
