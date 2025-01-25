@@ -19,6 +19,9 @@
     "ignoreDeprecations": "5.0",
     "declaration": false
   },
+  "include": [
+    "src/**/*"
+  ],
   "ts-node": {
     "esm": true
   }

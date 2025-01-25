@@ -19,7 +19,8 @@
   "typings": "dist/index.d.ts",
   "scripts": {
     "build": "tsup --sourcemap",
-    "test": "vitest --ui"
+    "test": "vitest --ui",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@dlightjs/error-handler": "workspace:*",
