@@ -28,7 +28,6 @@
   },
   "devDependencies": {
     "@types/babel__core": "^7.20.5",
-    "typescript": "^5.3.2",
     "vite": "^4.4.9"
   },
   "tsup": {

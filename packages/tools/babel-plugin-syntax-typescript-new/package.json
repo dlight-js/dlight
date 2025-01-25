@@ -24,9 +24,6 @@
   "dependencies": {
     "@babel/helper-plugin-utils": "^7.22.5"
   },
-  "devDependencies": {
-    "typescript": "^4.5.2"
-  },
   "tsup": {
     "entry": [
       "src/index.ts"
