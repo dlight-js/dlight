@@ -1,6 +1,6 @@
 {
   "name": "@dlightjs/reactivity-parser",
-  "version": "1.0.0-next.5",
+  "version": "1.0.0",
   "description": "DLight reactivity parser given View Units",
   "author": {
     "name": "IanDx",
