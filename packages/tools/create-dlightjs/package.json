@@ -19,7 +19,8 @@
     "create-dlightjs": "./dist/index.js"
   },
   "scripts": {
-    "build": "tsup --sourcemap"
+    "build": "tsup --sourcemap",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@inquirer/prompts": "^1.2.3",
