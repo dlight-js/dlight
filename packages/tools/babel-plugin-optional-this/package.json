@@ -21,7 +21,6 @@
     "build": "tsup --sourcemap"
   },
   "devDependencies": {
-    "@babel/types": "^7.20.7",
-    "tsup": "^6.5.0"
+    "@babel/types": "^7.20.7"
   }
 }
