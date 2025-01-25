@@ -29,5 +29,6 @@ import Expression from "./expression/Expression.view"
 import PropViewClass from "./propView/PropView.view"
 import CheckboxInput from "./inputs/CheckboxInput.view"
 import CompElement from "./element/CompElement.view"
+import Svg from "./introduction/Svg.view"
 
-render("main", RootComp)
+render("main", Svg)
