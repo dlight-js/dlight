@@ -57,9 +57,6 @@ importers:
         specifier: workspace:*
         version: link:../../packages/core/dlight
     devDependencies:
-      typescript:
-        specifier: ^5.2.2
-        version: 5.7.3
       vite:
         specifier: ^6.0.11
         version: 6.0.11(@types/node@20.17.14)
@@ -91,9 +88,6 @@ importers:
         specifier: workspace:*
         version: link:../../packages/core/babel-preset-dlight
     devDependencies:
-      typescript:
-        specifier: ^5.2.2
-        version: 5.7.3
       vite:
         specifier: ^6.0.11
         version: 6.0.11(@types/node@20.17.14)
@@ -147,9 +141,6 @@ importers:
       '@types/node':
         specifier: ^20.10.5
         version: 20.17.14
-      typescript:
-        specifier: ^5.3.2
-        version: 5.7.3
 
   packages/core/dlight:
     dependencies:
@@ -184,9 +175,6 @@ importers:
       '@vitest/ui':
         specifier: ^0.34.5
         version: 0.34.7(vitest@0.34.6)
-      typescript:
-        specifier: ^5.3.2
-        version: 5.7.3
       vitest:
         specifier: ^0.34.5
         version: 0.34.6(@vitest/ui@0.34.7)
@@ -209,9 +197,6 @@ importers:
       '@types/node':
         specifier: ^20.10.5
         version: 20.17.14
-      typescript:
-        specifier: ^5.3.2
-        version: 5.7.3
 
   packages/core/transpiler/view-parser:
     dependencies:
@@ -228,9 +213,6 @@ importers:
       '@vitest/ui':
         specifier: ^0.34.5
         version: 0.34.7(vitest@0.34.6)
-      typescript:
-        specifier: ^5.3.2
-        version: 5.7.3
       vitest:
         specifier: ^0.34.5
         version: 0.34.6(@vitest/ui@0.34.7)
@@ -246,10 +228,6 @@ importers:
       '@babel/helper-plugin-utils':
         specifier: ^7.22.5
         version: 7.26.5
-    devDependencies:
-      typescript:
-        specifier: ^4.5.2
-        version: 4.9.5
 
   packages/tools/create-dlightjs:
     dependencies:
@@ -260,11 +238,7 @@ importers:
         specifier: ^3.3.2
         version: 3.3.2
 
-  packages/tools/error-handler:
-    devDependencies:
-      typescript:
-        specifier: ^5.3.2
-        version: 5.7.3
+  packages/tools/error-handler: {}
 
   packages/tools/eslint-plugin-dlight: {}
 
@@ -283,9 +257,6 @@ importers:
       '@types/babel__core':
         specifier: ^7.20.5
         version: 7.20.5
-      typescript:
-        specifier: ^5.3.2
-        version: 5.7.3
       vite:
         specifier: ^4.4.9
         version: 4.5.5(@types/node@20.17.14)
@@ -305,9 +276,6 @@ importers:
       '@types/babel__core':
         specifier: ^7.20.5
         version: 7.20.5
-      typescript:
-        specifier: ^5.3.2
-        version: 5.7.3
       vite:
         specifier: ^4.4.9
         version: 4.5.5(@types/node@20.17.14)
@@ -2750,11 +2718,6 @@ packages:
   type-fest@0.8.1:
     resolution: {integrity: sha512-4dbzIzqvjtgiM5rw1k5rEHtBANKmdudhGyBEajN01fEyhaAIhsoKNy6y7+IN93IfpFtwY9iqi7kD+xwKhQsNJA==}
     engines: {node: '>=8'}
-
-  typescript@4.9.5:
-    resolution: {integrity: sha512-1FXk9E2Hm+QzZQ7z+McJiHL4NW1F2EzMu9Nq9i3zAaGqibafqYwCVU6WyWAuyQRRzOlxou8xZSyXLEN8oKj24g==}
-    engines: {node: '>=4.2.0'}
-    hasBin: true
 
   typescript@5.7.3:
     resolution: {integrity: sha512-84MVSjMEHP+FQRPy3pX9sTVV/INIex71s9TL2Gm5FG/WG1SqXeKyZ0k7/blY/4FdOzI12CBy1vGc4og/eus0fw==}
@@ -5457,8 +5420,6 @@ snapshots:
   type-fest@0.6.0: {}
 
   type-fest@0.8.1: {}
-
-  typescript@4.9.5: {}
 
   typescript@5.7.3: {}
 

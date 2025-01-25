@@ -27,7 +27,6 @@
     "@babel/core": "^7.20.12",
     "@types/babel__core": "^7.20.5",
     "@types/node": "^20.10.5",
-    "typescript": "^5.3.2",
     "@dlightjs/reactivity-parser": "workspace:*"
   },
   "tsup": {
