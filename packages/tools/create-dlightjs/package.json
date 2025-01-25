@@ -21,9 +21,6 @@
   "scripts": {
     "build": "tsup --sourcemap"
   },
-  "devDependencies": {
-    "tsup": "^6.5.0"
-  },
   "dependencies": {
     "@inquirer/prompts": "^1.2.3",
     "node-fetch": "^3.3.2"
