@@ -57,6 +57,18 @@
         "bug",
         "content"
       ]
+    },
+    {
+      "login": "canadaduane",
+      "name": "Duane Johnson",
+      "avatar_url": "https://avatars.githubusercontent.com/u/129?v=4",
+      "profile": "https://www.relm.us",
+      "contributions": [
+        "code",
+        "ideas",
+        "doc",
+        "maintenance"
+      ]
     }
   ],
   "contributorsPerLine": 7,
