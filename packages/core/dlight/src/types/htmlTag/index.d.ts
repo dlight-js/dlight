@@ -55,6 +55,68 @@ export type DLightSvgTagFunc<T = SVGElement, G = object> = (
   innerText?: string | number | ((View: never) => void)
 ) => DLightSVGAttributesFunc<PropertyWithEvent<OmitIndexSignature<T>>, G, T>
 
+type SVGPresentationAttrs = {
+  alignmentBaseline: string
+  baselineShift: string
+  clip: string
+  clipPath: string
+  clipRule: string
+  color: string
+  colorInterpolation: string
+  colorInterpolationFilters: string
+  colorProfile: string
+  colorRendering: string
+  cursor: string
+  direction: string
+  display: string
+  dominantBaseline: string
+  enableBackground: string
+  fill: string
+  fillOpacity: string
+  fillRule: string
+  filter: string
+  floodColor: string
+  floodOpacity: string
+  fontFamily: string
+  fontSize: string | number
+  fontSizeAdjust: string
+  fontStretch: string
+  fontStyle: string
+  fontVariant: string
+  fontWeight: string
+  glyphOrientationHorizontal: string
+  glyphOrientationVertical: string
+  imageRendering: string
+  kerning: string
+  letterSpacing: string
+  lightingColor: string
+  markerEnd: string
+  markerMid: string
+  markerStart: string
+  mask: string
+  opacity: string | number
+  overflow: string
+  pointerEvents: string
+  shapeRendering: string
+  stopColor: string
+  stopOpacity: string
+  stroke: string
+  strokeDasharray: string
+  strokeDashoffset: string
+  strokeLinecap: string
+  strokeLinejoin: string
+  strokeMiterlimit: string
+  strokeOpacity: string
+  strokeWidth: string | number
+  textAnchor: string
+  textDecoration: string
+  textRendering: string
+  unicodeBidi: string
+  visibility: string
+  wordSpacing: string
+  writingMode: string
+}
+
 export const a: DLightHtmlTagFunc<HTMLAnchorElement>
 export const abbr: DLightHtmlTagFunc
 export const address: DLightHtmlTagFunc
@@ -198,11 +260,11 @@ export const xmp: DLightHtmlTagFunc<HTMLPreElement>
 export const animate: DLightSvgTagFunc<SVGAnimateElement>
 export const animateMotion: DLightSvgTagFunc<SVGAnimateMotionElement>
 export const animateTransform: DLightSvgTagFunc<SVGAnimateTransformElement>
-export const circle: DLightSvgTagFunc<SVGCircleElement>
+export const circle: DLightSvgTagFunc<SVGCircleElement & SVGPresentationAttrs>
 export const clipPath: DLightSvgTagFunc<SVGClipPathElement>
 export const defs: DLightSvgTagFunc<SVGDefsElement>
 export const desc: DLightSvgTagFunc<SVGDescElement>
-export const ellipse: DLightSvgTagFunc<SVGEllipseElement>
+export const ellipse: DLightSvgTagFunc<SVGEllipseElement & SVGPresentationAttrs>
 export const feBlend: DLightSvgTagFunc<SVGFEBlendElement>
 export const feColorMatrix: DLightSvgTagFunc<SVGFEColorMatrixElement>
 export const feComponentTransfer: DLightSvgTagFunc<SVGFEComponentTransferElement>
@@ -232,33 +294,31 @@ export const filter: DLightSvgTagFunc<SVGFilterElement>
 export const foreignObject: DLightSvgTagFunc<SVGForeignObjectElement>
 export const g: DLightSvgTagFunc<SVGGElement>
 export const image: DLightSvgTagFunc<SVGImageElement>
-export const line: DLightSvgTagFunc<SVGLineElement>
+export const line: DLightSvgTagFunc<SVGLineElement & SVGPresentationAttrs>
 export const linearGradient: DLightSvgTagFunc<SVGLinearGradientElement>
 export const marker: DLightSvgTagFunc<SVGMarkerElement>
 export const mask: DLightSvgTagFunc<SVGMaskElement>
 export const metadata: DLightSvgTagFunc<SVGMetadataElement>
 export const mpath: DLightSvgTagFunc<SVGMPathElement>
-export const path: DLightSvgTagFunc<SVGPathElement & { d: string }>
+export const path: DLightSvgTagFunc<
+  SVGPathElement & SVGPresentationAttrs & { d: string }
+>
 export const pattern: DLightSvgTagFunc<SVGPatternElement>
-export const polygon: DLightSvgTagFunc<SVGPolygonElement>
-export const polyline: DLightSvgTagFunc<SVGPolylineElement>
+export const polygon: DLightSvgTagFunc<SVGPolygonElement & SVGPresentationAttrs>
+export const polyline: DLightSvgTagFunc<
+  SVGPolylineElement & SVGPresentationAttrs
+>
 export const radialGradient: DLightSvgTagFunc<SVGRadialGradientElement>
-export const rect: DLightSvgTagFunc<SVGRectElement>
+export const rect: DLightSvgTagFunc<SVGRectElement & SVGPresentationAttrs>
 export const set: DLightSvgTagFunc<SVGSetElement>
 export const stop: DLightSvgTagFunc<SVGStopElement>
-export const svg: DLightSvgTagFunc<
-  SVGSVGElement & {
-    fill: string
-    stroke: string
-    strokeWidth: string | number
-    strokeLinecap: string
-    strokeLinejoin: string
-  }
->
+export const svg: DLightSvgTagFunc<SVGSVGElement & SVGPresentationAttrs>
 export const switch_: DLightSvgTagFunc<SVGSwitchElement>
 export const symbol: DLightSvgTagFunc<SVGSymbolElement>
-export const text: DLightSvgTagFunc<SVGTextElement>
-export const textPath: DLightSvgTagFunc<SVGTextPathElement>
+export const text: DLightSvgTagFunc<SVGTextElement & SVGPresentationAttrs>
+export const textPath: DLightSvgTagFunc<
+  SVGTextPathElement & SVGPresentationAttrs
+>
 export const tspan: DLightSvgTagFunc<SVGTSpanElement>
 // export const use: DLightSvgTagFunc<SVGUseElement>
 export const view: DLightSvgTagFunc<SVGViewElement>

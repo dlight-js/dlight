@@ -43,7 +43,11 @@ type CustomCSSProperties = {
 }
 
 type ReplaceSVGProperties<T> = {
-  [K in keyof T]: T[K] extends SVGAnimatedLength ? T[K] | number : T[K] | string
+  [K in keyof T]: T[K] extends SVGAnimatedLength
+    ? T[K] | number
+    : T[K] extends SVGAnimatedLengthList
+      ? T[K] | number
+      : T[K] | string
 }
 
 export type SVGAttributes<T> = ReplaceSVGProperties<OmitFunction<T>>
