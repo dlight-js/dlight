@@ -2,6 +2,68 @@ import { type types as t } from "@babel/core"
 import { type HTMLParticle } from "@dlightjs/reactivity-parser"
 import HTMLPropGenerator from "../HelperGenerators/HTMLPropGenerator"
 
+const svgTags = [
+  "animate",
+  "animateMotion",
+  "animateTransform",
+  "circle",
+  "clipPath",
+  "defs",
+  "desc",
+  "ellipse",
+  "feBlend",
+  "feColorMatrix",
+  "feComponentTransfer",
+  "feComposite",
+  "feConvolveMatrix",
+  "feDiffuseLighting",
+  "feDisplacementMap",
+  "feDistantLight",
+  "feDropShadow",
+  "feFlood",
+  "feFuncA",
+  "feFuncB",
+  "feFuncG",
+  "feFuncR",
+  "feGaussianBlur",
+  "feImage",
+  "feMerge",
+  "feMergeNode",
+  "feMorphology",
+  "feOffset",
+  "fePointLight",
+  "feSpecularLighting",
+  "feSpotLight",
+  "feTile",
+  "feTurbulence",
+  "filter",
+  "foreignObject",
+  "g",
+  "image",
+  "line",
+  "linearGradient",
+  "marker",
+  "mask",
+  "metadata",
+  "mpath",
+  "path",
+  "pattern",
+  "polygon",
+  "polyline",
+  "radialGradient",
+  "rect",
+  "set",
+  "stop",
+  "svg",
+  "switch",
+  "symbol",
+  "text",
+  "textPath",
+  "tspan",
+  "use",
+  "view",
+]
+
 export default class HTMLGenerator extends HTMLPropGenerator {
   run() {
     const { tag, props, children } = this.viewParticle as HTMLParticle
@@ -63,15 +125,23 @@ export default class HTMLGenerator extends HTMLPropGenerator {
   /**
    * @View
    * ${dlNodeName} = createElement(${tag})
+   * or
+   * ${dlNodeName} = createSVGElement(${tag})
    */
   private declareHTMLNode(dlNodeName: string, tag: t.Expression): t.Statement {
     return this.t.expressionStatement(
       this.t.assignmentExpression(
         "=",
         this.t.identifier(dlNodeName),
-        this.t.callExpression(this.t.identifier(this.importMap.createElement), [
-          tag,
-        ])
+        tag.type === "StringLiteral" && svgTags.includes(tag.value)
+          ? this.t.callExpression(
+              this.t.identifier(this.importMap.createSVGElement),
+              [tag]
+            )
+          : this.t.callExpression(
+              this.t.identifier(this.importMap.createElement),
+              [tag]
+            )
       )
     )
   }
