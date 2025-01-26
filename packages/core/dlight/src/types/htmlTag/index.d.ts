@@ -274,7 +274,9 @@ export const feDiffuseLighting: DLightSvgTagFunc<SVGFEDiffuseLightingElement>
 export const feDisplacementMap: DLightSvgTagFunc<SVGFEDisplacementMapElement>
 export const feDistantLight: DLightSvgTagFunc<SVGFEDistantLightElement>
 export const feDropShadow: DLightSvgTagFunc<SVGFEDropShadowElement>
-export const feFlood: DLightSvgTagFunc<SVGFEFloodElement>
+export const feFlood: DLightSvgTagFunc<
+  SVGFEFloodElement & { floodColor: string }
+>
 export const feFuncA: DLightSvgTagFunc<SVGFEFuncAElement>
 export const feFuncB: DLightSvgTagFunc<SVGFEFuncBElement>
 export const feFuncG: DLightSvgTagFunc<SVGFEFuncGElement>
@@ -282,7 +284,9 @@ export const feFuncR: DLightSvgTagFunc<SVGFEFuncRElement>
 export const feGaussianBlur: DLightSvgTagFunc<SVGFEGaussianBlurElement>
 export const feImage: DLightSvgTagFunc<SVGFEImageElement>
 export const feMerge: DLightSvgTagFunc<SVGFEMergeElement>
-export const feMergeNode: DLightSvgTagFunc<SVGFEMergeNodeElement>
+export const feMergeNode: DLightSvgTagFunc<
+  SVGFEMergeNodeElement & { in: string }
+>
 export const feMorphology: DLightSvgTagFunc<SVGFEMorphologyElement>
 export const feOffset: DLightSvgTagFunc<SVGFEOffsetElement>
 export const fePointLight: DLightSvgTagFunc<SVGFEPointLightElement>
