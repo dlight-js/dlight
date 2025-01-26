@@ -124,7 +124,7 @@ export class CompNode extends DLNode {
         else node._$setProp(key, () => value, deps)
         return
       }
-      if (node instanceof HTMLElement) {
+      if (node instanceof HTMLElement || node instanceof SVGElement) {
         if (isContent) key = "textContent"
         forwardHTMLProp(node, key, () => value, deps)
       }
