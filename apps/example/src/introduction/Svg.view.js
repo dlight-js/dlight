@@ -1,3 +1,5 @@
+// @ts-check
+/// <reference types="@dlightjs/dlight/global" />
 import { View } from "@dlightjs/dlight"
 
 @View
@@ -5,17 +7,17 @@ class Reactivity {
   rotationAngle = 0
 
   Body() {
+    img().width(10)
+
     svg()
-      .xmlns("http://www.w3.org/2000/svg")
-      .width("100")
-      .height("100")
       .viewBox("0 0 24 24")
+      .width(100)
+      .height(100)
       .fill("none")
       .stroke("currentColor")
       .strokeWidth("2")
       .strokeLinecap("round")
       .strokeLinejoin("round")
-      .class("lucide lucide-biceps-flexed")
     {
       g().transform(
         `translate(-12 12) rotate(${this.rotationAngle} 12 12) translate(12 -12)`
@@ -26,10 +28,10 @@ class Reactivity {
       }
     }
 
-    button("<").onclick(() => {
+    button("<").onClick(() => {
       this.rotationAngle -= 10
     })
-    button(">").onclick(() => {
+    button(">").onClick(() => {
       this.rotationAngle += 10
     })
   }
