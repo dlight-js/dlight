@@ -13,19 +13,27 @@ type SetterFunction<T, K extends keyof T> = K extends OptionalKeys<T>
 	: // Replace with fn having required param if property was required
 		(value: T[K]) => TransformInstance<T>;
 
-type TransformInstance<T> = {
-	// Strip optionality (`-?`) of properties
-	[K in keyof T]-?: T[K] extends AnyFn
-		? T[K] // Keep methods unchanged
-		: SetterFunction<T, K>; // Transform properties into setter functions
+/**
+ * Build a transformed type for T, but exclude the property keys in `Excluded`.
+ * - If key is in `Excluded`, we map it to `never`.
+ * - If a property is a method, keep it as is.
+ * - Otherwise, transform it to a chainable setter function.
+ */
+type TransformInstance<T, Excluded extends keyof T = never> = {
+	[K in keyof T as K extends Excluded ? never : K]-?: T[K] extends AnyFn
+		? T[K] // Keep methods
+		: K extends OptionalKeys<T>
+			? (value?: T[K]) => TransformInstance<T, Excluded> // optional
+			: (value: T[K]) => TransformInstance<T, Excluded>; // required
 };
 
-function component<C extends AnyClass>(
+function component<C extends AnyClass, E extends keyof InstanceType<C> = never>(
 	Class: C,
-): (...args: ConstructorParameters<C>) => TransformInstance<InstanceType<C>> {
+	_excludeKeys?: E[],
+) {
 	return (...args: ConstructorParameters<C>) => {
 		const instance = new Class(...args);
-		return new Proxy({} as TransformInstance<InstanceType<C>>, {
+		return new Proxy({} as TransformInstance<InstanceType<C>, E>, {
 			get(_, prop: PropertyKey, receiver) {
 				if (typeof instance[prop] === "function") {
 					return instance[prop].bind(instance); // Forward methods
@@ -57,7 +65,7 @@ const Greet = component(
 			}
 		}
 	},
+	["body", "links"],
 );
 
 const g = Greet(["hello"]).name("KJ");
-// g.body();
