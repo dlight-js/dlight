@@ -1,56 +1,43 @@
-type RequiredKeys<T> = {
-	[K in keyof T]-?: undefined extends T[K] ? never : K;
+type AnyClass = new (...args: any[]) => any;
+type AnyFn = (...args: any[]) => any;
+
+/** Extracts the keys of T that are declared optional. */
+type OptionalKeys<T> = {
+	[K in keyof T]-?: T extends Record<K, T[K]> ? never : K;
 }[keyof T];
 
-type OptionalKeys<T> = Exclude<keyof T, RequiredKeys<T>>;
+/** Utility type for the setter functions. */
+type SetterFunction<T, K extends keyof T> = K extends OptionalKeys<T>
+	? // Replace with fn having optional param if property was optional
+		(value?: T[K]) => TransformInstance<T>
+	: // Replace with fn having required param if property was required
+		(value: T[K]) => TransformInstance<T>;
 
-type DataKeys<T> = {
-	[K in keyof T]: T[K] extends (...args: any[]) => any ? never : K;
-}[keyof T];
+type TransformInstance<T> = {
+	// Strip optionality (`-?`) of properties
+	[K in keyof T]-?: T[K] extends AnyFn
+		? T[K] // Keep methods unchanged
+		: SetterFunction<T, K>; // Transform properties into setter functions
+};
 
-type RequiredDataKeys<T> = DataKeys<Pick<T, RequiredKeys<T>>>;
-type OptionalDataKeys<T> = DataKeys<Pick<T, OptionalKeys<T>>>;
-
-type PropsFor<T> = Pick<T, RequiredDataKeys<T>> &
-	Partial<Pick<T, OptionalDataKeys<T>>>;
-
-/**
- * We need a small helper type: "Are all properties of T optional (or is T empty)?"
- * If making T partial doesn't change it, then T must already have no required keys.
- */
-type AllOptionalOrEmpty<T> = [Partial<T>, T] extends [T, T] ? true : false;
-
-type ComponentArgs<C extends new (...args: any[]) => any> = AllOptionalOrEmpty<
-	PropsFor<InstanceType<C>>
-> extends true
-	? // case 1: T is all-optional => second argument can be omitted or passed
-		[props?: PropsFor<InstanceType<C>>]
-	: // case 2: T has required props => second argument is mandatory
-		[props: PropsFor<InstanceType<C>>];
-
-function component<C extends new (...args: any[]) => any>(
+function component<C extends AnyClass>(
 	Class: C,
-): (...args: ComponentArgs<C>) => InstanceType<C> {
-	return (...args: ComponentArgs<C>) => {
-		const instance = new Class();
-		Object.assign(instance, args[0]);
-		return instance;
+): (...args: ConstructorParameters<C>) => TransformInstance<InstanceType<C>> {
+	return (...args: ConstructorParameters<C>) => {
+		const instance = new Class(...args);
+		return new Proxy({} as TransformInstance<InstanceType<C>>, {
+			get(_, prop: PropertyKey, receiver) {
+				if (typeof instance[prop] === "function") {
+					return instance[prop].bind(instance); // Forward methods
+				}
+				return (value: unknown) => {
+					instance[prop] = value;
+					return receiver;
+				};
+			},
+		});
 	};
 }
-
-const Simple = component(
-	class SimpleClass {
-		name: string;
-		prefix?: string;
-
-		body() {
-			console.log(this.prefix);
-		}
-	},
-);
-
-const s = Simple({ name: "hello" });
-s.body();
 
 const Greet = component(
 	class GreetClass {
@@ -60,15 +47,17 @@ const Greet = component(
 
 		#greeting = "hi";
 
+		constructor(public links: string[]) {}
+
 		body() {
 			for (let i = 0; i < this.times; i++) {
 				console.log(
-					[this.#greeting, this.prefix, this.name].filter((n) => n).join(" "),
+					[this.#greeting, this.prefix, this.name].filter(Boolean).join(" "),
 				);
 			}
 		}
 	},
 );
 
-const g = Greet({ name: "Kelty", times: 2 });
-g.body();
+const g = Greet(["hello"]).name("KJ");
+// g.body();
