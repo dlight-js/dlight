@@ -1,0 +1,44 @@
+{
+  "name": "@dlightjs/bun-plugin",
+  "version": "0.1.0",
+  "description": "DLight transpiler as Bun build plugin",
+  "author": {
+    "name": "Duane Johnson",
+    "email": "duane.johnson@gmail.com"
+  },
+  "keywords": [
+    "dlight.js",
+    "bun-plugin"
+  ],
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup --sourcemap",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@babel/core": "^7.20.12",
+    "babel-preset-dlight": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/babel__core": "^7.20.5",
+    "@types/bun": "^1.2.1"
+  },
+  "tsup": {
+    "entry": [
+      "src/index.ts"
+    ],
+    "format": [
+      "esm"
+    ],
+    "clean": true,
+    "dts": true,
+    "minify": true
+  }
+}
