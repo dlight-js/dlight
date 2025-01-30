@@ -16,7 +16,11 @@
     "@dlightjs/error-handler": "1.0.0-alpha.0",
     "eslint-plugin-dlight": "1.0.0-alpha.0",
     "vite-plugin-dlight": "1.0.0-next.0",
-    "vite-plugin-dlight-js": "1.0.0-alpha.0"
+    "vite-plugin-dlight-js": "1.0.0-alpha.0",
+    "@dlightjs/todomvc-app": "0.0.0",
+    "@dlightjs/dev-app": "0.0.0",
+    "@dlightjs/example-app": "0.0.0",
+    "@dlightjs/bun-plugin": "0.1.0"
   },
   "changesets": [
     "afraid-paws-protect",
@@ -43,7 +47,6 @@
     "cool-apricots-cheer",
     "cuddly-islands-deliver",
     "curly-rabbits-try",
-    "curvy-onions-appear",
     "cyan-pets-attend",
     "dry-cobras-perform",
     "dull-ads-rule",
@@ -79,7 +82,6 @@
     "kind-lobsters-accept",
     "large-ghosts-breathe",
     "large-onions-bake",
-    "large-phones-dress",
     "large-rice-double",
     "lazy-countries-build",
     "lemon-hounds-call",
