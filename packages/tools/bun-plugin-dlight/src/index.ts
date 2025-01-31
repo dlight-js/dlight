@@ -6,9 +6,9 @@ export const dlightPlugin = ({
   filter = /\.(view|model)\.[tj]s$/,
   options = {},
 }: {
-  filter: RegExp
-  options: DLightOption
-}): BunPlugin => ({
+  filter?: RegExp
+  options?: DLightOption
+} = {}): BunPlugin => ({
   name: "bun-plugin-dlight",
   setup(build) {
     build.onLoad({ filter }, async args => {
