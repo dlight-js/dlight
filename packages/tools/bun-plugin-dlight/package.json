@@ -1,6 +1,6 @@
 {
   "name": "bun-plugin-dlight",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "DLight transpiler as Bun build plugin",
   "author": {
     "name": "Duane Johnson",

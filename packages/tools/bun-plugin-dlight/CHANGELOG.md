@@ -1,5 +1,11 @@
 # bun-plugin-dlight
 
+## 0.4.0
+
+### Minor Changes
+
+- 9a5d2fd: Fix optional params can be passed to dlightPlugin
+
 ## 0.3.0
 
 ### Minor Changes
