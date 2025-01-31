@@ -1,5 +1,9 @@
 # @dlightjs/view-parser
 
+## 1.0.0
+
+- Released
+
 ## 1.0.0-next.2
 
 ### Patch Changes
