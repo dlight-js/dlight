@@ -4,6 +4,8 @@
 
 `bun-plugin-dlight` is a **Bun.build plugin** that enables seamless transpilation of DLight views and models in your Bun-powered web app. It allows you to compile `.view.js` and `.view.ts` files effortlessly, integrating DLight components into your project without extra configuration.
 
+See [bun-static-server](../../../apps/bun-static-server/) as a reference app.
+
 ## Features
 
 - 🏗 **Automatic DLight transpilation** – No need for manual builds.
