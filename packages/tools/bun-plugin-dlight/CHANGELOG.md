@@ -1,4 +1,4 @@
-# dlight-bun-plugin
+# bun-plugin-dlight
 
 ## 0.2.0
 

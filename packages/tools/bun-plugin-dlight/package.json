@@ -1,5 +1,5 @@
 {
-  "name": "dlight-bun-plugin",
+  "name": "bun-plugin-dlight",
   "version": "0.2.0",
   "description": "DLight transpiler as Bun build plugin",
   "author": {
