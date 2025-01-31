@@ -20,7 +20,6 @@
   },
   "devDependencies": {
     "vite": "^6.0.11",
-    "vite-plugin-dlight": "workspace:*",
-    "vite-plugin-dlight-js": "workspace:*"
+    "vite-plugin-dlight": "workspace:*"
   }
 }
