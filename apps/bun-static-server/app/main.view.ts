@@ -6,22 +6,22 @@ export default class App {
   count = 0
 
   Body() {
-    div().class()
+    div()
     {
-      div().class()
+      div()
       {
         p()
         {
-          span('D').class()
-          span('Light').class()
+          span('D')
+          span('Light')
         }
-        p('DX-First UI').class()
+        p('DX-First UI')
         p('Rendering Library')
       }
-      div().class()
+      div()
       {
-        p(this.count).class()
-        div().class()
+        p(this.count)
+        div()
         {
           button('count ++').onClick(() => {
             this.count++
