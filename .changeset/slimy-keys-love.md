@@ -1,5 +1,0 @@
----
-"@dlightjs/dlight": patch
----
-
-build

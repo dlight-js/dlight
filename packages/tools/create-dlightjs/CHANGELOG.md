@@ -1,5 +1,9 @@
 # create-dlightjs
 
+## 1.0.0
+
+- Released
+
 ## 1.0.0-next.1
 
 ### Patch Changes

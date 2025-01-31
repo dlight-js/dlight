@@ -1,5 +1,9 @@
 # vite-plugin-dlight
 
+## 1.0.0
+
+- Released
+
 ## 1.0.0-next.6
 
 ### Patch Changes
