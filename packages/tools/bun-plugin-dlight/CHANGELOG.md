@@ -1,5 +1,11 @@
 # bun-plugin-dlight
 
+## 0.5.0
+
+### Minor Changes
+
+- Add README
+
 ## 0.4.0
 
 ### Minor Changes
