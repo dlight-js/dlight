@@ -1,11 +1,8 @@
 import { type Properties } from "csstype"
 
 // ---- Used to determine whether X and Y are equal, return A if equal, otherwise B
-type IfEquals<X, Y, A, B> = (<T>() => T extends X ? 1 : 2) extends <
-  T,
->() => T extends Y ? 1 : 2
-  ? A
-  : B
+type IfEquals<X, Y, A, B> =
+  (<T>() => T extends X ? 1 : 2) extends <T>() => T extends Y ? 1 : 2 ? A : B
 
 export type OmitIndexSignature<ObjectType> = {
   // eslint-disable-next-line @typescript-eslint/ban-types
