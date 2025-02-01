@@ -394,9 +394,10 @@ export default class HTMLPropGenerator extends ForwardPropGenerator {
       }
       return this.setHTMLEvent(dlNodeName, eventName, value)
     }
+    if (this.alterAttributeMap[attrName]) {
+      attrName = this.alterAttributeMap[attrName]
+    }
     if (this.isInternalAttribute(tag, attrName)) {
-      if (attrName === "class") attrName = "className"
-      else if (attrName === "for") attrName = "htmlFor"
       return this.setHTMLProp(dlNodeName, attrName, value)
     }
     return this.setHTMLAttr(dlNodeName, attrName, value)
