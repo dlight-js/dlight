@@ -3,6 +3,71 @@ export const devMode = process.env.NODE_ENV === "development"
 export const alterAttributeMap = {
   class: "className",
   for: "htmlFor",
+  // SVG
+  alignmentBaseline: "alignment-baseline",
+  baselineShift: "baseline-shift",
+  colorInterpolation: "color-interpolation",
+  colorInterpolationFilters: "color-interpolation-filters",
+  colorProfile: "color-profile",
+  colorRendering: "color-rendering",
+  dominantBaseline: "dominant-baseline",
+  enableBackground: "enable-background",
+  floodColor: "flood-color",
+  floodOpacity: "flood-opacity",
+  fontFamily: "font-family",
+  fontSize: "font-size",
+  fontSizeAdjust: "font-size-adjust",
+  fontStretch: "font-stretch",
+  fontStyle: "font-style",
+  fontVariant: "font-variant",
+  fontWeight: "font-weight",
+  glyphOrientationHorizontal: "glyph-orientation-horizontal",
+  glyphOrientationVertical: "glyph-orientation-vertical",
+  imageRendering: "image-rendering",
+  letterSpacing: "letter-spacing",
+  markerEnd: "marker-end",
+  markerMid: "marker-mid",
+  markerStart: "marker-start",
+  overlinePosition: "overline-position",
+  overlineThickness: "overline-thickness",
+  pointerEvents: "pointer-events",
+  shapeRendering: "shape-rendering",
+  stopColor: "stop-color",
+  stopOpacity: "stop-opacity",
+  strikethroughPosition: "strikethrough-position",
+  strikethroughThickness: "strikethrough-thickness",
+  textAnchor: "text-anchor",
+  textDecoration: "text-decoration",
+  textRendering: "text-rendering",
+  unicodeBidi: "unicode-bidi",
+  vectorEffect: "vector-effect",
+  wordSpacing: "word-spacing",
+  writingMode: "writing-mode",
+
+  // Filters and Effects
+  filterRes: "filter-res",
+  filterUnits: "filter-units",
+  kernelUnitLength: "kernel-unit-length",
+  lightingColor: "lighting-color",
+
+  // Geometry and Path
+  strokeDasharray: "stroke-dasharray",
+  strokeDashoffset: "stroke-dashoffset",
+  strokeLinecap: "stroke-linecap",
+  strokeLinejoin: "stroke-linejoin",
+  strokeMiterlimit: "stroke-miterlimit",
+  strokeOpacity: "stroke-opacity",
+  strokeWidth: "stroke-width",
+
+  // Gradients and Patterns
+  gradientTransform: "gradientTransform",
+  gradientUnits: "gradientUnits",
+  spreadMethod: "spreadMethod",
+
+  // Clipping and Masking
+  clipPath: "clip-path",
+  clipRule: "clip-rule",
+  maskType: "mask-type",
 }
 
 export const reactivityFuncNames = [
@@ -238,6 +303,7 @@ export const dlightDefaultPackageName = "@dlightjs/dlight"
 export const importMap = Object.fromEntries(
   [
     "createElement",
+    "createSVGElement",
     "setStyle",
     "setDataset",
     "setEvent",

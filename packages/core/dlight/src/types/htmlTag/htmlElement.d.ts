@@ -42,6 +42,16 @@ type CustomCSSProperties = {
   [Key in `--${string}`]: string | number
 }
 
+type ReplaceSVGProperties<T> = {
+  [K in keyof T]: T[K] extends SVGAnimatedLength
+    ? T[K] | number
+    : T[K] extends SVGAnimatedLengthList
+      ? T[K] | number
+      : T[K] | string
+}
+
+export type SVGAttributes<T> = ReplaceSVGProperties<OmitFunction<T>>
+
 export type HTMLAttributes<T> = OmitFuncAndReadOnlyProperty<T> & {
   style: Properties & CustomCSSProperties
   class: string
