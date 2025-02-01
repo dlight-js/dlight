@@ -35,6 +35,6 @@
       "esm"
     ],
     "clean": true,
-    "minify": true
+    "minify": false
   }
 }
