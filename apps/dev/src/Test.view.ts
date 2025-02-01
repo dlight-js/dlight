@@ -1,4 +1,11 @@
-import { View, type Pretty, type Typed, Main } from "@dlightjs/dlight"
+import {
+  View,
+  type Pretty,
+  type Typed,
+  Main,
+  button,
+  div,
+} from "@dlightjs/dlight"
 
 interface TestProps {}
 

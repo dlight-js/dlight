@@ -7,7 +7,7 @@ class Button {
   @Prop id
   @Prop onClick
 
-  View() {
+  Body() {
     div().class("col-sm-6 smallpad")
     {
       button(this.text)
@@ -91,7 +91,7 @@ class Main {
     this.rows = [...this.rows]
   }
 
-  View() {
+  Body() {
     div().class("container")
     {
       div().class("jumbotron")

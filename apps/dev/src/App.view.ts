@@ -1,65 +1,49 @@
 import {
-  Children,
-  Content,
-  Main,
-  Model,
   Prop,
   View,
   Watch,
   button,
   div,
-  h1,
-  h2,
-  input,
-  insertChildren,
-  use,
+  render,
+  type Pretty,
+  type Typed,
 } from "@dlightjs/dlight"
-@Model
-class JJ {
-  jj = 1
-  ui() {
-    this.jj = 2
-  }
-}
+
 @View
-class DataView {
-  @Prop count
+class _DataView {
+  @Prop count: number = 0
+
   @Watch
   watcher() {
+    // @ts-expect-error intentional error
     console.log(this.count, this.count.notExist) // Error occurs here
   }
+
   Body() {}
 }
-@Main
+
+const DataView = _DataView as Pretty as Typed<_DataView>
+
 @View
-class MyComp {
-  w 
-  count = null
+export class App {
+  w: number = 0
+  count: number | null = null
+
   jj() {
     this.w = 1
   }
 
   Body() {
     try {
-      DataView().count(this.count)
-      button().onClick(() => {
+      DataView().count(this.count ?? 0)
+      button("Click Me").onClick(() => {
         this.count = null
       })
     } catch (e) {
-      div(e.message)
+      if (e instanceof Error) div(e.message)
+      else throw e
     }
   }
 }
 
-// @View
-// @Main
-// class App {
-//   Body() {
-//     JJ()
-//     {
-//       Fuck()
-//     }
-//   }
-// }
-
-// export default App
+render("main", App)
