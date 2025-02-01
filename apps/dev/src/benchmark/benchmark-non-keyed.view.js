@@ -46,7 +46,7 @@ class Main {
     this.rows = [...this.rows]
   }
 
-  View() {
+  Body() {
     div().class("container")
     {
       div().class("jumbotron")

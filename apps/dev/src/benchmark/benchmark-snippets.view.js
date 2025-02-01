@@ -1,4 +1,4 @@
-import { View, render } from "@dlightjs/dlight"
+import { View, Snippet, render } from "@dlightjs/dlight"
 import { buildData } from "./data"
 
 @View
@@ -45,7 +45,7 @@ class Main {
     this.rows = [...this.rows]
   }
 
-  @View
+  @Snippet
   Button({ content, id, onClick }) {
     div().class("col-sm-6 smallpad")
     {
@@ -53,7 +53,7 @@ class Main {
     }
   }
 
-  @View
+  @Snippet
   Jumbotron() {
     div().class("jumbotron")
     {
@@ -61,7 +61,7 @@ class Main {
       {
         div().class("col-sm-6")
         {
-          h1("DLight.js SubView (keyed)")
+          h1("DLight.js Snippets (keyed)")
         }
         div().class("col-md-6")
         {
@@ -81,7 +81,7 @@ class Main {
     }
   }
 
-  @View
+  @Snippet
   Row({ id, label }) {
     tr().class(this.selectIdx === id ? "danger" : "")
     {
@@ -101,7 +101,7 @@ class Main {
     }
   }
 
-  @View
+  @Snippet
   Table() {
     div()
     {
@@ -119,7 +119,7 @@ class Main {
     }
   }
 
-  View() {
+  Body() {
     div().class("container")
     {
       this.Jumbotron()
