@@ -1,5 +1,7 @@
 {
   "name": "bun-static-server",
+  "private": true,
+  "version": "0.0.0",
   "module": "index.ts",
   "type": "module",
   "scripts": {
