@@ -12,7 +12,7 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "@dlightjs/dlight": "^1.0.0",
+    "@dlightjs/dlight": "^1.0.1",
     "bun-plugin-dlight": "^0.5.0"
   }
 }
