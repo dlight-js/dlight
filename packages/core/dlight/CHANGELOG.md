@@ -1,5 +1,18 @@
 # @dlightjs/dlight
 
+## 1.0.1
+
+### Patch Changes
+
+- 0398c02: Don't minify the transpiled js in dist folder
+- 4814089: Consumers of DLight can use ambient global types for html tags if they
+  choose. At the top of a `.view.ts` file (for example) add:
+
+  /// <reference types="@dlightjs/dlight/global" />
+
+  Then, use `div` or other html tags as desired, without having to import
+  them each individually for typescript.
+
 ## 1.0.0
 
 - Released
