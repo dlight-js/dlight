@@ -1,5 +1,9 @@
 import type { DLightGlobalEventHandlers } from "./event"
-import type { OmitIndexSignature, HTMLAttributes } from "./htmlElement"
+import type {
+  OmitIndexSignature,
+  HTMLAttributes,
+  SVGAttributes,
+} from "./htmlElement"
 
 // ---- If there is an event(start with on), remove it
 export type PropertyWithEvent<G> = Omit<
@@ -27,15 +31,91 @@ export type DLightHTMLAttributes<T, G, El> = DLightHtmlProps<El> &
   HTMLAttributes<T> &
   G
 
+export type DLightSVGAttributes<T, G, El> = DLightHtmlProps<El> &
+  SVGAttributes<T> &
+  G
+
 export type DLightHTMLAttributesFunc<T, G, El> = {
   [K in keyof DLightHTMLAttributes<T, G, El>]: (
     value?: DLightHTMLAttributes<T, G, El>[K]
   ) => Omit<DLightHTMLAttributesFunc<T, G, El>, K>
 }
 
+export type DLightSVGAttributesFunc<T, G, El> = {
+  [K in keyof DLightSVGAttributes<T, G, El>]: (
+    value?: DLightSVGAttributes<T, G, El>[K]
+  ) => Omit<DLightSVGAttributesFunc<T, G, El>, K>
+}
+
 export type DLightHtmlTagFunc<T = HTMLElement, G = object> = (
   innerText?: string | number | ((View: never) => void)
 ) => DLightHTMLAttributesFunc<PropertyWithEvent<OmitIndexSignature<T>>, G, T>
+
+export type DLightSvgTagFunc<T = SVGElement, G = object> = (
+  innerText?: string | number | ((View: never) => void)
+) => DLightSVGAttributesFunc<PropertyWithEvent<OmitIndexSignature<T>>, G, T>
+
+type SVGPresentationAttrs = {
+  alignmentBaseline: string
+  baselineShift: string
+  clip: string
+  clipPath: string
+  clipRule: string
+  color: string
+  colorInterpolation: string
+  colorInterpolationFilters: string
+  colorProfile: string
+  colorRendering: string
+  cursor: string
+  direction: string
+  display: string
+  dominantBaseline: string
+  enableBackground: string
+  fill: string
+  fillOpacity: string
+  fillRule: string
+  filter: string
+  floodColor: string
+  floodOpacity: string
+  fontFamily: string
+  fontSize: string | number
+  fontSizeAdjust: string
+  fontStretch: string
+  fontStyle: string
+  fontVariant: string
+  fontWeight: string
+  glyphOrientationHorizontal: string
+  glyphOrientationVertical: string
+  imageRendering: string
+  kerning: string
+  letterSpacing: string
+  lightingColor: string
+  markerEnd: string
+  markerMid: string
+  markerStart: string
+  mask: string
+  opacity: string | number
+  overflow: string
+  pointerEvents: string
+  shapeRendering: string
+  stopColor: string
+  stopOpacity: string
+  stroke: string
+  strokeDasharray: string
+  strokeDashoffset: string
+  strokeLinecap: string
+  strokeLinejoin: string
+  strokeMiterlimit: string
+  strokeOpacity: string
+  strokeWidth: string | number
+  textAnchor: string
+  textDecoration: string
+  textRendering: string
+  unicodeBidi: string
+  visibility: string
+  wordSpacing: string
+  writingMode: string
+}
 
 export const a: DLightHtmlTagFunc<HTMLAnchorElement>
 export const abbr: DLightHtmlTagFunc
@@ -177,62 +257,72 @@ export const spacer: DLightHtmlTagFunc<HTMLUnknownElement>
 export const strike: DLightHtmlTagFunc
 export const tt: DLightHtmlTagFunc
 export const xmp: DLightHtmlTagFunc<HTMLPreElement>
-export const animate: DLightHtmlTagFunc<SVGAnimateElement>
-export const animateMotion: DLightHtmlTagFunc<SVGAnimateMotionElement>
-export const animateTransform: DLightHtmlTagFunc<SVGAnimateTransformElement>
-export const circle: DLightHtmlTagFunc<SVGCircleElement>
-export const clipPath: DLightHtmlTagFunc<SVGClipPathElement>
-export const defs: DLightHtmlTagFunc<SVGDefsElement>
-export const desc: DLightHtmlTagFunc<SVGDescElement>
-export const ellipse: DLightHtmlTagFunc<SVGEllipseElement>
-export const feBlend: DLightHtmlTagFunc<SVGFEBlendElement>
-export const feColorMatrix: DLightHtmlTagFunc<SVGFEColorMatrixElement>
-export const feComponentTransfer: DLightHtmlTagFunc<SVGFEComponentTransferElement>
-export const feComposite: DLightHtmlTagFunc<SVGFECompositeElement>
-export const feConvolveMatrix: DLightHtmlTagFunc<SVGFEConvolveMatrixElement>
-export const feDiffuseLighting: DLightHtmlTagFunc<SVGFEDiffuseLightingElement>
-export const feDisplacementMap: DLightHtmlTagFunc<SVGFEDisplacementMapElement>
-export const feDistantLight: DLightHtmlTagFunc<SVGFEDistantLightElement>
-export const feDropShadow: DLightHtmlTagFunc<SVGFEDropShadowElement>
-export const feFlood: DLightHtmlTagFunc<SVGFEFloodElement>
-export const feFuncA: DLightHtmlTagFunc<SVGFEFuncAElement>
-export const feFuncB: DLightHtmlTagFunc<SVGFEFuncBElement>
-export const feFuncG: DLightHtmlTagFunc<SVGFEFuncGElement>
-export const feFuncR: DLightHtmlTagFunc<SVGFEFuncRElement>
-export const feGaussianBlur: DLightHtmlTagFunc<SVGFEGaussianBlurElement>
-export const feImage: DLightHtmlTagFunc<SVGFEImageElement>
-export const feMerge: DLightHtmlTagFunc<SVGFEMergeElement>
-export const feMergeNode: DLightHtmlTagFunc<SVGFEMergeNodeElement>
-export const feMorphology: DLightHtmlTagFunc<SVGFEMorphologyElement>
-export const feOffset: DLightHtmlTagFunc<SVGFEOffsetElement>
-export const fePointLight: DLightHtmlTagFunc<SVGFEPointLightElement>
-export const feSpecularLighting: DLightHtmlTagFunc<SVGFESpecularLightingElement>
-export const feSpotLight: DLightHtmlTagFunc<SVGFESpotLightElement>
-export const feTile: DLightHtmlTagFunc<SVGFETileElement>
-export const feTurbulence: DLightHtmlTagFunc<SVGFETurbulenceElement>
-export const filter: DLightHtmlTagFunc<SVGFilterElement>
-export const foreignObject: DLightHtmlTagFunc<SVGForeignObjectElement>
-export const g: DLightHtmlTagFunc<SVGGElement>
-export const image: DLightHtmlTagFunc<SVGImageElement>
-export const line: DLightHtmlTagFunc<SVGLineElement>
-export const linearGradient: DLightHtmlTagFunc<SVGLinearGradientElement>
-export const marker: DLightHtmlTagFunc<SVGMarkerElement>
-export const mask: DLightHtmlTagFunc<SVGMaskElement>
-export const metadata: DLightHtmlTagFunc<SVGMetadataElement>
-export const mpath: DLightHtmlTagFunc<SVGMPathElement>
-export const path: DLightHtmlTagFunc<SVGPathElement>
-export const pattern: DLightHtmlTagFunc<SVGPatternElement>
-export const polygon: DLightHtmlTagFunc<SVGPolygonElement>
-export const polyline: DLightHtmlTagFunc<SVGPolylineElement>
-export const radialGradient: DLightHtmlTagFunc<SVGRadialGradientElement>
-export const rect: DLightHtmlTagFunc<SVGRectElement>
-export const set: DLightHtmlTagFunc<SVGSetElement>
-export const stop: DLightHtmlTagFunc<SVGStopElement>
-export const svg: DLightHtmlTagFunc<SVGSVGElement>
-export const switch_: DLightHtmlTagFunc<SVGSwitchElement>
-export const symbol: DLightHtmlTagFunc<SVGSymbolElement>
-export const text: DLightHtmlTagFunc<SVGTextElement>
-export const textPath: DLightHtmlTagFunc<SVGTextPathElement>
-export const tspan: DLightHtmlTagFunc<SVGTSpanElement>
-// export const use: DLightHtmlTagFunc<SVGUseElement>
-export const view: DLightHtmlTagFunc<SVGViewElement>
+export const animate: DLightSvgTagFunc<SVGAnimateElement>
+export const animateMotion: DLightSvgTagFunc<SVGAnimateMotionElement>
+export const animateTransform: DLightSvgTagFunc<SVGAnimateTransformElement>
+export const circle: DLightSvgTagFunc<SVGCircleElement & SVGPresentationAttrs>
+export const clipPath: DLightSvgTagFunc<SVGClipPathElement>
+export const defs: DLightSvgTagFunc<SVGDefsElement>
+export const desc: DLightSvgTagFunc<SVGDescElement>
+export const ellipse: DLightSvgTagFunc<SVGEllipseElement & SVGPresentationAttrs>
+export const feBlend: DLightSvgTagFunc<SVGFEBlendElement>
+export const feColorMatrix: DLightSvgTagFunc<SVGFEColorMatrixElement>
+export const feComponentTransfer: DLightSvgTagFunc<SVGFEComponentTransferElement>
+export const feComposite: DLightSvgTagFunc<SVGFECompositeElement>
+export const feConvolveMatrix: DLightSvgTagFunc<SVGFEConvolveMatrixElement>
+export const feDiffuseLighting: DLightSvgTagFunc<SVGFEDiffuseLightingElement>
+export const feDisplacementMap: DLightSvgTagFunc<SVGFEDisplacementMapElement>
+export const feDistantLight: DLightSvgTagFunc<SVGFEDistantLightElement>
+export const feDropShadow: DLightSvgTagFunc<SVGFEDropShadowElement>
+export const feFlood: DLightSvgTagFunc<
+  SVGFEFloodElement & { floodColor: string }
+>
+export const feFuncA: DLightSvgTagFunc<SVGFEFuncAElement>
+export const feFuncB: DLightSvgTagFunc<SVGFEFuncBElement>
+export const feFuncG: DLightSvgTagFunc<SVGFEFuncGElement>
+export const feFuncR: DLightSvgTagFunc<SVGFEFuncRElement>
+export const feGaussianBlur: DLightSvgTagFunc<SVGFEGaussianBlurElement>
+export const feImage: DLightSvgTagFunc<SVGFEImageElement>
+export const feMerge: DLightSvgTagFunc<SVGFEMergeElement>
+export const feMergeNode: DLightSvgTagFunc<
+  SVGFEMergeNodeElement & { in: string }
+>
+export const feMorphology: DLightSvgTagFunc<SVGFEMorphologyElement>
+export const feOffset: DLightSvgTagFunc<SVGFEOffsetElement>
+export const fePointLight: DLightSvgTagFunc<SVGFEPointLightElement>
+export const feSpecularLighting: DLightSvgTagFunc<SVGFESpecularLightingElement>
+export const feSpotLight: DLightSvgTagFunc<SVGFESpotLightElement>
+export const feTile: DLightSvgTagFunc<SVGFETileElement>
+export const feTurbulence: DLightSvgTagFunc<SVGFETurbulenceElement>
+export const filter: DLightSvgTagFunc<SVGFilterElement>
+export const foreignObject: DLightSvgTagFunc<SVGForeignObjectElement>
+export const g: DLightSvgTagFunc<SVGGElement>
+export const image: DLightSvgTagFunc<SVGImageElement>
+export const line: DLightSvgTagFunc<SVGLineElement & SVGPresentationAttrs>
+export const linearGradient: DLightSvgTagFunc<SVGLinearGradientElement>
+export const marker: DLightSvgTagFunc<SVGMarkerElement>
+export const mask: DLightSvgTagFunc<SVGMaskElement>
+export const metadata: DLightSvgTagFunc<SVGMetadataElement>
+export const mpath: DLightSvgTagFunc<SVGMPathElement>
+export const path: DLightSvgTagFunc<
+  SVGPathElement & SVGPresentationAttrs & { d: string }
+>
+export const pattern: DLightSvgTagFunc<SVGPatternElement>
+export const polygon: DLightSvgTagFunc<SVGPolygonElement & SVGPresentationAttrs>
+export const polyline: DLightSvgTagFunc<
+  SVGPolylineElement & SVGPresentationAttrs
+>
+export const radialGradient: DLightSvgTagFunc<SVGRadialGradientElement>
+export const rect: DLightSvgTagFunc<SVGRectElement & SVGPresentationAttrs>
+export const set: DLightSvgTagFunc<SVGSetElement>
+export const stop: DLightSvgTagFunc<SVGStopElement>
+export const svg: DLightSvgTagFunc<SVGSVGElement & SVGPresentationAttrs>
+export const switch_: DLightSvgTagFunc<SVGSwitchElement>
+export const symbol: DLightSvgTagFunc<SVGSymbolElement>
+export const text: DLightSvgTagFunc<SVGTextElement & SVGPresentationAttrs>
+export const textPath: DLightSvgTagFunc<
+  SVGTextPathElement & SVGPresentationAttrs
+>
+export const tspan: DLightSvgTagFunc<SVGTSpanElement>
+// export const use: DLightSvgTagFunc<SVGUseElement>
+export const view: DLightSvgTagFunc<SVGViewElement>
